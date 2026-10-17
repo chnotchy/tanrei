@@ -6,7 +6,8 @@
 //
 // It was written after the fixtures stood in a table, where at 390 wide the drawing of 1953 of 2390 fixtures began
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
-// nine components was missing altogether.
+// nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page, or
+// alone in a window drawn from the web package's own document of it.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -84,7 +85,10 @@ async function measure() {
     const box = stage.getBoundingClientRect();
     if (box.left < -1 || box.right > innerWidth + 1) found.push(`${id}: its stage stands outside the window (${Math.round(box.left)}…${Math.round(box.right)} of ${innerWidth})`);
     else if (outside(box, { left: column.left, right: column.right, top: box.top, bottom: box.bottom })) found.push(`${id}: its stage stands outside the page's column`);
-    if (stage.dataset.drawn === undefined) continue;
+    if (stage.dataset.drawn === undefined) {
+      found.push(`${id}: it is not drawn`);
+      continue;
+    }
     const area = stage.querySelector('.docs-stage-box').getBoundingClientRect();
     const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('.fixture-element > *');
     if (!drawn) {
@@ -112,6 +116,47 @@ async function measure() {
     found,
   };
 }
+
+// The fixture documents the site was built with (scripts/fixture-documents.mjs): each component's stages and the size
+// of each stage's baseline.
+const documents = JSON.parse(fs.readFileSync(path.join(docs, 'src/fixture-documents.generated.json'), 'utf8'));
+
+describe('a fixture drawn alone is the one fixture its page draws, every element of it defined', { concurrency: 4 }, () => {
+  for (const [name, document] of Object.entries(documents)) {
+    // The first fixture of the component that has a baseline, in a window of the baseline's size. (Whether it fits there
+    // exactly is not asked: text set on another machine than the baselines' can take a few pixels more, and the gallery's
+    // frame grows to hold its document.)
+    const stage = document.stages.find((each) => document.sizes[each.id]);
+    if (!stage) continue;
+    test(`${name}/${stage.id}`, async () => {
+      const size = document.sizes[stage.id];
+      const context = await browser.newContext({ viewport: size, reducedMotion: 'reduce' });
+      try {
+        const page = await context.newPage();
+        await page.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(stage.id)}`, { waitUntil: 'load' });
+        const result = await page.evaluate(async (id) => {
+          const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
+          await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
+          await document.fonts.ready;
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const stages = [...document.querySelectorAll('.stage')];
+          const box = stages[0]?.getBoundingClientRect();
+          return {
+            stages: stages.map((s) => s.dataset.fixture),
+            undefined: [...tags].filter((n) => !customElements.get(n)),
+            box: box && { width: Math.round(box.width), height: Math.round(box.height) },
+            scroll: { width: document.scrollingElement.scrollWidth, height: document.scrollingElement.scrollHeight },
+            id,
+          };
+        }, stage.id);
+        assert.deepEqual(result.stages, [stage.id], 'the page draws the one fixture it is asked for');
+        assert.deepEqual(result.undefined, [], 'every element on its stage is defined');
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});
 
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {
   test('there are component pages', () => assert.ok(pages.length > 80, `found ${pages.length} component pages`));

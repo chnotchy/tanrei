@@ -29,6 +29,17 @@ describe('the gallery of fixtures', () => {
     }
   });
 
+  test('every fixture of every component the web implements is drawn', () => {
+    // A spec this site's renderer cannot draw (a class on the product's own elements, items that are native elements
+    // or nest two deep, a frame of a whole window) is drawn by the web package's harness, each fixture in a window.
+    const missing = [];
+    for (const spec of Object.values(specs)) {
+      if (!spec.platforms.web || spec.platforms.web.status === 'planned') continue;
+      for (const stage of galleryOf(spec, live(spec)).flatMap((group) => group.stages)) if (!stage.drawn) missing.push(`${spec.name}/${stage.id}`);
+    }
+    assert.deepEqual(missing, []);
+  });
+
   test('the stages are grouped by the first axis that tells the fixtures apart, in the order of its values', () => {
     const button = galleryOf(specs.button, live(specs.button));
     assert.equal(groupingAxis(specs.button)?.name, 'variant');
@@ -44,7 +55,7 @@ describe('the gallery of fixtures', () => {
         if (!stage.drawn) continue;
         const presented = liveFixture(spec, fixture).presentation !== 'none';
         assert.equal(stage.kind, presented ? 'window' : 'inline', `${spec.name}/${fixture.id}`);
-        if (presented) assert.ok(stage.window.width >= 300 && stage.window.height >= 200, `${spec.name}/${fixture.id}`);
+        if (presented) assert.ok(stage.window.width >= 100 && stage.window.height >= 40, `${spec.name}/${fixture.id}`);
       }
     }
   });
