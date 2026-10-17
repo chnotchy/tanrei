@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: b1034d18e4281850d9bf3bcfba8cacd172ce5d57
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -171,6 +171,10 @@ Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (5
 - **Un error** es `error`, que defines tú: la caja se dibuja en su estado de error y se expone como no válida. El cuadro combinado no tiene texto de error. Di con palabras qué está mal junto a él, o enmárcalo.
 - **La obligatoriedad** la dice un campo. Un cuadro combinado sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
 - **Un texto que no nombra ninguna opción** se abandona cuando la persona sale, a menos que `allowCustomValue` esté activado. Nunca es un error propio del cuadro combinado.
+
+### Los glifos de la lista
+
+El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
 
 <ComponentSpecs name="combobox" />
 
