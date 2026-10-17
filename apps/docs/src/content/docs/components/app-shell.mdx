@@ -131,6 +131,12 @@ Put one icon-only Button in the header and mark it with `data-app-shell-menu`. T
 
 The shell measures the sticky header and gives the page's scrolling view that much padding. A link to a heading, and an element that takes keyboard focus, come to rest below the header, never under it. On the web the same distance is `--tanrei-app-shell-scroll-offset` on the root, for your own sticky parts such as a table's header row. Inside a shell, leave `--tanrei-prose-scroll-offset` at 0.
 
+### What stands over what
+
+- The header and the navigation bar stand over everything that scrolls under them, the footer included. Nothing in the main region, the aside or the footer rises over them, whatever its `z-index`: each region stacks what it holds inside itself.
+- Menus, popovers, tooltips, snackbars, dialogs and sheets stand over the whole frame. Tanrei's draw themselves there: on the web, in the browser's top layer. Draw an overlay of your own the same way, as a `popover` or a `<dialog>` opened with `showModal()`, never with a large `z-index`.
+- On the web the frame is a stacking context of its own, so no level inside it competes with what your page draws outside it.
+
 ### The main region's width
 
 - `mainWidth: contained` (default) keeps the content no wider than 768 and centres it in its room. Use it for pages that are read.

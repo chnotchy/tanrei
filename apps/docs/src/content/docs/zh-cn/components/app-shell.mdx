@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: 2ff9e4348ad75d75ba89e58f897847dad7e29cb1
+sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,6 +132,12 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 ### 指向标题的链接停在页眉下方
 
 外壳会测量粘性页眉，并给页面的滚动视图留出同样大小的内边距。指向标题的链接，以及获得键盘焦点的元素，都停在页眉的下方，绝不会被它盖住。在 Web 上，同一段距离也是根元素上的 `--tanrei-app-shell-scroll-offset`，供你自己的粘性部分使用，例如表格的表头行。在外壳里，请让 `--tanrei-prose-scroll-offset` 保持为 0。
+
+### 什么叠在什么之上
+
+- 页眉和导航栏叠在从它们下方滚过的一切之上，页脚也不例外。主内容区域、侧栏和页脚里的东西，无论 `z-index` 设为多少，都不会升到它们上面：每个区域都把自己所含内容的层叠关系限制在区域之内。
+- 菜单、弹出层、工具提示、消息条、对话框和面板叠在整个外壳之上。Tanrei 的这些组件会自己画在那里：在 Web 上，就是浏览器的顶层（top layer）。你自己的浮层也请这样画：用 `popover`，或用 `showModal()` 打开的 `<dialog>`，不要靠很大的 `z-index`。
+- 在 Web 上，外壳本身就是一个独立的层叠上下文，所以外壳内部的任何层级都不会和你的页面在外壳之外画的东西相争。
 
 ### 主内容区域的宽度
 

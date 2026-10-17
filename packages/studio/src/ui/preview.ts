@@ -128,11 +128,33 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   /** The view the sheet and the panes were last written from. */
   let applied: Json | undefined;
+  /** What a drag wrote on the elements the sheet's tokens are declared on: those elements, and the properties. */
+  let patched: { on: HTMLElement[]; names: Set<string> } | undefined;
+  /**
+   * While a palette's color is dragged: its tones (core.paletteProperties), set as the person moves on the elements
+   * the sheet declares its tokens on — the scope, and a contrast set inside it (emitCss's base block). The sheet is
+   * neither written again nor changed: the browser parses nothing and restyles the preview alone, which costs a third
+   * of what writing the sheet costs, or less (and changing a rule of the sheet restyles the page). The next `apply`
+   * takes them off: what is drawn then is the sheet of the view it applies.
+   */
+  function patch(properties: Record<string, string>) {
+    patched ??= { on: [scope, ...scope.querySelectorAll<HTMLElement>(`[data-${NS}-contrast]`)], names: new Set() };
+    for (const [name, value] of Object.entries(properties)) {
+      patched.names.add(name);
+      for (const el of patched.on) el.style.setProperty(name, value);
+    }
+  }
+  function unpatch() {
+    for (const el of patched?.on ?? []) for (const name of patched!.names) el.style.removeProperty(name);
+    patched = undefined;
+  }
+
   function apply(view: Json, level: Contrast) {
     scope.setAttribute(`data-${NS}-contrast`, level);
     // A view is computed once for a layer (core.preview), so the same view is the same sheet and the same panes: a
     // level drawn again, or another contrast, writes neither. The sheet is the system's whole — written again it has
     // the browser read it again, and style and lay out the whole page with it.
+    if (patched) unpatch();
     if (view !== applied) {
       applied = view;
       sheet.textContent = view.css(scopeId);
@@ -164,5 +186,5 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     sheet,
     scope,
   );
-  return { el, apply, stale, scopeId, short: (id: string) => short(id, NS), cssColor };
+  return { el, apply, patch, stale, scopeId, short: (id: string) => short(id, NS), cssColor };
 }

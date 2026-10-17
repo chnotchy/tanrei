@@ -118,6 +118,9 @@ export const styles = css`
     display: inline-flex;
     vertical-align: middle;
     max-inline-size: 100%;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
   }
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}

@@ -152,6 +152,8 @@ import '@tanrei/web/icons.css';
 
 `.tanrei-icon` draws a [Material Symbols](https://fonts.google.com/icons) name with the system's icon weight and takes its size from where it sits. You never choose outlined or filled: see [Icons](/foundations/icons/).
 
+The whole Material Symbols Rounded file holds every glyph at every weight, fill, grade and optical size: 5.4 MB, which a page on a slow line can wait half a minute for. Load only the glyphs your product draws. `tanrei build` prints the names Tanrei's components may draw themselves (a chevron, a check, the cross of a close button…) and the axis values your system draws icons at; add your own names to that list. From Google Fonts, pass the names, sorted, as `icon_names=` and the axes as ranges in `family=` (`Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0` for the default system). Serving the file yourself, cut it down with a subsetter that keeps the font's ligature features (`rlig`, `rclt`) and both fills; this site draws its icons from such a file. Either way, register the icon face with `font-display: block`: until the file is there an icon is invisible, never its name in letters.
+
 ## Browser support
 
 The tokens rely on `light-dark()` and cascade layers, which are available in current versions of Chrome, Edge, Firefox and Safari.

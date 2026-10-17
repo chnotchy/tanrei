@@ -29,6 +29,10 @@ writeThirdPartyLicenses(dist, Object.keys(bundle.metafile.inputs).map((input) =>
 const vocabulary = path.join(dist, 'vocabulary');
 fs.mkdirSync(vocabulary, { recursive: true });
 fs.copyFileSync(path.join(repo, 'tanrei.config.json'), path.join(vocabulary, 'tanrei.config.json'));
+// The glyph names the components may draw, which `tanrei build` prints: at the path they have in the repository.
+const glyphs = 'packages/web/src/generated/glyphs.json';
+fs.mkdirSync(path.dirname(path.join(vocabulary, glyphs)), { recursive: true });
+fs.copyFileSync(path.join(repo, glyphs), path.join(vocabulary, glyphs));
 // Sources only: tokens/generated/ is build output, and a product build never reads it.
 fs.cpSync(path.join(repo, 'tokens'), path.join(vocabulary, 'tokens'), { recursive: true, filter: (source) => path.relative(repo, source) !== path.join('tokens', 'generated') });
 // Theme Studio, prebuilt by packages/studio (`pnpm --filter @tanrei/studio build:app`), for `tanrei studio`.

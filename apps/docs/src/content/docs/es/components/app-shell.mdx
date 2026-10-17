@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: 2ff9e4348ad75d75ba89e58f897847dad7e29cb1
+sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,6 +132,12 @@ Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`.
 ### Los enlaces a un encabezado se detienen debajo de la cabecera
 
 La estructura mide la cabecera fija y da ese mismo margen interior a la vista de desplazamiento de la página. Un enlace a un encabezado, y un elemento que recibe el foco del teclado, se detienen debajo de la cabecera y nunca quedan tapados por ella. En la web, esa misma distancia es `--tanrei-app-shell-scroll-offset` en la raíz, para tus propias partes fijas, como la fila de encabezado de una tabla. Dentro de una estructura, deja `--tanrei-prose-scroll-offset` en 0.
+
+### Qué queda encima de qué
+
+- La cabecera y la barra de navegación quedan encima de todo lo que se desplaza por debajo de ellas, el pie incluido. Nada de la región principal, del contenido complementario ni del pie sube por encima de ellas, sea cual sea su `z-index`: cada región apila lo que contiene dentro de sí misma.
+- Los menús, los popovers, las descripciones emergentes, las notificaciones, los diálogos y las hojas quedan encima de toda la estructura. Los de Tanrei se dibujan ahí por sí mismos: en la web, en la capa superior del navegador. Dibuja así también una superposición propia, como un `popover` o un `<dialog>` abierto con `showModal()`, nunca con un `z-index` grande.
+- En la web la estructura es un contexto de apilamiento propio, así que ningún nivel de dentro compite con lo que tu página dibuja fuera de ella.
 
 ### El ancho de la región principal
 

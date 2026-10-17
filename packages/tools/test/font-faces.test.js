@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { FONT_PACKAGES, PLATFORM_FAMILIES, fontFacesCss, missingFamilies, registeredFamilies, shippedFamilies } from '../src/font-faces.js';
+import { FONT_PACKAGES, PLATFORM_FAMILIES, axisCuts, fontFacesCss, missingFamilies, registeredFamilies, shippedFamilies, subsetFileName } from '../src/font-faces.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 // packages/web depends (for its tests) on a package for every family in the table except Noto Sans JP and Noto Sans
@@ -54,6 +54,26 @@ test('faces are registered under the token names; icons block instead of flashin
   assert.equal(arabic.split('@font-face').length - 1, 1, 'the arabic subset, not math or symbols');
   assert.match(arabic, /font-family: 'Noto Sans Arabic';[\s\S]*unicode-range: U\+0600-06FF/);
   assert.throws(() => fontFacesCss('x.css', path.join(repo, 'packages/tools'), { families: ['Roboto'] }), /needs @fontsource-variable\/roboto/);
+});
+
+test('an icon family is registered from its cut-down file where one is given: same family, still blocking, at the weights it kept', () => {
+  const file = path.join(web, 'styles', subsetFileName('Material Symbols Rounded'));
+  assert.equal(path.basename(file), 'material-symbols-rounded.subset.generated.woff2');
+  const css = fontFacesCss(path.join(web, 'fonts.css'), web, { families: ['Material Symbols Rounded', 'Roboto'], subsets: ['latin'], iconFiles: { 'Material Symbols Rounded': { file, weight: [300, 500] } } });
+  const icon = css.match(/@font-face\s*\{[^}]*'Material Symbols Rounded'[^}]*\}/)[0];
+  assert.match(icon, /src: url\('\.\/styles\/material-symbols-rounded\.subset\.generated\.woff2'\) format\('woff2-variations'\);/);
+  assert.match(icon, /font-weight: 300 500;/);
+  assert.match(icon, /font-display: block;/);
+  assert.match(css, /roboto-latin-wght-normal\.woff2/, 'the other families keep their package files');
+  // Without it, the package's full file, as before.
+  assert.match(fontFacesCss(path.join(web, 'fonts.css'), web, { families: ['Material Symbols Rounded'] }), /material-symbols-rounded-latin-full-normal\.woff2'\)/);
+});
+
+test('an axis the tokens hold at one value is pinned, a narrower range is cut to, the rest is kept whole', () => {
+  const font = { FILL: { min: 0, max: 1 }, GRAD: { min: -50, max: 200 }, opsz: { min: 20, max: 48 }, wght: { min: 100, max: 700 } };
+  assert.deepEqual(axisCuts({ FILL: [0, 1], wght: [300, 500], GRAD: [0, 0], opsz: [20, 48] }, font), { pin: { GRAD: 0 }, ranges: { wght: [300, 500] } });
+  assert.deepEqual(axisCuts({ wght: [400, 400], slnt: [0, 0] }, font), { pin: { wght: 400 }, ranges: {} }, 'an axis the font does not have is left alone');
+  assert.deepEqual(axisCuts({ opsz: [16, 60] }, font), { pin: {}, ranges: {} }, 'a range wider than the font’s cuts nothing');
 });
 
 test('development only: no published package depends on a font package or ships a registered stylesheet', () => {
