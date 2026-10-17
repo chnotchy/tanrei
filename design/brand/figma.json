@@ -1,0 +1,8 @@
+{
+  "$comment": "Where `pnpm brand:pull` takes each mark from: the Figma library's file, and each mark's node (the node-id of its URL, with a colon).",
+  "file": "S35VdRZL6f8vMkJjyogroS",
+  "nodes": {
+    "symbol": "74:2",
+    "wordmark": "74:3"
+  }
+}

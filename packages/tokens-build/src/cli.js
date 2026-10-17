@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { emitCss } from './emit/css.js';
+import { brandFiles } from './emit/brand.js';
 import { emitFigmaPlan } from './emit/figma.js';
 import { fidelityMaps, loadFidelityMap, measureFidelity } from './fidelity.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
@@ -170,6 +171,8 @@ async function generate() {
     ...platform(`packages/compose/tanrei/src/main/kotlin/${KOTLIN_PACKAGE.replaceAll('.', '/')}/TanreiTokens.kt`, emitKotlin(ir)),
     ...platform('packages/flutter/lib/src/generated/tokens.g.dart', emitDart(ir)),
     ...designToolExports(model),
+    // The brand marks painted in each scheme's on-surface, and the favicon that follows the reader's scheme.
+    ...brandFiles(REPO_ROOT, model.colors),
     'tokens/vocabulary.lock.json': vocabularyLock(model),
   };
   for (const [rel, content] of Object.entries(targets)) {

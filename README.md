@@ -1,4 +1,9 @@
-# Tanrei
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="design/brand/generated/wordmark.dark.svg">
+    <img src="design/brand/generated/wordmark.light.svg" alt="Tanrei" width="198" height="60">
+  </picture>
+</h1>
 
 **One design system, five platforms, kept honest by machines.**
 
