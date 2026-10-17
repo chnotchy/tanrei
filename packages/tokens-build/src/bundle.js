@@ -48,7 +48,7 @@ export function validateLayerFile(repoRoot, layer, fileId) {
  * Problems of the layers that ship in `tokens/systems/`: each one's schema, and — for every layer the default system
  * is made of (the root and the default system's own) — every line the default system cannot take. The default system
  * is read from `tokens/` as it is written; only what is generated from its layers is theirs to set
- * (`rootLayerProblems`): a line for anything else would reach the presets that extend them and never the default.
+ * (`rootLayerProblems`): a line for anything else would reach the systems built on them and never the default.
  * @param {(id: string) => object} [read] a shipped layer by id
  * @returns {string[]}
  */

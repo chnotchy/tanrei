@@ -72,14 +72,14 @@ A design system is a layer file, `tokens/systems/<id>.system.json`, validated by
 
 ```
 core.system.json              the root layer: palettes, the role → tone table, the per-state rules; leaves nothing out
-  └─ tanrei.system.json         the default system: the components and variants it leaves out
-       ├─ m3-like.system.json            extends tanrei
-       │    └─ m3-expressive-like.system.json   extends m3-like
-       └─ cupertino.system.json          extends tanrei
+  ├─ tanrei.system.json         the default system: the components and variants it leaves out
+  ├─ m3-like.system.json        extends core
+  │    └─ m3-expressive-like.system.json   extends m3-like
+  └─ cupertino.system.json      extends core
 (a product's own <id>.system.json extends any of them but the root, in the product's repository)
 ```
 
-The root has no output of its own — no stylesheet, bundle or native constant — and is not offered where a system is chosen; it is the first layer of every chain. The default system is the documents under `tokens/` as written plus what is generated from its layers, so neither the root nor the default system's own layer may set any other token (`pnpm validate` names the document that holds it).
+The root has no output of its own — no stylesheet, bundle or native constant — and is not offered where a system is chosen; it is the first layer of every chain. The default system is the documents under `tokens/` as written plus what is generated from its layers, so neither the root nor the default system's own layer may set any other token (`pnpm validate` names the document that holds it). The presets extend the root, not the default system: they inherit none of its choices of components, and each says for itself what it leaves out.
 
 | Layer key | Does |
 |---|---|
