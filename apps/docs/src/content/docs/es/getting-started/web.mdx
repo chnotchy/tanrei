@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -153,6 +153,8 @@ import '@tanrei/web/icons.css';
 ```
 
 `.tanrei-icon` dibuja un nombre de [Material Symbols](https://fonts.google.com/icons) con el peso de icono del sistema y toma su tamaño del lugar donde se encuentra. Nunca eliges entre contorno y relleno: consulta [Iconos](/es/foundations/icons/).
+
+El archivo completo de Material Symbols Rounded contiene todos los glifos en todos los pesos, rellenos, grados y tamaños ópticos: 5,4 MB, que una página con una conexión lenta puede tardar medio minuto en recibir. Carga solo los glifos que dibuja tu producto. `tanrei build` muestra los nombres que los componentes de Tanrei pueden dibujar por sí mismos (un cheurón, una marca de verificación, la cruz de un botón de cerrar…) y los valores de eje con los que tu sistema dibuja los iconos; añade tus propios nombres a esa lista. Desde Google Fonts, pasa los nombres, en orden alfabético, en `icon_names=` y los ejes como rangos en `family=` (`Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0` para el sistema predeterminado). Si sirves el archivo tú mismo, recórtalo con un generador de subconjuntos que conserve las funciones de ligadura de la fuente (`rlig`, `rclt`) y los dos rellenos; este sitio dibuja sus iconos con un archivo así. En ambos casos, registra la fuente de los iconos con `font-display: block`: hasta que llega el archivo, un icono es invisible y nunca aparece su nombre en letras.
 
 ## Compatibilidad con navegadores
 

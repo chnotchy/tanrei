@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -153,6 +153,8 @@ import '@tanrei/web/icons.css';
 ```
 
 `.tanrei-icon` は、[Material Symbols](https://fonts.google.com/icons) の名前を、システムのアイコンの太さで描き、サイズは置かれた場所から取ります。アウトラインか塗りかを自分で選ぶことはありません。[アイコン](/ja/foundations/icons/)を参照してください。
+
+Material Symbols Rounded のファイルは、すべてのグリフを、すべての太さ・塗り・グレード・オプティカルサイズで持っていて、5.4 MB あります。遅い回線では、ページがこれを 30 秒ほど待つことがあります。読み込むのは、製品が描くグリフだけにしてください。`tanrei build` は、Tanrei のコンポーネントが自分で描くことのあるグリフの名前（山形、チェック、閉じるボタンの×など）と、そのシステムがアイコンを描く軸の値を表示します。この一覧に、製品自身が使う名前を足してください。Google Fonts から読み込むなら、名前をアルファベット順に並べて `icon_names=` に渡し、軸は `family=` に範囲で書きます（既定のシステムでは `Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0`）。ファイルを自分で配信するなら、フォントの合字の機能（`rlig`、`rclt`）と両方の塗りを残すサブセッターで間引きます。このサイトのアイコンも、そうして作ったファイルで描いています。どちらの場合も、アイコンのフェイスは `font-display: block` で登録してください。ファイルが届くまでアイコンは見えないままで、名前が文字として出ることはありません。
 
 ## ブラウザーの対応
 
