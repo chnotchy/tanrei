@@ -98,7 +98,9 @@ test('what a layer may not do', () => {
   const cases = [
     [layer({ tokens: { 'tanrei.sys.space.space950': { scale: 2 } } }), /unknown token.*declare it under "vocabulary"/s, 'a value for something that does not exist'],
     [layer({ vocabulary: { 'tanrei.sys.space.space950': { $type: 'dimension', rationale: 'x' } } }), /needs a "rationale"/, 'an extension without a reason'],
-    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'number', rationale } } }), /core now has this id as "dimension"/, 'retyping core'],
+    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'number', rationale } } }), /the core has this id as "dimension"/, 'retyping core'],
+    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'dimension', rationale, derive: { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 1 } } } }), /tanrei\.sys\.space\.space100: a core token; a layer declares only what the core lacks/, 'declaring a core token'],
+    [layer({ vocabulary: { 'tanrei.sys.color.primary': { $type: 'color', rationale, derive: { fn: 'tone', palette: 'primary', tone: { light: [40], dark: [80] } } } } }), /tanrei\.sys\.color\.primary: "primary" is a core color role; a layer declares only what the core lacks/, 'declaring a core color role'],
     [layer({ vocabulary: { 'other.comp.thing.size': { $type: 'dimension', rationale, $value: '{tanrei.sys.space.space100}' } } }), /its own namespace — "acme\.…"/, 'someone else’s namespace'],
     [layer({ vocabulary: { 'tanrei.comp.button.size.huge': { from: 'gigantic', rationale } } }), /"from" must be an existing size/, 'cloning from nothing'],
     [layer({ vocabulary: { 'tanrei.comp.button.variant.hovered': { from: 'filled', rationale } } }), /interaction state; states are not extensible/, 'a state is not a variant'],

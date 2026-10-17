@@ -142,7 +142,6 @@ async function validate(flags) {
   // The engine is the final authority (an unknown token id, a cycle, a choice out of range): build it, in memory.
   const resolved = await resolveSystem({ layerFile }, { validate: false });
   const fonts = fontReport(buildIR(await resolved.model()));
-  for (const notice of resolved.notices) console.warn(`⚠ ${notice}`);
   for (const warning of fonts.warnings) console.warn(`⚠ ${warning}`);
   // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already.
   printWarnings(await resolved.warnings());

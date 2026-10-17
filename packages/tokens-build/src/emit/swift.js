@@ -294,7 +294,7 @@ function stateLookup(component, valueType, groups, what) {
  */
 function componentShape(component, ir) {
   const C = pascal([component]);
-  const tokens = ir.componentTokens[component].filter((t) => !t.deprecated);
+  const tokens = ir.componentTokens[component];
   // Canonical order: the interaction states by precedence, then disabled; anything else after.
   const states = [...new Set(tokens.filter((t) => t.state !== null).map((t) => t.state))].sort((a, b) => (STATE_ORDER.indexOf(a) + 1 || 99) - (STATE_ORDER.indexOf(b) + 1 || 99) || (a < b ? -1 : 1));
   const axes = Object.entries(ir.axes[component] ?? {}).map(([axis, def]) => {
@@ -460,7 +460,7 @@ function seriesOf(ir) {
     ]),
     space: series('space', 'TanreiSpace', 'CGFloat', num, of('space', ir.space)),
     state: series('state', 'TanreiState', 'Double', num, of('state', ir.state), 'State opacities. How a component state looks is decided by its own per-state tokens.'),
-    measure: series('measure', 'TanreiMeasure', 'CGFloat', num, Object.entries(ir.measure).flatMap(([group, values]) => of(group, values).filter(([, k]) => !ir.deprecatedMeasures.includes(`${group}-${k}`))), 'Borders, the focus indicator, minimum targets, icon sizes and the window widths at which a layout changes, in points.'),
+    measure: series('measure', 'TanreiMeasure', 'CGFloat', num, Object.entries(ir.measure).flatMap(([group, values]) => of(group, values)), 'Borders, the focus indicator, minimum targets, icon sizes and the window widths at which a layout changes, in points.'),
     duration: series('duration', 'TanreiDuration', 'Double', num, of('duration', ir.duration), 'Milliseconds.'),
     easing: series('easing', 'TanreiEasing', 'TanreiCubicBezier', bezier, of('easing', ir.easing)),
     elevation: series('elevation', 'TanreiElevation', '[TanreiShadowLayer]', (layers) => shadowLayers(layers, '  '), of('elevation', ir.elevation), 'A level may start with a ring — a layer with no offset, no blur and a positive spread: render that one as a border, the rest as shadows. Not every system has one.'),

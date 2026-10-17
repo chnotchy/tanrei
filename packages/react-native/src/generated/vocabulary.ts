@@ -337,6 +337,7 @@ export interface TanreiIconStyle {
  * Choices of kind: behaviour that is a name, not an amount. The names are vocabulary — a system chooses
  * among them. The first name of each is the default, and what a platform draws when it cannot draw the choice.
  */
+export type TanreiAppearance = "fade-scale" | "fade" | "fade-slide" | "blur-slide" | "unfold";
 export type TanreiDividerVisibility = "always" | "scroll";
 export type TanreiFocusStyle = "ring" | "glow";
 export type TanreiLinkUnderline = "always" | "hover" | "never";
@@ -344,6 +345,7 @@ export type TanreiPressedFeedback = "overlay" | "ripple" | "dim" | "none";
 export type TanreiRequirementMark = "tag" | "asterisk" | "none";
 export type TanreiSeparation = "divider" | "gap";
 export interface TanreiBehavior {
+  readonly appearance: TanreiAppearance;
   readonly dividerVisibility: TanreiDividerVisibility;
   readonly focusStyle: TanreiFocusStyle;
   readonly linkUnderline: TanreiLinkUnderline;
@@ -393,10 +395,14 @@ export interface TanreiDuration {
 export interface TanreiEasing {
   readonly emphasizedAccelerate: TanreiCubicBezier;
   readonly emphasizedDecelerate: TanreiCubicBezier;
+  readonly enter: TanreiCubicBezier;
+  readonly exit: TanreiCubicBezier;
   readonly linear: TanreiCubicBezier;
+  readonly spatial: TanreiCubicBezier;
   readonly standard: TanreiCubicBezier;
   readonly standardAccelerate: TanreiCubicBezier;
   readonly standardDecelerate: TanreiCubicBezier;
+  readonly state: TanreiCubicBezier;
 }
 
 export interface TanreiMotion {
@@ -3348,11 +3354,9 @@ export interface TanreiNavigationBarTokens {
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
   readonly hoveredOpacity: number;
-  readonly itemContainerHeight: number;
   readonly itemContainerPaddingBlock: number;
   readonly itemContainerPaddingInline: number;
   readonly itemContainerShape: number;
-  readonly itemContainerWidth: number;
   readonly itemGap: number;
   readonly itemIconIndicatorHeight: number;
   readonly itemIconIndicatorShape: number;
@@ -3415,7 +3419,6 @@ export interface TanreiNavigationDrawerConditionStateTokens {
   readonly itemSupportingTextColor: TanreiPaint;
   readonly itemTrailingTextColor: TanreiPaint;
   readonly itemTrailingIconColor: TanreiPaint;
-  readonly itemBadgeColor: TanreiPaint;
   readonly itemStateLayerColor: TanreiPaint;
 }
 /** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
@@ -3486,7 +3489,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly headingColor: TanreiPaint;
   readonly headingTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
-  readonly itemBadgeTypescale: TanreiTypescaleRole;
   readonly itemContainerShape: number;
   readonly itemGap: number;
   readonly itemIconIndicatorShape: number;
@@ -3515,67 +3517,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
   readonly densitys: TanreiNavigationDrawerDensitys;
-}
-
-/**
- * Every value of `comp.navigation-rail`'s `condition` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `unselected` (with a dev-only warning).
- */
-export interface TanreiNavigationRailConditionRegistry {
-  unselected: true;
-  selected: true;
-}
-export type TanreiNavigationRailCondition = keyof TanreiNavigationRailConditionRegistry;
-export type TanreiCoreNavigationRailCondition = "unselected" | "selected";
-
-/** What one `condition` of `comp.navigation-rail` is drawn from in ONE interaction state. */
-export interface TanreiNavigationRailConditionStateTokens {
-  readonly itemContainerColor: TanreiPaint;
-  readonly itemIconColor: TanreiPaint;
-  readonly itemLabelColor: TanreiPaint;
-  readonly itemStateLayerColor: TanreiPaint;
-}
-/** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiNavigationRailConditionTokens {
-  readonly enabled: TanreiNavigationRailConditionStateTokens;
-  readonly hovered: TanreiNavigationRailConditionStateTokens;
-  readonly focused: TanreiNavigationRailConditionStateTokens;
-  readonly pressed: TanreiNavigationRailConditionStateTokens;
-  readonly disabled: TanreiNavigationRailConditionStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiNavigationRailConditions = { readonly [Key in TanreiCoreNavigationRailCondition]: TanreiNavigationRailConditionTokens } & { readonly [Key in TanreiNavigationRailCondition]?: TanreiNavigationRailConditionTokens };
-
-/**
- * `comp.navigation-rail`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
- */
-export interface TanreiNavigationRailTokens {
-  readonly containerColor: TanreiPaint;
-  readonly containerElevation: TanreiElevationLevel;
-  readonly containerGap: number;
-  readonly containerPaddingBlock: number;
-  readonly containerWidth: number;
-  readonly disabledOpacity: number;
-  readonly focusedOpacity: number;
-  readonly headerGap: number;
-  readonly hoveredOpacity: number;
-  readonly itemContainerHeight: number;
-  readonly itemContainerShape: number;
-  readonly itemContainerWidth: number;
-  readonly itemGap: number;
-  readonly itemIconSize: number;
-  readonly itemLabelTypescale: TanreiTypescaleRole;
-  readonly motionFeedbackDuration: number;
-  readonly motionSelectionDuration: number;
-  readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
-  readonly motionStateEasing: TanreiCubicBezier;
-  readonly outlineColor: TanreiPaint;
-  readonly outlineWidth: number;
-  readonly pressedOpacity: number;
-  readonly conditions: TanreiNavigationRailConditions;
 }
 
 /**
@@ -5634,7 +5575,6 @@ export interface TanreiComponents {
   readonly modalLayer: TanreiModalLayerTokens;
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
-  readonly navigationRail: TanreiNavigationRailTokens;
   readonly numberInput: TanreiNumberInputTokens;
   readonly oneTimeCodeInput: TanreiOneTimeCodeInputTokens;
   readonly pageHeader: TanreiPageHeaderTokens;
@@ -5759,7 +5699,6 @@ declare module './vocabulary' {
   interface TanreiNavigationDrawerVariantRegistry {}
   interface TanreiNavigationDrawerConditionRegistry {}
   interface TanreiNavigationDrawerDensityRegistry {}
-  interface TanreiNavigationRailConditionRegistry {}
   interface TanreiOneTimeCodeInputConditionRegistry {}
   interface TanreiPageHeaderSizeRegistry {}
   interface TanreiPaginationSizeRegistry {}

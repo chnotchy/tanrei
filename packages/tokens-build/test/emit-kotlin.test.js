@@ -141,8 +141,8 @@ test('corner smoothing is a required Float on TanreiShape, 0 for the default sys
   assert.match(values, /cornerSmoothing = 0f,/);
   assert.doesNotMatch(vocabulary, /TanreiCornerStyle|cornerStyle/);
   // `separation` is the third choice of kind (divider | gap); `link-underline` the fourth
-  // (always | hover | never); `divider-visibility` (always | scroll) sorts first.
-  assert.match(vocabulary, /public data class TanreiBehavior\(\n {4}public val dividerVisibility: TanreiDividerVisibility,\n {4}public val focusStyle: TanreiFocusStyle,\n {4}public val linkUnderline: TanreiLinkUnderline,\n {4}public val pressedFeedback: TanreiPressedFeedback,\n {4}public val requirementMark: TanreiRequirementMark,\n {4}public val separation: TanreiSeparation,\n\)/);
+  // (always | hover | never); `appearance` (fade-scale | fade | fade-slide | blur-slide | unfold) sorts first.
+  assert.match(vocabulary, /public data class TanreiBehavior\(\n {4}public val appearance: TanreiAppearance,\n {4}public val dividerVisibility: TanreiDividerVisibility,\n {4}public val focusStyle: TanreiFocusStyle,\n {4}public val linkUnderline: TanreiLinkUnderline,\n {4}public val pressedFeedback: TanreiPressedFeedback,\n {4}public val requirementMark: TanreiRequirementMark,\n {4}public val separation: TanreiSeparation,\n\)/);
   const out = buildIR(await shipped());
   out.cornerSmoothing = 1.5;
   assert.throws(() => emitKotlin(out), /corner-smoothing must be a number in \[0, 1\], got 1\.5/);

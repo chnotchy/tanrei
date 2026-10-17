@@ -34293,659 +34293,6 @@
           }
         }
       },
-      "navigation-rail": {
-        "unselected": {
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "alpha": 0.08,
-                    "hex": "#b9b9b9"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.unselected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "alpha": 0.1,
-                    "hex": "#b9b9b9"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.unselected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "alpha": 0.1,
-                    "hex": "#b9b9b9"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.unselected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              }
-            }
-          },
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.unselected.item.container.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "selected": {
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2196,
-                      0.2196,
-                      0.2196
-                    ],
-                    "hex": "#383838"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.selected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2353,
-                      0.2353,
-                      0.2353
-                    ],
-                    "hex": "#3c3c3c"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.selected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2353,
-                      0.2353,
-                      0.2353
-                    ],
-                    "hex": "#3c3c3c"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed",
-                    "dev.tanrei.derive": {
-                      "fn": "mix",
-                      "base": "{tanrei.comp.navigation-rail.selected.item.container.color}",
-                      "with": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
-                    }
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.label.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.state-layer.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              }
-            }
-          },
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-rail.selected.item.container.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "hovered": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1,
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-              },
-              "dev.tanrei.state": "hovered",
-              "dev.tanrei.derive": {
-                "fixed": "Tanrei shows state by color, not by dimming the whole control."
-              }
-            }
-          }
-        },
-        "focused": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1,
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-              },
-              "dev.tanrei.state": "focused",
-              "dev.tanrei.derive": {
-                "fixed": "Tanrei shows state by color, not by dimming the whole control."
-              }
-            }
-          }
-        },
-        "pressed": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1,
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-              },
-              "dev.tanrei.state": "pressed",
-              "dev.tanrei.derive": {
-                "fixed": "Tanrei shows state by color, not by dimming the whole control."
-              }
-            }
-          }
-        },
-        "disabled": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1,
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product moves between its top-level destinations from the side of a medium or large screen, shows which one is current, marks one that has something new, can make one unavailable, and puts its menu or main action above them."
-              },
-              "dev.tanrei.state": "disabled",
-              "dev.tanrei.derive": {
-                "fixed": "Tanrei shows state by color, not by dimming the whole control."
-              }
-            }
-          }
-        }
-      },
       "navigation-drawer": {
         "unselected": {
           "hovered": {
@@ -35049,18 +34396,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35176,18 +34511,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35295,18 +34618,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -35485,32 +34796,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35641,18 +34926,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35767,18 +35040,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35885,18 +35146,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -36075,32 +35324,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36232,18 +35455,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36359,18 +35570,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36478,18 +35677,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -36668,32 +35855,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36824,18 +35985,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36950,18 +36099,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -37068,18 +36205,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -37233,32 +36358,6 @@
                 }
               },
               "trailing-icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "badge": {
                 "color": {
                   "$type": "color",
                   "$value": {

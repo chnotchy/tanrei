@@ -655,16 +655,20 @@ export const acme = {
     opticalSizeMin: 20,
     opticalSizeMax: 48,
   },
-  behavior: { dividerVisibility: "always", focusStyle: "glow", linkUnderline: "always", pressedFeedback: "overlay", requirementMark: "tag", separation: "divider" },
+  behavior: { appearance: "fade-scale", dividerVisibility: "always", focusStyle: "glow", linkUnderline: "always", pressedFeedback: "overlay", requirementMark: "tag", separation: "divider" },
   motion: {
     duration: { extraLong1: 700, extraLong2: 800, extraLong3: 900, extraLong4: 1000, long1: 450, long2: 500, long3: 550, long4: 600, medium1: 250, medium2: 300, medium3: 350, medium4: 400, pressHold: 100, short1: 50, short2: 100, short3: 150, short4: 200, stagger: 100 },
     easing: {
       emphasizedAccelerate: [0.3, 0, 0.8, 0.15],
       emphasizedDecelerate: [0.05, 0.7, 0.1, 1],
+      enter: [0.2, 0, 0, 1],
+      exit: [0.3, 0, 1, 1],
       linear: [0, 0, 1, 1],
+      spatial: [0.2, 0, 0, 1],
       standard: [0.2, 0, 0, 1],
       standardAccelerate: [0.3, 0, 1, 1],
       standardDecelerate: [0, 0, 0, 1],
+      state: [0.2, 0, 0, 1],
     },
     spring: {
       expressive: {
@@ -10214,11 +10218,9 @@ export const acme = {
       disabledOpacity: 1,
       focusedOpacity: 1,
       hoveredOpacity: 1,
-      itemContainerHeight: 32,
       itemContainerPaddingBlock: 4,
       itemContainerPaddingInline: 12,
       itemContainerShape: 9999,
-      itemContainerWidth: 56,
       itemGap: 4,
       itemIconIndicatorHeight: 24,
       itemIconIndicatorShape: 9999,
@@ -10589,7 +10591,6 @@ export const acme = {
       headingColor: { kind: "role", role: "onSurfaceVariant" },
       headingTypescale: "labelSmall",
       hoveredOpacity: 1,
-      itemBadgeTypescale: "labelSmall",
       itemContainerShape: 6,
       itemGap: 12,
       itemIconIndicatorShape: 9999,
@@ -10639,7 +10640,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           hovered: {
@@ -10655,7 +10655,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           focused: {
@@ -10671,7 +10670,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           pressed: {
@@ -10687,7 +10685,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           disabled: {
@@ -10718,11 +10715,6 @@ export const acme = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
-            itemBadgeColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
             itemStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
@@ -10739,7 +10731,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           hovered: {
@@ -10755,7 +10746,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           focused: {
@@ -10771,7 +10761,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           pressed: {
@@ -10787,7 +10776,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
@@ -10814,11 +10802,6 @@ export const acme = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -10839,7 +10822,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           hovered: {
@@ -10855,7 +10837,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           focused: {
@@ -10871,7 +10852,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           pressed: {
@@ -10887,7 +10867,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           disabled: {
@@ -10914,11 +10893,6 @@ export const acme = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -10939,7 +10913,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           hovered: {
@@ -10955,7 +10928,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           focused: {
@@ -10971,7 +10943,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           pressed: {
@@ -10987,7 +10958,6 @@ export const acme = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
@@ -11018,11 +10988,6 @@ export const acme = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
-            itemBadgeColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
             itemStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
@@ -11034,151 +10999,6 @@ export const acme = {
       densitys: {
         regular: { containerGap: 4, itemContainerHeight: 48, itemPaddingInline: 12, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 24, itemIconIndicatorHeight: 24, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 72, collapsedItemContainerWidth: 48, collapsedItemContainerPaddingBlock: 12, headingHeight: 36 },
         compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
-      },
-    },
-    navigationRail: {
-      containerColor: { kind: "role", role: "surface" },
-      containerElevation: "level0",
-      containerGap: 8,
-      containerPaddingBlock: 16,
-      containerWidth: 80,
-      disabledOpacity: 1,
-      focusedOpacity: 1,
-      headerGap: 24,
-      hoveredOpacity: 1,
-      itemContainerHeight: 32,
-      itemContainerShape: 6,
-      itemContainerWidth: 56,
-      itemGap: 4,
-      itemIconSize: 24,
-      itemLabelTypescale: "labelSmall",
-      motionFeedbackDuration: 450,
-      motionSelectionDuration: 350,
-      motionSelectionEasing: [0.27, 1.06, 0.18, 1],
-      motionStateDuration: 150,
-      motionStateEasing: [0.2, 0, 0, 1],
-      outlineColor: { kind: "role", role: "outlineVariant" },
-      outlineWidth: 1,
-      pressedOpacity: 1,
-      conditions: {
-        unselected: {
-          enabled: {
-            itemContainerColor: { kind: "none" },
-            itemIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemLabelColor: { kind: "role", role: "onSurfaceVariant" },
-            itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          hovered: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "none" },
-              with: { kind: "role", role: "onSurfaceVariant" },
-              amount: 0.06,
-            },
-            itemIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemLabelColor: { kind: "role", role: "onSurfaceVariant" },
-            itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          focused: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "none" },
-              with: { kind: "role", role: "onSurfaceVariant" },
-              amount: 0.12,
-            },
-            itemIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemLabelColor: { kind: "role", role: "onSurfaceVariant" },
-            itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          pressed: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "none" },
-              with: { kind: "role", role: "onSurfaceVariant" },
-              amount: 0.2,
-            },
-            itemIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemLabelColor: { kind: "role", role: "onSurfaceVariant" },
-            itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          disabled: {
-            itemContainerColor: { kind: "none" },
-            itemIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemLabelColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemStateLayerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-          },
-        },
-        selected: {
-          enabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
-            itemIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemLabelColor: { kind: "role", role: "onSurface" },
-            itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
-          },
-          hovered: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
-            },
-            itemIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemLabelColor: { kind: "role", role: "onSurface" },
-            itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
-          },
-          focused: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
-            },
-            itemIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemLabelColor: { kind: "role", role: "onSurface" },
-            itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
-          },
-          pressed: {
-            itemContainerColor: {
-              kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
-            },
-            itemIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemLabelColor: { kind: "role", role: "onSurface" },
-            itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
-          },
-          disabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
-            itemIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemLabelColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemStateLayerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-          },
-        },
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },

@@ -57872,14 +57872,6 @@
         },
         "item": {
           "container": {
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
-            },
             "padding-block": {
               "$type": "dimension",
               "$value": {
@@ -57903,14 +57895,6 @@
                 "unit": "px"
               },
               "$description": "The radius of the item container's four corners, at most half its height: full makes the destination's share of the bar a capsule."
-            },
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
             }
           },
           "gap": {
@@ -59175,21 +59159,6 @@
         "collapsed-selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59314,21 +59283,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59453,21 +59407,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59591,22 +59530,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.149,
-                    0.149,
-                    0.149
-                  ],
-                  "hex": "#262626",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -59735,21 +59658,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59876,21 +59784,6 @@
         "collapsed-unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60015,21 +59908,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60154,21 +60032,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60292,22 +60155,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.2941,
-                    0.2941,
-                    0.2941
-                  ],
-                  "hex": "#4b4b4b",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -60436,21 +60283,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60986,31 +60818,6 @@
           }
         },
         "item": {
-          "badge": {
-            "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Inter",
-                  "Noto Sans JP",
-                  "Noto Sans",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.12,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              },
-              "$description": "Kept for the platforms that still draw a destination's trailing string as a badge, which draw it with this; the current spec reads item.trailing-text.typescale. Dropped once the last platform catches up."
-            }
-          },
           "container": {
             "height": {
               "compact": {
@@ -61452,21 +61259,6 @@
         "selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -61591,21 +61383,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -61730,21 +61507,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -61868,22 +61630,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.149,
-                    0.149,
-                    0.149
-                  ],
-                  "hex": "#262626",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -62009,21 +61755,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -62191,21 +61922,6 @@
         "unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -62330,21 +62046,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -62469,21 +62170,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -62607,22 +62293,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.2941,
-                    0.2941,
-                    0.2941
-                  ],
-                  "hex": "#4b4b4b",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -62746,21 +62416,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -62867,859 +62522,6 @@
                 }
               },
               "trailing-text": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "navigation-rail": {
-        "container": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                1,
-                1,
-                1
-              ],
-              "hex": "#ffffff",
-              "alpha": 1
-            }
-          },
-          "elevation": {
-            "$type": "shadow",
-            "$value": []
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
-            },
-            "$description": "Between two destinations."
-          },
-          "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "Above the header (or the first destination) and below the last destination."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 80,
-              "unit": "px"
-            },
-            "$description": "The rail's width, not counting the system inset at its start."
-          }
-        },
-        "disabled": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "focused": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "header": {
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 24,
-              "unit": "px"
-            },
-            "$description": "From the header slot to the first destination."
-          }
-        },
-        "hovered": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "item": {
-          "container": {
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "shape": {
-              "$type": "dimension",
-              "$value": {
-                "value": 6,
-                "unit": "px"
-              }
-            },
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$description": "The item container: the active indicator's box behind the icon, which also carries hover, focus and press."
-            }
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 4,
-              "unit": "px"
-            },
-            "$description": "From the item container to the label below it."
-          },
-          "icon": {
-            "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              },
-              "$description": "The icon of every destination."
-            }
-          },
-          "label": {
-            "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Inter",
-                  "Noto Sans JP",
-                  "Noto Sans",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.12,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            }
-          }
-        },
-        "motion": {
-          "feedback-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 450,
-              "unit": "ms"
-            },
-            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
-          },
-          "selection-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 350,
-              "unit": "ms"
-            },
-            "$description": "How long the active indicator takes to grow in (and the previous one to fade out), and labels to move, when the selection changes."
-          },
-          "selection-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.27,
-              1.06,
-              0.18,
-              1
-            ]
-          },
-          "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
-            }
-          },
-          "state-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.2,
-              0,
-              0,
-              1
-            ]
-          }
-        },
-        "outline": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0,
-                0,
-                0
-              ],
-              "alpha": 0.08,
-              "hex": "#000000"
-            },
-            "$description": "The rail's end edge."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 1,
-              "unit": "px"
-            }
-          }
-        },
-        "pressed": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "selected": {
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9333,
-                      0.9333,
-                      0.9333
-                    ],
-                    "hex": "#eeeeee",
-                    "alpha": 1
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.8549,
-                      0.8549,
-                      0.8549
-                    ],
-                    "hex": "#dadada",
-                    "alpha": 1
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "hex": "#1b1b1b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.8706,
-                      0.8706,
-                      0.8706
-                    ],
-                    "hex": "#dedede",
-                    "alpha": 1
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "hex": "#1b1b1b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "item": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9333,
-                    0.9333,
-                    0.9333
-                  ],
-                  "hex": "#eeeeee",
-                  "alpha": 1
-                }
-              }
-            },
-            "icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.149,
-                    0.149,
-                    0.149
-                  ],
-                  "hex": "#262626",
-                  "alpha": 1
-                }
-              }
-            },
-            "label": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.1059,
-                    0.1059,
-                    0.1059
-                  ],
-                  "hex": "#1b1b1b",
-                  "alpha": 1
-                }
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.149,
-                    0.149,
-                    0.149
-                  ],
-                  "hex": "#262626",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.8549,
-                      0.8549,
-                      0.8549
-                    ],
-                    "hex": "#dadada",
-                    "alpha": 1
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "hex": "#1b1b1b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.149,
-                      0.149,
-                      0.149
-                    ],
-                    "hex": "#262626",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          }
-        },
-        "unselected": {
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.1059,
-                      0.1059,
-                      0.1059
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#1b1b1b"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "alpha": 0.1,
-                    "hex": "#4b4b4b"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "alpha": 0.08,
-                    "hex": "#4b4b4b"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "item": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0,
-                  "hex": "#000000"
-                }
-              }
-            },
-            "icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.2941,
-                    0.2941,
-                    0.2941
-                  ],
-                  "hex": "#4b4b4b",
-                  "alpha": 1
-                }
-              }
-            },
-            "label": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.2941,
-                    0.2941,
-                    0.2941
-                  ],
-                  "hex": "#4b4b4b",
-                  "alpha": 1
-                }
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.2941,
-                    0.2941,
-                    0.2941
-                  ],
-                  "hex": "#4b4b4b",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "alpha": 0.1,
-                    "hex": "#4b4b4b"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.2941,
-                      0.2941,
-                      0.2941
-                    ],
-                    "hex": "#4b4b4b",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -102034,6 +100836,11 @@
     },
     "sys": {
       "behavior": {
+        "appearance": {
+          "$type": "number",
+          "$value": 0,
+          "$description": "How a surface appears and leaves: a menu, a select's or a combobox's list, a popover, a tooltip, a dialog, a snackbar. fade-scale: it fades in and grows from 0.96 of its size toward its origin. fade: it only fades in. fade-slide: it fades in and travels a short way into place (sys.space.space100). blur-slide: it fades in, travels the same way and comes into focus from a 4 px blur. unfold: it fades in and unfolds from its anchored edge, scaled from 0 along the axis that leaves the anchor. The choice sets sys.motion.appear.*; a layer that pins one of those keeps it whatever the choice. A surface that leaves runs its appearance back. A sheet slides in from its edge under every choice."
+        },
         "divider-visibility": {
           "$type": "number",
           "$value": 0,
@@ -103430,6 +102237,39 @@
         }
       },
       "motion": {
+        "appear": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How blurred a surface starts as it appears; it comes into focus as it arrives."
+          },
+          "distance": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How far a surface travels into place as it appears. The component gives the direction: away from its anchor for an anchored surface."
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The opacity a surface starts from as it appears and ends at as it leaves: 0 fades it; 1 does not."
+          },
+          "origin": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Where an anchored surface grows from. anchor: the middle of its edge that faces what opened it. center: its own centre. A modal surface grows from its centre whatever the choice."
+          },
+          "scale": {
+            "$type": "number",
+            "$value": 0.96,
+            "$description": "The scale a surface starts from as it appears, toward its origin: 0.96 grows it a little into place; 1 does not scale it. Under unfold the scale applies only along the axis that leaves the anchor, so the surface unfolds from its anchored edge."
+          }
+        },
         "duration": {
           "extra-long1": {
             "$type": "duration",
@@ -103579,6 +102419,26 @@
               1
             ]
           },
+          "enter": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of a surface that appears: quick at first, settling into place."
+          },
+          "exit": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              1,
+              1
+            ],
+            "$description": "The curve of a surface that leaves: it gathers speed as it goes, so little of the surface is left on its last frame (about 7–9 % of its opacity at 250–350 ms)."
+          },
           "linear": {
             "$type": "cubicBezier",
             "$value": [
@@ -103587,6 +102447,16 @@
               1,
               1
             ]
+          },
+          "spatial": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of something that moves or changes its size in place: a switch's handle, the indicator of tabs, a box that grows."
           },
           "standard": {
             "$type": "cubicBezier",
@@ -103614,6 +102484,204 @@
               0,
               1
             ]
+          },
+          "state": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of a change of state in place: a color, an opacity, a mark."
+          }
+        },
+        "role": {
+          "appear": {
+            "anchored": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$description": "A surface anchored to what opened it (a menu, a select's or a combobox's list, a popover, a docked picker) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 250,
+                  "unit": "ms"
+                },
+                "$description": "A surface anchored to what opened it (a menu, a select's or a combobox's list, a popover, a docked picker) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "hint": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 250,
+                  "unit": "ms"
+                },
+                "$description": "A hint beside what it describes (a tooltip) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$description": "A hint beside what it describes (a tooltip) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "modal": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 350,
+                  "unit": "ms"
+                },
+                "$description": "A modal surface over the page, and the scrim behind it (a dialog, a modal picker, an image preview) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$description": "A modal surface over the page, and the scrim behind it (a dialog, a modal picker, an image preview) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "sheet": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 400,
+                  "unit": "ms"
+                },
+                "$description": "A sheet that slides in from an edge (a bottom sheet, a side sheet, a modal drawer) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 350,
+                  "unit": "ms"
+                },
+                "$description": "A sheet that slides in from an edge (a bottom sheet, a side sheet, a modal drawer) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "toast": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 350,
+                  "unit": "ms"
+                },
+                "$description": "A message at an edge of the window that leaves on its own (a snackbar) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$description": "A message at an edge of the window that leaves on its own (a snackbar) leaves. Leaving is shorter than appearing."
+              }
+            }
+          },
+          "disclosure": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "Content that opens and closes in place: an accordion's panel, a tree's group, a section of a drawer."
+          },
+          "feedback": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "The answer to a press that spreads from the point of contact (a ripple)."
+          },
+          "reduced": {
+            "$type": "duration",
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "The cross-fade that takes the place of a movement, a scaling or a blur while motion is reduced."
+          },
+          "resize": {
+            "default": {
+              "$type": "duration",
+              "$value": {
+                "value": 300,
+                "unit": "ms"
+              },
+              "$description": "A box that changes its size in place: a text field that grows by a line, an error line that opens below a field."
+            },
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 400,
+                "unit": "ms"
+              },
+              "$description": "A large change of size: an attachment strip that opens, a row added to or taken out of a list."
+            }
+          },
+          "selection": {
+            "mark": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              },
+              "$description": "A selection mark that appears in place: a check mark, a radio button's dot."
+            },
+            "travel": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              },
+              "$description": "A selection that travels: a switch's handle, the indicator of tabs or of a navigation bar."
+            }
+          },
+          "show-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long a loading indicator or a skeleton waits before it appears, so that a short wait shows nothing at all."
+          },
+          "state": {
+            "compact": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              },
+              "$description": "A change of state — hover, focus, press — of a small control: a checkbox's box, an icon button, a small button, a chip."
+            },
+            "default": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              },
+              "$description": "A change of state of a control of medium size: a button, a text field."
+            },
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              },
+              "$description": "A change of state of a large surface: a list row, a card, a table's row, a navigation item."
+            }
           }
         },
         "spring": {

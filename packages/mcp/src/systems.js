@@ -451,7 +451,7 @@ export async function validateLayer(input) {
   if (problems.length) return { id: read.id, chain, valid: false, problems };
   try {
     const ctx = await loadContext(input);
-    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, ...(ctx.system.notices?.length ? { notices: ctx.system.notices } : {}), warnings: await ctx.warnings() };
+    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, warnings: await ctx.warnings() };
   } catch (error) {
     // What only the engine can see: a cycle, an alias to a token that does not exist, a rule the closed language lacks.
     return { id: read.id, chain, valid: false, problems: [error.message, ...(error.details?.problems ?? [])] };

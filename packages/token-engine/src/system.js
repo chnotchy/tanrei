@@ -6,6 +6,7 @@
 //   { "$value": <literal>, "reason": "…" }   pin a fixed value (exempt from dials); typography may pin single fields
 //   { "$value": "{other.token}" }            re-point the alias
 //   { "derive": <rule> }                     replace the rule
+//   (a value that follows a choice of kind — a `pick` rule — follows the choice the chain makes; a `$value` pins it)
 //   { "scale": n }                           n × whatever was inherited, without restating it (still dial-driven)
 import { SystemError } from './errors.js';
 import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, walkTokens } from './rules.js';
@@ -29,7 +30,7 @@ export { SystemError };
  */
 export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE, lend } = {}) {
   const SYS_COLOR = `${namespace}.sys.color.`;
-  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace, lend }), notices: [] };
+  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace, lend }) };
   for (const layer of layers) {
     // The rules that value a component's own states come with its vocabulary, at the layer that brings it — the one
     // that holds it, or the one that includes it — and before that layer's own rules, which win a tie.
@@ -166,11 +167,10 @@ export function resolveNumericTokens(sources, system) {
   const isColorRef = (id) => id.startsWith(SYS_COLOR) || id.startsWith(`${NS}.ref.palette.`) || id.startsWith(`${NS}.ref.alpha.`);
   const docs = Object.fromEntries(Object.entries(sources).map(([name, doc]) => [name, clone(doc)]));
   // The merged system is what a reader (explain_token, Theme Studio) shows as authored: the operations are applied
-  // from a copy, so a choice written by name stays a name there, and a declaration core has since adopted does not
-  // grow an entry under `tokens`. Only `notices` is written back — it is an output of this step.
+  // from a copy, so a choice written by name stays a name there.
   const work = { ...system, tokens: clone(system.tokens) };
   // Extensions become ordinary tokens here, before anything indexes the documents.
-  system.notices = materializeVocabulary(docs, work);
+  materializeVocabulary(docs, work);
   // The documents the layers hold are no part of the system as such: the ones it has are its component documents now.
   for (const name of Object.keys(docs)) if (isHeldDocument(name)) delete docs[name];
   const index = new Map();
@@ -275,7 +275,8 @@ export function resolveNumericTokens(sources, system) {
       state.set(id, 'done');
     }
     const v = isRef(token.$value) ? resolve(refId(token.$value), [...trail, id]) : token.$value;
-    return typeof v === 'number' ? { value: v } : v;
+    // A choice of kind answers with its names too, for a value that follows it (`pick`).
+    return typeof v === 'number' ? { value: v, names: token.$extensions?.[ENUM]?.values } : v;
   };
   for (const id of index.keys()) resolve(id);
   // Touch ruleDependencies so unknown references inside unused fields still surface.

@@ -184,7 +184,7 @@ studioTest('Behaviour: chosen by name with the arrow keys; the preview’s real 
   assert.match(warning, /a press would show nothing/);
   assert.equal((await hint.textContent()).replace(/(?<![\w.-])comp\./g, 'tanrei.comp.'), warning, 'the hint IS the warning (token ids shown short, as everywhere)');
   assert.ok(!(await behaviour.locator('[data-behavior-hint="focus-style"]').isVisible()), 'focus-style: nothing to say');
-  assert.deepEqual(await behaviour.locator('[data-behavior-row]').evaluateAll((els) => els.map((el) => el.dataset.behaviorRow)), ['pressed-feedback', 'focus-style', 'separation', 'link-underline', 'requirement-mark', 'divider-visibility'], 'every sys.behavior choice has a row (the gap-or-divider choice is the third; a text link’s underline the fourth; whether a fixed region’s edge follows the scroll the last); corner smoothing is an amount under Shape, not a choice here');
+  assert.deepEqual(await behaviour.locator('[data-behavior-row]').evaluateAll((els) => els.map((el) => el.dataset.behaviorRow)), ['pressed-feedback', 'focus-style', 'separation', 'link-underline', 'requirement-mark', 'divider-visibility', 'appearance'], 'every sys.behavior choice has a row (the gap-or-divider choice is the third; a text link’s underline the fourth; how a surface appears the last); corner smoothing is an amount under Shape, not a choice here');
   const flat = await pressAndLook(filled);
   assert.deepEqual([flat.pressed, flat.opacity], ['dim', '1']);
   // The token it names is a link: Every token opens on it; lowering it there silences the hint.
