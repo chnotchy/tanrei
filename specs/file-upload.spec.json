@@ -509,7 +509,7 @@
     },
     {
       "id": "FUP-28",
-      "text": "WHILE disabled is true THE file upload SHALL give disabled to its file picker, which disables the trigger, draws its own parts from their disabled tokens and answers neither a press nor a drag (FPK-19); SHALL give disabled to every file item, which disables its actions and its body and keeps what it shows of the file drawn as it is and readable by assistive technology (FIT-21): what was chosen is still what was chosen; and SHALL emit neither select nor reject, and no row's click, remove or retry."
+      "text": "WHILE disabled is true THE file upload SHALL give disabled to its file picker, which disables the trigger, draws its own parts from their disabled tokens and answers neither a press nor a drag (FPK-19); SHALL give disabled to every file item, which disables its actions and its body and keeps what it shows of the file drawn as it is and readable by assistive technology (FIT-21): what was chosen is still what was chosen; and SHALL emit neither select nor reject, and no row's click, remove or retry. WHEN a disabled file upload first appears its trigger SHALL be drawn disabled in its first frame, from its first render, without moving from the enabled look into it."
     },
     {
       "id": "FUP-29",
