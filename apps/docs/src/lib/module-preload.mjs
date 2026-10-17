@@ -101,7 +101,6 @@ export function modulePreload() {
             plugins: [
               {
                 name: 'tanrei-docs:module-preload-graph',
-                apply: 'build',
                 applyToEnvironment: (environment) => environment.name === CLIENT,
                 generateBundle(_options, bundle) {
                   for (const output of Object.values(bundle)) if (output.type === 'chunk') imports.set(output.fileName, [...output.imports]);
