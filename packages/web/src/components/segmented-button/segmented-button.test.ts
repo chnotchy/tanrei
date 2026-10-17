@@ -565,7 +565,7 @@ test.describe('layout', () => {
   test('SEG-24: a selected segment casts its condition’s elevation outside itself and above its neighbours (cupertino raises it; the default raises none); the set draws nothing else outside itself', async ({ page }) => {
     await mountFixtures(page, spec, { system: 'cupertino' });
     const elevation = await resolveShadow(page, T('selected-container-elevation'));
-    await expect.poll(() => css(btn(page, 'single', 1), 'box-shadow')).toBe(elevation);
+    await expect.poll(() => settledCss(btn(page, 'single', 1), 'box-shadow')).toBe(elevation);
     const shadow = await css(btn(page, 'single', 1), 'box-shadow');
     expect(shadow).not.toMatch(/^(none|rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)$/);
     expect(Number(await css(seg(page, 'single', 1), 'z-index'))).toBeGreaterThan(Number((await css(seg(page, 'single', 0), 'z-index')).replace('auto', '0')));
