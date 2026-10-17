@@ -21,6 +21,8 @@ const committed = (id) => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, manife
 const names = (manifest) => manifest.components.map((component) => component.name);
 const find = (manifest, name) => manifest.components.find((component) => component.name === name);
 const omitted = (manifest, name) => manifest.omitted.find((entry) => entry.name === name);
+/** What m3-like, which holds the FAB menu, names for a system without it. */
+const fabMenuOutside = read('m3-like').vocabulary[`${CONFIG.namespace}.comp.fab-menu`].outside;
 /** The manifest of a product's layers in memory, after the checks `tanrei build` runs first. */
 function productManifest(...layers) {
   assert.deepEqual(validateSystem({ layers }), [], 'the product layer is valid');
@@ -45,8 +47,11 @@ test('the default system lists neither the FAB menu nor the segmented button, an
   assert.ok(names(tanrei).includes('button') && names(tanrei).includes('main-action-button'), 'the premise: the core’s components are listed');
   assert.equal(find(tanrei, 'fab-menu'), undefined);
   assert.equal(find(tanrei, 'segmented-button'), undefined);
-  // The FAB menu is not left out: it lives in m3-like, which the default system does not descend from.
-  assert.deepEqual(omitted(tanrei, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
+  // The FAB menu is not left out: it lives in m3-like, which the default system does not descend from, and m3-like
+  // says what a system without it uses instead.
+  assert.deepEqual(omitted(tanrei, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', ...fabMenuOutside });
+  assert.deepEqual(fabMenuOutside.insteadUse, ['main-action-button', 'bottom-sheet'], 'what the FAB menu’s and the main action button’s pages name');
+  for (const instead of fabMenuOutside.insteadUse) assert.ok(find(tanrei, instead), `${instead}, named instead of the FAB menu, is listed`);
   const segmented = omitted(tanrei, 'segmented-button');
   assert.equal(segmented.omittedBy, DEFAULT_SYSTEM);
   assert.ok(segmented.reason);
@@ -74,7 +79,7 @@ test('m3-like and m3-expressive-like list both; cupertino lists the segmented bu
   const cupertino = committed('cupertino');
   assert.ok(find(cupertino, 'segmented-button'));
   assert.equal(find(cupertino, 'fab-menu'), undefined);
-  assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
+  assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', ...fabMenuOutside });
 });
 
 test('each name comes from tanrei.config.json and from what the platforms generate', () => {
@@ -120,7 +125,8 @@ test('a product on the default system that includes the FAB menu from m3-like li
   assert.ok(fab);
   assert.equal(fab.layer, 'm3-like');
   assert.equal(fab.web.import, `${CONFIG.packages.npmScope}/web/m3-like`);
-  assert.equal(omitted(acme, 'fab-menu'), undefined);
+  assert.equal(omitted(acme, 'fab-menu'), undefined, 'a system that has it is told nothing to use instead');
+  assert.ok(acme.omitted.every((entry) => !entry.insteadUse?.includes('fab-menu')));
   assert.equal(find(acme, 'segmented-button'), undefined, 'what the default system leaves out stays out');
   assert.deepEqual(names(acme), [...names(committed(DEFAULT_SYSTEM)), 'fab-menu'].sort());
 });
@@ -132,4 +138,13 @@ test('a variant value a layer adds to an axis is listed for every component that
   const acme = componentsManifest(chain, catalog, held);
   assert.deepEqual(find(acme, 'text-input').variants, ['stacked', 'glass']);
   assert.deepEqual(find(acme, 'text-field').variants, ['stacked', 'glass']);
+});
+
+test('a product without the FAB menu that leaves out one of its stand-ins is told only the others', () => {
+  const acme = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.', insteadUse: ['dialog'] } } } });
+  assert.equal(find(acme, 'bottom-sheet'), undefined);
+  assert.deepEqual(omitted(acme, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', reason: fabMenuOutside.reason, insteadUse: ['main-action-button'] });
+  // With none of them, the entry keeps its reason and names nothing.
+  const bare = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.' }, 'main-action-button': { reason: 'Acme has no floating action.' } } } });
+  assert.deepEqual(omitted(bare, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', reason: fabMenuOutside.reason });
 });
