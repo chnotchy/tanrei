@@ -30,48 +30,37 @@
     padding: var(--tanrei-sys-space-space100) var(--tanrei-comp-app-shell-gutter-compact);
   }
 
-  /* ── The header: the app bar, with the site's mark beside the menu button ──────────────────────────────────────
-     The mark is the brand's symbol (Header.astro) in an icon button's box: as wide as it is high — the link's own
-     target, the pointer's or the touch target — with the symbol centred in it at an icon's size. Its centre and its
-     inset are then the menu button's and the actions': the row is one line of icons, the symbol's frame where an
-     icon's frame would be. It is painted on-surface (the bar's title color), so it follows the scheme and the
-     contrast; after the menu button it stands at the gap one icon button keeps from the next. Its corners — what its
-     hover, press and focus ring are drawn on — are the Button's, so the ring around it is the one around the menu
-     button. */
-  .docs-site-title {
-    --tanrei-comp-link-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-hovered-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-pressed-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-focused-container-shape: var(--tanrei-comp-button-focused-container-shape);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-inline-size: var(--tanrei-sys-target-pointer);
-    min-block-size: var(--tanrei-sys-target-pointer);
-    color: var(--tanrei-comp-app-bar-title-color);
+  /* ── The header: the app bar, with the site's brand beside the menu button ─────────────────────────────────────
+     The brand is the bar's (APB-19, APB-20): Tanrei's wordmark (Header.astro), in an icon button's cell after the menu
+     button, comp.app-bar.brand.wordmark.height high, in comp.app-bar.brand.color. Until the bar is defined the image
+     holds the box the bar will give it: the cell's padding around the wordmark's height, the gap after the menu
+     button (none where the shell hides the button). */
+  tanrei-app-bar:not(:defined) > .docs-brand {
+    box-sizing: content-box;
+    flex: none;
+    min-inline-size: 0;
+    min-block-size: 0;
+    inline-size: auto;
+    block-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
+    padding-inline: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+    padding-block: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
+    color: var(--tanrei-comp-app-bar-brand-color);
   }
   @media (pointer: coarse) {
-    .docs-site-title {
-      min-inline-size: var(--tanrei-sys-target-touch);
-      min-block-size: var(--tanrei-sys-target-touch);
+    tanrei-app-bar:not(:defined) > .docs-brand {
+      padding-inline: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+      padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
     }
   }
-  .docs-site-mark {
-    flex: none;
-    inline-size: var(--tanrei-sys-icon-medium);
-    block-size: var(--tanrei-sys-icon-medium);
-  }
-  [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
   }
-  /* Where the shell hides the menu button, the mark begins the bar in the button's place. */
   @container style(--_aps-menu: hidden) {
-    [data-app-shell-menu] + .docs-site-title {
+    tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
       margin-inline-start: 0;
     }
   }
-  tanrei-app-shell[data-menu='hidden'] [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-shell[data-menu='hidden'] tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: 0;
   }
   /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
@@ -97,14 +86,14 @@
   tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-compact-only {
     display: inline-flex;
   }
-  /* The site's mark leaves a bar too narrow for it beside the menu button and two actions (a 320 wide window at
+  /* The site's brand leaves a bar too narrow for it beside the menu button and two actions (a 320 wide window at
      twice the text size): the widths are the reader's text size, as the shell's are (APS-2). The first level of the
      breadcrumbs still leads to the same page. */
   tanrei-app-shell > [slot='header'] {
     container: docs-header / inline-size;
   }
   @container docs-header (inline-size < 14rem) {
-    .docs-site-title {
+    .docs-brand {
       display: none;
     }
   }
