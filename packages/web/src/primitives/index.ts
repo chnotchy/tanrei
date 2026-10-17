@@ -88,7 +88,8 @@
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
-//                 velocity), the fling and slop constants, modalSheetKeys() (Escape and the trap), closeRequestReason()
+//                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
+//                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
 //                 (Escape or back), keyboardCover() and onBackdrop()
 //   separation  — sys.behavior.separation as a component reads it: separationHost() (the attribute over the
 //                 component token, as `--_separation` on the host), whenGap() (the gap form's rules: a style query, and
@@ -223,6 +224,7 @@ export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
 export {
+  POINTER_STOPPED_TIME,
   SHEET_FLING_VELOCITY,
   SHEET_TOUCH_SLOP,
   SheetDrag,
@@ -231,6 +233,7 @@ export {
   keyboardCover,
   modalSheetKeys,
   onBackdrop,
+  stoppedBefore,
   watchEscape,
 } from './sheet.js';
 export { type NativeText, NativeTextController, type NativeTextOptions } from './native-text.js';

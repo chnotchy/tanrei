@@ -8,6 +8,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDo
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('navigation-drawer');
@@ -1660,6 +1661,22 @@ test.describe('forms and focus', () => {
     await page.mouse.click(width - 20, 600);
     expect(await log(page)).toEqual([]);
     await expect(drawer(page, 'm')).toHaveAttribute('open', '');
+  });
+
+  test('NVD-20: a fast drag toward the start edge that holds still for more than 40 ms before its release is no fling — the drawer stays open — and the same drag released within 40 ms of its last move closes it', async ({ page }) => {
+    await mount(page, [fixture('m', MAIL, { variant: 'modal' })], { reducedMotion: true });
+    await wire(page);
+    const width = await px(page, T('container-width'));
+    // 30 px toward the start edge at 2.5 px per ms, far short of half the drawer: only a fling closes it.
+    const from = { x: width - 20, y: 500 };
+    const moves = strokes(from, { x: -10, y: 0 });
+    const inside = drawer(page, 'm').locator('nav.landmark');
+    await flingThenHold(page, inside, { from, moves, hold: STOPPED_AFTER + 1 });
+    expect(await log(page)).toEqual([]);
+    await expect(drawer(page, 'm')).toHaveAttribute('open', '');
+    await flingThenHold(page, inside, { from, moves, hold: STOPPED_AFTER });
+    await expect.poll(() => log(page)).toEqual(['close:false']);
+    await expect(drawer(page, 'm')).not.toHaveAttribute('open');
   });
 
   test('NVD-21: activating a destination of a modal drawer emits change or reselect, then closes it; a link opened somewhere else — a modified click, a link to a new context — leaves it open', async ({ page, context }) => {

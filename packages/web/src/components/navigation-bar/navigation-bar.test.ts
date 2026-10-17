@@ -4,6 +4,8 @@
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { releaseAtRest } from '../../../test/release-at-rest.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
 
 const spec = loadSpec('navigation-bar');
@@ -169,11 +171,6 @@ async function dragTo(page: P, id: string, n: number, x: number) {
   await page.mouse.move(x, from.y);
   await frames(page);
   return from;
-}
-/** A release that is not a fling: the pointer has rested longer than the velocity looks back. */
-async function releaseAtRest(page: P) {
-  await page.waitForTimeout(160);
-  await page.mouse.up();
 }
 
 /** Every part a destination draws from its condition: NVB-3's list. */
@@ -1265,6 +1262,23 @@ test.describe('the drag', () => {
     await expect.poll(() => moving(page, 'four-destinations')).toBe(false);
     expect(await value(page, 'four-destinations')).toBe('inbox');
     expect(await log(page)).toEqual(['change:sent']);
+  });
+
+  test('NVB-28: a fast drag that holds still for more than 40 ms before its release is no fling — the nearer destination is chosen — and the same drag released within 40 ms of its last move is one', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: fixtures('four-destinations'), reducedMotion: true });
+    await wire(page);
+    const a = await bounds(container(page, 'four-destinations', 0));
+    const from = { x: a.x + a.width / 2, y: a.y + a.height / 2 };
+    // 30 px toward Sent at 2.5 px per ms, short of where Inbox's cell meets Sent's: only a fling chooses Sent.
+    const moves = strokes(from, { x: 10, y: 0 });
+    const cell = item(page, 'four-destinations', 0).locator('.cell');
+    await flingThenHold(page, cell, { from, moves, hold: STOPPED_AFTER + 1, pointerType: 'mouse', pointerId: 1 });
+    expect(await log(page)).toEqual([]);
+    expect(await value(page, 'four-destinations')).toBe('inbox');
+    await expect.poll(() => moving(page, 'four-destinations')).toBe(false);
+    await flingThenHold(page, cell, { from, moves, hold: STOPPED_AFTER, pointerType: 'mouse', pointerId: 1 });
+    expect(await log(page)).toEqual(['change:sent']);
+    expect(await value(page, 'four-destinations')).toBe('sent');
   });
 
   test('NVB-28: a destination that is a link is not draggable as a link; a release that chooses it is a plain press on it — one change with its href, the link followed, value not written and the indicator back on what value selects; with value set in the listener the indicator ends on the chosen one; a link to a new context opens and emits nothing', async ({ page }) => {

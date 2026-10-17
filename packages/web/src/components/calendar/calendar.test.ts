@@ -6,6 +6,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { motionEnded } from '../../../test/motions.js';
+import { releaseAtRest } from '../../../test/release-at-rest.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('calendar');
 type P = Page;
@@ -985,8 +987,7 @@ test.describe('the column of weeks and the drag', () => {
     // (Released at rest, so that where the days are decides and not how fast the pointer came: its way here went up,
     // down and up again, and a browser that delivers those moves within the time a release looks back over — WebKit
     // does — sees a fling toward September in them. A fling's own choice is CAL-31's.)
-    await page.waitForTimeout(200);
-    await page.mouse.up();
+    await releaseAtRest(page);
     await expect.poll(() => shown(page, 'c')).toBe('October 2026');
     await expect.poll(() => cursorOf(host(page, 'c').locator('.calendar'))).not.toBe('grabbing');
     await land(page, 'c');
@@ -1063,6 +1064,23 @@ test.describe('the column of weeks and the drag', () => {
     expect(await log(page)).toEqual([]);
     expect(await host(page, 'c').evaluate((el: any) => el.value)).toBe('2026-09-17');
     await expect(day(page, 'c', '2026-09-17')).toHaveClass(/selected/);
+  });
+
+  test('CAL-31: a fast drag that holds still for more than 40 ms before its release is no fling — the quarter decides — and the same drag released within 40 ms of its last move is one', async ({ page }) => {
+    await mount(page, [f('c', { value: '2026-09-17' })]);
+    const box = await bounds(pages(page, 'c'));
+    const from = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    // 30 px toward October at 2.5 px per ms, short of a quarter of the way: only a fling shows October.
+    const moves = strokes(from, { x: 0, y: -10 });
+    expect(30).toBeLessThan(await rowHeight(page, 'c'));
+    const grid = host(page, 'c').locator('.day-view');
+    await flingThenHold(page, grid, { from, moves, hold: STOPPED_AFTER + 1 });
+    expect(await shown(page, 'c')).toBe('September 2026');
+    await land(page, 'c');
+    await flingThenHold(page, grid, { from, moves, hold: STOPPED_AFTER });
+    expect(await shown(page, 'c')).toBe('October 2026');
+    await land(page, 'c');
+    expect(await log(page)).toEqual([]);
   });
 
   test('CAL-32: a cancelled pointer, Escape, a date the product sets and the year view return the days and announce nothing — the last two cancel a scroll being followed too, and what is left of it is ignored; while a drag or a scroll holds the days the month shown, the active day, focus and what is exposed do not change, and what comes into view is inert and hidden; reduced motion follows the pointer and lands at once', async ({ page }) => {

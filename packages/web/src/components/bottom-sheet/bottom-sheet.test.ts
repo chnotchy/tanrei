@@ -8,6 +8,7 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { motionEnded } from '../../../test/motions.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -776,6 +777,24 @@ test.describe('forms, focus and dismissal', () => {
     await still(page);
     expect(await top(page)).toBeCloseTo(partial, 1);
     expect(await log(page)).toEqual([]);
+  });
+
+  test('BSH-9: a fast drag that holds still for more than 40 ms before its release is no fling — the nearest height is kept — and the same drag released within 40 ms of its last move flings to the next height', async ({ page }) => {
+    await mount(page, [fx('s', {}, LONG)]);
+    await wire(page);
+    const [full, partial] = [await px(page, T('container-margin-block-start')), WINDOW.height / 2];
+    expect(await top(page)).toBeCloseTo(partial, 1);
+    // 30 px up at 2.5 px per ms, far nearer partial than full: only a fling raises the sheet to full.
+    const from = await handleCentre(page);
+    const moves = strokes(from, { x: 0, y: -10 });
+    await flingThenHold(page, handle(page), { from, moves, hold: STOPPED_AFTER + 1 });
+    await still(page);
+    expect(await top(page)).toBeCloseTo(partial, 1);
+    expect(await log(page)).toEqual([]);
+    await flingThenHold(page, handle(page), { from, moves, hold: STOPPED_AFTER });
+    await still(page);
+    expect(await top(page)).toBeCloseTo(full, 1);
+    expect(await log(page)).toEqual(['detent:full:full']);
   });
 
   test('BSH-10: the keyboard focus of a content that scrolls is drawn inside its edges and stays there while it scrolls — its inner stroke does not move away with the content', async ({ page }) => {

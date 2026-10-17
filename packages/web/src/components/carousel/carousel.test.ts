@@ -9,6 +9,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { holdClock as holdPageClock, releaseClock } from '../../../test/page-clock.js';
+import { STOPPED_AFTER } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
@@ -1430,6 +1432,92 @@ test.describe('behavior', () => {
     expect(await offset(page, 'centered')).toBe(208);
     await drag(90, 150, 20, 4, 0); // back, fast
     await expect.poll(() => offset(page, 'centered')).toBe(0);
+    await context.close();
+  });
+
+  test('CRL-14: a fast drag that holds still for more than 40 ms before the finger lifts is no fling — the row settles at the nearest position — and the same drag lifted within 40 ms of its last move goes on to the next one', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
+    // The finger's events are made in the page on a held clock, so the time between the last move and the lift is
+    // exact; the row is scrolled by the test as the finger would scroll it, so the carousel's choice is read in every
+    // engine. The next test makes the same strokes with real touches in Chromium, whose own momentum the row must not
+    // follow.
+    const touch = (type: 'touchstart' | 'touchmove' | 'touchend', x: number) =>
+      scroller(page, 'centered').evaluate(
+        (el, [type, x]) => {
+          const at = [{ clientX: x as number, clientY: 0 }];
+          el.dispatchEvent(Object.assign(new Event(type as string), { touches: type === 'touchend' ? [] : at, changedTouches: at }));
+        },
+        [type, x] as const,
+      );
+    const stroke = async (hold: number) => {
+      await holdPageClock(page);
+      await touch('touchstart', 150);
+      // 60 px toward the end, nearer this position (0) than the next (208): only a fling goes on.
+      await scroller(page, 'centered').evaluate(
+        (el) =>
+          new Promise<void>((resolve) => {
+            el.addEventListener('scroll', () => resolve(), { once: true });
+            el.scrollLeft = 60;
+          }),
+      );
+      for (const x of [130, 110, 90]) {
+        await page.clock.runFor(4);
+        await touch('touchmove', x);
+      }
+      await page.clock.runFor(hold);
+      await touch('touchend', 90);
+      await releaseClock(page);
+    };
+    await stroke(STOPPED_AFTER + 1);
+    await expect.poll(() => offset(page, 'centered')).toBe(0);
+    await stroke(STOPPED_AFTER);
+    await expect.poll(() => offset(page, 'centered')).toBe(208);
+  });
+
+  test('CRL-14: a fast touch stroke held still for more than 40 ms before the lift settles at the position nearest the lift, not where the browser’s own momentum would carry it; lifted within 40 ms it goes on to the next one', async ({ browser, browserName }) => {
+    test.skip(browserName !== 'chromium', 'touch input is dispatched over CDP');
+    // Real touches, so that the browser's own momentum is there to carry the row on: Chromium flings this stroke
+    // whatever the carousel decides, and only a row the carousel holds from the lift settles where the finger let go.
+    // The page clock is held while the finger is down, so the carousel sees exactly `hold` ms between the last move
+    // and the lift: an event's timeStamp is the held page time at which the page handles it. Chromium hands a touch
+    // move to the page with its next frame, not when it is sent, so each touch is waited for before the clock moves on.
+    // The touches' own stamps give the browser the same timing, set in the past so that none is later than now.
+    const { context, page, touch } = await touchPage(browser);
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
+    const y = (await bounds(carousel(page, 'centered'))).y + 100;
+    await scroller(page, 'centered').evaluate((el) => {
+      const seen = window as unknown as { touches: number };
+      seen.touches = 0;
+      for (const type of ['touchstart', 'touchmove', 'touchend']) el.addEventListener(type, () => (seen.touches += 1), { passive: true });
+    });
+    let sent = 0;
+    const handled = async () => {
+      sent += 1;
+      await expect.poll(() => page.evaluate(() => (window as unknown as { touches: number }).touches)).toBe(sent);
+    };
+    const stroke = async (from: number, moves: number[], hold: number) => {
+      let at = Date.now() - 1000;
+      await holdPageClock(page);
+      await touch('touchStart', from, y, at);
+      await handled();
+      for (const x of moves) {
+        await page.clock.runFor(4);
+        await touch('touchMove', x, y, (at += 4));
+        await handled();
+      }
+      await page.clock.runFor(hold);
+      await touch('touchEnd', moves[moves.length - 1], y, (at += hold));
+      await handled();
+      await releaseClock(page);
+      await atRest(page, 'centered');
+    };
+    // 60 px toward the end, three moves 4 ms apart (5 px per ms), nearer this position (0) than the next (208).
+    await stroke(150, [130, 110, 90], STOPPED_AFTER + 1);
+    expect(await offset(page, 'centered'), 'held still before the lift: the nearest position, not the momentum’s end').toBe(0);
+    await stroke(150, [130, 110, 90], STOPPED_AFTER);
+    expect(await offset(page, 'centered'), 'lifted while moving: a fling, one position on').toBe(208);
+    await stroke(90, [110, 130, 150], STOPPED_AFTER + 1);
+    expect(await offset(page, 'centered'), 'back, held still before the lift: the nearest position').toBe(208);
     await context.close();
   });
 
