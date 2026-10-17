@@ -1329,9 +1329,9 @@ const STAGING: Record<string, Staging> = {
       if (f.props.tabs === undefined || f.props.tabs === '') return element;
       const tabs = loadSpec('tabs');
       const primary = tabs.fixtures.find((fixture) => fixture.id === 'primary')!;
-      const { selected: _selected, ...row } = primary.props;
-      const selected = f.props.selected;
-      const props = selected === undefined || selected === null ? row : { ...row, selected };
+      const { value: _value, ...row } = primary.props;
+      const value = f.props.value;
+      const props = value === undefined || value === null ? row : { ...row, value };
       const id = `tabs-${f.id}`;
       return `<tanrei-tabs id="${id}" ${attributes(tabs.props, tabs.platforms.web.props, props)}>${itemsMarkup(tabs, primary.items ?? [], {})}</tanrei-tabs>${element.replace('<tanrei-tab-view', `<tanrei-tab-view tabs="${id}"`)}`;
     },
