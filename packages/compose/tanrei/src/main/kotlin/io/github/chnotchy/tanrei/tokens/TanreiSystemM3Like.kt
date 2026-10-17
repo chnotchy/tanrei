@@ -2163,7 +2163,7 @@ private object M3LikeSystemSource {
         TanreiCalloutTokens(
             actionsGap = 12.dp,
             actionsItemGap = 8.dp,
-            closeButtonVariant = 1f,
+            closeButtonVariant = 4f,
             containerGap = 8.dp,
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 16.dp,

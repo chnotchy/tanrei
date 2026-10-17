@@ -589,7 +589,7 @@ export const cupertino = {
   },
   shape: { cornerSmoothing: 0.6, extraExtraLarge: 32, extraLarge: 20, extraLargeIncreased: 24, extraSmall: 4, full: 9999, large: 14, largeIncreased: 16, medium: 10, none: 0, small: 8 },
   space: { space0: 0, space25: 2, space50: 4, space75: 6, space100: 8, space125: 10, space150: 12, space175: 14, space200: 16, space250: 20, space300: 24, space400: 32, space450: 36, space500: 40, space600: 48, space700: 56, space800: 64, space900: 72 },
-  state: { disabledContainerOpacity: 0.12, disabledContentOpacity: 0.38, draggedStateLayerOpacity: 0.16, focusStateLayerOpacity: 0.1, hoverStateLayerOpacity: 0.08, pressedStateLayerOpacity: 0.1, selectedStateLayerOpacity: 0.16 },
+  state: { disabledContainerOpacity: 0.12, disabledContentOpacity: 0.38, draggedStateLayerOpacity: 0.16, focusStateLayerOpacity: 0, hoverStateLayerOpacity: 0, pressedStateLayerOpacity: 0.1, selectedStateLayerOpacity: 0.16 },
   measure: {
     border: { hairline: 1, thick: 2 },
     breakpoint: { expanded: 1024, medium: 600 },
@@ -2586,7 +2586,7 @@ export const cupertino = {
     callout: {
       actionsGap: 12,
       actionsItemGap: 8,
-      closeButtonVariant: 1,
+      closeButtonVariant: 4,
       containerGap: 8,
       containerPaddingBlock: 12,
       containerPaddingInline: 16,

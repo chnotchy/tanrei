@@ -2109,7 +2109,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   callout: TanreiCalloutTokens(
     actionsGap: 12.0,
     actionsItemGap: 8.0,
-    closeButtonVariant: 1.0,
+    closeButtonVariant: 4.0,
     containerGap: 8.0,
     containerPaddingBlock: 12.0,
     containerPaddingInline: 16.0,

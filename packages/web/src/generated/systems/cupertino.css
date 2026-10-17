@@ -1441,7 +1441,7 @@
     --tanrei-comp-callout-body-typescale-medium-letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     --tanrei-comp-callout-body-typescale-medium-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-callout-body-typescale-medium-font: var(--tanrei-sys-typescale-body-font);
-    --tanrei-comp-callout-close-button-variant: tonal;
+    --tanrei-comp-callout-close-button-variant: text;
     --tanrei-comp-callout-container-color-outlined: rgb(0 0 0 / 0);
     --tanrei-comp-callout-container-color-tonal: var(--tanrei-sys-color-secondary-container);
     --tanrei-comp-callout-container-gap: var(--tanrei-sys-space-space100);
@@ -4880,12 +4880,12 @@
     --tanrei-comp-menubar-disabled-container-shape: var(--tanrei-comp-menubar-container-shape);
     --tanrei-comp-menubar-disabled-container-shape-pill: 0;
     --tanrei-comp-menubar-disabled-opacity: 1;
-    --tanrei-comp-menubar-expanded-container-color: color-mix(in srgb, var(--tanrei-comp-menubar-expanded-state-layer-color) calc(var(--tanrei-sys-state-hover-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-menubar-expanded-container-color: color-mix(in srgb, var(--tanrei-comp-menubar-expanded-state-layer-color) 8%, transparent);
     --tanrei-comp-menubar-expanded-disabled-container-color: var(--tanrei-comp-menubar-expanded-container-color);
     --tanrei-comp-menubar-expanded-disabled-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-menubar-expanded-disabled-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-menubar-expanded-disabled-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
-    --tanrei-comp-menubar-expanded-focused-container-color: color-mix(in srgb, var(--tanrei-comp-menubar-expanded-state-layer-color) calc(var(--tanrei-sys-state-focus-state-layer-opacity) * 100%), transparent);
+    --tanrei-comp-menubar-expanded-focused-container-color: color-mix(in srgb, var(--tanrei-comp-menubar-expanded-state-layer-color) 10%, transparent);
     --tanrei-comp-menubar-expanded-focused-icon-color: var(--tanrei-comp-menubar-expanded-icon-color);
     --tanrei-comp-menubar-expanded-focused-label-color: var(--tanrei-comp-menubar-expanded-label-color);
     --tanrei-comp-menubar-expanded-focused-state-layer-color: var(--tanrei-comp-menubar-expanded-state-layer-color);
@@ -9088,8 +9088,8 @@
     --tanrei-sys-state-disabled-container-opacity: 0.12;
     --tanrei-sys-state-disabled-content-opacity: 0.38;
     --tanrei-sys-state-dragged-state-layer-opacity: 0.16;
-    --tanrei-sys-state-focus-state-layer-opacity: 0.1;
-    --tanrei-sys-state-hover-state-layer-opacity: 0.08;
+    --tanrei-sys-state-focus-state-layer-opacity: 0;
+    --tanrei-sys-state-hover-state-layer-opacity: 0;
     --tanrei-sys-state-pressed-state-layer-opacity: 0.1;
     --tanrei-sys-state-selected-state-layer-opacity: 0.16;
     --tanrei-sys-target-pointer: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);

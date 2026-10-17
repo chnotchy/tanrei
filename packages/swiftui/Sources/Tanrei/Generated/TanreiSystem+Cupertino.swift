@@ -1938,7 +1938,7 @@ private let cupertinoCalendarTokens = TanreiCalendarTokens(
 private let cupertinoCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
-  closeButtonVariant: 1,
+  closeButtonVariant: 4,
   containerGap: 8,
   containerPaddingBlock: 12,
   containerPaddingInline: 16,
@@ -9746,8 +9746,8 @@ extension TanreiSystem {
       disabledContainerOpacity: 0.12,
       disabledContentOpacity: 0.38,
       draggedStateLayerOpacity: 0.16,
-      focusStateLayerOpacity: 0.1,
-      hoverStateLayerOpacity: 0.08,
+      focusStateLayerOpacity: 0,
+      hoverStateLayerOpacity: 0,
       pressedStateLayerOpacity: 0.1,
       selectedStateLayerOpacity: 0.16
     ),

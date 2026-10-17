@@ -3246,7 +3246,7 @@ export const m3Like = {
     callout: {
       actionsGap: 12,
       actionsItemGap: 8,
-      closeButtonVariant: 1,
+      closeButtonVariant: 4,
       containerGap: 8,
       containerPaddingBlock: 12,
       containerPaddingInline: 16,

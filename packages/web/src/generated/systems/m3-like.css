@@ -1440,7 +1440,7 @@
     --tanrei-comp-callout-body-typescale-medium-letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
     --tanrei-comp-callout-body-typescale-medium-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-callout-body-typescale-medium-font: var(--tanrei-sys-typescale-body-font);
-    --tanrei-comp-callout-close-button-variant: tonal;
+    --tanrei-comp-callout-close-button-variant: text;
     --tanrei-comp-callout-container-color-outlined: rgb(0 0 0 / 0);
     --tanrei-comp-callout-container-color-tonal: var(--tanrei-sys-color-secondary-container);
     --tanrei-comp-callout-container-gap: var(--tanrei-sys-space-space100);

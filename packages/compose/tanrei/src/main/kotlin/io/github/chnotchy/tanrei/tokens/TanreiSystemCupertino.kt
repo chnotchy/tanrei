@@ -553,8 +553,8 @@ private object CupertinoSystemSource {
         disabledContainerOpacity = 0.12f,
         disabledContentOpacity = 0.38f,
         draggedStateLayerOpacity = 0.16f,
-        focusStateLayerOpacity = 0.1f,
-        hoverStateLayerOpacity = 0.08f,
+        focusStateLayerOpacity = 0f,
+        hoverStateLayerOpacity = 0f,
         pressedStateLayerOpacity = 0.1f,
         selectedStateLayerOpacity = 0.16f,
     )
@@ -2032,7 +2032,7 @@ private object CupertinoSystemSource {
         TanreiCalloutTokens(
             actionsGap = 12.dp,
             actionsItemGap = 8.dp,
-            closeButtonVariant = 1f,
+            closeButtonVariant = 4f,
             containerGap = 8.dp,
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 16.dp,

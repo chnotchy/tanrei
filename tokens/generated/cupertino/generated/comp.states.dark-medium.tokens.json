@@ -54855,7 +54855,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
-                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    "amount": 0.1
                   }
                 }
               }
@@ -55073,7 +55073,7 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
-                  "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  "amount": 0.08
                 }
               }
             }

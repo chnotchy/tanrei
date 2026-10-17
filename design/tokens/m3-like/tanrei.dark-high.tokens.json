@@ -16909,7 +16909,7 @@
         "close-button": {
           "variant": {
             "$type": "number",
-            "$value": 1,
+            "$value": 4,
             "$description": "The Button variant of the close button, an icon-only small Button (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45)."
           }
         },
