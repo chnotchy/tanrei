@@ -50,6 +50,9 @@ export const styles = css`
   :host {
     display: block;
     min-inline-size: 0;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
   }
   :host([data-tile]) {
     display: inline-block;
