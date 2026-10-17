@@ -9,6 +9,9 @@ import { TanreiAppBar as TanreiAppBarElement } from '@tanrei/web/components/app-
  *
  * Children, by their `slot`:
  * - `navigation` — The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.
+ * - `brand` — The brand while `brand-layout` is `single`: the product's link to its first page, its content one image of its mark.
+ * - `brand-symbol` — The brand drawn with the symbol while `brand-layout` is `split`: shown while the window is compact.
+ * - `brand-wordmark` — The brand drawn with the wordmark while `brand-layout` is `split`: shown while the window is medium or wider.
  * - `actions` — The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  */
 export const AppBar = /* @__PURE__ */ createComponent({

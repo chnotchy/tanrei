@@ -22,6 +22,16 @@ export type TanreiAppBarTitleAlignment = 'start' | 'center';
 /** When the bottom edge is drawn (APB-18): `auto` takes `comp.app-bar.outline.visibility`. */
 export type TanreiAppBarDividerVisibility = DividerVisibilityProp;
 
+/** How the brand is given (APB-21): one image at every width, or the symbol and the wordmark by the window's class. */
+export type TanreiAppBarBrandLayout = 'single' | 'split';
+
+const BRAND_LAYOUTS: readonly string[] = ['single', 'split'];
+const BRAND_SLOTS = ['brand', 'brand-symbol', 'brand-wordmark'] as const;
+type BrandSlot = (typeof BRAND_SLOTS)[number];
+
+/** What the bar reads of the app shell it stands in (src/components/app-shell): the window's class, once decided. */
+type WindowClassSource = Element & { windowClass?: string | null };
+
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
 /**
@@ -38,6 +48,15 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * default, the element whose id `scroll-target` names, or nothing with `scroll-target="none"` (then set `scrolled`
  * yourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).
  *
+ * The brand (APB-19 to APB-22): the product's own link to its first page — an `<a>` or a router's link — whose content
+ * is its mark, drawn `--tanrei-comp-app-bar-brand-size` high (an icon's size), and whose name is the product's. With
+ * `slot="brand"` it is shown at every width; under `brand-layout="split"` the product gives it twice, drawn with the
+ * symbol (`slot="brand-symbol"`) and with the wordmark (`slot="brand-wordmark"`), and the bar shows the wordmark while
+ * the window is medium or wider and the symbol while it is compact — the window class of the enclosing
+ * `<tanrei-app-shell>`, or of the window's width against `--tanrei-sys-breakpoint-medium` outside one. The bar lays the
+ * brand out in an icon button's cell after the navigation item and sets its `color` (`comp.app-bar.brand.color`, which
+ * a mark in `currentColor` takes); the brand it does not show is neither drawn nor exposed.
+ *
  * The bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it
  * at rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none
  * at rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow
@@ -48,9 +67,13 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  *
  * @tag tanrei-app-bar
  * @slot navigation - The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.
+ * @slot brand - The brand while `brand-layout` is `single`: the product's link to its first page, its content one image of its mark.
+ * @slot brand-symbol - The brand drawn with the symbol while `brand-layout` is `split`: shown while the window is compact.
+ * @slot brand-wordmark - The brand drawn with the wordmark while `brand-layout` is `split`: shown while the window is medium or wider.
  * @slot actions - The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  * @csspart container - The bar: its color, elevation, and the system insets it reaches under.
- * @csspart top-row - The row of the navigation item, the title block and the actions.
+ * @csspart top-row - The row of the navigation item, the brand, the title block and the actions.
+ * @csspart brand - The brand's cell, after the navigation item.
  * @csspart title - The title (the heading), in the top row and in a large bar's own title row.
  * @csspart subtitle - The line under the title.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
@@ -65,11 +88,14 @@ export class TanreiAppBar extends LitElement {
     headline: { type: String },
     subtitle: { type: String },
     titleAlignment: { type: String, attribute: 'title-alignment', reflect: true },
+    brandLayout: { type: String, attribute: 'brand-layout', reflect: true },
     scrolled: { type: Boolean, reflect: true },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     scrollTarget: { type: String, attribute: 'scroll-target' },
     headingLevel: { type: Number, attribute: 'heading-level' },
     hasNavigation: { state: true },
+    brands: { state: true },
+    compact: { state: true },
     hasActions: { state: true },
     layerExpands: { state: true },
     collapse: { state: true },
@@ -88,6 +114,13 @@ export class TanreiAppBar extends LitElement {
 
   /** `start` (after the navigation button) or `center` (centred on the bar). A large bar's own title row always starts at the start. Reflected. */
   titleAlignment: TanreiAppBarTitleAlignment = 'start';
+
+  /**
+   * How the product gives the brand (APB-21): `single` (one image, at every width) or `split` (the symbol and the
+   * wordmark separately: the wordmark while the window is medium or wider, the symbol while it is compact). Reflected
+   * as `brand-layout`.
+   */
+  brandLayout: TanreiAppBarBrandLayout = 'single';
 
   /** Whether content lies under the bar: the scrolled look, and a large bar drawn collapsed. A connected scrolling element sets it. Reflected. */
   scrolled = false;
@@ -109,6 +142,14 @@ export class TanreiAppBar extends LitElement {
   headingLevel = 1;
 
   private hasNavigation = false;
+  /** How many items each brand slot holds (APB-19, APB-22). */
+  private brands: Record<BrandSlot, number> = { brand: 0, 'brand-symbol': 0, 'brand-wordmark': 0 };
+  /** Whether the window class is compact (APB-21): the app shell's, or the window's width against sys.breakpoint.medium. */
+  private compact = false;
+  /** Whether focus was on a brand when the window class last changed (APB-21). */
+  private brandFocused = false;
+  private shell: WindowClassSource | null = null;
+  private widths: MediaQueryList | null = null;
   private hasActions = false;
   /** Whether a size a layer added is defined by the active system (then it has a title row that collapses). */
   private layerExpands = false;
@@ -132,6 +173,9 @@ export class TanreiAppBar extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    this.addEventListener('focusin', this.onFocusIn);
+    this.addEventListener('focusout', this.onFocusOut);
+    this.watchWindow();
     if (!this.hasUpdated) return;
     this.observe();
     this.connectScroll();
@@ -139,8 +183,63 @@ export class TanreiAppBar extends LitElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    this.removeEventListener('focusin', this.onFocusIn);
+    this.removeEventListener('focusout', this.onFocusOut);
+    this.unwatchWindow();
     this.disconnectScroll();
     this.resize$?.disconnect();
+  }
+
+  // ---- APB-21: the window class the split brand follows ----
+
+  /** The app shell's window class where the bar stands in one and it has decided; else the window's width. */
+  private watchWindow() {
+    this.unwatchWindow();
+    this.shell = this.closest<WindowClassSource>('tanrei-app-shell');
+    this.shell?.addEventListener('windowclasschange', this.onWindow);
+    const medium = typeof matchMedia === 'function' ? getComputedStyle(this).getPropertyValue('--tanrei-sys-breakpoint-medium').trim() : '';
+    if (medium) {
+      this.widths = matchMedia(`(min-width: ${medium})`);
+      this.widths.addEventListener('change', this.onWindow);
+    }
+    this.onWindow();
+  }
+
+  private unwatchWindow() {
+    this.shell?.removeEventListener('windowclasschange', this.onWindow);
+    this.widths?.removeEventListener('change', this.onWindow);
+    this.shell = null;
+    this.widths = null;
+  }
+
+  private readonly onWindow = () => {
+    const decided = this.shell?.windowClass;
+    this.compact = decided ? decided === 'compact' : this.widths ? !this.widths.matches : false;
+  };
+
+  /** APB-21: a brand had focus — kept until focus goes somewhere else, as a browser takes it from what it stops drawing. */
+  private readonly onFocusIn = (event: FocusEvent) => {
+    this.brandFocused = this.isBrand(event.target);
+  };
+
+  private readonly onFocusOut = (event: FocusEvent) => {
+    if (event.relatedTarget && !this.isBrand(event.relatedTarget)) this.brandFocused = false;
+  };
+
+  private isBrand(target: EventTarget | null): boolean {
+    if (!(target instanceof Element)) return false;
+    const item = target.closest('[slot]');
+    const slot = item?.getAttribute('slot') ?? '';
+    return (BRAND_SLOTS as readonly string[]).includes(slot) && item?.parentElement === this;
+  }
+
+  /** APB-21, APB-22: the brand slot shown — the layout's, or, where split lacks one of the two, the one it has. */
+  private get shownBrand(): BrandSlot {
+    if (this.brandLayout !== 'split') return 'brand';
+    const symbol = this.brands['brand-symbol'] > 0;
+    const wordmark = this.brands['brand-wordmark'] > 0;
+    if (this.compact) return symbol || !wordmark ? 'brand-symbol' : 'brand-wordmark';
+    return wordmark || !symbol ? 'brand-wordmark' : 'brand-symbol';
   }
 
   /** A size other than small has a title row of its own: large, or a size a layer added that the active system defines. */
@@ -251,7 +350,11 @@ export class TanreiAppBar extends LitElement {
   private onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const items = slot.assignedElements();
-    if (slot.name === 'navigation') {
+    if ((BRAND_SLOTS as readonly string[]).includes(slot.name)) {
+      this.brands = { ...this.brands, [slot.name]: items.length };
+      if (items.length > 1) report(this, 'APB-22', `the ${slot.name} slot holds ${items.length} items; a bar has one brand (one link) in each`);
+      this.reportSplit();
+    } else if (slot.name === 'navigation') {
       this.hasNavigation = items.length > 0;
       if (items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
     } else {
@@ -260,9 +363,17 @@ export class TanreiAppBar extends LitElement {
     }
   }
 
+  /** APB-22: a split brand without the symbol or without the wordmark shows the one it has, and says what is missing. */
+  private reportSplit() {
+    if (this.brandLayout !== 'split') return;
+    const symbol = this.brands['brand-symbol'] > 0;
+    const wordmark = this.brands['brand-wordmark'] > 0;
+    if (symbol !== wordmark) report(this, 'APB-22', `brand-layout is "split" and the bar has no ${symbol ? 'brand-wordmark' : 'brand-symbol'}; it shows the ${symbol ? 'symbol' : 'wordmark'} at every width`);
+  }
+
   /** The boxes whose size moves the centred title's balance and the collapse's range. */
   private observe() {
-    for (const selector of ['.row', '.navigation', '.actions', '.block']) {
+    for (const selector of ['.row', '.lead', '.actions', '.block']) {
       const element = this.find(selector);
       if (element) this.resize$?.observe(element);
     }
@@ -277,6 +388,11 @@ export class TanreiAppBar extends LitElement {
     // APB-18: a divider visibility the bar does not define is drawn as auto (no rule matches it).
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'APB-18', `divider-visibility "${this.dividerVisibility}" is not a value of the app bar; it is drawn as "auto"`);
+    }
+    // APB-22: a brand layout the bar does not define is drawn as single (shownBrand reads only "split").
+    if (changed.has('brandLayout')) {
+      if (!BRAND_LAYOUTS.includes(this.brandLayout)) report(this, 'APB-22', `brand-layout "${this.brandLayout}" is not a value of the app bar; it is drawn as "single"`);
+      this.reportSplit();
     }
   }
 
@@ -293,7 +409,13 @@ export class TanreiAppBar extends LitElement {
     const block = this.find('.block');
     if (block) this.resize$?.observe(block);
     if (changed.has('size') || changed.has('layerExpands' as keyof TanreiAppBar) || changed.has('headline') || changed.has('subtitle')) this.follow();
-    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar)) this.balance();
+    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar) || changed.has('brands' as keyof TanreiAppBar) || changed.has('compact' as keyof TanreiAppBar)) this.balance();
+    // APB-21: the brand the bar now shows takes focus from the one it hid.
+    if (changed.has('compact' as keyof TanreiAppBar) && changed.get('compact' as keyof TanreiAppBar) !== undefined && this.brandFocused) {
+      const shown = this.find<HTMLSlotElement>(`slot[name="${this.shownBrand}"]`)?.assignedElements()[0] as HTMLElement | undefined;
+      const active = document.activeElement;
+      if (shown && active !== shown && (!active || active === document.body || this.isBrand(active))) shown.focus();
+    }
   }
 
   /** APB-5, APB-7, APB-12: the title (a heading) and the subtitle read after it; `hidden` keeps a copy out of the tree. */
@@ -317,13 +439,20 @@ export class TanreiAppBar extends LitElement {
     // APB-12: the expanded title is the one exposed while any of it is visible.
     const topHidden = expands && covered < 1;
     const showsExpanded = expands && (this.connected || !this.scrolled);
+    const shown = this.shownBrand;
+    const hasBrand = this.brands[shown] > 0;
     return html`
       <div part="container" class="container">
         <div
           part="top-row"
-          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-actions': this.hasActions })}
+          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-actions': this.hasActions })}
         >
-          <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
+          <div class="lead">
+            <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
+            <div part="brand" class="brand">
+              ${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${name !== shown} @slotchange=${this.onSlotChange}></slot>`)}
+            </div>
+          </div>
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}
           </div>

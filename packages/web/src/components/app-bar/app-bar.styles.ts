@@ -132,18 +132,38 @@ export const styles = css`
   .row:not(.has-navigation) {
     padding-inline-start: ${t('title-inset')};
   }
+  /* APB-19: a brand begins the bar where a navigation item would. */
+  .row.has-brand:not(.has-navigation) {
+    padding-inline-start: ${t('container-padding-inline')};
+  }
   .row:not(.has-actions) {
     padding-inline-end: ${t('title-inset')};
   }
+  .lead,
   .navigation,
+  .brand,
   .actions {
     display: flex;
     flex: none;
     align-items: center;
   }
+  /* APB-19: the brand stands after the navigation item at the gap between two icon buttons. */
+  .lead {
+    gap: ${t('actions-gap')};
+  }
   .row:not(.has-navigation) .navigation,
+  .row:not(.has-brand) .brand,
+  .row:not(.has-navigation):not(.has-brand) .lead,
   .row:not(.has-actions) .actions {
     display: none;
+  }
+  /* APB-21: the brand the bar does not show is in no box, so it is neither drawn nor exposed. */
+  slot[hidden] {
+    display: none;
+  }
+  /* APB-20: the brand keeps its own look; its color is the bar's, which a mark in currentColor takes. */
+  .brand slot::slotted(*) {
+    color: ${t('brand-color')};
   }
   /* APB-4: comp.app-bar.actions.gap between two actions. */
   .actions {
