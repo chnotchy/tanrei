@@ -10,8 +10,8 @@
 descends from; the FAB menu is shipped by `m3-like` and `m3-expressive-like` only, so it lives in `m3-like`. Its name,
 its element (`<tanrei-fab-menu>`, `<tanrei-fab-menu-item>`) and its behaviour do not change. What breaks:
 
-- `import '@tanrei/web'` no longer registers it. Add `import '@tanrei/web/m3-like'`, the entry of the components that
-  live in that layer (`@tanrei/web/components/fab-menu`, the component's own module, still works).
+- `import '@tanrei/web'` no longer registers it. Import the entry of a system that ships it
+  (`@tanrei/web/m3-like`), or the component's own module (`@tanrei/web/components/fab-menu`).
 - Its 226 tokens (282 declarations) are no longer in the default `tokens.css` nor in `systems/cupertino.css`; they stay,
   unchanged, in `systems/m3-like.css` and `systems/m3-expressive-like.css`. The default system and cupertino no longer
   list it in `--tanrei-unavailable`: they do not have it, and their sheets say where it lives

@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { heldComponents, listSystems as layerIds } from '@tanrei/tokens-build/bundle';
-import { REACT_ALL, componentsManifest, manifestFile, readComponentCatalog } from '@tanrei/tokens-build/components-manifest';
+import { REACT_ALL, componentsManifest, manifestFile, readComponentCatalog, webEntryOf } from '@tanrei/tokens-build/components-manifest';
 import { loadSystem } from '@tanrei/tokens-build/scheme';
 import { resolveFrom } from '../../tools/src/from.js';
 import { CONFIG, DEFAULT_SYSTEM, REPO_ROOT, ROOT_SYSTEM, ToolError, listedSystems, readValidLayers } from './systems.js';
@@ -62,8 +62,10 @@ function readSources() {
   for (const component of catalog.components) {
     if (component.web?.module) register(component.web.module, component.name);
     if (component.web?.stylesheet) register(component.web.stylesheet, component.name);
-    if (component.layer !== ROOT_SYSTEM) register(`${WEB}/${component.layer}`, component.name);
+    if (component.web?.tag) register(`${WEB}/all`, component.name);
   }
+  // A shipped system's entry registers what that system ships (`@tanrei/web` the default system's).
+  for (const id of listedSystems()) for (const { name, web } of shippedManifest(id).components) if (web?.tag && web.import === webEntryOf(id)) register(web.import, name);
   sources = { catalog, specs, written, categories, byTag, byReactName, byWebModule };
   return sources;
 }
@@ -96,7 +98,7 @@ export function manifestOf({ system, layerFile } = {}) {
   const { reference, chain } = readValidLayers({ system, layerFile });
   if (reference.kind === 'shipped') return { product: false, manifest: shippedManifest(reference.id) };
   held ??= heldComponents(layerIds(REPO_ROOT), (id) => loadSystem(REPO_ROOT, id));
-  return { product: true, manifest: componentsManifest(chain, readSources().catalog, held) };
+  return { product: true, manifest: componentsManifest(chain, readSources().catalog, held, listedSystems()) };
 }
 
 let entries;

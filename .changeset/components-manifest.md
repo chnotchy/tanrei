@@ -12,7 +12,7 @@ checks a component (a coding agent, an editor, a lint, the documentation):
 - `tanrei build` writes a product's into its `tokens` output, as `components.json`.
 
 It lists the components the system ships — each with its level and listing, the layer it lives in, its element (or
-class) with the module that registers it (`@tanrei/web`, or a layer's own entry such as `@tanrei/web/m3-like`) and its
+class) with the module that registers it (`@tanrei/web`, or a system's own entry such as `@tanrei/web/m3-like`) and its
 own module, its React name, and the `variant` values the system has, those a layer adds included — and, under
 `omitted`, the components it does not have: with the layer that left each out, why and what to use instead, or the
 layer it lives in (`providedBy`). `omittedVariants` lists the variant values it leaves out, for a composed component
