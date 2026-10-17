@@ -151,6 +151,15 @@
     --tanrei-comp-accordion-trailing-text-typescale-regular-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-accordion-trailing-text-typescale-regular-font: var(--tanrei-sys-typescale-body-font);
     --tanrei-comp-app-bar-actions-gap: var(--tanrei-sys-target-spacing);
+    --tanrei-comp-app-bar-brand-color: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-app-bar-brand-image-height: var(--tanrei-comp-app-bar-brand-wordmark-height);
+    --tanrei-comp-app-bar-brand-lockup-alignment: center;
+    --tanrei-comp-app-bar-brand-lockup-gap: var(--tanrei-sys-space-space100);
+    --tanrei-comp-app-bar-brand-lockup-symbol-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
+    --tanrei-comp-app-bar-brand-shape: var(--tanrei-sys-shape-corner-full);
+    --tanrei-comp-app-bar-brand-shape-pill: 1;
+    --tanrei-comp-app-bar-brand-symbol-size: var(--tanrei-sys-icon-medium);
+    --tanrei-comp-app-bar-brand-wordmark-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
     --tanrei-comp-app-bar-container-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-app-bar-container-height-large: round(nearest, calc(var(--tanrei-dial-size-unit) * 30), 0.25px);
     --tanrei-comp-app-bar-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 16), 0.25px);

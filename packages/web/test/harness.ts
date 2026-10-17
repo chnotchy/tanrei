@@ -43,7 +43,7 @@ export interface Fixture {
   twin?: string;
 }
 /** What a fixture's string in a slot becomes. */
-type SlotFixture = 'glyph' | 'icon-only-button' | 'button' | 'text';
+type SlotFixture = 'glyph' | 'icon-only-button' | 'button' | 'text' | 'mark';
 export interface Spec {
   name: string;
   /** The layer the component lives in (`core` when absent): only the systems that descend from it have its tokens. */
@@ -352,6 +352,16 @@ function itemsMarkup(spec: Spec, items: FixtureItem[], staging: Staging): string
  * icon-only text `<tanrei-button>` showing and labelled by the glyph, a `button` a text `<tanrei-button>` with that label, and
  * `text` plain text in the slot's inherited style.
  */
+/**
+ * A mark as a fixture draws it (the slot fixture kind `mark`): `symbol` or `wordmark`, from design/brand/, inline and
+ * in the current color, with the slot it fills — the same drawing every harness and the docs' Specs table make.
+ */
+export function markMarkup(name: string, slot: string): string {
+  if (name !== 'symbol' && name !== 'wordmark') throw new Error(`a mark fixture names "symbol" or "wordmark", not "${name}"`);
+  const svg = fs.readFileSync(path.join(repo, `design/brand/${name}.svg`), 'utf8').replace(/<!--[\s\S]*?-->\n?/g, '');
+  return svg.replace(/^<svg /, `<svg slot="${slot}" `).trim();
+}
+
 function slotsMarkup(spec: Spec, slots: Fixture['slots']): string {
   const escape = (v: string) => v.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
   return Object.entries(slots ?? {})
@@ -362,6 +372,7 @@ function slotsMarkup(spec: Spec, slots: Fixture['slots']): string {
         const text = escape(v);
         if (kind === 'icon-only-button') return `<tanrei-button variant="text" slot="${name}" label="${text}"><span slot="icon">${text}</span></tanrei-button>`;
         if (kind === 'button') return `<tanrei-button slot="${name}" variant="text">${text}</tanrei-button>`;
+        if (kind === 'mark') return markMarkup(v, name);
         return `<span slot="${name}">${text}</span>`;
       });
     })
