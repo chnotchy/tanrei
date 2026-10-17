@@ -4461,7 +4461,7 @@ private let m3ExpressiveLikeFileUploadTokens = TanreiFileUploadTokens(
 )
 
 private let m3ExpressiveLikeImagePreviewTokens = TanreiImagePreviewTokens(
-  barButtonVariant: 1,
+  barButtonVariant: 4,
   barContainerColor: .role(.surface),
   barGap: 12,
   barHeight: 56,

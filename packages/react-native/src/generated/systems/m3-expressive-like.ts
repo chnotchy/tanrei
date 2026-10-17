@@ -6842,7 +6842,7 @@ export const m3ExpressiveLike = {
     },
     fileUpload: { listGap: 16 },
     imagePreview: {
-      barButtonVariant: 1,
+      barButtonVariant: 4,
       barContainerColor: { kind: "role", role: "surface" },
       barGap: 12,
       barHeight: 56,

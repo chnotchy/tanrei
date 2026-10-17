@@ -271,6 +271,7 @@
     "tanrei.comp.dialog.actions.gap": {"$value": "{tanrei.sys.space.space100}", "reason": "This preset's own gap, narrower than the default system's 16; Apple's hairline-separated, edge-to-edge buttons stay a mimicry gap (dialog-stacked-separated-actions)."},
     "tanrei.comp.side-sheet.actions.variant": {"$value": 4, "reason": "Apple's panel and inspector actions are plain text in the tint color, as this preset's dialog actions are."},
     "tanrei.comp.side-sheet.actions.gap": {"$value": "{tanrei.sys.space.space100}", "reason": "Matches this preset's dialog actions (8)."},
+    "tanrei.comp.image-preview.bar.button.variant": {"$value": 4, "reason": "Apple's photo viewer draws its bar controls as bare glyphs. Keeps the preset's look; the change to tonal controls is the default system's."},
     "tanrei.comp.dialog.compact.window-width": {"$value": "{tanrei.sys.space.space0}", "reason": "Apple's alert is centred on every device and in every window."},
     "tanrei.comp.app-bar.container.height.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}},
     "tanrei.comp.app-bar.container.height.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 24}},

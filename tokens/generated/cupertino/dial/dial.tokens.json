@@ -4420,6 +4420,10 @@
               "$value": "{tanrei.sys.space.space100}",
               "reason": "Matches this preset's dialog actions (8)."
             },
+            "tanrei.comp.image-preview.bar.button.variant": {
+              "$value": 4,
+              "reason": "Apple's photo viewer draws its bar controls as bare glyphs. Keeps the preset's look; the change to tonal controls is the default system's."
+            },
             "tanrei.comp.dialog.compact.window-width": {
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Apple's alert is centred on every device and in every window."

@@ -630,6 +630,7 @@
     "tanrei.comp.side-sheet.container.elevation.modal": {"$value": "{tanrei.sys.elevation.level1}", "reason": "Material's modal side sheet rests at level1, which here is a real shadow."},
     "tanrei.comp.side-sheet.headline.typescale": {"$value": "{tanrei.sys.typescale.heading-4}", "reason": "Material's side sheet headline is title-large, which the fidelity map pairs with heading-4."},
     "tanrei.comp.side-sheet.headline.color": {"$value": "{tanrei.sys.color.on-surface-variant}"},
+    "tanrei.comp.image-preview.bar.button.variant": {"$value": 4, "reason": "Material 3 draws the actions of a bar over content as standard icon buttons, which are Tanrei's text Button with an icon only. Keeps the preset's look; the change to tonal controls is the default system's."},
     "tanrei.comp.side-sheet.actions.arrangement": {"$value": 1, "reason": "Material 3's side sheet starts its actions at the start edge, at their own widths."},
     "tanrei.comp.side-sheet.actions.variant": {"$value": 0, "reason": "Material 3's side sheet draws its main action as a filled button; its secondary action is outlined, which a product sets on that Button (mimicry gap side-sheet-action-emphasis)."},
     "tanrei.comp.side-sheet.actions.gap": {"$value": "{tanrei.sys.space.space100}", "reason": "Material 3 spaces its side sheet actions 8 apart."},

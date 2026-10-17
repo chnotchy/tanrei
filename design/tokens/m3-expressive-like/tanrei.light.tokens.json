@@ -43982,7 +43982,7 @@
           "button": {
             "variant": {
               "$type": "number",
-              "$value": 1,
+              "$value": 4,
               "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only small Buttons (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
             }
           },

@@ -4430,7 +4430,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     listGap: 16.0,
   ),
   imagePreview: TanreiImagePreviewTokens(
-    barButtonVariant: 1.0,
+    barButtonVariant: 4.0,
     barContainerColor: TanreiPaint.role(TanreiColorRole.surface),
     barGap: 12.0,
     barHeight: 56.0,
