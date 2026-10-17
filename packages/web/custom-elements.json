@@ -17836,6 +17836,13 @@
               "readonly": true
             },
             {
+              "kind": "field",
+              "name": "onMouseDown",
+              "privacy": "private",
+              "readonly": true,
+              "description": "CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that\ngives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first\nelement of the shadow root that a click focuses, which is one with a tabindex (HTML, \"click focusable\") — the remove\naction, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses\nnothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back in\nthe next task, once the press has placed focus, so the Tab order (CHP-23), and focus moved to the remove action by\nassistive technology or by script, are as they were. It is the mouse event, not the pointer's, that focuses: a\ntouch's compatibility `mousedown` comes after the touch has ended."
+            },
+            {
               "kind": "method",
               "name": "click",
               "description": "`element.click()` activates the chip as a person would — through its native button, or its anchor, so a link is followed — and does nothing while disabled."

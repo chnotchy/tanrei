@@ -268,7 +268,25 @@ export class TanreiChip extends LitElement {
       },
       { capture: true },
     );
+    this.addEventListener('mousedown', this.onMouseDown);
   }
+
+  /**
+   * CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that
+   * gives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first
+   * element of the shadow root that a click focuses, which is one with a tabindex (HTML, "click focusable") — the remove
+   * action, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses
+   * nothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back in
+   * the next task, once the press has placed focus, so the Tab order (CHP-23), and focus moved to the remove action by
+   * assistive technology or by script, are as they were. It is the mouse event, not the pointer's, that focuses: a
+   * touch's compatibility `mousedown` comes after the touch has ended.
+   */
+  private readonly onMouseDown = (event: MouseEvent) => {
+    const remove = this.removeButton;
+    if (!remove || !this.removes || event.composedPath().includes(remove)) return;
+    remove.removeAttribute('tabindex');
+    setTimeout(() => remove.setAttribute('tabindex', '-1'));
+  };
 
   /** `element.click()` activates the chip as a person would — through its native button, or its anchor, so a link is followed — and does nothing while disabled. */
   override click() {
