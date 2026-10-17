@@ -83,7 +83,7 @@ export const RULES = {
       'src/components/pagination/pagination.test.ts': 1,
       'src/components/popover/popover.test.ts': 8,
       'src/components/progress-indicator/progress-indicator.test.ts': 4,
-      'src/components/radio-button/radio-button.test.ts': 5,
+      'src/components/radio-button/radio-button.test.ts': 4,
       'src/components/radio-group/radio-group.test.ts': 1,
       'src/components/search/search.test.ts': 3,
       'src/components/segmented-button/segmented-button.test.ts': 2,

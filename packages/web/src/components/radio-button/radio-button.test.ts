@@ -6,7 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionEnded, settledCss } from '../../../test/motions.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('radio-button');
@@ -20,16 +20,6 @@ const labelOf = (page: P, id: string) => host(page, id).locator('.label');
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
-/**
- * The element's computed `property` once every transition and animation running on it has reached its end on its own
- * timeline. A color read mid-transition can serialize like its end value (Firefox writes an interpolated color in the end
- * value's space, alpha already rounded to it) and differ from it in the last digit a frame later.
- */
-const settledCss = (locator: Locator, property: string) =>
-  locator.evaluate(async (el, p) => {
-    await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-    return getComputedStyle(el).getPropertyValue(p);
-  }, property);
 const T = (name: string) => `--tanrei-comp-radio-button-${name}`;
 const pressed = (page: P, id: string) => container(page, id).getAttribute('data-pressed');
 const ripples = (page: P, id: string) => container(page, id).locator('.ripple');
