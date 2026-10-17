@@ -6,6 +6,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { releaseClock } from '../../../test/page-clock.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 
 const spec = loadSpec('date-time-picker');
@@ -920,6 +922,48 @@ test.describe('the time', () => {
     await page.mouse.click(cx, cy);
     expect(await now(w)).toBe(4);
     await expect(wheelBox(page, 't', 'hour')).toHaveClass(/typing/);
+  });
+
+  test('DTM-19: a fast drag released within 40 ms of its last move is a fling — the wheel carries on past the nearest row and takes the value it settles on once settled, over the wheel motion — and the same drag held still for more than 40 ms before its release settles the nearest row; the period wheel likewise', async ({ page }) => {
+    await mount(page, [opened('t', { mode: 'time', value: '07:30', hourCycle: 'h12' })]);
+    const w = wheel(page, 't', 'hour');
+    const box = wheelBox(page, 't', 'hour');
+    const row = (await bounds(box.locator('.row.on'))).height;
+    const duration = await resolveToken(page, T('motion-wheel-duration'), 'duration');
+    expect(duration).toBeGreaterThan(0);
+    const b = await bounds(box);
+    const from = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    // 30 px up in three moves 4 ms apart (2.5 px per ms), past the touch slop. The pointer's events are made in the page
+    // on a held clock, so the stillness before the release is exact.
+    const moves = strokes(from, { x: 0, y: -10 });
+    const nearest = Math.round(30 / row);
+    // Held still for longer than 40 ms: no velocity, so the nearest row settles.
+    await flingThenHold(page, box, { from, moves, hold: STOPPED_AFTER + 1 });
+    await expect.poll(() => now(w)).toBe(7 + nearest);
+    // Released 40 ms after the last move: a fling. Its velocity over the drag carries the wheel on, slowing to rest
+    // over the wheel motion (v · duration / 2), past the nearest row; the value is taken once the rows have settled.
+    const velocity = 30 / (moves.length * 4 + STOPPED_AFTER);
+    const carried = Math.round((30 + (velocity * duration) / 2) / row);
+    expect(carried).toBeGreaterThan(nearest);
+    await flingThenHold(page, box, { from, moves, hold: STOPPED_AFTER, keepClock: true });
+    await page.clock.runFor(duration - 1);
+    expect(await now(w)).toBe(7 + nearest);
+    await page.clock.runFor(1);
+    await expect.poll(() => now(w)).toBe(7 + nearest + carried);
+    await releaseClock(page);
+    expect(await now(wheel(page, 't', 'minute'))).toBe(30);
+    // The period wheel: 12 px up is nearer the pending name (AM) than the next; only a fling carries it to PM.
+    const p = periodBox(page, 't');
+    const pb = await bounds(p);
+    const at = { x: pb.x + pb.width / 2, y: pb.y + pb.height / 2 };
+    const short = strokes(at, { x: 0, y: -4 });
+    expect(Math.round(12 / row)).toBe(0);
+    expect((12 + ((12 / (short.length * 4 + STOPPED_AFTER)) * duration) / 2) / row).toBeGreaterThan(0.5);
+    await flingThenHold(page, p, { from: at, moves: short, hold: STOPPED_AFTER + 1 });
+    await expect.poll(() => p.locator('.row.on').textContent()).toBe('AM');
+    await expect(period(page, 't')).toHaveAttribute('aria-valuetext', 'AM');
+    await flingThenHold(page, p, { from: at, moves: short, hold: STOPPED_AFTER });
+    await expect(period(page, 't')).toHaveAttribute('aria-valuetext', 'PM');
   });
 
   test('DTM-20: each wheel is a spin button named hourLabel or minuteLabel, its value as drawn with the period; the keys move it, wrapping; the rows off the selection container are hidden; keyboard focus rings its selection container (its part of a joined one), pointer focus does not; a digit begins a typed entry; no hover or press state', async ({ page }) => {
