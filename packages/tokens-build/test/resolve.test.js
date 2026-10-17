@@ -22,7 +22,7 @@ test('a shipped system resolved in memory equals the bundle committed on disk, r
   const resolved = await resolveSystem({ system: 'm3-like' });
   const fromDisk = await buildModel(path.join(REPO_ROOT, 'tokens/generated/m3-like'), 'm3-like');
   assert.deepEqual(JSON.parse(JSON.stringify(await resolved.model())), JSON.parse(JSON.stringify(fromDisk)));
-  assert.deepEqual(resolved.chain.map((l) => l.id), ['tanrei', 'm3-like']);
+  assert.deepEqual(resolved.chain.map((l) => l.id), ['core', 'tanrei', 'm3-like']);
   assert.equal(resolved.digest, chainDigest(resolved.chain));
 });
 
@@ -50,14 +50,14 @@ test('layers that exist only in memory may extend each other; the last one is th
   } finally {
     Object.assign(fs, real);
   }
-  assert.deepEqual(resolved.chain.map((l) => l.id), ['tanrei', 'm3-like', 'base', 'app']);
-  assert.deepEqual(resolved.sources.slice(2), [null, null]);
+  assert.deepEqual(resolved.chain.map((l) => l.id), ['core', 'tanrei', 'm3-like', 'base', 'app']);
+  assert.deepEqual(resolved.sources.slice(3), [null, null]);
   assert.deepEqual(resolved.tokens('dark')['tanrei.sys.space.space200'].$value, { value: 20, unit: 'px' }, 'the parent in memory');
   assert.deepEqual(resolved.tokens()['tanrei.sys.typescale.body-large'].$value.fontSize, { value: 18, unit: 'px' }, 'the system itself');
   assert.equal(resolved.system.tokens['tanrei.dial.space.unit'].layer, 'base');
   assert.ok(Array.isArray(await resolved.warnings()));
   // Order among the parents does not matter.
-  assert.deepEqual((await resolveSystem({ layers: [acme, base, app] }, { model: false })).chain.map((l) => l.id), ['tanrei', 'm3-like', 'base', 'app']);
+  assert.deepEqual((await resolveSystem({ layers: [acme, base, app] }, { model: false })).chain.map((l) => l.id), ['core', 'tanrei', 'm3-like', 'base', 'app']);
 });
 
 test('a layer in memory shadows the file of the same id, and finds its parents next to it — what Theme Studio validates before it writes', async () => {
@@ -69,9 +69,9 @@ test('a layer in memory shadows the file of the same id, and finds its parents n
     const candidate = { ...app, tokens: { 'tanrei.dial.type.base': { $value: { value: 20, unit: 'px' }, reason: 'Even larger, for the kiosk build.' } } };
     assert.deepEqual(validateSystem({ layers: [candidate], dir }), []);
     const { chain, sources } = readSystemChain({ layers: [candidate], dir });
-    assert.deepEqual(chain.map((l) => l.id), ['tanrei', 'm3-like', 'base', 'app']);
-    assert.equal(sources[2], path.join(dir, 'base.system.json'));
-    assert.equal(sources[3], null);
+    assert.deepEqual(chain.map((l) => l.id), ['core', 'tanrei', 'm3-like', 'base', 'app']);
+    assert.equal(sources[3], path.join(dir, 'base.system.json'));
+    assert.equal(sources[4], null);
     const resolved = await resolveSystem({ layers: [candidate], dir }, { model: false });
     assert.equal(resolved.tokens()['tanrei.sys.typescale.body-large'].$value.fontSize.value, 20);
     assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'app.system.json'), 'utf8')).tokens['tanrei.dial.type.base'].$value.value, 18, 'nothing was written');
@@ -90,7 +90,8 @@ test('what cannot be resolved is said plainly', async () => {
   assert.throws(() => readSystemChain({ layers: [{ id: 'a', extends: 'b' }, { id: 'b', extends: 'a' }] }), /"extends" cycle/);
   assert.throws(() => readSystemChain({}), /exactly one of/);
   assert.throws(() => readSystemChain({ system: 'tanrei', layers: [app] }), /exactly one of/);
-  assert.match(validateSystem({ layers: [{ id: 'tanrei', name: 'Mine' }] })[0], /root system/);
+  assert.match(validateSystem({ layers: [{ id: 'core', name: 'Mine' }] })[0], /root system/);
+  assert.throws(() => validateSystem({ layers: [{ id: 'mine', name: 'Mine' }] }), /system "mine" does not extend "core"/);
   await assert.rejects(resolveSystem({ layers: [{ id: 'app', name: 'App', extends: 'tanrei', tokens: { 'tanrei.sys.space.nope': { $value: '{tanrei.sys.space.space100}' } } }] }), /unknown token/);
 });
 
@@ -136,7 +137,7 @@ test('"extends" never becomes a path: only a system id is looked up, and only in
   const strangers = touched.filter((file) => /outside|deep/.test(file));
   assert.deepEqual(strangers, [], 'no path was built from a hostile "extends"');
   // An empty "extends" ends the chain, as before: the layer simply does not reach the root.
-  assert.throws(() => readSystemChain({ layers: [{ id: 'x', extends: '' }], dir }), /does not extend "tanrei"/);
+  assert.throws(() => readSystemChain({ layers: [{ id: 'x', extends: '' }], dir }), /does not extend "core"/);
 
   // The same guard wherever an id becomes a file name.
   assert.throws(() => localLayerFile(dir, '../outside'), /not a system id/);
@@ -163,10 +164,10 @@ test('"extends" never becomes a path: only a system id is looked up, and only in
   assert.throws(() => readSystemChain({ layers: [{ id: 'x', extends: 'dangling' }], dir }), /a link that leads nowhere/);
   assert.throws(() => readSystemChain({ layers: [{ id: 'x', extends: 'folder' }], dir }), /not a regular file/);
   // `inside` is a link to base.system.json: read, and then reported like any file whose id is not its name.
-  assert.deepEqual(readSystemChain({ layers: [{ id: 'x', extends: 'inside' }], dir }).chain.map((l) => l.id), ['tanrei', 'm3-like', 'base', 'x']);
+  assert.deepEqual(readSystemChain({ layers: [{ id: 'x', extends: 'inside' }], dir }).chain.map((l) => l.id), ['core', 'tanrei', 'm3-like', 'base', 'x']);
   assert.match(validateSystem({ layers: [{ id: 'x', name: 'X', extends: 'inside' }], dir }).join('\n'), /inside\.system\.json: "id" must equal the file name/);
   // The directory itself may be reached through a link (macOS: /var → /private/var); that is not "leaving".
-  assert.deepEqual(readSystemChain({ layers: [{ id: 'x', extends: 'base' }], dir: path.join(dir, 'up', 'design') }).chain.map((l) => l.id), ['tanrei', 'm3-like', 'base', 'x']);
+  assert.deepEqual(readSystemChain({ layers: [{ id: 'x', extends: 'base' }], dir: path.join(dir, 'up', 'design') }).chain.map((l) => l.id), ['core', 'tanrei', 'm3-like', 'base', 'x']);
 });
 
 test('vocabularyDigest: the hand-authored files under tokens/ by size and mtime — what a cache of resolved systems keys on next to the chain', () => {

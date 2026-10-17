@@ -3,7 +3,48 @@
   "id": "cupertino",
   "name": "Cupertino (Apple HIG-inspired)",
   "extends": "tanrei",
-  "unavailable": {"components": ["fab-menu"], "variants": {"navigation-bar": ["filled"]}},
+  "components": {
+    "include": [
+      "segmented-button"
+    ],
+    "variants": {
+      "text-input": {
+        "include": [
+          "filled",
+          "outlined"
+        ]
+      },
+      "select": {
+        "include": [
+          "filled",
+          "outlined"
+        ]
+      },
+      "combobox": {
+        "include": [
+          "filled",
+          "outlined"
+        ]
+      },
+      "number-input": {
+        "include": [
+          "filled",
+          "outlined"
+        ]
+      },
+      "color-input": {
+        "include": [
+          "filled",
+          "outlined"
+        ]
+      },
+      "navigation-bar": {
+        "omit": [
+          "filled"
+        ]
+      }
+    }
+  },
   "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",
   "attribution": {
     "inspiredBy": "Apple Human Interface Guidelines",
