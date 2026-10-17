@@ -2,7 +2,7 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -60,7 +60,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية.
+تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية. ويُستمع إلى الحدث الخاص بالعنصر باسم يبدأ بـ `on` ويليه اسم الحدث بصيغة camel case، كما يسمّي React أحداثه (`onKeyDown`): يُطلق درج التنقل الحدث `expandedchange`، ويُستمع إليه بـ `onExpandedChange`.
 
 ## التصيير على الخادم
 

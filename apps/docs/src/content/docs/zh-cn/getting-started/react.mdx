@@ -2,7 +2,7 @@
 title: React
 description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -60,7 +60,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。
+属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。元素自己的事件，与 React 自身的事件一样，用 `on` 加上驼峰式的事件名来监听（与 `onKeyDown` 同一形式）：导航抽屉发出的 `expandedchange` 用 `onExpandedChange` 监听。
 
 ## 服务端渲染
 

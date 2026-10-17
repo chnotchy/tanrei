@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: 2e78214631aec6fa526771b0c65343465243cf85
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -114,8 +114,8 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
       picker
       pickerLabel="Elegir fecha de inicio"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>

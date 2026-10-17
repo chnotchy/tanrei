@@ -2,7 +2,7 @@
 title: العرض الدوّار
 description: صف من العناصر المرئية يُمرَّر جانبيًّا حول عنصر واحد في الصدارة، وكل عنصر يفتح ما يعرضه. والصف المميَّز قد يدور بلا نهاية، ويعرض موضعه بنقاط، ويتقدم من تلقاء نفسه.
 translationOf: components/carousel.mdx
-sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
+sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </Carousel>
 
     <Carousel label="نزهات مميَّزة" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="النزهة السابقة" nextLabel="النزهة التالية"
       playLabel="تشغيل عرض الشرائح" pauseLabel="إيقاف عرض الشرائح مؤقتًا">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
