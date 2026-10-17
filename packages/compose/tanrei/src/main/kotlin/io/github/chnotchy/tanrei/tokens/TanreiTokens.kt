@@ -605,10 +605,14 @@ public data class TanreiDuration(
 public data class TanreiEasing(
     public val emphasizedAccelerate: TanreiCubicBezier,
     public val emphasizedDecelerate: TanreiCubicBezier,
+    public val enter: TanreiCubicBezier,
+    public val exit: TanreiCubicBezier,
     public val linear: TanreiCubicBezier,
+    public val spatial: TanreiCubicBezier,
     public val standard: TanreiCubicBezier,
     public val standardAccelerate: TanreiCubicBezier,
     public val standardDecelerate: TanreiCubicBezier,
+    public val state: TanreiCubicBezier,
     /** Steps a design system added to the vocabulary, by token key. */
     public val extra: Map<String, TanreiCubicBezier> = emptyMap(),
 ) {
@@ -616,10 +620,14 @@ public data class TanreiEasing(
     public operator fun get(key: String): TanreiCubicBezier? = when (key) {
         "emphasized-accelerate" -> emphasizedAccelerate
         "emphasized-decelerate" -> emphasizedDecelerate
+        "enter" -> enter
+        "exit" -> exit
         "linear" -> linear
+        "spatial" -> spatial
         "standard" -> standard
         "standard-accelerate" -> standardAccelerate
         "standard-decelerate" -> standardDecelerate
+        "state" -> state
         else -> extra[key]
     }
 }
@@ -681,6 +689,9 @@ public data class TanreiElevation(
     }
 }
 
+/** `sys.behavior.appearance`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
+public enum class TanreiAppearance { FadeScale, Fade, FadeSlide, BlurSlide, Unfold }
+
 /** `sys.behavior.divider-visibility`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiDividerVisibility { Always, Scroll }
 
@@ -702,6 +713,7 @@ public enum class TanreiSeparation { Divider, Gap }
 /** Choices of kind: what no amount can express. Components read them and never branch on a system's id. */
 @Immutable
 public data class TanreiBehavior(
+    public val appearance: TanreiAppearance,
     public val dividerVisibility: TanreiDividerVisibility,
     public val focusStyle: TanreiFocusStyle,
     public val linkUnderline: TanreiLinkUnderline,

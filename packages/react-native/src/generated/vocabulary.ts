@@ -337,6 +337,7 @@ export interface TanreiIconStyle {
  * Choices of kind: behaviour that is a name, not an amount. The names are vocabulary — a system chooses
  * among them. The first name of each is the default, and what a platform draws when it cannot draw the choice.
  */
+export type TanreiAppearance = "fade-scale" | "fade" | "fade-slide" | "blur-slide" | "unfold";
 export type TanreiDividerVisibility = "always" | "scroll";
 export type TanreiFocusStyle = "ring" | "glow";
 export type TanreiLinkUnderline = "always" | "hover" | "never";
@@ -344,6 +345,7 @@ export type TanreiPressedFeedback = "overlay" | "ripple" | "dim" | "none";
 export type TanreiRequirementMark = "tag" | "asterisk" | "none";
 export type TanreiSeparation = "divider" | "gap";
 export interface TanreiBehavior {
+  readonly appearance: TanreiAppearance;
   readonly dividerVisibility: TanreiDividerVisibility;
   readonly focusStyle: TanreiFocusStyle;
   readonly linkUnderline: TanreiLinkUnderline;
@@ -393,10 +395,14 @@ export interface TanreiDuration {
 export interface TanreiEasing {
   readonly emphasizedAccelerate: TanreiCubicBezier;
   readonly emphasizedDecelerate: TanreiCubicBezier;
+  readonly enter: TanreiCubicBezier;
+  readonly exit: TanreiCubicBezier;
   readonly linear: TanreiCubicBezier;
+  readonly spatial: TanreiCubicBezier;
   readonly standard: TanreiCubicBezier;
   readonly standardAccelerate: TanreiCubicBezier;
   readonly standardDecelerate: TanreiCubicBezier;
+  readonly state: TanreiCubicBezier;
 }
 
 export interface TanreiMotion {

@@ -493,6 +493,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   behavior: TanreiBehavior(
     pressedFeedback: TanreiPressedFeedback.overlay,
     focusStyle: TanreiFocusStyle.ring,
+    appearance: TanreiAppearance.fadeScale,
     dividerVisibility: TanreiDividerVisibility.always,
     linkUnderline: TanreiLinkUnderline.always,
     requirementMark: TanreiRequirementMark.tag,
@@ -522,10 +523,14 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     easing: TanreiEasing(
       emphasizedAccelerate: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
       emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
+      enter: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+      exit: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),
       linear: TanreiCubicBezier(0.0, 0.0, 1.0, 1.0),
+      spatial: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
       standard: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
       standardAccelerate: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),
       standardDecelerate: TanreiCubicBezier(0.0, 0.0, 0.0, 1.0),
+      state: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     ),
     springExpressive: TanreiSpring(
       defaultEffects: TanreiSpringSpec(damping: 1.0, stiffness: 1600.0, easing: TanreiCubicBezier(0.34, 0.8, 0.34, 1.0), durationMs: 200),

@@ -509,6 +509,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
   behavior: TanreiBehavior(
     pressedFeedback: TanreiPressedFeedback.ripple,
     focusStyle: TanreiFocusStyle.ring,
+    appearance: TanreiAppearance.unfold,
     dividerVisibility: TanreiDividerVisibility.scroll,
     linkUnderline: TanreiLinkUnderline.always,
     requirementMark: TanreiRequirementMark.asterisk,
@@ -538,10 +539,14 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     easing: TanreiEasing(
       emphasizedAccelerate: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
       emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
+      enter: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
+      exit: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
       linear: TanreiCubicBezier(0.0, 0.0, 1.0, 1.0),
+      spatial: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
       standard: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
       standardAccelerate: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),
       standardDecelerate: TanreiCubicBezier(0.0, 0.0, 0.0, 1.0),
+      state: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     ),
     springExpressive: TanreiSpring(
       defaultEffects: TanreiSpringSpec(damping: 1.0, stiffness: 1600.0, easing: TanreiCubicBezier(0.34, 0.8, 0.34, 1.0), durationMs: 200),

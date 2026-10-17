@@ -105231,6 +105231,11 @@
     },
     "sys": {
       "behavior": {
+        "appearance": {
+          "$type": "number",
+          "$value": 4,
+          "$description": "How a surface appears and leaves: a menu, a select's or a combobox's list, a popover, a tooltip, a dialog, a snackbar. fade-scale: it fades in and grows from 0.96 of its size toward its origin. fade: it only fades in. fade-slide: it fades in and travels a short way into place (sys.space.space100). blur-slide: it fades in, travels the same way and comes into focus from a 4 px blur. unfold: it fades in and unfolds from its anchored edge, scaled from 0 along the axis that leaves the anchor. The choice sets sys.motion.appear.*; a layer that pins one of those keeps it whatever the choice. A surface that leaves runs its appearance back. A sheet slides in from its edge under every choice."
+        },
         "divider-visibility": {
           "$type": "number",
           "$value": 1,
@@ -106692,6 +106697,39 @@
         }
       },
       "motion": {
+        "appear": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How blurred a surface starts as it appears; it comes into focus as it arrives."
+          },
+          "distance": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How far a surface travels into place as it appears. The component gives the direction: away from its anchor for an anchored surface."
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The opacity a surface starts from as it appears and ends at as it leaves: 0 fades it; 1 does not."
+          },
+          "origin": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Where an anchored surface grows from. anchor: the middle of its edge that faces what opened it. center: its own centre. A modal surface grows from its centre whatever the choice."
+          },
+          "scale": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The scale a surface starts from as it appears, toward its origin: 0.96 grows it a little into place; 1 does not scale it. Under unfold the scale applies only along the axis that leaves the anchor, so the surface unfolds from its anchored edge."
+          }
+        },
         "duration": {
           "extra-long1": {
             "$type": "duration",
@@ -106841,6 +106879,26 @@
               1
             ]
           },
+          "enter": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.05,
+              0.7,
+              0.1,
+              1
+            ],
+            "$description": "The curve of a surface that appears: quick at first, settling into place."
+          },
+          "exit": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              0.8,
+              0.15
+            ],
+            "$description": "The curve of a surface that leaves: it gathers speed as it goes, so little of the surface is left on its last frame (about 7–9 % of its opacity at 250–350 ms)."
+          },
           "linear": {
             "$type": "cubicBezier",
             "$value": [
@@ -106849,6 +106907,16 @@
               1,
               1
             ]
+          },
+          "spatial": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of something that moves or changes its size in place: a switch's handle, the indicator of tabs, a box that grows."
           },
           "standard": {
             "$type": "cubicBezier",
@@ -106876,6 +106944,204 @@
               0,
               1
             ]
+          },
+          "state": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of a change of state in place: a color, an opacity, a mark."
+          }
+        },
+        "role": {
+          "appear": {
+            "anchored": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$description": "A surface anchored to what opened it (a menu, a select's or a combobox's list, a popover, a docked picker) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 100,
+                  "unit": "ms"
+                },
+                "$description": "A surface anchored to what opened it (a menu, a select's or a combobox's list, a popover, a docked picker) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "hint": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$description": "A hint beside what it describes (a tooltip) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 150,
+                  "unit": "ms"
+                },
+                "$description": "A hint beside what it describes (a tooltip) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "modal": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$description": "A modal surface over the page, and the scrim behind it (a dialog, a modal picker, an image preview) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$description": "A modal surface over the page, and the scrim behind it (a dialog, a modal picker, an image preview) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "sheet": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$description": "A sheet that slides in from an edge (a bottom sheet, a side sheet, a modal drawer) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$description": "A sheet that slides in from an edge (a bottom sheet, a side sheet, a modal drawer) leaves. Leaving is shorter than appearing."
+              }
+            },
+            "toast": {
+              "enter": {
+                "$type": "duration",
+                "$value": {
+                  "value": 250,
+                  "unit": "ms"
+                },
+                "$description": "A message at an edge of the window that leaves on its own (a snackbar) appears."
+              },
+              "exit": {
+                "$type": "duration",
+                "$value": {
+                  "value": 150,
+                  "unit": "ms"
+                },
+                "$description": "A message at an edge of the window that leaves on its own (a snackbar) leaves. Leaving is shorter than appearing."
+              }
+            }
+          },
+          "disclosure": {
+            "$type": "duration",
+            "$value": {
+              "value": 350,
+              "unit": "ms"
+            },
+            "$description": "Content that opens and closes in place: an accordion's panel, a tree's group, a section of a drawer."
+          },
+          "feedback": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "The answer to a press that spreads from the point of contact (a ripple)."
+          },
+          "reduced": {
+            "$type": "duration",
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "The cross-fade that takes the place of a movement, a scaling or a blur while motion is reduced."
+          },
+          "resize": {
+            "default": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              },
+              "$description": "A box that changes its size in place: a text field that grows by a line, an error line that opens below a field."
+            },
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 500,
+                "unit": "ms"
+              },
+              "$description": "A large change of size: an attachment strip that opens, a row added to or taken out of a list."
+            }
+          },
+          "selection": {
+            "mark": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              },
+              "$description": "A selection mark that appears in place: a check mark, a radio button's dot."
+            },
+            "travel": {
+              "$type": "duration",
+              "$value": {
+                "value": 350,
+                "unit": "ms"
+              },
+              "$description": "A selection that travels: a switch's handle, the indicator of tabs or of a navigation bar."
+            }
+          },
+          "show-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long a loading indicator or a skeleton waits before it appears, so that a short wait shows nothing at all."
+          },
+          "state": {
+            "compact": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              },
+              "$description": "A change of state — hover, focus, press — of a small control: a checkbox's box, an icon button, a small button, a chip."
+            },
+            "default": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              },
+              "$description": "A change of state of a control of medium size: a button, a text field."
+            },
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              },
+              "$description": "A change of state of a large surface: a list row, a card, a table's row, a navigation item."
+            }
           }
         },
         "spring": {

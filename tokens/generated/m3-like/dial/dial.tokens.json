@@ -3254,6 +3254,110 @@
               "$value": 1,
               "reason": "Material's joined buttons stand a narrow gap apart, and its determinate progress indicators leave a gap before the track and draw a stop. Its menus part groups with a line: the menu's own choice is set back to divider when the menu reads it."
             },
+            "tanrei.sys.behavior.appearance": {
+              "$value": "unfold",
+              "reason": "Material's menus, selects and docked pickers unfold from the edge that faces what opened them, scaled from nothing along that one axis as they fade in."
+            },
+            "tanrei.sys.motion.role.state.compact": {
+              "$value": "{tanrei.sys.motion.duration.short3}",
+              "reason": "Material 3's DurationShort3 (150 ms): this preset changes a state over it at every size."
+            },
+            "tanrei.sys.motion.role.state.default": {
+              "$value": "{tanrei.sys.motion.duration.short3}",
+              "reason": "Material 3's DurationShort3 (150 ms): this preset changes a state over it at every size."
+            },
+            "tanrei.sys.motion.role.state.large": {
+              "$value": "{tanrei.sys.motion.duration.short3}",
+              "reason": "Material 3's DurationShort3 (150 ms): this preset changes a state over it at every size."
+            },
+            "tanrei.sys.motion.role.selection.mark": {
+              "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+              "reason": "Material 3's fast effects spring (150 ms): this preset draws a check mark or a radio button's dot over it."
+            },
+            "tanrei.sys.motion.role.selection.travel": {
+              "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+              "reason": "Material 3's fast spatial spring (350 ms): this preset moves a switch's handle and a navigation indicator over it."
+            },
+            "tanrei.sys.motion.role.resize.default": {
+              "$value": "{tanrei.sys.motion.duration.short4}",
+              "reason": "Material 3's DurationShort4 (200 ms): this preset resizes a field in place over it."
+            },
+            "tanrei.sys.motion.role.resize.large": {
+              "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+              "reason": "Material 3's default spatial spring (500 ms): this preset carries a large change of size over it."
+            },
+            "tanrei.sys.motion.role.disclosure": {
+              "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+              "reason": "Material 3's fast spatial spring (350 ms): this preset opens and closes content in place over it."
+            },
+            "tanrei.sys.motion.role.appear.hint.enter": {
+              "$value": "{tanrei.sys.motion.duration.short4}",
+              "reason": "Material 3's DurationShort4 (200 ms): this preset's tooltip appears over it."
+            },
+            "tanrei.sys.motion.role.appear.hint.exit": {
+              "$value": "{tanrei.sys.motion.duration.short3}",
+              "reason": "Material 3's DurationShort3 (150 ms): this preset's tooltip leaves over it."
+            },
+            "tanrei.sys.motion.role.appear.anchored.enter": {
+              "$value": "{tanrei.sys.motion.duration.short4}",
+              "reason": "Material 3's DurationShort4 (200 ms): this preset's menus and lists open over it."
+            },
+            "tanrei.sys.motion.role.appear.anchored.exit": {
+              "$value": "{tanrei.sys.motion.duration.short2}",
+              "reason": "Material 3's DurationShort2 (100 ms): this preset's menus and lists close over it."
+            },
+            "tanrei.sys.motion.role.appear.modal.enter": {
+              "$value": "{tanrei.sys.motion.duration.medium2}",
+              "reason": "Material 3's DurationMedium2 (300 ms): this preset's dialogs and sheets enter over it."
+            },
+            "tanrei.sys.motion.role.appear.modal.exit": {
+              "$value": "{tanrei.sys.motion.duration.short4}",
+              "reason": "Material 3's DurationShort4 (200 ms): this preset's dialogs and sheets leave over it."
+            },
+            "tanrei.sys.motion.role.appear.sheet.enter": {
+              "$value": "{tanrei.sys.motion.duration.medium2}",
+              "reason": "Material 3's DurationMedium2 (300 ms): this preset's dialogs and sheets enter over it."
+            },
+            "tanrei.sys.motion.role.appear.sheet.exit": {
+              "$value": "{tanrei.sys.motion.duration.short4}",
+              "reason": "Material 3's DurationShort4 (200 ms): this preset's dialogs and sheets leave over it."
+            },
+            "tanrei.sys.motion.role.appear.toast.enter": {
+              "$value": "{tanrei.sys.motion.duration.medium1}",
+              "reason": "Material 3's DurationMedium1 (250 ms): this preset's snackbar enters over it."
+            },
+            "tanrei.sys.motion.role.appear.toast.exit": {
+              "$value": "{tanrei.sys.motion.duration.short3}",
+              "reason": "Material 3's DurationShort3 (150 ms): this preset's snackbar leaves over it."
+            },
+            "tanrei.sys.motion.role.feedback": {
+              "$value": "{tanrei.sys.motion.duration.long1}",
+              "reason": "Material 3's DurationLong1 (450 ms): this preset's ripple spreads over it."
+            },
+            "tanrei.sys.motion.role.show-delay": {
+              "$value": "{tanrei.sys.motion.duration.medium2}",
+              "reason": "Material 3's DurationMedium2 (300 ms): this preset's loading indicator and skeleton wait that long before they appear."
+            },
+            "tanrei.sys.motion.role.reduced": {
+              "$value": "{tanrei.sys.motion.duration.short2}",
+              "reason": "Material 3's DurationShort2 (100 ms): this preset's cross-fade under reduced motion."
+            },
+            "tanrei.sys.motion.easing.enter": {
+              "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}",
+              "reason": "Material 3's emphasized decelerate curve: this preset's menus, dialogs and sheets enter on it."
+            },
+            "tanrei.sys.motion.easing.exit": {
+              "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}",
+              "reason": "Material 3's emphasized accelerate curve: this preset's menus, dialogs and sheets leave on it."
+            },
+            "tanrei.sys.motion.easing.state": {
+              "$value": "{tanrei.sys.motion.easing.standard}",
+              "reason": "Material 3's standard curve: this preset changes a state on it."
+            },
+            "tanrei.sys.motion.easing.spatial": {
+              "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+              "reason": "Material 3's fast spatial spring: this preset moves a switch's handle and a navigation indicator on it."
+            },
             "tanrei.ref.typeface.icon": {
               "$value": [
                 "Material Symbols Outlined"
