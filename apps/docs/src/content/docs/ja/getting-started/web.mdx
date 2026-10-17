@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: e22f37d61aa70d8528324003eb72f8194d7b6a26
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -45,11 +45,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. トークンを一度だけ、できるだけ早い段階で読み込みます。トークンはカスケードレイヤー（`tanrei.tokens`）に包まれているので、自分のスタイルが常に優先されます。
+1. スタイルシートを一度だけ、できるだけ早い段階で読み込みます。どれもカスケードレイヤー（`tanrei.*`）に包まれているので、自分のスタイルが常に優先されます。
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` は、すべてを 1 つにまとめたファイルです。ページのベース、トークン、要素なしで描くパーツ（テキストスタイル、テーブル、アコーディオンなど）のスタイルシートが入っています。使うものだけを読み込むなら、トークンと、必要ならベースを読み込み、それらのスタイルシートは要るものだけを足します。
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // ページをシステムのサーフェス、文字色、本文の書体にし、body の余白をなくす
    ```
+
+   ベースは、ページそのものにサーフェスの色を、自分のテキストに on-surface の色と本文の書体を与え、ブラウザーが body に付ける余白を取り除きます。ベースがなければ、ページはブラウザーの既定のままです。
 
 2. コンポーネントを登録します。すべてをインポートすることも、使う要素だけをインポートすることもできます。
 
@@ -62,7 +71,7 @@ npm install @tanrei/web
    `@tanrei/web/…` という指定子はパッケージのエクスポートで、バンドラー（Vite、webpack、esbuild）が解決します。バンドラーがない場合、ブラウザーは `<link>` や `<script src>` の中の裸の指定子を解決できません。そのときはパッケージの `dist/` を配信して、ファイルを直接指定します。スタイルシートはそのまま、スクリプトは Lit とすべての要素を含む `tanrei.bundle.js` を使います。
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 

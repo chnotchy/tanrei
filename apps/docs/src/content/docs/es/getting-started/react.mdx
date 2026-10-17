@@ -2,7 +2,7 @@
 title: React
 description: Componentes de React con tipos, generados a partir de los Web Components de Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: eed0fd8cab7a522624f49aa2bb36b405abf48cee
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,8 +42,10 @@ npm install @tanrei/react @tanrei/web
 
 ## Uso
 
+Carga las hojas de estilo una sola vez, antes de que se rendericen los componentes: `tanrei.css` es la base de la página, los tokens y todas las demás hojas de estilo del paquete en un archivo. Para cargarlas una a una, consulta la [guía de Web](/es/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {

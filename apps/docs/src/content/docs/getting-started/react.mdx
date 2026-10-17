@@ -40,8 +40,10 @@ npm install @tanrei/react @tanrei/web
 
 ## Use
 
+Load the stylesheets once, before the components render: `tanrei.css` is the base of the page, the tokens and every other stylesheet of the package in one file. To load them one by one, see the [Web guide](/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {

@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: e22f37d61aa70d8528324003eb72f8194d7b6a26
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -45,11 +45,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. 尽早加载一次令牌。令牌被包在一个级联层（`tanrei.tokens`）中，因此你自己的样式始终优先。
+1. 尽早加载一次样式表。它们都被包在级联层（`tanrei.*`）中，因此你自己的样式始终优先。
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` 把一切放进一个文件：页面的基础样式、令牌，以及不用元素绘制的部件（文本样式、表格、手风琴等）的样式表。只想加载用得到的部分，就加载令牌、需要的话再加上基础样式，然后按需加载那些样式表：
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // 让页面使用系统的表面色、文字颜色和正文字体，并去掉 body 的外边距
    ```
+
+   基础样式让页面本身使用表面色，让你自己的文字使用 on-surface 颜色和正文字体，并去掉浏览器给 body 加的外边距。没有它，页面保持浏览器的默认样式。
 
 2. 注册组件。可以全部导入，也可以只导入用到的元素。
 
@@ -62,7 +71,7 @@ npm install @tanrei/web
    `@tanrei/web/…` 这类说明符是包的导出，由打包工具（Vite、webpack、esbuild）解析。没有打包工具时，浏览器无法解析 `<link>` 或 `<script src>` 中的裸说明符，这时请直接提供包的 `dist/` 目录并指向其中的文件：样式表原样使用，脚本使用 `tanrei.bundle.js`，它包含 Lit 和所有元素：
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 

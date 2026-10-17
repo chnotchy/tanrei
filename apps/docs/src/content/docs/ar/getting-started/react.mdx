@@ -2,7 +2,7 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: eed0fd8cab7a522624f49aa2bb36b405abf48cee
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,8 +42,10 @@ npm install @tanrei/react @tanrei/web
 
 ## الاستخدام
 
+حمِّل أوراق الأنماط مرة واحدة، قبل أن تُعرض المكوّنات: الملف `tanrei.css` يضم أساس الصفحة والرموز وكل أوراق الأنماط الأخرى في الحزمة في ملف واحد. ولتحميلها واحدة واحدة، انظر [دليل الويب](/ar/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {

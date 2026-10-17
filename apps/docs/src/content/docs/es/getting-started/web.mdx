@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: e22f37d61aa70d8528324003eb72f8194d7b6a26
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -45,11 +45,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. Carga los tokens una sola vez, lo antes posible. Están envueltos en una capa de cascada (`tanrei.tokens`), así que tus propios estilos siempre prevalecen.
+1. Carga las hojas de estilo una sola vez, lo antes posible. Están envueltas en capas de cascada (`tanrei.*`), así que tus propios estilos siempre prevalecen.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` lo tiene todo en un archivo: la base de la página, los tokens y las hojas de estilo de las partes que se dibujan sin un elemento (los estilos de texto, la tabla, el acordeón y las demás). Para cargar solo lo que usas, toma los tokens, la base si la quieres, y cada una de esas hojas de estilo cuando la necesites:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // la página con la superficie, el color de texto y la fuente de cuerpo del sistema, sin margen en el body
    ```
+
+   La base da a la página la superficie del sistema, a tu propio texto el color on-surface y la fuente de cuerpo, y quita el margen que el navegador pone al body. Sin ella, la página conserva los valores predeterminados del navegador.
 
 2. Registra los componentes. Importa todo, o solo los elementos que uses.
 
@@ -62,7 +71,7 @@ npm install @tanrei/web
    Los especificadores `@tanrei/web/…` son exportaciones del paquete: los resuelve un empaquetador (Vite, webpack, esbuild). Sin él, un navegador no puede resolver un especificador desnudo en `<link>` ni en `<script src>`, así que sirve el directorio `dist/` del paquete y apunta a los archivos: las hojas de estilos tal como están, y `tanrei.bundle.js`, que incluye Lit y todos los elementos:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 

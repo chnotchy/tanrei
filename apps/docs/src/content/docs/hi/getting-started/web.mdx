@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: e22f37d61aa70d8528324003eb72f8194d7b6a26
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -45,11 +45,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. टोकन एक बार लोड करें, जितना पहले हो सके। वे एक कैस्केड लेयर (`tanrei.tokens`) में लिपटे हैं, इसलिए आपकी अपनी स्टाइल हमेशा उन पर भारी पड़ती हैं।
+1. स्टाइलशीट एक बार लोड करें, जितना पहले हो सके। वे कैस्केड लेयर (`tanrei.*`) में लिपटी हैं, इसलिए आपकी अपनी स्टाइल हमेशा उन पर भारी पड़ती हैं।
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` में सब कुछ एक फ़ाइल में है: पेज का बेस, टोकन, और उन भागों की स्टाइलशीट जो बिना एलिमेंट के बनते हैं (टेक्स्ट स्टाइल, टेबल, अकॉर्डियन और बाक़ी)। सिर्फ़ वही लोड करना हो जो आप इस्तेमाल करते हैं, तो टोकन लें, चाहें तो बेस भी, और उन स्टाइलशीट में से हर एक तभी लें जब उसकी ज़रूरत हो:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // पेज सिस्टम की सरफ़ेस, टेक्स्ट के रंग और बॉडी फ़ॉन्ट में, और body पर कोई मार्जिन नहीं
    ```
+
+   बेस पेज को सरफ़ेस का रंग देता है, आपके अपने टेक्स्ट को on-surface रंग और बॉडी फ़ॉन्ट देता है, और ब्राउज़र का body पर लगाया मार्जिन हटा देता है। इसके बिना पेज ब्राउज़र के डिफ़ॉल्ट पर रहता है।
 
 2. कंपोनेंट रजिस्टर करें। सब कुछ इंपोर्ट करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
 
@@ -62,7 +71,7 @@ npm install @tanrei/web
    `@tanrei/web/…` वाले स्पेसिफ़ायर पैकेज के एक्सपोर्ट हैं: इन्हें कोई बंडलर (Vite, webpack, esbuild) रिज़ॉल्व करता है। बंडलर के बिना ब्राउज़र `<link>` या `<script src>` में बेयर स्पेसिफ़ायर रिज़ॉल्व नहीं कर सकता, इसलिए पैकेज का `dist/` सर्व करें और सीधे फ़ाइलों की ओर इशारा करें — स्टाइलशीट जैसी हैं वैसी ही, और `tanrei.bundle.js`, जिसमें Lit और हर एलिमेंट शामिल है:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
