@@ -1,6 +1,6 @@
-# @tanrei/web
+# @tanrei/web — how it is built
 
-> **Pre-release.** Nothing has been released: `@tanrei/web` is not on npm yet, and its API can change. Documentation: <https://tanrei.chnotchy.com/getting-started/web/>, including how to build and install it from source today.
+> The implementation notes of `@tanrei/web`: how each element is built and why, the web's limits, the builder's guides and the tests. The package's users read [`README.md`](README.md) and the documentation site; this file stays in the repository and is not published. A comment in the source that cites "README" and a section name means a section of this file.
 
 Tanrei on the web: the design tokens as CSS custom properties, and Web Components (Lit) that read nothing else.
 React bindings are generated from this package's custom elements manifest (`@tanrei/react`).
