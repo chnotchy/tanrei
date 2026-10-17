@@ -806,6 +806,34 @@ test.describe('behavior', () => {
     });
   }
 
+  test('OTC-13, OTC-6: after a composition committed with no key — a candidate picked with the pointer — a key pressed after its end is the field’s, though no timer has run: Backspace removes, Enter acts; the committing key, pressed no later than the end, is not', async ({ page }) => {
+    await mount(page, [fx('code')]);
+    await record(page, 'code');
+    await focus(page, 'code');
+    // One task: no timer can run between the end and the keys, as on a busy page, where input comes before timers.
+    const commitThen = (keys: { key: string; after: number }[]) =>
+      native(page, 'code').evaluate((input, list) => {
+        const element = input as HTMLInputElement;
+        element.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true, composed: true }));
+        element.dispatchEvent(new CompositionEvent('compositionupdate', { data: '１２', bubbles: true, composed: true }));
+        element.value = '１２';
+        element.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText', data: '１２', isComposing: true, bubbles: true, composed: true }));
+        const end = new CompositionEvent('compositionend', { data: '１２', bubbles: true, composed: true });
+        element.dispatchEvent(end);
+        return list.map(({ key, after }) => {
+          const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, composed: true });
+          // When the key was pressed: at the end (the committing key a platform reports after it), or after it.
+          Object.defineProperty(event, 'timeStamp', { value: end.timeStamp + after });
+          element.dispatchEvent(event);
+          return event.defaultPrevented;
+        });
+      }, keys);
+    // Enter is left to the form either way (OTC-13): the events tell which Enter acted.
+    expect(await commitThen([{ key: 'Enter', after: 0 }, { key: 'Backspace', after: 1 }, { key: 'Enter', after: 2 }])).toEqual([false, true, false]);
+    expect(await events(page)).toEqual(['input:12', 'input:1', 'change:1', 'action:1']);
+    expect((await read(page, 'code')).value).toBe('1');
+  });
+
   test('OTC-13 (a real composition): in Chromium the Enter that commits a composition fires no action and submits nothing', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium drives an input method from a test (CDP Input.imeSetComposition)');
     await mount(page, [fx('code')]);

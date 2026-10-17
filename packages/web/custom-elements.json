@@ -30926,21 +30926,11 @@
             },
             {
               "kind": "field",
-              "name": "justComposed",
-              "type": {
-                "text": "boolean"
-              },
+              "name": "composition",
               "privacy": "private",
-              "default": "false",
-              "description": "ETI-4: a composition ended in this task: the key that is reported after it is still the input method's."
-            },
-            {
-              "kind": "field",
-              "name": "composedTimer",
-              "type": {
-                "text": "ReturnType<typeof setTimeout> | undefined"
-              },
-              "privacy": "private"
+              "readonly": true,
+              "default": "new CompositionEnd()",
+              "description": "ETI-4: when the last composition ended — the key that committed it may be reported after the end."
             },
             {
               "kind": "field",
@@ -31284,7 +31274,7 @@
               "name": "onCompositionEnd",
               "privacy": "private",
               "readonly": true,
-              "description": "ETI-4: where the platform reports the committing Enter only after the composition has ended, it is still the composition's."
+              "description": "ETI-4: where the platform reports the committing Enter only after the composition has ended, it is still the\ncomposition's: it was pressed no later than the end, or carries the platform's mark of a key an input method took.\nNever \"until a timer runs\": on a busy page an engine reports a key before such a timer, and the first Enter pressed\nafter a composition committed by a pointer would be lost."
             },
             {
               "kind": "field",
@@ -62225,13 +62215,11 @@
             },
             {
               "kind": "field",
-              "name": "settling",
-              "type": {
-                "text": "boolean"
-              },
+              "name": "composition",
               "privacy": "private",
-              "default": "false",
-              "description": "A composition has just ended: what the engine still sends for it (an input, the key that committed it) is not the person's edit or the action key."
+              "readonly": true,
+              "default": "new CompositionEnd()",
+              "description": "When the last composition ended: the key that committed it may be reported after the end, and is not the field's."
             },
             {
               "kind": "field",
@@ -62545,7 +62533,7 @@
                   }
                 }
               ],
-              "description": "The composition ended: what it committed is read character by character, as typed text is; a cancelled one leaves\nnothing. The engines differ in what follows — an `input` that is no longer composing (Firefox), nothing (Chromium),\nand the `keydown` of the key that committed it, which no longer says that it composes (WebKit) — so for the rest of\nthis turn nothing the native element sends is read as an edit or as the action key."
+              "description": "The composition ended: what it committed is read character by character, as typed text is; a cancelled one leaves\nnothing. The engines differ in what follows — an `input` that is no longer composing (Firefox), nothing (Chromium),\nand the `keydown` of the key that committed it, which no longer says that it composes (WebKit). Each is told by\nwhat it is (`onInput`, `composition.tookKey`), never by a timer: on a busy page an engine reports the next key\nbefore such a timer runs, and the person's Backspace or Enter after a commit — by a key or by a pointer — was lost."
             },
             {
               "kind": "method",
@@ -88171,6 +88159,14 @@
             },
             {
               "kind": "field",
+              "name": "segmentComposition",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CompositionEnd()",
+              "description": "TXI-45: when a composition on a segment last ended — the key that committed it may be reported after the end."
+            },
+            {
+              "kind": "field",
               "name": "within",
               "type": {
                 "text": "boolean"
@@ -88893,7 +88889,7 @@
                   }
                 }
               ],
-              "description": "TXI-45: an input method committed text on a segment. Its digits are taken one by one, as typed (full-width ones\ntoo); any other text is read whole (TXI-29). What the composition drew in the segment is replaced by the field's own text."
+              "description": "TXI-45: an input method committed text on a segment. Its digits are taken one by one, as typed (full-width ones\ntoo); any other text is read whole (TXI-29). What the composition drew in the segment is replaced by the field's own text.\n\nTaken in this event, which is where every engine ends a composition — a commit by a key or by a pointer (a candidate\npicked) alike — and never after a timer: on a busy page an engine handles input before timers, so the next\ncomposition (or a digit typed) could begin on this segment before the timer ran and focus moved on, and its digits\nwould be taken here. What an engine still reports afterwards is the composition's by what it is: Firefox's last\n`input` only repaints (`onSegmentInput`), and the committing key WebKit reports after the end is not the segment's\n(`segmentComposition`). Firefox ends a composition a second time when focus moves inside its end — a second\n`compositionend`, from within the move — and that one is not a commit: no composition is open by then."
             },
             {
               "kind": "method",

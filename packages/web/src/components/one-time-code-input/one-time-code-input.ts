@@ -8,6 +8,7 @@ import { type CodeState, type CodeType, furthest, readCharacter, readCode, readP
 import { styles } from './one-time-code-input.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { COMPOSITION_INPUT_TYPES, CompositionEnd } from '../../primitives/composition-end.js';
 
 /** What a cell takes: the digits 0 to 9, or those and the letters A to Z, held in upper case. */
 export type TanreiOneTimeCodeInputType = CodeType;
@@ -27,7 +28,6 @@ const INSERTS_WHOLE = new Set(['insertReplacementText', 'insertFromPaste', 'inse
 const REMOVES_BACKWARD_RUN = new Set(['deleteWordBackward', 'deleteSoftLineBackward', 'deleteHardLineBackward', 'deleteEntireSoftLine']);
 const REMOVES_FORWARD_RUN = new Set(['deleteWordForward', 'deleteSoftLineForward', 'deleteHardLineForward']);
 /** What an input method does to its own composing text: never stopped, never read as the person's edit (OTC-6). */
-const COMPOSITION = new Set(['insertCompositionText', 'insertFromComposition', 'deleteCompositionText', 'deleteByComposition']);
 
 /**
  * Takes a short code sent to the person — a sign-in or verification code — as one text value drawn in separate cells,
@@ -159,8 +159,8 @@ export class TanreiOneTimeCodeInput extends LitElement {
   private committed = '';
   /** OTC-6: an input method is composing; the native element is its own until it ends. */
   private composing = false;
-  /** A composition has just ended: what the engine still sends for it (an input, the key that committed it) is not the person's edit or the action key. */
-  private settling = false;
+  /** When the last composition ended: the key that committed it may be reported after the end, and is not the field's. */
+  private readonly composition = new CompositionEnd();
   /** OTC-5: focus arrives by a press on a cell, which has chosen the active cell. */
   private pressing = false;
   /** Focus has arrived and the person has done nothing yet: a selection of the whole text is the browser's own (it selects a text input it tabs into), not the person's select all. */
@@ -272,7 +272,7 @@ export class TanreiOneTimeCodeInput extends LitElement {
     this.rows?.disconnect();
     this.observed = null;
     this.composing = false;
-    this.settling = false;
+    this.composition.reset();
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -403,7 +403,7 @@ export class TanreiOneTimeCodeInput extends LitElement {
   private onBeforeInput(event: InputEvent) {
     const type = event.inputType;
     // OTC-6: composing text is the input method's, and is read when it is committed.
-    if (COMPOSITION.has(type) || event.isComposing || this.composing) return;
+    if (COMPOSITION_INPUT_TYPES.has(type) || event.isComposing || this.composing) return;
     const known = type.startsWith('insert') || type.startsWith('delete') || type.startsWith('history') || type.startsWith('format');
     // What is not known is left to the element and read from it afterwards (`onInput`).
     if (!known) return;
@@ -429,7 +429,12 @@ export class TanreiOneTimeCodeInput extends LitElement {
   private onInput(event: Event) {
     event.stopPropagation();
     const input = this.input;
-    if (!input || this.composing || this.settling || (event as InputEvent).isComposing) return;
+    if (!input || this.composing || (event as InputEvent).isComposing) return;
+    // The last report of a composition that has ended (Firefox's comes after the end): it was read there.
+    if (COMPOSITION_INPUT_TYPES.has((event as InputEvent).inputType ?? '')) {
+      this.show();
+      return;
+    }
     if (input.value === this.value) return;
     if (this.locked) {
       this.show();
@@ -466,21 +471,18 @@ export class TanreiOneTimeCodeInput extends LitElement {
   /**
    * The composition ended: what it committed is read character by character, as typed text is; a cancelled one leaves
    * nothing. The engines differ in what follows — an `input` that is no longer composing (Firefox), nothing (Chromium),
-   * and the `keydown` of the key that committed it, which no longer says that it composes (WebKit) — so for the rest of
-   * this turn nothing the native element sends is read as an edit or as the action key.
+   * and the `keydown` of the key that committed it, which no longer says that it composes (WebKit). Each is told by
+   * what it is (`onInput`, `composition.tookKey`), never by a timer: on a busy page an engine reports the next key
+   * before such a timer runs, and the person's Backspace or Enter after a commit — by a key or by a pointer — was lost.
    */
   private onCompositionEnd(event: CompositionEvent) {
     if (!this.composing) return;
     this.composing = false;
     this.composingText = '';
-    this.settling = true;
+    this.composition.ended(event);
     const committed = readPermitted(event.data ?? '', this.kind);
     if (committed && !this.locked) this.take(typeText(this.state, committed, this.cells));
     else this.show();
-    setTimeout(() => {
-      this.settling = false;
-      this.show();
-    });
   }
 
   // ─── Keys (OTC-8, OTC-9, OTC-10, OTC-13) ──────────────────────────────────────────────────────────────────────
@@ -489,7 +491,7 @@ export class TanreiOneTimeCodeInput extends LitElement {
     this.fresh = false;
     if (this.isDisabled) return;
     // OTC-13: a key an input method takes — the one that commits or cancels its text too — is not the field's.
-    if (event.isComposing || this.composing || this.settling || event.keyCode === 229) return;
+    if (this.composing || this.composition.tookKey(event)) return;
     const cells = this.cells;
     const { value, active, all } = this.state;
     const end = furthest(value, cells);

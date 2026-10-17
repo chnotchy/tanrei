@@ -350,22 +350,31 @@ test.describe('behavior', () => {
         expect(heard.at(-1), id).toBe('input:漢');
         expect((await read(page, id)).value).toBe('漢');
       }
-      // A key that follows the end of a composition in the same task and carries no mark at all is still the composition's.
+      // A key reported after the end of a composition that carries no mark at all, but was pressed no later than the end
+      // (a key event's time is when the key was pressed), is still the composition's.
       await record(page, 'act');
       await focus(page, 'act');
       await events(page);
-      const late = await native(page, 'act').evaluate((input) => {
-        input.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true, composed: true }));
-        input.dispatchEvent(new CompositionEvent('compositionend', { data: '', bubbles: true, composed: true }));
-        const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, composed: true });
-        input.dispatchEvent(event);
-        return event.defaultPrevented;
-      });
-      expect(late).toBe(false);
+      // One task: no timer can run between the end and the key, as on a busy page, where input comes before timers.
+      const keyAfterEnd = (after: number) =>
+        native(page, 'act').evaluate((input, later) => {
+          input.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true, composed: true }));
+          const end = new CompositionEvent('compositionend', { data: '', bubbles: true, composed: true });
+          input.dispatchEvent(end);
+          const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, composed: true });
+          Object.defineProperty(event, 'timeStamp', { value: end.timeStamp + later });
+          input.dispatchEvent(event);
+          return event.defaultPrevented;
+        }, after);
+      expect(await keyAfterEnd(0)).toBe(false);
       await settled(page, 'act');
       expect((await events(page)).filter((e) => e.startsWith('action'))).toEqual([]);
       // …and the first Enter after it acts.
       await page.keyboard.press('Enter');
+      expect((await events(page)).filter((e) => e.startsWith('action'))).toEqual(['action:漢']);
+      // A composition committed with no key at all (a candidate picked with the pointer): the first Enter pressed after
+      // its end acts, though no timer has run since.
+      expect(await keyAfterEnd(1)).toBe(true);
       expect((await events(page)).filter((e) => e.startsWith('action'))).toEqual(['action:漢']);
       // A value set during a composition is applied when the composition ends, and never written into it.
       await focus(page, 'set');

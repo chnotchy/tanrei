@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
+import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 
 const spec = loadSpec('text-input');
@@ -2687,6 +2688,59 @@ test.describe('behavior', () => {
     expect(await events(page)).toEqual(['input:2026-09-02', 'input:2026-09-27']);
     // What the composition drew in the segments is gone: each shows the field's own text.
     expect(await segs(page, 'ime').evaluateAll((all) => all.map((el) => el.textContent))).toEqual(['2026', '09', '27']);
+  });
+
+  test('TXI-45: a composition on a segment is taken when it commits — by a key or by a candidate picked with the pointer — so the next composition, or a digit typed, goes on in the segment focus moved to, though no timer has run', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium drives an input method from a test (CDP Input.imeSetComposition)');
+    await mountFixtures(page, spec, { fixtures: [fixture('ime', { type: 'date', locale: 'ja-JP', label: '日付' })] });
+    await listen(host(page, 'ime'));
+    await seg(page, 'ime', 'year').click();
+    // A busy page: an engine handles input before timers, so nothing may wait for one. With the clock held none runs.
+    await holdClock(page);
+    const cdp = await page.context().newCDPSession(page);
+    // Each commit is Input.insertText alone, with no key: what a candidate picked with the pointer sends.
+    const commit = async (text: string) => {
+      await cdp.send('Input.imeSetComposition', { text, selectionStart: text.length, selectionEnd: text.length });
+      await cdp.send('Input.insertText', { text });
+    };
+    await commit('２０２６');
+    expect([await rowText(page, 'ime'), await focusedUnit(page, 'ime')]).toEqual(['2026//', 'month']);
+    // The next composition begins at once: on the month, where focus moved in the commit, not on the year.
+    await commit('０９');
+    expect([await rowText(page, 'ime'), await focusedUnit(page, 'ime')]).toEqual(['2026/09/', 'day']);
+    await commit('２');
+    // A digit typed straight after a commit is the day's next digit, not text the browser writes into the segment.
+    await page.keyboard.type('7');
+    expect(await rowText(page, 'ime')).toBe('2026/09/27');
+    expect(await events(page)).toEqual(['input:2026-09-02', 'input:2026-09-27']);
+    expect(await segs(page, 'ime').evaluateAll((all) => all.map((el) => el.textContent))).toEqual(['2026', '09', '27']);
+    await cdp.detach();
+  });
+
+  test('TXI-45, TXI-3: the key that committed a composition on a segment, reported after its end as WebKit reports it — with key code 229, or pressed no later than the end — is not the field’s: no action; a key pressed after the end is, though no timer has run', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('d', { type: 'date', locale: 'en-US', label: 'D', value: '2026-09-27' })] });
+    await listen(host(page, 'd'));
+    await seg(page, 'd', 'day').click();
+    await events(page);
+    // In one task, so no timer can run between the end and the key; the cancelled keydown says the field took it.
+    const commitThen = (keys: { key: string; mark?: boolean; after?: number }[]) =>
+      seg(page, 'd', 'day').evaluate((segment, list) => {
+        segment.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true, composed: true }));
+        const end = new CompositionEvent('compositionend', { data: '', bubbles: true, composed: true });
+        segment.dispatchEvent(end);
+        return list.map(({ key, mark, after }) => {
+          const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, composed: true });
+          if (mark) Object.defineProperty(event, 'keyCode', { value: 229 });
+          // When the key was pressed: at the end (the committing key), or after it.
+          Object.defineProperty(event, 'timeStamp', { value: end.timeStamp + (after ?? 0) });
+          segment.dispatchEvent(event);
+          return event.defaultPrevented;
+        });
+      }, keys);
+    expect(await commitThen([{ key: 'Enter', mark: true, after: 1 }, { key: 'Enter' }]), 'the committing Enter is left to the platform').toEqual([false, false]);
+    expect(await events(page)).toEqual([]);
+    expect(await commitThen([{ key: 'ArrowUp', after: 1 }, { key: 'Enter', after: 2 }])).toEqual([true, true]);
+    expect(await events(page)).toEqual(['input:2026-09-28', 'change:2026-09-28', 'action:2026-09-28']);
   });
 
   test('TXI-46: the value is not empty only while every segment is filled and what they give is available; input is emitted once when an edit changes the value and never for one that leaves it as it was; a value set to what it already is leaves the segments alone', async ({ page }) => {
