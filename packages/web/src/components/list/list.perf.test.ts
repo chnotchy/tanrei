@@ -52,4 +52,40 @@ test.describe('a list of many items', () => {
       await cdp.detach();
     });
   }
+
+  test('LST-18: a list whose items each forward a slot of the component around it — as File upload slots its rows into List items — fills those slots with 100 and with 1,000 rows and reads its items a bounded number of times, the same calls per item at both sizes', async ({ page }) => {
+    test.setTimeout(180_000);
+    const cdp = await countingPage(page, ['tanrei-list', 'tanrei-list-item']);
+    const run = async (n: number) => {
+      // The component's shadow root holds the list; each item holds a slot of the component's, empty until its row comes.
+      await page.evaluate((count) => {
+        const pane = document.querySelector('#pane')!;
+        pane.innerHTML = '<div id="host"></div>';
+        const root = pane.firstElementChild!.attachShadow({ mode: 'open' });
+        root.innerHTML = `<tanrei-list id="list">${Array.from({ length: count }, (_, i) => `<tanrei-list-item><slot name="r${i}"></slot></tanrei-list-item>`).join('')}</tanrei-list>`;
+      }, n);
+      const filled = await costOf(page, cdp, n, 'list of forwarded rows, every row slotted', () =>
+        page.evaluate((count) => {
+          const host = document.querySelector('#host')!;
+          for (let i = 0; i < count; i++) {
+            const row = document.createElement('span');
+            row.slot = `r${i}`;
+            row.textContent = `Row ${i}`;
+            host.append(row);
+          }
+        }, n),
+      );
+      const last = await page.evaluate(() => [...document.querySelector('#host')!.shadowRoot!.querySelectorAll('tanrei-list-item')].map((item) => item.getAttribute('aria-posinset')).at(-1));
+      expect(last).toBe(String(n));
+      return filled;
+    };
+    // The first run compiles what the others run.
+    await run(100);
+    const small = await run(100);
+    const large = await run(1000);
+    // Each item's slot changing is that item's content: the list reads its items once for all of them, not once each.
+    for (const { n, counts } of [small, large]) expect(counts['list.sync'] ?? 0, `list.sync as ${n} rows are slotted`).toBeLessThanOrEqual(1);
+    expect(perItemRatio('list of forwarded rows, every row slotted', small, large)).toBeLessThanOrEqual(1.1);
+    await cdp.detach();
+  });
 });
