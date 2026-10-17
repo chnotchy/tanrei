@@ -2367,7 +2367,8 @@ test.describe('direction, colors, text size and the window', () => {
     const button = (await control(page, 'close').boundingBox())!;
     const alone = await page.evaluate(async () => {
       const own = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
-      own.setAttribute('variant', 'text');
+      own.setAttribute('variant', 'tonal');
+      own.setAttribute('size', 'small');
       own.setAttribute('label', 'Close');
       own.innerHTML = '<span slot="icon">close</span>';
       document.querySelector('.stage')!.append(own);
