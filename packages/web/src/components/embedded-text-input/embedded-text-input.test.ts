@@ -623,6 +623,83 @@ test.describe('behavior', () => {
     near(reduced.to, reduced.from + one, 'a line more in the next frame');
   });
 
+  test('ETI-8: a letter typed while the motion of a line break runs continues that motion — the motion it replaces reports its cancellation a frame later, and that report ends nothing: the height still moves from the one shown to the end height through heights on its curve, with no step of more than 35 % of the whole change', async ({ page }) => {
+    await mount(page, [fx('typed', { multiline: true, value: 'One line' }), fx('held-typed', { multiline: true, value: 'One line' })], { reducedMotion: false });
+    const one = await line(page, 'typed');
+    for (const id of ['typed', 'held-typed']) {
+      const run = await host(page, id).evaluate(async (el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        const boxed = el.shadowRoot!.querySelector<HTMLElement>('.box')!;
+        const height = () => boxed.getBoundingClientRect().height;
+        const resizing = () => boxed.getAnimations().filter((a) => /^(block-size|height)$/.test((a as CSSTransition).transitionProperty));
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        let cancelled = 0;
+        boxed.addEventListener('transitioncancel', () => cancelled++);
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        const from = height();
+        const hold = (at: (duration: number) => number) => {
+          const held = resizing();
+          const duration = Number(held[0]?.effect?.getComputedTiming().duration ?? 0);
+          for (const motion of boxed.getAnimations()) {
+            motion.pause();
+            motion.currentTime = at(duration);
+          }
+          return held.length;
+        };
+        // A line break: its motion runs for a rendered frame, held a thirteenth of the way (every read below follows a
+        // rendered frame).
+        document.execCommand('insertText', false, '\n');
+        const first = hold((duration) => duration / 13);
+        await frame();
+        const mid = height();
+        // A letter, a moment later: its change replaces that motion with one from the height then shown, and the replaced
+        // one is cancelled — which is reported with the next frame's events. The new motion is held at its start and then
+        // stepped by hand, so what is read does not depend on the machine's speed.
+        document.execCommand('insertText', false, 'b');
+        const motions = resizing();
+        for (const motion of boxed.getAnimations()) {
+          motion.pause();
+          motion.currentTime = 0;
+        }
+        const duration = Number(motions[0]?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const after = { motions: resizing().length, marked: boxed.hasAttribute('data-resizing'), cancelled };
+        const heights = [from, mid, height()];
+        // The eased progress at each read, from the motion itself: where the height should be, whatever the curve.
+        const progress = [Number.NaN, 0, Number(motions[0]?.effect?.getComputedTiming().progress ?? 1)];
+        for (let step = 1; step < 13; step++) {
+          for (const motion of motions) motion.currentTime = (duration * step) / 13;
+          await frame();
+          heights.push(height());
+          progress.push(Number(motions[0]?.effect?.getComputedTiming().progress ?? 1));
+        }
+        for (const motion of motions) motion.finish();
+        await frame();
+        heights.push(height());
+        progress.push(1);
+        return { first, held: motions.length, after, heights, progress };
+      });
+      expect(run.first, `${id}: the line break starts one motion`).toBe(1);
+      expect(run.held, `${id}: one motion runs after the letter`).toBe(1);
+      expect(run.after.cancelled, `${id}: the replaced motion reported its cancellation`).toBeGreaterThanOrEqual(1);
+      expect({ motions: run.after.motions, marked: run.after.marked }, `${id}: after that report the motion still runs`).toEqual({ motions: 1, marked: true });
+      const whole = run.heights.at(-1)! - run.heights[0]!;
+      near(whole, one, `${id}: one line more`);
+      // The letter's motion, from the height shown when it came: at each read where its curve has brought it.
+      const rest = run.heights.at(-1)! - run.heights[1]!;
+      expect(rest, `${id}: the letter's motion goes on from the height then shown`).toBeGreaterThan(1);
+      run.heights.forEach((h, i) => i >= 1 && near(h, run.heights[1]! + run.progress[i]! * rest, `${id}: read ${i} on the curve (${run.heights.join(' → ')})`, 1));
+      // And in the measure of a motion that jumps: at 13 evenly spaced times no step is more than 35 % of the change (the
+      // standard curve's largest is 28 %; a motion ended by the report moves 100 % at once).
+      for (let i = 1; i < run.heights.length; i++) {
+        const step = run.heights[i]! - run.heights[i - 1]!;
+        expect(step, `${id}: never lower than the one before (${run.heights.join(' → ')})`).toBeGreaterThanOrEqual(-0.01);
+        expect(step / whole, `${id}: step ${i} is no more than 35 % of the change (${run.heights.join(' → ')})`).toBeLessThanOrEqual(0.35);
+      }
+    }
+  });
+
   test('ETI-10: the height it takes in its layout is the animated one — a holder that sizes itself to its content is the input’s height plus its own paddings at every sample of a motion, with no jump at its start or its end; rowschange is emitted once when it is first drawn and once for each later change of the number of lines, before the first frame in which the height differs, and never for a text size alone', async ({ page }) => {
     // Heard from before the element is defined: the first one is not missed.
     const lead = `<script>window.__rows = []; document.addEventListener('rowschange', (event) => { const el = event.target; window.__rows.push(el.closest('[data-fixture]').getAttribute('data-fixture') + ':' + event.detail.rows + ':' + event.detail.scrolling + ':' + el.rows); });</script>`;

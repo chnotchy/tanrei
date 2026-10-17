@@ -89607,7 +89607,8 @@
                     "text": "TransitionEvent"
                   }
                 }
-              ]
+              ],
+              "description": "TXI-38: the height's motion ended or was cancelled. A motion that the next change replaced (`showLines` starts one\nfrom the room then shown) reports its cancellation a frame later, while the new one runs: that report ends nothing\n(`stillMoving`), or the new motion would be cut off and the height jump to its end."
             },
             {
               "kind": "method",
