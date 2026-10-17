@@ -136,7 +136,9 @@ and when its `variant` changes. The system's stylesheet carries the list as
 `--tanrei-unavailable: "<component> <component>:<variant> …"`, read from the cascade at the element, so it follows
 `data-tanrei-system` like every token. The warning names the system from `--tanrei-system: "<id>"` when the sheet
 declares it, otherwise from the nearest `data-tanrei-system`, and what the system uses instead when the sheet declares
-`--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"`.
+`--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"`. A product's sheet from `tanrei build` declares the
+same lists in its own scope, worked out from its layers, so an element under the product's `data-tanrei-system` never
+reads the default system's from `:root`.
 
 A component that lives in a layer is another matter: `<tanrei-fab-menu>` lives in the m3-like layer, and a system that
 does not descend from it (the default, cupertino) has none of its tokens. `@tanrei/web` does not register it; the
