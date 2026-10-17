@@ -16,6 +16,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { comparePreviews } from './compare-previews.mjs';
+import { watchNetwork } from './network-quiet.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -80,7 +81,11 @@ describe('every live preview is drawn as the web package draws it', { concurrenc
         const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme, reducedMotion: 'reduce' });
         try {
           const page = await context.newPage();
-          await page.goto(origin + url, { waitUntil: 'networkidle' });
+          // The load, then 500 ms with nothing in flight: a navigation that waits for Playwright's `networkidle` can
+          // return while a long page is still loading (network-quiet.mjs).
+          const network = await watchNetwork(page);
+          await page.goto(origin + url, { waitUntil: 'load' });
+          await network.quiet();
           const result = await page.evaluate(comparePreviews, { componentCss, still });
           if (result.error) found.push(`${colorScheme}: ${result.error}`);
           for (const { index, preview, notes } of result.differ ?? []) found.push(`${colorScheme}, preview ${index} (${preview}):\n      ${notes.join('\n      ')}`);
