@@ -62,6 +62,8 @@ const PREFIX = '--tanrei-comp-image-preview';
 /** The five controls, in the order Tab visits them (IMP-3); each is a part of that name (IMP-8, IMP-10). */
 const CONTROLS = ['zoom-out', 'zoom-in', 'close', 'previous', 'next'] as const;
 type Control = (typeof CONTROLS)[number];
+/** The glyphs the preview draws, by their names in the icon set: each control's, and a picture's that could not be drawn. */
+const GLYPHS = { 'zoom-out': 'zoom_out', 'zoom-in': 'zoom_in', close: 'close', previous: 'chevron_left', next: 'chevron_right', broken: 'broken_image' } as const;
 
 /** Each Button's documented parts under the control's name: `close-container`, `close-label`, `close-icon`. */
 const BUTTON_PARTS = Object.fromEntries(
@@ -1522,7 +1524,7 @@ export class TanreiImagePreview extends LitElement {
         : nothing}
       ${broken
         ? html`<div part="error" class="error">
-            <span class="glyph" aria-hidden="true"><span class="ink">broken_image</span></span>
+            <span class="glyph" aria-hidden="true"><span class="ink">${GLYPHS.broken}</span></span>
             ${errorText ? html`<p class="error-text" id=${shown ? 'error' : nothing}>${errorText}</p>` : nothing}
           </div>`
         : nothing}
@@ -1576,11 +1578,11 @@ export class TanreiImagePreview extends LitElement {
       <div part="bar" class="bar">
         <p part="count" class="count" id="count">${count}</p>
         <div class="controls">
-          ${this.control('zoom-out', 'zoom_out', this.words.get('zoomOutLabel', this.zoomOutLabel))} ${this.control('zoom-in', 'zoom_in', this.words.get('zoomInLabel', this.zoomInLabel))}
-          ${this.control('close', 'close', this.words.get('closeLabel', this.closeLabel))}
+          ${this.control('zoom-out', GLYPHS['zoom-out'], this.words.get('zoomOutLabel', this.zoomOutLabel))} ${this.control('zoom-in', GLYPHS['zoom-in'], this.words.get('zoomInLabel', this.zoomInLabel))}
+          ${this.control('close', GLYPHS.close, this.words.get('closeLabel', this.closeLabel))}
         </div>
       </div>
-      ${several ? this.control('previous', 'chevron_left', this.words.get('previousImageLabel', this.previousLabel)) : nothing}
+      ${several ? this.control('previous', GLYPHS.previous, this.words.get('previousImageLabel', this.previousLabel)) : nothing}
       <div
         part="stage"
         class="stage"
@@ -1593,7 +1595,7 @@ export class TanreiImagePreview extends LitElement {
         @pointercancel=${this.onPointerUp}
         @blur=${this.onStageBlur}
       ></div>
-      ${several ? this.control('next', 'chevron_right', this.words.get('nextImageLabel', this.nextLabel)) : nothing}
+      ${several ? this.control('next', GLYPHS.next, this.words.get('nextImageLabel', this.nextLabel)) : nothing}
       ${caption
         ? html`<div part="caption" class="caption" role=${this.captionScrolls ? 'group' : nothing} tabindex=${this.captionScrolls ? '0' : nothing} data-tanrei-shape>
               <p class="caption-text" id="caption">${caption}</p>

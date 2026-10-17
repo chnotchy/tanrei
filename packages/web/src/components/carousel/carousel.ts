@@ -56,8 +56,8 @@ const VELOCITY_WINDOW = 80;
 const SCROLL_IDLE = 100;
 
 /** The glyphs of the playback control (CRL-35): ligatures of the system's icon set. */
-const GLYPH_PAUSE = 'pause';
-const GLYPH_PLAY = 'play_arrow';
+const PAUSE_GLYPH = 'pause';
+const PLAY_GLYPH = 'play_arrow';
 
 /** What the carousel tells each of its items. */
 interface ItemContext {
@@ -1399,7 +1399,7 @@ export class TanreiCarousel extends LitElement {
     }
     const style = getComputedStyle(icon);
     const font = `${style.fontSize} ${style.fontFamily}`;
-    const text = `${GLYPH_PAUSE}${GLYPH_PLAY}`;
+    const text = `${PAUSE_GLYPH}${PLAY_GLYPH}`;
     try {
       if (fonts.check(font, text)) {
         this.glyphReady = true;
@@ -1506,7 +1506,7 @@ export class TanreiCarousel extends LitElement {
             @keyup=${this.playbackPress.onKeyUp}
             @blur=${this.playbackPress.onBlur}
           >
-            <span class="icon hold${this.glyphReady ? '' : ' loading'}" aria-hidden="true">${this.paused ? GLYPH_PLAY : GLYPH_PAUSE}</span>
+            <span class="icon hold${this.glyphReady ? '' : ' loading'}" aria-hidden="true">${this.paused ? PLAY_GLYPH : PAUSE_GLYPH}</span>
           </button>`
         : nothing}
       <div class="viewport">

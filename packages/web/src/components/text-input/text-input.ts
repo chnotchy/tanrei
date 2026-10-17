@@ -74,6 +74,8 @@ export type TanreiTextInputResizeAxis = 'vertical' | 'both';
 export const DISABLED_DATES = { fromAttribute: parseValues, toAttribute: (value: string[]) => value.join(' ') };
 const RESIZES: readonly TanreiTextInputResize[] = ['auto', 'manual', 'fixed'];
 const RESIZE_AXES: readonly TanreiTextInputResizeAxis[] = ['vertical', 'both'];
+/** The resize grip's glyph by the axes it resizes (TXI-41). */
+const GRIP_GLYPHS: Record<TanreiTextInputResizeAxis, string> = { vertical: 'drag_handle', both: 'drag_indicator' };
 /** A press on the resize grip that ends within this many pixels of where it began is a click, not a drag (TXI-41). */
 const DRAG_SLOP = 3;
 
@@ -2126,7 +2128,7 @@ export class TanreiTextInput extends LitElement {
         @keydown=${this.onGripKeyDown}
         @focus=${this.onGripFocus}
       >
-        <span class="grip-glyph" aria-hidden="true"><span class="ink">${this.axis === 'both' ? 'drag_indicator' : 'drag_handle'}</span></span>
+        <span class="grip-glyph" aria-hidden="true"><span class="ink">${GRIP_GLYPHS[this.axis]}</span></span>
       </div>
       ${this.axis === 'both' ? html`<span class="touch-probe" aria-hidden="true"></span>` : nothing}`;
   }
