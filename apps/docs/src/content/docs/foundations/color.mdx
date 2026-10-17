@@ -5,6 +5,7 @@ description: Color roles, the monochrome primary, the single accent, and how eve
 
 import Callout from '../../../components/Callout.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
+import { contrast } from '../../../lib/contrast';
 
 Tanrei never asks a component to pick a color. Components ask for a **role**, such as `primary` or `surface-container`, and the active theme decides which color fills that role. The roles are defined by Tanrei's vocabulary, and their values by each design system's layer.
 
@@ -33,8 +34,8 @@ The two outline roles look similar and do opposite jobs.
 
 | Role | Purpose | Contrast |
 | --- | --- | --- |
-| `outline` | A **functional boundary**: the only thing that shows where a control is, as with an empty text field, an unchecked checkbox or an outlined button. | At least 3:1 against every surface role |
-| `outline-variant` | A **decorative hairline**: dividers, card borders, the elevation ring. Removing it must not hide any information. | None at standard contrast, where it is a low-alpha black or white. At least 3:1 at medium contrast and 4.5:1 at high, against every surface role, and always weaker than `outline` |
+| `outline` | A **functional boundary**: the only thing that shows where a control is, as with an empty text field, an unchecked checkbox or an outlined button. | At least {contrast.nonText} against every surface role |
+| `outline-variant` | A **decorative hairline**: dividers, card borders, the elevation ring. Removing it must not hide any information. | None at standard contrast, where it is a low-alpha black or white. At least {contrast.hairlineMedium} at medium contrast and {contrast.hairlineHigh} at high, against every surface role, and always weaker than `outline` |
 
 <Callout type="caution">
   If a border is the only cue that a control exists, it must use `outline`. A hairline at 8% alpha is pleasant and invisible to many people.
@@ -66,8 +67,8 @@ The generator's algorithm carries a version (`specVersion`), so a change to the 
 
 For all six theme and contrast permutations, the token build fails unless:
 
-- every `(role, on-role)` pair reaches **4.5:1**;
-- `outline` reaches **3:1** against every surface role;
-- `focus-ring` reaches **3:1** against the surfaces it is drawn on.
+- every `(role, on-role)` pair reaches **{contrast.text}**, and **{contrast.highContrastText}** in the two high-contrast schemes;
+- `outline` reaches **{contrast.nonText}** against every surface role;
+- `focus-ring` reaches **{contrast.nonText}** against the surfaces it is drawn on.
 
 A threshold may not be loosened to make a build pass. See the full list of roles and values in the [color token reference](/tokens/color/).
