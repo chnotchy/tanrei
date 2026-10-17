@@ -92,7 +92,6 @@ export const RULES = {
       'src/components/skeleton/skeleton.test.ts': 4,
       'src/components/slider-field/slider-field.test.ts': 1,
       'src/components/snackbar/snackbar.test.ts': 5,
-      'src/components/stepper/stepper.test.ts': 1,
       'src/components/swatch/swatch.test.ts': 2,
       'src/components/switch/switch.test.ts': 4,
       'src/components/tab-view/tab-view.test.ts': 5,
