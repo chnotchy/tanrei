@@ -216,23 +216,26 @@ test('check_usage: a FAB menu in code for the default system is found where it i
   assert.equal(data.clean, false);
   const at = (line, column) => data.findings.find((f) => f.line === line && f.column === column);
   const fab = at(7, 6);
-  assert.deepEqual([fab.file, fab.kind, fab.found, fab.component, fab.severity], ['src/page.tsx', 'element', `<${tagPrefix}-fab-menu>`, 'fab-menu', 'error']);
+  assert.deepEqual([fab.file, fab.kind, fab.found, fab.component], ['src/page.tsx', 'element', `<${tagPrefix}-fab-menu>`, 'fab-menu']);
   assert.equal(fab.providedBy, 'm3-like');
   assert.ok(fab.availableIn.includes('m3-like'));
   assert.deepEqual(fab.howToInclude.write, { components: { include: [{ name: 'fab-menu', from: 'm3-like' }] } });
-  assert.equal(data.findings.filter((f) => f.component === 'fab-menu').length, 4, 'the web entry, the wrapper imported, the element and its item');
-  assert.deepEqual([at(1, 9).kind, at(1, 9).found], ['import', `${WEB}/m3-like`]);
+  assert.equal(data.findings.filter((f) => f.component === 'fab-menu').length, 3, 'the wrapper imported, the element and its item');
+  // m3-like's entry registers what m3-like ships: the FAB menu and the segmented button among it.
+  assert.deepEqual([at(1, 9).kind, at(1, 9).found, at(1, 9).use], ['import', `${WEB}/m3-like`, WEB]);
+  assert.deepEqual(at(1, 9).notInThisSystem, ['fab-menu', 'segmented-button']);
   assert.deepEqual([at(2, 18).kind, at(2, 18).found], ['import', 'FabMenu']);
   const segmented = data.findings.find((f) => f.component === 'segmented-button');
   assert.deepEqual([segmented.line, segmented.insteadUse.map((c) => c.name)], [8, layer(namespace).components.omit['segmented-button'].insteadUse]);
   assert.deepEqual(segmented.insteadUse[0].web, { tag: `${tagPrefix}-tabs`, import: WEB, module: `${WEB}/components/tabs` });
   const outlined = data.findings.find((f) => f.kind === 'variant');
-  assert.deepEqual([outlined.line, outlined.column, outlined.component, outlined.insteadUse], [6, 12, 'text-field', ['stacked']], 'the alias of an imported wrapper is followed');
-  assert.deepEqual([at(9, 6).problem, at(9, 6).severity], [`Tanrei has no element <${tagPrefix}-widget>`, 'error']);
+  assert.deepEqual([outlined.line, outlined.column, outlined.component, outlined.values], [6, 12, 'text-field', ['stacked']], 'the alias of an imported wrapper is followed');
+  assert.equal(at(9, 6).problem, `Tanrei has no element <${tagPrefix}-widget>`);
+  // `@tanrei/react/all` holds the chip, typed for every system: the default system's entry is the one that refuses what it does not have.
   const chip = data.findings.find((f) => f.component === 'chip');
-  assert.deepEqual([chip.severity, chip.use], ['warning', REACT]);
+  assert.deepEqual([chip.line, chip.use], [3, REACT]);
   assert.equal(data.findings.some((f) => f.line === 10), false, 'a filled button is a button of the default system');
-  assert.deepEqual([data.errors, data.warnings], [data.findings.length - 1, 1]);
+  assert.equal(data.errors, data.findings.length);
 });
 
 test('check_usage: the same code is clean of the FAB menu where the system has it — m3-like, or a product that takes it', async () => {
@@ -245,6 +248,9 @@ test('check_usage: the same code is clean of the FAB menu where the system has i
   fs.writeFileSync(path.join(product, 'page.html'), `<${tagPrefix}-carousel></${tagPrefix}-carousel>\n`);
   const { data } = await call('check_usage', { files: ['page.html'], layerFile: 'design/shop.system.json' });
   assert.deepEqual(data.findings.map((f) => [f.file, f.line, f.column, f.component, f.insteadUse.map((c) => c.name)]), [['page.html', 1, 2, 'carousel', ['list']]]);
+  // The path says how to read the text: a stylesheet's comment is skipped, and its selector is checked.
+  const { data: css } = await call('check_usage', { code: `/* ${tagPrefix}-fab-menu { } */\n.a > ${tagPrefix}-fab-menu { }`, path: 'a.css' });
+  assert.deepEqual(css.findings.map((f) => [f.line, f.column, f.kind, f.component]), [[2, 6, 'selector', 'fab-menu']]);
   assert.equal((await call('check_usage', { files: ['missing.html'] })).ok, false);
   assert.equal((await call('check_usage', {})).ok, false, 'code or files');
 });
