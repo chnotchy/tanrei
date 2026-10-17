@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ROOT_SYSTEM, listSystems } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, shippedSystems } from '../src/bundle.js';
 import { CONFIG, REPO_ROOT, buildModel } from '../src/model.js';
 
 const NS = `${CONFIG.namespace}.comp`;
@@ -36,10 +36,10 @@ export const LISTS = {
   combobox: { own: ['list.max-height', 'option.match.emphasis'], pairs: 194 },
 };
 
-const systems = [ROOT_SYSTEM, ...listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM)];
+const systems = [DEFAULT_SYSTEM, ...shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM)];
 const models = new Map();
 const modelOf = async (system) => {
-  if (!models.has(system)) models.set(system, await (system === ROOT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
+  if (!models.has(system)) models.set(system, await (system === DEFAULT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
   return models.get(system);
 };
 const inScheme = (model, scheme, id) => JSON.stringify(model.tokens[id].type === 'color' ? model.componentColors[scheme][id].value : model.tokens[id].value);
@@ -98,7 +98,7 @@ test('combobox: its status row equals the search\'s, in every scheme of every sh
 });
 
 test('the list comparison is not vacuous: the chosen row is the menu\'s checked row, state by state, and a value that moves is found', async () => {
-  const model = structuredClone(await modelOf(ROOT_SYSTEM));
+  const model = structuredClone(await modelOf(DEFAULT_SYSTEM));
   const { pairs } = listPairs(model, 'select');
   const pair = (mine) => pairs.find(([id]) => id === `${NS}.select.${mine}`)?.[1];
   assert.equal(pair('stacked.selected-option.container.color'), `${MENU}.selected.container.color`);

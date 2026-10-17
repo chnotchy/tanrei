@@ -16,7 +16,7 @@ leavesNothingBehind(after); // whatever tempDir() made is removed, and the file 
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const acme = JSON.parse(fs.readFileSync(path.join(here, 'fixtures/acme.system.json'), 'utf8'));
-const chainOf = (...layers) => layerChain(layers.at(-1).id, (id) => (id === 'tanrei' ? loadSystem(REPO_ROOT) : layers.find((l) => l.id === id)));
+const chainOf = (...layers) => layerChain(layers.at(-1).id, (id) => (['core', 'tanrei'].includes(id) ? loadSystem(REPO_ROOT, id) : layers.find((l) => l.id === id)));
 const build = (...layers) => buildBundle(REPO_ROOT, chainOf(...layers));
 const layer = (extra) => ({ id: 'acme', name: 'Acme', extends: 'tanrei', ...extra });
 

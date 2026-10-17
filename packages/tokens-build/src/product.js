@@ -3,7 +3,7 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { listSystems } from './bundle.js';
+import { ROOT_SYSTEM, listSystems } from './bundle.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
 import { emitKotlin } from './emit/kotlin.js';
@@ -76,7 +76,9 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const sourceName = layerFile ? path.basename(layerFile) : `${id}${LAYER_SUFFIX}`;
 
   const previous = [...GENERATED_HEADER];
-  GENERATED_HEADER[1] = `Source: ${sourceName} (extends ${chain.slice(0, -1).map((l) => l.id).reverse().join(' ← ')}). Regenerate with \`${command}\`.`;
+  // The parents nearest first. Every chain starts at the root, so the root is named only when it is the one parent.
+  const parents = chain.slice(0, -1).map((l) => l.id).reverse();
+  GENERATED_HEADER[1] = `Source: ${sourceName} (extends ${(parents.length > 1 ? parents.filter((parent) => parent !== ROOT_SYSTEM) : parents).join(' ← ')}). Regenerate with \`${command}\`.`;
   try {
     const ir = buildIR(model);
     const note = warnings.length ? `⚠ ${warnings.length} accessibility/structure warning(s) in system "${id}" — see a11y-report.json in the tokens output.` : null;

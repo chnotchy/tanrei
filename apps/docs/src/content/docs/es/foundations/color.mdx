@@ -2,7 +2,7 @@
 title: Color
 description: Los roles de color, el primario monocromo, el único acento, y cómo se genera y se comprueba cada esquema.
 translationOf: foundations/color.mdx
-sourceHash: 7374c20d700ebcfe43e183446e02015a6653fe66
+sourceHash: ddde2b1831c92ee6d35e5c257ddbcb70104b4581
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -55,7 +55,7 @@ Cada tema existe en tres niveles de contraste. **Estándar** es el predeterminad
 
 ## Cómo se generan los esquemas
 
-Los colores no se eligen a mano. Un archivo de sistema (`tokens/systems/tanrei.system.json`) declara las paletas (un color semilla para el acento y para el error, y el matiz y el croma de los neutros) e indica, como datos, qué tono de qué paleta toma cada rol en claro y en oscuro, en cada nivel de contraste. Durante la compilación, un generador:
+Los colores no se eligen a mano. Un archivo de sistema (`tokens/systems/core.system.json`) declara las paletas (un color semilla para el acento y para el error, y el matiz y el croma de los neutros) e indica, como datos, qué tono de qué paleta toma cada rol en claro y en oscuro, en cada nivel de contraste. Durante la compilación, un generador:
 
 1. convierte cada color clave en una **paleta tonal** en el espacio de color HCT con la biblioteca `material-color-utilities` (Apache-2.0), donde el tono se corresponde de forma predecible con el contraste;
 2. limita las paletas neutras al croma del tema, que de forma predeterminada es cero, para obtener grises puros;
