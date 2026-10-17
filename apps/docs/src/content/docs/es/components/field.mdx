@@ -2,7 +2,7 @@
 title: Campo
 description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="Un control deslizante y un interruptor, cada uno con el nombre, la ayuda y la marca que le da un campo" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" supporting-text="Se aplica a las alertas y al contenido multimedia."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" requirement="optional" optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch selected></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" requirement="optional" optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, el texto de error ocupa el lugar de la ayuda, de modo que un formulario en error no es más alto que en reposo; un sistema de diseño puede, en cambio, conservar la ayuda y añadir el texto de error debajo de ella.

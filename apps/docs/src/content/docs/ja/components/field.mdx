@@ -2,7 +2,7 @@
 title: フィールド
 description: フォームのどのフィールドにもあるもの、つまり必須か任意かを示せるラベル、補足の 1 行、値が受け付けられなかった理由を 1 つのコントロールに添え、支援技術に向けてそれぞれをコントロールと結び付けます。フィールドは枠であり、コントロールではありません。
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="フィールドで名前、補足、印を付けたスライダーとスイッチ" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" supporting-text="通知とメディアに適用されます。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch selected></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 テキストフィールドは、何を入力するものか、回答が必須かどうか、どう答えればよいか、なぜ回答が受け付けられなかったかを、自分で伝えられます。フィールドは、それができないコントロール（スライダー、スイッチ、[テキスト入力欄](/ja/components/text-input/)、[カラー入力欄](/ja/components/color-input/)、[ワンタイムコード入力欄](/ja/components/one-time-code-input/)、プロダクトが独自に作ったコントロールなど）に、同じ 4 つを添えます。テキストフィールドは、それ自体が、テキスト入力欄を囲むフィールドです。ラベルはコントロールの上に、補足は下に置きます。フィールドがエラーの間は、エラーテキストが補足の位置に代わって出るので、エラーのフォームが通常より高くなることはありません。デザインシステムによっては、補足を残してその下にエラーテキストを加えることもできます。
