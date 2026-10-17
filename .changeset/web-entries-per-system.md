@@ -9,14 +9,14 @@ reaches only the components its system ships, so it cannot pick one the system d
 
 - `import '@tanrei/web'` no longer registers the segmented button (`<tanrei-segmented-button>`, `<tanrei-segment>`),
   which the default system leaves out, and no longer exports `TanreiSegmentedButton`, `TanreiSegment` and their types.
-- `@tanrei/web/m3-like` is gone. A preset's components are registered by the preset's entry.
+- `@tanrei/web/m3-like` now registers everything the m3-like system ships, not the FAB menu alone.
 
 **New — an entry per system, and one for everything.**
 
-- `@tanrei/web/systems/<id>.js` (`m3-like`, `m3-expressive-like`, `cupertino`, and `tanrei`, the same as
-  `@tanrei/web`) registers what system `<id>` ships: everything `@tanrei/web` registers, and the components only that
-  system ships (the segmented button on the three presets, the FAB menu on the two m3-like systems). It exports their
-  classes and types.
+- `@tanrei/web/<id>` (`m3-like`, `m3-expressive-like`, `cupertino`; the default system's is `@tanrei/web` itself)
+  registers what system `<id>` ships: everything `@tanrei/web` registers, and the components only that system ships
+  (the segmented button on the three presets, the FAB menu on the two m3-like systems). It exports their classes and
+  types. `@tanrei/react/<id>` is the same set in React.
 - `@tanrei/web/all` registers every component of the package.
 - A component's own module, `@tanrei/web/components/<name>`, registers it alone: a product on the default system that
   includes the segmented button in its layer (`"components": { "include": ["segmented-button"] }`) imports
