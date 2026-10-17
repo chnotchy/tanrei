@@ -2473,6 +2473,13 @@
         }
       },
       "bottom-sheet": {
+        "close-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button variant of the close button, an icon-only small Button (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+          }
+        },
         "container": {
           "color": {
             "$type": "color",
@@ -2603,6 +2610,34 @@
               "alpha": 1
             },
             "$description": "The foreground the sheet hands to its content, as the platform's inherited color."
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6824,
+                0.6627,
+                0.7059
+              ],
+              "hex": "#aea9b4",
+              "alpha": 1
+            },
+            "$description": "The hairline below the header, drawn as divider.visibility says (BSH-28)."
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "When the divider below the header is drawn. always: whenever the header is drawn, at rest as well as while the content is scrolled. scroll: only while the content is scrolled away from its top (BSH-28). Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            }
           }
         },
         "drag-handle": {
@@ -2854,6 +2889,68 @@
               "unit": "px"
             },
             "$description": "Above and below the drag handle's box: from the sheet's top edge, and to the content."
+          }
+        },
+        "header": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Between the headline and the close button."
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 64,
+              "unit": "px"
+            },
+            "$description": "The header row's minimum height, as the side sheet's; the headline and the close button are centred in it, and it grows with a headline that wraps (BSH-28)."
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "From the sheet's end edge to the close button: less than the content's inset, so that the close glyph lines up near the text column while its target stays whole."
+          }
+        },
+        "headline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.0784,
+                0.0706,
+                0.0941
+              ],
+              "hex": "#141218",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 16,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.1504,
+                "unit": "px"
+              },
+              "lineHeight": 1.5
+            },
+            "$description": "The side sheet's headline style: a sheet's title is a small heading."
           }
         },
         "hovered": {

@@ -865,6 +865,7 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
+            closeButtonVariant = 1f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLowest),
             containerElevation = elevation.level2,
             containerMarginBlockStart = 48.dp,
@@ -873,6 +874,9 @@ private object CupertinoSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 10.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerVisibility = 1f,
+            dividerWidth = 1.dp,
             handleContainerHeight = 16.dp,
             handleContainerShape = 9999.dp,
             handleContainerWidth = 48.dp,
@@ -880,6 +884,11 @@ private object CupertinoSystemSource {
             handleGripShape = 9999.dp,
             handleGripWidth = 36.dp,
             handleMarginBlock = 0.dp,
+            headerGap = 8.dp,
+            headerHeight = 64.dp,
+            headerPaddingInlineEnd = 12.dp,
+            headlineColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            headlineTypescale = typescale.heading5,
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionExitDuration = 200,

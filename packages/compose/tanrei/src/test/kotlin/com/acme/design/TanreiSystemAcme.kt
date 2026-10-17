@@ -940,6 +940,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
+            closeButtonVariant = 1f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
             containerElevation = elevation.level2,
             containerMarginBlockStart = 48.dp,
@@ -948,6 +949,9 @@ private object AcmeSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 12.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerVisibility = 0f,
+            dividerWidth = 1.dp,
             handleContainerHeight = 24.dp,
             handleContainerShape = 9999.dp,
             handleContainerWidth = 48.dp,
@@ -955,6 +959,11 @@ private object AcmeSystemSource {
             handleGripShape = 9999.dp,
             handleGripWidth = 32.dp,
             handleMarginBlock = 12.dp,
+            headerGap = 8.dp,
+            headerHeight = 64.dp,
+            headerPaddingInlineEnd = 12.dp,
+            headlineColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            headlineTypescale = typescale.heading5,
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionExitDuration = 200,
