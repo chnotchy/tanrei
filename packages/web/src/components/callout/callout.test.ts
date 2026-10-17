@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('callout');
 type P = Page;
@@ -763,11 +764,14 @@ test.describe('behavior', () => {
     await expect.poll(alpha).toBe(0);
     await close(page, 'c').hover();
     await expect.poll(() => closeBox(page, 'c').evaluate((el) => el.matches(':hover'))).toBe(true);
+    // Whatever the hover started has ended: the color it rests at is the hovered one.
+    await motionEnded(close(page, 'c'));
     expect(await alpha(), 'no hover layer').toBe(0);
     await page.mouse.move(0, 0);
     await page.locator('#start').focus();
     await tabTo(page, close(page, 'c'));
     expect(await closeBox(page, 'c').evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+    await motionEnded(close(page, 'c'));
     expect(await alpha(), 'no focus layer').toBe(0);
     expect(await closeBox(page, 'c').evaluate((el) => getComputedStyle(el.querySelector('.icon')!).color)).toBe(await computed(page, `var(${T('warning-body-color-tonal')})`));
   });
