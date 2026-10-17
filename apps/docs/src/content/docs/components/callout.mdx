@@ -171,7 +171,7 @@ Prose brings no color, so it reads on every fill, and its links are underlined. 
 
 The actions are your own [Buttons](../button/) or links, one or two. Use `outlined` or `text` Buttons: a `tonal` Button has the fill of the tonal callout without a status and cannot be seen as a button there. The callout lays them out in a row that wraps, and does nothing else: it does not close when one is pressed.
 
-`closable` draws a close button, named by `close-label`. Pressing it sets `open` to false and fires `dismiss`. The callout never closes by itself and does not answer Escape. When a person closes one, remember it: a closable callout that returns on every visit is noise. A caution that qualifies the content beside it should not be closable.
+`closable` draws a close button: a small icon-only [Button](../button/), named by `close-label`, in the variant `--tanrei-comp-callout-close-button-variant` names (tonal in the default system). On a tonal callout it is drawn in the callout's own text color — a translucent circle of that color with the glyph in it — so that it shows on the fill of every status; on an outlined callout, which has no fill, it is the Button as it is anywhere else. It answers hover, focus and a press as every Button does. Pressing it sets `open` to false and fires `dismiss`. The callout never closes by itself and does not answer Escape. When a person closes one, remember it: a closable callout that returns on every visit is noise. A caution that qualifies the content beside it should not be closable.
 
 ### Appearing in answer to something
 
@@ -230,7 +230,7 @@ The body, the title slot and the actions are the element's own children, so they
 - A title given as text is plain text. A heading in the `title` slot keeps its level.
 - It is not a stop in the focus order and never moves focus. Tab reaches the links and controls of the body, then the actions, then the close button.
 - When it is closed while focus is inside it, focus returns to the element that had it before it entered the callout, so the next Tab reaches what followed.
-- The close button's hit area reaches the minimum target, and its focus ring is drawn in a color that shows on the callout's fill.
+- The close button is a Button: its hit area reaches the minimum target, and on a tonal callout its glyph and its focus ring are in the callout's text color, which keeps at least 6:1 against the button in every status and color scheme of the default system.
 - With enlarged text everything wraps and grows; the glyph and the close button stay on the first line.
 - In forced colors every look gains an edge in the text color, and the glyph is drawn whole.
 - In a right-to-left layout the glyph moves to the right and the close button to the left, a glyph the icon set marks is mirrored, and a left-to-right title keeps its own order.
