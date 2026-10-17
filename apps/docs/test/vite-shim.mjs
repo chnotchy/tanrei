@@ -5,6 +5,7 @@
 //   checked — `astro check` does that), and a relative import without an extension finds its `.ts` file;
 // - `import x from './file.json'`: the file's value as the default export;
 // - `import x from './picture.png?inline'`: the file as a `data:` address;
+// - `import x from './mark.svg?raw'`: the file's text;
 // - `import.meta.glob('<pattern>', { eager: true, import: 'default' })` over JSON files: the object of path → value.
 //
 // Anything else a module asks of Vite is not known here and fails the import with a sentence that says so.
@@ -14,12 +15,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const INLINE = /\?inline$/;
+const RAW = /\?raw$/;
 const MEDIA = { '.png': 'image/png', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.webp': 'image/webp' };
 const GLOB = /import\.meta\.glob(?:<[^>]*>)?\(\s*'([^']+)'\s*,\s*\{\s*eager:\s*true\s*,\s*import:\s*'default'\s*\}\s*\)/g;
 
 export async function resolve(specifier, context, nextResolve) {
   const fromTs = context.parentURL?.endsWith('.ts');
-  if (fromTs && INLINE.test(specifier)) return { url: new URL(specifier, context.parentURL).href, shortCircuit: true };
+  if (fromTs && (INLINE.test(specifier) || RAW.test(specifier))) return { url: new URL(specifier, context.parentURL).href, shortCircuit: true };
   if (fromTs && /^\.{1,2}\//.test(specifier) && !path.extname(specifier)) {
     const url = new URL(`${specifier}.ts`, context.parentURL);
     if (fs.existsSync(url)) return { url: url.href, shortCircuit: true };
@@ -39,7 +41,8 @@ function glob(pattern, file) {
 
 export async function load(url, context, nextLoad) {
   if (!url.startsWith('file:')) return nextLoad(url, context);
-  const file = fileURLToPath(url.replace(INLINE, ''));
+  const file = fileURLToPath(url.replace(INLINE, '').replace(RAW, ''));
+  if (RAW.test(url)) return { format: 'module', shortCircuit: true, source: `export default ${JSON.stringify(fs.readFileSync(file, 'utf8'))};` };
   if (INLINE.test(url)) {
     const media = MEDIA[path.extname(file)];
     if (!media) throw new Error(`${file}?inline: a kind of file this test's shim does not know (test/vite-shim.mjs).`);
