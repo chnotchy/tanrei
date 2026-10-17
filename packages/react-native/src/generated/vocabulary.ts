@@ -1019,6 +1019,7 @@ export interface TanreiButtonTokens {
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
+  readonly toneContainerOpacity: number;
   readonly sizes: TanreiButtonSizes;
   readonly variants: TanreiButtonVariants;
 }
@@ -1960,7 +1961,6 @@ export interface TanreiDialogTokens {
   readonly actionsGap: number;
   readonly actionsMarginBlockStart: number;
   readonly actionsVariant: number;
-  readonly closeButtonVariant: number;
   readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;

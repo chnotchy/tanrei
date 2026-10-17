@@ -1254,6 +1254,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
       small: TanreiButtonSizeTokens(
         containerHeight: 32.0,
@@ -3700,7 +3701,6 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     actionsGap: 8.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 4.0,
-    closeButtonVariant: 4.0,
     compactWindowWidth: 0.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerHigh),
     containerElevation: _elevationLevel3,

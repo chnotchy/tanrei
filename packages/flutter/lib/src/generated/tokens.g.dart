@@ -4610,6 +4610,7 @@ class TanreiButtonTokens {
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.toneContainerOpacity,
     required this.sizes,
     required this.variants,
     required this.hovered,
@@ -4630,6 +4631,8 @@ class TanreiButtonTokens {
   final int motionStateDuration;
   /// `comp.button.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.button.tone-container-opacity`
+  final double toneContainerOpacity;
   /// The `size` axis: `sizes[size]`.
   final TanreiButtonSizes sizes;
   /// The `variant` axis: `variants[variant]`.
@@ -4651,6 +4654,7 @@ class TanreiButtonTokens {
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? toneContainerOpacity,
     TanreiButtonSizes? sizes,
     TanreiButtonVariants? variants,
     TanreiButtonStateTokens? hovered,
@@ -4664,6 +4668,7 @@ class TanreiButtonTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        toneContainerOpacity: toneContainerOpacity ?? this.toneContainerOpacity,
         sizes: sizes ?? this.sizes,
         variants: variants ?? this.variants,
         hovered: hovered ?? this.hovered,
@@ -9181,7 +9186,6 @@ class TanreiDialogTokens {
     required this.actionsGap,
     required this.actionsMarginBlockStart,
     required this.actionsVariant,
-    required this.closeButtonVariant,
     required this.compactWindowWidth,
     required this.containerColor,
     required this.containerElevation,
@@ -9224,8 +9228,6 @@ class TanreiDialogTokens {
   final double actionsMarginBlockStart;
   /// `comp.dialog.actions-variant`
   final double actionsVariant;
-  /// `comp.dialog.close-button-variant`
-  final double closeButtonVariant;
   /// `comp.dialog.compact-window-width`
   final double compactWindowWidth;
   /// `comp.dialog.container-color`
@@ -9297,7 +9299,6 @@ class TanreiDialogTokens {
     double? actionsGap,
     double? actionsMarginBlockStart,
     double? actionsVariant,
-    double? closeButtonVariant,
     double? compactWindowWidth,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -9335,7 +9336,6 @@ class TanreiDialogTokens {
         actionsGap: actionsGap ?? this.actionsGap,
         actionsMarginBlockStart: actionsMarginBlockStart ?? this.actionsMarginBlockStart,
         actionsVariant: actionsVariant ?? this.actionsVariant,
-        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
