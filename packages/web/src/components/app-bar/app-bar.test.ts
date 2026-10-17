@@ -1,9 +1,9 @@
-// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…18) is cited by a test title, every
+// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…24) is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, loadSpec, markMarkup, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('app-bar');
 type P = Page;
@@ -700,6 +700,215 @@ test.describe('divider visibility', () => {
     // With style queries the cascade answers and nothing is written; without them the name is written for the rules.
     expect(written).toBe(supported ? null : 'scroll');
     expect(await css(inner(page, 'bar', '.outline'), 'background-color')).toBe(await resolveColor(page, T('flat-outline-color')));
+  });
+});
+
+test.describe('brand', () => {
+  const BRAND_FIXTURES = ['small-brand', 'small-brand-symbol', 'small-brand-wordmark', 'small-brand-lockup', 'small-brand-responsive'];
+  const brandFixtures = () => spec.fixtures.filter((f) => BRAND_FIXTURES.includes(f.id));
+  const cell = (page: P, id: string) => inner(page, id, '.brand');
+  const image = (page: P, id: string, slot: string) => bar(page, id).locator(`[slot="${slot}"]`);
+  const centre = (box: { x: number; y: number; width: number; height: number }) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
+  /** A bar with a menu button, a brand and one action, alone on the page (no app shell). */
+  async function brandPage(page: P, attributes: string, images: string, { navigation = true, theme = 'light' }: { navigation?: boolean; theme?: 'light' | 'dark' } = {}) {
+    await mountFixtures(page, spec, { icons: true, theme, fixtures: [] });
+    await page.evaluate(
+      ([attrs, inside, withNavigation]) => {
+        document.querySelector('main')!.innerHTML = `<div class="stage" id="brand-stage"><tanrei-app-bar scroll-target="none" ${attrs}>
+          ${withNavigation ? '<tanrei-button variant="text" slot="navigation" label="Menu"><span slot="icon">menu</span></tanrei-button>' : ''}
+          ${inside}
+          <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
+        </tanrei-app-bar></div>`;
+      },
+      [attributes, images, navigation] as const,
+    );
+    await page.locator('#brand-stage tanrei-app-bar').evaluate((el: any) => el.updateComplete);
+  }
+  const brandBar = (page: P) => page.locator('#brand-stage tanrei-app-bar');
+  const NAMED = 'brand-href="#home" brand-label="Tanrei"';
+  const SYMBOL = markMarkup('symbol', 'brand-symbol');
+  const WORDMARK = markMarkup('wordmark', 'brand-wordmark');
+
+  test('APB-19: the brand stands after the navigation item at actions.gap, in a cell as large as an icon button’s; a symbol stands where the menu icon stands, a wordmark at the same inset; without a navigation item, or with one not drawn, it starts container.padding-inline from the edge; rtl mirrors', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await mountFixtures(page, spec, { icons: true, fixtures: brandFixtures() });
+    const menu = await bounds(bar(page, 'small-brand-symbol').locator('tanrei-button[slot="navigation"]'));
+    const icon = await bounds(bar(page, 'small-brand-symbol').locator('tanrei-button[slot="navigation"] [slot="icon"]'));
+    const box = await bounds(cell(page, 'small-brand-symbol'));
+    const symbol = await bounds(image(page, 'small-brand-symbol', 'brand-symbol'));
+    expect(box.x - (menu.x + menu.width)).toBeCloseTo(await resolveToken(page, T('actions-gap')), 0);
+    expect(box.width).toBeCloseTo(menu.width, 0);
+    expect(box.height).toBeCloseTo(menu.height, 0);
+    expect(symbol.x - box.x).toBeCloseTo(icon.x - menu.x, 0);
+    expect(symbol.width).toBeCloseTo(icon.width, 0);
+    expect(centre(symbol).y).toBeCloseTo(centre(icon).y, 0);
+    const wordmarkBox = await bounds(cell(page, 'small-brand-wordmark'));
+    const wordmark = await bounds(image(page, 'small-brand-wordmark', 'brand-wordmark'));
+    expect(wordmark.x - wordmarkBox.x).toBeCloseTo(icon.x - menu.x, 0);
+    expect(centre(wordmark).y).toBeCloseTo(centre(wordmarkBox).y, 0);
+    // The title follows at container.gap.
+    const title = await bounds(bar(page, 'small-brand-symbol').locator('.row .title'));
+    expect(title.x - (box.x + box.width)).toBeCloseTo(await resolveToken(page, T('container-gap')), 0);
+
+    await brandPage(page, NAMED, SYMBOL, { navigation: false });
+    const start = (await bounds(brandBar(page).locator('.brand'))).x - (await bounds(brandBar(page))).x;
+    expect(start).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
+    await brandPage(page, NAMED, SYMBOL);
+    await brandBar(page).locator('tanrei-button[slot="navigation"]').evaluate((el: HTMLElement) => (el.style.display = 'none'));
+    const undrawn = (await bounds(brandBar(page).locator('.brand'))).x - (await bounds(brandBar(page))).x;
+    expect(undrawn).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
+    await page.locator('#brand-stage').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await brandBar(page).locator('tanrei-button[slot="navigation"]').evaluate((el: HTMLElement) => (el.style.display = ''));
+    await brandBar(page).evaluate((el: any) => el.updateComplete);
+    const rtlMenu = await bounds(brandBar(page).locator('tanrei-button[slot="navigation"]'));
+    const rtlCell = await bounds(brandBar(page).locator('.brand'));
+    expect(rtlMenu.x - (rtlCell.x + rtlCell.width)).toBeCloseTo(await resolveToken(page, T('actions-gap')), 0);
+  });
+
+  test('APB-20: each image at its token’s height and as wide as its proportions; a mark in currentColor in brand.color; a lockup draws the symbol, then the wordmark lockup.gap after it, aligned as lockup.alignment names', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    for (const theme of ['light', 'dark'] as const) {
+      await mountFixtures(page, spec, { icons: true, theme, fixtures: brandFixtures() });
+      const one = await bounds(image(page, 'small-brand', 'brand'));
+      expect(one.height).toBeCloseTo(await resolveToken(page, T('brand-image-height')), 0);
+      const [, , frameWidth, frameHeight] = WORDMARK.match(/viewBox="([^"]*)"/)![1].split(' ').map(Number);
+      expect(one.width).toBeCloseTo((one.height * frameWidth) / frameHeight, 0);
+      expect((await bounds(image(page, 'small-brand-symbol', 'brand-symbol'))).height).toBeCloseTo(await resolveToken(page, T('brand-symbol-size')), 0);
+      expect((await bounds(image(page, 'small-brand-wordmark', 'brand-wordmark'))).height).toBeCloseTo(await resolveToken(page, T('brand-wordmark-height')), 0);
+      const color = await resolveColor(page, T('brand-color'));
+      expect(color).toBe(await resolveColor(page, '--tanrei-sys-color-on-surface'));
+      for (const id of BRAND_FIXTURES) expect(await css(cell(page, id), 'color'), `${theme} ${id}`).toBe(color);
+      expect(await image(page, 'small-brand-symbol', 'brand-symbol').locator('path').evaluate((el) => getComputedStyle(el).fill)).toBe(color);
+    }
+    const symbol = await bounds(image(page, 'small-brand-lockup', 'brand-symbol'));
+    const wordmark = await bounds(image(page, 'small-brand-lockup', 'brand-wordmark'));
+    expect(wordmark.x - (symbol.x + symbol.width)).toBeCloseTo(await resolveToken(page, T('brand-lockup-gap')), 0);
+    expect(centre(symbol).y).toBeCloseTo(centre(wordmark).y, 0);
+    await override(page, { [T('brand-lockup-alignment')]: 'end' });
+    await expect.poll(async () => {
+      const [s, w] = [await bounds(image(page, 'small-brand-lockup', 'brand-symbol')), await bounds(image(page, 'small-brand-lockup', 'brand-wordmark'))];
+      return Math.round(s.y + s.height - (w.y + w.height));
+    }).toBe(0);
+  });
+
+  test('APB-21: one image, a symbol alone or a wordmark alone at every width; a lockup shows both at every width; responsive shows the wordmark in a medium or wider window and the symbol in a compact one, inside an app shell and outside one, focus staying on the brand', async ({ page }) => {
+    for (const width of [1024, 390]) {
+      await page.setViewportSize({ width, height: 600 });
+      await mountFixtures(page, spec, { icons: true, fixtures: brandFixtures() });
+      await expect(image(page, 'small-brand', 'brand')).toBeVisible();
+      await expect(image(page, 'small-brand-symbol', 'brand-symbol')).toBeVisible();
+      await expect(image(page, 'small-brand-wordmark', 'brand-wordmark')).toBeVisible();
+      await expect(image(page, 'small-brand-lockup', 'brand-symbol')).toBeVisible();
+      await expect(image(page, 'small-brand-lockup', 'brand-wordmark')).toBeVisible();
+      const wide = width === 1024;
+      await expect(image(page, 'small-brand-responsive', 'brand-wordmark')).toBeVisible({ visible: wide });
+      await expect(image(page, 'small-brand-responsive', 'brand-symbol')).toBeVisible({ visible: !wide });
+    }
+    // Outside an app shell, across the breakpoint with focus on the brand: the link stays, and its focus.
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await brandPage(page, `${NAMED} brand-layout="responsive"`, `${SYMBOL}${WORDMARK}`);
+    const link = brandBar(page).getByRole('link', { name: 'Tanrei' });
+    await link.focus();
+    await page.setViewportSize({ width: 390, height: 600 });
+    await expect(brandBar(page).locator('[slot="brand-symbol"]')).toBeVisible();
+    await expect(brandBar(page).locator('[slot="brand-wordmark"]')).toBeHidden();
+    await expect(link).toBeFocused();
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await expect(brandBar(page).locator('[slot="brand-wordmark"]')).toBeVisible();
+    await expect(link).toBeFocused();
+    // Inside an app shell: the shell's window class.
+    await page.setViewportSize({ width: 390, height: 600 });
+    await page.evaluate(
+      ([attrs, inside]) => {
+        document.querySelector('main')!.innerHTML = `<tanrei-app-shell id="shell"><header slot="header"><tanrei-app-bar id="in-shell" scroll-target="none" ${attrs}>${inside}</tanrei-app-bar></header><main id="content">Content</main></tanrei-app-shell>`;
+      },
+      [`${NAMED} brand-layout="responsive"`, `${SYMBOL}${WORDMARK}`] as const,
+    );
+    await page.locator('#in-shell').evaluate((el: any) => el.updateComplete);
+    await expect.poll(() => page.locator('#shell').evaluate((el: any) => el.windowClass)).toBe('compact');
+    await expect(page.locator('#in-shell [slot="brand-symbol"]')).toBeVisible();
+    await expect(page.locator('#in-shell [slot="brand-wordmark"]')).toBeHidden();
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await expect.poll(() => page.locator('#shell').evaluate((el: any) => el.windowClass)).not.toBe('compact');
+    await expect(page.locator('#in-shell [slot="brand-wordmark"]')).toBeVisible();
+    await expect(page.locator('#in-shell [slot="brand-symbol"]')).toBeHidden();
+  });
+
+  test('APB-22: one link to brand-href named by brand-label in every arrangement, its images hidden; Tab goes navigation, brand, actions; the focus ring in brand.shape; without brand-href one image named by brand-label and no tab stop', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await mountFixtures(page, spec, { icons: true, fixtures: brandFixtures() });
+    for (const id of BRAND_FIXTURES) {
+      await expect(stage(page, id).getByRole('link'), id).toHaveCount(1);
+      await expect(stage(page, id).getByRole('link', { name: 'Tanrei', exact: true }), id).toHaveAttribute('href', '/');
+      await expect(stage(page, id).getByRole('img'), id).toHaveCount(0);
+    }
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>');
+      document.getElementById('before')!.focus();
+    });
+    const order: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      await tab(page);
+      order.push(await page.evaluate(() => {
+        const host = document.activeElement as HTMLElement;
+        const inside = host.shadowRoot?.activeElement as HTMLElement | null;
+        return host.getAttribute('label') ?? inside?.getAttribute('aria-label') ?? host.tagName;
+      }));
+    }
+    expect(order).toEqual(['Menu', 'Tanrei', 'Search']);
+    await tab(page, { back: true });
+    const ring = await cell(page, 'small-brand').evaluate((el) => ({ outline: getComputedStyle(el).outlineStyle, radius: getComputedStyle(el).borderTopLeftRadius }));
+    expect(ring.outline).toBe('solid');
+    expect(parseFloat(ring.radius)).toBeGreaterThanOrEqual((await bounds(cell(page, 'small-brand'))).height / 2);
+
+    await brandPage(page, 'brand-label="Tanrei"', SYMBOL);
+    await expect(brandBar(page).getByRole('link')).toHaveCount(0);
+    await expect(brandBar(page).getByRole('img', { name: 'Tanrei', exact: true })).toHaveCount(1);
+    expect(await brandBar(page).locator('.brand').evaluate((el) => (el as HTMLElement).tabIndex)).toBe(-1);
+  });
+
+  test('APB-22: no axe violations in any arrangement, light and dark', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    for (const theme of ['light', 'dark'] as const) {
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: brandFixtures() });
+      const results = await new AxeBuilder({ page }).include('.stage').analyze();
+      expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+    }
+  });
+
+  test('APB-24: in a lockup the symbol stands at the wordmark’s height (lockup.symbol.size); alone, or in a compact window under responsive, it keeps symbol.size', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await mountFixtures(page, spec, { icons: true, fixtures: brandFixtures() });
+    const symbol = await bounds(image(page, 'small-brand-lockup', 'brand-symbol'));
+    const wordmark = await bounds(image(page, 'small-brand-lockup', 'brand-wordmark'));
+    expect(Math.abs(symbol.height - wordmark.height)).toBeLessThanOrEqual(0.5);
+    expect(symbol.height).toBeCloseTo(await resolveToken(page, T('brand-lockup-symbol-size')), 0);
+    expect(symbol.width).toBeCloseTo(symbol.height, 0);
+    expect((await bounds(image(page, 'small-brand-symbol', 'brand-symbol'))).height).toBeCloseTo(await resolveToken(page, T('brand-symbol-size')), 0);
+    await page.setViewportSize({ width: 390, height: 600 });
+    await expect.poll(async () => Math.round((await image(page, 'small-brand-responsive', 'brand-symbol').boundingBox())?.height ?? 0)).toBe(Math.round(await resolveToken(page, T('brand-symbol-size'))));
+  });
+
+  test('APB-23: an unknown brand-layout is a lockup and is reported; an image in brand beside the parts shows alone and is reported; a brand without brand-label, and two images in one slot, still draw and are reported', async ({ page }) => {
+    const seen = warnings(page);
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await brandPage(page, `${NAMED} brand-layout="stacked"`, `${SYMBOL}${WORDMARK}`);
+    await expect(brandBar(page).locator('[slot="brand-symbol"]')).toBeVisible();
+    await expect(brandBar(page).locator('[slot="brand-wordmark"]')).toBeVisible();
+    await expect.poll(() => seen.filter((w) => w.includes('brand-layout "stacked"')).length).toBe(1);
+    expect(seen.find((w) => w.includes('brand-layout "stacked"'))).toMatch(/drawn as "lockup" \(APB-23\)/);
+
+    await brandPage(page, NAMED, `${markMarkup('wordmark', 'brand')}${SYMBOL}`);
+    await expect(brandBar(page).locator('[slot="brand"]')).toBeVisible();
+    await expect(brandBar(page).locator('[slot="brand-symbol"]')).toBeHidden();
+    await expect.poll(() => seen.filter((w) => w.includes('shows the image in brand alone')).length).toBe(1);
+
+    await brandPage(page, 'brand-href="#home"', SYMBOL);
+    await expect.poll(() => seen.filter((w) => w.includes('no brand-label')).length).toBe(1);
+
+    await brandPage(page, NAMED, `${SYMBOL}${SYMBOL}`);
+    await expect(brandBar(page).locator('[slot="brand-symbol"]')).toHaveCount(2);
+    await expect.poll(() => seen.filter((w) => w.includes('the brand-symbol slot holds 2 images')).length).toBe(1);
   });
 });
 
