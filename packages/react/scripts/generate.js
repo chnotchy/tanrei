@@ -10,6 +10,32 @@ const elements = manifest.modules
   .sort((a, b) => a.tagName.localeCompare(b.tagName));
 
 const pascal = (s) => s.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join('');
+
+// An element fires its events in lowercase, as the platform's own are named (`expandedchange`, like `selectionchange`),
+// and React names every event prop in lowerCamelCase (`onSelectionChange`, `onKeyDown`). The words of a lowercase name
+// are not in it, so they come from the specs: each spec names its events, and its item kinds', in camelCase
+// (`expandedChange`), and the prop is `on` and that name (`onExpandedChange`). A name is looked up whatever spec wrote
+// it — an element whose spec maps another name onto the event (a snackbar's `toggle` is fired as `expandedchange`) is
+// still heard under the event's own name — so two specs that spell one event two ways are refused.
+const specs = new URL('../../../specs/', import.meta.url);
+const specEventNames = new Map();
+for (const file of fs.readdirSync(specs).filter((f) => f.endsWith('.spec.json')).sort()) {
+  const web = JSON.parse(fs.readFileSync(new URL(file, specs), 'utf8')).platforms?.web ?? {};
+  for (const name of [...Object.keys(web.events ?? {}), ...Object.values(web.items ?? {}).flatMap((kind) => Object.keys(kind.events ?? {}))]) {
+    const seen = specEventNames.get(name.toLowerCase());
+    if (seen && seen !== name) throw new Error(`specs/${file}: the event "${name}" is spelt "${seen}" in another spec; one event has one name`);
+    specEventNames.set(name.toLowerCase(), name);
+  }
+}
+// The platform's own events that an element fires under a spec event of another name (a dialog's `dismiss` is the
+// platform's `cancel`): one word each, so their name is their spelling.
+const PLATFORM_EVENTS = new Set(['cancel', 'change', 'click', 'close', 'input', 'select', 'submit', 'toggle']);
+/** The prop a wrapper hears `event` by: `on` and the event's name as the specs write it. */
+const propOf = (el, event) => {
+  const name = specEventNames.get(event) ?? (PLATFORM_EVENTS.has(event) ? event : undefined);
+  if (!name) throw new Error(`<${el.tagName}> fires "${event}", which no spec names: name it in the component's spec (camelCase), so its React prop is spelt by its words`);
+  return `on${name[0].toUpperCase()}${name.slice(1)}`;
+};
 // Events React already delivers through its own handlers, because the browser's event reaches the host: they bubble
 // and are composed out of the shadow root. `change` is not among them — the native one is not composed, so a component
 // that fires `change` dispatches its own on the host, and React's synthetic onChange never sees a custom element's.
@@ -65,13 +91,13 @@ const wrappers = elements.map((el) => {
   // Every listener is on the element, so `currentTarget` is the element (`TanreiEvent`): a handler reads the new value
   // from it (`event.currentTarget.value`) whether or not the event carries a detail.
   const eventType = (e) => `EventName<TanreiEvent<${el.name}Element${e.direct ? ', MouseEvent' : detailOf(e) ? `, CustomEvent<${detailOf(e)}>` : ''}>>`;
-  const map = events.map((e) => `    on${pascal(e.name)}: '${e.name}' as ${eventType(e)},`).join('\n');
+  const map = events.map((e) => `    ${propOf(el, e.name)}: '${e.name}' as ${eventType(e)},`).join('\n');
   // What an editor shows for the wrapper: the element's first line, then what the prop types cannot say — which children
   // go where, and what each event prop is fired for.
   const doc = [
     oneLine((el.description ?? '').split(/\n\s*\n/)[0]),
     ...(slots.length ? ['', 'Children, by their `slot`:', ...slots.map((s) => `- ${s.name ? `\`${s.name}\`` : 'default'} — ${oneLine(s.description)}`)] : []),
-    ...(events.length ? ['', 'Events:', ...events.map((e) => `- \`on${pascal(e.name)}\` (\`${e.name}\`) — ${oneLine(e.description) || 'the native event, listened to on the element.'}`)] : []),
+    ...(events.length ? ['', 'Events:', ...events.map((e) => `- \`${propOf(el, e.name)}\` (\`${e.name}\`) — ${oneLine(e.description) || 'the native event, listened to on the element.'}`)] : []),
   ];
   if (marks.length) {
     lines.push(

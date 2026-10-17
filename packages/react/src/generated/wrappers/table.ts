@@ -13,7 +13,7 @@ import { TanreiTable as TanreiTableElement } from '@tanrei/web/components/table'
  *
  * Events:
  * - `onSort` (`sort`) — The user pressed the header of a sortable column. `detail`: `{ column, index, direction }` — the header cell's `data-value`, its place among the columns of data (from 0) and the direction asked for (`ascending`, or `descending` where the rows ascend by it). The table changes nothing. Cancelable where the control is an anchor: cancelled, the link is not followed.
- * - `onSelectionchange` (`selectionchange`) — The user changed which rows are chosen, by a row's checkbox or radio button (or a press on the row, or an arrow key on a radio button) or by the header's checkbox. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order; under `single`, the one chosen row's. Not emitted for what the product writes.
+ * - `onSelectionChange` (`selectionchange`) — The user changed which rows are chosen, by a row's checkbox or radio button (or a press on the row, or an arrow key on a radio button) or by the header's checkbox. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order; under `single`, the one chosen row's. Not emitted for what the product writes.
  */
 export const Table = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-table',
@@ -21,6 +21,6 @@ export const Table = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onSort: 'sort' as EventName<TanreiEvent<TanreiTableElement>>,
-    onSelectionchange: 'selectionchange' as EventName<TanreiEvent<TanreiTableElement>>,
+    onSelectionChange: 'selectionchange' as EventName<TanreiEvent<TanreiTableElement>>,
   },
 });

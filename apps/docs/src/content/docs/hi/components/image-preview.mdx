@@ -2,7 +2,7 @@
 title: इमेज प्रीव्यू
 description: जब कोई व्यक्ति किसी थंबनेल को दबाता है, तब तस्वीरों के सेट की एक तस्वीर को पूरी विंडो पर दिखाता है, ताकि उसे पास से देखा जा सके। तस्वीर को बड़ा और वापस छोटा किया जा सकता है, बड़ी होने पर इधर-उधर खिसकाया जा सकता है, और अगली या पिछली तस्वीर पर जाया जा सकता है, जब तक प्रीव्यू बंद न किया जाए।
 translationOf: components/image-preview.mdx
-sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+sourceHash: 450b71c7c9821c96c28393d6ebdbe647f082f1d6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
       closeLabel="बंद करें" zoomInLabel="ज़ूम इन करें" zoomOutLabel="ज़ूम आउट करें"
       previousLabel="पिछली इमेज" nextLabel="अगली इमेज" countText="{count} में से {position}"
       loadingLabel="इमेज लोड हो रही है" errorText="यह इमेज लोड नहीं हो सकी"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

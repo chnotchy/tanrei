@@ -262,7 +262,7 @@
       "description": "The code was copied by the block's copy button; carries the text that was copied."
     },
     {
-      "name": "copyfailed",
+      "name": "copyFailed",
       "description": "The platform refused the copy asked for by the block's copy button."
     }
   ],
@@ -315,7 +315,7 @@
     },
     {
       "id": "COD-11",
-      "text": "THE copy button of COD-9 SHALL copy the code as plain text: its lines in order, joined by line breaks, without line numbers, prompts, signs or labels, without the lines removedLines names, and with no line break that wrapping added. WHEN the Copy button emits copied or copyfailed THE code block SHALL emit its own event of that name, copied carrying the text.",
+      "text": "THE copy button of COD-9 SHALL copy the code as plain text: its lines in order, joined by line breaks, without line numbers, prompts, signs or labels, without the lines removedLines names, and with no line break that wrapping added. WHEN the Copy button emits copied or copyFailed THE code block SHALL emit its own event of that name, copied carrying the text.",
       "verify": "A test of the fixture diff copies and reads back the code without its removed line; a test of terminal reads back the commands without the prompt."
     },
     {
@@ -2671,7 +2671,7 @@
       },
       "events": {
         "copied": "copied",
-        "copyfailed": "copyfailed"
+        "copyFailed": "copyfailed"
       },
       "items": {
         "run": {
@@ -2715,7 +2715,7 @@
       },
       "events": {
         "copied": "onCopied",
-        "copyfailed": "onCopyFailed"
+        "copyFailed": "onCopyFailed"
       },
       "items": {
         "run": {
@@ -2759,7 +2759,7 @@
       },
       "events": {
         "copied": "onCopied",
-        "copyfailed": "onCopyFailed"
+        "copyFailed": "onCopyFailed"
       },
       "items": {
         "run": {
@@ -2803,7 +2803,7 @@
       },
       "events": {
         "copied": "onCopied",
-        "copyfailed": "onCopyFailed"
+        "copyFailed": "onCopyFailed"
       },
       "items": {
         "run": {
@@ -2847,7 +2847,7 @@
       },
       "events": {
         "copied": "onCopied",
-        "copyfailed": "onCopyFailed"
+        "copyFailed": "onCopyFailed"
       },
       "items": {
         "run": {

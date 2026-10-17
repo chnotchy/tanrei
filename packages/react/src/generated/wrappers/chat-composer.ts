@@ -19,12 +19,12 @@ const ChatComposerElement = /* @__PURE__ */ createComponent({
   elementClass: TanreiChatComposerElement,
   react: React,
   events: {
-    onSendablechange: 'sendablechange' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSendableDetail>>>,
-    onSendblocked: 'sendblocked' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSendableDetail>>>,
+    onSendableChange: 'sendablechange' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSendableDetail>>>,
+    onSendBlocked: 'sendblocked' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSendableDetail>>>,
     onSend: 'send' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSendDetail>>>,
     onSelect: 'select' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerSelectDetail>>>,
     onReject: 'reject' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerRejectDetail>>>,
-    onAttachmentschange: 'attachmentschange' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerAttachmentsChangeDetail>>>,
+    onAttachmentsChange: 'attachmentschange' as EventName<TanreiEvent<TanreiChatComposerElement, CustomEvent<TanreiChatComposerAttachmentsChangeDetail>>>,
     onStop: 'stop' as EventName<TanreiEvent<TanreiChatComposerElement>>,
   },
 });
@@ -41,12 +41,12 @@ const withChatComposerMarks = /* @__PURE__ */ withMarks<ChatComposerMarks>([], [
  * - default — While `attachments` is `given`: the attachments, `<tanrei-file-item>` children, in order. Anything else is not drawn, and while `attachments` is `own` or `none` nothing here is.
  *
  * Events:
- * - `onSendablechange` (`sendablechange`) — Whether what the chat composer holds can be sent changed, or the reasons it cannot did: `detail.sendable`, and `detail.reasons` by name — `disabled`, `sending`, `blocked`, `empty`, `length`, `uploading`, `failed`. Bubbles. Never when it is first drawn.
- * - `onSendblocked` (`sendblocked`) — The person asked to send by the keyboard while it could not be sent for a reason other than being empty or disabled; `detail.reasons` says why. Bubbles.
+ * - `onSendableChange` (`sendablechange`) — Whether what the chat composer holds can be sent changed, or the reasons it cannot did: `detail.sendable`, and `detail.reasons` by name — `disabled`, `sending`, `blocked`, `empty`, `length`, `uploading`, `failed`. Bubbles. Never when it is first drawn.
+ * - `onSendBlocked` (`sendblocked`) — The person asked to send by the keyboard while it could not be sent for a reason other than being empty or disabled; `detail.reasons` says why. Bubbles.
  * - `onSend` (`send`) — The person sent what the chat composer holds, by the send button or the keyboard, while it could be sent. `detail.value` is the text exactly as written; `detail.attachments` the kept `File`s (`own`) or the values of the File items that have not failed (`given`), in the order of the strip. Bubbles; cancelable — a cancelled one keeps the content and asks no form to submit.
  * - `onSelect` (`select`) — Files were chosen in the picker, dropped on the capsule or pasted, and passed. Once per arrival; `detail.files` is a `File[]` — while `attachments` is `own`, the files newly kept. Bubbles.
  * - `onReject` (`reject`) — Files of one arrival were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
- * - `onAttachmentschange` (`attachmentschange`) — While `attachments` is `own`: the kept files changed by what a person did — an arrival that kept a file, or a kept file removed by its File item. `detail.files` is the `File[]` now kept. Bubbles. Never for `addFiles()`, `clear()`, the emptying after `send` or a reset.
+ * - `onAttachmentsChange` (`attachmentschange`) — While `attachments` is `own`: the kept files changed by what a person did — an arrival that kept a file, or a kept file removed by its File item. `detail.files` is the `File[]` now kept. Bubbles. Never for `addFiles()`, `clear()`, the emptying after `send` or a reset.
  * - `onStop` (`stop`) — The person activated the stop button while `sending` and `stoppable` were set. The product stops what is under way and sets `sending`. Bubbles.
  */
 export const ChatComposer: Marked<typeof ChatComposerElement, ChatComposerMarks> = /* @__PURE__ */ withChatComposerMarks(ChatComposerElement);

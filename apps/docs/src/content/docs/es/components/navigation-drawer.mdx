@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 3ba3a770d8692b06645c928a298745cf1ac905f7
+sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -217,7 +217,7 @@ Con `responsive`, el panel toma esa decisión por sí mismo a partir del ancho d
         e.preventDefault(); // un enrutador del lado del cliente se hace cargo de la navegación
         navigate(e.detail.href);
       }}
-      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+      onPresentationChange={(e) => setPresentation(e.detail.presentation)}
     >
       <NavigationDrawerGroup label="Componentes">
         <NavigationDrawerItem label="Botón" href="/components/button/" />

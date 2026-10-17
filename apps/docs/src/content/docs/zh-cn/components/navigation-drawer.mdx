@@ -2,7 +2,7 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 3ba3a770d8692b06645c928a298745cf1ac905f7
+sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -217,7 +217,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         e.preventDefault(); // 客户端路由接管导航
         navigate(e.detail.href);
       }}
-      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+      onPresentationChange={(e) => setPresentation(e.detail.presentation)}
     >
       <NavigationDrawerGroup label="组件">
         <NavigationDrawerItem label="按钮" href="/components/button/" />

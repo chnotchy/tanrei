@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
+sourceHash: ad2a0f5519b3e938183f3e51cbbc55ed7514242e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </Menu>
 
     {/* id 为 canvas 的区域的上下文菜单：收到请求就打开。 */}
-    <Menu anchor="canvas" trigger="context" aria-label="画布" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="画布" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="粘贴" onClick={paste} />
     </Menu>
     ```

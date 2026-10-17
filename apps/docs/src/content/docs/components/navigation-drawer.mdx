@@ -215,7 +215,7 @@ With `responsive` the drawer makes that choice itself, from the window's width (
         e.preventDefault(); // a client-side router takes the navigation
         navigate(e.detail.href);
       }}
-      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+      onPresentationChange={(e) => setPresentation(e.detail.presentation)}
     >
       <NavigationDrawerGroup label="Components">
         <NavigationDrawerItem label="Button" href="/components/button/" />

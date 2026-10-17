@@ -2,7 +2,7 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
+sourceHash: ad2a0f5519b3e938183f3e51cbbc55ed7514242e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </Menu>
 
     {/* id が canvas の領域のコンテキストメニュー。求められたら開きます。 */}
-    <Menu anchor="canvas" trigger="context" aria-label="キャンバス" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="キャンバス" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="貼り付け" onClick={paste} />
     </Menu>
     ```

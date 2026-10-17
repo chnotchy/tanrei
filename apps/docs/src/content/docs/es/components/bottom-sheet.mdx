@@ -2,7 +2,7 @@
 title: Hoja inferior
 description: Hace subir desde el borde inferior un contenido complementario o una tarea breve, ya sea sobre la parte baja de la pantalla mientras el resto sigue siendo utilizable, o como un paso modal que atenúa y bloquea todo lo demás hasta que se descarta.
 translationOf: components/bottom-sheet.mdx
-sourceHash: 3398e1ebae6e33be24f47bac4f66e51daf81fd8c
+sourceHash: d77cc21cf2849244a6a599b3ed9810153f414b35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -83,7 +83,7 @@ Marca el elemento que debe recibir el foco cuando se abre la hoja con la marca p
       label="Guardar foto"
       handleLabel="Cambiar el tamaño de la hoja"
       onClose={() => setOpen(false)}
-      onDetentchange={(e) => setDetent(e.detail.detent)}
+      onDetentChange={(e) => setDetent(e.detail.detent)}
     >
       <p>Elige dónde guardar la foto.</p>
       <Button variant="text" onClick={() => setOpen(false)}>Listo</Button>

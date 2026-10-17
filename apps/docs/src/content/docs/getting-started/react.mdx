@@ -58,7 +58,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
+Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers. An element's own event is `on` and the event's name in camel case, as React names its own (`onKeyDown`): a navigation drawer fires `expandedchange`, and you listen with `onExpandedChange`.
 
 ## Server rendering
 

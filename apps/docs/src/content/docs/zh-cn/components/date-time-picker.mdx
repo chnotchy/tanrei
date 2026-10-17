@@ -2,7 +2,7 @@
 title: "DateTimePicker"
 description: "让用户通过日历和时间滚轮或时钟表盘选择日期、时间或日期加时间，也可以选择其中任何一种的范围；它显示为对话框，或显示为从文本字段下方展开的表面。"
 translationOf: components/date-time-picker.mdx
-sourceHash: a166f2e23305635f24636ae2e11d2163bcebe5aa
+sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -107,7 +107,7 @@ Web 组件按本页的描述实现了选择器：范围的两端是由一条短�
       picker
       pickerLabel="选择日期"
       onChange={(e) => setDue(e.currentTarget.value)}
-      onPickerrequest={() => setOpen(true)}
+      onPickerRequest={() => setOpen(true)}
     />
     <DateTimePicker
       presentation="docked"

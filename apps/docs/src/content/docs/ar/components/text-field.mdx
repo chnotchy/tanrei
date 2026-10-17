@@ -2,7 +2,7 @@
 title: حقل النص
 description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: 2e78214631aec6fa526771b0c65343465243cf85
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -114,8 +114,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       picker
       pickerLabel="اختيار تاريخ البدء"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>

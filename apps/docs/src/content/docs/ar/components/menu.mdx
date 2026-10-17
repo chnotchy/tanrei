@@ -2,7 +2,7 @@
 title: قائمة الخيارات
 description: مجموعة قصيرة من الإجراءات أو الاختيارات على سطح مؤقت يُفتح من العنصر الذي طلبه.
 translationOf: components/menu.mdx
-sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
+sourceHash: ad2a0f5519b3e938183f3e51cbbc55ed7514242e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </Menu>
 
     {/* قائمة السياق للمنطقة التي معرّفها canvas: يفتحها الطلب. */}
-    <Menu anchor="canvas" trigger="context" aria-label="لوحة الرسم" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="لوحة الرسم" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="لصق" onClick={paste} />
     </Menu>
     ```
