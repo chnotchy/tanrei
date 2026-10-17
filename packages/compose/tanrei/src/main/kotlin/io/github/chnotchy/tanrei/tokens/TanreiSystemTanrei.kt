@@ -5874,7 +5874,6 @@ private object TanreiSystemSource {
             headerTypescale = typescale.heading5,
             headingColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             headingTypescale = typescale.labelSmall,
-            itemBadgeTypescale = typescale.labelSmall,
             itemContainerShape = 6.dp,
             itemGap = 12.dp,
             itemIconIndicatorShape = 9999.dp,
@@ -5917,7 +5916,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -5928,7 +5926,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -5939,7 +5936,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -5950,7 +5946,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -5961,7 +5956,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -5974,7 +5968,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -5985,7 +5978,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -5996,7 +5988,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6007,7 +5998,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6018,7 +6008,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6031,7 +6020,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6042,7 +6030,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6053,7 +6040,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6064,7 +6050,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6075,7 +6060,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6088,7 +6072,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6099,7 +6082,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6110,7 +6092,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6121,7 +6102,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6132,7 +6112,6 @@ private object TanreiSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),

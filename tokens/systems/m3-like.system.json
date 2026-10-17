@@ -580,7 +580,6 @@
     "tanrei.comp.navigation-drawer.container.gap.regular": {"$value": "{tanrei.sys.space.space0}"},
     "tanrei.comp.navigation-drawer.item.padding-inline.regular": {"$value": "{tanrei.sys.space.space200}"},
     "tanrei.comp.navigation-drawer.item.icon.size.regular": {"$value": "{tanrei.sys.icon.medium}"},
-    "tanrei.comp.navigation-drawer.item.badge.typescale": {"$value": "{tanrei.sys.typescale.label}", "reason": "Material's drawer badge is label-large, which the fidelity map pairs with label."},
     "tanrei.comp.navigation-drawer.heading.typescale": {"$value": "{tanrei.sys.typescale.heading-6}", "reason": "Material's drawer headline is title-small, which the fidelity map pairs with heading-6."},
     "tanrei.comp.navigation-drawer.item.trailing-text.typescale": {"$value": "{tanrei.sys.typescale.label}", "reason": "Material's drawer badge is label-large, which the fidelity map pairs with label."},
     "tanrei.comp.navigation-drawer.item.icon-indicator.width.regular": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 14}, "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: its active indicator is 56 wide."},

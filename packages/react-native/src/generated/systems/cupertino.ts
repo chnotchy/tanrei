@@ -7723,7 +7723,6 @@ export const cupertino = {
       headingColor: { kind: "role", role: "onSurfaceVariant" },
       headingTypescale: "labelSmall",
       hoveredOpacity: 1,
-      itemBadgeTypescale: "labelSmall",
       itemContainerShape: 10,
       itemGap: 12,
       itemIconIndicatorShape: 9999,
@@ -7773,7 +7772,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurface" },
           },
           hovered: {
@@ -7784,7 +7782,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurface" },
           },
           focused: {
@@ -7795,7 +7792,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurface" },
           },
           pressed: {
@@ -7806,7 +7802,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurface" },
           },
           disabled: {
@@ -7833,11 +7828,6 @@ export const cupertino = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -7858,7 +7848,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           hovered: {
@@ -7869,7 +7858,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           focused: {
@@ -7880,7 +7868,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           pressed: {
@@ -7891,7 +7878,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           disabled: {
@@ -7918,11 +7904,6 @@ export const cupertino = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -7943,7 +7924,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "primary" },
           },
           hovered: {
@@ -7954,7 +7934,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "primary" },
           },
           focused: {
@@ -7965,7 +7944,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "primary" },
           },
           pressed: {
@@ -7976,7 +7954,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "primary" },
           },
           disabled: {
@@ -8003,11 +7980,6 @@ export const cupertino = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -8028,7 +8000,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           hovered: {
@@ -8039,7 +8010,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           focused: {
@@ -8050,7 +8020,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           pressed: {
@@ -8061,7 +8030,6 @@ export const cupertino = {
             itemSupportingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingTextColor: { kind: "role", role: "onPrimary" },
             itemTrailingIconColor: { kind: "role", role: "onPrimary" },
-            itemBadgeColor: { kind: "role", role: "onPrimary" },
             itemStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           disabled: {
@@ -8088,11 +8056,6 @@ export const cupertino = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,

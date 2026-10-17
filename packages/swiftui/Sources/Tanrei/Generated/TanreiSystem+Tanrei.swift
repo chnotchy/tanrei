@@ -6142,7 +6142,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   headerTypescale: tanreiTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingTypescale: tanreiTypescale.labelSmall,
-  itemBadgeTypescale: tanreiTypescale.labelSmall,
   itemContainerShape: 6,
   itemGap: 12,
   itemIconIndicatorShape: 9999,
@@ -6191,7 +6190,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6202,7 +6200,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6213,7 +6210,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6224,7 +6220,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6235,7 +6230,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6248,7 +6242,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6259,7 +6252,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6270,7 +6262,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6281,7 +6272,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6292,7 +6282,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6305,7 +6294,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6316,7 +6304,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6327,7 +6314,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6338,7 +6324,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6349,7 +6334,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6362,7 +6346,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6373,7 +6356,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6384,7 +6366,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6395,7 +6376,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6406,7 +6386,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )

@@ -10346,7 +10346,6 @@ export const tonePerState = {
       headingColor: { kind: "role", role: "onSurfaceVariant" },
       headingTypescale: "labelSmall",
       hoveredOpacity: 1,
-      itemBadgeTypescale: "labelSmall",
       itemContainerShape: 6,
       itemGap: 12,
       itemIconIndicatorShape: 9999,
@@ -10396,7 +10395,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           hovered: {
@@ -10412,7 +10410,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           focused: {
@@ -10428,7 +10425,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           pressed: {
@@ -10444,7 +10440,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           disabled: {
@@ -10471,11 +10466,6 @@ export const tonePerState = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -10496,7 +10486,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           hovered: {
@@ -10512,7 +10501,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           focused: {
@@ -10528,7 +10516,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           pressed: {
@@ -10544,7 +10531,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
@@ -10571,11 +10557,6 @@ export const tonePerState = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -10596,7 +10577,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           hovered: {
@@ -10612,7 +10592,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           focused: {
@@ -10628,7 +10607,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           pressed: {
@@ -10644,7 +10622,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingTextColor: { kind: "role", role: "onSurfaceVariant" },
             itemTrailingIconColor: { kind: "role", role: "onSurfaceVariant" },
-            itemBadgeColor: { kind: "role", role: "onSurfaceVariant" },
             itemStateLayerColor: { kind: "role", role: "onSurfaceVariant" },
           },
           disabled: {
@@ -10675,11 +10652,6 @@ export const tonePerState = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
-            itemBadgeColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
             itemStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
@@ -10696,7 +10668,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           hovered: {
@@ -10712,7 +10683,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           focused: {
@@ -10728,7 +10698,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           pressed: {
@@ -10744,7 +10713,6 @@ export const tonePerState = {
             itemSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             itemTrailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            itemBadgeColor: { kind: "role", role: "onSecondaryContainer" },
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
@@ -10771,11 +10739,6 @@ export const tonePerState = {
               amount: 0.38,
             },
             itemTrailingIconColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            itemBadgeColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,

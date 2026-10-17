@@ -6120,7 +6120,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   headerTypescale: cupertinoTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingTypescale: cupertinoTypescale.labelSmall,
-  itemBadgeTypescale: cupertinoTypescale.labelSmall,
   itemContainerShape: 10,
   itemGap: 12,
   itemIconIndicatorShape: 9999,
@@ -6169,7 +6168,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6180,7 +6178,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6191,7 +6188,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6202,7 +6198,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6213,7 +6208,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6226,7 +6220,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6237,7 +6230,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6248,7 +6240,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6259,7 +6250,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6270,7 +6260,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6283,7 +6272,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6294,7 +6282,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6305,7 +6292,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6316,7 +6302,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6327,7 +6312,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6340,7 +6324,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6351,7 +6334,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6362,7 +6344,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6373,7 +6354,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6384,7 +6364,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )

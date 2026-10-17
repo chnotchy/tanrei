@@ -63308,21 +63308,6 @@
         "collapsed-selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.902,
-                      0.8784,
-                      0.9137
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#e6e0e9"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -63447,21 +63432,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -63586,21 +63556,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -63724,22 +63679,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9098,
-                    0.8706,
-                    0.9725
-                  ],
-                  "hex": "#e8def8",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -63868,21 +63807,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -64009,21 +63933,6 @@
         "collapsed-unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.902,
-                      0.8784,
-                      0.9137
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#e6e0e9"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -64148,21 +64057,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -64287,21 +64181,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -64425,22 +64304,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7922,
-                    0.7686,
-                    0.8157
-                  ],
-                  "hex": "#cac4d0",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -64569,21 +64432,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -65113,29 +64961,6 @@
           }
         },
         "item": {
-          "badge": {
-            "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 14,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.1,
-                  "unit": "px"
-                },
-                "lineHeight": 1.4286
-              },
-              "$description": "Kept for the platforms that still draw a destination's trailing string as a badge, which draw it with this; the current spec reads item.trailing-text.typescale. Dropped once the last platform catches up."
-            }
-          },
           "container": {
             "height": {
               "compact": {
@@ -65569,21 +65394,6 @@
         "selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.902,
-                      0.8784,
-                      0.9137
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#e6e0e9"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -65708,21 +65518,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -65847,21 +65642,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -65985,22 +65765,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9098,
-                    0.8706,
-                    0.9725
-                  ],
-                  "hex": "#e8def8",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -66126,21 +65890,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9098,
-                      0.8706,
-                      0.9725
-                    ],
-                    "hex": "#e8def8",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -66308,21 +66057,6 @@
         "unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.902,
-                      0.8784,
-                      0.9137
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#e6e0e9"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -66447,21 +66181,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -66586,21 +66305,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -66724,22 +66428,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7922,
-                    0.7686,
-                    0.8157
-                  ],
-                  "hex": "#cac4d0",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -66863,21 +66551,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7922,
-                      0.7686,
-                      0.8157
-                    ],
-                    "hex": "#cac4d0",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",

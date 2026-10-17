@@ -6909,7 +6909,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
     public val itemSupportingTextColor: TanreiPaint,
     public val itemTrailingTextColor: TanreiPaint,
     public val itemTrailingIconColor: TanreiPaint,
-    public val itemBadgeColor: TanreiPaint,
     public val itemStateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
@@ -6920,7 +6919,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
         addAll(itemSupportingTextColor.roles())
         addAll(itemTrailingTextColor.roles())
         addAll(itemTrailingIconColor.roles())
-        addAll(itemBadgeColor.roles())
         addAll(itemStateLayerColor.roles())
     }
 }
@@ -7069,7 +7067,6 @@ public data class TanreiNavigationDrawerTokens(
     public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
     public val headingTypescale: TanreiTextStyle,
-    public val itemBadgeTypescale: TanreiTextStyle,
     public val itemContainerShape: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,

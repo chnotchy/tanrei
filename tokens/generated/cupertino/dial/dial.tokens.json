@@ -4568,9 +4568,6 @@
             "tanrei.comp.navigation-drawer.selected.item.label.color": {
               "$value": "{tanrei.sys.color.on-primary}"
             },
-            "tanrei.comp.navigation-drawer.selected.item.badge.color": {
-              "$value": "{tanrei.sys.color.on-primary}"
-            },
             "tanrei.comp.navigation-drawer.unselected.item.icon.color": {
               "$value": "{tanrei.sys.color.primary}",
               "reason": "Sidebar icons carry the tint."

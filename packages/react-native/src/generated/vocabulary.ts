@@ -3419,7 +3419,6 @@ export interface TanreiNavigationDrawerConditionStateTokens {
   readonly itemSupportingTextColor: TanreiPaint;
   readonly itemTrailingTextColor: TanreiPaint;
   readonly itemTrailingIconColor: TanreiPaint;
-  readonly itemBadgeColor: TanreiPaint;
   readonly itemStateLayerColor: TanreiPaint;
 }
 /** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
@@ -3490,7 +3489,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly headingColor: TanreiPaint;
   readonly headingTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
-  readonly itemBadgeTypescale: TanreiTypescaleRole;
   readonly itemContainerShape: number;
   readonly itemGap: number;
   readonly itemIconIndicatorShape: number;

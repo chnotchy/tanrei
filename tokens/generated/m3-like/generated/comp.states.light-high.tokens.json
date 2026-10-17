@@ -34624,18 +34624,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -34751,18 +34739,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -34870,18 +34846,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -35060,32 +35024,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#000000"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35216,18 +35154,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35342,18 +35268,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35460,18 +35374,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -35650,32 +35552,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#000000"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35822,18 +35698,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -35964,18 +35828,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36098,18 +35950,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -36288,32 +36128,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#000000"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36459,18 +36273,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "hovered"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36600,18 +36402,6 @@
                   }
                 }
               },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "focused"
-                  }
-                }
-              },
               "state-layer": {
                 "color": {
                   "$type": "color",
@@ -36733,18 +36523,6 @@
                 "color": {
                   "$type": "color",
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-icon.color}",
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "pressed"
-                  }
-                }
-              },
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
@@ -36898,32 +36676,6 @@
                 }
               },
               "trailing-icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#000000"
-                  },
-                  "$extensions": {
-                    "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
-                    },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
-                    }
-                  }
-                }
-              },
-              "badge": {
                 "color": {
                   "$type": "color",
                   "$value": {

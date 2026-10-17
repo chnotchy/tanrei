@@ -10982,7 +10982,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
   public var itemSupportingTextColor: TanreiPaint
   public var itemTrailingTextColor: TanreiPaint
   public var itemTrailingIconColor: TanreiPaint
-  public var itemBadgeColor: TanreiPaint
   public var itemStateLayerColor: TanreiPaint
 
   public init(
@@ -10993,7 +10992,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
     itemSupportingTextColor: TanreiPaint,
     itemTrailingTextColor: TanreiPaint,
     itemTrailingIconColor: TanreiPaint,
-    itemBadgeColor: TanreiPaint,
     itemStateLayerColor: TanreiPaint
   ) {
     self.itemContainerColor = itemContainerColor
@@ -11003,7 +11001,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
     self.itemSupportingTextColor = itemSupportingTextColor
     self.itemTrailingTextColor = itemTrailingTextColor
     self.itemTrailingIconColor = itemTrailingIconColor
-    self.itemBadgeColor = itemBadgeColor
     self.itemStateLayerColor = itemStateLayerColor
   }
 }
@@ -11228,7 +11225,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var headerTypescale: TanreiTextStyle
   public var headingColor: TanreiPaint
   public var headingTypescale: TanreiTextStyle
-  public var itemBadgeTypescale: TanreiTextStyle
   public var itemContainerShape: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorShape: CGFloat
@@ -11283,7 +11279,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     headerTypescale: TanreiTextStyle,
     headingColor: TanreiPaint,
     headingTypescale: TanreiTextStyle,
-    itemBadgeTypescale: TanreiTextStyle,
     itemContainerShape: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorShape: CGFloat,
@@ -11333,7 +11328,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.headerTypescale = headerTypescale
     self.headingColor = headingColor
     self.headingTypescale = headingTypescale
-    self.itemBadgeTypescale = itemBadgeTypescale
     self.itemContainerShape = itemContainerShape
     self.itemGap = itemGap
     self.itemIconIndicatorShape = itemIconIndicatorShape

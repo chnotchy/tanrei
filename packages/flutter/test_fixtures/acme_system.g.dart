@@ -6389,7 +6389,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
     headerTypescale: _typescaleHeading5,
     headingColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     headingTypescale: _typescaleLabelSmall,
-    itemBadgeTypescale: _typescaleLabelSmall,
     itemContainerShape: 6.0,
     itemGap: 12.0,
     itemIconIndicatorShape: 9999.0,
@@ -6438,7 +6437,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6449,7 +6447,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6460,7 +6457,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6471,7 +6467,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6482,7 +6477,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          itemBadgeColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemStateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
         ),
       ),
@@ -6495,7 +6489,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6506,7 +6499,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6517,7 +6509,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6528,7 +6519,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6539,7 +6529,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          itemBadgeColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemStateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
         ),
       ),
@@ -6552,7 +6541,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6563,7 +6551,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6574,7 +6561,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6585,7 +6571,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6596,7 +6581,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          itemBadgeColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemStateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
         ),
       ),
@@ -6609,7 +6593,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6620,7 +6603,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6631,7 +6613,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6642,7 +6623,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemTrailingIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-          itemBadgeColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6653,7 +6633,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
           itemSupportingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingTextColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemTrailingIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          itemBadgeColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemStateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
         ),
       ),

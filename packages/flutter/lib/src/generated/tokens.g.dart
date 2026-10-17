@@ -15937,7 +15937,6 @@ class TanreiNavigationDrawerConditionStateTokens {
     required this.itemSupportingTextColor,
     required this.itemTrailingTextColor,
     required this.itemTrailingIconColor,
-    required this.itemBadgeColor,
     required this.itemStateLayerColor,
   });
 
@@ -15955,8 +15954,6 @@ class TanreiNavigationDrawerConditionStateTokens {
   final TanreiPaint itemTrailingTextColor;
   /// `comp.navigation-drawer.<condition>.<state>.item-trailing-icon-color`
   final TanreiPaint itemTrailingIconColor;
-  /// `comp.navigation-drawer.<condition>.<state>.item-badge-color`
-  final TanreiPaint itemBadgeColor;
   /// `comp.navigation-drawer.<condition>.<state>.item-state-layer-color`
   final TanreiPaint itemStateLayerColor;
 
@@ -15969,7 +15966,6 @@ class TanreiNavigationDrawerConditionStateTokens {
     TanreiPaint? itemSupportingTextColor,
     TanreiPaint? itemTrailingTextColor,
     TanreiPaint? itemTrailingIconColor,
-    TanreiPaint? itemBadgeColor,
     TanreiPaint? itemStateLayerColor,
   }) => TanreiNavigationDrawerConditionStateTokens(
         itemContainerColor: itemContainerColor ?? this.itemContainerColor,
@@ -15979,7 +15975,6 @@ class TanreiNavigationDrawerConditionStateTokens {
         itemSupportingTextColor: itemSupportingTextColor ?? this.itemSupportingTextColor,
         itemTrailingTextColor: itemTrailingTextColor ?? this.itemTrailingTextColor,
         itemTrailingIconColor: itemTrailingIconColor ?? this.itemTrailingIconColor,
-        itemBadgeColor: itemBadgeColor ?? this.itemBadgeColor,
         itemStateLayerColor: itemStateLayerColor ?? this.itemStateLayerColor,
       );
 }
@@ -16284,7 +16279,6 @@ class TanreiNavigationDrawerTokens {
     required this.headerTypescale,
     required this.headingColor,
     required this.headingTypescale,
-    required this.itemBadgeTypescale,
     required this.itemContainerShape,
     required this.itemGap,
     required this.itemIconIndicatorShape,
@@ -16352,8 +16346,6 @@ class TanreiNavigationDrawerTokens {
   final TanreiPaint headingColor;
   /// `comp.navigation-drawer.heading-typescale`
   final TanreiTextStyle headingTypescale;
-  /// `comp.navigation-drawer.item-badge-typescale`
-  final TanreiTextStyle itemBadgeTypescale;
   /// `comp.navigation-drawer.item-container-shape`
   final double itemContainerShape;
   /// `comp.navigation-drawer.item-gap`
@@ -16436,7 +16428,6 @@ class TanreiNavigationDrawerTokens {
     TanreiTextStyle? headerTypescale,
     TanreiPaint? headingColor,
     TanreiTextStyle? headingTypescale,
-    TanreiTextStyle? itemBadgeTypescale,
     double? itemContainerShape,
     double? itemGap,
     double? itemIconIndicatorShape,
@@ -16486,7 +16477,6 @@ class TanreiNavigationDrawerTokens {
         headerTypescale: headerTypescale ?? this.headerTypescale,
         headingColor: headingColor ?? this.headingColor,
         headingTypescale: headingTypescale ?? this.headingTypescale,
-        itemBadgeTypescale: itemBadgeTypescale ?? this.itemBadgeTypescale,
         itemContainerShape: itemContainerShape ?? this.itemContainerShape,
         itemGap: itemGap ?? this.itemGap,
         itemIconIndicatorShape: itemIconIndicatorShape ?? this.itemIconIndicatorShape,
