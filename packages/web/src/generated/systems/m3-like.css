@@ -4,6 +4,7 @@
     color-scheme: light dark;
     --tanrei-unavailable: "navigation-bar:filled tabs:tonal";
     --tanrei-unavailable-layer: "";
+    --tanrei-unavailable-replacement: "";
   }
   [data-tanrei-system="m3-like"], [data-tanrei-system="m3-like"] [data-tanrei-contrast] {
     --tanrei-comp-accordion-chevron-size-compact: var(--tanrei-sys-icon-small);

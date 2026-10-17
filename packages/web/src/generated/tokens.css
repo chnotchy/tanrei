@@ -4,6 +4,7 @@
     color-scheme: light dark;
     --tanrei-unavailable: "segmented-button text-input:filled text-input:outlined select:filled select:outlined combobox:filled combobox:outlined number-input:filled number-input:outlined color-input:filled color-input:outlined";
     --tanrei-unavailable-layer: "fab-menu=m3-like";
+    --tanrei-unavailable-replacement: "segmented-button=tabs,radio-button,button-group";
   }
   :root, [data-tanrei-contrast] {
     --tanrei-comp-accordion-chevron-size-compact: var(--tanrei-sys-icon-small);
