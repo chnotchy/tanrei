@@ -162,6 +162,39 @@ test('a product can stack its own layers and start from a shipped preset', () =>
   assert.match(read('out/web/acme-kids.css'), /--tanrei-dial-shape-unit: 6px;/);
 });
 
+test('a product’s stylesheet says what its system does not have, in its own scope, so nothing is read from the default system’s', () => {
+  // The lists an element reads (`--tanrei-unavailable`, `--tanrei-unavailable-layer`), as one sheet declares them in its scope.
+  const declared = (css, name) => {
+    const scope = /\[data-tanrei-system="[^"]+"\] \{\n([^}]*)\}/.exec(css)?.[1] ?? '';
+    const value = new RegExp(`^\\s*${escaped(name)}: "([^"]*)";$`, 'm').exec(scope)?.[1];
+    return value === undefined ? undefined : value.split(' ').filter(Boolean);
+  };
+  const shipped = (id) => fs.readFileSync(path.resolve(pkg, `../web/src/generated/systems/${id}.css`), 'utf8');
+
+  // On m3-like: m3-like's lists and the product's own omit, none of the default system's — its outlined text input
+  // and its FAB menu are there, and an element under the product's scope must not be told they are left out.
+  const carousel = { reason: 'This product shows one item at a time.' };
+  const onPreset = product({ id: 'acme', name: 'Acme', extends: 'm3-like', components: { omit: { carousel } } }, { web: 'out/web' });
+  assert.equal(onPreset.run(['build']).status, 0);
+  const presetCss = onPreset.read('out/web/acme.css');
+  assert.deepEqual(declared(presetCss, '--tanrei-unavailable'), ['carousel', ...declared(shipped('m3-like'), '--tanrei-unavailable')]);
+  assert.ok(!declared(presetCss, '--tanrei-unavailable').includes('text-input:outlined'), 'the default system’s list is not the product’s');
+  assert.deepEqual(declared(presetCss, '--tanrei-unavailable-layer'), [], 'the FAB menu lives in m3-like, which the product extends');
+
+  // On the default system: its lists, as its sheet at `:root` has them; and a component included from the layer that
+  // holds it is no longer outside.
+  const onDefault = product(acme, { web: 'out/web' });
+  assert.equal(onDefault.run(['build']).status, 0);
+  const defaultCss = onDefault.read('out/web/acme.css');
+  const tokensCss = fs.readFileSync(path.resolve(pkg, '../web/src/generated/tokens.css'), 'utf8');
+  const atRoot = (name) => new RegExp(`^\\s*${escaped(name)}: "([^"]*)";$`, 'm').exec(tokensCss)[1].split(' ').filter(Boolean);
+  assert.deepEqual(declared(defaultCss, '--tanrei-unavailable'), atRoot('--tanrei-unavailable'));
+  assert.deepEqual(declared(defaultCss, '--tanrei-unavailable-layer'), ['fab-menu=m3-like']);
+  const including = product({ ...acme, components: { include: [{ name: 'fab-menu', from: 'm3-like' }] } }, { web: 'out/web' });
+  assert.equal(including.run(['build']).status, 0);
+  assert.deepEqual(declared(including.read('out/web/acme.css'), '--tanrei-unavailable-layer'), []);
+});
+
 test('explain, systems, init, help', () => {
   const { run, dir } = product(acme, { web: 'out/web' });
   assert.match(run(['explain', 'tanrei.comp.button.container.gap.medium']).stdout, /acme:\n\s+\{"\$value":"\{tanrei\.sys\.space\.space50\}"\}/);
