@@ -6,13 +6,20 @@
 // The families come from the tokens. The files are the ones styles/fonts.generated.css registers them from — the same
 // file, so the same address in the built site — and a family the tokens name that has no file here stops the build:
 // add its Latin file below (test/first-faces.test.mjs reads this list against the registered faces).
+//
+// The icon family's file is preloaded too: every page draws icons (the app bar's at least), its faces are registered
+// `font-display: block` (an icon is invisible, never its name in letters, until the file is there), and a font is
+// otherwise asked for only once a glyph is laid out — after the stylesheets, the script and the components' first
+// render. The file is the one cut down to the site's glyphs (styles/fonts.generated.css registers the same file).
 import Default from '@astrojs/starlight/components/Head.astro';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
+import roundedIcons from '../../styles/material-symbols-rounded.subset.generated.woff2?url';
 import { firstFamilies } from '../../lib/first-faces.mjs';
 import { ns, tokensIn } from '../../lib/tokens';
 
 const FILES: Record<string, string> = { Inter: inter, 'Roboto Mono': robotoMono };
+const ICON_FILES: Record<string, string> = { 'Material Symbols Rounded': roundedIcons };
 
 const stacks = Object.fromEntries(tokensIn(`${ns}.ref.typeface`).filter((token) => token.type === 'fontFamily').map((token) => [token.path.at(-1), [token.value].flat() as string[]]));
 const files = firstFamilies(stacks).map((family) => {
@@ -20,6 +27,10 @@ const files = firstFamilies(stacks).map((family) => {
   if (!file) throw new Error(`Head.astro: the tokens set text in "${family}", and no file of it is preloaded. Add its Latin file.`);
   return file;
 });
+const iconFamily = stacks.icon?.[0];
+const iconFile = iconFamily && ICON_FILES[iconFamily];
+if (!iconFile) throw new Error(`Head.astro: the tokens draw icons in "${iconFamily}", and no file of it is preloaded. Add its cut-down file.`);
+files.push(iconFile);
 ---
 
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}

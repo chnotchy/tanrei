@@ -31,7 +31,15 @@ const layers = `${localeBase(Astro)}/foundations/design-systems/`;
 
 <script>
   import { mountStudio } from '@tanrei/studio';
+  import fullIcons from '../styles/icons-full.generated.css?url';
   for (const root of document.querySelectorAll<HTMLElement>('[data-theme-studio]')) {
     mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers } });
   }
+  // The site's icon families are registered from files cut down to the glyphs its pages draw, at the weights the
+  // shipped systems use (styles/fonts.generated.css). A layer edited here may draw its icons at any weight, which
+  // only the full files hold: they are registered too — once the page has loaded, so that their 5 MB is not part of
+  // its load — and, registered last, they are the faces the icons are drawn in from then on.
+  const full = () => document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: fullIcons }));
+  if (document.readyState === 'complete') full();
+  else addEventListener('load', full, { once: true });
 </script>
