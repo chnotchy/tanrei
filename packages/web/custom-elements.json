@@ -12947,6 +12947,14 @@
             },
             {
               "kind": "field",
+              "name": "itemSyncs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CoalescedSync(() => { if (this.isConnected) this.readItems(); })",
+              "description": "The re-read of the product's File items (`readItems()`), once per turn however many items said they changed in it:\na chat composer of N items built, or N items changed at once, re-reads its N items once — not once per item, which\nmade the build O(N²). It runs in a microtask, before the next frame. What a handler decides from the items (whether\nit can be sent, CCM-9) it reads from the items themselves, never from this re-read."
+            },
+            {
+              "kind": "field",
               "name": "children$",
               "privacy": "private",
               "readonly": true,
