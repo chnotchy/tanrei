@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -153,6 +153,8 @@ import '@tanrei/web/icons.css';
 ```
 
 `.tanrei-icon` 以系统的图标字重绘制一个 [Material Symbols](https://fonts.google.com/icons) 名称，尺寸取决于它所在的位置。你无需选择线框还是填充：参见[图标](/zh-cn/foundations/icons/)。
+
+完整的 Material Symbols Rounded 文件包含所有字形的所有字重、填充、等级和视觉尺寸，共 5.4 MB；在慢速网络上，页面可能要为它等上半分钟。只加载你的产品会绘制的字形。`tanrei build` 会打印 Tanrei 组件自身可能绘制的字形名称（箭头、对勾、关闭按钮的叉号……），以及你的系统绘制图标所用的轴值；把你自己的名称加进这份清单。使用 Google Fonts 时，把名称按字母顺序排好，作为 `icon_names=` 传入，并在 `family=` 中以范围写出各轴（默认系统为 `Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0`）。自行托管文件时，用一个保留字体连字特性（`rlig`、`rclt`）和两种填充的子集工具来裁剪；本站的图标就是用这样的文件绘制的。无论哪种方式，都要以 `font-display: block` 注册图标字体：文件到达之前图标保持不可见，绝不会以字母显示出它的名称。
 
 ## 浏览器支持
 

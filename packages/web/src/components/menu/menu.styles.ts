@@ -165,6 +165,9 @@ const surface = css`
 export const menuStyles = css`
   :host {
     display: block;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
   }
   /* MNU-35: the separation this menu draws — its attribute's, else comp.menu.separation's; every submenu inherits it. */
   ${separationHost(`${PREFIX}-separation`)}

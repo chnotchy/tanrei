@@ -1,0 +1,15 @@
+/*
+ * The page of a component's fixtures (pages/fixtures/[component].astro), which stands outside Starlight's frame. It
+ * loads, in this one stylesheet, what every other page has from Starlight's `customCss`: prose's sheet (which names
+ * the docs' layers after Starlight's and loads every stylesheet of `@tanrei/web` into them), the tokens and the icon
+ * faces, each in a layer of the docs' own, and the faces.
+ *
+ * They are imported here, by this stylesheet, and not by the page's script: a stylesheet module the page imported
+ * would be one the site's other pages share, and the build would move it out of their own stylesheet into one loaded
+ * after it — where the docs' layers would be named before Starlight's, and Starlight's reset would beat every
+ * component's own rules.
+ */
+@import './prose.css';
+@import '@tanrei/web/tokens.css' layer(docs.tokens);
+@import '@tanrei/web/icons.css' layer(docs.icons);
+@import './fonts.generated.css';

@@ -266,4 +266,22 @@ test('the packaged CLI (bundle + its own copy of the vocabulary) produces the sa
   const result = packaged.run(['build'], { TANREI_CLI_FROM_SOURCE: '' });
   assert.equal(result.status, 0, result.stderr);
   for (const file of ['out/web/acme.css', 'out/ios/TanreiSystem+Acme.swift']) assert.equal(packaged.read(file), fromSource.read(file));
+  // The glyph list travels with it: the packaged CLI prints the names the sources print.
+  const glyphs = (stdout) => stdout.match(/glyphs the components may draw[^\n]*\n\s+([a-z0-9_,]+)\n/)?.[1];
+  assert.ok(glyphs(result.stdout));
+  assert.equal(glyphs(result.stdout), glyphs(fromSource.run(['build']).stdout));
+});
+
+test('build prints the glyph names the components may draw and the axes the system draws icons at, for a product to cut its icon font down to', () => {
+  const list = JSON.parse(fs.readFileSync(path.join(pkg, '../web/src/generated/glyphs.json'), 'utf8')).glyphs;
+  const heavier = product({ ...acme, tokens: { ...acme.tokens, 'tanrei.sys.icon.weight': { $value: 200, reason: 'A lighter icon stroke for this product.' } } }, { web: 'out/web' });
+  const built = heavier.run(['build']);
+  assert.equal(built.status, 0, built.stderr);
+  const printed = built.stdout.match(/glyphs the components may draw \((\d+)\), at FILL 0–1 · wght (\d+)–(\d+) · GRAD 0 · opsz 20–48:\n\s+([a-z0-9_,]+)\n\s+Cut the icon font down to these names and your product's own/);
+  assert.ok(printed, built.stdout);
+  assert.equal(Number(printed[1]), list.length);
+  assert.deepEqual(printed[4].split(','), list);
+  assert.ok(list.includes('expand_more') && list.includes('close'));
+  // The axes are the product's own: its icon weight, not the default system's.
+  assert.equal(Number(printed[2]), 200);
 });

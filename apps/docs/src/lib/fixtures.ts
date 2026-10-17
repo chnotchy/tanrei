@@ -60,6 +60,17 @@ export interface LiveFixture {
   closeEvents: string[];
   /** Web event names that ask for a new presented state in `detail.open` / `detail.expanded` (the spec's `toggle`). */
   toggleEvents: string[];
+  /**
+   * The element as a product writes it, for a reader to copy: the same markup, without what this site adds to stage it
+   * (its classes and the inline style that gives it a layout's width) and with each picture named as the fixture names
+   * it, not inlined.
+   */
+  markup: string;
+}
+
+/** How a fixture is drawn: in the page's document, or alone in a window of its own (`window`), where a presented fixture is drawn presented. */
+export interface LiveOptions {
+  window?: boolean;
 }
 
 /** Props whose value is what the spec calls presenting the component. */
@@ -655,7 +666,7 @@ export const STAGED_FILES = 'data-fixture-files';
 const dropZoneSample = (fixture: Fixture) =>
   `<div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)"><p style="margin: 0">${escape(fixture.content ?? '')}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`;
 
-export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
+export function liveFixture(spec: Spec, fixture: Fixture, options: LiveOptions = {}): LiveFixture {
   const web = spec.platforms.web;
   const tag = web?.name ?? '';
   const eventsNamed = (names: string[]) =>
@@ -673,7 +684,8 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
   }
 
   const props: Props = { ...(fixture.props as Props) };
-  if (presentation === 'overlay' && presence) delete props[presence.name];
+  // In the page's document an overlay is drawn closed; alone in its window it is drawn as the fixture says.
+  if (presentation === 'overlay' && presence && !options.window) delete props[presence.name];
   // The web's harness draws each fixture in a document of its own; here every fixture of the component shares one, where
   // options with one `name` are one group and exclude each other — the radio button's selected fixtures would each
   // unselect the one before them. So each fixture's name is its own.
@@ -923,6 +935,21 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
     const lang = direction === 'rtl' && /[\u0600-\u06ff]/.test(JSON.stringify(fixture)) ? ' lang="ar"' : /[\u3040-\u30ff\u4e00-\u9fff]/.test(JSON.stringify(fixture)) ? ' lang="ja"' : '';
     own = `${direction ? ` dir="${direction}"` : ''}${lang}`;
   }
+  // The divider, a linear progress indicator and the slider fill the length their place gives them, and a stage gives
+  // none: each is drawn at the length the web's harness gives it — a horizontal divider and a linear indicator 160 long,
+  // a vertical divider 48 high, a slider 320 long and a vertical one 240 high — and is otherwise drawn with no length at
+  // all. The tabs and the Tab view span their layout (a phone's 360, as the harness draws them).
+  const fills =
+    spec.name === 'divider'
+      ? fixture.props.orientation === 'vertical' ? 'block-size: 3rem' : 'inline-size: 10rem'
+      : spec.name === 'progress-indicator' && fixture.props.variant !== 'circular'
+        ? 'inline-size: 10rem'
+        : spec.name === 'slider'
+          ? fixture.props.orientation === 'vertical' ? 'block-size: 15rem' : 'inline-size: 20rem'
+          : spec.name === 'tabs' || spec.name === 'tab-view'
+            ? 'inline-size: 22.5rem'
+            : '';
+  if (fills) own = ` style="${fills}; max-inline-size: 100%"${fixture.direction ? ` dir="${fixture.direction}"` : ''}`;
   // The drop zone wraps a screen of the product's (DRZ-1): its content is the sample screen the web's harness draws —
   // the fixture's content as a paragraph above an outlined Button, on a surface 360 × 240 — and the zone is live: a
   // file dragged onto it from the reader's computer shows the overlay. A fixture whose id begins `dragged` is drawn at
@@ -949,14 +976,28 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
   // A Field's entries (the twin of a chip field's fixture) are disabled chips while the Field is: written by hand.
   const heldItems = spec.name === 'field' && fixture.props.disabled === true ? items.replaceAll('<tanrei-chip slot="entries"', '<tanrei-chip slot="entries" disabled') : items;
   const inner = spec.name === 'drop-zone' ? dropZoneSample(fixture) : isFigure(spec) ? figureHtml(fixture) : isPageHeader(spec) ? pageHeaderHtml(fixture) : isTextInput(spec) ? textInputIcons(fixture.content ?? '') : `${isTable(spec) ? '' : slotsHtml(spec, fixture.slots, presentation === 'overlay')}${heldItems}${escape(fixture.content ?? '')}`;
+  const written = `<${element}${attributes(element, spec.props, web?.props, props)}${own}>${inner}</${element}>`;
   return {
-    html: (isLinkCard(spec) ? LINK_CARD_PICTURES : spec.name === 'image-preview' ? IMAGE_PREVIEW_PICTURES : spec.name === 'chat-composer' ? CHAT_COMPOSER_PICTURES : []).reduce((html, [name, picture]) => html.replaceAll(name, picture), `<${element}${attributes(element, spec.props, web?.props, props)}${own}>${inner}</${element}>`.replaceAll(AVATAR_PICTURE, `src="${avatarPicture}"`).replaceAll(...AVATAR_MISSING)),
+    html: (isLinkCard(spec) ? LINK_CARD_PICTURES : spec.name === 'image-preview' ? IMAGE_PREVIEW_PICTURES : spec.name === 'chat-composer' ? CHAT_COMPOSER_PICTURES : []).reduce((html, [name, picture]) => html.replaceAll(name, picture), written.replaceAll(AVATAR_PICTURE, `src="${avatarPicture}"`).replaceAll(...AVATAR_MISSING)),
+    markup: productMarkup(written, own),
     presentation,
     inline,
     openProp: presence ? (web?.props?.[presence.name] ?? presence.name) : undefined,
     closeEvents: presence ? eventsNamed(['close', 'dismiss']) : [],
     toggleEvents: presence ? eventsNamed(['toggle']) : [],
   };
+}
+
+/**
+ * What a product writes of a fixture: the element as written here, less the attributes this site gives the element to
+ * stage it (`own`: its classes, the width of the harness's stage as an inline style) — its direction and language stay,
+ * since they are the fixture's — and less the staging inside it, the inline styles of a specimen's stand-ins.
+ */
+function productMarkup(written: string, own: string): string {
+  const staging = [...own.matchAll(/\s([a-z-]+)(?:="[^"]*")?/g)].filter(([, name]) => name !== 'dir' && name !== 'lang').map(([attribute]) => attribute);
+  const end = written.indexOf('>');
+  const tag = staging.reduce((head, attribute) => head.replace(attribute, ''), written.slice(0, end));
+  return `${tag}${written.slice(end).replace(/ style="[^"]*"/g, '')}`;
 }
 
 /** Props of a fixture that the landing page's specimen leaves out: see `specimenFixtures`. */

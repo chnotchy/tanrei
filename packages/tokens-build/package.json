@@ -22,6 +22,7 @@
     "./resolve": "./src/resolve.js",
     "./ir": "./src/ir.js",
     "./fonts": "./src/fonts.js",
+    "./glyphs": "./src/glyphs.js",
     "./model": "./src/model.js",
     "./reader": "./src/reader.js",
     "./bundle": "./src/bundle.js",

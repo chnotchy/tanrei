@@ -1,5 +1,5 @@
 /*
- * App shell (specs/app-shell.spec.json, APS-1 to APS-30): the frame of a page or an
+ * App shell (specs/app-shell.spec.json, APS-1 to APS-32): the frame of a page or an
  * app. It places a header, the navigation, the main content, an aside and a footer, decides from the window's width
  * how each is shown, and lets a keyboard reach the content in one step. It draws the frame and none of what stands
  * in it.
@@ -110,6 +110,9 @@
     box-sizing: border-box;
     /* The skip link, while it is not shown, is laid out against the frame (src/scroll-box.test.ts). */
     position: relative;
+    /* APS-32: the frame is a stacking context of its own: the order of its parts (below) is decided here, and nothing
+       of it competes with what the page draws outside the frame. */
+    isolation: isolate;
     min-inline-size: 0;
     /* APS-14: at least as tall as the window, and as tall as its content: the window scrolls the page. */
     min-block-size: 100vh;
@@ -148,6 +151,15 @@
   }
 
   /* ── The regions (APS-1): each in its place; one that is absent has no box, so it takes no room ─────────────── */
+  /* APS-32: each region is a stacking context of its own, so whatever a region holds stacks inside it: a z-index that
+     a component or the product gives to something in the main region orders it within the main region and never lifts
+     it over the header. The frame orders the regions itself, by three levels: the regions that scroll with the page
+     (none), the footer (1, over the end of the navigation and the aside), and the parts that stay in view over the
+     page — the header and the navigation bar (2). The skip link stands over all of them (3). What must stand above the
+     whole frame — a menu, a dialog, a tooltip, a snackbar — is drawn in the top layer, which no stacking context holds. */
+  :where(tanrei-app-shell) > :where([slot='announcement'], [slot='header'], [slot='navigation'], main, [role='main'], [slot='aside'], [slot='footer'], [slot='navigation-bar']) {
+    isolation: isolate;
+  }
   :where(tanrei-app-shell) > :where([slot='announcement']) {
     /* APS-12: across the frame's whole width above the header, with no inset of its own. */
     grid-area: announcement / frame-start / auto / frame-end;
@@ -159,7 +171,8 @@
     /* APS-16: kept at the top of the window while the page scrolls under it; no fill, elevation or edge of the frame's. */
     position: sticky;
     inset-block-start: 0;
-    z-index: 1;
+    /* APS-32: over every region, the footer too. */
+    z-index: 2;
   }
   :where(tanrei-app-shell[header-position='static'], tanrei-app-shell[scroll='main']) > :where([slot='header']) {
     position: static;
@@ -247,6 +260,7 @@
     /* A browser keeps a sticky part inside the frame, not inside its row: until the element has measured the footer
        (above), the footer is drawn over the end of the navigation and the aside, on the frame's own fill. */
     position: relative;
+    /* APS-32: over the navigation and the aside, under the header and the navigation bar. */
     z-index: 1;
     background-color: var(--tanrei-comp-app-shell-container-color);
   }
@@ -264,7 +278,8 @@
     min-inline-size: 0;
     position: sticky;
     inset-block-end: 0;
-    z-index: 1;
+    /* APS-32: over every region, the footer too. */
+    z-index: 2;
   }
 
   /* ── The menu button (APS-6): shown only while the navigation has no place in the layout; never restyled ────── */
@@ -294,7 +309,8 @@
   }
   :where(tanrei-app-shell) > [slot='skip-link']:focus-visible {
     position: fixed;
-    z-index: 2;
+    /* APS-19, APS-32: over every region and every part that stays in view. */
+    z-index: 3;
     overflow: visible;
     inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-block));
     /* The start corner is the shell's, not the link's: a standalone link takes its label's own direction (LNK-26), so

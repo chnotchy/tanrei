@@ -6,7 +6,8 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
-import { emitCss } from '@tanrei/tokens-build/emit/css';
+import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
+import { cssColor } from '@tanrei/tokens-build/pure';
 import { createStudio } from '../src/core.js';
 import { catalogOf } from '../src/listing.js';
 
@@ -40,5 +41,7 @@ export const studio = createStudio({
   emitCss,
   checkInvariants,
   contrast,
+  idToVar,
+  cssColor,
   catalog: catalogOf(json('docs/status/status.json')),
 });

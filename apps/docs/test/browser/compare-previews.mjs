@@ -2,7 +2,7 @@
 // by the web package's stylesheets winning over the page's.
 //
 // A preview is an element the page draws to show a component: the children of a live example's stage (DemoFrame), of a
-// spec fixture's cell (ComponentSpecs) and of a file tree's stage (FileTree). Its copy is made from the page's HTML as
+// spec fixture's stage in the page (components/fixtures/FixtureGallery.astro) and of a file tree's stage (FileTree). Its copy is made from the page's HTML as
 // it was served, so the element is upgraded from the same markup, and stands in a shadow root beside the preview:
 // it inherits what the preview inherits, and is matched by
 //
@@ -16,7 +16,7 @@
 // What differs between a preview and its copy — a box, a margin, a color, a pseudo-element's glyph — is the page doing
 // to the component what the component's own stylesheet does not allow: a stylesheet loaded where the page's layers
 // beat it, a stylesheet the page does not load, a page rule that reaches into the component. Not what it cannot see:
-// a fixture the page's controller presents (`data-presentation` other than `none`) or stages files into
+// a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page) or one the page stages files into
 // (`data-fixture-files`) is in a state the copy is not, and is left out; parts placed against something outside the
 // preview (an open surface's list) and visually hidden parts are not compared.
 export async function comparePreviews({ componentCss, still }) {
@@ -28,10 +28,13 @@ export async function comparePreviews({ componentCss, still }) {
 
   const SELECTOR = [
     '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
-    'td.live[data-tanrei-demo] .fixture-element > *',
+    '.docs-stage-box[data-tanrei-demo] .fixture-element > *',
     '.docs-file-tree > figure > [data-part=stage] > *',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
+  // A fixture of the gallery is written in a template and drawn when its stage comes near the view: every one is drawn
+  // here, in the page and in its HTML alike, as the page would draw it.
+  for (const root of [document, served]) for (const template of root.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(root.importNode(template.content, true));
   const live = [...document.querySelectorAll(SELECTOR)];
   const source = [...served.querySelectorAll(SELECTOR)];
   if (live.length !== source.length) return { error: `the page holds ${live.length} previews, its HTML ${source.length}` };
@@ -71,7 +74,7 @@ export async function comparePreviews({ componentCss, still }) {
   };
 
   const previews = live.map((element, index) => ({ element, index })).filter(({ element }) => {
-    if (element.closest('.fixture:not([data-presentation=none])') || element.matches('[data-fixture-files]')) return false;
+    if (element.matches('[data-fixture-files]')) return false;
     const box = element.getBoundingClientRect();
     if (box.width === 0 && box.height === 0) return false;
     return all(element).some((e) => e.localName.startsWith('tanrei-') || /(^|\s)tanrei-/.test(e.getAttribute('class') ?? ''));
@@ -118,6 +121,17 @@ export async function comparePreviews({ componentCss, still }) {
     const c = copy.getBoundingClientRect();
     wrap.style.marginLeft = `${a.left - c.left}px`;
     wrap.style.marginTop = `${a.top - c.top}px`;
+  }
+  await settle(previews.map((p) => p.copy));
+  // What a box inside the component has been scrolled to is the component's state, not the page's doing: a list that
+  // opened scrolled to its chosen option (SEL-31) did so before its copy existed. The copy is scrolled as the preview is.
+  for (const { element, copy } of previews) {
+    const a = all(element);
+    const c = all(copy);
+    if (a.length !== c.length) continue;
+    a.forEach((x, k) => {
+      if (x.scrollTop !== c[k].scrollTop || x.scrollLeft !== c[k].scrollLeft) c[k].scrollTo(x.scrollLeft, x.scrollTop);
+    });
   }
   await settle(previews.map((p) => p.copy));
 

@@ -6,6 +6,10 @@
 // The families come from the tokens. The files are the ones styles/fonts.generated.css registers them from — the same
 // file, so the same address in the built site — and a family the tokens name that has no file here stops the build:
 // add its Latin file below (test/first-faces.test.mjs reads this list against the registered faces).
+//
+// The icon family's file is not preloaded. It is small (the families are cut down to the site's glyphs) and is asked
+// for as soon as a glyph is laid out; preloaded, it took the slow line from the stylesheets and the text faces, and the
+// largest paint of a throttled mobile page came 0.7 s later, with the page's load no sooner.
 import Default from '@astrojs/starlight/components/Head.astro';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';

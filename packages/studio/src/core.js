@@ -9,7 +9,7 @@
 // build's own emitter and the warnings by the build's own invariants (both injected: they live in
 // @tanrei/tokens-build), so what the Studio shows is what `tanrei build` will generate. The tests build Studio
 // layers with the real pipeline and compare whole sheets.
-import { SCHEMES, createPaletteEngine, dependencyIndex, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
+import { SCHEMES, argbToColor, createPaletteEngine, dependencyIndex, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
 import { composeStack, inferredGeneric, parseStack } from './fonts.js';
 import { buildModel } from './model.js';
 
@@ -92,9 +92,11 @@ export function stringifyLayer(layer) {
  * @param {(model: object, options: { scope: string }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
  * @param {(model: object) => string[]} deps.checkInvariants                      tokens-build's src/invariants.js
  * @param {(fg: object, bg: object) => number} deps.contrast                      the same module's WCAG ratio
+ * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id
+ * @param {(color: object) => string} deps.cssColor                              the emitter's way of writing a color (tokens-build's src/pure.js)
  * @param {import('./listing.js').Catalog} [deps.catalog]  what the specs say of each component: level, listing, members (./listing.js, `catalogOf`)
  */
-export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, checkInvariants, contrast, catalog }) {
+export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, checkInvariants, contrast, idToVar, cssColor, catalog }) {
   const NS = config.namespace;
   const PREFIX = config.web.cssPrefix;
   const SYS_COLOR = `${NS}.sys.color.`;
@@ -226,6 +228,73 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     }
     cache = { key, value };
     return value;
+  }
+
+  /**
+   * Where a palette's colors reach the sheet other than as its own `ref.palette` tones, for one computed view: a
+   * `contrast-pick` anywhere (it CHOOSES a role or a tone by the colors, so a new color may choose another), and each
+   * palette a `tone` rule on a component color reads (that color is written into the sheet as a literal, per scheme).
+   */
+  const reaches = new WeakMap();
+  function reachOf(view) {
+    if (!reaches.has(view)) {
+      const toned = new Set();
+      let picks = Object.values(view.system.tokens).some((op) => op?.derive?.fn === 'contrast-pick');
+      for (const tokens of Object.values(view.model.perScheme)) {
+        for (const token of Object.values(tokens)) {
+          if (token.derive?.fn === 'contrast-pick') picks = true;
+          else if (token.derive?.fn === 'tone') toned.add(token.derive.palette);
+        }
+      }
+      reaches.set(view, { picks, toned });
+    }
+    return reaches.get(view);
+  }
+  /** The palettes a layer's system declares, as the build merges them: the base's, replaced or dropped by the layer's own. */
+  function palettesOf(layer) {
+    const palettes = { ...baseOf(layer).system.palettes };
+    for (const [name, declaration] of Object.entries(layer.palettes ?? {})) {
+      if (declaration === null) delete palettes[name];
+      else palettes[name] = declaration;
+    }
+    return palettes;
+  }
+  /**
+   * While a palette's color is dragged: what changes in the sheet of `view` when its layer becomes `layer`, worked out
+   * by the palette engine alone — `{ '--tanrei-ref-palette-primary-40': '#…', … }`, the custom properties of the tones
+   * the view's sheet declares, each written as the emitter writes it. `null` when that is not the whole difference, and
+   * the layer must be computed: it differs from the view's in anything but the sources of its palettes, or a changed
+   * palette reaches the sheet some other way (`reachOf`). The test suite holds the two to the same sheet.
+   */
+  function paletteProperties(view, layer) {
+    if (!view?.model || !view.ok) return null;
+    const rest = (l) => JSON.stringify({ ...l, palettes: undefined });
+    if (rest(view.layer) !== rest(layer)) return null;
+    const [before, after] = [palettesOf(view.layer), palettesOf(layer)];
+    const names = Object.keys(after);
+    if (!same(Object.keys(before).sort(), [...names].sort())) return null;
+    const changed = [];
+    for (const name of names) {
+      if (!same({ ...before[name], source: undefined }, { ...after[name], source: undefined })) return null;
+      if (!same(before[name].source, after[name].source)) changed.push(name);
+    }
+    const reach = reachOf(view);
+    if (changed.length && (reach.picks || changed.some((name) => reach.toned.has(name)))) return null;
+    const properties = {};
+    for (const name of changed) {
+      let palette;
+      try {
+        palette = engine.buildPalette(after[name], name);
+      } catch {
+        return null; // a source the engine refuses: computing the layer says why
+      }
+      const prefix = `${NS}.ref.palette.${name}.`;
+      for (const id of Object.keys(view.model.tokens)) {
+        if (!id.startsWith(prefix)) continue;
+        properties[idToVar(id)] = cssColor(argbToColor(palette.tone(Number(id.slice(prefix.length)))));
+      }
+    }
+    return properties;
   }
 
   // ── edits: layer → layer ─────────────────────────────────────────────────────────────────────
@@ -828,7 +897,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     namespace: NS, rootId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
-    cssVar, roleVar, blank, fromLayer, preview, base, baseOf,
+    cssVar, roleVar, blank, fromLayer, preview, paletteProperties, base, baseOf,
     setMeta, setBase, dials, setDial, essentials, setEssential,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
