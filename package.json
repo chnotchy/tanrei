@@ -16,6 +16,7 @@
     "generate": "turbo run generate && node scripts/generate-fixtures.mjs",
     "drift": "node packages/tools/src/cli.js drift",
     "status": "node packages/tools/src/cli.js status",
+    "brand:pull": "node scripts/brand-pull.mjs",
     "check": "pnpm validate && pnpm generate && pnpm drift && node scripts/check-format.mjs && pnpm build && pnpm test",
     "docs:dev": "pnpm --filter @tanrei/docs dev",
     "changeset": "changeset",
