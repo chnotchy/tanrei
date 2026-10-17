@@ -92092,6 +92092,12 @@
               "description": "The stylesheet is added to the root the tree stands in — unless that root draws the tree already: a page that\nloads `@tanrei/web/tree-view.css` (as it must, to draw the tree before this script runs) has every rule of it, and\na second copy would only have the browser style every row of the tree again. Asked of the tree itself: a name the\nstylesheet sets on it (src/primitives/sheets.ts)."
             },
             {
+              "kind": "method",
+              "name": "drawStates",
+              "privacy": "private",
+              "description": "TRV-15, TRV-9: the rows' states — selected, expanded — as the first frame draws them. They are written when the\ntree is first connected, before anything asks for style (`adoptSheet`'s question, a product that measures what it\ninserted), and again before the first update for a value set in between: a row styled once without its\n`aria-selected` would move into the selected condition over TRV-31's motion, as if the selection had changed."
+            },
+            {
               "kind": "field",
               "name": "mode",
               "type": {
