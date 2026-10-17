@@ -32,8 +32,9 @@ export default defineConfig({
     starlight({
       title,
       description: 'One design system for Web Components, SwiftUI, Jetpack Compose, Flutter and React Native.',
-      // The icons and the social image are the brand marks (design/brand/), rendered by the build: src/pages/favicon.svg.ts,
-      // favicon.ico.ts, apple-touch-icon.png.ts and og.png.ts (src/lib/brand.mjs). The SVG follows the reader's scheme.
+      // The icons are the brand marks (design/brand/), rendered by the build: src/pages/favicon.svg.ts, favicon.ico.ts
+      // and apple-touch-icon.png.ts (src/lib/brand.mjs). The SVG follows the reader's scheme. Each page's social image is
+      // src/pages/og/[...slug].png.ts.
       favicon: '/favicon.svg',
       defaultLocale: 'root',
       // English at the root; the translations and which of their pages must exist are in i18n/locales.mjs.
@@ -75,12 +76,10 @@ export default defineConfig({
         // The ICO for a browser that does not read the SVG favicon; `sizes` keeps one that does from choosing the ICO.
         { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
-        // A shared link of any page shows the wordmark (the framework already says `summary_large_image`).
-        { tag: 'meta', attrs: { property: 'og:image', content: new URL('/og.png', site).href } },
-        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
-        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
-        { tag: 'meta', attrs: { property: 'og:image:alt', content: title } },
       ],
+      // Each page's image of a shared link, its language as Open Graph writes it, the titles of the first page and of a
+      // component's page, and its structured data (JSON-LD): src/routeData.ts.
+      routeMiddleware: './src/routeData.ts',
       // The page that was not found is the docs' own (src/pages/404.astro and one for each language): Tanrei's Empty
       // state in the page frame, in place of the framework's page.
       disable404Route: true,
