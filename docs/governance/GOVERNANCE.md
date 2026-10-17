@@ -27,7 +27,7 @@ Decisions are recorded where they take effect: in the specs and tokens, in `AGEN
 ## Stability promises
 
 - Versions are lockstep across platforms; the status matrix at a version is the statement of what that version contains.
-- Until the web components reach `alpha`, every version is a prerelease on the `next` line (`0.1.0-next.N`, published under the npm dist-tag `next`, never `latest`): what is installed without a tag is nothing, by design. `0.1.0` is the first release, when the web is `alpha`; a platform whose CI is paused is published only once it has caught up. The prerelease tag is `next` and not `alpha` or `beta` because those words are component statuses here, with their own meaning.
+- Until the web components reach `alpha`, every version is a prerelease on the `next` line (`0.1.0-next.N`), published under the npm dist-tag `next`; the release workflow never publishes a prerelease as `latest`. npm itself points `latest` at the first version a package publishes, whatever its tag, so `latest` is `0.1.0-next.0` until `0.1.0` replaces it: until then a prerelease is installed by its tag (`@tanrei/web@next`). `0.1.0` is the first release, when the web is `alpha`; a platform whose CI is paused is published only once it has caught up. The prerelease tag is `next` and not `alpha` or `beta` because those words are component statuses here, with their own meaning.
 - `stable` components follow semver on their spec surface. Token **names** in `sys` and `comp` are public API; token **values** may change in minor releases when the change is visual refinement, and are called out in the changelog.
 - Deprecations last at least one minor release and are visible in the spec (`deprecated`), the matrix and the docs.
 
