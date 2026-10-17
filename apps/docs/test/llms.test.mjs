@@ -13,7 +13,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { componentMarkdown, llmsFull, llmsIndex, markdownAlternate, markdownPath, pageGroups, PAGE_FOLDERS, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
+const { componentMarkdown, llmsFull, llmsIndex, markdownAlternate, markdownPath, pageGroups, PAGE_FOLDERS, standIns, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
 const { componentTokenSources, config, statusComponents } = await import('../src/lib/repo.ts');
 const { expandStateVocabulary } = await import('../../../packages/token-engine/src/states.js');
 const { translations } = await import('../i18n/locales.mjs');
@@ -100,7 +100,10 @@ describe('the indexes', () => {
       assert.deepEqual((apart?.links ?? []).map((link) => componentOf(link.url)).sort(), manifest.omitted.map((omitted) => omitted.name).sort());
       for (const link of apart?.links ?? []) {
         const omitted = manifest.omitted.find((each) => each.name === componentOf(link.url));
+        // Left out by a layer or living in a layer the system does not extend, alike: what to use instead, and why.
         for (const instead of omitted.insteadUse ?? []) assert.ok(link.note.includes(specs.get(instead).title), `${omitted.name}: names ${instead}`);
+        if (omitted.insteadUse?.length) assert.ok(link.note.includes('Instead use: '), omitted.name);
+        if (omitted.reason) assert.ok(link.note.includes(omitted.reason.replace(/\s*\n\s*/g, ' ').trim()), `${omitted.name}: says why`);
       }
     });
 
@@ -171,6 +174,28 @@ describe("a component's page as Markdown", () => {
       }
     });
   }
+
+  test('says what a system that does not ship a component uses instead, and why, whatever the reason it is not there', () => {
+    let seen = 0;
+    for (const [id, manifest] of manifests) {
+      for (const omitted of manifest.omitted) {
+        const row = componentMarkdown(omitted.name, site).split('\n').find((each) => each.includes(`(\`${id}\`) | No |`));
+        assert.ok(row, `${omitted.name} in ${id}`);
+        for (const instead of omitted.insteadUse ?? []) assert.ok(row.includes(specs.get(instead).title), `${omitted.name} in ${id}: names ${instead}`);
+        if (omitted.insteadUse?.length) assert.ok(row.includes('Instead use: '), `${omitted.name} in ${id}`);
+        if (omitted.reason) assert.ok(row.includes(omitted.reason.replace(/\s*\n\s*/g, ' ').replace(/\|/g, '\\|').trim()), `${omitted.name} in ${id}: says why`);
+        if (omitted.providedBy && omitted.insteadUse?.length) seen += 1;
+      }
+    }
+    // The case that once said only where the component lives: a component of another layer with its stand-ins.
+    assert.ok(seen > 0);
+  });
+
+  test("the stand-ins are said for a component of another layer as for one a layer left out", () => {
+    const outside = { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', reason: 'Its main action opens a sheet.', insteadUse: ['main-action-button', 'bottom-sheet'] };
+    assert.deepEqual(standIns(outside), [`Instead use: ${specs.get('main-action-button').title}, ${specs.get('bottom-sheet').title}.`, 'Its main action opens a sheet.']);
+    assert.deepEqual(standIns({ name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' }), []);
+  });
 
   test('says where the component is, by each system\'s manifest', () => {
     const text = componentMarkdown('fab-menu', site);
