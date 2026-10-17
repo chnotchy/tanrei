@@ -89,12 +89,12 @@ const beforeRest = ({ at }, { moved }) => at.filter((time) => {
   return last === undefined || time - last < REST;
 });
 /**
- * When the press ends the layer is computed, once — unless the Studio caught up while the pointer rested (a page held
- * up between the last frame and the release), and the release has nothing left to compute.
+ * When the press ends or the picker closes the layer is computed, once — unless the Studio caught up while the pointer
+ * rested (a page held up between the last frame and the release), and the release has nothing left to compute.
  */
 function computedOnRelease(during, after) {
-  assert.ok(after.computes <= 1, `the layer is computed once at most when the press ends: ${after.computes} times`);
-  if (!during.computes) assert.equal(after.computes, 1, 'the layer is computed when the press ends');
+  assert.ok(after.computes <= 1, `the layer is computed once at most when the value is committed: ${after.computes} times`);
+  if (!during.computes) assert.equal(after.computes, 1, 'the layer is computed when the value is committed');
   assert.equal(after.writes, after.computes, 'and its sheet written once, whole');
 }
 /** What the preview's scope has set on itself: what a drag draws without computing the layer. */
@@ -122,9 +122,7 @@ studioTest('a drag across the brand color’s picker is drawn at every frame fro
 
   await release(page, { field });
   await saved((layer) => layer.palettes.primary.source.seed === values.at(-1), 'the last color, written when the picker closes');
-  const after = await take(page);
-  assert.equal(after.computes, 1, 'the layer is computed once');
-  assert.equal(after.writes, 1, 'and its sheet written once, whole');
+  computedOnRelease(during, await take(page));
   assert.equal(await setOnScope(scope, tone), '', 'nothing is left on the scope');
   assert.equal((await css(scope, tone)).trim(), live, 'what the drag drew is what the layer computes');
 });
@@ -152,7 +150,7 @@ studioTest('a drag across a fixed tone’s picker is drawn from the palette alon
 
   await release(page, { field });
   await saved((layer) => layer.palettes.accent.source.tones['40'] === values.at(-1), 'the last color, written when the picker closes');
-  assert.equal((await take(page)).computes, 1, 'the layer is computed once');
+  computedOnRelease(during, await take(page));
   assert.equal(await setOnScope(scope, tone), '');
   assert.equal((await css(scope, tone)).trim(), values.at(-1));
 });
