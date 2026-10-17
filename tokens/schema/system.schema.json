@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tanrei.chnotchy.com/schemas/system.schema.json",
   "title": "Tanrei design system layer",
-  "description": "A design system expressed as a layer over Tanrei's vocabulary. A layer changes values — dials, palettes, per-token rules — and adds tokens only through its `vocabulary`, additively and with a rationale. Presets extend `tanrei`; a product extends a preset.",
+  "description": "A design system expressed as a layer over Tanrei's vocabulary. A layer changes values — dials, palettes, per-token rules — and adds tokens only through its `vocabulary`, additively and with a rationale. Every system descends from the root layer `core`: the default system `tanrei` and the presets extend it, and a product extends one of them.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -26,35 +26,84 @@
     "extends": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
-      "description": "Id of the parent layer — an id, never a path. Only the root layer `tanrei` omits it."
+      "description": "Id of the parent layer — an id, never a path. Only the root layer `core` omits it."
     },
     "specVersion": {
       "type": "string",
       "description": "Version of the role table. Bump when role rules change meaningfully."
     },
-    "unavailable": {
+    "components": {
       "type": "object",
       "additionalProperties": false,
-      "description": "What this system does not ship: components, and values of a component's `variant` prop. A layer that declares `unavailable` replaces its parent's list; a layer that omits it inherits the parent's. An empty object ships everything.",
+      "description": "Which components, and which values of a component's `variant` prop, this system ships. A layer starts from what its parent ships and changes it: `omit` leaves components out, `include` brings back ones an ancestor left out, `variants` does the same for the values of a component's `variant` prop. What an ancestor left out stays out unless a layer includes it again. The root layer leaves nothing out.",
       "properties": {
-        "components": {
+        "omit": {
+          "type": "object",
+          "description": "component name (specs/inventory.json) → why this system leaves it out, and what it uses instead.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "minLength": 8,
+                "description": "Why this system does not ship the component."
+              },
+              "insteadUse": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                },
+                "description": "The components this system ships for the same job, in order of preference."
+              }
+            }
+          }
+        },
+        "include": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
           },
-          "description": "Component names from specs/inventory.json."
+          "description": "Components an ancestor left out that this system ships again."
         },
         "variants": {
           "type": "object",
-          "description": "component name → the values of its `variant` prop this system does not ship. At least one value must stay.",
+          "description": "component name → the values of its `variant` prop this system leaves out (`omit`) or brings back (`include`). The default value and at least one other stay.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
           "additionalProperties": {
-            "type": "array",
-            "uniqueItems": true,
-            "minItems": 1,
-            "items": {
-              "type": "string"
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+              "omit": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "include": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }

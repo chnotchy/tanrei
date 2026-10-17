@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { availabilityOf, layerChain } from '../../tokens-build/src/bundle.js';
+import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, layerChain } from '../../tokens-build/src/layers.js';
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { forwards, fromProblems, resolveAll, resolveFrom, twinProblems } from './from.js';
 import { levelProblems, listingProblems } from './levels.js';
@@ -441,40 +441,33 @@ export function checkParity() {
   return problems;
 }
 
-/** Every design system's id, from tokens/systems/. */
+/** Every design system layer's id, from tokens/systems/ — the root among them. */
 export function systemIds() {
   const dir = path.join(REPO_ROOT, 'tokens/systems');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.system.json')).map((f) => f.slice(0, -'.system.json'.length)).sort();
 }
 
-/** What each design system does not ship, after inheritance: system id → { components, variants }. */
+const readLayer = (id) => JSON.parse(read(`tokens/systems/${id}.system.json`));
+
+/**
+ * What each shipped design system does not ship, after inheritance: system id → { components, variants }. The root
+ * layer leaves nothing out and has no output of its own, so it has no line.
+ */
 export function systemAvailability() {
-  const readLayer = (id) => JSON.parse(read(`tokens/systems/${id}.system.json`));
-  return Object.fromEntries(systemIds().map((id) => [id, availabilityOf(layerChain(id, readLayer))]));
+  return Object.fromEntries(systemIds().filter((id) => id !== ROOT_SYSTEM).map((id) => [id, availabilityOf(layerChain(id, readLayer))]));
 }
 
 /**
- * A system's `unavailable` names components of the inventory and values of their `variant` prop, and leaves at least
- * one variant: a component a system ships is always drawable in it.
+ * What each layer says about its components holds, judged against what its parent ships: it names components of the
+ * inventory and values of their `variant` prop; it leaves out only what its parent ships and brings back only what an
+ * ancestor left out; what it names instead of a component is a component the system ships; and the default variant —
+ * so at least one — stays: a component a system ships is always drawable in it.
  */
 export function validateAvailability() {
-  const problems = [];
   const inventory = new Set(JSON.parse(read('specs/inventory.json')).components.map((c) => c.name));
   const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
-  for (const id of systemIds()) {
-    const own = JSON.parse(read(`tokens/systems/${id}.system.json`)).unavailable;
-    if (!own) continue;
-    const where = `tokens/systems/${id}.system.json unavailable`;
-    for (const name of own.components ?? []) if (!inventory.has(name)) problems.push(`${where}: "${name}" is not in specs/inventory.json`);
-    for (const [name, values] of Object.entries(own.variants ?? {})) {
-      const variant = specs.get(name)?.props.find((p) => p.name === 'variant');
-      if (!variant) { problems.push(`${where}.variants: "${name}" has no spec with a variant prop`); continue; }
-      for (const value of values) if (!variant.values.includes(value)) problems.push(`${where}.variants.${name}: "${value}" is not a variant of ${name}`);
-      if (variant.values.every((v) => values.includes(v))) problems.push(`${where}.variants.${name}: every variant is unavailable — list the component instead`);
-      if (values.includes(variant.default)) problems.push(`${where}.variants.${name}: the default variant "${variant.default}" cannot be unavailable`);
-    }
-  }
-  return problems;
+  const variantsOf = (name) => specs.get(name)?.props.find((p) => p.name === 'variant');
+  return systemIds().flatMap((id) => componentChoiceProblems(layerChain(id, readLayer), { inventory, variantsOf }).map((problem) => `tokens/systems/${problem}`));
 }
 
 /**

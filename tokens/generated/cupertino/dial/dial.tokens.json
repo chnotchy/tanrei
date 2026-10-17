@@ -3,6 +3,7 @@
     "dev.tanrei.system": {
       "id": "cupertino",
       "chain": [
+        "core",
         "tanrei",
         "cupertino"
       ],
@@ -32,38 +33,10 @@
       "layers": [
         {
           "$schema": "../schema/system.schema.json",
-          "id": "tanrei",
-          "name": "Tanrei",
-          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. Every other system extends this one.",
+          "id": "core",
+          "name": "Core",
+          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
           "specVersion": "tanrei-2026.2",
-          "unavailable": {
-            "components": [
-              "segmented-button",
-              "fab-menu"
-            ],
-            "variants": {
-              "text-input": [
-                "filled",
-                "outlined"
-              ],
-              "select": [
-                "filled",
-                "outlined"
-              ],
-              "combobox": [
-                "filled",
-                "outlined"
-              ],
-              "number-input": [
-                "filled",
-                "outlined"
-              ],
-              "color-input": [
-                "filled",
-                "outlined"
-              ]
-            }
-          },
           "palettes": {
             "neutral": {
               "description": "Surfaces, text and the monochrome primary. Zero chroma.",
@@ -2414,17 +2387,107 @@
         },
         {
           "$schema": "../schema/system.schema.json",
+          "id": "tanrei",
+          "name": "Tanrei",
+          "extends": "core",
+          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. It takes its values from core and leaves out the components and variants it does not draw.",
+          "components": {
+            "omit": {
+              "segmented-button": {
+                "reason": "One choice among several is told by what it changes: tabs where it switches the content below, radio buttons where it sets a value, a button group where each button toggles on its own.",
+                "insteadUse": [
+                  "tabs",
+                  "radio-button",
+                  "button-group"
+                ]
+              },
+              "fab-menu": {
+                "reason": "The default system draws no floating action button; its main action opens a sheet of further actions.",
+                "insteadUse": [
+                  "main-action-button",
+                  "bottom-sheet"
+                ]
+              }
+            },
+            "variants": {
+              "text-input": {
+                "omit": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "select": {
+                "omit": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "combobox": {
+                "omit": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "number-input": {
+                "omit": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "color-input": {
+                "omit": [
+                  "filled",
+                  "outlined"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$schema": "../schema/system.schema.json",
           "id": "cupertino",
           "name": "Cupertino (Apple HIG-inspired)",
           "extends": "tanrei",
-          "unavailable": {
-            "components": [
-              "fab-menu"
+          "components": {
+            "include": [
+              "segmented-button"
             ],
             "variants": {
-              "navigation-bar": [
-                "filled"
-              ]
+              "text-input": {
+                "include": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "select": {
+                "include": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "combobox": {
+                "include": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "number-input": {
+                "include": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "color-input": {
+                "include": [
+                  "filled",
+                  "outlined"
+                ]
+              },
+              "navigation-bar": {
+                "omit": [
+                  "filled"
+                ]
+              }
             }
           },
           "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",
