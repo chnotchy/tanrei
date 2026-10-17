@@ -5,6 +5,7 @@ import { wordPlaces } from '../../generated/words.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
@@ -15,6 +16,7 @@ import {
   TOUCH_SLOP as SLOP,
   type TanreiLinkTarget,
   WordsController,
+  countWork,
   deepActive,
   fillPlaces,
   focusWithin,
@@ -850,9 +852,18 @@ export class TanreiList extends LitElement {
   private readonly motions = new Map<TanreiListItem, Animation>();
   private resize?: ResizeObserver;
   private scrollFrame = 0;
+  /**
+   * The re-read of the items (`sync()`), once per turn however many items said they changed in it: a list of N items
+   * built, or N names changed at once, re-reads its N items once — not once per item, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the items' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
 
   constructor() {
     super();
+    // Before every handler below: an item that changed in this task is read as it is now.
+    for (const type of ['keydown', 'keyup', 'click', 'focusin', 'focusout', 'pointerdown', 'contextmenu', 'dragstart']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown, { capture: true });
     this.addEventListener('keyup', this.onKeyUp, { capture: true });
     this.addEventListener('click', this.onClick);
@@ -871,7 +882,7 @@ export class TanreiList extends LitElement {
     this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('contextmenu', this.onContextMenu);
     this.addEventListener('dragstart', this.onDragStart);
-    this.addEventListener('tanrei-list-item-update', this.sync);
+    this.addEventListener('tanrei-list-item-update', this.syncs.request);
   }
 
   /** The items, in order: the list's `<tanrei-list-item>` children. */
@@ -917,6 +928,7 @@ export class TanreiList extends LitElement {
   /** Tells every item what it is now (LST-3, LST-17, LST-18, LST-25, LST-31) and reports what a debug build should (LST-25, LST-47). */
   private readonly sync = () => {
     if (!this.hasUpdated) return;
+    countWork('list.sync');
     const items = this.items;
     const selectable = this.mode !== 'none';
     const reorder = this.isReorderable;
@@ -1019,7 +1031,7 @@ export class TanreiList extends LitElement {
     }, this.motion().duration);
     this.dispatchEvent(new CustomEvent<TanreiListMoveDetail>('move', { bubbles: true, detail: { from, to } }));
     // A product that reordered in its handler has answered already.
-    this.sync();
+    this.syncs.now();
   }
 
   /** LST-39, LST-43: the product did not give the order: what was dropped goes back, focus stays on the handle of what stands there. */
@@ -1605,8 +1617,14 @@ export class TanreiList extends LitElement {
 
   // ── Keyboard ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-  /** The list's children changed: what each item is, where each is drawn, and where focus stands. */
-  private readonly onSlotChange = () => {
+  /**
+   * The list's children changed: what each item is, where each is drawn, and where focus stands. Only the list's own
+   * slot changing is that: a slot inside an item (a component that slots its rows into List items) changing what it
+   * holds bubbles here too, once per item, and is the item's content — which the item tells the list itself
+   * (item-update). Re-read for each of those, a list of N such items built re-read itself N times: O(N²).
+   */
+  private readonly onSlotChange = (event: Event) => {
+    if (event.target !== event.currentTarget) return;
     // LST-35, LST-40: the product changed the items while one was carried — it goes back, nothing is moved.
     if (this.carry) {
       const carry = this.carry;
@@ -1614,7 +1632,7 @@ export class TanreiList extends LitElement {
       this.stopPointer();
       this.cancel(keyboard && carry.item.isConnected);
     }
-    this.sync();
+    this.syncs.now();
     if (!this.isReorderable) return;
     this.observeItems();
     void this.placesChanged();
@@ -1724,7 +1742,7 @@ export class TanreiList extends LitElement {
     }
     if (!item || event.composedPath()[0] !== item.focusTarget || item === this.lastFocused) return;
     this.lastFocused = item;
-    this.sync();
+    this.syncs.now();
   };
 
   /** LST-35: focus leaving the handle of an item lifted by the keyboard puts it back. LST-46: a handle let go of focus. */
@@ -1867,7 +1885,7 @@ export class TanreiList extends LitElement {
       this.places.clear();
       this.heldFocus = null;
     }
-    this.sync();
+    this.syncs.now();
   }
 
   protected override render() {

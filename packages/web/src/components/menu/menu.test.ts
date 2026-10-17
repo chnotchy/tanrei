@@ -1595,6 +1595,8 @@ test.describe('submenus', () => {
         return { bg: r.backgroundColor, label: getComputedStyle(el.shadowRoot!.querySelector('.label')!).color, opacity: r.opacity };
       });
     let from = await open();
+    // The submenu's box where it rests: read while it grows in, its corner is not where the pointer will go.
+    await motionEnded(page);
     const parent = await bounds(surface(page, 'file'));
     const target = await surfaceBox(recent(page));
     // The far corner of the submenu, a little inside it: a straight line there crosses the item below.
@@ -1654,6 +1656,8 @@ test.describe('submenus', () => {
     const from = await centre(rowOf(recent(page)));
     await page.mouse.move(from.x, from.y, { steps: 3 });
     await expect.poll(() => shown(recent(page))).toBe(true);
+    // The submenu's box where it rests (as above).
+    await motionEnded(page);
     const parent = await bounds(surface(page, 'file'));
     const target = await surfaceBox(recent(page));
     expect(target.x + target.width).toBeLessThan(parent.x);
