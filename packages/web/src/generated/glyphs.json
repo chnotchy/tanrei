@@ -9,6 +9,7 @@
   },
   "glyphs": [
     "2d",
+    "accessibility_new",
     "account_circle",
     "account_tree",
     "add",
@@ -137,6 +138,7 @@
     "list",
     "lists",
     "local_shipping",
+    "lock",
     "mail",
     "map",
     "mark_email_unread",
