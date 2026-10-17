@@ -1,4 +1,4 @@
-// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id (APS-1…30) is cited by
+// <tanrei-app-shell> and app-shell.css, driven by specs/app-shell.spec.json: every behaviour id (APS-1…32) is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the numbers of a `verify` are the spec's own, for the default system). A fixture is drawn alone,
 // in the window APS-2's verify names for it (`appShellWindow`): the frame reads the window's width and nothing else.
@@ -827,6 +827,77 @@ test.describe('what scrolls', () => {
     await mount(page, real({ sections: 6, props: { headerPosition: 'static' } }), { width: 1280 });
     await page.evaluate(() => window.scrollTo(0, 900));
     expect((await edges(region(page, 'header'))).bottom).toBeLessThan(0);
+  });
+
+  test('APS-32: each region stacks what it holds inside itself — nothing in the main region, whatever its z-index, and not the footer, is drawn over the sticky header or the navigation bar; the frame is one stacking order of the page', async ({ page }) => {
+    /** The points inside a region (a grid of them, 2 px in from its edges) where what the page draws is not the region's. */
+    const covered = (name: string) =>
+      region(page, name).evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const out: string[] = [];
+        for (let i = 0; i <= 40; i++)
+          for (const f of [0.1, 0.5, 0.9]) {
+            const [x, y] = [r.left + 2 + ((r.width - 4) * i) / 40, r.top + r.height * f];
+            const hit = document.elementFromPoint(x, y);
+            if (hit && !el.contains(hit)) out.push(`${Math.round(x)},${Math.round(y)}: ${hit.localName}${hit.id ? `#${hit.id}` : ''}`);
+          }
+        return out;
+      });
+    /** Scrolls the window until the top of `#id` stands at `y` in the window. */
+    const scrollTopTo = (id: string, y: number) =>
+      page.evaluate(([id, y]) => window.scrollBy(0, document.getElementById(id)!.getBoundingClientRect().top - y), [id, y] as const);
+    // What a page puts in its main region: a Code block, whose copy button stands over its corner at a z-index of its
+    // own, and an element of the product's raised by a large one.
+    const content = (page: P) =>
+      page.evaluate(() => {
+        const first = document.querySelector('tanrei-app-shell > main')!.firstElementChild!;
+        first.insertAdjacentHTML(
+          'afterend',
+          `<tanrei-code-block id="code" label="Example" copy copy-label="Copy" code="${'const line = 1;\n'.repeat(8)}"></tanrei-code-block>
+           <div id="raised" style="position: relative; z-index: 10; block-size: 160px; background: rgb(255, 0, 0)">raised</div>`,
+        );
+      });
+    await mount(page, real({ sections: 6, footer: false }), { width: 1280 });
+    await content(page);
+    await page.locator('#code').evaluate(async (el) => {
+      await customElements.whenDefined('tanrei-code-block');
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+    });
+    // The Code block's copy button stands over its corner (COD-9) at a z-index of its own: the case a page meets.
+    expect(await page.locator('#code').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.corner')!).zIndex)).not.toBe('auto');
+    const header = await edges(region(page, 'header'));
+    for (const id of ['code', 'raised']) {
+      await scrollTopTo(id, header.bottom - header.height / 2);
+      await frame(page);
+      expect((await edges(page.locator(`#${id}`))).top, id).toBeLessThan(header.bottom);
+      expect.soft(await covered('header'), `${id} under the header`).toEqual([]);
+    }
+    // A footer taller than the window, scrolled under the header: the header stays over it.
+    await mount(page, real({ sections: 2 }), { width: 1280 });
+    await page.evaluate(() => {
+      const footer = document.querySelector('tanrei-app-shell > [slot="footer"]')!;
+      footer.insertAdjacentHTML('beforeend', '<div id="tall" style="block-size: 1600px"></div>');
+      window.scrollTo(0, document.documentElement.scrollHeight);
+    });
+    await frame(page);
+    expect((await edges(region(page, 'footer'))).top).toBeLessThan(0);
+    expect.soft(await covered('header'), 'the footer under the header').toEqual([]);
+    expect(Number(await css(region(page, 'header'), 'z-index'))).toBeGreaterThan(Number(await css(region(page, 'footer'), 'z-index')));
+    // A compact window: the same element under the navigation bar is under the bar, and under the header.
+    await mount(page, real({ sections: 6, bar: true, footer: false }), { width: 400 });
+    await content(page);
+    const bar = await edges(region(page, 'navigation-bar'));
+    await scrollTopTo('raised', bar.top + 4);
+    await frame(page);
+    expect.soft(await covered('navigation-bar'), 'raised under the navigation bar').toEqual([]);
+    const top = await edges(region(page, 'header'));
+    await scrollTopTo('raised', top.bottom - top.height / 2);
+    await frame(page);
+    expect.soft(await covered('header'), 'raised under the header, compact').toEqual([]);
+    // How: the frame and each region are a stacking context of their own.
+    expect(await shell(page).evaluate((el) => [el, ...el.children].filter((c) => c.getAttribute('slot') !== 'skip-link').map((c) => `${c.getAttribute('slot') ?? c.localName}:${getComputedStyle(c).isolation}`))).toEqual(
+      ['tanrei-app-shell', 'header', 'navigation', 'main', 'aside', 'navigation-bar'].map((name) => `${name}:isolate`),
+    );
   });
 
   test('APS-17: the frame holds the height of a sticky header — measured again whenever it changes size, nothing while it is static — and makes it known to the scrolling view and to what it holds: following a link to a heading in a long page leaves the heading 64 below the top of the window, Tab to a link under the header scrolls it out from under it, with the bar 80 high the distance is 80, and likewise the navigation bar’s height at the bottom', async ({ page }) => {
