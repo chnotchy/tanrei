@@ -163,11 +163,20 @@ const en = {
   heroSpecified: 'specified',
   heroContexts: 'theme × contrast contexts',
   platformsLabel: 'Platforms',
-  // The notice on install pages (components/PreReleaseNotice.astro). `{pkg}`, `{registry}`, `{name}`, `{version}` and
-  // `{repository}` are filled in; the text is HTML.
-  preReleaseTitle: 'Pre-release: not published yet',
-  preReleaseBody:
-    '<code>{pkg}</code> is <strong>not available on {registry} yet</strong>: {name} is in development (version {version}) and nothing has been released. Until the first release, build it from the source in <a href="https://github.com/{repository}">{repository}</a>, as “From source” below shows; “After the first release” shows how installing will work then.',
+  // The notice at the top of an install page (components/ReleaseNotice.astro, lib/release-notice.ts), each string HTML.
+  // `{version}`, `{tag}`, `{release}`, `{registry}`, `{pkg}`, `{platform}`, `{repository}` and `{example}` are filled
+  // in; `{install}` (the packages to install, each with its tag) and `{platforms}` are lists in the page's language.
+  // The headings it names are the install pages' own ("From source", "Once it is published").
+  release: {
+    prereleaseTitle: 'Prerelease',
+    prerelease: '<code>{version}</code> is published to {registry} under the dist-tag <code>{tag}</code>: until <code>{release}</code>, install {install}.',
+    prereleaseAll: '<code>{version}</code> is published under the npm dist-tag <code>{tag}</code>: until <code>{release}</code>, add <code>@{tag}</code> to a package’s name when you install it (<code>{example}</code>).',
+    noCompat: 'During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.',
+    unpublishedTitle: 'Not published yet',
+    unpublished:
+      '<code>{pkg}</code> is not on {registry} yet. A platform is published once it has caught up with the current specs, and {platform}’s CI is paused until then. “From source” below shows how the package is added from <a href="https://github.com/{repository}">{repository}</a>; “Once it is published” shows how installing will work then.',
+    unpublishedAll: 'Not published yet: {platforms}. A platform is published once it has caught up with the current specs, and its CI is paused until then; meanwhile its guide shows how it is added from the source.',
+  },
   // The link to the source repository at the foot of every page (components/frame/Footer.astro).
   sourceLink: 'Source code and issues on GitHub',
   // A demo drawn under a shipped system (components/DemoFrame.astro); `{system}` is the system's id, set as code.
@@ -381,9 +390,16 @@ const ja: typeof en = {
   heroSpecified: '仕様作成済み',
   heroContexts: 'テーマ × コントラスト',
   platformsLabel: '対応プラットフォーム',
-  preReleaseTitle: 'プレリリース：まだ公開されていません',
-  preReleaseBody:
-    '<code>{pkg}</code> は {registry} に<strong>まだ公開されていません</strong>。{name} は開発中（バージョン {version}）で、まだ何もリリースしていません。最初のリリースまでは、下の「ソースから」のとおり <a href="https://github.com/{repository}">{repository}</a> のソースからビルドしてください。「最初のリリース後」は、そのあとの導入方法です。',
+  release: {
+    prereleaseTitle: 'プレリリース',
+    prerelease: '<code>{version}</code> を {registry} の dist-tag <code>{tag}</code> で公開しています。<code>{release}</code> までは {install} をインストールしてください。',
+    prereleaseAll: '<code>{version}</code> を npm の dist-tag <code>{tag}</code> で公開しています。<code>{release}</code> までは、パッケージ名のあとに <code>@{tag}</code> を付けてインストールしてください（<code>{example}</code>）。',
+    noCompat: '0.x のプレリリースのあいだは後方互換を保ちません。どのプレリリースも、先に非推奨の期間を置くことなく何でも壊すことがあり、何を壊したかはその changeset に書いてあります。',
+    unpublishedTitle: 'まだ公開していません',
+    unpublished:
+      '<code>{pkg}</code> はまだ {registry} にありません。プラットフォームは現在の仕様に追従してから公開し、それまで {platform} の CI は止めてあります。下の「ソースから」は <a href="https://github.com/{repository}">{repository}</a> からパッケージを加える方法、「公開後」は公開されてからの導入方法です。',
+    unpublishedAll: 'まだ公開していないもの：{platforms}。プラットフォームは現在の仕様に追従してから公開し、それまで CI は止めてあります。そのあいだ、各ガイドはソースから加える方法を示しています。',
+  },
   sourceLink: 'ソースコードと Issue（GitHub）',
   demoUnder: '{system} で表示',
   elevationLevels: 'エレベーションのレベル',
@@ -582,9 +598,16 @@ const zh: typeof en = {
   heroSpecified: '已有规格',
   heroContexts: '主题 × 对比度',
   platformsLabel: '支持的平台',
-  preReleaseTitle: '预发布：尚未发布',
-  preReleaseBody:
-    '<code>{pkg}</code> <strong>尚未发布到 {registry}</strong>。{name} 仍在开发中（版本 {version}），尚未发布任何版本。在首次发布之前，请按下文“从源码”一节，从 <a href="https://github.com/{repository}">{repository}</a> 的源码构建；“首次发布之后”一节展示届时的安装方式。',
+  release: {
+    prereleaseTitle: '预发布',
+    prerelease: '<code>{version}</code> 已以 dist-tag <code>{tag}</code> 发布到 {registry}：在 <code>{release}</code> 之前，请安装 {install}。',
+    prereleaseAll: '<code>{version}</code> 已以 npm 的 dist-tag <code>{tag}</code> 发布：在 <code>{release}</code> 之前，安装时请在包名后加上 <code>@{tag}</code>（<code>{example}</code>）。',
+    noCompat: '在 0.x 预发布期间不保持向后兼容：任何一个预发布都可能破坏任何东西，事先没有弃用期，破坏了什么写在它的 changeset 里。',
+    unpublishedTitle: '尚未发布',
+    unpublished:
+      '<code>{pkg}</code> 尚未发布到 {registry}。一个平台在跟上当前的规格之后才会发布，在此之前 {platform} 的 CI 处于暂停状态。下文“从源码”一节展示如何从 <a href="https://github.com/{repository}">{repository}</a> 添加这个包；“发布之后”一节展示届时的安装方式。',
+    unpublishedAll: '尚未发布：{platforms}。一个平台在跟上当前的规格之后才会发布，在此之前它的 CI 处于暂停状态；这期间，它的指南展示如何从源码添加它。',
+  },
   sourceLink: 'GitHub 上的源码与 Issue',
   demoUnder: '以 {system} 显示',
   elevationLevels: '层级的各个级别',
@@ -782,9 +805,16 @@ const es: typeof en = {
   heroSpecified: 'con especificación',
   heroContexts: 'contextos de tema × contraste',
   platformsLabel: 'Plataformas',
-  preReleaseTitle: 'Prelanzamiento: aún no publicado',
-  preReleaseBody:
-    '<code>{pkg}</code> <strong>todavía no está disponible en {registry}</strong>: {name} está en desarrollo (versión {version}) y aún no se ha publicado nada. Hasta el primer lanzamiento, compílalo desde el código fuente de <a href="https://github.com/{repository}">{repository}</a>, como muestra «Desde el código fuente» más abajo; «Después del primer lanzamiento» muestra cómo se instalará entonces.',
+  release: {
+    prereleaseTitle: 'Prelanzamiento',
+    prerelease: '<code>{version}</code> está publicado en {registry} con la etiqueta de distribución (dist-tag) <code>{tag}</code>: hasta <code>{release}</code>, instala {install}.',
+    prereleaseAll: '<code>{version}</code> está publicado con la etiqueta de distribución (dist-tag) de npm <code>{tag}</code>: hasta <code>{release}</code>, añade <code>@{tag}</code> al nombre del paquete al instalarlo (<code>{example}</code>).',
+    noCompat: 'Durante los prelanzamientos 0.x no se mantiene la compatibilidad con versiones anteriores: cualquier prelanzamiento puede romper cualquier cosa, sin un periodo de obsolescencia previo, y su changeset dice qué se rompió.',
+    unpublishedTitle: 'Aún no publicado',
+    unpublished:
+      '<code>{pkg}</code> todavía no está en {registry}. Una plataforma se publica cuando se ha puesto al día con las especificaciones actuales, y hasta entonces la CI de {platform} está en pausa. «Desde el código fuente», más abajo, muestra cómo se añade el paquete desde <a href="https://github.com/{repository}">{repository}</a>; «Cuando se publique» muestra cómo se instalará entonces.',
+    unpublishedAll: 'Aún sin publicar: {platforms}. Una plataforma se publica cuando se ha puesto al día con las especificaciones actuales, y hasta entonces su CI está en pausa; mientras tanto, su guía muestra cómo se añade desde el código fuente.',
+  },
   sourceLink: 'Código fuente e incidencias en GitHub',
   demoUnder: 'Con {system}',
   elevationLevels: 'Niveles de elevación',
@@ -982,9 +1012,16 @@ const hi: typeof en = {
   heroSpecified: 'स्पेक लिखा गया',
   heroContexts: 'थीम × कंट्रास्ट कॉन्टेक्स्ट',
   platformsLabel: 'प्लैटफ़ॉर्म',
-  preReleaseTitle: 'प्री-रिलीज़: अभी प्रकाशित नहीं',
-  preReleaseBody:
-    '<code>{pkg}</code> <strong>अभी {registry} पर उपलब्ध नहीं है</strong>: {name} का विकास जारी है (वर्ज़न {version}) और अभी कुछ भी रिलीज़ नहीं हुआ है। पहली रिलीज़ तक इसे <a href="https://github.com/{repository}">{repository}</a> के सोर्स से बिल्ड करें, जैसा नीचे “सोर्स से” में दिखाया गया है; “पहली रिलीज़ के बाद” बताता है कि तब इंस्टॉल कैसे होगा।',
+  release: {
+    prereleaseTitle: 'प्री-रिलीज़',
+    prerelease: '<code>{version}</code> {registry} पर dist-tag <code>{tag}</code> के साथ प्रकाशित है: <code>{release}</code> तक {install} इंस्टॉल करें।',
+    prereleaseAll: '<code>{version}</code> npm के dist-tag <code>{tag}</code> के साथ प्रकाशित है: <code>{release}</code> तक, पैकेज इंस्टॉल करते समय उसके नाम के बाद <code>@{tag}</code> जोड़ें (<code>{example}</code>)।',
+    noCompat: '0.x प्री-रिलीज़ के दौरान पुराने वर्शन के साथ संगतता नहीं रखी जाती: कोई भी प्री-रिलीज़ पहले से अप्रचलित घोषित किए बिना कुछ भी तोड़ सकती है, और क्या टूटा, यह उसका changeset बताता है।',
+    unpublishedTitle: 'अभी प्रकाशित नहीं',
+    unpublished:
+      '<code>{pkg}</code> अभी {registry} पर नहीं है। कोई प्लैटफ़ॉर्म मौजूदा स्पेक की बराबरी पर आने के बाद ही प्रकाशित होता है, और तब तक {platform} का CI रुका हुआ है। नीचे “सोर्स से” बताता है कि पैकेज <a href="https://github.com/{repository}">{repository}</a> से कैसे जोड़ा जाता है; “प्रकाशित होने के बाद” बताता है कि तब इंस्टॉल कैसे होगा।',
+    unpublishedAll: 'अभी प्रकाशित नहीं: {platforms}। कोई प्लैटफ़ॉर्म मौजूदा स्पेक की बराबरी पर आने के बाद ही प्रकाशित होता है, और तब तक उसका CI रुका हुआ है; इस बीच उसकी गाइड बताती है कि उसे सोर्स से कैसे जोड़ा जाता है।',
+  },
   sourceLink: 'GitHub पर सोर्स कोड और इश्यू',
   demoUnder: '{system} के साथ',
   elevationLevels: 'एलिवेशन के स्तर',
@@ -1182,9 +1219,16 @@ const ar: typeof en = {
   heroSpecified: 'لها مواصفة',
   heroContexts: 'سياقات السمة × التباين',
   platformsLabel: 'المنصات',
-  preReleaseTitle: 'إصدار تمهيدي: لم يُنشر بعد',
-  preReleaseBody:
-    '<code>{pkg}</code> <strong>غير متوفر بعدُ على {registry}</strong>: ‏{name} قيد التطوير (الإصدار {version}) ولم يُصدَر منه شيء بعد. وحتى الإصدار الأول، ابنِ الحزمة من الشيفرة المصدرية في <a href="https://github.com/{repository}">{repository}</a> كما يبيّن قسم «من الشيفرة المصدرية» أدناه؛ ويبيّن قسم «بعد الإصدار الأول» طريقة التثبيت حينها.',
+  release: {
+    prereleaseTitle: 'إصدار تمهيدي',
+    prerelease: 'نُشر <code>{version}</code> على {registry} تحت وسم التوزيع (dist-tag) <code>{tag}</code>: وحتى <code>{release}</code>، ثبِّت {install}.',
+    prereleaseAll: 'نُشر <code>{version}</code> تحت وسم التوزيع (dist-tag) <code>{tag}</code> في npm: وحتى <code>{release}</code>، أضِف <code>@{tag}</code> بعد اسم الحزمة عند تثبيتها (<code>{example}</code>).',
+    noCompat: 'لا يُحافَظ على التوافق مع الإصدارات السابقة طوال الإصدارات التمهيدية 0.x: قد يكسر أي إصدار تمهيدي أي شيء دون أن يُعلَن شيء مهمَلًا قبله، ويذكر الـ changeset الخاص به ما الذي انكسر.',
+    unpublishedTitle: 'لم يُنشر بعد',
+    unpublished:
+      '<code>{pkg}</code> غير موجودة بعدُ على {registry}. تُنشر المنصة حين تلحق بالمواصفات الحالية، والتكامل المستمر (CI) الخاص بـ {platform} متوقف حتى ذلك الحين. يبيّن قسم «من الشيفرة المصدرية» أدناه كيف تُضاف الحزمة من <a href="https://github.com/{repository}">{repository}</a>، ويبيّن قسم «بعد نشرها» طريقة التثبيت حينها.',
+    unpublishedAll: 'لم يُنشر بعد: {platforms}. تُنشر المنصة حين تلحق بالمواصفات الحالية، والتكامل المستمر (CI) الخاص بها متوقف حتى ذلك الحين؛ وفي الأثناء يبيّن دليلها كيف تُضاف من الشيفرة المصدرية.',
+  },
   sourceLink: 'الشيفرة المصدرية والمشكلات على GitHub',
   demoUnder: 'مع {system}',
   elevationLevels: 'مستويات الارتفاع',
