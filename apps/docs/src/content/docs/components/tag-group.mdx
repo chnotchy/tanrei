@@ -177,6 +177,8 @@ The group holds no value. Each filter chip holds its own `selected`, and several
 
 A chip asks to be removed and you remove it. If focus was on that chip or on its remove action, the group puts focus on the chip that followed, or on the one before when none follows. A person who removes several items in a row goes on from where they were.
 
+A chip's remove action is plain unless you set `destructiveRemove` on that chip, and the group does not change it. Set it only where removing loses something that cannot be put back in a step, such as an attachment; an applied filter or a search term comes back in one step.
+
 Two things stay yours:
 
 - When no chip is left to take focus, move focus to the control the set belongs to: the field that adds items, or the button that opens the filters. Otherwise the browser drops it.

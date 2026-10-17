@@ -42,8 +42,8 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
       <img slot="avatar" src="ada.jpg" alt="" />
     </tanrei-chip>
 
-    <!-- Removing an applied filter loses nothing: turn the destructive look off. -->
-    <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min" no-destructive-remove></tanrei-chip>
+    <!-- Removing an attachment loses it: give the remove action the destructive look. -->
+    <tanrei-chip kind="input" label="report.pdf" remove-label="Remove report.pdf" destructive-remove></tanrei-chip>
 
     <script type="module">
       import '@tanrei/web/components/chip';
@@ -62,7 +62,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <Chip label="Directions" href="https://example.com/map" target="new" targetLabel="opens in a new tab" />
     <Chip kind="filter" selected={vegetarian} label="Vegetarian" onChange={(e) => setVegetarian(e.detail.selected)} />
     <Chip kind="input" label="Ada Lovelace" removeLabel="Remove Ada Lovelace" onRemove={() => removeRecipient(ada)} />
-    <Chip kind="input" label="Under 30 min" removeLabel="Remove Under 30 min" destructiveRemove={false} onRemove={clearTimeFilter} />
+    <Chip kind="input" label="report.pdf" removeLabel="Remove report.pdf" destructiveRemove onRemove={() => removeAttachment(report)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -145,9 +145,9 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
   <tanrei-chip kind="filter" selected disabled label="Vegetarian"></tanrei-chip>
 </DemoFrame>
 
-<DemoFrame label="Remove actions: destructive (default) and plain; hover or focus them" plain>
-  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
-  <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min" no-destructive-remove></tanrei-chip>
+<DemoFrame label="Remove actions: plain (default) and destructive; hover or focus them" plain>
+  <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min"></tanrei-chip>
+  <tanrei-chip kind="input" label="report.pdf" remove-label="Remove report.pdf" destructive-remove></tanrei-chip>
 </DemoFrame>
 
 <DemoFrame label="Link chips: here, in a new tab, disabled" plain>
@@ -211,7 +211,7 @@ A control with a destination is a link. An action chip that only takes the perso
 
 An input chip ends with a remove action: the filled `cancel` glyph on a round container a little larger than it, which shows as a ring around the glyph on hover, focus and press. In the default system the round container is concentric with the chip's round end, as far from the end as from the top and the bottom. It takes no room of its own, so it does not make the chip wider or taller. The remove action is a separate button with its own name, its own hover, focus and press, and its own hit area, which extends outward and never covers the label. Pressing it, or pressing Backspace or Delete while the chip has focus, asks to remove the chip. **The chip never removes itself.** Your code removes the item and moves focus: to the next chip, the previous one, or the field the chips belong to.
 
-By default the remove action reads as destructive (`destructiveRemove`, on unless you turn it off). At rest it looks as it would without the flag. While it is hovered, focused or pressed, its glyph and its state layer take the error color. Turn it off for a removal that loses nothing, such as an applied filter the person can add back. On the web the attribute is the inverse, `no-destructive-remove`, because an HTML boolean attribute cannot default to true. The flag changes colors and nothing else, and it is ignored on the other kinds.
+The remove action can read as destructive (`destructiveRemove`, off by default). At rest it looks as it would without the flag. While it is hovered, focused or pressed, its glyph and its state layer take the error color. Most removals take away something the person can put back in one step, such as an applied filter or a search term, so the remove action is plain unless you set the flag. Set it where removing loses something that cannot be put back in a step, such as an attachment or a recipient already invited. On the web the attribute is `destructive-remove`. The flag changes colors and nothing else, and it is ignored on the other kinds.
 
 An input chip that cannot be taken away now, such as an entry of a read-only field, draws no remove action: set `removable` to false. No action stands there doing nothing, Backspace and Delete ask for nothing, and the chip is padded as a chip without one. On the web the attribute is the inverse, `not-removable`. It is ignored on the other kinds.
 
@@ -222,7 +222,7 @@ An input chip that cannot be taken away now, such as an entry of a read-only fie
 - Keep labels short, one to three words. A chip stays on one line and cuts its label with an ellipsis only when the layout gives it too little width.
 - Use one variant for a row of chips.
 - Name the item in the remove label: "Remove Ada Lovelace", not "Remove".
-- Keep the destructive remove look where removing loses what the person entered, such as a recipient or a tag. Turn it off where the removal is harmless.
+- Give the remove action the destructive look only where removing loses something that cannot be put back in a step, such as an attachment. Leave it plain where the item comes back in one step, such as a filter or a search term.
 - On the web, put a row of chips in a [tag group](/components/tag-group/): it wraps them onto lines, keeps the distance between them and exposes them as one list. On the other platforms, and for a row that scrolls, lay the chips out yourself.
 
 ### Don't
