@@ -128,7 +128,7 @@ async function measure() {
       narrowed++;
       continue;
     }
-    if (after > before + 1) grown.push(`${stage.dataset.fixtureId}: its stage held ${Math.round(before)} and grew to ${Math.round(after)} when it was drawn`);
+    if (after > before + 1) grown.push({ id: stage.dataset.fixtureId, before: Math.round(before), after: Math.round(after), stage: canvas.querySelector(':scope > .stage').getBoundingClientRect().height });
   }
   laidOut.remove();
   return {
@@ -239,7 +239,31 @@ describe('every component page shows its fixtures, each whole, on a stage of its
           if (JSON.stringify([...result.ids].sort()) !== JSON.stringify([...fixtures].sort())) problems.push(`${at}: the stages are not the spec's fixtures (${result.ids.length} stages, ${fixtures.length} fixtures)`);
           if (result.sideways > 1) problems.push(`${at}: the page scrolls sideways by ${result.sideways}px`);
           for (const line of result.found) problems.push(`${at}: ${line}`);
-          drawing.push({ name, at, held: result.held, narrowed: result.narrowed, grown: result.grown });
+          // A stage that grew: is it as tall as its own document draws it on this machine? Then the page drew what the
+          // document draws, and the baseline's room was set by another machine's text (a face the document does not
+          // embed, a line that breaks otherwise); the stage is counted, not failed. Otherwise the page drew it otherwise.
+          const grown = [];
+          let otherMachine = 0;
+          for (const each of result.grown) {
+            const size = documents[name].sizes[each.id];
+            const alone = await browser.newContext({ viewport: { width: Math.max(size.width, 800), height: 1000 }, reducedMotion: 'reduce' });
+            try {
+              const own = await alone.newPage();
+              await own.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(each.id)}`, { waitUntil: 'load' });
+              const height = await own.evaluate(async () => {
+                const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
+                await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
+                await document.fonts.ready;
+                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return document.querySelector('.stage')?.getBoundingClientRect().height ?? 0;
+              });
+              if (Math.abs(height - each.stage) <= 1) otherMachine++;
+              else grown.push(`${each.id}: its stage held ${each.before} and grew to ${each.after} when it was drawn (its own document draws it ${Math.round(height)} tall, the page ${Math.round(each.stage)})`);
+            } finally {
+              await alone.close();
+            }
+          }
+          drawing.push({ name, at, held: result.held, narrowed: result.narrowed, otherMachine, grown });
         } finally {
           await context.close();
         }
@@ -253,13 +277,14 @@ describe('a stage does not grow when it is drawn', () => {
   // A stage drawn in the page holds the room of its baseline — the web package's document's stage — until it is drawn,
   // and that stage is what it draws: nothing below it moves when it is. (While the site drew fixtures with a renderer
   // of its own, 179 stages of 2390 grew at 1440 wide, and 345 at 390.) One drawn narrower than its baseline, at the
-  // column's width, is counted and left out: it is laid out anew there.
+  // column's width, is counted and left out: it is laid out anew there. So is one that grew to the height its own
+  // document gives it on this machine: the page drew what the document draws, and the room was another machine's.
   test('every stage drawn at its baseline’s width is as tall as the room it held', () => {
     assert.ok(drawing.length > 160, `${drawing.length} pages and widths were drawn`);
     for (const at of ['1440', '390']) {
       const of = drawing.filter((each) => each.at === at);
       const sum = (key) => of.reduce((total, each) => total + (Array.isArray(each[key]) ? each[key].length : each[key]), 0);
-      console.log(`${at}: ${sum('held')} stages drawn in the page, ${sum('narrowed')} narrower than their baseline, ${sum('grown')} grew`);
+      console.log(`${at}: ${sum('held')} stages drawn in the page, ${sum('narrowed')} narrower than their baseline, ${sum('otherMachine')} taller than their baseline as their own document draws them on this machine, ${sum('grown')} grew`);
     }
     const grown = drawing.flatMap((each) => each.grown.map((line) => `${each.name} at ${each.at}: ${line}`));
     assert.deepEqual(grown, []);

@@ -129,9 +129,12 @@ export async function comparePreviews({ componentCss, still }) {
     wrap.style.inlineSize = `${layout.clientWidth - parseFloat(around.paddingLeft) - parseFloat(around.paddingRight) + 1}px`;
     for (const property of ['display', 'flex-direction', 'flex-wrap', 'align-items', 'justify-content']) wrap.style.setProperty(property, around.getPropertyValue(property));
     const copy = document.importNode(source[index], true);
-    if (!getComputedStyle(element).display.startsWith('inline')) copy.style.inlineSize = `${element.getBoundingClientRect().width}px`;
-    // A fixture as wide as its layout that the gallery laid out at the column's width: its copy is laid out there too.
-    if (element.matches('.stage') && element.firstElementChild?.style.inlineSize && copy.firstElementChild) copy.firstElementChild.style.inlineSize = element.firstElementChild.style.inlineSize;
+    if (element.matches('[data-fixture-scope] > .stage')) {
+      // A fixture's stage takes its width from its staging, as its copy does; one the gallery laid out at another width
+      // (the column's, or the reader's) is laid out there in its copy too.
+      if (element.style.inlineSize) copy.style.inlineSize = element.style.inlineSize;
+      if (element.firstElementChild?.style.inlineSize && copy.firstElementChild) copy.firstElementChild.style.inlineSize = element.firstElementChild.style.inlineSize;
+    } else if (!getComputedStyle(element).display.startsWith('inline')) copy.style.inlineSize = `${element.getBoundingClientRect().width}px`;
     wrap.append(copy);
     root.append(wrap);
     element.parentElement.append(host);
@@ -206,7 +209,11 @@ export async function comparePreviews({ componentCss, still }) {
       if (d.some((v) => Math.abs(v) > 1.5)) notes.push(`${describe(x)}: box off by [x ${Math.round(d[0])}, y ${Math.round(d[1])}, w ${Math.round(d[2])}, h ${Math.round(d[3])}]`);
       const sx = getComputedStyle(x);
       const sy = getComputedStyle(y);
+      // A fixture's stage is the picture its baseline is taken of: its own margin, which keeps the next stage clear in
+      // the web package's document, stands outside it, and the gallery's canvas has no next stage.
+      const outer = k === 0 && element.matches('[data-fixture-scope] > .stage');
       for (const p of PROPERTIES) {
+        if (outer && p.startsWith('margin-')) continue;
         if (!same(sx.getPropertyValue(p), sy.getPropertyValue(p))) {
           notes.push(`${describe(x)}: ${p} ${sx.getPropertyValue(p)}, the package's ${sy.getPropertyValue(p)}`);
           break;
