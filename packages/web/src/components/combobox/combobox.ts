@@ -23,9 +23,11 @@ import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges 
 import {
   OPTION_GLYPHS,
   OPTION_GROUP_TAG,
+  OPTION_ICON_SPACES,
   OPTION_MIRRORED,
   OPTION_TAG,
   type OptionData,
+  type OptionIconSpace,
   OptionListController,
   type OptionModel,
   OptionsController,
@@ -49,6 +51,8 @@ export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
 export type TanreiComboboxSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
 /** How a group of options is told from what is next to it: the design system's answer (auto), a line, or empty space. */
 export type TanreiComboboxSeparation = SeparationProp;
+/** Whether a shown option keeps the leading icon column where it has no icon (CMB-67). A closed set: the menu's values. */
+export type TanreiComboboxIconSpace = OptionIconSpace;
 /** Who decides which options answer the text: the combobox (`contains`), or the product (`none`). */
 export type TanreiComboboxFilter = 'contains' | 'none';
 /** What the product's source of options is doing. */
@@ -254,6 +258,7 @@ export class TanreiCombobox extends LitElement {
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
@@ -340,6 +345,14 @@ export class TanreiCombobox extends LitElement {
   /** How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`). */
   separation: TanreiComboboxSeparation = 'auto';
 
+  /**
+   * Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a
+   * section — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):
+   * `auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),
+   * `always` in every option, `never` only where it has one.
+   */
+  iconSpace: TanreiComboboxIconSpace = 'auto';
+
   /** For tests and fixtures: draws the open list in place below the field — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal. */
   inline = false;
 
@@ -401,6 +414,7 @@ export class TanreiCombobox extends LitElement {
     model: () => this.shown,
     chosen: () => this.chosen,
     choose: (option) => this.choose(option),
+    iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'),
     // CMB-26: an active option that is no longer shown gives way to what typing would have found.
     replacement: (options) => (this.native.composing ? null : this.found(options)),
   });
@@ -1075,6 +1089,10 @@ export class TanreiCombobox extends LitElement {
     if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'CMB-56', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'CMB-44', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
+    }
+    // CMB-67: an iconSpace the combobox does not define is auto; a debug build says so.
+    if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
+      report(this, 'CMB-67', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
     }
     const { options, nested } = this.options$.model;
     // The options are reported when they change — not on every render.

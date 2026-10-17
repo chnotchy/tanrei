@@ -5,6 +5,7 @@ import {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
   type TanreiComboboxFilter,
+  type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
   type TanreiComboboxSize,
   type TanreiComboboxStatus,
@@ -18,6 +19,7 @@ import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement 
 export type {
   TanreiComboboxChangeDetail,
   TanreiComboboxFilter,
+  TanreiComboboxIconSpace,
   TanreiComboboxSeparation,
   TanreiComboboxSize,
   TanreiComboboxStatus,
@@ -53,6 +55,7 @@ const COMBOBOX = [
   'statusText',
   'emptyText',
   'separation',
+  'iconSpace',
   'inline',
 ] as const;
 
@@ -177,6 +180,7 @@ export class TanreiComboboxField extends ComposedControl<string> {
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     inline: { type: Boolean, reflect: true },
   };
 
@@ -282,6 +286,9 @@ export class TanreiComboboxField extends ComposedControl<string> {
 
   /** @from tanrei-combobox.separation */
   separation: TanreiComboboxSeparation = 'auto';
+
+  /** @from tanrei-combobox.iconSpace */
+  iconSpace: TanreiComboboxIconSpace = 'auto';
 
   /**
    * Web only, for fixtures and tests: its combobox's `inline`, which draws the open list in place. No prop of the spec:

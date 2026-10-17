@@ -22374,6 +22374,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "attribute": "icon-space",
+              "reflects": true,
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
+            },
+            {
+              "kind": "field",
               "name": "hostNameSentence",
               "type": {
                 "text": "string"
@@ -23159,6 +23171,15 @@
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`)."
             },
             {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "fieldName": "iconSpace",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
+            },
+            {
               "name": "name",
               "type": {
                 "text": "string"
@@ -23194,6 +23215,14 @@
           "name": "TanreiComboboxFilter",
           "declaration": {
             "name": "TanreiComboboxFilter",
+            "module": "src/components/combobox-field/combobox-field.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiComboboxIconSpace",
+          "declaration": {
+            "name": "TanreiComboboxIconSpace",
             "module": "src/components/combobox-field/combobox-field.ts"
           }
         },
@@ -23776,6 +23805,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -23959,7 +24000,7 @@
               "name": "list",
               "privacy": "private",
               "readonly": true,
-              "default": "new OptionListController(this, { model: () => this.shown, chosen: () => this.chosen, choose: (option) => this.choose(option), // CMB-26: an active option that is no longer shown gives way to what typing would have found. replacement: (options) => (this.native.composing ? null : this.found(options)), })",
+              "default": "new OptionListController(this, { model: () => this.shown, chosen: () => this.chosen, choose: (option) => this.choose(option), iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'), // CMB-26: an active option that is no longer shown gives way to what typing would have found. replacement: (options) => (this.native.composing ? null : this.found(options)), })",
               "description": "CMB-24, CMB-26, CMB-27, CMB-40, CMB-41: the active option, the keys that move it, the press and the choice."
             },
             {
@@ -24984,6 +25025,15 @@
               "default": "'auto'",
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`).",
               "fieldName": "separation"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "inline",
