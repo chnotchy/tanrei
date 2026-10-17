@@ -9,6 +9,7 @@ import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkAct
 import { opticalSize } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { simulateMacClickFocus } from '../../../test/click-focus.js';
 
 const spec = loadSpec('chip');
@@ -866,6 +867,9 @@ test.describe('behavior', () => {
   for (const mac of [false, true]) {
     test(`CHP-39: a press on an input chip anywhere but its remove action never gives the remove action focus — focus is where the same press puts it on an action chip, Enter on the chip then emits click, and the Tab order is unchanged${mac ? ' (the click focus of Safari on macOS, simulated)' : ''}`, async ({ page }) => {
       if (mac) await simulateMacClickFocus(page);
+      // The page's timers held: what puts the remove action's tabindex back must not be a timer that a busy engine runs
+      // after the next key (input runs first).
+      await holdClock(page);
       const away = () => page.locator('body').click({ position: { x: 1, y: 1 } });
       const removeHoldsFocus = (id: string) => host(page, id).evaluate((el) => el.shadowRoot!.activeElement?.classList.contains('remove') ?? false);
       const buttonHoldsFocus = (id: string) => host(page, id).evaluate((el) => el.shadowRoot!.activeElement?.classList.contains('container') ?? false);
@@ -897,6 +901,11 @@ test.describe('behavior', () => {
       await away();
       await removeOf(page, 'input').focus();
       expect(await removeHoldsFocus('input'), 'focus() on the remove action').toBe(true);
+      // With no key and no press after it, the tabindex is back once the press's task has passed.
+      await away();
+      await labelOf(page, 'input').click();
+      await releaseClock(page);
+      await expect(removeOf(page, 'input')).toHaveAttribute('tabindex', '-1');
     });
   }
 
