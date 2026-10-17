@@ -262,6 +262,11 @@
     {
       "id": "DSL-23",
       "text": "WHEN density names a value that the active design system does not have, or layout names a value this spec does not have, THE description list SHALL render with the default value (the default density's tokens, layout inline), and in debug builds report the unknown value."
+    },
+    {
+      "id": "DSL-24",
+      "text": "WHEN its inline size changes THE description list SHALL choose between terms beside and above their values again from the new size.",
+      "verify": "On the web an inline list whose widest term is 96 wide, beside a value longer than any width it is given, is connected while it has no width — drawn with its terms above their values, and measured so — and then given one: under the default system it is in two columns at 256 and stacked at 255, as DSL-4 draws a list that had its width from the start."
     }
   ],
   "accessibility": {
