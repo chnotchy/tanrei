@@ -14,6 +14,9 @@ import { keepFiles } from './keep.js';
  */
 export const GENERATORS = [
   ['.', 'node', ['packages/tokens-build/src/cli.js', 'generate'], []],
+  // The glyph names the components and the docs site draw, and the icon axes of the shipped systems (read from the
+  // resolved tokens the step before writes).
+  ['.', 'node', ['packages/tools/src/glyphs.js'], ['packages/web/src/generated/glyphs.json', 'apps/docs/src/generated/glyphs.json']],
   // As the `generate` script of packages/web: what the analyzer reads and where it writes is its configuration's
   // (packages/web/custom-elements-manifest.config.mjs), written once.
   ['packages/web', 'node_modules/.bin/cem', ['analyze'], ['packages/web/custom-elements.json']],
