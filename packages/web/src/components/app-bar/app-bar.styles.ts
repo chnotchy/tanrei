@@ -140,16 +140,20 @@ export const styles = css`
     padding-inline-end: ${t('title-inset')};
   }
   .lead,
-  .navigation,
-  .brand,
   .actions {
     display: flex;
     flex: none;
     align-items: center;
   }
-  /* APB-19: the brand stands after the navigation item at the gap between two icon buttons. */
+  /* APB-19: the brand stands after the navigation item at the gap between two icon buttons. The two items are the
+     lead's own flex items, so that a navigation item the product does not draw (an app shell's menu button where the
+     navigation has a place) leaves no gap before the brand. */
   .lead {
     gap: ${t('actions-gap')};
+  }
+  .navigation,
+  .brand {
+    display: contents;
   }
   .row:not(.has-navigation) .navigation,
   .row:not(.has-brand) .brand,

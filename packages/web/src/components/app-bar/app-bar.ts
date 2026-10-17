@@ -73,7 +73,6 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @slot actions - The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  * @csspart container - The bar: its color, elevation, and the system insets it reaches under.
  * @csspart top-row - The row of the navigation item, the brand, the title block and the actions.
- * @csspart brand - The brand's cell, after the navigation item.
  * @csspart title - The title (the heading), in the top row and in a large bar's own title row.
  * @csspart subtitle - The line under the title.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
@@ -449,7 +448,7 @@ export class TanreiAppBar extends LitElement {
         >
           <div class="lead">
             <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
-            <div part="brand" class="brand">
+            <div class="brand">
               ${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${name !== shown} @slotchange=${this.onSlotChange}></slot>`)}
             </div>
           </div>
