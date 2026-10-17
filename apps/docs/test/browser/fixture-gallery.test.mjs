@@ -10,9 +10,8 @@
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
-// It reads `dist/` and serves it on a free port, as previews.test.mjs does. A stage is laid out whether or not it is
-// in view (`content-visibility` is set to `visible` while the page is measured): the test asks where each stage stands,
-// not when it is painted, and does not wait for anything to load.
+// It reads `dist/` and serves it on a free port, as previews.test.mjs does. It asks where each stage stands, not what
+// a window draws inside it, and does not wait for a window to load.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -66,7 +65,7 @@ async function measure() {
   const gallery = document.querySelector('[data-fixture-gallery]');
   if (!gallery) return { gallery: false };
   const laidOut = document.createElement('style');
-  laidOut.textContent = '.docs-stage { content-visibility: visible !important; } *, *::before, *::after { transition: none !important; animation: none !important; }';
+  laidOut.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
   document.head.append(laidOut);
   const tags = new Set([...gallery.querySelectorAll('*')].map((e) => e.localName).filter((n) => n.includes('-')));
   await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);

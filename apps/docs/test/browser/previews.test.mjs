@@ -29,10 +29,8 @@ const componentCss = fs
   .sort()
   .map((name) => fs.readFileSync(path.join(webDist, name), 'utf8'))
   .join('\n');
-// Nothing moves while it is measured, and every stage of the fixtures' gallery is laid out whether or not it is in view
-// (a stage away from the view is not laid out — `content-visibility: auto` — and a copy beside it would be laid out
-// in a box of no size).
-const still = '*, *::before, *::after { transition: none !important; animation: none !important; } .docs-stage { content-visibility: visible !important; }';
+// Nothing moves while it is measured.
+const still = '*, *::before, *::after { transition: none !important; animation: none !important; }';
 
 // The root language's pages: every built page but those under a language's directory (the content's own folders).
 const content = path.join(docs, 'src/content/docs');

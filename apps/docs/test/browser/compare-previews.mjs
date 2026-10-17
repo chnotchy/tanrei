@@ -120,6 +120,17 @@ export async function comparePreviews({ componentCss, still }) {
     wrap.style.marginTop = `${a.top - c.top}px`;
   }
   await settle(previews.map((p) => p.copy));
+  // What a box inside the component has been scrolled to is the component's state, not the page's doing: a list that
+  // opened scrolled to its chosen option (SEL-31) did so before its copy existed. The copy is scrolled as the preview is.
+  for (const { element, copy } of previews) {
+    const a = all(element);
+    const c = all(copy);
+    if (a.length !== c.length) continue;
+    a.forEach((x, k) => {
+      if (x.scrollTop !== c[k].scrollTop || x.scrollLeft !== c[k].scrollLeft) c[k].scrollTo(x.scrollLeft, x.scrollTop);
+    });
+  }
+  await settle(previews.map((p) => p.copy));
 
   const describe = (e) =>
     e.localName + (e.id ? `#${e.id}` : '') + (typeof e.className === 'string' && e.className.trim() ? `.${e.className.trim().split(/\s+/).join('.')}` : '') + (e.getAttribute('role') ? `[role=${e.getAttribute('role')}]` : '') + (e.getAttribute('slot') ? `[slot=${e.getAttribute('slot')}]` : '');
