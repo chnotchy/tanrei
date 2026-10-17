@@ -151,27 +151,74 @@ export const styles = css`
   .lead {
     gap: ${t('actions-gap')};
   }
-  .navigation,
-  .brand {
+  .navigation {
     display: contents;
   }
   .row:not(.has-navigation) .navigation,
-  .row:not(.has-brand) .brand,
   .row:not(.has-navigation):not(.has-brand) .lead,
   .row:not(.has-actions) .actions {
     display: none;
   }
-  /* APB-21: the brand the bar does not show is in no box, so it is neither drawn nor exposed — said of the slotted
-     link itself too, so that an engine that reads its own style (WebKit) leaves it out of the accessibility tree. */
+  /* APB-19, APB-22: the brand — one link (or one image) in a cell as large as an icon button's, padded so that a symbol
+     of brand.symbol.size stands where the icon of an icon button stands; its focus indicator around the cell, in the
+     brand's shape. */
+  .brand {
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--tanrei-sys-target-pointer);
+    min-block-size: var(--tanrei-sys-target-pointer);
+    padding-inline: calc((var(--tanrei-sys-target-pointer) - ${t('brand-symbol-size')}) / 2);
+    border-radius: ${t('brand-shape')};
+    color: ${t('brand-color')};
+    text-decoration: none;
+    outline: none;
+  }
+  @media (pointer: coarse) {
+    .brand {
+      min-inline-size: var(--tanrei-sys-target-touch);
+      min-block-size: var(--tanrei-sys-target-touch);
+      padding-inline: calc((var(--tanrei-sys-target-touch) - ${t('brand-symbol-size')}) / 2);
+    }
+  }
+  .brand[hidden] {
+    display: none;
+  }
+  a.brand:focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+  /* APB-20: the images in one row — a lockup's symbol and wordmark lockup.gap apart, aligned as lockup.alignment
+     names — each at its token's height and as wide as its proportions make it. */
+  .images {
+    display: inline-flex;
+    align-items: ${t('brand-lockup-alignment')};
+    gap: ${t('brand-lockup-gap')};
+  }
+  .images ::slotted(*) {
+    flex: none;
+    display: block;
+    inline-size: auto;
+    max-inline-size: none;
+  }
+  .images slot[name='brand']::slotted(*) {
+    block-size: ${t('brand-image-height')};
+  }
+  .images slot[name='brand-symbol']::slotted(*) {
+    block-size: ${t('brand-symbol-size')};
+  }
+  .images slot[name='brand-wordmark']::slotted(*) {
+    block-size: ${t('brand-wordmark-height')};
+  }
+  /* APB-21: an image the brand does not show is in no box, so it is neither drawn nor exposed — said of the image
+     itself too, so that an engine that reads its own style (WebKit) leaves it out of the accessibility tree. */
   slot[hidden] {
     display: none;
   }
-  slot[hidden]::slotted(*) {
+  .images slot[hidden]::slotted(*) {
     display: none;
-  }
-  /* APB-20: the brand keeps its own look; its color is the bar's, which a mark in currentColor takes. */
-  .brand slot::slotted(*) {
-    color: ${t('brand-color')};
   }
   /* APB-4: comp.app-bar.actions.gap between two actions. */
   .actions {
@@ -179,7 +226,7 @@ export const styles = css`
   }
   /* APB-11: the items are laid out, never restyled — each keeps its own box, centred in a cell as large as the minimum
      target it answers to (BTN-5), so a neighbour's target never overlaps it and the row is at least that high. */
-  ::slotted(*) {
+  :is(slot[name='navigation'], slot[name='actions'])::slotted(*) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -187,7 +234,7 @@ export const styles = css`
     min-block-size: var(--tanrei-sys-target-pointer);
   }
   @media (pointer: coarse) {
-    ::slotted(*) {
+    :is(slot[name='navigation'], slot[name='actions'])::slotted(*) {
       min-inline-size: var(--tanrei-sys-target-touch);
       min-block-size: var(--tanrei-sys-target-touch);
     }
