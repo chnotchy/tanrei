@@ -1,6 +1,6 @@
 {
   "name": "@tanrei/cli",
-  "version": "0.1.0-next.0",
+  "version": "0.1.0-next.1",
   "description": "Build your own design system on Tanrei: one layer file in, tokens and code for every platform out.",
   "license": "Apache-2.0",
   "type": "module",
