@@ -343,6 +343,26 @@ In the demo, Nautical exists in the second row only: choosing it leaves the firs
 
 The tabs of this site are an example: every set of platform samples is a [Tab view](/components/tab-view/) of one group.
 
+### Vertical tabs
+
+Set `orientation` to `vertical` to stack the tabs in a column at the start edge, beside the views they switch: the categories of a settings page or of a dialog, the sections of one record. It is the same control in everything else: one selected tab, an indicator that slides and can be dragged, the panels, a shared choice.
+
+<DemoFrame label="Vertical tabs beside their panels">
+  <tanrei-tabs orientation="vertical" value="general" label="Settings" style="inline-size: 30rem">
+    <tanrei-tab value="general" label="General" icon="settings"></tanrei-tab>
+    <tanrei-tab value="notifications" label="Notifications" icon="notifications"></tanrei-tab>
+    <tanrei-tab value="privacy" label="Privacy" icon="lock"></tanrei-tab>
+    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Language, region and start page.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Email, push and a weekly summary.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Who can see your profile.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+- **The column.** Every tab is as wide as the widest, with its icon before its label at the start edge, in every variant and at every size. The tabs touch above and below, so each is at least the minimum target tall: a small column's tabs are 44 tall (48 with touch input), not 32. Make the column wider with `::part(tablist)`. In a column narrower than its widest tab, a label is truncated and shown whole in a tooltip.
+- **The indicator and the track.** The indicator is the tab less the track's inset on every side. The track's corners are the indicator's plus that inset, so the two stay concentric at the ends however tall the column is. A design system that draws a line under the selected tab draws it on the column's end edge, beside the panel, with the divider down that edge.
+- **Keys.** Down and Up Arrow move to the next and previous tab and select it, and Home and End go to the ends. Right and Left Arrow do nothing, so they stay the page's. Assistive technology is told the tab list is vertical.
+- **Scrolling.** Give the row a height, and tabs that do not fit scroll up and down inside the track. A touch scrolls them; only a mouse or a pen drags the indicator. `fullWidth` does not apply to a column.
+
 ### Icons
 
 - Give every tab of a row an icon, or none. Icons are drawn outlined when not selected and filled when selected.
@@ -357,6 +377,7 @@ The tabs of this site are an example: every set of platform samples is a [Tab vi
 - Keep the order of tabs stable, so people can find a view where they left it.
 - Put secondary tabs inside a view of primary tabs, not the other way round.
 - Keep a tab that is sometimes unavailable in place and disabled, so the row does not change shape.
+- Use vertical tabs for the views of one subject when there are many of them or their labels are long: the categories of a settings page, the sections of a record.
 
 ### Don't
 
@@ -364,6 +385,7 @@ The tabs of this site are an example: every set of platform samples is a [Tab vi
 - Don't make a tab open a dialog, start an action or leave the screen. A tab has no destination of its own: to move between pages, use links, a navigation bar or a navigation drawer.
 - Don't nest two rows of the same variant.
 - Don't mix tabs with and without icons in one row.
+- Don't use vertical tabs to choose where to go in an app. A column of destinations is the navigation drawer's job: its items are links, and choosing one changes the address.
 
 ## Accessibility
 
