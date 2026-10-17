@@ -40157,7 +40157,8 @@
                     "text": "string"
                   }
                 }
-              ]
+              ],
+              "description": "IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium."
             }
           ],
           "events": [
