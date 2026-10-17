@@ -89,19 +89,19 @@ for (const name of ['acme', 'tone-per-state']) {
   });
 }
 
-test('what each shipped system leaves out is what it left out before the root was cut out', () => {
-  // The lists each system's stylesheet carries in --tanrei-unavailable.
+test('what each shipped system leaves out is what it left out before the root was cut out, the FAB menu aside', () => {
+  // The lists each system's stylesheet carries in --tanrei-unavailable. The FAB menu lives in m3-like now: the systems
+  // that do not descend from it do not leave it out, they do not have it (the next test).
   const inputs = ['text-input', 'select', 'combobox', 'number-input', 'color-input'];
   assert.deepEqual(availabilityOf(layerChain(DEFAULT_SYSTEM, read)), {
-    components: ['segmented-button', 'fab-menu'],
+    components: ['segmented-button'],
     variants: Object.fromEntries(inputs.map((name) => [name, ['filled', 'outlined']])),
   });
   assert.deepEqual(availabilityOf(layerChain(ROOT_SYSTEM, read)), { components: [], variants: {} }, 'the root leaves nothing out');
   // The presets extend the root: each leaves out only what it says itself.
   assert.deepEqual(availabilityOf(layerChain('m3-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
   assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
-  assert.deepEqual(availabilityOf(layerChain('cupertino', read)), { components: ['fab-menu'], variants: { 'navigation-bar': ['filled'] } });
-  assert.equal(componentChoices(layerChain('cupertino', read)).components.get('fab-menu').layer, 'cupertino', 'cupertino says itself why it leaves the FAB menu out');
+  assert.deepEqual(availabilityOf(layerChain('cupertino', read)), { components: [], variants: { 'navigation-bar': ['filled'] } });
 });
 
 // ── what a system ships, down the chain ─────────────────────────────────────────────────────────────────────────
@@ -163,7 +163,7 @@ test('a product on the default system may bring back a component the default lea
   // product that includes it draws it in the default system's look.
   const product = { id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { include: ['segmented-button'] } };
   const chain = layerChain('acme', (id) => (id === 'acme' ? product : read(id)));
-  assert.deepEqual(availabilityOf(chain).components, ['fab-menu']);
+  assert.deepEqual(availabilityOf(chain).components, []);
   const inventory = new Set(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'specs/inventory.json'), 'utf8')).components.map((c) => c.name));
   assert.deepEqual(componentChoiceProblems(chain, { inventory, variantsOf: () => undefined }), []);
   assert.ok(fs.readFileSync(path.join(REPO_ROOT, 'packages/web/src/generated/tokens.css'), 'utf8').includes('--tanrei-comp-segmented-button-'), 'the default stylesheet values its tokens');

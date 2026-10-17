@@ -24,7 +24,9 @@ const { TonalPalette } = await load('palettes/tonal_palette.js');
 
 const resolver = json('tokens/tanrei.resolver.json');
 const refs = Object.values(resolver.sets).flatMap((set) => set.sources.map((s) => s.$ref)).filter((ref) => !ref.startsWith('generated/'));
-const sources = Object.fromEntries(refs.map((ref) => [ref, json(`tokens/${ref}`)]));
+// …and the documents of the components that live in a layer, keyed as the engine looks them up.
+const held = fs.readdirSync(path.join(repoRoot, 'tokens/systems'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).flatMap((entry) => fs.readdirSync(path.join(repoRoot, 'tokens/systems', entry.name, 'comp')).map((file) => `systems/${entry.name}/comp/${file}`));
+const sources = Object.fromEntries([...refs, ...held].map((ref) => [ref, json(`tokens/${ref}`)]));
 export const shipped = Object.fromEntries(
   fs.readdirSync(path.join(repoRoot, 'tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => [f.replace('.system.json', ''), json(`tokens/systems/${f}`)]),
 );
