@@ -566,6 +566,68 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'empty').evaluate((el) => [el.shadowRoot!.querySelector<HTMLElement>('.box')!.style.blockSize, el.shadowRoot!.querySelector('.box')!.hasAttribute('data-resizing')])).toEqual(['', false]);
   });
 
+  test('ETI-8: at every rendered frame of the motion a typed line break starts — in a holder at the top of its column and in one docked at the bottom of a column, which grows upward — the first line stays at the box’s top edge and the box never scrolls, because the caret on a line the box does not hold yet is not revealed by scrolling the box', async ({ page }) => {
+    // The two holders, each with one line of text: one at the top of its stage, one docked at the bottom of a column
+    // 400 px tall, as a conversation's composer is.
+    await mount(page, [fx('held-top', { multiline: true, value: 'One line' }), fx('held-docked', { multiline: true, value: 'One line' })], { reducedMotion: false });
+    await stage(page, 'held-docked').evaluate((el) => Object.assign((el as HTMLElement).style, { display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', blockSize: '400px' }));
+    const one = await line(page, 'held-top');
+    for (const id of ['held-top', 'held-docked']) {
+      // The motion is held at its start in the task that starts it — the `input` the key causes, after the element's own
+      // handler — and then stepped by hand: every read below follows a frame that was rendered, so what the browser
+      // does at a frame (revealing the caret) is seen, whatever the speed of the machine.
+      await host(page, id).evaluate((el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        el.addEventListener(
+          'input',
+          () => {
+            const animations = el.shadowRoot!.querySelector('.box')!.getAnimations();
+            for (const animation of animations) {
+              animation.pause();
+              animation.currentTime = 0;
+            }
+            (window as unknown as { __held: number }).__held = animations.length;
+          },
+          { once: true },
+        );
+      });
+      await page.keyboard.press('Enter');
+      const frames = await host(page, id).evaluate(async (el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        const boxed = el.shadowRoot!.querySelector<HTMLElement>('.box')!;
+        const capsule = el.closest<HTMLElement>('.capsule')!;
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        const read = (at: string) => ({ at, first: input.getBoundingClientRect().top - boxed.getBoundingClientRect().top, scrolled: boxed.scrollTop, inHolder: input.getBoundingClientRect().top - capsule.getBoundingClientRect().top, height: boxed.getBoundingClientRect().height });
+        const animations = boxed.getAnimations();
+        const duration = Number(animations[0]?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const seen = [read('start')];
+        for (const part of [0.25, 0.5, 0.75]) {
+          for (const animation of animations) animation.currentTime = duration * part;
+          await frame();
+          seen.push(read(String(part)));
+        }
+        for (const animation of animations) animation.finish();
+        await frame();
+        seen.push(read('end'));
+        return { held: (window as unknown as { __held: number }).__held, seen };
+      });
+      expect(frames.held, `${id}: one motion`).toBe(1);
+      const padding = frames.seen.at(-1)!.inHolder;
+      for (const f of frames.seen) {
+        near(f.first, 0, `${id} at ${f.at}: the first line at the box’s top edge`, 0.5);
+        expect(f.scrolled, `${id} at ${f.at}: the box has not scrolled`).toBe(0);
+        near(f.inHolder, padding, `${id} at ${f.at}: the first line where it was in the holder`, 0.5);
+      }
+      near(frames.seen[0]!.height, one, `${id}: it starts at one line`);
+      expect(frames.seen[2]!.height, `${id}: through heights in between`).toBeGreaterThan(one + 1);
+      expect(frames.seen[2]!.height).toBeLessThan(2 * one - 1);
+      near(frames.seen.at(-1)!.height, 2 * one, `${id}: it ends at two lines`);
+    }
+  });
+
   test('ETI-9: the height changes at once, with no motion — when a five-line value is first drawn; when it is shown again after it was not; when its width, minRows or maxRows changed; while a pointer is held down in its text; and where motion is reduced', async ({ page }) => {
     await mount(page, [fx('five', { multiline: true, value: '1\n2\n3\n4\n5' }), fx('w', { multiline: true, value: 'A line of text that wraps where the input is narrow enough for it to' }), fx('held', { multiline: true, value: 'a\nb' })], { reducedMotion: false });
     const one = await line(page, 'five');
