@@ -157,8 +157,12 @@ export const styles = css`
   .row:not(.has-actions) .actions {
     display: none;
   }
-  /* APB-21: the brand the bar does not show is in no box, so it is neither drawn nor exposed. */
+  /* APB-21: the brand the bar does not show is in no box, so it is neither drawn nor exposed — said of the slotted
+     link itself too, so that an engine that reads its own style (WebKit) leaves it out of the accessibility tree. */
   slot[hidden] {
+    display: none;
+  }
+  slot[hidden]::slotted(*) {
     display: none;
   }
   /* APB-20: the brand keeps its own look; its color is the bar's, which a mark in currentColor takes. */
