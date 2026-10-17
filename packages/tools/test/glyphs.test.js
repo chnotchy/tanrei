@@ -74,6 +74,9 @@ describe('the lists', () => {
   test('hold the glyphs the components draw by themselves and the docs’ own', () => {
     const components = listed(COMPONENT_GLYPHS);
     for (const name of ['expand_more', 'chevron_right', 'close', 'check', 'arrow_back', 'drag_indicator', 'more_horiz', 'calendar_month', 'open_in_new', 'content_copy']) assert.ok(components.includes(name), name);
+    // A name the font gives another icon's glyph is listed as written: the tree view's `draft` draws `note`, the
+    // field's `location_on` draws `place` (neither of which is drawn).
+    for (const name of ['draft', 'location_on']) assert.ok(components.includes(name), name);
     assert.deepEqual(components, [...components].sort(), 'sorted, one name each');
     // The Theme Studio's preview (packages/studio) draws `favorite` and `edit`, the docs' pages theirs.
     for (const name of ['favorite', 'edit']) assert.ok(listed(DOCS_GLYPHS).includes(name), name);
@@ -83,8 +86,8 @@ describe('the lists', () => {
     // on the list — or is one of these words, which the code writes for something else (a value, an event, a part, a
     // CSS property, a file ending) and never draws. A glyph a component draws is written in a constant (`const
     // CLOSE_GLYPH = 'close'`), a glyph prop's default or its spec; a word added here is one that is never drawn.
-    const NOT_DRAWN = new Set(['2d', 'anchor', 'asterisk', 'attachment', 'autoplay', 'badge', 'box', 'bubble', 'cast', 'chips', 'circle', 'comment', 'commit', 'css', 'csv', 'cut', 'done', 'expand', 'extension', 'eyebrow', 'face', 'filter', 'forward', 'function', 'gif', 'glyphs', 'height', 'highlight', 'host', 'html', 'iframe', 'input', 'list', 'more', 'mouse', 'move', 'moving', 'navigation', 'note', 'numbers', 'ods', 'odt', 'opacity', 'pages', 'password', 'pattern', 'pending', 'php', 'pill', 'pinch', 'place', 'preview', 'radio', 'resize', 'script', 'segment', 'select', 'shift', 'skeleton', 'sort', 'spellcheck', 'sql', 'square', 'start', 'step', 'steppers', 'steps', 'style', 'swipe', 'switch', 'tab', 'tabs', 'target', 'today', 'toolbar', 'tooltip', 'travel', 'tsv', 'upcoming', 'visibility', 'width']);
-    const names = (await iconFont(namingFont())).names();
+    const NOT_DRAWN = new Set(['2d', 'anchor', 'announcement', 'asterisk', 'attachment', 'autoplay', 'badge', 'box', 'bubble', 'cast', 'chips', 'circle', 'class', 'clear', 'comment', 'commit', 'create', 'css', 'csv', 'cut', 'done', 'email', 'expand', 'extension', 'eyebrow', 'face', 'filter', 'forward', 'function', 'gif', 'glyphs', 'height', 'highlight', 'host', 'html', 'iframe', 'input', 'list', 'loop', 'message', 'mode', 'more', 'mouse', 'move', 'moving', 'navigation', 'note', 'numbers', 'ods', 'odt', 'opacity', 'pages', 'password', 'pattern', 'pending', 'php', 'pill', 'pinch', 'place', 'preview', 'radio', 'resize', 'restore', 'script', 'segment', 'select', 'shift', 'shortcut', 'skeleton', 'sort', 'spellcheck', 'sql', 'square', 'start', 'step', 'steppers', 'steps', 'style', 'swipe', 'switch', 'tab', 'tabs', 'target', 'today', 'toolbar', 'tooltip', 'travel', 'tsv', 'upcoming', 'visibility', 'width']);
+    const font = await iconFont(namingFont());
     const components = new Set(listed(COMPONENT_GLYPHS));
     const spelled = new Map();
     const walk = (rel) => {
@@ -98,7 +101,7 @@ describe('the lists', () => {
         const code = fs.readFileSync(path.join(REPO, child), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[\s;,{}()])\/\/.*$/gm, '$1');
         for (const m of code.matchAll(/'([a-z0-9_]+)'|"([a-z0-9_]+)"|`([a-z0-9_]+)`|>\s*([a-z0-9_]+)\s*</g)) {
           const word = m[1] || m[2] || m[3] || m[4];
-          if (names.has(word) && !components.has(word) && !NOT_DRAWN.has(word)) spelled.set(word, child);
+          if (/^[a-z0-9_]+$/.test(word) && font.glyphOf(word) !== null && !components.has(word) && !NOT_DRAWN.has(word)) spelled.set(word, child);
         }
       }
     };

@@ -194,8 +194,8 @@ export function namingFont() {
  */
 export async function glyphLists(root = ROOT) {
   const font = await iconFont(namingFont());
-  const names = font.names();
-  const found = (words) => [...words].filter((word) => WORD.test(word) && names.has(word)).sort();
+  // A word the font draws as one glyph: an icon's own name, or another name it gives one (`draft` draws `note`).
+  const found = (words) => [...words].filter((word) => WORD.test(word) && font.glyphOf(word) !== null).sort();
   const read = (sources) => {
     const words = new Set();
     for (const source of sources) for (const file of files(root, source)) for (const word of writtenWords(fs.readFileSync(path.join(root, file), 'utf8'))) words.add(word);
