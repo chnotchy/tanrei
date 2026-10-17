@@ -506,6 +506,15 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
     if (this.presented) this.reports(changed);
   }
 
+  /**
+   * @internal FPK-19, FUP-28: tells the trigger now what the file picker gives it. A file upload calls it once it has
+   * passed its trigger on: the trigger is then told before it is first drawn, not after this picker's own first
+   * render, which comes after the trigger's and would draw a disabled trigger enabled for a frame and fade it.
+   */
+  tellTrigger() {
+    this.provider.sync();
+  }
+
   /** What a debug build is told about the content, once it has all been written: the file picker still renders. */
   private check() {
     const triggers = this.triggers;
