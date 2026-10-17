@@ -3319,7 +3319,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` :host { display: block; --_inset-top: env(safe-area-inset-top, 0px); --_inset-bottom: env(safe-area-inset-bottom, 0px); } :host([hidden]) { display: none; } /* BSH-7: the container — at the bottom edge of the area, as wide as the area but no wider than container.max-width and centred, on container.color raised by container.elevation, its top corners rounded by container.shape (eased by the smoothing) and its bottom corners square; its color reaches under the bottom inset and its content stays above it. */ .sheet { box-sizing: border-box; display: flex; flex-direction: column; inline-size: min(100%, ${t('container-max-width')}); max-inline-size: none; min-block-size: 0; margin: 0 auto; border: 0; padding: 0 0 var(--_inset-bottom); overflow: visible; background: ${t('container-color')}; box-shadow: ${t('container-elevation')}; ${unsafeCSS(cornerRadius(`${PREFIX}-container-shape`))} /* BSH-8: the content color, handed down as the inherited color. */ color: ${t('content-color')}; text-align: start; outline: none; touch-action: none; translate: 0 var(--_drag, 0px); --_row: 0px; } .sheet[data-tanrei-shape] { border-end-start-radius: 0; border-end-end-radius: 0; } /* BSH-7: over the keyboard, nothing is under the bottom inset. */ .sheet.keyboard { padding-block-end: 0; } /* BSH-6: as tall as the handle's row and the content, but no taller than its detent allows. */ .sheet[data-detent='partial'] { max-block-size: ${unsafeCSS(partialCap(`calc${area('var(--_area-top)')}`))}; } .sheet[data-detent='full'] { max-block-size: ${unsafeCSS(fullCap(`calc${area('var(--_area-top)')}`))}; } .sheet.dragging { user-select: none; -webkit-user-select: none; } /* While the sheet follows a drag, or settles by script (BSH-9), no transition runs on it. */ .sheet.dragging, .sheet.settling, .sheet.instant, .sheet.instant::backdrop { transition: none; } /* BSH-6: the area, measured by script (which height is lower, whether there are two); drawn nowhere. The caps are the same expressions as the sheet's, in the area itself. */ .area { position: fixed; inset-inline: 0; inset-block: var(--_inset-top) var(--_keyboard, 0px); visibility: hidden; pointer-events: none; } .cap { position: absolute; inset-inline: 0; inset-block-end: 0; } .cap.partial { block-size: ${unsafeCSS(partialCap('100%'))}; } .cap.full { block-size: ${unsafeCSS(fullCap('100%'))}; } /* BSH-9, BSH-11, BSH-21: the enter motion, which also settles the sheet and moves it between heights, read by script through real properties; drawn nowhere. */ .timing { display: none; transition-property: none; transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } /* BSH-2, BSH-1: a modal sheet is a native modal <dialog> in the top layer, docked to the window's bottom edge (above the keyboard) over ::backdrop, the scrim. It slides up from below the bottom edge over the enter motion and down out of view over the exit motion; the scrim fades with it. */ dialog.sheet { position: fixed; inset-inline: 0; inset-block: auto var(--_keyboard, 0px); --_area-top: var(--_inset-top); transition-property: translate, opacity, display, overlay; transition-duration: ${t('motion-exit-duration')}; transition-timing-function: ${t('motion-exit-easing')}; transition-behavior: allow-discrete; } dialog.sheet:not([open]) { display: none; translate: 0 100%; } dialog.sheet[open] { transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } @starting-style { dialog.sheet[open] { translate: 0 100%; } } dialog.sheet::backdrop { background: ${t('scrim-color')}; backdrop-filter: blur(${t('scrim-blur')}); opacity: 0; transition-property: opacity, display, overlay; transition-duration: ${t('motion-exit-duration')}; transition-timing-function: ${t('motion-exit-easing')}; transition-behavior: allow-discrete; } dialog.sheet[open]::backdrop { opacity: 1; transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } @starting-style { dialog.sheet[open]::backdrop { opacity: 0; } } /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host fills that parent (which the product positions) and lets every press reach the content; the sheet is docked to its bottom edge, above the keyboard. Closed, it slides down out of view and is hidden (inert, then visibility). */ :host([variant='standard']) { position: absolute; inset: 0; overflow: hidden; pointer-events: none; } :host([variant='standard']) .area { position: absolute; inset-block-start: 0; } .sheet.standard { position: absolute; inset-inline: 0; inset-block-end: var(--_keyboard, 0px); pointer-events: auto; --_area-top: 0px; transition: translate ${t('motion-exit-duration')} ${t('motion-exit-easing')}, opacity ${t('motion-exit-duration')} ${t('motion-exit-easing')}, visibility 0s linear ${t('motion-exit-duration')}; } :host([open]) .sheet.standard { transition: translate ${unsafeCSS(ENTER)}, opacity ${unsafeCSS(ENTER)}, visibility 0s; } :host(:not([open])) .sheet.standard { translate: 0 100%; visibility: hidden; } /* BSH-1: where motion is reduced the sheet fades in and out in place, without sliding. */ @media (prefers-reduced-motion: reduce) { dialog.sheet:not([open]), :host(:not([open])) .sheet.standard { translate: 0 var(--_drag, 0px); opacity: 0; } @starting-style { dialog.sheet[open] { translate: 0 var(--_drag, 0px); opacity: 0; } } } /* BSH-12: the drag handle's row — the box centred across the sheet, handle.margin-block above and below it; it stays in place while the content scrolls, and a drag on it is always the sheet's. */ .row { display: flex; flex: none; justify-content: center; padding-block: ${t('handle-margin-block')}; touch-action: none; } .sheet.has-handle { --_row: calc(${t('handle-container-height')} + 2 * ${t('handle-margin-block')}); } .handle { ${unsafeCSS(handleBlock)} all: unset; box-sizing: border-box; position: relative; isolation: isolate; display: flex; flex: none; align-items: center; justify-content: center; inline-size: ${t('handle-container-width')}; block-size: ${t('handle-container-height')}; ${unsafeCSS(cornerRadius(`${PREFIX}-handle-container-shape`))} ${unsafeCSS(paint('-r'))} -webkit-tap-highlight-color: transparent; transition-property: background-color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } button.handle { cursor: pointer; } /* BSH-12: the grip, centred in the box; decorative. */ .grip { display: block; flex: none; inline-size: ${t('handle-grip-width')}; block-size: ${t('handle-grip-height')}; ${unsafeCSS(cornerRadius(`${PREFIX}-handle-grip-shape`))} background-color: var(--_g); pointer-events: none; transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')}; } /* BSH-15: the hit area is the handle's whole row across its box, and at least sys.target.pointer (a fine pointer) or sys.target.touch (a coarse one) wide and high, without changing the drawn box. */ button.handle::before { content: ''; position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: max(100%, var(--tanrei-sys-target-pointer)); block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-pointer)); transform: translate(-50%, -50%); } @media (pointer: coarse) { button.handle::before { inline-size: max(100%, var(--tanrei-sys-target-touch)); block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-touch)); } } :host(:dir(rtl)) button.handle::before { transform: translate(50%, -50%); } /* BSH-13, BSH-16, BSH-17: each state paints the handle's box, grip and opacity from that state's tokens; pressed > focused > hovered. */ ${stateRules(on, { hovered: `${paint('-h')} opacity: ${T('hovered-opacity')};`, focused: `${paint('-f')} opacity: ${T('focused-opacity')};`, pressed: `${paint('-p')} opacity: ${T('pressed-opacity')};`, pressedContent: `${paint('-p', false)} opacity: ${T('pressed-opacity')};`, disabled: '', })} button.handle[data-pressed]:not([data-pressed='none']) .grip { transition-duration: 0s; } /* BSH-17 ripple: grows over motion.feedback-duration, fades over motion.state-duration. */ ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* BSH-14, BSH-18: the ring (or the glow) around the handle's box, never animated. */ ${focusRing(on)} ${pressHold('.hold')} .hold { display: none; } /* BSH-8, BSH-10: the content, below the handle's row — inset by container.padding from the start, end and bottom (and the top, without a handle) unless flush; clipped to the container's shape; in the body role; scrolling inside the container when it is taller than the room the sheet gives it. */ .middle { position: relative; display: flex; flex: 0 1 auto; flex-direction: column; min-block-size: 0; } .content { box-sizing: border-box; position: relative; flex: 0 1 auto; min-block-size: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); overflow-wrap: break-word; touch-action: pan-x; } .content, .focus { --tanrei-corner-radius: max(0px, calc(${t('container-shape')} - var(--_row))); --tanrei-corner-pill: 0; } .inner { display: flow-root; } :is(.content, .focus)[data-tanrei-shape] { border-end-start-radius: 0; border-end-end-radius: 0; } .content.inset { padding: 0 ${t('container-padding')} ${t('container-padding')}; } .sheet:not(.has-handle) .content.inset { padding-block-start: ${t('container-padding')}; } /* BSH-10: a drag on the content is the sheet's until the sheet is at its full height, then the content's to scroll — up at once; down once it is at its top (read by script at each scroll). */ .content[data-touch='pan-down'] { touch-action: pan-x pan-down; } .content[data-touch='scroll'] { touch-action: auto; } /* A scrolling content is a Tab stop (BSH-10); its keyboard focus is drawn inside it, which the container would clip — by a box over it, of its shape, that does not scroll with what it holds (a box of the content's own would move away with it). */ .content:focus-visible { outline: none; } .focus { position: absolute; inset: 0; pointer-events: none; } ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })} /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */ ${shape} @media (prefers-reduced-motion: reduce) { .handle, .grip { transition: none; } } @media (forced-colors: active) { .sheet { border: 1px solid CanvasText; border-block-end: 0; } .grip { forced-color-adjust: none; background-color: CanvasText; } } `"
+          "default": "css` :host { display: block; --_inset-top: env(safe-area-inset-top, 0px); --_inset-bottom: env(safe-area-inset-bottom, 0px); } :host([hidden]) { display: none; } /* BSH-7: the container — at the bottom edge of the area, as wide as the area but no wider than container.max-width and centred, on container.color raised by container.elevation, its top corners rounded by container.shape (eased by the smoothing) and its bottom corners square; its color reaches under the bottom inset and its content stays above it. */ .sheet { box-sizing: border-box; display: flex; flex-direction: column; inline-size: min(100%, ${t('container-max-width')}); max-inline-size: none; min-block-size: 0; margin: 0 auto; border: 0; padding: 0 0 var(--_inset-bottom); overflow: visible; background: ${t('container-color')}; box-shadow: ${t('container-elevation')}; ${unsafeCSS(cornerRadius(`${PREFIX}-container-shape`))} /* BSH-8: the content color, handed down as the inherited color. */ color: ${t('content-color')}; text-align: start; outline: none; touch-action: none; translate: 0 var(--_drag, 0px); --_row: 0px; } .sheet[data-tanrei-shape] { border-end-start-radius: 0; border-end-end-radius: 0; } /* BSH-7: over the keyboard, nothing is under the bottom inset. */ .sheet.keyboard { padding-block-end: 0; } /* BSH-6: as tall as the handle's row and the content, but no taller than its detent allows. */ .sheet[data-detent='partial'] { max-block-size: ${unsafeCSS(partialCap(`calc${area('var(--_area-top)')}`))}; } .sheet[data-detent='full'] { max-block-size: ${unsafeCSS(fullCap(`calc${area('var(--_area-top)')}`))}; } .sheet.dragging { user-select: none; -webkit-user-select: none; } /* While the sheet follows a drag, or settles by script (BSH-9), no transition runs on it. */ .sheet.dragging, .sheet.settling, .sheet.instant, .sheet.instant::backdrop { transition: none; } /* BSH-6: the area, measured by script (which height is lower, whether there are two); drawn nowhere. The caps are the same expressions as the sheet's, in the area itself. */ .area { position: fixed; inset-inline: 0; inset-block: var(--_inset-top) var(--_keyboard, 0px); visibility: hidden; pointer-events: none; } .cap { position: absolute; inset-inline: 0; inset-block-end: 0; } .cap.partial { block-size: ${unsafeCSS(partialCap('100%'))}; } .cap.full { block-size: ${unsafeCSS(fullCap('100%'))}; } /* BSH-9, BSH-11, BSH-21: the enter motion, which also settles the sheet and moves it between heights, read by script through real properties; drawn nowhere. */ .timing { display: none; transition-property: none; transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } /* BSH-2, BSH-1: a modal sheet is a native modal <dialog> in the top layer, docked to the window's bottom edge (above the keyboard) over ::backdrop, the scrim. It slides up from below the bottom edge over the enter motion and down out of view over the exit motion; the scrim fades with it. */ dialog.sheet { position: fixed; inset-inline: 0; inset-block: auto var(--_keyboard, 0px); --_area-top: var(--_inset-top); transition-property: translate, opacity, display, overlay; transition-duration: ${t('motion-exit-duration')}; transition-timing-function: ${t('motion-exit-easing')}; transition-behavior: allow-discrete; } dialog.sheet:not([open]) { display: none; translate: 0 100%; } dialog.sheet[open] { transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } @starting-style { dialog.sheet[open] { translate: 0 100%; } } dialog.sheet::backdrop { background: ${t('scrim-color')}; backdrop-filter: blur(${t('scrim-blur')}); opacity: 0; transition-property: opacity, display, overlay; transition-duration: ${t('motion-exit-duration')}; transition-timing-function: ${t('motion-exit-easing')}; transition-behavior: allow-discrete; } dialog.sheet[open]::backdrop { opacity: 1; transition-duration: ${t('motion-enter-duration')}; transition-timing-function: ${t('motion-enter-easing')}; } @starting-style { dialog.sheet[open]::backdrop { opacity: 0; } } /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host fills that parent (which the product positions) and lets every press reach the content; the sheet is docked to its bottom edge, above the keyboard. Closed, it slides down out of view and is hidden (inert, then visibility). */ :host([variant='standard']) { position: absolute; inset: 0; overflow: hidden; pointer-events: none; } :host([variant='standard']) .area { position: absolute; inset-block-start: 0; } .sheet.standard { position: absolute; inset-inline: 0; inset-block-end: var(--_keyboard, 0px); pointer-events: auto; --_area-top: 0px; transition: translate ${t('motion-exit-duration')} ${t('motion-exit-easing')}, opacity ${t('motion-exit-duration')} ${t('motion-exit-easing')}, visibility 0s linear ${t('motion-exit-duration')}; } :host([open]) .sheet.standard { transition: translate ${unsafeCSS(ENTER)}, opacity ${unsafeCSS(ENTER)}, visibility 0s; } :host(:not([open])) .sheet.standard { translate: 0 100%; visibility: hidden; } /* BSH-1: where motion is reduced the sheet fades in and out in place, without sliding. */ @media (prefers-reduced-motion: reduce) { dialog.sheet:not([open]), :host(:not([open])) .sheet.standard { translate: 0 var(--_drag, 0px); opacity: 0; } @starting-style { dialog.sheet[open] { translate: 0 var(--_drag, 0px); opacity: 0; } } } /* BSH-12: the drag handle's row — the box centred across the sheet, handle.margin-block above and below it; it stays in place while the content scrolls, and a drag on it is always the sheet's. */ .row { display: flex; flex: none; justify-content: center; padding-block: ${t('handle-margin-block')}; touch-action: none; } .sheet.has-handle { --_row: calc(${t('handle-container-height')} + 2 * ${t('handle-margin-block')}); } .handle { ${unsafeCSS(handleBlock)} all: unset; box-sizing: border-box; position: relative; isolation: isolate; display: flex; flex: none; align-items: center; justify-content: center; inline-size: ${t('handle-container-width')}; block-size: ${t('handle-container-height')}; ${unsafeCSS(cornerRadius(`${PREFIX}-handle-container-shape`))} ${unsafeCSS(paint('-r'))} -webkit-tap-highlight-color: transparent; transition-property: background-color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } button.handle { cursor: pointer; } /* BSH-12: the grip, centred in the box; decorative. */ .grip { display: block; flex: none; inline-size: ${t('handle-grip-width')}; block-size: ${t('handle-grip-height')}; ${unsafeCSS(cornerRadius(`${PREFIX}-handle-grip-shape`))} background-color: var(--_g); pointer-events: none; transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')}; } /* BSH-15: the hit area is the handle's whole row across its box, and at least sys.target.pointer (a fine pointer) or sys.target.touch (a coarse one) wide and high, without changing the drawn box. */ button.handle::before { content: ''; position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: max(100%, var(--tanrei-sys-target-pointer)); block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-pointer)); transform: translate(-50%, -50%); } @media (pointer: coarse) { button.handle::before { inline-size: max(100%, var(--tanrei-sys-target-touch)); block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-touch)); } } :host(:dir(rtl)) button.handle::before { transform: translate(50%, -50%); } /* BSH-13, BSH-16, BSH-17: each state paints the handle's box, grip and opacity from that state's tokens; pressed > focused > hovered. */ ${stateRules(on, { hovered: `${paint('-h')} opacity: ${T('hovered-opacity')};`, focused: `${paint('-f')} opacity: ${T('focused-opacity')};`, pressed: `${paint('-p')} opacity: ${T('pressed-opacity')};`, pressedContent: `${paint('-p', false)} opacity: ${T('pressed-opacity')};`, disabled: '', })} button.handle[data-pressed]:not([data-pressed='none']) .grip { transition-duration: 0s; } /* BSH-17 ripple: grows over motion.feedback-duration, fades over motion.state-duration. */ ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* BSH-14, BSH-18: the ring (or the glow) around the handle's box, never animated. */ ${focusRing(on)} ${pressHold('.hold')} .hold { display: none; } /* BSH-28: the header — below the handle's row (or at the top without one), a row at least header.height high: the headline from container.padding after the start edge and, while closable, the close button ending header.padding-inline-end before the end edge, header.gap after the headline, both centred in the row; it grows with a headline that wraps, stays while the content scrolls, and a drag on it is the sheet's. */ .header { box-sizing: border-box; position: relative; z-index: 1; display: flex; flex: none; align-items: center; gap: ${t('header-gap')}; min-block-size: ${t('header-height')}; padding-inline: ${t('container-padding')}; touch-action: none; } .header.closable { padding-inline-end: ${t('header-padding-inline-end')}; } .headline { flex: 1 1 auto; min-inline-size: 0; margin: 0; font: ${t('headline-typescale-font')}; letter-spacing: ${t('headline-typescale-letter-spacing')}; color: ${t('headline-color')}; overflow-wrap: break-word; } /* The headline's letter-spacing follows its script, as every title's does (src/styles/script-tracking.ts); it is its own run, in the direction of its first strong character, its lines aligned to the layout's start edge. */ ${unsafeCSS(scriptTracking('.headline', T('headline-typescale-letter-spacing'), { shadow: true }))} ${productText('.headline', { align: 'start' })} /* BSH-29: the icon-only Button, placed and never restyled (its variant is given through the Button's channel). */ .close { flex: none; margin-inline-start: auto; } /* BSH-28: the divider below the header, a divider.width hairline in divider.color across the sheet's full width (over the content's top edge). always: whenever the header is drawn; scroll: only while the content is scrolled from its top. Shown and hidden at once. */ ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)} .divider { position: absolute; inset-block-start: 100%; inset-inline: 0; block-size: ${t('divider-width')}; background: ${t('divider-color')}; pointer-events: none; } ${whenScroll( '.header', (header) => ` ${header} .divider { visibility: hidden; } ${header}.scrolled .divider { visibility: visible; }`, )} /* BSH-8, BSH-10: the content, below the handle's row — inset by container.padding from the start, end and bottom (and the top, without a handle) unless flush; clipped to the container's shape; in the body role; scrolling inside the container when it is taller than the room the sheet gives it. */ .middle { position: relative; display: flex; flex: 0 1 auto; flex-direction: column; min-block-size: 0; } .content { box-sizing: border-box; position: relative; flex: 0 1 auto; min-block-size: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); overflow-wrap: break-word; touch-action: pan-x; } .content, .focus { --tanrei-corner-radius: max(0px, calc(${t('container-shape')} - var(--_row))); --tanrei-corner-pill: 0; } .inner { display: flow-root; } :is(.content, .focus)[data-tanrei-shape] { border-end-start-radius: 0; border-end-end-radius: 0; } .content.inset { padding: 0 ${t('container-padding')} ${t('container-padding')}; } .sheet:not(.has-handle):not(.has-header) .content.inset { padding-block-start: ${t('container-padding')}; } /* Below a header the content's top corners meet the header, not the container's. */ .sheet.has-header :is(.content, .focus) { --tanrei-corner-radius: 0px; } /* BSH-10: a drag on the content is the sheet's until the sheet is at its full height, then the content's to scroll — up at once; down once it is at its top (read by script at each scroll). */ .content[data-touch='pan-down'] { touch-action: pan-x pan-down; } .content[data-touch='scroll'] { touch-action: auto; } /* A scrolling content is a Tab stop (BSH-10); its keyboard focus is drawn inside it, which the container would clip — by a box over it, of its shape, that does not scroll with what it holds (a box of the content's own would move away with it). */ .content:focus-visible { outline: none; } .focus { position: absolute; inset: 0; pointer-events: none; } ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })} /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */ ${shape} @media (prefers-reduced-motion: reduce) { .handle, .grip { transition: none; } } @media (forced-colors: active) { .sheet { border: 1px solid CanvasText; border-block-end: 0; } .grip { forced-color-adjust: none; background-color: CanvasText; } .divider { background: CanvasText; } } `"
         }
       ],
       "exports": [
@@ -3369,7 +3369,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower\npart of its parent while the content above stays usable (a layout region), or `modal`, a modal step that dims\nand blocks everything else until it is dismissed (a modal overlay).\n\nContract: specs/bottom-sheet.spec.json. The content is the default slot. The sheet is as tall as its drag handle's row\nand its content, up to its `detent`: `partial` takes `container.partial-fraction` of the area, `full` reaches up to\n`container.margin-block-start` below its top. The person moves it between the two by dragging (the handle's row, the\ncontent's padding, or the content where it lets the drag through) or with the drag handle, a button while there are\ntwo heights; the element sets `detent` and fires `detentchange`.\n\nControlled: the sheet never closes itself. While `closedby` is not `none` it fires `close` with a reason — a released\ndrag below its lowest height and, for a modal sheet, a press on the scrim, Escape or the platform's back — and you set\n`open` to false. A product that does not close it sees it settle back.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`: in the top layer over `::backdrop` (the scrim),\ndocked to the window's bottom edge, everything else inert, the page held from scrolling and focus kept inside. Focus\ngoes to the slotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was\nwhen it closes. Standard: a `<section>` named by `label`, docked to the bottom of its containing block — the host fills\nthe nearest positioned ancestor, so give the parent that holds the sheet and the content `position: relative` — with\npresses above it reaching the content; opening it moves focus in, closing it gives focus back, and Tab leaves it open.\n\nEvery visual value comes from `--tanrei-comp-bottom-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-bottom)`; the sheet sits on the on-screen keyboard (`visualViewport`).",
+          "description": "Shows supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower\npart of its parent while the content above stays usable (a layout region), or `modal`, a modal step that dims\nand blocks everything else until it is dismissed (a modal overlay).\n\nContract: specs/bottom-sheet.spec.json. The content is the default slot. The sheet is as tall as its drag handle's row\nand its content, up to its `detent`: `partial` takes `container.partial-fraction` of the area, `full` reaches up to\n`container.margin-block-start` below its top. The person moves it between the two by dragging (the handle's row, the\ncontent's padding, or the content where it lets the drag through) or with the drag handle, a button while there are\ntwo heights; the element sets `detent` and fires `detentchange`.\n\nA header below the handle's row holds `headline` (a heading, which names the sheet where `label` is empty) and, while\n`closable`, an icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the\nvariant `comp.bottom-sheet.close-button.variant` names (tonal in the default system), as every host's close button\nis; a divider below it as `divider-visibility` says (BSH-28, BSH-29). The header stays while the content scrolls.\n\nControlled: the sheet never closes itself. While `closedby` is not `none` it fires `close` with a reason — a released\ndrag below its lowest height and, for a modal sheet, a press on the scrim, Escape or the platform's back — and you set\n`open` to false. The close button fires `close` with the reason `close` whatever `closedby` says. A product that does\nnot close it sees it settle back.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`: in the top layer over `::backdrop` (the scrim),\ndocked to the window's bottom edge, everything else inert, the page held from scrolling and focus kept inside. Focus\ngoes to the slotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was\nwhen it closes. Standard: a `<section>` named by `label`, docked to the bottom of its containing block — the host fills\nthe nearest positioned ancestor, so give the parent that holds the sheet and the content `position: relative` — with\npresses above it reaching the content; opening it moves focus in, closing it gives focus back, and Tab leaves it open.\n\nEvery visual value comes from `--tanrei-comp-bottom-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-bottom)`; the sheet sits on the on-screen keyboard (`visualViewport`).",
           "name": "TanreiBottomSheet",
           "cssParts": [
             {
@@ -3383,6 +3383,22 @@
             {
               "description": "The grip drawn in the handle's box (hidden from assistive technology).",
               "name": "grip"
+            },
+            {
+              "description": "The row that holds the headline and the close button, while there is one.",
+              "name": "header"
+            },
+            {
+              "description": "The headline (a heading).",
+              "name": "headline"
+            },
+            {
+              "description": "The close button, an icon-only `<tanrei-button>`.",
+              "name": "close-button"
+            },
+            {
+              "description": "The hairline below the header, drawn as `divider-visibility` says (hidden from assistive technology).",
+              "name": "divider"
             },
             {
               "description": "The box that insets, clips and scrolls the content.",
@@ -3501,8 +3517,54 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required (BSH-22).",
+              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required unless `headline` names it (BSH-22).",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "headline",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the sheet is about (\"Share photo\"), drawn in its header; it names the sheet where `label` is empty (BSH-28).",
+              "attribute": "headline"
+            },
+            {
+              "kind": "field",
+              "name": "closable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the close button at the end of the header (BSH-29). False by default: the handle and the scrim are the sheet's ways out. Reflected.",
+              "attribute": "closable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "closeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The close button's accessible name (\"Close sharing\"). Required while `closable` (BSH-29). The attribute is `close-label`.",
+              "attribute": "close-label"
+            },
+            {
+              "kind": "field",
+              "name": "dividerVisibility",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiBottomSheetDividerVisibility"
+              },
+              "default": "'auto'",
+              "description": "When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is\nscrolled from its top; `auto` takes `comp.bottom-sheet.divider.visibility`, the design system's answer (always in the\ndefault system). Reflected as `divider-visibility`.",
+              "attribute": "divider-visibility",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -3728,7 +3790,14 @@
                   }
                 }
               ],
-              "description": "BSH-5: `close` with the reason, once, while dismissible; a standard sheet answers only a drag."
+              "description": "BSH-5: `close` with the reason, once, while dismissible; a standard sheet answers only a drag. BSH-29: the close button asks always."
+            },
+            {
+              "kind": "field",
+              "name": "onCloseClick",
+              "privacy": "private",
+              "readonly": true,
+              "description": "BSH-29: the close button asks once for each activation (a click that ends a drag is swallowed before it)."
             },
             {
               "kind": "field",
@@ -3942,6 +4011,12 @@
               "readonly": true
             },
             {
+              "kind": "method",
+              "name": "syncHeaderDivider",
+              "privacy": "private",
+              "description": "BSH-28: the divider below the header — whenever the header is drawn under always, while the content is scrolled away\nfrom its top under scroll (`scrolled`); at once, without motion."
+            },
+            {
               "kind": "field",
               "name": "onViewport",
               "privacy": "private",
@@ -4025,6 +4100,12 @@
             },
             {
               "kind": "method",
+              "name": "headerTemplate",
+              "privacy": "private",
+              "description": "BSH-28, BSH-29: the header — the headline and, while closable, the close button; the divider below it."
+            },
+            {
+              "kind": "method",
               "name": "body",
               "privacy": "private"
             }
@@ -4035,7 +4116,7 @@
               "type": {
                 "text": "CustomEvent<TanreiBottomSheetCloseDetail>"
               },
-              "description": "The sheet asks to be closed: `detail.reason` is `drag`, `scrim`, `escape` or `back`. Set `open` to false. Only while `closedby` is not `none`."
+              "description": "The sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), or `drag`, `scrim`, `escape` or `back` (only while `closedby` is not `none`). Set `open` to false."
             },
             {
               "name": "detentchange",
@@ -4115,8 +4196,44 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required (BSH-22).",
+              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required unless `headline` names it (BSH-22).",
               "fieldName": "label"
+            },
+            {
+              "name": "headline",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the sheet is about (\"Share photo\"), drawn in its header; it names the sheet where `label` is empty (BSH-28).",
+              "fieldName": "headline"
+            },
+            {
+              "name": "closable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the close button at the end of the header (BSH-29). False by default: the handle and the scrim are the sheet's ways out. Reflected.",
+              "fieldName": "closable"
+            },
+            {
+              "name": "close-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The close button's accessible name (\"Close sharing\"). Required while `closable` (BSH-29). The attribute is `close-label`.",
+              "fieldName": "closeLabel"
+            },
+            {
+              "name": "divider-visibility",
+              "type": {
+                "text": "TanreiBottomSheetDividerVisibility"
+              },
+              "default": "'auto'",
+              "description": "When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is\nscrolled from its top; `auto` takes `comp.bottom-sheet.divider.visibility`, the design system's answer (always in the\ndefault system). Reflected as `divider-visibility`.",
+              "fieldName": "dividerVisibility"
             }
           ],
           "superclass": {
