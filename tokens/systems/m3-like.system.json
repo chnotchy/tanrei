@@ -568,8 +568,6 @@
     "tanrei.comp.navigation-bar.selected.item.state-layer.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."},
     "tanrei.comp.navigation-bar.filled-unselected.item.state-layer.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."},
     "tanrei.comp.navigation-bar.filled-selected.item.state-layer.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."},
-    "tanrei.comp.navigation-rail.outline.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Material's rail has no edge."},
-    "tanrei.comp.navigation-rail.item.container.shape": {"$value": "{tanrei.sys.shape.corner.full}"},
     "tanrei.comp.navigation-drawer.container.width": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 90}},
     "tanrei.comp.navigation-drawer.container.color.standard": {"$value": "{tanrei.sys.color.surface-container-low}"},
     "tanrei.comp.navigation-drawer.container.color.modal": {"$value": "{tanrei.sys.color.surface-container-low}"},

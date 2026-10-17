@@ -16521,311 +16521,6 @@ class TanreiNavigationDrawerTokens {
       };
 }
 
-/// The key of a condition of navigation-rail (`comp.navigation-rail`, axis `condition`).
-///
-/// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiNavigationRailCondition('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [unselected].
-extension type const TanreiNavigationRailCondition(String name) {
-  static const unselected = TanreiNavigationRailCondition('unselected');
-  static const selected = TanreiNavigationRailCondition('selected');
-
-  /// The core values, in the order the component declares them.
-  static const List<TanreiNavigationRailCondition> core = <TanreiNavigationRailCondition>[unselected, selected];
-}
-
-/// What one condition of navigation-rail looks like in one interaction state.
-@immutable
-class TanreiNavigationRailConditionStateTokens {
-  const TanreiNavigationRailConditionStateTokens({
-    required this.itemContainerColor,
-    required this.itemIconColor,
-    required this.itemLabelColor,
-    required this.itemStateLayerColor,
-  });
-
-  /// `comp.navigation-rail.<condition>.<state>.item-container-color`
-  final TanreiPaint itemContainerColor;
-  /// `comp.navigation-rail.<condition>.<state>.item-icon-color`
-  final TanreiPaint itemIconColor;
-  /// `comp.navigation-rail.<condition>.<state>.item-label-color`
-  final TanreiPaint itemLabelColor;
-  /// `comp.navigation-rail.<condition>.<state>.item-state-layer-color`
-  final TanreiPaint itemStateLayerColor;
-
-  /// A copy with the given tokens replaced.
-  TanreiNavigationRailConditionStateTokens copyWith({
-    TanreiPaint? itemContainerColor,
-    TanreiPaint? itemIconColor,
-    TanreiPaint? itemLabelColor,
-    TanreiPaint? itemStateLayerColor,
-  }) => TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: itemContainerColor ?? this.itemContainerColor,
-        itemIconColor: itemIconColor ?? this.itemIconColor,
-        itemLabelColor: itemLabelColor ?? this.itemLabelColor,
-        itemStateLayerColor: itemStateLayerColor ?? this.itemStateLayerColor,
-      );
-}
-
-/// The per-state tokens of one navigation-rail condition. How a state looks is a value of the design system;
-/// the widget only selects the state.
-@immutable
-class TanreiNavigationRailConditionTokens {
-  const TanreiNavigationRailConditionTokens({
-    required this.enabled,
-    required this.hovered,
-    required this.focused,
-    required this.pressed,
-    required this.disabled,
-  });
-
-  final TanreiNavigationRailConditionStateTokens enabled;
-  final TanreiNavigationRailConditionStateTokens hovered;
-  final TanreiNavigationRailConditionStateTokens focused;
-  final TanreiNavigationRailConditionStateTokens pressed;
-  final TanreiNavigationRailConditionStateTokens disabled;
-
-  /// A copy with the given tokens replaced.
-  TanreiNavigationRailConditionTokens copyWith({
-    TanreiNavigationRailConditionStateTokens? enabled,
-    TanreiNavigationRailConditionStateTokens? hovered,
-    TanreiNavigationRailConditionStateTokens? focused,
-    TanreiNavigationRailConditionStateTokens? pressed,
-    TanreiNavigationRailConditionStateTokens? disabled,
-  }) => TanreiNavigationRailConditionTokens(
-        enabled: enabled ?? this.enabled,
-        hovered: hovered ?? this.hovered,
-        focused: focused ?? this.focused,
-        pressed: pressed ?? this.pressed,
-        disabled: disabled ?? this.disabled,
-      );
-
-  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
-  TanreiNavigationRailConditionStateTokens of(TanreiInteractionState state) => switch (state) {
-        TanreiInteractionState.enabled => enabled,
-        TanreiInteractionState.hovered => hovered,
-        TanreiInteractionState.focused => focused,
-        TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => disabled,
-      };
-}
-
-/// Every condition of navigation-rail: the core values by name, the values a design system added in [extra].
-/// Look one up with `conditions[key]`; the lookup is total.
-@immutable
-class TanreiNavigationRailConditions {
-  const TanreiNavigationRailConditions({
-    required this.unselected,
-    required this.selected,
-    this.extra = const <TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens>{},
-  });
-
-  /// `comp.navigation-rail` condition `unselected`
-  final TanreiNavigationRailConditionTokens unselected;
-  /// `comp.navigation-rail` condition `selected`
-  final TanreiNavigationRailConditionTokens selected;
-
-  /// The conditions a design system added to the core vocabulary.
-  final Map<TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens> extra;
-
-  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
-  /// those with the same key): a copy never loses a value the design system added.
-  TanreiNavigationRailConditions copyWith({
-    TanreiNavigationRailConditionTokens? unselected,
-    TanreiNavigationRailConditionTokens? selected,
-    Map<TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens>? extra,
-  }) => TanreiNavigationRailConditions(
-        unselected: unselected ?? this.unselected,
-        selected: selected ?? this.selected,
-        extra: extra == null ? this.extra : <TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens>{...this.extra, ...extra},
-      );
-
-  /// The tokens of [condition].
-  ///
-  /// A condition this design system does not have resolves to [unselected], the default; debug builds report it
-  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiNavigationRailConditionTokens operator [](TanreiNavigationRailCondition condition) => switch (condition.name) {
-        'unselected' => unselected,
-        'selected' => selected,
-        _ => extra[condition] ?? _fallback(condition),
-      };
-
-  /// Whether this design system has [condition].
-  bool has(TanreiNavigationRailCondition condition) => TanreiNavigationRailCondition.core.contains(condition) || extra.containsKey(condition);
-
-  /// Every condition this design system has: the core values, then the added ones.
-  List<TanreiNavigationRailCondition> get keys => <TanreiNavigationRailCondition>[...TanreiNavigationRailCondition.core, ...extra.keys];
-
-  TanreiNavigationRailConditionTokens _fallback(TanreiNavigationRailCondition condition) {
-    assert(() {
-      debugTanreiReportUnknownValue('navigation-rail condition', condition.name, 'unselected');
-      return true;
-    }());
-    return unselected;
-  }
-}
-
-/// The tokens of navigation-rail that vary by interaction state but not by variant.
-@immutable
-class TanreiNavigationRailStateTokens {
-  const TanreiNavigationRailStateTokens({
-    required this.opacity,
-  });
-
-  /// `comp.navigation-rail.<state>.opacity`
-  final double opacity;
-
-  /// A copy with the given tokens replaced.
-  TanreiNavigationRailStateTokens copyWith({
-    double? opacity,
-  }) => TanreiNavigationRailStateTokens(
-        opacity: opacity ?? this.opacity,
-      );
-}
-
-/// `comp.navigation-rail.*`
-@immutable
-class TanreiNavigationRailTokens {
-  const TanreiNavigationRailTokens({
-    required this.containerColor,
-    required this.containerElevation,
-    required this.containerGap,
-    required this.containerPaddingBlock,
-    required this.containerWidth,
-    required this.headerGap,
-    required this.itemContainerHeight,
-    required this.itemContainerShape,
-    required this.itemContainerWidth,
-    required this.itemGap,
-    required this.itemIconSize,
-    required this.itemLabelTypescale,
-    required this.motionFeedbackDuration,
-    required this.motionSelectionDuration,
-    required this.motionSelectionEasing,
-    required this.motionStateDuration,
-    required this.motionStateEasing,
-    required this.outlineColor,
-    required this.outlineWidth,
-    required this.conditions,
-    required this.hovered,
-    required this.focused,
-    required this.pressed,
-    required this.disabled,
-  });
-
-  /// `comp.navigation-rail.container-color`
-  final TanreiPaint containerColor;
-  /// `comp.navigation-rail.container-elevation`
-  final List<TanreiShadowLayer> containerElevation;
-  /// `comp.navigation-rail.container-gap`
-  final double containerGap;
-  /// `comp.navigation-rail.container-padding-block`
-  final double containerPaddingBlock;
-  /// `comp.navigation-rail.container-width`
-  final double containerWidth;
-  /// `comp.navigation-rail.header-gap`
-  final double headerGap;
-  /// `comp.navigation-rail.item-container-height`
-  final double itemContainerHeight;
-  /// `comp.navigation-rail.item-container-shape`
-  final double itemContainerShape;
-  /// `comp.navigation-rail.item-container-width`
-  final double itemContainerWidth;
-  /// `comp.navigation-rail.item-gap`
-  final double itemGap;
-  /// `comp.navigation-rail.item-icon-size`
-  final double itemIconSize;
-  /// `comp.navigation-rail.item-label-typescale`
-  final TanreiTextStyle itemLabelTypescale;
-  /// `comp.navigation-rail.motion-feedback-duration`
-  final int motionFeedbackDuration;
-  /// `comp.navigation-rail.motion-selection-duration`
-  final int motionSelectionDuration;
-  /// `comp.navigation-rail.motion-selection-easing`
-  final TanreiCubicBezier motionSelectionEasing;
-  /// `comp.navigation-rail.motion-state-duration`
-  final int motionStateDuration;
-  /// `comp.navigation-rail.motion-state-easing`
-  final TanreiCubicBezier motionStateEasing;
-  /// `comp.navigation-rail.outline-color`
-  final TanreiPaint outlineColor;
-  /// `comp.navigation-rail.outline-width`
-  final double outlineWidth;
-  /// The `condition` axis: `conditions[condition]`.
-  final TanreiNavigationRailConditions conditions;
-  /// `comp.navigation-rail.hovered.*`
-  final TanreiNavigationRailStateTokens hovered;
-  /// `comp.navigation-rail.focused.*`
-  final TanreiNavigationRailStateTokens focused;
-  /// `comp.navigation-rail.pressed.*`
-  final TanreiNavigationRailStateTokens pressed;
-  /// `comp.navigation-rail.disabled.*`
-  final TanreiNavigationRailStateTokens disabled;
-
-  /// A copy with the given tokens replaced.
-  TanreiNavigationRailTokens copyWith({
-    TanreiPaint? containerColor,
-    List<TanreiShadowLayer>? containerElevation,
-    double? containerGap,
-    double? containerPaddingBlock,
-    double? containerWidth,
-    double? headerGap,
-    double? itemContainerHeight,
-    double? itemContainerShape,
-    double? itemContainerWidth,
-    double? itemGap,
-    double? itemIconSize,
-    TanreiTextStyle? itemLabelTypescale,
-    int? motionFeedbackDuration,
-    int? motionSelectionDuration,
-    TanreiCubicBezier? motionSelectionEasing,
-    int? motionStateDuration,
-    TanreiCubicBezier? motionStateEasing,
-    TanreiPaint? outlineColor,
-    double? outlineWidth,
-    TanreiNavigationRailConditions? conditions,
-    TanreiNavigationRailStateTokens? hovered,
-    TanreiNavigationRailStateTokens? focused,
-    TanreiNavigationRailStateTokens? pressed,
-    TanreiNavigationRailStateTokens? disabled,
-  }) => TanreiNavigationRailTokens(
-        containerColor: containerColor ?? this.containerColor,
-        containerElevation: containerElevation ?? this.containerElevation,
-        containerGap: containerGap ?? this.containerGap,
-        containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
-        containerWidth: containerWidth ?? this.containerWidth,
-        headerGap: headerGap ?? this.headerGap,
-        itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
-        itemContainerShape: itemContainerShape ?? this.itemContainerShape,
-        itemContainerWidth: itemContainerWidth ?? this.itemContainerWidth,
-        itemGap: itemGap ?? this.itemGap,
-        itemIconSize: itemIconSize ?? this.itemIconSize,
-        itemLabelTypescale: itemLabelTypescale ?? this.itemLabelTypescale,
-        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
-        motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
-        motionSelectionEasing: motionSelectionEasing ?? this.motionSelectionEasing,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
-        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
-        outlineColor: outlineColor ?? this.outlineColor,
-        outlineWidth: outlineWidth ?? this.outlineWidth,
-        conditions: conditions ?? this.conditions,
-        hovered: hovered ?? this.hovered,
-        focused: focused ?? this.focused,
-        pressed: pressed ?? this.pressed,
-        disabled: disabled ?? this.disabled,
-      );
-
-  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
-  /// resting tokens of this class apply).
-  TanreiNavigationRailStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
-        TanreiInteractionState.enabled => null,
-        TanreiInteractionState.hovered => hovered,
-        TanreiInteractionState.focused => focused,
-        TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => disabled,
-      };
-}
-
 /// `comp.number-input.*`
 @immutable
 class TanreiNumberInputTokens {
@@ -26314,7 +26009,6 @@ class TanreiSystem {
     required this.modalLayer,
     required this.navigationBar,
     required this.navigationDrawer,
-    required this.navigationRail,
     required this.numberInput,
     required this.oneTimeCodeInput,
     required this.pageHeader,
@@ -26413,7 +26107,6 @@ class TanreiSystem {
   final TanreiModalLayerTokens modalLayer;
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
-  final TanreiNavigationRailTokens navigationRail;
   final TanreiNumberInputTokens numberInput;
   final TanreiOneTimeCodeInputTokens oneTimeCodeInput;
   final TanreiPageHeaderTokens pageHeader;
@@ -26511,7 +26204,6 @@ class TanreiSystem {
     TanreiModalLayerTokens? modalLayer,
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
-    TanreiNavigationRailTokens? navigationRail,
     TanreiNumberInputTokens? numberInput,
     TanreiOneTimeCodeInputTokens? oneTimeCodeInput,
     TanreiPageHeaderTokens? pageHeader,
@@ -26607,7 +26299,6 @@ class TanreiSystem {
         modalLayer: modalLayer ?? this.modalLayer,
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,
-        navigationRail: navigationRail ?? this.navigationRail,
         numberInput: numberInput ?? this.numberInput,
         oneTimeCodeInput: oneTimeCodeInput ?? this.oneTimeCodeInput,
         pageHeader: pageHeader ?? this.pageHeader,
