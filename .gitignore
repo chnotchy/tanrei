@@ -71,3 +71,4 @@ Thumbs.db
 !.vscode/settings.json
 dist-app/
 *.generated.css
+*.generated.woff2

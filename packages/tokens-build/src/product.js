@@ -11,6 +11,7 @@ import { emitSwift } from './emit/swift.js';
 import { emitShadcnTheme, emitTailwindTheme } from './emit/theme-exports.js';
 import { emitTs } from './emit/ts.js';
 import { fontReport } from './fonts.js';
+import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
 import { CONFIG, GENERATED_HEADER, REPO_ROOT, pascal } from './model.js';
 import { LAYER_SUFFIX, LayerProblems, chainDigest, localLayerFile, readSystemChain, resolveChain, resolveSystem, systemIdOf, validateSystem } from './resolve.js';
@@ -97,6 +98,9 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
       warnings,
       // The named font families this system references, per use: { text, icons, styles, families, warnings }.
       fonts: fontReport(ir),
+      // The glyph names the components may draw and the axis values this system draws icons at: what the product
+      // cuts its icon font down to, with its own names. `names` is null where no generated list is at hand.
+      glyphs: { names: componentGlyphs(), axes: iconAxesOf(ir) },
       names: { swiftui: `TanreiSystem.${pascal([id]).replace(/^./, (ch) => ch.toLowerCase())}`, compose: `TanreiSystem.${pascal([id])}`, flutter: dartSystemNames(id).constant, 'react-native': pascal([id]).replace(/^./, (ch) => ch.toLowerCase()) },
       files: Object.fromEntries(targets.map((t) => [t, all[t]()])),
     };
