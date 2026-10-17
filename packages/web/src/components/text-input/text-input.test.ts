@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
@@ -4307,6 +4309,19 @@ test.describe('the input and the Field that frames it', () => {
     await expect(one('filled').locator('.field')).not.toHaveAttribute('data-has-value', /.*/);
     await expect.poll(() => one('filled').locator('input.input').evaluate((el: HTMLInputElement) => el.placeholder)).toBe('name@example.com');
   });
+
+  // An input whose entries slot holds content when it appears floats its label from its first frame: the label is not
+  // drawn over the chips and then moved up (as a page that is already drawn shows a Field, or a Chip field, of entries).
+  for (const [name, ids] of [
+    ['field', ['entries-email-filled', 'entries-email-outlined']],
+    ['chip-field', ['email-filled', 'email-outlined']],
+  ] as const) {
+    for (const id of ids) {
+      test(`TXI-65: the ${name} fixture ${id} floats its label over its entries from its first frame, with nothing moving into place`, async ({ page }) => {
+        expectFirstFrameAtRest(await appearingFixture(page, loadSpec(name), id));
+      });
+    }
+  }
 
   test('TXI-67: beside a value that is always left-to-right — one line of email, url, tel, number or password — the prefix, the value and the suffix are one run of writing, in that order along the direction of the affixes’ first strong character and left-to-right where they have none, in every layout direction and never from the value; the value, and an empty field’s placeholder, stand against the prefix where there is one and at the field’s start edge where there is none, and the icons, the label and the paddings follow the layout; beside every other value the prefix stays at the field’s start edge and the suffix at its end edge', async ({ page }) => {
     const rtl = (id: string, props: Fixture['props'], content?: string): Fixture => ({ ...fixture(id, { variant: 'stacked', label: 'Label', ...props }, content), direction: 'rtl' });
