@@ -336,3 +336,22 @@ test('a resting color takes a color rule in a component that declares its looks 
   // component does not author.
   assert.equal(build({ 'comp/listing.tokens.json': listing }, 'light', { 'tanrei.comp.listing.syntax.color.operator': toned }), null, 'a token the component does not author is not a resting color');
 });
+
+test('a value that follows a choice of kind moves with the choice a layer makes, and a pin holds it', () => {
+  const voc = { 'dev.tanrei.vocabulary': { rationale: 'One product chooses how far a surface travels.' } };
+  const sources = { 'sys/motion.tokens.json': { tanrei: {
+    dial: { $extensions: voc, space: { unit: { $type: 'dimension', $value: { value: 8, unit: 'px' } } } },
+    sys: {
+      space: { $type: 'dimension', $extensions: voc, space100: { $value: { value: 8, unit: 'px' }, $extensions: { 'dev.tanrei.derive': { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 1 } } } },
+      behavior: { $type: 'number', $extensions: voc, reach: { $value: 0, $extensions: { 'dev.tanrei.enum': { values: ['near', 'far'] }, 'dev.tanrei.derive': { fixed: 'A choice of kind; no dial scales it.' } } } },
+      travel: { $type: 'dimension', $extensions: voc, distance: { $value: { value: 0, unit: 'px' }, $extensions: { 'dev.tanrei.derive': { fn: 'pick', by: '{tanrei.sys.behavior.reach}', values: { near: { value: 0, unit: 'px' }, far: '{tanrei.sys.space.space100}' } } } } },
+    },
+  } } };
+  const distance = (...layers) => resolveNumericTokens(sources, mergeLayers([{ id: 'tanrei' }, ...layers]))['sys/motion.tokens.json'].tanrei.sys.travel.distance.$value;
+  assert.deepEqual(distance(), { value: 0, unit: 'px' });
+  const far = { id: 'far', extends: 'tanrei', tokens: { 'tanrei.sys.behavior.reach': { $value: 'far', reason: 'Surfaces travel into place.' } } };
+  assert.deepEqual(distance(far), { value: 8, unit: 'px' }, 'the choice sets the value');
+  assert.deepEqual(distance(far, { id: 'airy', extends: 'far', tokens: { 'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason: 'Airy marketing pages.' } } }), { value: 10, unit: 'px' }, 'an alias it picks follows its own dial');
+  assert.deepEqual(distance(far, { id: 'pinned', extends: 'far', tokens: { 'tanrei.sys.travel.distance': { $value: { value: 2, unit: 'px' }, reason: 'A product of small moves.' } } }), { value: 2, unit: 'px' }, 'a pin wins over the choice');
+  assert.throws(() => distance({ id: 'scaled', extends: 'tanrei', tokens: { 'tanrei.sys.travel.distance': { scale: 2 } } }), /"scale" is supported on "mul" rules/);
+});

@@ -124,9 +124,10 @@ export function legalOperations(descriptor, { namespace: NS = DEFAULT_NAMESPACE 
     operations.push(entry('re-point alias', { $value: `{${alias.split('.').slice(0, -1).join('.')}.<another-step>}` }, `Use a different step of the same scale. It is "{${alias}}" now. The target must exist and be of the same $type.`));
     if (['dimension', 'duration', 'number'].includes(type)) operations.push(entry('scale', { scale: 2 }, 'N × the inherited alias target, still following its dial.'));
   }
+  if (kind === 'derived' && rule?.fn === 'pick') operations.push({ op: 'note', effect: `This value follows the choice ${rule.by}: each of its names sets its own value (${Object.entries(rule.values ?? {}).map(([name, v]) => `${name}: ${typeof v === 'object' && v !== null ? `${v.value}${v.unit ?? ''}` : v}`).join(', ')}). Choose another name there to change it with the others it sets, or pin this one.` });
   if (kind === 'derived' && rule?.fn === 'mul') operations.push(entry('scale', { scale: 1.5 }, `N × the inherited rule (${rule.of} × ${rule.by}); still follows the dial. Composes with a parent layer's scale.`));
   if (kind === 'derived' || kind === 'fixed') operations.push(entry('re-point alias', { $value: `{${NS}.sys.<scale>.<step>}` }, 'Make it follow another token instead of its own rule.'));
-  operations.push(entry('derive', { derive: { fn: 'mul', of: `{${NS}.dial.<family>.unit}`, by: 3 } }, 'Replace the rule. Closed language: mul, scale, clamp (numeric). No addition, conditionals or functions of your own.'));
+  operations.push(entry('derive', { derive: { fn: 'mul', of: `{${NS}.dial.<family>.unit}`, by: 3 } }, 'Replace the rule. Closed language: mul, scale, clamp, and pick (a value set by a choice of kind) for numbers. No addition, conditionals or functions of your own.'));
   operations.push(entry('pin $value', { $value: literal, reason: REASON }, 'A literal that no longer follows any dial. Last resort; the reason is mandatory and is written into the generated tokens.'));
   if (kind === 'fixed') operations.unshift({ op: 'note', effect: `This token is fixed${rule?.fixed ? ` ("${rule.fixed}")` : ''}: "scale" is not legal on it — pin another $value (with a reason) or give it a rule.` });
   return operations;
