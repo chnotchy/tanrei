@@ -435,7 +435,7 @@
       "trait": "The input chip removes with an outlined `close` glyph and no hover color of its own.",
       "kind": "anatomy",
       "status": "wont-fix",
-      "proposal": "Tanrei names the glyph in the spec: the remove action draws the icon set's filled `cancel` and, by default, turns to the error color under hover, focus and press (chip CHP-27, CHP-28). The Material presets keep the flag on; a product turns it off per chip with `destructiveRemove`."
+      "proposal": "Tanrei names the glyph in the spec: the remove action draws the icon set's filled `cancel`. Its hover, focus and press show on a round container of its own, and take the error color only on a chip where the product sets `destructiveRemove` (chip CHP-27, CHP-28), in every preset alike."
     },
     {
       "id": "checkbox-mark-drawn-on",
