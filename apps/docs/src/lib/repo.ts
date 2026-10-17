@@ -4,7 +4,6 @@
 import config from '../../../../tanrei.config.json';
 import statusData from '../../../../docs/status/status.json';
 import inventoryData from '../../../../specs/inventory.json';
-import customElements from '@tanrei/web/custom-elements.json';
 // What a composed component takes from a member is written once, in the member's spec (`from`): the tools'
 // own resolver writes it out, so the site and the checks read a spec the same way.
 import { resolveFrom } from '../../../../packages/tools/src/from.js';
@@ -158,67 +157,6 @@ export function componentHref(base: string, name: string): string | undefined {
   const page = statusOf(name)?.docs;
   return page ? `${base}${page}` : undefined;
 }
-
-/** Tags that the installed @tanrei/web build actually defines (from its custom elements manifest). */
-export const definedTags: Set<string> = new Set(
-  (customElements.modules ?? []).flatMap((m: any) => (m.declarations ?? []).map((d: any) => d.tagName).filter(Boolean)),
-);
-
-/** An attribute of an element of the installed @tanrei/web build, as its manifest declares it. */
-export interface WebAttribute {
-  /** The attribute's name as HTML writes it (`readonly`, `supporting-text`, `flush`). */
-  name: string;
-  /** True where the attribute says the opposite of its property: a boolean that defaults to true (`inset`) has an attribute that turns it off (`flush`). */
-  inverse: boolean;
-}
-const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
-  (customElements.modules ?? []).flatMap((m: any) =>
-    (m.declarations ?? [])
-      .filter((d: any) => d.tagName)
-      .map((d: any) => [
-        d.tagName,
-        new Map(
-          (d.attributes ?? [])
-            .filter((a: any) => a.fieldName)
-            .map((a: any) => [a.fieldName, { name: a.name, inverse: a.type?.text === 'boolean' && a.default === 'true' && a.name !== a.fieldName.replace(/[A-Z]/g, (c: string) => `-${c.toLowerCase()}`) }]),
-        ),
-      ]),
-  ),
-);
-/**
- * The attribute that reflects a property of an element (`tanrei-text-field`, `readOnly` → `readonly`), from the
- * manifest of the installed build; nothing where the manifest does not know the element or the property.
- */
-export function webAttribute(tag: string, property: string): WebAttribute | undefined {
-  return webAttributes.get(tag)?.get(property);
-}
-
-const webAttributeNames: Map<string, Set<string>> = new Map(
-  (customElements.modules ?? []).flatMap((m: any) => (m.declarations ?? []).filter((d: any) => d.tagName).map((d: any) => [d.tagName, new Set((d.attributes ?? []).map((a: any) => a.name))])),
-);
-/** Whether the installed build's element reads an attribute of this name: its manifest lists it. Nothing is known of an element the build does not define. */
-export const webReadsAttribute = (tag: string, name: string): boolean => webAttributeNames.get(tag)?.has(name) ?? false;
-
-const webAttributeValueLists: Map<string, Map<string, string[]>> = new Map(
-  (customElements.modules ?? []).flatMap((m: any) =>
-    (m.declarations ?? [])
-      .filter((d: any) => d.tagName)
-      .map((d: any) => [
-        d.tagName,
-        new Map(
-          (d.attributes ?? []).flatMap((a: any) => {
-            const pieces = String(a.type?.text ?? '').split('|').map((piece) => piece.trim()).filter((piece) => piece !== 'undefined' && piece !== 'null');
-            return pieces.length && pieces.every((piece) => /^'[^']*'$/.test(piece)) ? [[a.name, pieces.map((piece) => piece.slice(1, -1))]] : [];
-          }),
-        ),
-      ]),
-  ),
-);
-/**
- * The values the installed build's element reads for an attribute, where its manifest declares them as a closed list
- * of strings (`'none' | 'buttons'`); nothing where the attribute's values are open or not known.
- */
-export const webAttributeValues = (tag: string, name: string): string[] | undefined => webAttributeValueLists.get(tag)?.get(name);
 
 const RANK = Object.fromEntries(statuses.map((s, i) => [s, i]));
 /** True once a platform has anything shippable at the current spec (alpha or later; not lagging, not deprecated). */
