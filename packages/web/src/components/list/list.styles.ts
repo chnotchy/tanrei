@@ -30,6 +30,9 @@ const on = (state: string) => {
 export const listStyles = css`
   :host {
     display: block;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
     /* LST-1: the gap between two items, by the gap value; none where it names nothing the list defines (LST-6). The
        items read it too: the divider stands in the middle of it (LST-3). */
     --_gap: 0px;

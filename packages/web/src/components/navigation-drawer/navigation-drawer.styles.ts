@@ -124,6 +124,9 @@ const EXIT = `${T('motion-exit-duration')} ${T('motion-exit-easing')}`;
 export const drawerStyles = css`
   :host {
     display: block;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
     --_inset-top: env(safe-area-inset-top, 0px);
     --_inset-bottom: env(safe-area-inset-bottom, 0px);
     --_inset-start: env(safe-area-inset-left, 0px);

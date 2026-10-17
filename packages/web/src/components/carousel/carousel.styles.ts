@@ -208,6 +208,9 @@ export const carouselStyles = css`
     display: flex;
     flex-direction: column;
     position: relative;
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
     min-block-size: var(--tanrei-sys-target-pointer);
   }
   @media (pointer: coarse) {

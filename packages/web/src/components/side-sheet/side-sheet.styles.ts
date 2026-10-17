@@ -42,6 +42,9 @@ export const styles = css`
   :host {
     display: block;
     --_inset-top: env(safe-area-inset-top, 0px);
+    /* Its own stacking order: the z-index of a part below orders the component's parts only, and never reaches the
+       page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
+    isolation: isolate;
     --_inset-bottom: env(safe-area-inset-bottom, 0px);
     --_inset-end: env(safe-area-inset-right, 0px);
     /* SSH-7: container.width beside the end system inset, which the color reaches under. */
