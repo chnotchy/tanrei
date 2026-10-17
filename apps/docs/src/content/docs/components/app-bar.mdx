@@ -257,7 +257,7 @@ A product can put its logo in the bar as the link to its first page. Give the ba
 - **One image.** A single logo file in `slot="brand"`, drawn `comp.app-bar.brand.image.height` high.
 - **The symbol alone.** In `slot="brand-symbol"`, drawn `comp.app-bar.brand.symbol.size` high, where an icon button's icon stands.
 - **The wordmark alone.** In `slot="brand-wordmark"`, drawn `comp.app-bar.brand.wordmark.height` high.
-- **The symbol and the wordmark together.** Give both. By default (`brandLayout` `lockup`) they stand side by side, `comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says.
+- **The symbol and the wordmark together.** Give both. By default (`brandLayout` `lockup`) they stand side by side, `comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says. The symbol then stands at the wordmark's height (`comp.app-bar.brand.lockup.symbol.size`).
 - **By the window's width.** Give both and set `brandLayout` to `responsive` (`brand-layout` on the web): the bar shows the wordmark while the window is medium or wider and the symbol while it is compact, never both. Inside an app shell it follows the shell's window class.
 
 The bar sizes each image and keeps its proportions. Don't use the title for the product's name: the title is the screen's name. SwiftUI, Compose, Flutter and React Native do not draw the brand yet.

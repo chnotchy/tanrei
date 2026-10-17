@@ -2,7 +2,7 @@
 title: Barra de la aplicación
 description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Su borde inferior se mantiene como el borde de la cabecera de la pantalla, y toma su aspecto desplazado en cuanto el contenido se desplaza por debajo de ella.
 translationOf: components/app-bar.mdx
-sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -259,7 +259,7 @@ Un producto puede poner su logo en la barra como el enlace a su primera página.
 - **Una imagen.** Un único archivo de logo en `slot="brand"`, dibujado a `comp.app-bar.brand.image.height` de alto.
 - **Solo el símbolo.** En `slot="brand-symbol"`, dibujado a `comp.app-bar.brand.symbol.size` de alto, donde está el icono de un botón de icono.
 - **Solo el logotipo.** En `slot="brand-wordmark"`, dibujado a `comp.app-bar.brand.wordmark.height` de alto.
-- **El símbolo y el logotipo juntos.** Da los dos. Por defecto (`brandLayout` en `lockup`) quedan uno junto al otro, a `comp.app-bar.brand.lockup.gap` de distancia y alineados como indica `comp.app-bar.brand.lockup.alignment`.
+- **El símbolo y el logotipo juntos.** Da los dos. Por defecto (`brandLayout` en `lockup`) quedan uno junto al otro, a `comp.app-bar.brand.lockup.gap` de distancia y alineados como indica `comp.app-bar.brand.lockup.alignment`. El símbolo tiene entonces la altura del logotipo (`comp.app-bar.brand.lockup.symbol.size`).
 - **Según el ancho de la ventana.** Da los dos y pon `brandLayout` en `responsive` (`brand-layout` en la web): la barra muestra el logotipo mientras la ventana es medium o más ancha y el símbolo mientras es compact, nunca los dos. Dentro de un app shell sigue la clase de ventana del shell.
 
 La barra da tamaño a cada imagen y conserva sus proporciones. No uses el título para el nombre del producto: el título es el nombre de la pantalla. SwiftUI, Compose, Flutter y React Native todavía no dibujan la marca.

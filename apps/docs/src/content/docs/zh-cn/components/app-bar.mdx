@@ -2,7 +2,7 @@
 title: "应用栏"
 description: "位于屏幕顶部，标明当前屏幕的名称，并容纳返回入口和该屏幕的少量操作。它的底边作为屏幕页眉的边缘始终存在；内容滚动到它下方后，它呈现滚动后的外观。"
 translationOf: components/app-bar.mdx
-sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -259,7 +259,7 @@ Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标
 - **一张图片。** 把一个标志文件放进 `slot="brand"`，高度为 `comp.app-bar.brand.image.height`。
 - **只有符号。** 放进 `slot="brand-symbol"`，高度为 `comp.app-bar.brand.symbol.size`，位于图标按钮的图标所在的位置。
 - **只有文字标。** 放进 `slot="brand-wordmark"`，高度为 `comp.app-bar.brand.wordmark.height`。
-- **符号和文字标一起。** 两者都提供。默认（`brandLayout` 为 `lockup`）时它们并排，间距为 `comp.app-bar.brand.lockup.gap`，按 `comp.app-bar.brand.lockup.alignment` 对齐。
+- **符号和文字标一起。** 两者都提供。默认（`brandLayout` 为 `lockup`）时它们并排，间距为 `comp.app-bar.brand.lockup.gap`，按 `comp.app-bar.brand.lockup.alignment` 对齐。此时符号与文字标同高（`comp.app-bar.brand.lockup.symbol.size`）。
 - **按窗口宽度切换。** 两者都提供，并把 `brandLayout` 设为 `responsive`（Web 上为 `brand-layout`）：窗口为 medium 或更宽时，栏显示文字标；为 compact 时显示符号，两者从不同时显示。在应用外壳中，它跟随外壳的窗口类别。
 
 栏会为每张图片确定尺寸，并保持其比例。不要用标题来写产品名称：标题是屏幕的名称。SwiftUI、Compose、Flutter 和 React Native 尚未绘制品牌。

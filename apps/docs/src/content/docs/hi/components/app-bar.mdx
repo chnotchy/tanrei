@@ -2,7 +2,7 @@
 title: ऐप बार
 description: मौजूदा स्क्रीन को उसके ऊपरी किनारे पर नाम देता है और पीछे जाने का रास्ता और स्क्रीन की कुछ क्रियाएँ रखता है। इसका निचला किनारा स्क्रीन के हेडर के किनारे के रूप में बना रहता है, और कॉन्टेंट के इसके नीचे स्क्रॉल होते ही यह अपना स्क्रॉल्ड रूप लेता है।
 translationOf: components/app-bar.mdx
-sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -259,7 +259,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 - **एक इमेज।** एक लोगो फ़ाइल `slot="brand"` में, `comp.app-bar.brand.image.height` ऊँची।
 - **सिर्फ़ सिंबल।** `slot="brand-symbol"` में, `comp.app-bar.brand.symbol.size` ऊँचा, वहाँ जहाँ आइकन बटन का आइकन होता है।
 - **सिर्फ़ वर्डमार्क।** `slot="brand-wordmark"` में, `comp.app-bar.brand.wordmark.height` ऊँचा।
-- **सिंबल और वर्डमार्क साथ में।** दोनों दें। डिफ़ॉल्ट रूप से (`brandLayout` `lockup`) वे साथ-साथ खड़े होते हैं, `comp.app-bar.brand.lockup.gap` की दूरी पर, `comp.app-bar.brand.lockup.alignment` के अनुसार संरेखित।
+- **सिंबल और वर्डमार्क साथ में।** दोनों दें। डिफ़ॉल्ट रूप से (`brandLayout` `lockup`) वे साथ-साथ खड़े होते हैं, `comp.app-bar.brand.lockup.gap` की दूरी पर, `comp.app-bar.brand.lockup.alignment` के अनुसार संरेखित। तब सिंबल वर्डमार्क जितना ऊँचा होता है (`comp.app-bar.brand.lockup.symbol.size`)।
 - **विंडो की चौड़ाई के अनुसार।** दोनों दें और `brandLayout` को `responsive` पर सेट करें (वेब पर `brand-layout`): विंडो medium या उससे चौड़ी हो तो बार वर्डमार्क दिखाता है, compact हो तो सिंबल, दोनों कभी एक साथ नहीं। ऐप शेल के अंदर यह शेल की विंडो क्लास का पालन करता है।
 
 बार हर इमेज का आकार तय करता है और उसके अनुपात बनाए रखता है। प्रोडक्ट के नाम के लिए शीर्षक का इस्तेमाल न करें: शीर्षक स्क्रीन का नाम है। SwiftUI, Compose, Flutter और React Native अभी ब्रांड नहीं बनाते।

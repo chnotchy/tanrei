@@ -2,7 +2,7 @@
 title: شريط التطبيق
 description: يسمّي الشاشة الحالية عند حافتها العليا ويحمل طريق الرجوع وبعض إجراءات الشاشة. تبقى حافته السفلية قائمةً حدًّا لترويسة الشاشة، ويأخذ مظهر التمرير حين يمرّ المحتوى تحته.
 translationOf: components/app-bar.mdx
-sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -259,7 +259,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **صورة واحدة.** ملف شعار واحد في `slot="brand"`، بارتفاع `comp.app-bar.brand.image.height`.
 - **الرمز وحده.** في `slot="brand-symbol"`، بارتفاع `comp.app-bar.brand.symbol.size`، في موضع أيقونة زر الأيقونة.
 - **العلامة النصية وحدها.** في `slot="brand-wordmark"`، بارتفاع `comp.app-bar.brand.wordmark.height`.
-- **الرمز والعلامة النصية معًا.** أعطِ الاثنين. افتراضيًا (`brandLayout` على `lockup`) يقفان جنبًا إلى جنب، تفصل بينهما `comp.app-bar.brand.lockup.gap`، ومحاذاتهما كما يقول `comp.app-bar.brand.lockup.alignment`.
+- **الرمز والعلامة النصية معًا.** أعطِ الاثنين. افتراضيًا (`brandLayout` على `lockup`) يقفان جنبًا إلى جنب، تفصل بينهما `comp.app-bar.brand.lockup.gap`، ومحاذاتهما كما يقول `comp.app-bar.brand.lockup.alignment`. ويكون الرمز حينها بارتفاع العلامة النصية (`comp.app-bar.brand.lockup.symbol.size`).
 - **حسب عرض النافذة.** أعطِ الاثنين واضبط `brandLayout` على `responsive` (`brand-layout` على الويب): يعرض الشريط العلامة النصية ما دامت النافذة medium أو أعرض، والرمز ما دامت compact، ولا يعرضهما معًا أبدًا. داخل app shell يتبع فئة نافذة الـ shell.
 
 يحدد الشريط حجم كل صورة ويحفظ نسبها. لا تستخدم العنوان لاسم المنتج: العنوان هو اسم الشاشة. لا ترسم SwiftUI وCompose وFlutter وReact Native العلامة بعد.

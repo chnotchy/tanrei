@@ -2,7 +2,7 @@
 title: アプリバー
 description: 画面の上端で今いる画面の名前を示し、戻る操作と、その画面でよく使うアクションをまとめます。下端の線は画面のヘッダーの縁として常に引かれ、コンテンツが下に潜り込むとスクロール時の見た目になります。
 translationOf: components/app-bar.mdx
-sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -259,7 +259,7 @@ Web と React のサンプルは現在の仕様を示しています。現在の
 - **画像 1 枚。** 1 つのロゴファイルを `slot="brand"` に入れます。高さは `comp.app-bar.brand.image.height` です。
 - **シンボルだけ。** `slot="brand-symbol"` に入れます。高さは `comp.app-bar.brand.symbol.size` で、アイコンボタンのアイコンの位置に立ちます。
 - **ワードマークだけ。** `slot="brand-wordmark"` に入れます。高さは `comp.app-bar.brand.wordmark.height` です。
-- **シンボルとワードマークを一緒に。** 両方を渡します。既定（`brandLayout` が `lockup`）では横に並び、間隔は `comp.app-bar.brand.lockup.gap`、揃え方は `comp.app-bar.brand.lockup.alignment` に従います。
+- **シンボルとワードマークを一緒に。** 両方を渡します。既定（`brandLayout` が `lockup`）では横に並び、間隔は `comp.app-bar.brand.lockup.gap`、揃え方は `comp.app-bar.brand.lockup.alignment` に従います。このときシンボルはワードマークと同じ高さ（`comp.app-bar.brand.lockup.symbol.size`）になります。
 - **ウィンドウの幅で切り替える。** 両方を渡し、`brandLayout` を `responsive`（Web では `brand-layout`）にします。バーは、ウィンドウが medium 以上のあいだはワードマークを、compact のあいだはシンボルを表示し、両方を同時には表示しません。アプリシェルの中では、シェルのウィンドウクラスに従います。
 
 バーは画像ごとに大きさを決め、縦横の比率は保ちます。プロダクト名にタイトルを使わないでください。タイトルは画面の名前です。SwiftUI、Compose、Flutter、React Native は、まだブランドを描きません。
