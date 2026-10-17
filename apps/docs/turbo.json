@@ -11,7 +11,11 @@
         "../../tanrei.config.json",
         "../../design/tokens/**",
         "../../docs/status/**",
-        "../../packages/web/custom-elements.json"
+        "../../packages/web/custom-elements.json",
+        "../../packages/web/test/harness.ts",
+        "../../packages/web/test/specimen.ts",
+        "../../packages/web/test/pictures.ts",
+        "../../packages/web/snapshots/**"
       ],
       "outputs": []
     }
