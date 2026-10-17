@@ -1512,6 +1512,14 @@ public struct TanreiAppBarConditions: Sendable, Equatable {
 /// Component tokens of app-bar (comp.app-bar).
 public struct TanreiAppBarTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
+  public var brandColor: TanreiPaint
+  public var brandImageHeight: CGFloat
+  public var brandLockupAlignment: Double
+  public var brandLockupGap: CGFloat
+  public var brandLockupSymbolSize: CGFloat
+  public var brandShape: CGFloat
+  public var brandSymbolSize: CGFloat
+  public var brandWordmarkHeight: CGFloat
   public var containerGap: CGFloat
   public var containerPaddingBlockEnd: CGFloat
   public var containerPaddingInline: CGFloat
@@ -1527,6 +1535,14 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
 
   public init(
     actionsGap: CGFloat,
+    brandColor: TanreiPaint,
+    brandImageHeight: CGFloat,
+    brandLockupAlignment: Double,
+    brandLockupGap: CGFloat,
+    brandLockupSymbolSize: CGFloat,
+    brandShape: CGFloat,
+    brandSymbolSize: CGFloat,
+    brandWordmarkHeight: CGFloat,
     containerGap: CGFloat,
     containerPaddingBlockEnd: CGFloat,
     containerPaddingInline: CGFloat,
@@ -1541,6 +1557,14 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     conditions: TanreiAppBarConditions
   ) {
     self.actionsGap = actionsGap
+    self.brandColor = brandColor
+    self.brandImageHeight = brandImageHeight
+    self.brandLockupAlignment = brandLockupAlignment
+    self.brandLockupGap = brandLockupGap
+    self.brandLockupSymbolSize = brandLockupSymbolSize
+    self.brandShape = brandShape
+    self.brandSymbolSize = brandSymbolSize
+    self.brandWordmarkHeight = brandWordmarkHeight
     self.containerGap = containerGap
     self.containerPaddingBlockEnd = containerPaddingBlockEnd
     self.containerPaddingInline = containerPaddingInline
