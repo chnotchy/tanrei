@@ -31,35 +31,36 @@
   }
 
   /* ── The header: the app bar, with the site's brand beside the menu button ─────────────────────────────────────
-     The brand is the bar's (APB-19): the bar gives it an icon button's cell after the menu button, at the gap one
-     icon button keeps from the next, and the symbol (Header.astro) is drawn at comp.app-bar.brand.size in it — its
-     centre and its inset are the menu button's and the actions'. Its color is the brand's, on-surface, so it follows
-     the scheme and the contrast: said here because the Link's own color is a rule of the product's, which the bar's
-     gives way to (APB-20). Its corners — what its hover, press and focus ring are drawn on — are the Button's, so
-     the ring around it is the one around the menu button. */
-  .docs-site-title {
-    --tanrei-comp-link-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-hovered-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-pressed-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-focused-container-shape: var(--tanrei-comp-button-focused-container-shape);
+     The brand is the bar's (APB-19, APB-20): Tanrei's wordmark (Header.astro), in an icon button's cell after the menu
+     button, comp.app-bar.brand.wordmark.height high, in comp.app-bar.brand.color. Until the bar is defined the image
+     holds the box the bar will give it: the cell's padding around the wordmark's height, the gap after the menu
+     button (none where the shell hides the button). */
+  tanrei-app-bar:not(:defined) > .docs-brand {
+    box-sizing: content-box;
+    flex: none;
+    min-inline-size: 0;
+    min-block-size: 0;
+    inline-size: auto;
+    block-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
+    padding-inline: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+    padding-block: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
     color: var(--tanrei-comp-app-bar-brand-color);
   }
-  .docs-site-mark {
-    flex: none;
-    inline-size: var(--tanrei-comp-app-bar-brand-size);
-    block-size: var(--tanrei-comp-app-bar-brand-size);
+  @media (pointer: coarse) {
+    tanrei-app-bar:not(:defined) > .docs-brand {
+      padding-inline: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+      padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
+    }
   }
-  /* Until the bar is defined, the brand keeps the gap the bar will give it after the menu button (none where the
-     shell hides the button). */
-  tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
   }
   @container style(--_aps-menu: hidden) {
-    tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-site-title {
+    tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
       margin-inline-start: 0;
     }
   }
-  tanrei-app-shell[data-menu='hidden'] tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-shell[data-menu='hidden'] tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: 0;
   }
   /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
@@ -92,7 +93,7 @@
     container: docs-header / inline-size;
   }
   @container docs-header (inline-size < 14rem) {
-    .docs-site-title {
+    .docs-brand {
       display: none;
     }
   }
