@@ -16,7 +16,7 @@
     },
     {
       "id": "leading",
-      "description": "The part at the row's start: the product's content of the leading slot (an avatar, a picture, a checkbox, a radio button, a switch), or else the glyph leadingIcon names.",
+      "description": "The part at the row's start: the product's content of the leading slot (an avatar, a picture, a checkbox, a radio button, a switch), or else the glyph leadingIcon names; or, where the row draws neither and the list it is in asks for it (LRW-16), an empty room of a glyph's size.",
       "optional": true
     },
     {
@@ -83,7 +83,7 @@
       "name": "leadingIcon",
       "type": "string",
       "default": "",
-      "description": "The name of a glyph of the system's icon set drawn at the row's start: what the row is (a place, a setting, a kind of file). Decorative. The leading slot's content is drawn in its place where the slot holds any. Empty: none."
+      "description": "The name of a glyph of the system's icon set drawn at the row's start: what the row is (a place, a setting, a kind of file). Decorative. The leading slot's content is drawn in its place where the slot holds any. Empty: none — or, in a List that asks for it (its iconSpace), the glyph's room, empty (LRW-16)."
     },
     {
       "name": "trailingText",
@@ -148,11 +148,6 @@
       "verify": "The fixture leading-icon draws the glyph wifi in a 24 box. The fixture leading-picture draws the slot's content and no glyph."
     },
     {
-      "id": "LRW-5",
-      "text": "WHILE a list row has no leading part THE list row SHALL begin its text at its start padding, and WHILE it has no trailing part its text SHALL reach its end padding; it SHALL keep no room for a part it does not draw. A column of rows of which some have a leading part SHALL NOT be lined up by the row: lining up the texts of rows with and without a glyph is the product's, which gives every row a glyph or none.",
-      "verify": "The fixture one-line: the headline begins at the start padding and the text box ends at the end padding."
-    },
-    {
       "id": "LRW-6",
       "text": "WHILE trailingText is not empty THE list row SHALL draw it after the text, on one line, in comp.list-row.trailing-text.typescale and comp.list-row.trailing-text.color; it SHALL NOT wrap, and WHILE it would take more than half of the row's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the text keeps at least half. After it THE list row SHALL draw the trailing slot's content, at its own size and given no style, and after that, WHILE trailingIcon is not empty, that glyph of the system's icon set in a box of comp.list-row.trailing-icon.size in comp.list-row.trailing-icon.color, hidden from assistive technology, nothing in its place until the icon set can draw it, and mirrored in a right-to-left layout WHERE the icon set says the glyph points (a chevron_right points to the start there). The trailing text, the slot's content and the glyph SHALL be comp.list-row.container.gap apart.",
       "verify": "The fixture trailing-text: the value stands at the end. The fixture all-parts: the value, then the chevron, at the end. The fixture rtl: the chevron points left and stands at the left end."
@@ -199,6 +194,11 @@
     {
       "id": "LRW-15",
       "text": "WHILE forced colors are active THE list row SHALL draw its texts and its glyphs in the system's text color, and in the system's color for disabled text WHILE it is the content of a disabled item; it SHALL draw nothing that carries meaning in a color alone."
+    },
+    {
+      "id": "LRW-16",
+      "text": "WHILE a list row has no leading part (LRW-4) THE list row SHALL begin its text at its start padding — except WHILE the list item it is the direct child of tells it to keep the room of a leading glyph (LST-48, LST-50), where it SHALL keep before its text a box of comp.list-row.leading-icon.size, comp.list-row.container.gap from the text, which draws nothing and is nothing to assistive technology, so that its headline starts where the headline of a row with a glyph does. WHILE it has no trailing part its text SHALL reach its end padding. It SHALL keep no other room for a part it does not draw: a row that draws a leading part keeps none besides it, and a row standing alone, or nested deeper in an item's content, keeps none, lining itself up with no other row.",
+      "verify": "The fixture one-line: the headline begins at the start padding and the text box ends at the end padding. In the list fixture icon-space-auto the row About keeps an empty box 24 wide and the gap before its headline, and its headline starts where Bluetooth's does; the same row standing alone keeps none."
     }
   ],
   "accessibility": {
@@ -340,7 +340,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "alpha",
+      "status": "lagging",
       "name": "tanrei-list-row",
       "props": {
         "headline": "headline",
