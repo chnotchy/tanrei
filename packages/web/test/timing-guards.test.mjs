@@ -80,7 +80,7 @@ export const RULES = {
       'src/components/navigation-bar/navigation-bar.test.ts': 7,
       'src/components/navigation-drawer/navigation-drawer.test.ts': 3,
       'src/components/one-time-code-input/one-time-code-input.test.ts': 1,
-      'src/components/pagination/pagination.test.ts': 2,
+      'src/components/pagination/pagination.test.ts': 1,
       'src/components/popover/popover.test.ts': 8,
       'src/components/progress-indicator/progress-indicator.test.ts': 4,
       'src/components/radio-button/radio-button.test.ts': 5,
