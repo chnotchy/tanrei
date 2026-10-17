@@ -1,4 +1,5 @@
-import { CONFIG, loadSpecs } from './conventions.js';
+import { CONFIG, exists, loadSpecs, read } from './conventions.js';
+import { readPlaces } from './places.js';
 
 /**
  * The product's words: Tanrei has no words of its own, and a prop whose words a product says the same way
@@ -76,11 +77,66 @@ export function emitWordsTs(words = productWords(), namespace = CONFIG.namespace
   return lines.join('\n');
 }
 
-/** The generated files of the product's words: the platform-neutral list, and the web's type. */
+/**
+ * The English word pack: a word for every key, written by hand in `specs/words/en.json` (`{ description, words }`).
+ * No component reads it; a product applies it only by importing it (`@tanrei/web/words/en`). Returns the pack's words,
+ * or `{}` where the file is missing.
+ */
+export const WORD_PACK = 'specs/words/en.json';
+export const readWordPack = (file = WORD_PACK) => (exists(file) ? (JSON.parse(read(file)).words ?? {}) : {});
+
+/**
+ * What keeps the pack from being whole: a key of the list without a word, a word whose key the list does not have, and
+ * a word that does not keep the places its key declares — a place the key does not have, a brace that opens or closes
+ * nothing, a needed place left out. `pnpm validate` and `pnpm drift` report these.
+ */
+export function wordPackProblems(words = productWords(), pack = readWordPack(), file = WORD_PACK) {
+  const problems = [];
+  const keys = new Set(words.map(({ key }) => key));
+  for (const { key, places } of words) {
+    const text = pack[key];
+    if (typeof text !== 'string' || text.trim() === '') {
+      problems.push(`${file}: no word for "${key}", a key of the product's words: write its English word`);
+      continue;
+    }
+    if (!places) continue;
+    const names = places.map((p) => p.name);
+    const sentence = readPlaces(text, names);
+    for (const written of sentence.unknown) problems.push(`${file}: "${key}" writes ${written}, which is not a place of it (${names.map((n) => `{${n}}`).join(', ')})`);
+    if (sentence.stray) problems.push(`${file}: "${key}" has a brace that opens or closes nothing; a brace is written twice`);
+    for (const p of places) if (p.required && !sentence.used.has(p.name)) problems.push(`${file}: "${key}" is without the place {${p.name}}, which it needs`);
+  }
+  for (const key of Object.keys(pack)) if (!keys.has(key)) problems.push(`${file}: "${key}" is not a key of the product's words (docs/status/words.json): remove it`);
+  return problems;
+}
+
+/**
+ * The web's module of the pack's words, in the order of the list. It is typed as the whole set, so a key without a
+ * word fails the type check as well as `wordPackProblems()`.
+ */
+export function emitWordPackTs(words = productWords(), pack = readWordPack(), namespace = CONFIG.namespace) {
+  const type = `${namespace[0].toUpperCase()}${namespace.slice(1)}Words`;
+  return [
+    '// GENERATED FILE — DO NOT EDIT.',
+    `// Source: ${WORD_PACK}, in the order of the keys of the specs. Regenerate with \`pnpm generate\`.`,
+    '// The English word pack. Only src/words/en.ts imports it: a product applies it by importing `@tanrei/web/words/en`.',
+    '',
+    `import type { ${type} } from './words.js';`,
+    '',
+    "/** A word for every key of the product's words, in plain English. */",
+    `export const englishWords: Readonly<Required<${type}>> = {`,
+    ...words.filter(({ key }) => typeof pack[key] === 'string').map(({ key }) => `  ${key}: ${JSON.stringify(pack[key])},`),
+    '};',
+    '',
+  ].join('\n');
+}
+
+/** The generated files of the product's words: the platform-neutral list, the web's type, and the web's English pack. */
 export function wordsFiles() {
   const words = productWords();
   return {
     'docs/status/words.json': `${JSON.stringify({ keys: words }, null, 2)}\n`,
     'packages/web/src/generated/words.ts': emitWordsTs(words),
+    'packages/web/src/generated/words-en.ts': emitWordPackTs(words),
   };
 }
