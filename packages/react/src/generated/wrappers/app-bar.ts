@@ -9,6 +9,9 @@ import { TanreiAppBar as TanreiAppBarElement } from '@tanrei/web/components/app-
  *
  * Children, by their `slot`:
  * - `navigation` — The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.
+ * - `brand` — The brand as one image (a single logo file), drawn `comp.app-bar.brand.image.height` high.
+ * - `brand-symbol` — The brand's symbol, drawn `comp.app-bar.brand.symbol.size` high.
+ * - `brand-wordmark` — The brand's wordmark, drawn `comp.app-bar.brand.wordmark.height` high.
  * - `actions` — The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  */
 export const AppBar = /* @__PURE__ */ createComponent({

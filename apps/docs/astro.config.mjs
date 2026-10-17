@@ -23,8 +23,12 @@ const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast'
 const site = 'https://tanrei.chnotchy.com';
 const title = 'Tanrei';
 
+// The brand page took the place of the principles page: its old address, in every language, leads there.
+const moved = Object.fromEntries(['', ...translations.map(({ dir }) => dir)].map((dir) => [`${dir ? `/${dir}` : ''}/foundations/principles`, `${dir ? `/${dir}` : ''}/foundations/brand/`]));
+
 export default defineConfig({
   site,
+  redirects: moved,
   integrations: [
     starlight({
       title,
@@ -103,7 +107,7 @@ export default defineConfig({
           label: 'Foundations',
           translations: { ja: '基礎', 'zh-CN': '基础', hi: 'बुनियादी बातें', es: 'Fundamentos', ar: 'الأسس' },
           items: [
-            'foundations/principles',
+            'foundations/brand',
             'foundations/design-tokens',
             'foundations/design-systems',
             'foundations/theme-studio',
