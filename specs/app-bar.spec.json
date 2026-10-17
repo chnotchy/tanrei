@@ -264,7 +264,7 @@
     },
     {
       "id": "APB-20",
-      "text": "THE app bar SHALL NOT restyle the brand beyond its color: the brand is the product's link to its first page, its content the mark drawn comp.app-bar.brand.size high, its accessible name the product's name, and the app bar SHALL set its color to comp.app-bar.brand.color, which a mark drawn in the current color takes and a mark of its own colors keeps. THE app bar SHALL expose the brand it shows as that one link, between the navigation item and the action items in reading order, and SHALL expose no brand it does not show.",
+      "text": "THE app bar SHALL NOT restyle the brand beyond its color: the brand is the product's link to its first page, its content the mark drawn comp.app-bar.brand.size high, its accessible name the product's name, and the app bar SHALL give it comp.app-bar.brand.color as its color wherever the product's own styles set none (a link's default color is not the product's), which a mark drawn in the current color takes and a mark of its own colors keeps. THE app bar SHALL expose the brand it shows as that one link, between the navigation item and the action items in reading order, and SHALL expose no brand it does not show.",
       "verify": "The brand link keeps its href and its name; a mark in currentColor is drawn in on-surface in every scheme; Tab reaches navigation, brand, actions in that order; under split only the shown brand is in the accessibility tree."
     },
     {
