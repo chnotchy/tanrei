@@ -16,6 +16,8 @@ import { definedTags, getSpec, specs, webAttribute, webAttributeValues, webReads
 // The avatar's fixtures name their picture `fixtures/avatar.png`, which each platform's harness resolves to its own
 // copy: here the web package's (flat shapes, no person), inlined, so a page of fixtures asks the network for nothing.
 import avatarPicture from '../../../../packages/web/test/fixtures/avatar.png?inline';
+import symbolMark from '../../../../design/brand/symbol.svg?raw';
+import wordmarkMark from '../../../../design/brand/wordmark.svg?raw';
 // The link card's fixtures name `fixtures/link-card.png` and `fixtures/site-icon.png` the same way; the page holds
 // them, so no fixture makes a request (the card asks for nothing but the pictures it is given — LKC-14).
 import linkCardPicture from '../../../../packages/web/test/fixtures/link-card.png?inline';
@@ -34,7 +36,14 @@ import previewThumbnail from '../../../../packages/web/test/fixtures/image-previ
 type Value = string | boolean | number | string[];
 type Props = Record<string, Value>;
 type Fixture = Spec['fixtures'][number] & { slots?: Record<string, string | string[]>; direction?: 'ltr' | 'rtl' };
-type SlotDecl = { name: string; description: string; fixture?: 'glyph' | 'icon-only-button' | 'button' | 'text' };
+type SlotDecl = { name: string; description: string; fixture?: 'glyph' | 'icon-only-button' | 'button' | 'text' | 'mark' };
+
+/** A mark as a fixture draws it (the slot fixture kind `mark`): `symbol` or `wordmark`, from design/brand/, inline and in the current color, as the web package's harness draws it. */
+function markHtml(name: string, slot: string): string {
+  const svg = name === 'symbol' ? symbolMark : name === 'wordmark' ? wordmarkMark : null;
+  if (!svg) throw new Error(`a mark fixture names "symbol" or "wordmark", not "${name}"`);
+  return svg.replace(/<!--[\s\S]*?-->\n?/g, '').replace(/^<svg /, `<svg slot="${slot}" `).trim();
+}
 
 /** `inplace` is decided in the browser, from a `check`. */
 export type Presentation = 'overlay' | 'check' | 'none';
@@ -629,6 +638,7 @@ function slotsHtml(spec: Spec, slots: Fixture['slots'], overlay: boolean): strin
         if (kind === 'icon-only-button' && button) return `<${button} slot="${name}" variant="text" label="${text}"><span slot="icon">${text}</span></${button}>`;
         // An overlay's action closes it, as a product's handler would (`data-fixture-action`, read by the controller).
         if (kind === 'button' && button) return `<${button} slot="${name}" variant="text"${overlay ? ' data-fixture-action' : ''}>${text}</${button}>`;
+        if (kind === 'mark') return markHtml(v, name);
         return `<span slot="${name}">${text}</span>`;
       });
     })
