@@ -132,14 +132,14 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
     align-items: flex-start;
     gap: var(--tanrei-sys-space-space200);
   }
-  /* A stage: as wide as its canvas or its header, never wider than the column. Away from the view it is neither laid out
-     nor painted, and holds the room it last had (or a stage's room, before it has been drawn). */
+  /* A stage: as wide as its canvas or its header, never wider than the column. Every stage of the page is laid out
+     with the page, as a product's screen is: a stage that is not laid out while it is away from the view
+     (`content-visibility: auto`) has no size then, and a component that measures its place once — the description
+     list choosing between its terms beside their values and above them — keeps the choice it made in no room. */
   .docs-stage {
     flex: 0 1 auto;
     inline-size: fit-content;
     min-inline-size: min(100%, 14rem);
-    content-visibility: auto;
-    contain-intrinsic-size: auto 14rem auto 11rem;
   }
   /* The id breaks where it must, so that the header never makes a stage wider than what it draws. */
   .docs-stage [data-part='title'] code {
@@ -158,8 +158,10 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
   .docs-stage-window {
     display: block;
   }
-  /* The stage: what is drawn stays inside it. Paint containment clips it, and layout containment makes it the box that
-     what the fixture places against the window is placed in. */
+  /* The stage: what is drawn stays inside it, clipped to it. It is clipped by its overflow and not by containment: a
+     box that contains layout or paint is the box that the fixture's fixed parts are placed against, and a surface
+     drawn in place (an open list placed against the window) would then stand where no product's page draws it. What a
+     fixture places in the top layer or against the window is drawn in a window of its own instead. */
   .docs-stage-box {
     display: grid;
     /* One column as wide as the stage, whatever the fixture asks for: a fixture wider than the column is made narrower
@@ -167,7 +169,7 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
     grid-template-columns: minmax(0, 1fr);
     place-items: center;
     min-block-size: 6rem;
-    contain: layout paint;
+    overflow: clip;
   }
   /* A stage keeps the scheme it is given (lib/fixture-stages.ts): its surface and every token below it. */
   .docs-stage-box[data-tanrei-theme] {
