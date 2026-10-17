@@ -17373,7 +17373,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shows a compact choice, a suggested action or an item the user entered as a small labelled control.\n\nContract: specs/chip.spec.json. Every visual value comes from `--tanrei-comp-chip-*` tokens, one set per variant, look\n(plain, or `selected.` for a filter chip that is on) and state, and the `remove.` parts of an input chip's remove\naction in its own states: how a state looks is the active design system's decision, not this component's. How a\npress is answered and how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`),\nand how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`).\n\n`kind` decides what the chip does and its parts; `variant` only how it looks. An action chip is a button. A filter chip\nis a button with a pressed state: activation switches `selected` and fires `change`, and when on it shows a check in\nits leading position. An input chip has a remove action, a second button named by `removeLabel`, pressed by pointer,\ntouch or assistive technology and not a Tab stop: an input chip is one stop, and Backspace or Delete on it removes it,\nwhich the chip tells assistive technology with `aria-keyshortcuts`. Both fire `remove` — the chip never removes itself\n(the page does, and moves focus). By default the remove action reads as destructive (`destructiveRemove`; the attribute\n`no-destructive-remove` turns it off): it looks the same at rest and takes the error color while it is hovered,\nfocused or pressed — a color only, never a change of name, glyph or size. The label is the visible text and the\naccessible name; the icon (the `icon` slot) and the avatar (the `avatar` slot, input chips only) are decorative.\n\nAn action chip with `href` is a link and not a button (CHP-33): the shadow root holds an `<a href>` in place\nof the `<button>`, drawn from the same tokens in every state. Enter activates it and Space does not; `click` fires\nfirst and cancelling it cancels the navigation. `target=\"new\"` opens a new tab, safely (`noopener`), draws the icon\nset's `open_in_new` at the chip's inline end and reads `target-label` as the link's description. A filter chip and an\ninput chip take no destination.",
+          "description": "Shows a compact choice, a suggested action or an item the user entered as a small labelled control.\n\nContract: specs/chip.spec.json. Every visual value comes from `--tanrei-comp-chip-*` tokens, one set per variant, look\n(plain, or `selected.` for a filter chip that is on) and state, and the `remove.` parts of an input chip's remove\naction in its own states: how a state looks is the active design system's decision, not this component's. How a\npress is answered and how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`),\nand how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`).\n\n`kind` decides what the chip does and its parts; `variant` only how it looks. An action chip is a button. A filter chip\nis a button with a pressed state: activation switches `selected` and fires `change`, and when on it shows a check in\nits leading position. An input chip has a remove action, a second button named by `removeLabel`, pressed by pointer,\ntouch or assistive technology and not a Tab stop: an input chip is one stop, and Backspace or Delete on it removes it,\nwhich the chip tells assistive technology with `aria-keyshortcuts`. Both fire `remove` — the chip never removes itself\n(the page does, and moves focus). With `destructiveRemove` (the attribute `destructive-remove`) the remove action reads\nas destructive: it looks the same at rest and takes the error color while it is hovered, focused or pressed — a color\nonly, never a change of name, glyph or size. It is off by default. The label is the visible text and the\naccessible name; the icon (the `icon` slot) and the avatar (the `avatar` slot, input chips only) are decorative.\n\nAn action chip with `href` is a link and not a button (CHP-33): the shadow root holds an `<a href>` in place\nof the `<button>`, drawn from the same tokens in every state. Enter activates it and Space does not; `click` fires\nfirst and cancelling it cancels the navigation. `target=\"new\"` opens a new tab, safely (`noopener`), draws the icon\nset's `open_in_new` at the chip's inline end and reads `target-label` as the link's description. A filter chip and an\ninput chip take no destination.",
           "name": "TanreiChip",
           "cssParts": [
             {
@@ -17518,9 +17518,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,\nkeyboard-focused or pressed. Set `no-destructive-remove` where removing loses nothing (a filter the user can add\nback in one step). Color only: the name, glyph, size and behaviour are the same either way. Ignored unless `kind` is input.",
-              "attribute": "no-destructive-remove",
+              "default": "false",
+              "description": "Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,\nkeyboard-focused or pressed. Set `destructive-remove` where removing loses something that cannot be put back in a\nstep (an attachment, a recipient already invited); leave it off where the person can put the item back in one step\n(an applied filter, a search term). Color only: the name, glyph, size and behaviour are the same either way. Ignored\nunless `kind` is input.",
+              "attribute": "destructive-remove",
               "reflects": true
             },
             {
@@ -17858,12 +17858,12 @@
               "fieldName": "removeLabel"
             },
             {
-              "name": "no-destructive-remove",
+              "name": "destructive-remove",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "description": "Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,\nkeyboard-focused or pressed. Set `no-destructive-remove` where removing loses nothing (a filter the user can add\nback in one step). Color only: the name, glyph, size and behaviour are the same either way. Ignored unless `kind` is input.",
+              "default": "false",
+              "description": "Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,\nkeyboard-focused or pressed. Set `destructive-remove` where removing loses something that cannot be put back in a\nstep (an attachment, a recipient already invited); leave it off where the person can put the item back in one step\n(an applied filter, a search term). Color only: the name, glyph, size and behaviour are the same either way. Ignored\nunless `kind` is input.",
               "fieldName": "destructiveRemove"
             },
             {
