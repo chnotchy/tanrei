@@ -2,7 +2,7 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: b563935d3154657414f972c8a82fc7d61abf46a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,8 @@ Añade `full-width` para que un botón sea tan ancho como su contenedor, por eje
 Define `destructive` en un botón cuya acción elimina o descarta algo que quizá no se pueda recuperar: Eliminar, Descartar, Quitar miembro. El botón conserva el énfasis de su variante y toma el color de error dentro de ella. Un botón filled se rellena con el color de error y uno tonal con el contenedor de error; un botón elevated, outlined o text dibuja su etiqueta en el color de error, y uno outlined también su borde. Deshabilitado, se ve como cualquier botón deshabilitado de su variante.
 
 Elige la variante como para cualquier otra acción. Usa filled donde eliminar es el paso para el que existe la vista, como la acción que confirma un diálogo «¿Eliminar el proyecto?». Usa outlined o text donde es una acción entre varias, como «Quitar» en cada fila de una lista. Un botón de solo icono también admite `destructive`, pero para una acción que no se puede deshacer una etiqueta es más clara que un glifo. Un conmutador no tiene aspecto destructivo.
+
+Un enlace tampoco lo tiene. Un botón con `href` ignora `destructive` y se dibuja como el enlace de su variante, porque seguir un enlace no elimina nada: solo lleva a la persona al lugar donde se puede eliminar algo. Marca la acción de ese lugar, como el botón Eliminar de la página que abre el enlace. Las compilaciones de depuración notifican un enlace al que se le da `destructive`.
 
 <DemoFrame label="Botones destructivos en cada variante, y de solo icono" plain>
   <tanrei-button destructive>Eliminar proyecto</tanrei-button>
@@ -374,6 +376,7 @@ Un botón sin `variant` es filled, con una excepción: colocado como acción de 
 - Coloca la acción principal donde la esperan quienes usan la plataforma y mantén ese orden en todo el producto.
 - Usa `small` (32) en barras de herramientas y tablas densas, `medium` (40) de forma predeterminada y `large` (56) para ubicaciones pensadas para el tacto o muy destacadas. El área de pulsación es segura en todos los tamaños.
 - Define `destructive` en una acción que elimina o descarta algo, y elige su variante por su énfasis, como para cualquier otra acción.
+- Haz que un enlace al lugar donde se elimina algo sea un enlace corriente, cuya etiqueta diga adónde lleva. Define `destructive` en el botón que elimina, en ese lugar.
 - Usa el slot de icono para reforzar una etiqueta. Omite la etiqueta solo cuando el glifo se entienda de forma generalizada (buscar, cerrar, más) y da nombre al botón con `label`.
 
 ### Evita
@@ -384,6 +387,7 @@ Un botón sin `variant` es filled, con una excepción: colocado como acción de 
 - No deshabilites un botón como única forma de comunicar un problema de validación. Mantenlo habilitado y explica qué falta cuando se pulse, o mantenlo alcanzable con `focusable-when-disabled` y di por qué.
 - No deshabilites un botón mientras su acción está en curso. Define `busy`, para que el foco se quede en él.
 - No uses `destructive` para dar énfasis, ni en una acción que no destruye nada. Si todas las acciones de una vista son rojas, ninguna destaca.
+- No pongas un enlace en rojo, ni des a un botón `href` y `destructive` a la vez. Un enlace solo lleva a otro lugar, así que el botón ignora `destructive` y dibuja el enlace de su variante.
 - No trunques las etiquetas. Deja que el botón crezca o escribe una etiqueta más corta.
 - No dejes un botón de solo icono sin `label`: el glifo no es un nombre.
 - No juntes a mano botones estrechos de solo icono borde con borde. Sus objetivos se extienden más allá de sus bordes y se solaparían.
