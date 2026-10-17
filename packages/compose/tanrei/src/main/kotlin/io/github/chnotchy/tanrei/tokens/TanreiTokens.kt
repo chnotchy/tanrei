@@ -1015,7 +1015,12 @@ public data class TanreiAppBarConditions(
 public data class TanreiAppBarTokens(
     public val actionsGap: Dp,
     public val brandColor: TanreiPaint,
-    public val brandSize: Dp,
+    public val brandImageHeight: Dp,
+    public val brandLockupAlignment: Float,
+    public val brandLockupGap: Dp,
+    public val brandShape: Dp,
+    public val brandSymbolSize: Dp,
+    public val brandWordmarkHeight: Dp,
     public val containerGap: Dp,
     public val containerPaddingBlockEnd: Dp,
     public val containerPaddingInline: Dp,

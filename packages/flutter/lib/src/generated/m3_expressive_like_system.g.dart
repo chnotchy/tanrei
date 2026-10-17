@@ -719,7 +719,12 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
   appBar: TanreiAppBarTokens(
     actionsGap: 8.0,
     brandColor: TanreiPaint.role(TanreiColorRole.onSurface),
-    brandSize: 24.0,
+    brandImageHeight: 36.0,
+    brandLockupAlignment: 0.0,
+    brandLockupGap: 8.0,
+    brandShape: 9999.0,
+    brandSymbolSize: 24.0,
+    brandWordmarkHeight: 36.0,
     containerGap: 8.0,
     containerPaddingBlockEnd: 12.0,
     containerPaddingInline: 4.0,

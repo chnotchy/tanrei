@@ -925,7 +925,12 @@ export const cupertino = {
     appBar: {
       actionsGap: 8,
       brandColor: { kind: "role", role: "onSurface" },
-      brandSize: 24,
+      brandImageHeight: 36,
+      brandLockupAlignment: 0,
+      brandLockupGap: 8,
+      brandShape: 9999,
+      brandSymbolSize: 24,
+      brandWordmarkHeight: 36,
       containerGap: 8,
       containerPaddingBlockEnd: 12,
       containerPaddingInline: 8,

@@ -2502,7 +2502,12 @@ class TanreiAppBarTokens {
   const TanreiAppBarTokens({
     required this.actionsGap,
     required this.brandColor,
-    required this.brandSize,
+    required this.brandImageHeight,
+    required this.brandLockupAlignment,
+    required this.brandLockupGap,
+    required this.brandShape,
+    required this.brandSymbolSize,
+    required this.brandWordmarkHeight,
     required this.containerGap,
     required this.containerPaddingBlockEnd,
     required this.containerPaddingInline,
@@ -2521,8 +2526,18 @@ class TanreiAppBarTokens {
   final double actionsGap;
   /// `comp.app-bar.brand-color`
   final TanreiPaint brandColor;
-  /// `comp.app-bar.brand-size`
-  final double brandSize;
+  /// `comp.app-bar.brand-image-height`
+  final double brandImageHeight;
+  /// `comp.app-bar.brand-lockup-alignment`
+  final double brandLockupAlignment;
+  /// `comp.app-bar.brand-lockup-gap`
+  final double brandLockupGap;
+  /// `comp.app-bar.brand-shape`
+  final double brandShape;
+  /// `comp.app-bar.brand-symbol-size`
+  final double brandSymbolSize;
+  /// `comp.app-bar.brand-wordmark-height`
+  final double brandWordmarkHeight;
   /// `comp.app-bar.container-gap`
   final double containerGap;
   /// `comp.app-bar.container-padding-block-end`
@@ -2552,7 +2567,12 @@ class TanreiAppBarTokens {
   TanreiAppBarTokens copyWith({
     double? actionsGap,
     TanreiPaint? brandColor,
-    double? brandSize,
+    double? brandImageHeight,
+    double? brandLockupAlignment,
+    double? brandLockupGap,
+    double? brandShape,
+    double? brandSymbolSize,
+    double? brandWordmarkHeight,
     double? containerGap,
     double? containerPaddingBlockEnd,
     double? containerPaddingInline,
@@ -2568,7 +2588,12 @@ class TanreiAppBarTokens {
   }) => TanreiAppBarTokens(
         actionsGap: actionsGap ?? this.actionsGap,
         brandColor: brandColor ?? this.brandColor,
-        brandSize: brandSize ?? this.brandSize,
+        brandImageHeight: brandImageHeight ?? this.brandImageHeight,
+        brandLockupAlignment: brandLockupAlignment ?? this.brandLockupAlignment,
+        brandLockupGap: brandLockupGap ?? this.brandLockupGap,
+        brandShape: brandShape ?? this.brandShape,
+        brandSymbolSize: brandSymbolSize ?? this.brandSymbolSize,
+        brandWordmarkHeight: brandWordmarkHeight ?? this.brandWordmarkHeight,
         containerGap: containerGap ?? this.containerGap,
         containerPaddingBlockEnd: containerPaddingBlockEnd ?? this.containerPaddingBlockEnd,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,

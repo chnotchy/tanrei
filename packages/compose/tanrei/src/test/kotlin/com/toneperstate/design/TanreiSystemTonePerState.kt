@@ -816,7 +816,12 @@ private object TonePerStateSystemSource {
         TanreiAppBarTokens(
             actionsGap = 8.dp,
             brandColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-            brandSize = 24.dp,
+            brandImageHeight = 36.dp,
+            brandLockupAlignment = 0f,
+            brandLockupGap = 8.dp,
+            brandShape = 9999.dp,
+            brandSymbolSize = 24.dp,
+            brandWordmarkHeight = 36.dp,
             containerGap = 8.dp,
             containerPaddingBlockEnd = 12.dp,
             containerPaddingInline = 4.dp,
