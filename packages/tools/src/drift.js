@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { keepFiles } from './keep.js';
+import { npmMetadataOutputs } from './npm-metadata.js';
 
 /**
  * Every generator in the repository, in dependency order: [cwd, command, args, outputs]. An output is a file, or a
@@ -17,6 +18,9 @@ export const GENERATORS = [
   // The glyph names the components and the docs site draw, and the icon axes of the shipped systems (read from the
   // resolved tokens the step before writes).
   ['.', 'node', ['packages/tools/src/glyphs.js'], ['packages/web/src/generated/glyphs.json', 'apps/docs/src/generated/glyphs.json']],
+  // What npm shows of each published package beside its name: homepage, bugs, keywords, the MCP registry's name
+  // (docs/registries/npm-keywords.json and tanrei.config.json).
+  ['.', 'node', ['packages/tools/src/npm-metadata.js'], npmMetadataOutputs()],
   // As the `generate` script of packages/web: what the analyzer reads and where it writes is its configuration's
   // (packages/web/custom-elements-manifest.config.mjs), written once.
   ['packages/web', 'node_modules/.bin/cem', ['analyze'], ['packages/web/custom-elements.json']],

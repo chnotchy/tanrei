@@ -18,8 +18,10 @@ const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json
 // lives on <html> because component tokens are resolved at :root.
 const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast');if(c==='medium'||c==='high')document.documentElement.setAttribute('data-tanrei-contrast',c)}catch(e){}`;
 
-// The public URL (Cloudflare Pages, custom domain). Gives every page its canonical URL and the sitemap.
-const site = 'https://tanrei.chnotchy.com';
+// The public URL (Cloudflare Pages, custom domain), from tanrei.config.json. Gives every page its canonical URL, the
+// sitemap and robots.txt (src/pages/robots.txt.ts).
+const { site } = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8'));
+if (!site) throw new Error('tanrei.config.json has no "site": the address of the docs site');
 const title = 'Tanrei';
 
 // The brand page took the place of the principles page: its old address, in every language, leads there.
