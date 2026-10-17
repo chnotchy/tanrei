@@ -1493,6 +1493,85 @@
             "$description": "Between two actions."
           }
         },
+        "brand": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.0745,
+                0.0745,
+                0.0745
+              ],
+              "hex": "#131313",
+              "alpha": 1
+            },
+            "$description": "The brand's color: an image drawn in the current color takes it; an image of its own colors keeps them."
+          },
+          "image": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$description": "The height of a brand given as one image (a product's single logo file): a wordmark's, which most logo files are drawn around."
+            }
+          },
+          "lockup": {
+            "alignment": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "How the symbol and the wordmark of a lockup align in the row's block axis: center (their centres on one line), start (their tops) or end (their bottoms, for a symbol that stands on the wordmark's baseline). The value is an index into dev.tanrei.enum.values; platforms receive the name."
+            },
+            "gap": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$description": "Between the symbol and the wordmark set side by side."
+            },
+            "symbol": {
+              "size": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 40,
+                  "unit": "px"
+                },
+                "$description": "The symbol's height beside the wordmark in a lockup: the wordmark's, so that the two stand at one height (APB-24). A symbol shown alone keeps brand.symbol.size."
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corners of the brand's cell, which its focus indicator follows: the icon buttons' beside it."
+          },
+          "symbol": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$description": "The symbol's height (and a square symbol's width): an icon's, so that it stands where an icon button's icon stands."
+            }
+          },
+          "wordmark": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$description": "The wordmark's height: the height of its frame, which keeps the capital of the default system's wordmark at least 24 px high (its minimum) and its ink inside the brand's cell. Its width follows its proportions."
+            }
+          }
+        },
         "container": {
           "gap": {
             "$type": "dimension",
