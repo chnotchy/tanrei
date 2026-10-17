@@ -1,0 +1,135 @@
+---
+title: استخدام Tanrei مع وكلاء الذكاء الاصطناعي
+description: صِل خادم MCP لنظام Tanrei، وأعطِ وكيل البرمجة قواعد واجهة منتجك في الملف AGENTS.md، وأبقِه ضمن مكوّنات النظام الافتراضي وقيمه.
+translationOf: getting-started/ai-agents.mdx
+sourceHash: d28251d7b08dcfbb2b78ec804fbb33db4b7122d5
+---
+
+import Callout from '../../../../components/Callout.astro';
+import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
+
+يحتاج وكيل البرمجة الذي يكتب واجهة منتجك إلى ما يحتاج إليه أي شخص في فريقك: ما المكوّنات الموجودة، وما الذي يأخذه كل مكوّن، ومن أين تأتي كل قيمة. ويحفظ نظام Tanrei هذه الثلاثة في ملفات تأتي مع حزمه وفي خادم MCP، فيستطيع الوكيل أن يرجع إليها بدل أن يخمّن. تبيّن هذه الصفحة كيف تصلها، وتعطيك ملف قواعد تنسخه إلى مستودعك.
+
+## ما يستطيع الوكيل قراءته في الحزم
+
+- **المكوّنات.** تأتي الحزمة `@tanrei/web` بملف Custom Elements Manifest هو `custom-elements.json`: فيه كل عنصر بخصائص HTML (attributes) وخصائص العنصر والأحداث والمنافذ (slots) وأجزاء CSS، ولكلٍّ منها وصف. وتأتي الحزمة `@tanrei/react` بأنواع المكوّنات نفسها، فتفشل خاصية غير موجودة عند فحص الأنواع.
+- **القيم.** كل رمز تصميم (design token) هو خاصية مخصَّصة في `@tanrei/web/tokens.css`، اسمها مأخوذ من مساره: الرمز `tanrei.sys.color.primary` هو `--tanrei-sys-color-primary`. وإن كانت لمنتجك طبقته الخاصة، فإن المُخرَج `tokens` من الأمر `tanrei build` حزمة DTCG تحمل كل مجموعة فيها إرشادات استخدام للوكلاء في `$extensions["dev.tanrei.llm"]` ([نظام التصميم الخاص بك](/ar/getting-started/your-design-system/)).
+- **ما الخطأ.** المكوّن المستخدَم استخدامًا خاطئًا يُرسم مع ذلك، وفي بنية التطوير يكتب في وحدة التحكم تحذيرًا أوله `[tanrei]` يسمّي العنصر والمشكلة والقاعدة التي خالفها: زر بلا تسمية ولا أيقونة، أو كلمة لم يعطها منتجك، أو مكوّن يستبعده النظام. أما بنية الإنتاج (`NODE_ENV=production`) فلا تكتب شيئًا.
+
+## وصل خادم MCP
+
+الحزمة `@tanrei/mcp` خادم [Model Context Protocol](https://modelcontextprotocol.io) لرموز Tanrei ولطبقات أنظمة التصميم. يسأله الوكيل: ما الرموز الموجودة، وإلامَ يؤول رمز في نظام ما ولماذا، وما الذي تستطيع الطبقة تغييره وكيف، وهل تعديلٌ على طبقة صالح قبل أن يكتبه. كل أدواته للقراءة فقط: الوكيل هو من يعدّل ملف طبقتك، والخادم يتحقق من التعديل بالبناء نفسه الذي يشغّله الأمر `tanrei build`. ولا يجيب عن المكوّنات، فعقدها هو الملف المذكور أعلاه.
+
+<Callout type="caution" title="إصدار تمهيدي">
+  تُنشر حزم Tanrei إصداراتٍ تمهيدية تحت الوسم `next` في npm، فثبِّت `@tanrei/mcp@next`. وأبقِه على الإصدار نفسه الذي عليه `@tanrei/web` و `@tanrei/cli` وسائر المكتبات، فهي تتشارك مفردات واحدة.
+</Callout>
+
+في Claude Code، شغّل هذا الأمر في مستودعك:
+
+```sh
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+```
+
+يكتب الخيار `--scope project` الخادم في الملف `.mcp.json` في جذر المستودع. أودِع هذا الملف (commit)، فيكون الخادم نفسه لدى كل من يعمل في المستودع.
+
+ويقرأ محرر Cursor (`.cursor/mcp.json`) وتطبيق Claude Desktop ومعظم العملاء الآخرين الخادم نفسه من JSON، عبر stdio:
+
+```json
+{
+  "mcpServers": {
+    "tanrei": {
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+ويقرأ محرر VS Code الملف `.vscode/mcp.json`، وفيه توضع الخوادم تحت `servers` وتسمّي طريقة نقلها:
+
+```json
+{
+  "servers": {
+    "tanrei": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+يحتاج الخادم إلى Node.js 20 أو أحدث. ويحلّ المسار النسبي في `layerFile` انطلاقًا من مجلد عمله، وهو عادةً جذر المستودع.
+
+### ما يجيب عنه الخادم
+
+| الأداة | ما تجيب عنه |
+|---|---|
+| `list_systems` | الأنظمة المضمَّنة في Tanrei، وإن أعطيتها ملف طبقتك فسلسلة طبقات منتجك، مع ما أضافته كل طبقة إلى المفردات ونتائج فحص إمكانية الوصول |
+| `search_tokens` | الرموز التي يُعثر عليها بجزء من المعرّف أو بنمط glob، مع نوع كل رمز وصنفه ووصفه |
+| `resolve` | إلامَ يؤول رمز في نظام ونظام ألوان، وعبر أي أسماء بديلة وقواعد، وأي طبقة حدّدته، وخاصيته المخصَّصة في CSS |
+| `explain_token` | لماذا يوجد الرمز، وما الذي يتبعه، والتغييرات التي تستطيع الطبقة كتابتها له، وكيف تضاف مفردات بجانبه، وكل ذلك جزءًا من طبقة |
+| `diff_systems` | الرموز التي تختلف قيمها بين نظامين |
+| `validate_layer` | كل مشكلات الطبقة دفعة واحدة، مع طريقة حل كل منها، ثم البناء الفعلي والتحذيرات التي يطبعها. لا تكتب شيئًا |
+| `propose_extension` | درجة أو حجم أو طراز جديد أو رمز خاص بك جزءًا من طبقة، متحقَّقًا منه ببناء تجريبي، مع القيم التي ينتجها |
+| `mimicry_gaps` | سمات أنظمة التصميم الأخرى التي لا يستطيع أي رمز التعبير عنها بعد |
+
+| المورد | ما يحويه |
+|---|---|
+| `tanrei://philosophy` | الأفكار التي تقوم عليها المفردات والقواعد التي تتبعها الطبقة، في صفحة واحدة |
+| `tanrei://schema/system` | مخطط JSON Schema لملف الطبقة |
+| `tanrei://systems/<id>` | ملف الطبقة لكل نظام مضمَّن، كما هو مكتوب |
+
+ويعطي الخادم الوكيلَ قواعده أيضًا عند الاتصال: غيّر القيم عبر طبقة، ولا تضف مفردات إلا تحت `vocabulary` ومعها مبرّر، وأعطِ كل قيمة مثبَّتة سببًا، ولا تغيّر أبدًا عتبة من عتبات إمكانية الوصول، ولا تعدّل أبدًا ملفًا مولَّدًا. هذان الجدولان هما قائمتا الخادم نفسه: فحصٌ يُبقي هذه الصفحة، بكل لغة، مطابقة لأدوات الخادم وموارده، فإذا اكتسب الخادم أداة أضيفت هنا معها.
+
+## ملف قواعد لمستودعك
+
+كثير من وكلاء البرمجة يقرؤون الملف `AGENTS.md` في جذر المستودع، ومنهم Cursor. ويقرؤه Claude Code حين لا يكون في المستودع ملف `CLAUDE.md`؛ فإن كان فيه، فأضف إليه سطرًا هو `@AGENTS.md`، فيقرأ Claude Code الملفين. انسخ هذا القسم إلى ملفك `AGENTS.md`:
+
+```text title="AGENTS.md"
+## UI
+
+This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
+
+- Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
+- Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
+- Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
+- Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
+- Keep every @tanrei/* package on the same version.
+```
+
+القواعد مكتوبة بالإنجليزية، لغة الأسماء في الشيفرة؛ فترجمها إن كان فريقك يكتب قواعده بلغة أخرى. وإن كانت لمنتجك طبقته الخاصة، فضع مكان القاعدة «Stay on the default system» هاتين القاعدتين، باسم طبقتك وملفها:
+
+```text title="AGENTS.md"
+- Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
+- Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
+```
+
+ويقرأ Cursor أيضًا قواعد المشروع من `.cursor/rules/*.mdc`؛ فإن كنت تحفظ قواعدك هناك، فبوسع قاعدةٍ فيها `alwaysApply: true` أن تحمل النص نفسه.
+
+## إبقاء الوكيل ضمن مكوّنات النظام الافتراضي
+
+يستبعد النظام الافتراضي `tanrei` بضعة مكوّنات وطُرُز، تحتفظ بها أنظمة مضمَّنة أخرى. وهي تُرسم وتعمل تحته مع ذلك، فالذي يمنع الوكيل من اللجوء إليها هو القاعدة أعلاه وهذه الإشارات. يستبعد النظام الافتراضي اليوم ما يلي:
+
+<LeftOutOfDefault />
+
+- تذكر صفحة كل مكوّن، في نظرتها العامة، الأنظمةَ التي لا توفّره، أو الطُرُز التي تستبعدها منه.
+- في بنية التطوير، يحذّر كل عنصر يستبعده النظام النشط مرة واحدة في وحدة التحكم: حين يتصل بالصفحة، وحين يتغيّر `variant` الخاص به.
+- وتستطيع اختبارات المتصفح في منتجك أن تحفظ هذا الحد: اجعل الصفحة تفشل عند أي تحذير `[tanrei]`. مع Playwright:
+
+  ```ts
+  import { expect, test } from '@playwright/test';
+
+  test('the home page draws no Tanrei warning', async ({ page }) => {
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().startsWith('[tanrei]')) warnings.push(message.text());
+    });
+    await page.goto('/');
+    expect(warnings).toEqual([]);
+  });
+  ```
+
+  شغّله على بنية التطوير: بنية الإنتاج لا تكتب أي تحذير.

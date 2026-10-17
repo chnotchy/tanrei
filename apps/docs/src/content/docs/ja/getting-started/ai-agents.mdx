@@ -1,0 +1,135 @@
+---
+title: AI エージェントと Tanrei を使う
+description: Tanrei の MCP サーバーをつなぎ、コーディングエージェントにプロダクトの UI の規則を AGENTS.md で渡し、既定のシステムのコンポーネントと値の中に留めます。
+translationOf: getting-started/ai-agents.mdx
+sourceHash: d28251d7b08dcfbb2b78ec804fbb33db4b7122d5
+---
+
+import Callout from '../../../../components/Callout.astro';
+import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
+
+プロダクトの画面を書くコーディングエージェントに要るものは、チームの人に要るものと同じです。どのコンポーネントがあるか、それぞれが何を受け取るか、そしてすべての値がどこから来るか。Tanrei はこの 3 つを、パッケージに同梱したファイルと MCP サーバーに持っています。エージェントは推測せずに、それを引けます。このページでは、それらのつなぎ方を示し、リポジトリにそのまま写せる規則のファイルを渡します。
+
+## パッケージの中でエージェントが読めるもの
+
+- **コンポーネント。** `@tanrei/web` は Custom Elements Manifest、`custom-elements.json` を同梱しています。すべての要素について、属性、プロパティ、イベント、スロット、CSS パーツが、それぞれの説明とともに載っています。`@tanrei/react` は同じコンポーネントの型を同梱しているので、存在しないプロパティは型検査で失敗します。
+- **値。** トークンはどれも `@tanrei/web/tokens.css` のカスタムプロパティで、名前はパスから付きます。`tanrei.sys.color.primary` は `--tanrei-sys-color-primary` です。プロダクトが自分のレイヤを持つなら、`tanrei build` の `tokens` 出力は DTCG のバンドルで、各グループには `$extensions["dev.tanrei.llm"]` にエージェント向けの使い方が書かれています（[自分のデザインシステムを作る](/ja/getting-started/your-design-system/)）。
+- **何が間違っているか。** 誤った使い方をされたコンポーネントも描画はされ、開発ビルドではコンソールに `[tanrei]` で始まる警告を書きます。警告は要素、問題、破った規則を名指しします。ラベルもアイコンもないボタン、プロダクトが渡していない言葉、システムが外しているコンポーネント、といったものです。本番ビルド（`NODE_ENV=production`）は何も書きません。
+
+## MCP サーバーをつなぐ
+
+`@tanrei/mcp` は、Tanrei のトークンとデザインシステムのレイヤのための [Model Context Protocol](https://modelcontextprotocol.io) サーバーです。エージェントはこれに、どのトークンがあるか、あるシステムでトークンが何に解決されるかとその理由、レイヤが何をどう変えられるか、そしてレイヤへの編集を書く前にそれが妥当かを尋ねます。ツールはすべて読み取り専用です。レイヤファイルを編集するのはエージェント自身で、サーバーは `tanrei build` と同じビルドでその編集を確かめます。コンポーネントについては答えません。コンポーネントの契約は、上のマニフェストです。
+
+<Callout type="caution" title="プレリリース">
+  Tanrei のパッケージは npm のタグ `next` でプレリリースとして公開されています。`@tanrei/mcp@next` をインストールしてください。`@tanrei/web`、`@tanrei/cli` などのライブラリと同じバージョンにそろえます。これらは 1 つの語彙を共有しているからです。
+</Callout>
+
+Claude Code では、リポジトリで次を実行します。
+
+```sh
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+```
+
+`--scope project` を付けると、サーバーはリポジトリのルートの `.mcp.json` に書かれます。このファイルをコミットすれば、リポジトリで作業する全員が同じサーバーを使えます。
+
+Cursor（`.cursor/mcp.json`）、Claude Desktop をはじめ多くのクライアントは、同じサーバーを JSON から、stdio で読みます。
+
+```json
+{
+  "mcpServers": {
+    "tanrei": {
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+VS Code は `.vscode/mcp.json` を読みます。サーバーは `servers` の下に置き、トランスポートを名指しします。
+
+```json
+{
+  "servers": {
+    "tanrei": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+サーバーには Node.js 20 以降が要ります。相対パスの `layerFile` は作業ディレクトリから解決し、それはふつうリポジトリのルートです。
+
+### サーバーが答えること
+
+| ツール | 答えること |
+|---|---|
+| `list_systems` | Tanrei に同梱されたシステムと、レイヤファイルを渡したときはプロダクトのレイヤの連なり。それぞれが語彙に足したものと、アクセシビリティの指摘も |
+| `search_tokens` | id の部分文字列か glob で見つけたトークンと、それぞれの型、種類、説明 |
+| `resolve` | あるシステムとスキームでトークンが何に解決されるか。どのエイリアスと規則を通り、どのレイヤが値を決めたか、そして CSS カスタムプロパティの名前 |
+| `explain_token` | トークンがなぜあるか、何がそれに追従するか、レイヤがそれに書ける変更と、隣に語彙を足す方法。どれもレイヤの断片として |
+| `diff_systems` | 2 つのシステムで値が違うトークン |
+| `validate_layer` | レイヤの問題を一度にすべて、それぞれの直し方とともに。続けて実際のビルドと、それが出す警告。何も書きません |
+| `propose_extension` | 新しい段、サイズ、バリアント、または自分のトークンを、レイヤの断片として。試しのビルドで確かめ、生まれる値も添えます |
+| `mimicry_gaps` | ほかのデザインシステムの特徴のうち、まだどのトークンでも表せないもの |
+
+| リソース | 中身 |
+|---|---|
+| `tanrei://philosophy` | 語彙の考え方と、レイヤが従う規則を 1 ページで |
+| `tanrei://schema/system` | レイヤファイルの JSON Schema |
+| `tanrei://systems/<id>` | 同梱システムそれぞれの、書かれたままのレイヤファイル |
+
+サーバーは接続したときに、エージェントへ規則も渡します。値はレイヤで変える、語彙は `vocabulary` の下に理由を添えてだけ足す、固定した値にはすべて理由を書く、アクセシビリティのしきい値は変えない、生成されたファイルは編集しない。この 2 つの表はサーバー自身の一覧です。チェックがこのページを、どの言語でも、サーバーの持つツールとリソースに合わせているので、サーバーがツールを得れば、ここにもその行が足されます。
+
+## リポジトリに置く規則のファイル
+
+多くのコーディングエージェントは、リポジトリのルートの `AGENTS.md` を読みます。Cursor は読みます。Claude Code は、リポジトリに `CLAUDE.md` がなければ読みます。あるときは、そこに `@AGENTS.md` という行を足せば、Claude Code は両方を読みます。次の節を `AGENTS.md` に写してください。
+
+```text title="AGENTS.md"
+## UI
+
+This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
+
+- Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
+- Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
+- Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
+- Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
+- Keep every @tanrei/* package on the same version.
+```
+
+規則は、コードの名前と同じ英語で書いてあります。チームが規則を別の言語で書いているなら、訳してください。プロダクトが自分のレイヤを持つなら、「Stay on the default system」の規則を次の 2 行に置き換え、レイヤの名前とファイルを自分のものにします。
+
+```text title="AGENTS.md"
+- Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
+- Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
+```
+
+Cursor は `.cursor/rules/*.mdc` のプロジェクトルールも読みます。規則をそちらに置いているなら、`alwaysApply: true` のルールに同じ文を入れられます。
+
+## エージェントを既定のシステムのコンポーネントに留める
+
+既定のシステム `tanrei` は、いくつかのコンポーネントとバリアントを外しています。ほかの同梱システムはそれらを持っています。外されたものも `tanrei` の下で描画され、動きます。ですから、エージェントがそれに手を伸ばさないようにするのは、上の規則と次の合図です。既定のシステムがいま外しているのは、次のものです。
+
+<LeftOutOfDefault />
+
+- 各コンポーネントのページは、概要の中で、それを提供しないシステムや、外しているバリアントを示します。
+- 開発ビルドでは、有効なシステムが外している要素は、接続したときと `variant` が変わったときに、コンソールに一度だけ警告します。
+- プロダクト自身のブラウザーテストで、この線を守れます。`[tanrei]` の警告が 1 つでも出たページを失敗にします。Playwright なら次のとおりです。
+
+  ```ts
+  import { expect, test } from '@playwright/test';
+
+  test('the home page draws no Tanrei warning', async ({ page }) => {
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().startsWith('[tanrei]')) warnings.push(message.text());
+    });
+    await page.goto('/');
+    expect(warnings).toEqual([]);
+  });
+  ```
+
+  開発ビルドに対して実行してください。本番ビルドは警告を書きません。

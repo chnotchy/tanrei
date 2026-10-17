@@ -1,0 +1,135 @@
+---
+title: 与 AI 代理一起使用 Tanrei
+description: 连接 Tanrei 的 MCP 服务器，用 AGENTS.md 把产品的 UI 规则交给编程代理，并让它只使用默认系统的组件和值。
+translationOf: getting-started/ai-agents.mdx
+sourceHash: d28251d7b08dcfbb2b78ec804fbb33db4b7122d5
+---
+
+import Callout from '../../../../components/Callout.astro';
+import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
+
+为你的产品编写界面的编程代理，需要的东西和团队里的人一样：有哪些组件，每个组件接受什么，每个值从哪里来。Tanrei 把这三样都放在它的包所附带的文件和一个 MCP 服务器里，代理可以直接查，不必去猜。本页说明如何把它们接上，并给出一份可以复制到你仓库里的规则文件。
+
+## 代理能在包里读到什么
+
+- **组件。** `@tanrei/web` 附带一份 Custom Elements Manifest，即 `custom-elements.json`：列出每个元素的特性、属性、事件、插槽和 CSS 部件，每一项都有说明。`@tanrei/react` 附带同一批组件的类型，所以不存在的属性会在类型检查时失败。
+- **值。** 每个令牌都是 `@tanrei/web/tokens.css` 中的一个 CSS 自定义属性，名字来自它的路径：`tanrei.sys.color.primary` 就是 `--tanrei-sys-color-primary`。如果你的产品有自己的层，`tanrei build` 的 `tokens` 输出是一个 DTCG 包，其中每个组都在 `$extensions["dev.tanrei.llm"]` 里写有给代理的用法说明（见[你自己的设计系统](/zh-cn/getting-started/your-design-system/)）。
+- **哪里出了错。** 用错的组件仍会渲染，并在开发构建中向控制台写一条以 `[tanrei]` 开头的警告，指出元素、问题和它违反的规则：既没有标签也没有图标的按钮、产品没有提供的文字、系统未包含的组件。生产构建（`NODE_ENV=production`）什么也不写。
+
+## 连接 MCP 服务器
+
+`@tanrei/mcp` 是面向 Tanrei 令牌和设计系统层的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。代理可以问它：有哪些令牌，某个令牌在某个系统中解析成什么、为什么，层可以改什么、怎么改，以及对层的一处修改在写入之前是否有效。所有工具都是只读的：层文件由代理自己编辑，服务器用与 `tanrei build` 相同的构建来检查这次修改。它不回答关于组件的问题；组件的契约就是上面的清单。
+
+<Callout type="caution" title="预发布">
+  Tanrei 的包以预发布版本发布在 npm 的 `next` 标签下，所以请安装 `@tanrei/mcp@next`。让它与 `@tanrei/web`、`@tanrei/cli` 等库保持同一版本：它们共用一套词汇。
+</Callout>
+
+在 Claude Code 中，在你的仓库里运行：
+
+```sh
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+```
+
+`--scope project` 会把服务器写进仓库根目录的 `.mcp.json`。提交这个文件，在这个仓库里工作的每个人就都有同一个服务器。
+
+Cursor（`.cursor/mcp.json`）、Claude Desktop 和大多数其他客户端，都从 JSON 中读取同一个服务器，通过 stdio 连接：
+
+```json
+{
+  "mcpServers": {
+    "tanrei": {
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+VS Code 读取 `.vscode/mcp.json`，服务器放在 `servers` 下，并写明传输方式：
+
+```json
+{
+  "servers": {
+    "tanrei": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+服务器需要 Node.js 20 或更高版本。相对路径的 `layerFile` 从它的工作目录解析，通常就是仓库的根目录。
+
+### 服务器能回答什么
+
+| 工具 | 回答什么 |
+|---|---|
+| `list_systems` | Tanrei 内置的系统；给出你的层文件时，还有你产品的层链。每一层为词汇添加了什么，以及它的无障碍检查结果 |
+| `search_tokens` | 按 id 的子串或 glob 找到的令牌，以及每个令牌的类型、种类和说明 |
+| `resolve` | 令牌在某个系统和配色方案中解析成什么：经过哪些别名和规则，由哪一层设定，以及它的 CSS 自定义属性 |
+| `explain_token` | 令牌为什么存在，哪些令牌跟随它，层可以为它写哪些修改，以及如何在它旁边添加词汇，每一项都是层的一个片段 |
+| `diff_systems` | 两个系统之间值不同的令牌 |
+| `validate_layer` | 一次给出层的全部问题，每个都附上解决办法；然后是真正的构建和它输出的警告。它不写入任何东西 |
+| `propose_extension` | 新的一级、尺寸、变体或你自己的令牌，作为层的一个片段，经过一次试构建检查，并附上它产生的值 |
+| `mimicry_gaps` | 其他设计系统中还没有任何令牌能表达的特征 |
+
+| 资源 | 内容 |
+|---|---|
+| `tanrei://philosophy` | 词汇背后的想法和层要遵守的规则，写在一页里 |
+| `tanrei://schema/system` | 层文件的 JSON Schema |
+| `tanrei://systems/<id>` | 每个内置系统的层文件，按原样提供 |
+
+服务器在连接时还会把规则交给代理：通过层来改值；只在 `vocabulary` 下添加词汇，并写明理由；每个固定的值都写上原因；不改无障碍阈值；不编辑生成的文件。这两张表就是服务器自己的清单：有一项检查让本页在每种语言中都与服务器拥有的工具和资源保持一致，所以服务器新增一个工具时，这里也会随之加上一行。
+
+## 放进仓库的规则文件
+
+许多编程代理会读取仓库根目录下的 `AGENTS.md`，Cursor 就是如此。Claude Code 在仓库没有 `CLAUDE.md` 时读取它；如果有，就在 `CLAUDE.md` 中加一行 `@AGENTS.md`，Claude Code 会两个都读。把下面这一节复制到你的 `AGENTS.md`：
+
+```text title="AGENTS.md"
+## UI
+
+This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
+
+- Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
+- Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
+- Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
+- Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
+- Keep every @tanrei/* package on the same version.
+```
+
+这些规则用英语写成，与代码中的名字是同一种语言；如果你的团队用别的语言写规则，可以翻译。如果你的产品有自己的层，就把“Stay on the default system”这条规则换成下面两行，并改成你自己的层名和文件：
+
+```text title="AGENTS.md"
+- Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
+- Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
+```
+
+Cursor 也会读取 `.cursor/rules/*.mdc` 中的项目规则；如果你把规则放在那里，可以把同样的文字写进一条 `alwaysApply: true` 的规则。
+
+## 让代理只用默认系统的组件
+
+默认系统 `tanrei` 不包含少数几个组件和变体，其他内置系统则包含它们。这些组件在 `tanrei` 下仍会渲染、仍能工作，所以让代理不去用它们的，是上面的规则和下面这些信号。默认系统目前不包含：
+
+<LeftOutOfDefault />
+
+- 每个组件的页面会在概述中写明哪些系统不提供它，或者不包含它的哪些变体。
+- 在开发构建中，当前系统不包含的每个元素都会在控制台警告一次：在它连接时，以及它的 `variant` 改变时。
+- 你产品自己的浏览器测试可以守住这条线：只要出现 `[tanrei]` 警告，就让该页面的测试失败。用 Playwright：
+
+  ```ts
+  import { expect, test } from '@playwright/test';
+
+  test('the home page draws no Tanrei warning', async ({ page }) => {
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().startsWith('[tanrei]')) warnings.push(message.text());
+    });
+    await page.goto('/');
+    expect(warnings).toEqual([]);
+  });
+  ```
+
+  请针对开发构建运行它：生产构建不会写出警告。
