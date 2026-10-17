@@ -11488,7 +11488,7 @@ export const acme = {
       arrowInset: 8,
       arrowVisible: 0,
       arrowWidth: 12,
-      closeButtonVariant: 4,
+      closeButtonVariant: 1,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level2",
       containerGap: 12,

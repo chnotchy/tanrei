@@ -6458,7 +6458,7 @@ private object TanreiSystemSource {
             arrowInset = 8.dp,
             arrowVisible = 0f,
             arrowWidth = 12.dp,
-            closeButtonVariant = 4f,
+            closeButtonVariant = 1f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level2,
             containerGap = 12.dp,

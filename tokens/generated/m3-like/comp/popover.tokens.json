@@ -174,11 +174,11 @@
         "close-button": {
           "variant": {
             "$type": "number",
-            "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$value": 1,
+            "$description": "The Button variant of the close button, an icon-only small Button (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product decides once how its popovers' close control stands: a bare glyph that leaves a small header to its headline, or a tonal button that reads as a control on any content, as its sheets' does."
+                "rationale": "One product decides once how its popovers' close control stands: a tonal button that reads as a control on any content, or a bare glyph that leaves a small header to its headline."
               },
               "dev.tanrei.enum": {
                 "values": [

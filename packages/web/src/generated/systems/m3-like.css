@@ -5862,7 +5862,7 @@
     --tanrei-comp-popover-arrow-inset: var(--tanrei-sys-space-space100);
     --tanrei-comp-popover-arrow-visible: off;
     --tanrei-comp-popover-arrow-width: var(--tanrei-sys-space-space150);
-    --tanrei-comp-popover-close-button-variant: text;
+    --tanrei-comp-popover-close-button-variant: tonal;
     --tanrei-comp-popover-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-popover-container-elevation: var(--tanrei-sys-elevation-level2);
     --tanrei-comp-popover-container-elevation-inset-ring: var(--tanrei-sys-elevation-level2-inset-ring);

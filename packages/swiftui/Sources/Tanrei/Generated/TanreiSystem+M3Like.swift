@@ -6904,7 +6904,7 @@ private let m3LikePopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
-  closeButtonVariant: 4,
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: m3LikeElevation.level2,
   containerGap: 12,

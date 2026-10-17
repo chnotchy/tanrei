@@ -35,7 +35,7 @@
     },
     {
       "id": "close-button",
-      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.popover.close-button.variant names (text in the default system). The popover places it and chooses its variant; everything else it reads from Button's own tokens.",
+      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.popover.close-button.variant names (tonal in the default system, as every host's close button is). The popover places it and chooses its variant; everything else it reads from Button's own tokens.",
       "optional": true
     },
     {
@@ -279,7 +279,8 @@
     },
     {
       "id": "POP-13",
-      "text": "WHILE closable is true THE popover SHALL draw at the end of its header an icon-only Button of the small size showing the glyph close of the system's icon set and named by closeLabel, in the variant comp.popover.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE popover SHALL emit close exactly once with the reason close. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name. THE popover SHALL draw no close mark of its own (no path, shape or character of its own)."
+      "text": "WHILE closable is true THE popover SHALL draw at the end of its header an icon-only Button of the small size showing the glyph close of the system's icon set and named by closeLabel, in the variant comp.popover.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE popover SHALL emit close exactly once with the reason close. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name. THE popover SHALL draw no close mark of its own (no path, shape or character of its own).",
+      "verify": "In the default system the close button is a tanrei-button of size small, 32 × 32, drawing the tonal variant's container with no variant attribute of its own; a fixture system that sets comp.popover.close-button.variant to text draws the text variant's."
     },
     {
       "id": "POP-14",
