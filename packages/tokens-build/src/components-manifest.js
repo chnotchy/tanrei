@@ -10,15 +10,16 @@
 //     where it lives, its names on each platform and its `variant` prop — the same for every system
 //     (components-catalog.js writes it from the specs and from what the platforms generate from them).
 //
-// A component's `import` is the module a product imports to have it registered in this system: on the web, the
-// package's main entry for a component of the core and a layer's own entry (`@tanrei/web/m3-like`) for one that lives
-// in a layer; in React, the package's one entry. That is decided in one place, `importOf`, so that an entry that
-// changes what it registers changes every manifest with it. `module` is the component's own module: it registers the
-// component, and the components it is drawn with, in any system.
+// A component's `import` is the module a product imports to have it registered in this system: on the web, the entry
+// of the shipped system that ships it — `@tanrei/web` for the default system's components, `@tanrei/web/systems/<id>.js`
+// for another system's — and, for a component no system the product is built on ships (one the product brings back
+// or includes from another layer), its own module; in React, the package's one entry. That is decided in one place,
+// `importOf`, so that an entry that changes what it registers changes every manifest with it. `module` is the
+// component's own module: it registers the component, and the components it is drawn with, in any system.
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG } from './config.js';
-import { ROOT_SYSTEM, componentChoices, outsideComponents } from './layers.js';
+import { DEFAULT_SYSTEM, componentChoices, outsideComponents } from './layers.js';
 
 /** The catalog of every component, relative to the repository (or to the vocabulary the published CLI carries). */
 export const CATALOG_FILE = 'packages/tokens-build/generated/component-catalog.json';
@@ -29,13 +30,21 @@ const WEB = `${CONFIG.packages.npmScope}/web`;
 const REACT = `${CONFIG.packages.npmScope}/react`;
 
 /**
+ * The web package's entry that registers a shipped system's components: `@tanrei/web` the default system's, and
+ * `@tanrei/web/systems/<id>.js` another's (packages/web/scripts/build.js writes those from the systems' manifests).
+ */
+export const webEntryOf = (system) => (system === DEFAULT_SYSTEM ? WEB : `${WEB}/systems/${system}.js`);
+
+/**
  * The module of each platform's package that registers `component` (a catalog entry) for a product: the one place an
  * entry's contents are decided.
+ * @param {string | null} system the shipped system, nearest the product, that ships the component; null where none
+ *   does (a component the product brings back or includes from another layer)
  * @returns {{ web: string, react: string }}
  */
-export function importOf(component) {
+export function importOf(component, system) {
   return {
-    web: component.layer === ROOT_SYSTEM ? WEB : `${WEB}/${component.layer}`,
+    web: system ? webEntryOf(system) : component.web?.module,
     react: REACT,
   };
 }
@@ -64,25 +73,42 @@ function addedValues(chain, axis) {
   );
 }
 
+/** The names of the catalog's components the system a chain makes ships. */
+const shipsIn = (chain, catalog, held) => {
+  const { components: left } = componentChoices(chain);
+  const outside = outsideComponents(chain, held);
+  return new Set(catalog.components.map((component) => component.name).filter((name) => !left.has(name) && !outside[name]));
+};
+
 /**
  * The manifest of the system a chain makes.
  * @param {object[]} chain layers, root first; the last one is the system
  * @param {{ components: object[] }} catalog the component catalog
  * @param {Map<string, string>} held where each component that lives in a layer lives (`heldComponents`)
+ * @param {Iterable<string>} shipped the ids of the shipped systems: each has its own entry on every platform
  */
-export function componentsManifest(chain, catalog, held) {
+export function componentsManifest(chain, catalog, held, shipped) {
+  if (!shipped) throw new Error('componentsManifest: name the shipped systems, whose entries register their components');
   const system = chain.at(-1);
   const { components: left, variants: leftValues } = componentChoices(chain);
   const outside = outsideComponents(chain, held);
   const byName = new Map(catalog.components.map((component) => [component.name, component]));
   const title = (name) => byName.get(name)?.title ?? name;
+  // The shipped systems the chain is made of, nearest the system first, each with what it ships: a component's entry
+  // is that of the nearest one that ships it.
+  const ids = new Set(shipped);
+  const entries = chain
+    .map((layer, at) => (ids.has(layer.id) ? { id: layer.id, ships: shipsIn(chain.slice(0, at + 1), catalog, held) } : null))
+    .filter(Boolean)
+    .reverse();
+  const registeredBy = (name) => entries.find(({ ships }) => ships.has(name))?.id ?? null;
 
   const components = [];
   const omittedVariants = {};
   for (const component of [...catalog.components].sort((a, b) => a.name.localeCompare(b.name))) {
     if (left.has(component.name) || outside[component.name]) continue;
     const entry = { name: component.name, title: component.title, level: component.level, listing: component.listing, layer: component.layer };
-    const imports = importOf(component);
+    const imports = importOf(component, registeredBy(component.name));
     if (component.web) entry.web = component.web.tag ? { tag: component.web.tag, import: imports.web, module: component.web.module } : { class: component.web.class, import: component.web.stylesheet };
     if (component.react) entry.react = { name: component.react.name, import: imports.react };
     if (component.variant) {

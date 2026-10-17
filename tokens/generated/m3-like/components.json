@@ -16,7 +16,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-accordion",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/accordion"
       },
       "react": {
@@ -36,7 +36,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-app-bar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/app-bar"
       },
       "react": {
@@ -52,7 +52,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-app-shell",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/app-shell"
       },
       "react": {
@@ -68,7 +68,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-avatar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/avatar"
       },
       "react": {
@@ -84,7 +84,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-badge",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/badge"
       },
       "react": {
@@ -100,7 +100,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-bottom-sheet",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/bottom-sheet"
       },
       "react": {
@@ -120,7 +120,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-breadcrumbs",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/breadcrumbs"
       },
       "react": {
@@ -136,7 +136,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-button",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/button"
       },
       "react": {
@@ -159,7 +159,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-button-group",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/button-group"
       },
       "react": {
@@ -179,7 +179,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-button-with-menu",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/button-with-menu"
       },
       "react": {
@@ -201,7 +201,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-calendar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/calendar"
       },
       "react": {
@@ -217,7 +217,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-callout",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/callout"
       },
       "react": {
@@ -237,7 +237,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-card",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/card"
       },
       "react": {
@@ -258,7 +258,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-carousel",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/carousel"
       },
       "react": {
@@ -274,7 +274,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-chat-composer",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/chat-composer"
       },
       "react": {
@@ -290,7 +290,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-checkbox",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/checkbox"
       },
       "react": {
@@ -306,7 +306,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-checkbox-group",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/checkbox-group"
       },
       "react": {
@@ -322,7 +322,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-chip",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/chip"
       },
       "react": {
@@ -342,7 +342,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-chip-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/chip-field"
       },
       "react": {
@@ -363,7 +363,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-code-block",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/code-block"
       },
       "react": {
@@ -383,7 +383,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-color-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/color-field"
       },
       "react": {
@@ -404,7 +404,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-color-input",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/color-input"
       },
       "react": {
@@ -425,7 +425,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-combobox",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/combobox"
       },
       "react": {
@@ -446,7 +446,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-combobox-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/combobox-field"
       },
       "react": {
@@ -467,7 +467,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-copy-button",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/copy-button"
       },
       "react": {
@@ -490,7 +490,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-date-time-picker",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/date-time-picker"
       },
       "react": {
@@ -506,7 +506,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-description-list",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/description-list"
       },
       "react": {
@@ -522,7 +522,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-dialog",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/dialog"
       },
       "react": {
@@ -538,7 +538,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-divider",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/divider"
       },
       "react": {
@@ -554,7 +554,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-drop-zone",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/drop-zone"
       },
       "react": {
@@ -570,7 +570,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-embedded-text-input",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/embedded-text-input"
       },
       "react": {
@@ -586,7 +586,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-empty-state",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/empty-state"
       },
       "react": {
@@ -602,7 +602,7 @@
       "layer": "m3-like",
       "web": {
         "tag": "tanrei-fab-menu",
-        "import": "@tanrei/web/m3-like",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/fab-menu"
       },
       "react": {
@@ -623,7 +623,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/field"
       },
       "react": {
@@ -639,7 +639,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-field-group",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/field-group"
       },
       "react": {
@@ -655,7 +655,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-figure",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/figure"
       },
       "react": {
@@ -676,7 +676,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-file-item",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/file-item"
       },
       "react": {
@@ -692,7 +692,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-file-picker",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/file-picker"
       },
       "react": {
@@ -708,7 +708,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-file-upload",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/file-upload"
       },
       "react": {
@@ -724,7 +724,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-image-preview",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/image-preview"
       },
       "react": {
@@ -756,7 +756,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-keyboard-shortcut",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/keyboard-shortcut"
       },
       "react": {
@@ -791,7 +791,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-link-card",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/link-card"
       },
       "react": {
@@ -811,7 +811,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-list",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/list"
       },
       "react": {
@@ -827,7 +827,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-list-row",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/list-row"
       },
       "react": {
@@ -843,7 +843,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-loading-indicator",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/loading-indicator"
       },
       "react": {
@@ -859,7 +859,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-main-action-button",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/main-action-button"
       },
       "react": {
@@ -880,7 +880,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-menu",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/menu"
       },
       "react": {
@@ -896,7 +896,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-menubar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/menubar"
       },
       "react": {
@@ -912,7 +912,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-modal-layer",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/modal-layer"
       },
       "react": {
@@ -928,7 +928,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-navigation-bar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/navigation-bar"
       },
       "react": {
@@ -947,7 +947,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-navigation-drawer",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/navigation-drawer"
       },
       "react": {
@@ -967,7 +967,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-number-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/number-field"
       },
       "react": {
@@ -988,7 +988,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-number-input",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/number-input"
       },
       "react": {
@@ -1009,7 +1009,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-one-time-code-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/one-time-code-field"
       },
       "react": {
@@ -1025,7 +1025,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-one-time-code-input",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/one-time-code-input"
       },
       "react": {
@@ -1041,7 +1041,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-page-header",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/page-header"
       },
       "react": {
@@ -1057,7 +1057,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-pagination",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/pagination"
       },
       "react": {
@@ -1077,7 +1077,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-popover",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/popover"
       },
       "react": {
@@ -1104,7 +1104,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-progress-indicator",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/progress-indicator"
       },
       "react": {
@@ -1135,7 +1135,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-radio-button",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/radio-button"
       },
       "react": {
@@ -1151,7 +1151,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-radio-group",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/radio-group"
       },
       "react": {
@@ -1167,7 +1167,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-search",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/search"
       },
       "react": {
@@ -1183,7 +1183,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-segmented-button",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/segmented-button"
       },
       "react": {
@@ -1199,7 +1199,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-select",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/select"
       },
       "react": {
@@ -1220,7 +1220,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-select-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/select-field"
       },
       "react": {
@@ -1241,7 +1241,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-side-sheet",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/side-sheet"
       },
       "react": {
@@ -1261,7 +1261,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-skeleton",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/skeleton"
       },
       "react": {
@@ -1277,7 +1277,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-slider",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/slider"
       },
       "react": {
@@ -1293,7 +1293,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-slider-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/slider-field"
       },
       "react": {
@@ -1309,7 +1309,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-snackbar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/snackbar"
       },
       "react": {
@@ -1325,7 +1325,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-stepper",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/stepper"
       },
       "react": {
@@ -1352,7 +1352,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-swatch",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/swatch"
       },
       "react": {
@@ -1368,7 +1368,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-switch",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/switch"
       },
       "react": {
@@ -1384,7 +1384,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tab-view",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tab-view"
       },
       "react": {
@@ -1405,7 +1405,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-table",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/table"
       },
       "react": {
@@ -1421,7 +1421,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-table-of-contents",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/table-of-contents"
       },
       "react": {
@@ -1437,7 +1437,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tabs",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tabs"
       },
       "react": {
@@ -1457,7 +1457,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tag",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tag"
       },
       "react": {
@@ -1478,7 +1478,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tag-group",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tag-group"
       },
       "react": {
@@ -1494,7 +1494,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-text-field",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/text-field"
       },
       "react": {
@@ -1515,7 +1515,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-text-input",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/text-input"
       },
       "react": {
@@ -1547,7 +1547,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-toolbar",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/toolbar"
       },
       "react": {
@@ -1567,7 +1567,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tooltip",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tooltip"
       },
       "react": {
@@ -1587,7 +1587,7 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-tree-view",
-        "import": "@tanrei/web",
+        "import": "@tanrei/web/systems/m3-like.js",
         "module": "@tanrei/web/components/tree-view"
       },
       "react": {
