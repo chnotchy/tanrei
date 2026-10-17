@@ -28852,7 +28852,7 @@
                   "text": "boolean"
                 }
               },
-              "description": "DSL-3, DSL-4: for as long as it is held, an inline list is laid out in its two columns with no term wrapped\n(`data-measuring`), whatever its width, so that the widest term can be read from the layout itself. Returns\nwhether this call began it (and `release()` ends it). Nothing is painted in between."
+              "description": "DSL-3, DSL-4: for as long as it is held, an inline list is laid out in its two columns with no term wrapped\n(`data-measuring`), whatever its width — also while it is stacked by its width, whose rule then does not apply\n(DSL-24) — so that the widest term can be read from the layout itself. Returns whether this call began it (and\n`release()` ends it). Nothing is painted in between."
             },
             {
               "kind": "method",
@@ -28912,7 +28912,7 @@
                   }
                 }
               ],
-              "description": "Lists changed size: their text may have (a reader's text size, a design system switched above them, a face), and\nwith it the widest term. They are measured again here — all held, then all read, one layout for them all — and a\nwidth that differs is written in the next frame: a write inside the observer's own callback would change the size\nit observes and be reported as a loop. Resizing a list alone changes no term, so nothing is written and no frame\nis asked for."
+              "description": "Lists changed size (DSL-24): their text may have (a reader's text size, a design system switched above them, a\nface), and with it the widest term. They are measured again here — all held, then all read, one layout for them\nall — and a width that differs is written in the next frame: a write inside the observer's own callback would\nchange the size it observes and be reported as a loop. Resizing a list alone changes no term, so nothing is\nwritten and no frame is asked for: the list's container query draws the other form at the new width."
             }
           ],
           "attributes": [
