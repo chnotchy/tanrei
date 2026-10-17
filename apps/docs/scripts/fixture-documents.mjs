@@ -36,7 +36,12 @@ const NONE = { font: 'about:blank', tokens: 'about:blank', system: () => 'about:
 /** A document taken apart: its head's stylesheets, the element that holds the stages, each stage, the step in script. */
 function parts(html) {
   const head = html.slice(0, html.indexOf('</head>'));
-  const styles = (head.match(/<style>[\s\S]*?<\/style>/g) ?? []).map((style) => style.slice('<style>'.length, -'</style>'.length)).join('\n');
+  // The staging carries whole stylesheets of the package (icons.css, prose.css…) with their comments, and a comment
+  // holds markup as an example (`<span class="tanrei-icon">my_arrow</span>`): the page is written without them, so
+  // that what reads the page's markup — the icon font's test, a search index — reads only what is drawn.
+  const styles = (head.match(/<style>[\s\S]*?<\/style>/g) ?? [])
+    .map((style) => style.slice('<style>'.length, -'</style>'.length).replace(/\/\*[\s\S]*?\*\//g, ''))
+    .join('\n');
   const page = /<body>[^<]*<div class="stages">/.test(html);
   const open = page ? '<div class="stages">' : '<main>';
   const from = html.indexOf(open) + open.length;
