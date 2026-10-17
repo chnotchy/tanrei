@@ -775,6 +775,7 @@ private object CupertinoSystemSource {
             brandImageHeight = 40.dp,
             brandLockupAlignment = 0f,
             brandLockupGap = 8.dp,
+            brandLockupSymbolSize = 40.dp,
             brandShape = 9999.dp,
             brandSymbolSize = 24.dp,
             brandWordmarkHeight = 40.dp,

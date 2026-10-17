@@ -722,6 +722,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     brandImageHeight: 40.0,
     brandLockupAlignment: 0.0,
     brandLockupGap: 8.0,
+    brandLockupSymbolSize: 40.0,
     brandShape: 9999.0,
     brandSymbolSize: 24.0,
     brandWordmarkHeight: 40.0,

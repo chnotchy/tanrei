@@ -181,7 +181,7 @@
     },
     {
       "name": "brand-symbol",
-      "description": "The brand's symbol, drawn comp.app-bar.brand.symbol.size high: alone at every width, beside the wordmark in a lockup, or while the window is compact under brandLayout responsive.",
+      "description": "The brand's symbol: comp.app-bar.brand.symbol.size high alone, or while the window is compact under brandLayout responsive; comp.app-bar.brand.lockup.symbol.size high (the wordmark's height) beside the wordmark in a lockup.",
       "fixture": "mark"
     },
     {
@@ -296,6 +296,11 @@
       "id": "APB-23",
       "text": "IF brandLayout names a value the app bar does not define THE app bar SHALL treat it as lockup and in debug builds report it; IF brand holds an image together with brand-symbol or brand-wordmark THE app bar SHALL show the image in brand alone and in debug builds report the others; IF the bar has a brand and brandLabel is empty, or a brand slot holds more than one image, THE app bar SHALL still draw what it holds and in debug builds report what is missing or extra.",
       "verify": "An unknown brandLayout draws a lockup and reports APB-23; brand with brand-symbol shows the brand image only and reports; a brand without brandLabel reports; two images in one slot render and report."
+    },
+    {
+      "id": "APB-24",
+      "text": "WHILE the brand is a lockup THE app bar SHALL draw the symbol comp.app-bar.brand.lockup.symbol.size high, which is the wordmark's height (comp.app-bar.brand.wordmark.height) unless a design system sets it apart, so that the symbol and the wordmark stand at one height; a symbol shown alone keeps comp.app-bar.brand.symbol.size.",
+      "verify": "small-brand-lockup: the symbol's box is as high as the wordmark's, within 0.5 px; small-brand-symbol, and small-brand-responsive in a compact window, draw the symbol brand.symbol.size high."
     }
   ],
   "accessibility": {
@@ -714,7 +719,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-23).",
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -752,7 +757,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-23).",
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -790,7 +795,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-23).",
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -828,7 +833,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-23).",
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
       "items": {
         "navigation": {
           "name": "Button",

@@ -155,6 +155,7 @@
     --tanrei-comp-app-bar-brand-image-height: var(--tanrei-comp-app-bar-brand-wordmark-height);
     --tanrei-comp-app-bar-brand-lockup-alignment: center;
     --tanrei-comp-app-bar-brand-lockup-gap: var(--tanrei-sys-space-space100);
+    --tanrei-comp-app-bar-brand-lockup-symbol-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
     --tanrei-comp-app-bar-brand-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-app-bar-brand-shape-pill: 1;
     --tanrei-comp-app-bar-brand-symbol-size: var(--tanrei-sys-icon-medium);

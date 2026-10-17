@@ -112,6 +112,7 @@
     "tanrei.comp.app-bar.brand.image.height": "dimension",
     "tanrei.comp.app-bar.brand.lockup.alignment": "number",
     "tanrei.comp.app-bar.brand.lockup.gap": "dimension",
+    "tanrei.comp.app-bar.brand.lockup.symbol.size": "dimension",
     "tanrei.comp.app-bar.brand.shape": "dimension",
     "tanrei.comp.app-bar.brand.symbol.size": "dimension",
     "tanrei.comp.app-bar.brand.wordmark.height": "dimension",

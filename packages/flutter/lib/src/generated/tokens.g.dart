@@ -2505,6 +2505,7 @@ class TanreiAppBarTokens {
     required this.brandImageHeight,
     required this.brandLockupAlignment,
     required this.brandLockupGap,
+    required this.brandLockupSymbolSize,
     required this.brandShape,
     required this.brandSymbolSize,
     required this.brandWordmarkHeight,
@@ -2532,6 +2533,8 @@ class TanreiAppBarTokens {
   final double brandLockupAlignment;
   /// `comp.app-bar.brand-lockup-gap`
   final double brandLockupGap;
+  /// `comp.app-bar.brand-lockup-symbol-size`
+  final double brandLockupSymbolSize;
   /// `comp.app-bar.brand-shape`
   final double brandShape;
   /// `comp.app-bar.brand-symbol-size`
@@ -2570,6 +2573,7 @@ class TanreiAppBarTokens {
     double? brandImageHeight,
     double? brandLockupAlignment,
     double? brandLockupGap,
+    double? brandLockupSymbolSize,
     double? brandShape,
     double? brandSymbolSize,
     double? brandWordmarkHeight,
@@ -2591,6 +2595,7 @@ class TanreiAppBarTokens {
         brandImageHeight: brandImageHeight ?? this.brandImageHeight,
         brandLockupAlignment: brandLockupAlignment ?? this.brandLockupAlignment,
         brandLockupGap: brandLockupGap ?? this.brandLockupGap,
+        brandLockupSymbolSize: brandLockupSymbolSize ?? this.brandLockupSymbolSize,
         brandShape: brandShape ?? this.brandShape,
         brandSymbolSize: brandSymbolSize ?? this.brandSymbolSize,
         brandWordmarkHeight: brandWordmarkHeight ?? this.brandWordmarkHeight,

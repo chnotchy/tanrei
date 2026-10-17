@@ -1531,6 +1531,16 @@
                 "unit": "px"
               },
               "$description": "Between the symbol and the wordmark set side by side."
+            },
+            "symbol": {
+              "size": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 40,
+                  "unit": "px"
+                },
+                "$description": "The symbol's height beside the wordmark in a lockup: the wordmark's, so that the two stand at one height (APB-24). A symbol shown alone keeps brand.symbol.size."
+              }
             }
           },
           "shape": {

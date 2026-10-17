@@ -1089,6 +1089,7 @@ export const m3Like = {
       brandImageHeight: 40,
       brandLockupAlignment: 0,
       brandLockupGap: 8,
+      brandLockupSymbolSize: 40,
       brandShape: 9999,
       brandSymbolSize: 24,
       brandWordmarkHeight: 40,

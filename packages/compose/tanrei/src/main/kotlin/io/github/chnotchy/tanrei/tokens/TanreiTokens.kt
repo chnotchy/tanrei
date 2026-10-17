@@ -1018,6 +1018,7 @@ public data class TanreiAppBarTokens(
     public val brandImageHeight: Dp,
     public val brandLockupAlignment: Float,
     public val brandLockupGap: Dp,
+    public val brandLockupSymbolSize: Dp,
     public val brandShape: Dp,
     public val brandSymbolSize: Dp,
     public val brandWordmarkHeight: Dp,

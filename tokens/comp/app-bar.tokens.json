@@ -140,6 +140,13 @@
             }
           },
           "lockup": {
+            "symbol": {
+              "size": {
+                "$type": "dimension",
+                "$description": "The symbol's height beside the wordmark in a lockup: the wordmark's, so that the two stand at one height (APB-24). A symbol shown alone keeps brand.symbol.size.",
+                "$value": "{tanrei.comp.app-bar.brand.wordmark.height}"
+              }
+            },
             "gap": {
               "$type": "dimension",
               "$description": "Between the symbol and the wordmark set side by side.",

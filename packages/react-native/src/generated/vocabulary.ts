@@ -562,6 +562,7 @@ export interface TanreiAppBarTokens {
   readonly brandImageHeight: number;
   readonly brandLockupAlignment: number;
   readonly brandLockupGap: number;
+  readonly brandLockupSymbolSize: number;
   readonly brandShape: number;
   readonly brandSymbolSize: number;
   readonly brandWordmarkHeight: number;

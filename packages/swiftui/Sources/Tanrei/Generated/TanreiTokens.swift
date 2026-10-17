@@ -1516,6 +1516,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
   public var brandImageHeight: CGFloat
   public var brandLockupAlignment: Double
   public var brandLockupGap: CGFloat
+  public var brandLockupSymbolSize: CGFloat
   public var brandShape: CGFloat
   public var brandSymbolSize: CGFloat
   public var brandWordmarkHeight: CGFloat
@@ -1538,6 +1539,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     brandImageHeight: CGFloat,
     brandLockupAlignment: Double,
     brandLockupGap: CGFloat,
+    brandLockupSymbolSize: CGFloat,
     brandShape: CGFloat,
     brandSymbolSize: CGFloat,
     brandWordmarkHeight: CGFloat,
@@ -1559,6 +1561,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     self.brandImageHeight = brandImageHeight
     self.brandLockupAlignment = brandLockupAlignment
     self.brandLockupGap = brandLockupGap
+    self.brandLockupSymbolSize = brandLockupSymbolSize
     self.brandShape = brandShape
     self.brandSymbolSize = brandSymbolSize
     self.brandWordmarkHeight = brandWordmarkHeight
