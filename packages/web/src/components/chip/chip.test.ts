@@ -998,6 +998,8 @@ test.describe('behavior', () => {
         expect(await resolveColor(page, T(`${variant}-${state}destructive-remove-container-color`)), `${variant} ${state}`).not.toBe(await resolveColor(page, T(`${variant}-${state}remove-container-color`)));
       }
     }
+    // Scrolled into view first, so that the pointer stays on the remove action it was moved to.
+    await host(page, 'input-destructive-remove').scrollIntoViewIfNeeded();
     await removeOf(page, 'input-destructive-remove').hover();
     await expect.poll(() => style(removeOf(page, 'input-destructive-remove'), 'color')).toBe(error);
     // By default the remove action is plain: hovered, focused and pressed, its glyph and its round container never take
