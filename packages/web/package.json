@@ -18,6 +18,7 @@
     "./dist/previous-next-links.js",
     "./dist/components/**/*.js",
     "./dist/primitives/field-frame.js",
+    "./dist/words/en.js",
     "./dist/tanrei.bundle.js",
     "./src/index.ts",
     "./src/icons.ts",
@@ -27,6 +28,7 @@
     "./src/previous-next-links.ts",
     "./src/components/**/*.ts",
     "./src/primitives/field-frame.ts",
+    "./src/words/en.ts",
     "**/*.css"
   ],
   "exports": {
@@ -57,6 +59,10 @@
     "./words": {
       "types": "./dist/words.d.ts",
       "default": "./dist/words.js"
+    },
+    "./words/en": {
+      "types": "./dist/words/en.d.ts",
+      "default": "./dist/words/en.js"
     },
     "./highlight": {
       "types": "./dist/highlight/index.d.ts",

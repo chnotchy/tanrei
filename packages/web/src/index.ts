@@ -4,8 +4,9 @@ export { type GlyphMirroring, type IconSet, activeIconSet, glyphMirrors, glyphNa
 // The text links of the page — `class="tanrei-link"` anchors and prose's own (link.css): loading the components also
 // adds what a stylesheet cannot (`@tanrei/web/link` is the same script alone).
 export { observeLinks, setExternalLabel, setSiteOrigins } from './link.js';
-// The product's words: Tanrei ships none. `setWords()` gives them once for every component that reads them,
-// `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
+// The product's words: no component has words of its own. `setWords()` gives them once for every component that reads
+// them, `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
+// The English word pack is applied only by importing it (`@tanrei/web/words/en`): this entry never imports it.
 export { type TanreiWords, type WordKey, missingWords, setWords, wordKeys, wordReaders } from './words.js';
 // The steps and the previous and next links of the page — `class="tanrei-steps"` lists and `class="tanrei-previous-next-links"` landmarks
 // (steps.css, previous-next-links.css): loading the components also adds the debug reports of the first and, for the second, what
