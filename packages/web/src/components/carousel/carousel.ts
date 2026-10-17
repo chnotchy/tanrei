@@ -855,22 +855,25 @@ export class TanreiCarousel extends LitElement {
     this.fling = this.scrolledSinceTouch && Math.abs(velocity) >= FLING_VELOCITY ? (velocity > 0 ? 1 : -1) : 0;
     this.samples = [];
     this.syncClock();
-    // A touch that never scrolled (or stopped a settle) settles now; one that scrolled settles when its scroll ends —
-    // by `scrollend`, or, where none comes and the finger had come to rest before it lifted (so no scroll event follows
-    // either), once no scroll has come for a moment.
+    // A touch that never scrolled (or stopped a settle) settles now. One that scrolled a row that snaps settles from
+    // where the finger let go — on the next resting position after a fling, on the nearest one otherwise — and the row
+    // is held still while it does: the browser's own momentum, which carries a quick stroke on (to the row's end) even
+    // where the finger stopped before it lifted, would otherwise choose the resting position instead of the release. A
+    // row that does not snap comes to rest where the browser's scroll ends: by `scrollend`, or, where none comes and
+    // the finger had come to rest before it lifted (so no scroll event follows either), once no scroll has come for a
+    // moment.
     if (!this.scrolledSinceTouch) this.settle();
-    else if (!this.fling || this.snap === false) {
+    else if (this.snap === false) {
       clearTimeout(this.idleTimer);
       this.idleTimer = setTimeout(() => this.onScrollEnd(), SCROLL_IDLE);
     } else {
-      // A fling goes on to the next resting position from where the finger let go, not from wherever the browser's own
-      // momentum would carry the row (to its end, after a quick one): the row is held still while it settles.
-      this.settle();
+      clearTimeout(this.idleTimer);
+      this.settle({ release: true });
       this.hold(this.target !== null);
     }
   };
 
-  /** Holds the row still — no momentum, no pan — while a fling's settle runs (CRL-14); the scroll offset stays settable. */
+  /** Holds the row still — no momentum, no pan — while a touch release's settle runs (CRL-14); the scroll offset stays settable. */
   private hold(on: boolean) {
     this.scroller?.classList.toggle('held', on);
   }
@@ -897,8 +900,14 @@ export class TanreiCarousel extends LitElement {
     this.idleTimer = setTimeout(() => this.onScrollEnd(), SCROLL_IDLE);
   }
 
-  /** CRL-14: while snap is true, the row comes to rest at a resting position — the next one in the direction of a fling, or the nearest. */
-  private settle() {
+  /**
+   * CRL-14: while snap is true, the row comes to rest at a resting position — the next one in the direction of a fling,
+   * or the nearest. With `release`, the settle is a touch release's: it claims the row from the release (whatever the
+   * pan or the momentum moved before its first frame), and runs even where the row is already at the resting position,
+   * so that the row stays held until its first frame; a settle after a scroll ended yields to a scroll that comes before
+   * its first frame.
+   */
+  private settle({ release = false } = {}) {
     const geometry = this.geometry;
     const direction = this.fling;
     this.fling = 0;
@@ -908,9 +917,7 @@ export class TanreiCarousel extends LitElement {
     }
     const offset = this.readOffset();
     const target = geometry.offset(geometry.settlePosition(geometry.position(offset), direction));
-    // A fling's settle claims the row from the release (whatever the pan or the momentum moved before its first frame);
-    // a settle after a scroll ended yields to a scroll that comes before its first frame.
-    if (Math.abs(target - offset) >= 0.5) this.scrollRowTo(target, { from: offset, claim: direction !== 0 });
+    if (release || Math.abs(target - offset) >= 0.5) this.scrollRowTo(target, { from: offset, claim: release });
     else this.atRest();
   }
 
