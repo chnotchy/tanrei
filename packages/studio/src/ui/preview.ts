@@ -131,14 +131,21 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
   /** What a drag wrote on the elements the sheet's tokens are declared on: those elements, and the properties. */
   let patched: { on: HTMLElement[]; names: Set<string> } | undefined;
   /**
-   * While a palette's color is dragged: its tones (core.paletteProperties), set as the person moves on the elements
-   * the sheet declares its tokens on — the scope, and a contrast set inside it (emitCss's base block). The sheet is
-   * neither written again nor changed: the browser parses nothing and restyles the preview alone, which costs a third
-   * of what writing the sheet costs, or less (and changing a rule of the sheet restyles the page). The next `apply`
-   * takes them off: what is drawn then is the sheet of the view it applies.
+   * While a palette's color or a dial is dragged: what the applied view's sheet would change (core.liveProperties),
+   * set as the person moves on the elements the sheet declares its tokens on — the scope, and a contrast set inside it
+   * (emitCss's base block). The sheet is neither written again nor changed: the browser parses nothing and restyles
+   * the preview alone, which costs a third of what writing the sheet costs, or less (and changing a rule of the sheet
+   * restyles the page). Each patch is the whole difference from the applied view, so a property it no longer names —
+   * a value dragged back to where it started — is taken off. The next `apply` takes them all off: what is drawn then
+   * is the sheet of the view it applies.
    */
   function patch(properties: Record<string, string>) {
     patched ??= { on: [scope, ...scope.querySelectorAll<HTMLElement>(`[data-${NS}-contrast]`)], names: new Set() };
+    for (const name of patched.names) {
+      if (name in properties) continue;
+      patched.names.delete(name);
+      for (const el of patched.on) el.style.removeProperty(name);
+    }
     for (const [name, value] of Object.entries(properties)) {
       patched.names.add(name);
       for (const el of patched.on) el.style.setProperty(name, value);
