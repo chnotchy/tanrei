@@ -559,6 +559,14 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
 
 private let tanreiAppBarTokens = TanreiAppBarTokens(
   actionsGap: 8,
+  brandColor: .role(.onSurface),
+  brandImageHeight: 40,
+  brandLockupAlignment: 0,
+  brandLockupGap: 8,
+  brandLockupSymbolSize: 40,
+  brandShape: 9999,
+  brandSymbolSize: 24,
+  brandWordmarkHeight: 40,
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 4,
