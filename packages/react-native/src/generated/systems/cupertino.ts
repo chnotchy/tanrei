@@ -8490,7 +8490,7 @@ export const cupertino = {
       arrowInset: 8,
       arrowVisible: 0,
       arrowWidth: 12,
-      closeButtonVariant: 1,
+      closeButtonVariant: 4,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level2",
       containerGap: 12,

@@ -6439,7 +6439,7 @@ private object CupertinoSystemSource {
             arrowInset = 8.dp,
             arrowVisible = 0f,
             arrowWidth = 12.dp,
-            closeButtonVariant = 1f,
+            closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level2,
             containerGap = 12.dp,

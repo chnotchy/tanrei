@@ -4339,6 +4339,10 @@
             "tanrei.comp.tabs.secondary.selected.icon.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
+            "tanrei.comp.popover.close-button.variant": {
+              "$value": 4,
+              "reason": "Apple's popovers and panels close with a bare glyph. Keeps the preset's look; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.tooltip.motion.show-delay": {
               "$value": "{tanrei.sys.motion.duration.extra-long4}",
               "reason": "Apple's help tags wait about a second before they appear."

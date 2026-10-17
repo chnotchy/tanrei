@@ -254,6 +254,7 @@
     "tanrei.comp.tabs.primary.selected.icon.color": {"$value": "{tanrei.sys.color.primary}"},
     "tanrei.comp.tabs.secondary.selected.label.color": {"$value": "{tanrei.sys.color.primary}"},
     "tanrei.comp.tabs.secondary.selected.icon.color": {"$value": "{tanrei.sys.color.primary}"},
+    "tanrei.comp.popover.close-button.variant": {"$value": 4, "reason": "Apple's popovers and panels close with a bare glyph. Keeps the preset's look; the change to a tonal close button is the default system's."},
     "tanrei.comp.tooltip.motion.show-delay": {"$value": "{tanrei.sys.motion.duration.extra-long4}", "reason": "Apple's help tags wait about a second before they appear."},
     "tanrei.comp.snackbar.container.shape": {"$value": "{tanrei.sys.shape.corner.medium}"},
     "tanrei.comp.snackbar.container.color": {"$value": "{tanrei.sys.color.surface-bright}", "reason": "Apple platforms have no snackbar; the preset reads it as a light banner rather than an inverse bar."},
