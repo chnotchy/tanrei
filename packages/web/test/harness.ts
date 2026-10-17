@@ -1242,11 +1242,13 @@ const STAGING: Record<string, Staging> = {
   // A side sheet's stage is a 720 × 480 surface that stands for the window (the spec's web note): a standard sheet at the
   // end of a row whose other child fills the rest of the width, a modal one at the window's end edge, in the top layer.
   // Its action items are `tanrei-button` children in the `actions` slot.
+  // `closable: false` is the `not-closable` attribute (closable defaults to true).
   'side-sheet': {
     css: () => `.stage:has(> tanrei-side-sheet) { box-sizing: border-box; display: flex; inline-size: 720px; block-size: 480px; padding: 0; }
       .stage > .side-sheet-content { flex: 1 1 auto; min-inline-size: 0; }`,
     wrap: (element) => `<div class="side-sheet-content"></div>${element}`,
     itemAttributes: () => 'slot="actions"',
+    props: ({ closable, ...props }) => ({ ...props, ...(closable === false ? { notClosable: true } : {}) }),
   },
   // A button group is drawn start-aligned at its natural width — or at the stage's 400 while full-width — vertically
   // centred on a 400 × 96 stage when horizontal and at the top of a 400 × 240 stage when vertical (BGR-1's verify); its

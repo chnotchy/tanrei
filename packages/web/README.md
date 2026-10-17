@@ -6262,8 +6262,9 @@ start corners `container.shape` (eased by the smoothing) and its end corners squ
 `outline.width` of its variant's `outline.color` (following the corners); its color reaches under
 `env(safe-area-inset-*)` at the end, top and bottom, and its parts stay inside them. The header is a row at least
 `header.height` high: the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping and growing the row)
-from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the medium size showing the
-`close` glyph, placed and otherwise never restyled — `header.gap` after it and `header.padding-inline-end` from the end
+from `container.padding-inline`, and the close button — an icon-only `<tanrei-button>` of the small size showing the
+`close` glyph, placed and otherwise never restyled, drawn unless `closable` is false (the `not-closable` attribute) —
+`header.gap` after it and `header.padding-inline-end` from the end
 edge. The close button carries no `variant` attribute: the sheet gives it the variant `close-button.variant` names (tonal
 in the default system, text under m3-like) through the Button's internal group-item channel (`GROUP_ITEM`, BTN-10), and
 the Button draws that variant from its own tokens and states (SSH-5). The content is inset by `container.padding-inline`,

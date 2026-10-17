@@ -72812,7 +72812,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button\nand actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or\n`modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one\naction (SSH-16).\n\nContract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's\naccessible name, a heading) and, while `closable`, an icon-only `<tanrei-button>` of the medium size showing the close\nglyph, named by `close-label`, in the variant `comp.side-sheet.close-button.variant` names (tonal in the default\nsystem).\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed below a\ndivider as a full-width Button group places them: dismissive at the start and confirming at the end of a row the\nactions share equally, confirming on top of a column when a label does not fit its share (or, where the system's\n`actions.arrangement` is `start`, at their own widths from the start edge). Focus and assistive technology follow that\norder. A Button without a `variant` attribute takes the sheet's (`comp.side-sheet.actions.variant`, tonal in the\ndefault system). Actions never close the sheet: close it from their handlers.\n\nControlled: the sheet never closes itself. It fires `close` with a reason — its close button in either variant, and for\na modal sheet a press on the scrim, Escape, the platform's back or a drag toward its end edge — and you set `open` to\nfalse. A product that does not close it after a drag sees it slide back.\n\nStandard: an `<aside>` (a complementary landmark) named by the headline; place it as the last item of a flex row (the\nfull height of that row). Its width animates while open changes, the content beside it resizing. Opening it moves focus\nin, closing it with focus inside gives focus back, Tab leaves it open, and Escape and drags do nothing.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`, at the window's end edge in the top layer over\n`::backdrop` (the scrim), everything else inert, the page held from scrolling and focus kept inside. Focus goes to the\nslotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was when it\ncloses.\n\nThe content scrolls between the header and the actions. The divider below the header is drawn whenever the header is\nwhile `divider-visibility` is `always` (the default system's), as the one above the actions is, and only while the\ncontent is scrolled from its top while it is `scroll`; `auto` takes `comp.side-sheet.divider.visibility` (SSH-19,\nSSH-23). While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the\n`visualViewport`).\n\nEvery visual value comes from `--tanrei-comp-side-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the end, top and bottom.",
+          "description": "Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and\nactions: `standard`, beside the content in the layout (a layout region), where actions are optional, or\n`modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one\naction (SSH-16).\n\nContract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's\naccessible name, a heading) and, while `closable` (the default; the attribute `not-closable` turns it off), an\nicon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant\n`comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed below a\ndivider as a full-width Button group places them: dismissive at the start and confirming at the end of a row the\nactions share equally, confirming on top of a column when a label does not fit its share (or, where the system's\n`actions.arrangement` is `start`, at their own widths from the start edge). Focus and assistive technology follow that\norder. A Button without a `variant` attribute takes the sheet's (`comp.side-sheet.actions.variant`, tonal in the\ndefault system). Actions never close the sheet: close it from their handlers.\n\nControlled: the sheet never closes itself. It fires `close` with a reason — its close button in either variant, and for\na modal sheet a press on the scrim, Escape, the platform's back or a drag toward its end edge — and you set `open` to\nfalse. A product that does not close it after a drag sees it slide back.\n\nStandard: an `<aside>` (a complementary landmark) named by the headline; place it as the last item of a flex row (the\nfull height of that row). Its width animates while open changes, the content beside it resizing. Opening it moves focus\nin, closing it with focus inside gives focus back, Tab leaves it open, and Escape and drags do nothing.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`, at the window's end edge in the top layer over\n`::backdrop` (the scrim), everything else inert, the page held from scrolling and focus kept inside. Focus goes to the\nslotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was when it\ncloses.\n\nThe content scrolls between the header and the actions. The divider below the header is drawn whenever the header is\nwhile `divider-visibility` is `always` (the default system's), as the one above the actions is, and only while the\ncontent is scrolled from its top while it is `scroll`; `auto` takes `comp.side-sheet.divider.visibility` (SSH-19,\nSSH-23). While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the\n`visualViewport`).\n\nEvery visual value comes from `--tanrei-comp-side-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-*)` at the end, top and bottom.",
           "name": "TanreiSideSheet",
           "cssParts": [
             {
@@ -72925,9 +72925,9 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
-              "description": "Draws the close button at the end of the header. Give a standard sheet one unless your own control closes it. Reflected.",
-              "attribute": "closable",
+              "default": "true",
+              "description": "Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected.",
+              "attribute": "not-closable",
               "reflects": true
             },
             {
@@ -72938,7 +72938,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The close button's accessible name (\"Close filters\"). Required while `closable` (SSH-5).",
+              "description": "The close button's accessible name (\"Close filters\"). Required while `closable`, the default (SSH-5).",
               "attribute": "close-label"
             },
             {
@@ -73407,12 +73407,12 @@
               "fieldName": "headline"
             },
             {
-              "name": "closable",
+              "name": "not-closable",
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
-              "description": "Draws the close button at the end of the header. Give a standard sheet one unless your own control closes it. Reflected.",
+              "default": "true",
+              "description": "Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected.",
               "fieldName": "closable"
             },
             {
@@ -73421,7 +73421,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The close button's accessible name (\"Close filters\"). Required while `closable` (SSH-5).",
+              "description": "The close button's accessible name (\"Close filters\"). Required while `closable`, the default (SSH-5).",
               "fieldName": "closeLabel"
             },
             {
