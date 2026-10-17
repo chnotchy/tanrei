@@ -2,12 +2,31 @@
   "name": "@tanrei/web",
   "version": "0.1.0-next.0",
   "description": "Tanrei design system — CSS tokens and Web Components.",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "dtcg",
+    "web-components",
+    "custom-elements",
+    "lit",
+    "css-custom-properties",
+    "accessibility",
+    "wcag",
+    "ui-components",
+    "theming",
+    "dark-mode",
+    "tanrei"
+  ],
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/chnotchy/tanrei.git",
     "directory": "packages/web"
+  },
+  "homepage": "https://tanrei.chnotchy.com/getting-started/web/",
+  "bugs": {
+    "url": "https://github.com/chnotchy/tanrei/issues"
   },
   "sideEffects": [
     "./dist/index.js",

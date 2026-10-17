@@ -1,0 +1,22 @@
+{
+  "$comment": "What a registry shows of each npm package beside its name and description, read by packages/tools/src/npm-metadata.js (`pnpm generate`), which writes `homepage`, `bugs`, `keywords` and, for an MCP server, `mcpName` into the package's package.json. Keyed by the package's directory under packages/. `docs` is the package's page on the docs site (tanrei.config.json `site`), `keywords` its search words; the namespace is added to them by the generator. `mcpServer`: the package is an MCP server, named in the MCP registry as io.github.<the repository's owner>/<the namespace>.",
+  "packages": {
+    "web": {
+      "docs": "/getting-started/web/",
+      "keywords": ["design-system", "design-tokens", "dtcg", "web-components", "custom-elements", "lit", "css-custom-properties", "accessibility", "wcag", "ui-components", "theming", "dark-mode"]
+    },
+    "cli": {
+      "docs": "/getting-started/your-design-system/",
+      "keywords": ["design-system", "design-tokens", "dtcg", "theme-generator", "cli", "swiftui", "jetpack-compose", "flutter", "react-native"]
+    },
+    "mcp": {
+      "docs": "/getting-started/your-design-system/",
+      "keywords": ["mcp", "mcp-server", "model-context-protocol", "design-system", "design-tokens", "ai-agents"],
+      "mcpServer": true
+    },
+    "token-engine": {
+      "docs": "/getting-started/your-design-system/",
+      "keywords": ["design-tokens", "dtcg", "color", "tonal-palette", "theming", "isomorphic"]
+    }
+  }
+}

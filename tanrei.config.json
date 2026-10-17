@@ -4,6 +4,7 @@
   "namespace": "tanrei",
   "version": "0.1.0-next.0",
   "license": "Apache-2.0",
+  "site": "https://tanrei.chnotchy.com",
   "repository": {
     "public": "chnotchy/tanrei"
   },
