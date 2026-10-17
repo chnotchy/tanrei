@@ -2,7 +2,7 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: 3e88b9589655b139dcde9f2928c6d7fba6f095b0
+sourceHash: 87bf906bd8fafeee21b7a2cae86a3c509b621ec9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,7 +21,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```js
 // これを提供するプリセットでは、プリセットのエントリーがほかのコンポーネントと一緒に登録します。
-import '@tanrei/web/systems/m3-like.js'; // または m3-expressive-like.js、cupertino.js
+import '@tanrei/web/m3-like'; // または '@tanrei/web/m3-expressive-like'、'@tanrei/web/cupertino'
 // 既定のシステムと、その上に作るプロダクトでは、自身のモジュールを読み込みます。
 import '@tanrei/web/components/segmented-button';
 ```

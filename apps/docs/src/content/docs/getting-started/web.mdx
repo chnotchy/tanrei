@@ -54,12 +54,12 @@ npm install @tanrei/web
    ```js
    import '@tanrei/web';
    // on a preset, its entry instead: m3-like, m3-expressive-like or cupertino
-   import '@tanrei/web/systems/m3-like.js';
+   import '@tanrei/web/m3-like';
    // or, one element at a time:
    import '@tanrei/web/components/button';
    ```
 
-   `@tanrei/web` registers the components the default system ships and no other, so a product on it cannot reach one its system does not have. A preset's entry, `@tanrei/web/systems/<id>.js`, registers what that preset ships, and `@tanrei/web/all` every component of the package. A component that only a preset ships, such as the [segmented button](/components/segmented-button/), can still be taken on purpose: include it in your system's layer and import its own module.
+   `@tanrei/web` registers the components the default system ships and no other, so a product on it cannot reach one its system does not have. A preset's entry, `@tanrei/web/<id>`, registers what that preset ships, and `@tanrei/web/all` every component of the package. A component that only a preset ships, such as the [segmented button](/components/segmented-button/), can still be taken on purpose: include it in your system's layer and import its own module.
 
    The `@tanrei/web/…` specifiers are package exports: a bundler (Vite, webpack, esbuild) resolves them. Without one, a browser cannot resolve a bare specifier in `<link>` or `<script src>`, so serve the package's `dist/` and point at the files — the stylesheets as they are, and `tanrei.bundle.js`, which carries Lit and every element:
 

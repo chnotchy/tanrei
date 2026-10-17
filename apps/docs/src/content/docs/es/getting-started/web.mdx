@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -56,12 +56,12 @@ npm install @tanrei/web
    ```js
    import '@tanrei/web';
    // con un preajuste, su entrada en su lugar: m3-like, m3-expressive-like o cupertino
-   import '@tanrei/web/systems/m3-like.js';
+   import '@tanrei/web/m3-like';
    // o bien, un elemento cada vez:
    import '@tanrei/web/components/button';
    ```
 
-   `@tanrei/web` registra los componentes que incluye el sistema predeterminado y ningún otro, así que un producto construido sobre él no puede llegar a uno que su sistema no tiene. La entrada de un preajuste, `@tanrei/web/systems/<id>.js`, registra lo que ese preajuste incluye, y `@tanrei/web/all`, todos los componentes del paquete. Un componente que solo incluye un preajuste, como el [botón segmentado](/es/components/segmented-button/), se puede usar igualmente a propósito: inclúyelo en la capa de tu sistema e importa su propio módulo.
+   `@tanrei/web` registra los componentes que incluye el sistema predeterminado y ningún otro, así que un producto construido sobre él no puede llegar a uno que su sistema no tiene. La entrada de un preajuste, `@tanrei/web/<id>`, registra lo que ese preajuste incluye, y `@tanrei/web/all`, todos los componentes del paquete. Un componente que solo incluye un preajuste, como el [botón segmentado](/es/components/segmented-button/), se puede usar igualmente a propósito: inclúyelo en la capa de tu sistema e importa su propio módulo.
 
    Los especificadores `@tanrei/web/…` son exportaciones del paquete: los resuelve un empaquetador (Vite, webpack, esbuild). Sin él, un navegador no puede resolver un especificador desnudo en `<link>` ni en `<script src>`, así que sirve el directorio `dist/` del paquete y apunta a los archivos: las hojas de estilos tal como están, y `tanrei.bundle.js`, que incluye Lit y todos los elementos:
 

@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -56,12 +56,12 @@ npm install @tanrei/web
    ```js
    import '@tanrei/web';
    // في إعداد جاهز، مدخله بدلًا من ذلك: m3-like أو m3-expressive-like أو cupertino
-   import '@tanrei/web/systems/m3-like.js';
+   import '@tanrei/web/m3-like';
    // أو عنصرًا واحدًا في كل مرة:
    import '@tanrei/web/components/button';
    ```
 
-   لا يسجّل `@tanrei/web` إلا المكوّنات التي يتضمنها النظام الافتراضي، فلا يصل المنتج المبني عليه إلى مكوّن لا يملكه نظامه. ويسجّل مدخل الإعداد الجاهز، `@tanrei/web/systems/<id>.js`، ما يتضمنه ذلك الإعداد، ويسجّل `@tanrei/web/all` كل مكوّنات الحزمة. والمكوّن الذي لا يتضمنه إلا إعداد جاهز، مثل [الزر المقسَّم](/ar/components/segmented-button/)، يمكن أخذه مع ذلك عن قصد: ضمّنه في طبقة نظامك واستورد وحدته الخاصة.
+   لا يسجّل `@tanrei/web` إلا المكوّنات التي يتضمنها النظام الافتراضي، فلا يصل المنتج المبني عليه إلى مكوّن لا يملكه نظامه. ويسجّل مدخل الإعداد الجاهز، `@tanrei/web/<id>`، ما يتضمنه ذلك الإعداد، ويسجّل `@tanrei/web/all` كل مكوّنات الحزمة. والمكوّن الذي لا يتضمنه إلا إعداد جاهز، مثل [الزر المقسَّم](/ar/components/segmented-button/)، يمكن أخذه مع ذلك عن قصد: ضمّنه في طبقة نظامك واستورد وحدته الخاصة.
 
    المحدِّدات من الصيغة `@tanrei/web/…` هي صادرات الحزمة (package exports)، ويحلّها المُحزِّم (Vite أو webpack أو esbuild). ومن دون مُحزِّم لا يستطيع المتصفح حلّ محدِّد مجرّد في `<link>` أو `<script src>`؛ لذلك قدِّم مجلد `dist/` من الحزمة وأشِر إلى الملفات مباشرة: أوراق الأنماط كما هي، والملف `tanrei.bundle.js` الذي يحمل Lit وجميع العناصر:
 

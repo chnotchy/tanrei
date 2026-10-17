@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -56,12 +56,12 @@ npm install @tanrei/web
    ```js
    import '@tanrei/web';
    // プリセットでは、代わりにそのエントリーを: m3-like、m3-expressive-like、cupertino
-   import '@tanrei/web/systems/m3-like.js';
+   import '@tanrei/web/m3-like';
    // または、要素を 1 つずつ:
    import '@tanrei/web/components/button';
    ```
 
-   `@tanrei/web` が登録するのは既定のシステムが持つコンポーネントだけなので、その上のプロダクトから、システムにないコンポーネントには手が届きません。プリセットのエントリー `@tanrei/web/systems/<id>.js` はそのプリセットが持つものを、`@tanrei/web/all` はパッケージのすべてのコンポーネントを登録します。[セグメントボタン](/ja/components/segmented-button/)のようにプリセットにしかないコンポーネントも、意図して使うことはできます。自分のシステムのレイヤーで取り込み、そのコンポーネント自身のモジュールを読み込みます。
+   `@tanrei/web` が登録するのは既定のシステムが持つコンポーネントだけなので、その上のプロダクトから、システムにないコンポーネントには手が届きません。プリセットのエントリー `@tanrei/web/<id>` はそのプリセットが持つものを、`@tanrei/web/all` はパッケージのすべてのコンポーネントを登録します。[セグメントボタン](/ja/components/segmented-button/)のようにプリセットにしかないコンポーネントも、意図して使うことはできます。自分のシステムのレイヤーで取り込み、そのコンポーネント自身のモジュールを読み込みます。
 
    `@tanrei/web/…` という指定子はパッケージのエクスポートで、バンドラー（Vite、webpack、esbuild）が解決します。バンドラーがない場合、ブラウザーは `<link>` や `<script src>` の中の裸の指定子を解決できません。そのときはパッケージの `dist/` を配信して、ファイルを直接指定します。スタイルシートはそのまま、スクリプトは Lit とすべての要素を含む `tanrei.bundle.js` を使います。
 

@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -56,12 +56,12 @@ npm install @tanrei/web
    ```js
    import '@tanrei/web';
    // 使用预设时，改为导入它的入口：m3-like、m3-expressive-like 或 cupertino
-   import '@tanrei/web/systems/m3-like.js';
+   import '@tanrei/web/m3-like';
    // 或者，一次导入一个元素：
    import '@tanrei/web/components/button';
    ```
 
-   `@tanrei/web` 只注册默认系统包含的组件，所以基于它的产品接触不到系统没有的组件。预设的入口 `@tanrei/web/systems/<id>.js` 注册该预设包含的组件，`@tanrei/web/all` 注册包里的全部组件。只有预设才包含的组件，例如[分段按钮](/zh-cn/components/segmented-button/)，仍然可以有意地使用：在你的系统的层里引入它，并导入它自己的模块。
+   `@tanrei/web` 只注册默认系统包含的组件，所以基于它的产品接触不到系统没有的组件。预设的入口 `@tanrei/web/<id>` 注册该预设包含的组件，`@tanrei/web/all` 注册包里的全部组件。只有预设才包含的组件，例如[分段按钮](/zh-cn/components/segmented-button/)，仍然可以有意地使用：在你的系统的层里引入它，并导入它自己的模块。
 
    `@tanrei/web/…` 这类说明符是包的导出，由打包工具（Vite、webpack、esbuild）解析。没有打包工具时，浏览器无法解析 `<link>` 或 `<script src>` 中的裸说明符，这时请直接提供包的 `dist/` 目录并指向其中的文件：样式表原样使用，脚本使用 `tanrei.bundle.js`，它包含 Lit 和所有元素：
 
