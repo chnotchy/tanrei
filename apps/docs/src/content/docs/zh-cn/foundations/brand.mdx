@@ -2,7 +2,7 @@
 title: 品牌
 description: Tanrei 这个名称、它的两个标志及其用法，以及决定系统外观的性格。
 translationOf: foundations/brand.mdx
-sourceHash: ad5b0a6cbe6dd1733af73816dfa3e0ad190262a8
+sourceHash: a595a956404e09f904b20075fe03b71bd3b735b5
 ---
 
 import BrandFigure from '../../../../components/BrandFigure.astro';
@@ -23,14 +23,16 @@ Tanrei 有两个标志，一次只使用其中一个。
   ]}
 />
 
-- **符号**是 Shippori Mincho 的 T，四角经过柔化。它用在不读出名称的地方：应用图标、favicon、本站的页眉。
-- **文字标**是用 Shippori Mincho Bold 排出的 "Tanrei"。它用在会读出名称的地方：封面、页面标题、分享链接的图片。
+- **符号**是 Shippori Mincho 的 T，四角经过柔化。它只用在要求方形或圆形的地方：favicon、应用图标、素材上的水印（例如设计文件角落的装饰），或者用于低调的宣传和装饰。
+- **文字标**是符号的 T 后接用 Outfit SemiBold 排出的 "anrei"，绘制为一个整体。凡是会读出名称的地方，它就是 Tanrei 的标志：本站的页眉（任何宽度下）、封面、页面标题、分享链接的图片。
+
+一次只使用一个标志，从不把符号和文字标组合成组合标志：这是 Tanrei 针对自己标志的规则。[应用栏](/zh-cn/components/app-bar/)本身则允许产品以其标志所需的任何方式显示自己的标志，包括组合标志。
 
 符号位于其方形画框中心稍下方的位置。这是一种视觉校正：T 的重量在上方，放低一点看起来才居中。
 
 ## 颜色
 
-两个标志都只用一种颜色 `sys.color.on-surface`，绘制在其所在的表面上。由于颜色是令牌而不是图形的一部分，标志会跟随浅色和深色配色方案以及每一级对比度。每处使用都采用 on-surface：本站页眉用 `comp.app-bar.brand.color` 为符号上色，它就是 on-surface。
+两个标志都只用一种颜色 `sys.color.on-surface`，绘制在其所在的表面上。由于颜色是令牌而不是图形的一部分，标志会跟随浅色和深色配色方案以及每一级对比度。每处使用都采用 on-surface：本站页眉用 `comp.app-bar.brand.color` 为文字标上色，它就是 on-surface。
 
 ## 留白
 
@@ -70,7 +72,7 @@ Tanrei 有两个标志，一次只使用其中一个。
 
 ### 推荐
 
-- 一次只使用一个标志：不读出名称的地方用符号，读出名称的地方用文字标。
+- 一次只使用一个标志：会读出名称的地方用文字标，只有在要求方形或圆形的地方才用符号。
 - 用 on-surface 绘制标志，放在其所在配色方案的表面上。
 - 在平台需要不透明图标的地方，例如主屏幕或位图 favicon，把符号放在浅色配色方案的表面上。那个方块属于平台，而不属于标志。
 - 保持符号在画框中的位置，不要把它移到画框中心。

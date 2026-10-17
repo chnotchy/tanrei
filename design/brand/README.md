@@ -4,8 +4,8 @@ Tanrei has two marks, used one at a time:
 
 | Mark | File | Where it goes |
 |---|---|---|
-| The symbol: the T of Shippori Mincho, its corners eased | `symbol.svg` (512 × 512 frame) | where the name is not read: an app icon, a favicon, the docs' header, a file thumbnail |
-| The wordmark: the symbol's T followed by "anrei" in Outfit SemiBold (tracking −1 %), one drawing | `wordmark.svg` (1536 × 512 frame; the T where the symbol's frame puts it) | where the name is read: a cover, a page title, a document header, a shared link's image |
+| The symbol: the T of Shippori Mincho, its corners eased | `symbol.svg` (512 × 512 frame) | only where a square or round shape is required — the favicon, an app icon, a watermark on assets such as the corner decoration of a design file — or for quiet promotion and decoration |
+| The wordmark: the symbol's T followed by "anrei" in Outfit SemiBold (tracking −1 %), one drawing | `wordmark.svg` (1536 × 512 frame; the T where the symbol's frame puts it) | Tanrei's logo wherever the name is read: the docs' header at every width, a cover, a page title, a document header, a shared link's image |
 
 The design of both lives in the Figma library (the file and the nodes are in `figma.json`). The files here are their
 source for everything else in the repository, and are never edited by hand. The rules and drawings for readers are on
@@ -18,7 +18,8 @@ has and writes `currentColor`.
 ## Rules
 
 - **One at a time.** There is no lockup of the symbol and the wordmark; do not build one, and do not set the name as
-  text beside the symbol.
+  text beside the symbol. This is Tanrei's own rule for its marks: the app bar's brand lets a product show its own logo
+  in whatever arrangement that logo needs, a lockup included.
 - **The symbol's placement.** The symbol sits a little below the centre of its frame on purpose: the T carries its
   weight at the top, and the lower position makes it look centred. Keep it; never recentre it.
 - **One color, from a token.** Both are drawn in `sys.color.on-surface`, so they follow light, dark and the contrast

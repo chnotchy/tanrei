@@ -21,14 +21,16 @@ Tanrei has two marks, and uses one at a time.
   ]}
 />
 
-- **The symbol** is the T of Shippori Mincho, with its corners eased. It goes where the name is not read: an app icon, a favicon, the header of this site.
-- **The wordmark** is "Tanrei" set in Shippori Mincho Bold. It goes where the name is read: a cover, a page title, the image of a shared link.
+- **The symbol** is the T of Shippori Mincho, with its corners eased. It is used only where a square or round shape is required — the favicon, an app icon, a watermark on assets such as the corner of a design file — or for quiet promotion and decoration.
+- **The wordmark** is the symbol's T followed by "anrei" set in Outfit SemiBold, drawn as one. It is Tanrei's logo wherever the name is read: the header of this site at every width, a cover, a page title, the image of a shared link.
+
+One mark at a time, and never a lockup of the symbol and the wordmark: that is Tanrei's own rule for its marks. The [app bar](/components/app-bar/) itself lets a product show its own logo in whatever arrangement that logo needs, a lockup included.
 
 The symbol sits a little below the centre of its square frame. This is an optical correction: the T carries its weight at the top, and the lower position makes it look centred.
 
 ## Color
 
-Both marks are drawn in one color, `sys.color.on-surface`, on the surface they stand on. Because the color is a token and not part of the drawing, the marks follow the light and dark schemes and every contrast level. Each use takes on-surface: the header of this site paints its symbol with `comp.app-bar.brand.color`, which is on-surface.
+Both marks are drawn in one color, `sys.color.on-surface`, on the surface they stand on. Because the color is a token and not part of the drawing, the marks follow the light and dark schemes and every contrast level. Each use takes on-surface: the header of this site paints its wordmark with `comp.app-bar.brand.color`, which is on-surface.
 
 ## Clear space
 
@@ -68,7 +70,7 @@ The favicon is the one exception, because a browser draws it at 16 px. It is one
 
 ### Do
 
-- Use one mark at a time: the symbol where the name is not read, the wordmark where it is.
+- Use one mark at a time: the wordmark wherever the name is read, the symbol only where a square or round shape is required.
 - Draw the mark in on-surface, on the surface of the scheme it stands in.
 - Where a platform needs an opaque icon, such as a home screen or a raster favicon, put the symbol on the light scheme's surface. The square belongs to the platform, not to the mark.
 - Keep the symbol where it sits in its frame. Don't move it to the frame's centre.
