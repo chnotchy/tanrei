@@ -3934,7 +3934,6 @@ public data class TanreiDialogTokens(
     public val actionsGap: Dp,
     public val actionsMarginBlockStart: Dp,
     public val actionsVariant: Float,
-    public val closeButtonVariant: Float,
     public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,

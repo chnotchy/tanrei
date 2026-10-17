@@ -23,7 +23,7 @@
     },
     {
       "id": "header",
-      "description": "The row at the top: the icon and the headline and, while the close button is drawn, the close button at its end (DLG-26). By default the icon sits at the headline's start and both are aligned to the start; a system may put the icon above a centred headline instead (DLG-9)."
+      "description": "The row at the top: the icon and the headline, and nothing else (DLG-26, DLG-28). By default the icon sits at the headline's start and both are aligned to the start; a system may put the icon above a centred headline instead (DLG-9)."
     },
     {
       "id": "icon",
@@ -33,11 +33,6 @@
     {
       "id": "headline",
       "description": "The question or statement the dialog is about, aligned to the start. It is the dialog's accessible name."
-    },
-    {
-      "id": "close-button",
-      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.dialog.close-button.variant names (text in the default system), drawn while closable and dismissible are both true (DLG-25). The dialog places it and chooses its variant; everything else it reads from Button's own tokens.",
-      "optional": true
     },
     {
       "id": "supporting-text",
@@ -88,20 +83,7 @@
       "name": "dismissible",
       "type": "boolean",
       "default": true,
-      "description": "Whether Escape, the platform's back and a press on the scrim ask to close the dialog (dismiss). Set it to false only when the person must choose one of the actions; give such a dialog a dismissive action."
-    },
-    {
-      "name": "closable",
-      "type": "boolean",
-      "default": false,
-      "description": "Draws the close button at the end of the header: a visible way to dismiss the dialog, which asks as Escape, back and the scrim do (DLG-25). Give it to a dialog with no dismissive action (a form whose one action is Save, a dialog with something to read) and to a large dialog whose actions lie far from where a person starts. It is drawn only while dismissible is true: a dialog the person must answer offers no way out but its actions."
-    },
-    {
-      "name": "closeLabel",
-      "type": "string",
-      "default": "",
-      "description": "The close button's accessible name (\"Close settings\"). Required while closable is true.",
-      "words": "closeLabel"
+      "description": "Whether Escape, the platform's back and a press on the scrim ask to close the dialog (dismiss). Set it to false only when the person must choose one of the actions; give such a dialog a dismissive action. A dialog has no close button (DLG-28): content that needs a way out and nothing more gets a dismissive action (Cancel, or Close where there is nothing to cancel), or belongs in a side sheet or a bottom sheet."
     },
     {
       "name": "width",
@@ -190,7 +172,7 @@
   "events": [
     {
       "name": "dismiss",
-      "description": "The person asked to close the dialog without an action: Escape, the platform's back, a press on the scrim or its close button. Carries which of these it was, named escape, back, scrim or close (in the platform's casing). Emitted only while dismissible is true."
+      "description": "The person asked to close the dialog without an action: Escape, the platform's back or a press on the scrim. Carries which of these it was, named escape, back or scrim (in the platform's casing). Emitted only while dismissible is true."
     }
   ],
   "states": [
@@ -302,19 +284,19 @@
       "verify": "Under the default system scrolling draws both dividers with its content at the top. With divider-visibility=\"scroll\" it draws only the one above the actions until the content is scrolled. Under m3-like (scroll) nothing changes."
     },
     {
-      "id": "DLG-25",
-      "text": "WHILE closable is true and dismissible is true THE dialog SHALL draw at the end of its header an icon-only Button of the small size showing the glyph close of the system's icon set and named by closeLabel, in the variant comp.dialog.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE dialog SHALL emit dismiss exactly once with the reason close and be closed as DLG-5 says for the other reasons. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name. WHILE dismissible is false THE dialog SHALL NOT draw the close button whatever closable says, because the person must then choose one of the actions, and in debug builds SHALL report that closable is ignored. THE dialog SHALL draw no close mark of its own (no path, shape or character of its own), and SHALL NOT move initial focus to the close button unless the product marks it (DLG-2).",
-      "verify": "Under the default system the close button of closable and compact-closable is a bare glyph (text). With dismissible false the closable fixture draws no close button."
-    },
-    {
       "id": "DLG-26",
-      "text": "WHILE the close button is drawn THE dialog SHALL draw the header as one row: the icon and the headline as DLG-9 places them, taking the width the close button leaves, and the close button at the row's end, comp.dialog.header.gap after the headline and with its end edge at the container's padding, centred on the headline's first line; the header SHALL be as tall as the taller of the two, and SHALL be drawn even while headline is empty. WHILE comp.dialog.icon.placement is above and the icon slot is filled THE dialog SHALL keep the icon and the headline centred in the container, keeping them clear of the close button by the same space at the row's start as at its end, with the close button at the row's top end. WHEN the layout direction is right-to-left THE dialog SHALL put the close button at the row's left and SHALL NOT mirror the glyph close. WHILE the text size is enlarged THE dialog SHALL NOT scale the close button beyond what the Button itself does.",
-      "verify": "closable shows the close button at the top end of the header, beside the headline's first line; above is observed under a fixture system that sets comp.dialog.icon.placement to 1."
+      "text": "THE dialog SHALL draw its header as one row that holds the icon and the headline as DLG-9 places them, across the container's inner width, and nothing at its end; WHILE headline is empty and the icon slot is empty THE dialog SHALL draw no header, leaving it out as DLG-8 leaves out an empty part.",
+      "verify": "basic and icon show the header as the icon and the headline alone, the headline running to the container's end padding."
     },
     {
       "id": "DLG-27",
       "text": "WHILE the window is not compact (DLG-17) and width is small, medium or large THE dialog SHALL make its container as wide as comp.dialog.width.small, comp.dialog.width.medium or comp.dialog.width.large, whatever its parts would ask and not held between comp.dialog.container.min-width and comp.dialog.container.max-width, but never wider than the window's safe area less comp.dialog.container.margin on each side; its headline and supporting text SHALL wrap to that width, its content SHALL take it, and its actions SHALL be placed in a row or a column as DLG-10 decides at that width. WHILE width is content THE dialog SHALL be as wide as DLG-7 says. WHILE the window is compact THE dialog SHALL place its container as DLG-17 says, whatever width names, because a narrow window leaves no room for a choice of width. WHEN width changes while the dialog is open THE dialog SHALL take the new width at once, without a motion of its own, keeping its scroll position and focus; WHEN width names a value the dialog does not define THE dialog SHALL treat it as content and in debug builds report the unknown value.",
-      "verify": "In the 640 × 640 window: width-small is as wide as comp.dialog.width.small, its supporting text wrapping; width-large is the window less the margins on each side (608), narrower than comp.dialog.width.large. compact-closable, whose width is large, renders in 360 × 640 as compact does."
+      "verify": "In the 640 × 640 window: width-small is as wide as comp.dialog.width.small, its supporting text wrapping; width-large is the window less the margins on each side (608), narrower than comp.dialog.width.large. In the 360 × 640 window a dialog of every width is placed as compact is."
+    },
+    {
+      "id": "DLG-28",
+      "text": "THE dialog SHALL draw no close button in its header: a dialog asks for a decision, and its way out without one is its dismissive action and, WHILE dismissible is true, Escape, the platform's back and the scrim (DLG-5). THE dialog SHALL have no prop that draws one; WHERE a platform can be given a property the dialog does not define and the product gives one that asks for a close button (the web's closable and close-label attributes), THE dialog SHALL draw nothing for it and in debug builds SHALL report that a dialog has no close button.",
+      "verify": "No fixture draws a close button. On the web a dialog given closable and close-label draws no Button in its header, and a debug build reports it."
     }
   ],
   "accessibility": {
@@ -330,16 +312,16 @@
       },
       {
         "keys": "Enter or Space",
-        "action": "Activate the focused button: an action (its click), or the close button (dismiss, reason close). The dialog adds no default action to Enter."
+        "action": "Activate the focused button (an action: its click). The dialog adds no default action to Enter."
       }
     ],
-    "labeling": "The headline is the accessible name and the supporting text the description. The close button is named by closeLabel. The role is dialog, or alertdialog while alert is true (platforms without that distinction read the headline and supporting text on opening). Everything outside the dialog is hidden from assistive technology while it is open. Each action is named by its own label; confirming and dismissive are not announced, and the actions are read in the order they are placed (BGR-15).",
+    "labeling": "The headline is the accessible name and the supporting text the description. The role is dialog, or alertdialog while alert is true (platforms without that distinction read the headline and supporting text on opening). Everything outside the dialog is hidden from assistive technology while it is open. Each action is named by its own label; confirming and dismissive are not announced, and the actions are read in the order they are placed (BGR-15).",
     "minimumTarget": true,
     "notes": [
-      "The dialog has no target of its own; its close button and its actions are Tanrei Buttons, which meet the minimum target themselves (BTN-5). comp.dialog.actions.gap keeps each action's whole target in a column in the default system.",
+      "The dialog has no target of its own; its actions are Tanrei Buttons, which meet the minimum target themselves (BTN-5). comp.dialog.actions.gap keeps each action's whole target in a column in the default system.",
       "Initial focus: mark the least destructive action (Cancel) in a destructive confirmation, the first field in a form, and nothing in a dialog whose text must be read first. Without a mark, focus goes to the container (DLG-2).",
       "Every dialog offers an action (DLG-19). Use dismissible false sparingly: a person using a switch or a screen reader relies on Escape and back. A dialog that must not be dismissed still needs a visible way out, a dismissive action.",
-      "The close button (closable) is a visible way out, first in the Tab order, before the content and the actions. It dismisses as Escape does, so it is drawn only while dismissible is true. Focus does not start on it: without a mark, focus goes to the container (DLG-2).",
+      "A dialog has no close button (DLG-28). Its visible way out is a dismissive action, which a person meets in the reading order of the actions; Escape, back and the scrim dismiss it as well while it is dismissible.",
       "Placement is by task, not by code order: in a row the dismissive action is at the start and the confirming one at the end; in a column the confirming one is on top. Focus and screen readers follow the placed order, so a sighted and a screen-reader user meet the actions in the same order.",
       "At the bottom of a compact window the dialog is still a modal dialog (DLG-17): the same role, focus, inertness and dismissal, and no drag. A person who expects a bottom sheet's swipe to close it uses Escape, back or the scrim, or a dismissive action.",
       "Text size: at 200% the dialog grows up to the window; its actions stack when a label no longer fits its share (DLG-10), its supporting text and content scroll (DLG-11), and on a very short window everything scrolls together (DLG-12).",
@@ -522,25 +504,6 @@
       ]
     },
     {
-      "id": "closable",
-      "props": {
-        "open": true,
-        "headline": "Edit display name",
-        "supportingText": "This name is shown to everyone on the team, next to your messages and in the member list.",
-        "closable": true,
-        "closeLabel": "Close"
-      },
-      "items": [
-        {
-          "kind": "action",
-          "props": {
-            "confirming": true
-          },
-          "content": "Save"
-        }
-      ]
-    },
-    {
       "id": "width-small",
       "props": {
         "open": true,
@@ -645,26 +608,6 @@
           "content": "Allow while using the app"
         }
       ]
-    },
-    {
-      "id": "compact-closable",
-      "props": {
-        "open": true,
-        "headline": "Edit display name",
-        "supportingText": "This name is shown to everyone on the team, next to your messages and in the member list.",
-        "closable": true,
-        "closeLabel": "Close",
-        "width": "large"
-      },
-      "items": [
-        {
-          "kind": "action",
-          "props": {
-            "confirming": true
-          },
-          "content": "Save"
-        }
-      ]
     }
   ],
   "platforms": {
@@ -678,14 +621,12 @@
         "alert": "alert",
         "dismissible": "closedby",
         "dividerVisibility": "dividerVisibility",
-        "closable": "closable",
-        "closeLabel": "closeLabel",
         "width": "width"
       },
       "events": {
         "dismiss": "cancel"
       },
-      "notes": "`supportingText` is the `supporting-text` attribute. `dismissible` is HTML's own `closedby` attribute: `any` (the default: Escape and a press on the backdrop) or `none`. `cancel` is a CustomEvent whose `detail.reason` is `escape`, `back`, `scrim` or `close`, cancelable as on a native `<dialog>`; `close` follows every close. `closeLabel` is the `close-label` attribute. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.dialog.close-button.variant through the internal controller the group gives its items. `width` is the `width` attribute (`content`, `small`, `medium`, `large`). Slots: default, `icon`, `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the dialog's shadow root uses manual slot assignment, assigns its icon and content children to their slots, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Compact (DLG-17): a media query cannot read a custom property, so the dialog reads the resolved comp.dialog.compact.window-width once per system and matches it with `matchMedia('(width < …px)')`, re-placing at once on change. Debug builds (`import.meta.env.DEV` or the package's dev export) report a dialog opened with no assigned action (DLG-19). Snapshot harness: a 640 × 640 viewport, and 360 × 640 for the compact- fixtures, with the dialog opened by `open`; the screenshot is the viewport, since the dialog and its backdrop are in the top layer. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-dialog-divider-visibility` from the cascade with a style query, and where the browser has none the dialog writes the name it read on its `<dialog>` when it lays out.",
+      "notes": "`supportingText` is the `supporting-text` attribute. `dismissible` is HTML's own `closedby` attribute: `any` (the default: Escape and a press on the backdrop) or `none`. `cancel` is a CustomEvent whose `detail.reason` is `escape`, `back` or `scrim`, cancelable as on a native `<dialog>`; `close` follows every close. There is no `closable` or `close-label` attribute (DLG-28): given one, the dialog draws nothing for it, and debug builds report it. `width` is the `width` attribute (`content`, `small`, `medium`, `large`). Slots: default, `icon`, `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the dialog's shadow root uses manual slot assignment, assigns its icon and content children to their slots, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Compact (DLG-17): a media query cannot read a custom property, so the dialog reads the resolved comp.dialog.compact.window-width once per system and matches it with `matchMedia('(width < …px)')`, re-placing at once on change. Debug builds (`import.meta.env.DEV` or the package's dev export) report a dialog opened with no assigned action (DLG-19). Snapshot harness: a 640 × 640 viewport, and 360 × 640 for the compact- fixtures, with the dialog opened by `open`; the screenshot is the viewport, since the dialog and its backdrop are in the top layer. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-dialog-divider-visibility` from the cascade with a style query, and where the browser has none the dialog writes the name it read on its `<dialog>` when it lays out.",
       "items": {
         "action": {
           "name": "tanrei-button",
@@ -712,14 +653,12 @@
         "alert": "alert",
         "dismissible": "dismissible",
         "dividerVisibility": "dividerVisibility",
-        "closable": "closable",
-        "closeLabel": "closeLabel",
         "width": "width"
       },
       "events": {
         "dismiss": "isPresented"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: a view modifier, as `.alert` and `.sheet` are: `.tanreiDialog(_ headline:, isPresented: Binding<Bool>, supportingText:, alert:, dismissible:, icon:, actions:, content:)`. Dismissal writes false to the binding, SwiftUI's idiom. It is presented with `.fullScreenCover`, with a clear presentation background and the system transition off (Tanrei draws the scrim and the motion); that presentation makes the rest of the app inaccessible to VoiceOver, as `accessibilityViewIsModal` does. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the iOS escape gesture is `.accessibilityAction(.escape)`. `actions:` is a required builder; the dialog counts its subviews through a variadic view and reports an empty one in debug builds (DLG-19), and lays them out with the button group's `Layout`. Compact is the window's width (a `GeometryReader` at the presentation's root) against the token, not the horizontal size class, so every platform switches at the same width. Snapshot harness: `TanreiDialogSurface` in place in a 640 × 640 frame, and 360 × 640 for the compact- fixtures. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `closable`, `closeLabel` and `width` (DLG-25 to DLG-27), and the reason dismiss carries.",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: a view modifier, as `.alert` and `.sheet` are: `.tanreiDialog(_ headline:, isPresented: Binding<Bool>, supportingText:, alert:, dismissible:, icon:, actions:, content:)`. Dismissal writes false to the binding, SwiftUI's idiom. It is presented with `.fullScreenCover`, with a clear presentation background and the system transition off (Tanrei draws the scrim and the motion); that presentation makes the rest of the app inaccessible to VoiceOver, as `accessibilityViewIsModal` does. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the iOS escape gesture is `.accessibilityAction(.escape)`. `actions:` is a required builder; the dialog counts its subviews through a variadic view and reports an empty one in debug builds (DLG-19), and lays them out with the button group's `Layout`. Compact is the window's width (a `GeometryReader` at the presentation's root) against the token, not the horizontal size class, so every platform switches at the same width. Snapshot harness: `TanreiDialogSurface` in place in a 640 × 640 frame, and 360 × 640 for the compact- fixtures. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `width` (DLG-27), and the reason dismiss carries.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -746,14 +685,12 @@
         "alert": "alert",
         "dismissible": "dismissible",
         "dividerVisibility": "dividerVisibility",
-        "closable": "closable",
-        "closeLabel": "closeLabel",
         "width": "width"
       },
       "events": {
         "dismiss": "onDismissRequest"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window. The target: `TanreiDialog(visible, onDismissRequest, headline, supportingText, alert, dismissible, initialFocus: FocusRequester?, icon, actions, content)` with `actions` a required parameter; the group's `Layout` sees its measurables and reports none in debug builds (DLG-19). `visible` rather than calling it only while open, so that the exit motion can run before the window goes. Presented in a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off (Tanrei draws the scrim). `dismissible` sets `dismissOnBackPress` and `dismissOnClickOutside`. The headline is the window's `paneTitle`. Compact is `LocalWindowInfo.current.containerSize` against the token, not a window size class, so every platform switches at the same width. Snapshot harness: renders `TanreiDialogContent` (the surface and the scrim) in place in a 640 × 640 dp box, and 360 × 640 for the compact- fixtures; the window itself is covered by instrumented tests. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `closable`, `closeLabel` and `width` (DLG-25 to DLG-27), and the reason dismiss carries.",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window. The target: `TanreiDialog(visible, onDismissRequest, headline, supportingText, alert, dismissible, initialFocus: FocusRequester?, icon, actions, content)` with `actions` a required parameter; the group's `Layout` sees its measurables and reports none in debug builds (DLG-19). `visible` rather than calling it only while open, so that the exit motion can run before the window goes. Presented in a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off (Tanrei draws the scrim). `dismissible` sets `dismissOnBackPress` and `dismissOnClickOutside`. The headline is the window's `paneTitle`. Compact is `LocalWindowInfo.current.containerSize` against the token, not a window size class, so every platform switches at the same width. Snapshot harness: renders `TanreiDialogContent` (the surface and the scrim) in place in a 640 × 640 dp box, and 360 × 640 for the compact- fixtures; the window itself is covered by instrumented tests. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `width` (DLG-27), and the reason dismiss carries.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -780,14 +717,12 @@
         "alert": "alert",
         "dismissible": "barrierDismissible",
         "dividerVisibility": "dividerVisibility",
-        "closable": "showCloseButton",
-        "closeLabel": "closeButtonSemanticLabel",
         "width": "width"
       },
       "events": {
         "dismiss": "showTanreiDialog"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 golden. The target: `showTanreiDialog<T>(context:, barrierDismissible:, builder:)` pushes a modal route that draws the scrim as its barrier, and returns a `Future<T?>`; `Navigator.pop(context, value)` from an action closes it, and a dismissal completes the future with null. `TanreiDialog(headline:, supportingText:, alert:, icon:, required actions:, child:)` is the surface the builder returns; `actions` is asserted non-empty (DLG-19). Initial focus is `autofocus: true` on a focusable widget. The route is marked `scopesRoute` and `namesRoute`, so assistive technology stays inside it. Compact is `MediaQuery.sizeOf(context).width` against the token. Snapshot harness: a golden of the whole 640 × 640 surface after `showTanreiDialog`, and 360 × 640 for the compact- fixtures, as the overlay is part of the widget tree. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `showCloseButton`, `closeButtonSemanticLabel` and `width` (DLG-25 to DLG-27), and the reason dismiss carries.",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 golden. The target: `showTanreiDialog<T>(context:, barrierDismissible:, builder:)` pushes a modal route that draws the scrim as its barrier, and returns a `Future<T?>`; `Navigator.pop(context, value)` from an action closes it, and a dismissal completes the future with null. `TanreiDialog(headline:, supportingText:, alert:, icon:, required actions:, child:)` is the surface the builder returns; `actions` is asserted non-empty (DLG-19). Initial focus is `autofocus: true` on a focusable widget. The route is marked `scopesRoute` and `namesRoute`, so assistive technology stays inside it. Compact is `MediaQuery.sizeOf(context).width` against the token. Snapshot harness: a golden of the whole 640 × 640 surface after `showTanreiDialog`, and 360 × 640 for the compact- fixtures, as the overlay is part of the widget tree. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `width` (DLG-27), and the reason dismiss carries.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -814,14 +749,12 @@
         "alert": "alert",
         "dismissible": "dismissible",
         "dividerVisibility": "dividerVisibility",
-        "closable": "closable",
-        "closeLabel": "closeLabel",
         "width": "width"
       },
       "events": {
         "dismiss": "onRequestClose"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: named as React Native's `Modal`: `visible` and `onRequestClose` (Android's back and, here, Escape on a hardware keyboard and a press on the scrim). Presented in a transparent `Modal` with `animationType=\"none\"` (Tanrei draws the scrim and the motion), `statusBarTranslucent` and `navigationBarTranslucent`. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. `actions` is required in the types, and development builds report it empty when the dialog becomes visible (DLG-19). Compact is `useWindowDimensions().width` against the token. Snapshot harness: renders `DialogSurface` (the surface and the scrim) in place in a 640 × 640 view, and 360 × 640 for the compact- fixtures, since a `Modal` is a native window the snapshot does not include. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `closable`, `closeLabel` and `width` (DLG-25 to DLG-27), and the reason dismiss carries.",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: named as React Native's `Modal`: `visible` and `onRequestClose` (Android's back and, here, Escape on a hardware keyboard and a press on the scrim). Presented in a transparent `Modal` with `animationType=\"none\"` (Tanrei draws the scrim and the motion), `statusBarTranslucent` and `navigationBarTranslucent`. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. `actions` is required in the types, and development builds report it empty when the dialog becomes visible (DLG-19). Compact is `useWindowDimensions().width` against the token. Snapshot harness: renders `DialogSurface` (the surface and the scrim) in place in a 640 × 640 view, and 360 × 640 for the compact- fixtures, since a `Modal` is a native window the snapshot does not include. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does. Not built on this platform yet: `width` (DLG-27), and the reason dismiss carries.",
       "items": {
         "action": {
           "name": "Button",

@@ -1676,6 +1676,26 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.dialog.close-button",
+      "since": "2026-10-17",
+      "reason": "the dialog's close button was withdrawn: a dialog asks for a decision, and its way out without one is its dismissive action (and Escape, back and the scrim while it is dismissible)",
+      "replacedBy": "a dismissive action (Cancel, or Close where there is nothing to cancel); a side sheet or a bottom sheet for content that needs only a way out",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-dialog-close-button",
+      "since": "2026-10-17",
+      "reason": "the custom property of the withdrawn dialog close button went with its token",
+      "replacedBy": "a dismissive action, whose variant is --tanrei-comp-dialog-actions-variant's unless the product sets one",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

@@ -164,10 +164,6 @@
           "prop": "closeLabel"
         },
         {
-          "component": "dialog",
-          "prop": "closeLabel"
-        },
-        {
           "component": "image-preview",
           "prop": "closeLabel"
         },
