@@ -58,8 +58,12 @@ test('the modules that define an element are found', () => {
 
 test('the list names the same modules in src/ and in dist/, and none that is gone', () => {
   const list = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).sideEffects;
-  // The bundle is built from src/index.ts and src/m3-like.ts, which the list names: it has no source of its own.
-  const inDist = list.filter((entry) => entry.startsWith('./dist/') && entry !== './dist/tanrei.bundle.js').map((entry) => entry.slice('./dist/'.length).replace(/\.js$/, ''));
+  // Three have no source of their own: the bundle, built from src/index.ts and the component modules, which the list
+  // names; and the systems' entries and `all`, which the build writes from the systems' manifests (scripts/entries.js)
+  // and test/entries.test.mjs holds to them.
+  const written = new Set(['./dist/tanrei.bundle.js', './dist/all.js', './dist/systems/*.js']);
+  for (const entry of written) assert.ok(list.includes(entry), `${entry} is listed`);
+  const inDist = list.filter((entry) => entry.startsWith('./dist/') && !written.has(entry)).map((entry) => entry.slice('./dist/'.length).replace(/\.js$/, ''));
   const inSrc = list.filter((entry) => entry.startsWith('./src/')).map((entry) => entry.slice('./src/'.length).replace(/\.ts$/, ''));
   assert.deepEqual([...inSrc].sort(), [...inDist].sort(), 'name each module in both halves: "./src/<path>.ts" beside "./dist/<path>.js"');
   const gone = inSrc.filter((entry) => !entry.includes('*') && !fs.existsSync(path.join(root, 'src', `${entry}.ts`)));
