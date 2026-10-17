@@ -23,9 +23,11 @@ import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges 
 import {
   OPTION_GLYPHS,
   OPTION_GROUP_TAG,
+  OPTION_ICON_SPACES,
   OPTION_MIRRORED,
   OPTION_TAG,
   type OptionData,
+  type OptionIconSpace,
   type OptionModel,
   OptionListController,
   OptionsController,
@@ -45,6 +47,8 @@ export type TanreiSelectVariant = keyof TanreiInputBoxVariantRegistry;
 export type TanreiSelectSize = keyof TanreiInputBoxSizeRegistry;
 /** How a group of options is told from what is next to it: the design system's answer (auto), a line, or empty space. */
 export type TanreiSelectSeparation = SeparationProp;
+/** Whether an option keeps the leading icon column where it has no icon (SEL-66). A closed set: the menu's values. */
+export type TanreiSelectIconSpace = OptionIconSpace;
 /** Why the list closed (SEL-27). The web has no back of its own, so it never sends `back`. */
 export type TanreiSelectToggleReason = 'select' | 'escape' | 'back' | 'outside' | 'focus-out' | 'anchor-hidden' | 'press' | 'tab';
 /** `toggle`'s detail: the new `open`, and for a close its reason. */
@@ -180,6 +184,7 @@ export class TanreiSelect extends LitElement {
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
@@ -221,6 +226,13 @@ export class TanreiSelect extends LitElement {
 
   /** How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-select-separation`). */
   separation: TanreiSelectSeparation = 'auto';
+
+  /**
+   * Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —
+   * an option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of
+   * its section has a `leading-icon`, `always` in every option, `never` only where it has one.
+   */
+  iconSpace: TanreiSelectIconSpace = 'auto';
 
   /** For tests and fixtures: draws the open list in place below the trigger — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal. */
   inline = false;
@@ -270,6 +282,7 @@ export class TanreiSelect extends LitElement {
     model: () => this.options$.model,
     chosen: () => this.chosen,
     choose: (option, event) => this.choose(option, event),
+    iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'),
     widens: true,
   });
   /** SEL-24, SEL-25, SEL-30: where the list is — the anchored surface a popover is drawn on, at least as wide as the container. */
@@ -665,6 +678,10 @@ export class TanreiSelect extends LitElement {
     if (!this.name_) report(this, 'SEL-11', 'label is empty and no Field names the select, so it has no accessible name; give it a label, or put it in a <tanrei-field> that has one');
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'SEL-45', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
+    }
+    // SEL-66: an iconSpace the select does not define is auto; a debug build says so.
+    if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
+      report(this, 'SEL-66', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
     }
     const { options, nested } = this.options$.model;
     // The options are reported when they, or the value, change — not on every render.

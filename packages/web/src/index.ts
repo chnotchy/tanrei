@@ -124,6 +124,7 @@ export {
 export { TanreiOption, TanreiOptionGroup } from './components/option/option.js';
 export {
   TanreiSelect,
+  type TanreiSelectIconSpace,
   type TanreiSelectSeparation,
   type TanreiSelectSize,
   type TanreiSelectToggleDetail,
