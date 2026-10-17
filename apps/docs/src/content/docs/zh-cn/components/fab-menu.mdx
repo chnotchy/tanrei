@@ -2,7 +2,7 @@
 title: "FAB 菜单"
 description: "从一个画成收起的主操作按钮的切换按钮上，打开一小组相关的操作；这些操作显示期间，切换按钮变成这个列表的关闭按钮。"
 translationOf: components/fab-menu.mdx
-sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
+sourceHash: 4abd2e68c27a8a86fd184f7caa14aec553cb2c53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="fab-menu" />
 
 :::note[m3-like 层的组件]
-FAB 菜单位于 `m3-like` 层：只有继承这一层的系统（`m3-like` 和 `m3-expressive-like`）才有它，它的令牌也只在这些系统的样式表里。`@tanrei/web` 不注册它，`@tanrei/web/m3-like` 注册它。默认的 Tanrei 系统和 cupertino 都不绘制悬浮操作按钮，所以没有它：请使用一个打开操作[底部面板](/zh-cn/components/bottom-sheet/)的[主操作按钮](/zh-cn/components/main-action-button/)。在这些系统下使用它时，开发环境会给出提示。基于其他系统的产品若需要它，可在自己的层里从这一层引入它（`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`），并用产品自己的令牌绘制。本页的演示在 `m3-like` 下绘制。
+FAB 菜单位于 `m3-like` 层：只有继承这一层的系统（`m3-like` 和 `m3-expressive-like`）才有它，它的令牌也只在这些系统的样式表里。`@tanrei/web` 不注册它，这些系统的入口（`@tanrei/web/systems/m3-like.js`、`@tanrei/web/systems/m3-expressive-like.js`）注册它。默认的 Tanrei 系统和 cupertino 都不绘制悬浮操作按钮，所以没有它：请使用一个打开操作[底部面板](/zh-cn/components/bottom-sheet/)的[主操作按钮](/zh-cn/components/main-action-button/)。在这些系统下使用它时，开发环境会给出提示。基于其他系统的产品若需要它，可在自己的层里从这一层引入它（`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`），导入它自己的模块 `@tanrei/web/components/fab-menu`，并用产品自己的令牌绘制。本页的演示在 `m3-like` 下绘制。
 :::
 
 <DemoFrame label="关闭与打开" system="m3-like">
@@ -61,8 +61,8 @@ FAB 菜单位于 `m3-like` 层：只有继承这一层的系统（`m3-like` 和 
     </style>
 
     <script type="module">
-      // FAB 菜单位于 m3-like 层：由这一层的入口注册，与主入口并列。
-      import '@tanrei/web/m3-like';
+      // FAB 菜单位于 m3-like 层：m3-like 系统的入口会把它和其他组件一起注册。
+      import '@tanrei/web/systems/m3-like.js';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // 切换按钮只是请求打开或关闭；open 由你来设置。
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));

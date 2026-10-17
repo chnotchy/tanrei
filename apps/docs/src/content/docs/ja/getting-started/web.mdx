@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -51,13 +51,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. コンポーネントを登録します。すべてをインポートすることも、使う要素だけをインポートすることもできます。
+2. 自分のデザインシステムのコンポーネントを登録します。使う要素だけをインポートすることもできます。
 
    ```js
    import '@tanrei/web';
+   // プリセットでは、代わりにそのエントリーを: m3-like、m3-expressive-like、cupertino
+   import '@tanrei/web/systems/m3-like.js';
    // または、要素を 1 つずつ:
    import '@tanrei/web/components/button';
    ```
+
+   `@tanrei/web` が登録するのは既定のシステムが持つコンポーネントだけなので、その上のプロダクトから、システムにないコンポーネントには手が届きません。プリセットのエントリー `@tanrei/web/systems/<id>.js` はそのプリセットが持つものを、`@tanrei/web/all` はパッケージのすべてのコンポーネントを登録します。[セグメントボタン](/ja/components/segmented-button/)のようにプリセットにしかないコンポーネントも、意図して使うことはできます。自分のシステムのレイヤーで取り込み、そのコンポーネント自身のモジュールを読み込みます。
 
    `@tanrei/web/…` という指定子はパッケージのエクスポートで、バンドラー（Vite、webpack、esbuild）が解決します。バンドラーがない場合、ブラウザーは `<link>` や `<script src>` の中の裸の指定子を解決できません。そのときはパッケージの `dist/` を配信して、ファイルを直接指定します。スタイルシートはそのまま、スクリプトは Lit とすべての要素を含む `tanrei.bundle.js` を使います。
 
@@ -89,6 +93,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">デプロイ</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
 </DemoFrame>
+
+## 要素のマニフェスト
+
+エディターやコーディングエージェントは、パッケージの要素を [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest) の `@tanrei/web/custom-elements.json` から読みます。すべての要素の属性、プロパティ、イベント、スロット、パーツが載っていて、プロダクトから触れないものは載っていません。`@tanrei/web/custom-elements/<id>.json` にはシステム `<id>` が持つ要素だけが載っているので、1 つのシステムで使うツールはそれ以外を提案しません。
 
 ## テーマとコントラスト
 

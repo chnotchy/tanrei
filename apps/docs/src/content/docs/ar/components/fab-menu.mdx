@@ -2,7 +2,7 @@
 title: قائمة FAB
 description: تفتح قائمة قصيرة من الإجراءات المترابطة من زر تبديل مرسوم بهيئة زر إجراء رئيسي مطويّ، يتحول إلى زر إغلاق القائمة ما دامت الإجراءات ظاهرة.
 translationOf: components/fab-menu.mdx
-sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
+sourceHash: 4abd2e68c27a8a86fd184f7caa14aec553cb2c53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="fab-menu" />
 
 :::note[مكوّن من طبقة m3-like]
-تعيش قائمة FAB في طبقة `m3-like`: لا تملكها إلا الأنظمة التي تنحدر منها —`m3-like` و`m3-expressive-like`— ولا توجد رموزها إلا في أوراق أنماطها. لا يسجّلها `@tanrei/web`، بل يسجّلها `@tanrei/web/m3-like`. نظام Tanrei الافتراضي وcupertino لا يملكانها، لأن أيًّا منهما لا يرسم زر إجراء عائمًا: استخدم [زر الإجراء الرئيسي](/ar/components/main-action-button/) يفتح [لوحة سفلية](/ar/components/bottom-sheet/) من الإجراءات. وإن استُخدمت تحت أحدهما نبّهت إلى ذلك في أثناء التطوير. والمنتج المبني على نظام آخر ويريدها يضمّنها من الطبقة في طبقته —`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`— ويرسمها برموزه هو. العروض التوضيحية في هذه الصفحة مرسومة تحت `m3-like`.
+تعيش قائمة FAB في طبقة `m3-like`: لا تملكها إلا الأنظمة التي تنحدر منها —`m3-like` و`m3-expressive-like`— ولا توجد رموزها إلا في أوراق أنماطها. لا يسجّلها `@tanrei/web`، بل تسجّلها مداخل تلك الأنظمة (`@tanrei/web/systems/m3-like.js` و`@tanrei/web/systems/m3-expressive-like.js`). نظام Tanrei الافتراضي وcupertino لا يملكانها، لأن أيًّا منهما لا يرسم زر إجراء عائمًا: استخدم [زر الإجراء الرئيسي](/ar/components/main-action-button/) يفتح [لوحة سفلية](/ar/components/bottom-sheet/) من الإجراءات. وإن استُخدمت تحت أحدهما نبّهت إلى ذلك في أثناء التطوير. والمنتج المبني على نظام آخر ويريدها يضمّنها من الطبقة في طبقته —`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`— ويستورد وحدتها الخاصة `@tanrei/web/components/fab-menu`، ويرسمها برموزه هو. العروض التوضيحية في هذه الصفحة مرسومة تحت `m3-like`.
 :::
 
 <DemoFrame label="مغلقة ومفتوحة" system="m3-like">
@@ -61,8 +61,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </style>
 
     <script type="module">
-      // تعيش قائمة FAB في طبقة m3-like: يسجّلها مدخل تلك الطبقة، إلى جانب المدخل الرئيسي.
-      import '@tanrei/web/m3-like';
+      // تعيش قائمة FAB في طبقة m3-like: يسجّلها مدخل نظام من أنظمة m3-like مع سائر المكوّنات.
+      import '@tanrei/web/systems/m3-like.js';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // زر التبديل يطلب الفتح أو الإغلاق؛ وأنت تضبط open.
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));

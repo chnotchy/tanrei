@@ -14,8 +14,21 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="segmented-button" />
 
 :::note[Not in the Tanrei system]
-The default Tanrei system does not ship the segmented button; the Material and cupertino presets do. In Tanrei, one choice among several is [Tabs](/components/tabs/) where it changes the content below, and [radio buttons](/components/radio-button/) where it sets a value; buttons that each toggle on their own are a [Button group](/components/button-group/). The component still works under every system, with a warning in development where the system leaves it out. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
+The default Tanrei system does not ship the segmented button; the Material and cupertino presets do. In Tanrei, one choice among several is [Tabs](/components/tabs/) where it changes the content below, and [radio buttons](/components/radio-button/) where it sets a value; buttons that each toggle on their own are a [Button group](/components/button-group/). `@tanrei/web` does not register it; the entries of the presets that ship it do. A product on the default system that wants it all the same includes it in its own layer and imports its module: it is then drawn with the product's own tokens. Used under a system that leaves it out, it warns in development. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
 :::
+
+```js
+// On a preset that ships it, the preset's entry registers it with the rest:
+import '@tanrei/web/systems/m3-like.js'; // or m3-expressive-like.js, cupertino.js
+// On the default system, or a product built on it: its own module.
+import '@tanrei/web/components/segmented-button';
+```
+
+```json
+"components": { "include": ["segmented-button"] }
+```
+
+The second block goes in your system's layer file (`<id>.system.json`; see [Your own design system](/getting-started/your-design-system/)): it brings back a component the default system leaves out.
 
 <DemoFrame label="Single selection, with icons, icon only" system="m3-like">
   <tanrei-segmented-button label="Range" value="week">

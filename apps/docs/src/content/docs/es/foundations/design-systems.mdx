@@ -2,7 +2,7 @@
 title: Sistemas de diseño y personalización
 description: Un vocabulario, muchos sistemas de diseño. Cambia un dial, declara una paleta, reorienta un token, y todas las plataformas lo siguen en un solo commit.
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: 5ddbc362464368093811f7307f0d3be44b7505af
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -122,11 +122,12 @@ El mismo `<tanrei-button>`, el mismo marcado. `m3-like` y `cupertino` están ah�
 
 <SystemGallery />
 
-En la web, un preajuste es una hoja de estilos adicional, limitada a un atributo, así que los sistemas pueden incluso convivir uno al lado del otro:
+En la web, un preajuste es una hoja de estilos adicional, limitada a un atributo, así que los sistemas pueden incluso convivir uno al lado del otro. Su entrada registra los componentes que incluye, entre ellos los que el sistema predeterminado deja fuera (`@tanrei/web` registra solo los del sistema predeterminado):
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/systems/cupertino.js'; // los componentes que incluye cupertino
 ```
 
 ```html

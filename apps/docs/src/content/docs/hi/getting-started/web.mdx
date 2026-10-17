@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -51,13 +51,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. कंपोनेंट रजिस्टर करें। सब कुछ इंपोर्ट करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
+2. अपने डिज़ाइन सिस्टम के कंपोनेंट रजिस्टर करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
 
    ```js
    import '@tanrei/web';
+   // प्रीसेट पर, उसकी एंट्री इसकी जगह: m3-like, m3-expressive-like या cupertino
+   import '@tanrei/web/systems/m3-like.js';
    // या, एक-एक एलिमेंट:
    import '@tanrei/web/components/button';
    ```
+
+   `@tanrei/web` सिर्फ़ वे कंपोनेंट रजिस्टर करता है जो डिफ़ॉल्ट सिस्टम में हैं, इसलिए उस पर बना प्रोडक्ट ऐसे कंपोनेंट तक नहीं पहुँच सकता जो उसके सिस्टम में नहीं है। प्रीसेट की एंट्री, `@tanrei/web/systems/<id>.js`, वह रजिस्टर करती है जो उस प्रीसेट में है, और `@tanrei/web/all` पैकेज के सारे कंपोनेंट। जो कंपोनेंट सिर्फ़ किसी प्रीसेट में है, जैसे [सेगमेंटेड बटन](/hi/components/segmented-button/), उसे फिर भी जान-बूझकर लिया जा सकता है: उसे अपने सिस्टम की लेयर में शामिल करें और उसका अपना मॉड्यूल इंपोर्ट करें।
 
    `@tanrei/web/…` वाले स्पेसिफ़ायर पैकेज के एक्सपोर्ट हैं: इन्हें कोई बंडलर (Vite, webpack, esbuild) रिज़ॉल्व करता है। बंडलर के बिना ब्राउज़र `<link>` या `<script src>` में बेयर स्पेसिफ़ायर रिज़ॉल्व नहीं कर सकता, इसलिए पैकेज का `dist/` सर्व करें और सीधे फ़ाइलों की ओर इशारा करें — स्टाइलशीट जैसी हैं वैसी ही, और `tanrei.bundle.js`, जिसमें Lit और हर एलिमेंट शामिल है:
 
@@ -89,6 +93,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
 </DemoFrame>
+
+## एलिमेंट का मैनिफ़ेस्ट
+
+एडिटर और कोडिंग एजेंट पैकेज के एलिमेंट उसके [custom elements manifest](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`, से पढ़ते हैं: हर एलिमेंट अपने ऐट्रिब्यूट, प्रॉपर्टी, इवेंट, स्लॉट और पार्ट के साथ, और ऐसा कुछ नहीं जिस तक प्रोडक्ट नहीं पहुँच सकता। `@tanrei/web/custom-elements/<id>.json` में सिर्फ़ वे एलिमेंट हैं जो सिस्टम `<id>` में हैं, इसलिए एक सिस्टम में काम करने वाला टूल और कुछ नहीं सुझाता।
 
 ## थीम और कंट्रास्ट
 

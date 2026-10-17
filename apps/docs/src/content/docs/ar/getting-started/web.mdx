@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 7ccb0094881798a94a2f5f15a36900c9a396e226
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -51,13 +51,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. سجِّل المكوّنات. استورد كل شيء، أو العناصر التي تستخدمها فقط.
+2. سجِّل مكوّنات نظام التصميم الخاص بك، أو العناصر التي تستخدمها فقط.
 
    ```js
    import '@tanrei/web';
+   // في إعداد جاهز، مدخله بدلًا من ذلك: m3-like أو m3-expressive-like أو cupertino
+   import '@tanrei/web/systems/m3-like.js';
    // أو عنصرًا واحدًا في كل مرة:
    import '@tanrei/web/components/button';
    ```
+
+   لا يسجّل `@tanrei/web` إلا المكوّنات التي يتضمنها النظام الافتراضي، فلا يصل المنتج المبني عليه إلى مكوّن لا يملكه نظامه. ويسجّل مدخل الإعداد الجاهز، `@tanrei/web/systems/<id>.js`، ما يتضمنه ذلك الإعداد، ويسجّل `@tanrei/web/all` كل مكوّنات الحزمة. والمكوّن الذي لا يتضمنه إلا إعداد جاهز، مثل [الزر المقسَّم](/ar/components/segmented-button/)، يمكن أخذه مع ذلك عن قصد: ضمّنه في طبقة نظامك واستورد وحدته الخاصة.
 
    المحدِّدات من الصيغة `@tanrei/web/…` هي صادرات الحزمة (package exports)، ويحلّها المُحزِّم (Vite أو webpack أو esbuild). ومن دون مُحزِّم لا يستطيع المتصفح حلّ محدِّد مجرّد في `<link>` أو `<script src>`؛ لذلك قدِّم مجلد `dist/` من الحزمة وأشِر إلى الملفات مباشرة: أوراق الأنماط كما هي، والملف `tanrei.bundle.js` الذي يحمل Lit وجميع العناصر:
 
@@ -89,6 +93,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">نشر</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>إلغاء</tanrei-button>
 </DemoFrame>
+
+## بيان العناصر
+
+تقرأ المحررات ووكلاء البرمجة عناصر الحزمة من [بيان العناصر المخصّصة](https://github.com/webcomponents/custom-elements-manifest) الخاص بها، `@tanrei/web/custom-elements.json`: كل عنصر بسماته وخصائصه وأحداثه وفتحاته وأجزائه، ولا شيء لا يصل إليه المنتج. ولا يحوي `@tanrei/web/custom-elements/<id>.json` إلا العناصر التي يتضمنها النظام `<id>`، فلا تقترح الأداة التي تعمل في نظام واحد شيئًا غيرها.
 
 ## السمة والتباين
 

@@ -49,13 +49,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. Register the components. Import everything, or only the elements you use.
+2. Register the components of your design system, or only the elements you use.
 
    ```js
    import '@tanrei/web';
+   // on a preset, its entry instead: m3-like, m3-expressive-like or cupertino
+   import '@tanrei/web/systems/m3-like.js';
    // or, one element at a time:
    import '@tanrei/web/components/button';
    ```
+
+   `@tanrei/web` registers the components the default system ships and no other, so a product on it cannot reach one its system does not have. A preset's entry, `@tanrei/web/systems/<id>.js`, registers what that preset ships, and `@tanrei/web/all` every component of the package. A component that only a preset ships, such as the [segmented button](/components/segmented-button/), can still be taken on purpose: include it in your system's layer and import its own module.
 
    The `@tanrei/web/…` specifiers are package exports: a bundler (Vite, webpack, esbuild) resolves them. Without one, a browser cannot resolve a bare specifier in `<link>` or `<script src>`, so serve the package's `dist/` and point at the files — the stylesheets as they are, and `tanrei.bundle.js`, which carries Lit and every element:
 
@@ -87,6 +91,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">Deploy</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancel</tanrei-button>
 </DemoFrame>
+
+## The elements' manifest
+
+Editors and coding agents read the package's elements from its [custom elements manifest](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`: every element with its attributes, properties, events, slots and parts, and nothing a product cannot reach. `@tanrei/web/custom-elements/<id>.json` holds only the elements system `<id>` ships, so a tool that works in one system offers nothing else.
 
 ## Theme and contrast
 

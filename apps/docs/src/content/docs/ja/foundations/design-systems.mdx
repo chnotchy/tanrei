@@ -2,7 +2,7 @@
 title: デザインシステムとカスタマイズ
 description: 語彙は 1 つ、デザインシステムは多数。ダイヤルを回す・パレットを宣言する・トークンの参照先を差し替える — 1 コミットで全プラットフォームが追従します。
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: 5ddbc362464368093811f7307f0d3be44b7505af
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -122,11 +122,12 @@ Web ではダイヤルが実行時にも効きます。導出トークンは `ca
 
 <SystemGallery />
 
-Web ではプリセットは属性でスコープされた追加のスタイルシート 1 枚なので、複数のシステムを同じページに並べることもできます。
+Web ではプリセットは属性でスコープされた追加のスタイルシート 1 枚なので、複数のシステムを同じページに並べることもできます。そのプリセットが持つコンポーネントは、プリセットのエントリーが登録します。既定のシステムが持たないものもここに含まれます（`@tanrei/web` が登録するのは既定のシステムのコンポーネントだけです）。
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/systems/cupertino.js'; // cupertino が持つコンポーネント
 ```
 
 ```html

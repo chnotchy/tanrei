@@ -2,7 +2,7 @@
 title: FAB メニュー
 description: 縮めたメインアクションボタンとして描くトグルから、関連するアクションの短いリストを開きます。リストが出ている間、トグルはそのリストを閉じるボタンになります。
 translationOf: components/fab-menu.mdx
-sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
+sourceHash: 4abd2e68c27a8a86fd184f7caa14aec553cb2c53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="fab-menu" />
 
 :::note[m3-like レイヤーのコンポーネント]
-FAB メニューは `m3-like` レイヤーにあります。これを持つのは、そのレイヤーを継ぐシステム（`m3-like` と `m3-expressive-like`）だけで、トークンもそれらのスタイルシートにしかありません。`@tanrei/web` はこれを登録せず、`@tanrei/web/m3-like` が登録します。既定の Tanrei システムと cupertino はどちらもフローティングアクションボタンを描かないので、これを持ちません。アクションを並べた[ボトムシート](/ja/components/bottom-sheet/)を開く[メインアクションボタン](/ja/components/main-action-button/)を使います。そうしたシステムの下で使うと、開発時にそのことを知らせます。ほかのシステムの上に作るプロダクトでこれを使うには、自分のレイヤーでこのレイヤーから取り込みます（`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`）。その場合、FAB メニューはプロダクト自身のトークンで描かれます。このページのデモは `m3-like` で表示しています。
+FAB メニューは `m3-like` レイヤーにあります。これを持つのは、そのレイヤーを継ぐシステム（`m3-like` と `m3-expressive-like`）だけで、トークンもそれらのスタイルシートにしかありません。`@tanrei/web` はこれを登録せず、それらのシステムのエントリー（`@tanrei/web/systems/m3-like.js`、`@tanrei/web/systems/m3-expressive-like.js`）が登録します。既定の Tanrei システムと cupertino はどちらもフローティングアクションボタンを描かないので、これを持ちません。アクションを並べた[ボトムシート](/ja/components/bottom-sheet/)を開く[メインアクションボタン](/ja/components/main-action-button/)を使います。そうしたシステムの下で使うと、開発時にそのことを知らせます。ほかのシステムの上に作るプロダクトでこれを使うには、自分のレイヤーでこのレイヤーから取り込み（`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`）、FAB メニュー自身のモジュール `@tanrei/web/components/fab-menu` を読み込みます。その場合、FAB メニューはプロダクト自身のトークンで描かれます。このページのデモは `m3-like` で表示しています。
 :::
 
 <DemoFrame label="閉じた状態と開いた状態" system="m3-like">
@@ -61,8 +61,8 @@ FAB メニューは `m3-like` レイヤーにあります。これを持つの�
     </style>
 
     <script type="module">
-      // FAB メニューは m3-like レイヤーにあります。メインのエントリーとは別に、このレイヤーのエントリーが登録します。
-      import '@tanrei/web/m3-like';
+      // FAB メニューは m3-like レイヤーにあります。m3-like 系のシステムのエントリーが、ほかのコンポーネントと一緒に登録します。
+      import '@tanrei/web/systems/m3-like.js';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // トグルは開閉を求めるだけです。open を設定するのは利用者側です。
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
