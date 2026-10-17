@@ -35,7 +35,7 @@ To build **your own design system** on Tanrei's vocabulary — one layer file in
 
 <!-- tanrei:status -->
 <!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
-> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`, and expect the API to change.
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
 
 | Platform | Package | Components |
 |---|---|---|

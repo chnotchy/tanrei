@@ -58,10 +58,13 @@ export function counts(totals) {
 
 const pausedPlatforms = () => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/tools/paused-platforms.json'), 'utf8')).paused;
 
-/** The release line: empty for a release, and for a prerelease what to install until the release, and that the API can change. */
+/**
+ * The release line: empty for a release; for a prerelease, what to install until the release, and that a 0.x prerelease keeps
+ * no backward compatibility (the rule while the versions are 0.x prereleases; nothing is said here of later versions).
+ */
 function releaseLine(pkg, { version, prerelease, tag, release: next }) {
   if (!prerelease) return [];
-  return [`> **Prerelease.** \`${version}\` is published under the npm dist-tag \`${tag}\`: until \`${next}\`, install \`${pkg}@${tag}\`, and expect the API to change.`, ''];
+  return [`> **Prerelease.** \`${version}\` is published under the npm dist-tag \`${tag}\`: until \`${next}\`, install \`${pkg}@${tag}\`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.`, ''];
 }
 
 /** "A, B and C". */

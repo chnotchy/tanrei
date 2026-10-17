@@ -52,8 +52,9 @@ test('a prerelease says what to install until the release; a release says nothin
   const s = status({ web: { ...zero, alpha: 3 } });
   const pre = block({ kind: 'package' }, { status: s, paused: [], pkg: '@x/cli', version: '0.1.0-next.4' });
   assert.match(pre, /`0\.1\.0-next\.4` is published under the npm dist-tag `next`: until `0\.1\.0`, install `@x\/cli@next`/);
+  assert.match(pre, /During the 0\.x prereleases backward compatibility is not kept: any prerelease may break anything/);
   const done = block({ kind: 'package' }, { status: s, paused: [], pkg: '@x/cli', version: '0.1.0' });
-  assert.doesNotMatch(done, /Prerelease|@next/);
+  assert.doesNotMatch(done, /Prerelease|@next|backward compatibility/);
 });
 
 test("the repository's block has every platform's counts, the meaning of each status it shows, and which platforms are paused", () => {
