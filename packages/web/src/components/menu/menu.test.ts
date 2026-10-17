@@ -11,6 +11,7 @@ import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals,
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { settledCss } from '../../../test/motions.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -33,16 +34,6 @@ const paintAnchor = (page: P, id: string) =>
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
-/**
- * The element's computed `property` once every transition and animation running on it has reached its end on its own
- * timeline. A color read mid-transition can serialize like its end value (Firefox writes an interpolated color in the end
- * value's space, alpha already rounded to it) and differ from it in the last digit a frame later.
- */
-const settledCss = (locator: Locator, property: string) =>
-  locator.evaluate(async (el, p) => {
-    await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-    return getComputedStyle(el).getPropertyValue(p);
-  }, property);
 /**
  * Every motion running in the page — a surface opening or closing, a state's colors — has ended on its own timeline, and
  * what follows a frame (a surface placed against its anchor) has been drawn. Where a test reads geometry or colors
