@@ -109,7 +109,7 @@ Props that are the element's properties keep their property types, which matters
 `<Badge count={3} label="3 unread"><Button variant="text" label="Inbox"><span slot="icon">inbox</span></Button></Badge>`.
 The selection controls are form-associated elements that switch themselves and then fire `change` as a `CustomEvent`:
 `<Checkbox label="Email me updates" checked={on} onChange={(e) => setOn(e.detail.checked)} />`,
-`<Switch label="Wi-Fi" selected={wifi} onChange={(e) => setWifi(e.detail.selected)} />`, and for a group of radio
+`<Switch label="Wi-Fi" checked={wifi} onChange={(e) => setWifi(e.detail.checked)} />`, and for a group of radio
 buttons, one `name` and the chosen `value`: `<RadioButton name="size" value="m" label="Medium" checked={size === 'm'}
 onChange={(e) => setSize(e.detail.value)} />` inside a `role="radiogroup"` element with a name. `labelHidden` keeps
 the name without drawing it.

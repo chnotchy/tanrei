@@ -782,11 +782,11 @@ test.describe('behavior', () => {
 
   test('FLD-12: a press on the label, the label glyph or the requirement mark moves focus to the control and does nothing else — it does not switch or change it, and draws no press answer; a press on the supporting row does nothing; the field adds no stop to the focus order and handles no key', async ({ page }) => {
     await mount(page, [
-      fx('switch', { label: 'Notifications', requirement: 'required', supportingText: 'Sent when a review is waiting for you.' }, toggle({ selected: true }), { slots: { 'label-icon': 'volume_up' } }),
+      fx('switch', { label: 'Notifications', requirement: 'required', supportingText: 'Sent when a review is waiting for you.' }, toggle({ checked: true }), { slots: { 'label-icon': 'volume_up' } }),
       fx('slider', { label: 'Volume', supportingText: 'Help.' }),
       fx('native', { label: 'Accept' }, '<input type="checkbox" />'),
     ]);
-    const selected = () => control(page, 'switch').evaluate((el: HTMLElement & { selected: boolean }) => el.selected);
+    const checked = () => control(page, 'switch').evaluate((el: HTMLElement & { checked: boolean }) => el.checked);
     const events = await host(page, 'switch').evaluateHandle((el) => {
       const heard: string[] = [];
       for (const type of ['input', 'change', 'click']) el.addEventListener(type, () => heard.push(type));
@@ -797,7 +797,7 @@ test.describe('behavior', () => {
       expect(await activeInside(page, 'switch'), `${target}: not focused before`).toBe(false);
       await part(page, 'switch', target).click();
       expect(await activeInside(page, 'switch'), `${target}: focus moved to the control`).toBe(true);
-      expect(await selected(), `${target}: the control is not switched`).toBe(true);
+      expect(await checked(), `${target}: the control is not switched`).toBe(true);
     }
     // Nothing was switched or changed (a click on the label is the label's, not the control's).
     expect((await events.jsonValue()).filter((type) => type !== 'click')).toEqual([]);
@@ -954,7 +954,7 @@ test.describe('behavior', () => {
     expect(await control(page, id).evaluate((el) => el.shadowRoot!.querySelector('[data-disabled]') !== null), 'drawn as a disabled slider').toBe(true);
     expect(await control(page, id).evaluate((el: HTMLElement & { disabled: boolean }) => el.disabled), 'the product’s own property is not written').toBe(false);
     await control(page, 'switch').click({ force: true });
-    expect(await control(page, 'switch').evaluate((el: HTMLElement & { selected: boolean }) => el.selected), 'not operable').toBe(false);
+    expect(await control(page, 'switch').evaluate((el: HTMLElement & { checked: boolean }) => el.checked), 'not operable').toBe(false);
     expect(await control(page, 'native').evaluate((el: HTMLInputElement) => el.disabled)).toBe(true);
     // No answer to a press on its label.
     await part(page, id, '.label').click();
@@ -1096,7 +1096,7 @@ test.describe('behavior', () => {
   });
 
   test('FLD-19: the direction is the nearest ancestor’s, not the root’s and not a setting of the field’s own; when it changes while the field is shown the field is drawn for the new direction at once, keeping its control with its value and focus', async ({ page }) => {
-    await mount(page, [fx('a', { label: 'Notifications', requirement: 'required', supportingText: 'Help.' }, toggle({ selected: true }))]);
+    await mount(page, [fx('a', { label: 'Notifications', requirement: 'required', supportingText: 'Help.' }, toggle({ checked: true }))]);
     expect(await host(page, 'a').evaluate((el) => 'dir' in el.constructor.prototype && Object.hasOwn(el.constructor.prototype, 'dir'))).toBe(false);
     const edges = async () => {
       const [h, label, own] = [await box(host(page, 'a')), await box(part(page, 'a', '.label')), await box(control(page, 'a'))];
@@ -1109,7 +1109,7 @@ test.describe('behavior', () => {
     await stage(page, 'a').evaluate((el) => el.setAttribute('dir', 'rtl'));
     expect(await edges()).toMatchObject({ labelAtEnd: true, controlAtEnd: true });
     expect(await page.evaluate(() => document.documentElement.getAttribute('dir'))).toBeNull();
-    expect(await control(page, 'a').evaluate((el, was) => el === was && (el as HTMLElement & { selected: boolean }).selected, before), 'the same control, with its value').toBe(true);
+    expect(await control(page, 'a').evaluate((el, was) => el === was && (el as HTMLElement & { checked: boolean }).checked, before), 'the same control, with its value').toBe(true);
     expect(await activeInside(page, 'a'), 'and its focus').toBe(true);
     await stage(page, 'a').evaluate((el) => el.setAttribute('dir', 'ltr'));
     expect(await edges()).toMatchObject({ labelAtStart: true, controlAtStart: true });

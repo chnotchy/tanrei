@@ -259,7 +259,7 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
       const chip = h('tanrei-chip', { size: 'small', label: family === 'system' ? t.fonts.system : family, 'data-suggest': family, onclick: () => (family === 'system' ? ((model = { ...model, system: true }), changed(), platform.focus()) : add(family)) });
       suggestions.insertBefore(suggestions.querySelector(`[data-suggest="${CSS.escape(family)}"]`) ?? chip, at ?? null);
     });
-    platform.selected = model.system;
+    platform.checked = model.system;
     platform.label = `${t.fonts.platform} \u2066${(model.keywords.length ? model.keywords : [systemKeywordFor(fallback)]).join(', ')}\u2069`;
     const names = generics();
     if ([...generic.children].map((option) => (option as HTMLElement).dataset.value).join() !== names.join()) generic.replaceChildren(...names.map((name) => h('tanrei-radio-button', { value: name, label: name, 'data-value': name })));
@@ -273,7 +273,7 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
 
   input.addEventListener('change', () => input.value && add(input.value));
   input.addEventListener('input', () => (input.error = false));
-  platform.addEventListener('change', () => ((model = { ...model, system: platform.selected }), changed()));
+  platform.addEventListener('change', () => ((model = { ...model, system: platform.checked }), changed()));
   const el = h(
     'div',
     { class: 'ts-stack ts-stack-editor', 'data-stack': true },

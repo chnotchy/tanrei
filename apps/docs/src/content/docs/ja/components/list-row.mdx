@@ -2,7 +2,7 @@
 title: リスト行
 description: 前と後ろに何かを添えた 1 行分のテキストです。見出しと、その上の短い行、その下の 1〜2 行。先頭にはグリフ、画像またはコントロール、末尾には短い値、グリフまたはコントロール。リスト項目の中に置くとリストのどのモードにも合わせて描かれ、単独でも使えます。
 translationOf: components/list-row.mdx
-sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+sourceHash: f217e3864e59e529d44baa5fa83a3ac09cc0aa33
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="2 台のデバイス">
-        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden checked></tanrei-switch>
       </tanrei-list-row>
     </tanrei-list-item>
     <tanrei-list-item interactive>

@@ -27,7 +27,7 @@ const t = strings(Astro.props.lang);
   import '@tanrei/web/components/switch';
   import { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR } from '../lib/listing.mjs';
 
-  type Switch = HTMLElement & { selected: boolean };
+  type Switch = HTMLElement & { checked: boolean };
   const root = document.documentElement;
   /** The rows taken out of the document, each by the mark that keeps its place. */
   const held = new Map<Comment, Element>();
@@ -45,7 +45,7 @@ const t = strings(Astro.props.lang);
       }
       root.setAttribute(LISTING_ATTR, 'listed');
     }
-    for (const control of document.querySelectorAll<Switch>('[data-docs-listing-switch]')) control.selected = everything;
+    for (const control of document.querySelectorAll<Switch>('[data-docs-listing-switch]')) control.checked = everything;
   };
   // What the head's script found before the first paint.
   show(root.getAttribute(LISTING_ATTR) !== 'listed');
@@ -53,7 +53,7 @@ const t = strings(Astro.props.lang);
   document.addEventListener('change', (event) => {
     const control = event.target as Switch;
     if (!(control instanceof HTMLElement) || !control.matches('[data-docs-listing-switch]')) return;
-    const everything = !!control.selected;
+    const everything = !!control.checked;
     try {
       if (everything) localStorage.setItem(LISTING_KEY, LISTING_EVERYTHING);
       else localStorage.removeItem(LISTING_KEY);

@@ -261,8 +261,8 @@ export function placedMembers(spec, member) {
  *      the twin's item at that place (a prop at its default counts as not set). A prop the twin's kind has not is what
  *      the composed component reads from the item itself — a checkbox group's `value` — and is not compared;
  *   c. the twin's item sets nothing more, but a prop of that member the composed spec says it sets itself (`fills`): a
- *      radio group fills each radio button's `selected` and gives it its group, so one level down the product writes
- *      `selected` and `name` by hand.
+ *      radio group fills each radio button's `checked` and gives it its group, so one level down the product writes
+ *      `checked` and `name` by hand.
  *
  * `specs` is `[{ file, spec }]`, each spec as written.
  */

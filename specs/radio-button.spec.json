@@ -32,7 +32,7 @@
   ],
   "props": [
     {
-      "name": "selected",
+      "name": "checked",
       "type": "boolean",
       "default": false,
       "description": "Whether this option is the one chosen in its group. Inside a radio group it follows the group's value."
@@ -196,12 +196,12 @@
     },
     {
       "id": "RAD-25",
-      "text": "WHILE the radio button stands in a radio group THE radio button SHALL take its group from it and from nothing else: selected SHALL follow the radio group's value and its own value (RGP-3), name SHALL be ignored, it SHALL be disabled WHILE the radio group is (RGP-7), and its selection by the person SHALL be reported by the radio group's change and by no event of its own that a listener on the group would receive as well (RGP-4). WHERE the radio button stands in no radio group it SHALL form its group by the platform's bare idiom — on the web the radio buttons of one name in the same form, or in the same document or shadow root outside a form — and RAD-3, RAD-4, RAD-5 and RAD-16 SHALL hold among those, the group's name, its required and invalid states and its layout being the product's, or those of a field group whose kind is radio-group that the product put around them (FGR-25). A radio button in no group at all SHALL still render and be selectable, as a group of one, and in debug builds SHALL report it where the platform can tell (on the web, a radio button with neither a radio group nor a name).",
+      "text": "WHILE the radio button stands in a radio group THE radio button SHALL take its group from it and from nothing else: checked SHALL follow the radio group's value and its own value (RGP-3), name SHALL be ignored, it SHALL be disabled WHILE the radio group is (RGP-7), and its selection by the person SHALL be reported by the radio group's change and by no event of its own that a listener on the group would receive as well (RGP-4). WHERE the radio button stands in no radio group it SHALL form its group by the platform's bare idiom — on the web the radio buttons of one name in the same form, or in the same document or shadow root outside a form — and RAD-3, RAD-4, RAD-5 and RAD-16 SHALL hold among those, the group's name, its required and invalid states and its layout being the product's, or those of a field group whose kind is radio-group that the product put around them (FGR-25). A radio button in no group at all SHALL still render and be selectable, as a group of one, and in debug builds SHALL report it where the platform can tell (on the web, a radio button with neither a radio group nor a name).",
       "verify": "Web: three options in a `tanrei-radio-group`, each also given a different `name`, still exclude each other and share one tab stop, and a listener on the group counts one change per selection; three options with one `name` and no radio group behave as before."
     },
     {
       "id": "RAD-26",
-      "text": "THE radio button SHALL draw the condition its props select — selected WHILE selected is true, otherwise unselected — and the error- form of that condition (error-selected, error-unselected) WHILE it is in error: WHILE error is true, or WHILE the radio group or the field group it stands in is in error and has put it there (RGP-8, FGR-8), as a checkbox draws the error- form of its condition (CHK-4). In an error form THE radio button SHALL render its container, ring, fill, label and opacity from the component tokens of that form in every state — at rest, hovered, focused and pressed with the precedence of RAD-7, and disabled as RAD-10 says — and SHALL change nothing else: the ring's diameter and its stroke in each condition (RAD-14), the fill's inset and opacity (RAD-19), the label, the focus indication (RAD-8), the hit area (RAD-9) and the selection motion (RAD-15), which runs between the two error forms' colors, are those of the same condition out of error. WHILE disabled is true the disabled tokens of the error form apply, which in the default system are the values of the plain form's: a disabled option shows no error color, because it cannot be the answer that puts the error right. WHEN the radio button enters or leaves the error forms without a change of selection THE radio button SHALL only recolor its ring and its fill, over comp.radio-button.motion.selection-duration with comp.radio-button.motion.selection-easing, and at once WHERE motion is reduced; nothing SHALL change size or move. THE radio button SHALL expose no invalid state and take no description for the error: the radio role has no such state, the group the options form carries it and the words that say why (RAD-16, RGP-10, FGR-25), and an option that repeated them would say the error once for every arrow key. It SHALL never set error itself, and being selected SHALL NOT clear it. WHERE the options are grouped without a radio group or a field group (RAD-25) error is the product's to set, on every option of the group together with the invalid state of the group it built.",
+      "text": "THE radio button SHALL draw the condition its props select — selected WHILE checked is true, otherwise unselected — and the error- form of that condition (error-selected, error-unselected) WHILE it is in error: WHILE error is true, or WHILE the radio group or the field group it stands in is in error and has put it there (RGP-8, FGR-8), as a checkbox draws the error- form of its condition (CHK-4). In an error form THE radio button SHALL render its container, ring, fill, label and opacity from the component tokens of that form in every state — at rest, hovered, focused and pressed with the precedence of RAD-7, and disabled as RAD-10 says — and SHALL change nothing else: the ring's diameter and its stroke in each condition (RAD-14), the fill's inset and opacity (RAD-19), the label, the focus indication (RAD-8), the hit area (RAD-9) and the selection motion (RAD-15), which runs between the two error forms' colors, are those of the same condition out of error. WHILE disabled is true the disabled tokens of the error form apply, which in the default system are the values of the plain form's: a disabled option shows no error color, because it cannot be the answer that puts the error right. WHEN the radio button enters or leaves the error forms without a change of selection THE radio button SHALL only recolor its ring and its fill, over comp.radio-button.motion.selection-duration with comp.radio-button.motion.selection-easing, and at once WHERE motion is reduced; nothing SHALL change size or move. THE radio button SHALL expose no invalid state and take no description for the error: the radio role has no such state, the group the options form carries it and the words that say why (RAD-16, RGP-10, FGR-25), and an option that repeated them would say the error once for every arrow key. It SHALL never set error itself, and being selected SHALL NOT clear it. WHERE the options are grouped without a radio group or a field group (RAD-25) error is the product's to set, on every option of the group together with the invalid state of the group it built.",
       "verify": "Fixtures error-unselected and error-selected. Under the default system the ring of both forms and the fill of the selected one are the error role, and the label keeps its color. Unit: in each of hovered, focused, pressed and disabled the resolved tokens are those of the error form of the condition; a disabled radio button with error true draws what the same one with error false draws; select an option while in error and the stroke thickens as out of error while the colors run between the two error forms; toggling error alone changes no measured size. The accessibility tree shows no invalid state on a radio whose error is true, by its own prop or by its group."
     },
     {
@@ -256,7 +256,7 @@
     {
       "id": "selected",
       "props": {
-        "selected": true,
+        "checked": true,
         "value": "weekly",
         "name": "frequency",
         "label": "Weekly"
@@ -275,7 +275,7 @@
       "id": "error-selected",
       "props": {
         "error": true,
-        "selected": true,
+        "checked": true,
         "value": "weekly",
         "name": "frequency",
         "label": "Weekly"
@@ -294,7 +294,7 @@
       "id": "disabled-selected",
       "props": {
         "disabled": true,
-        "selected": true,
+        "checked": true,
         "value": "weekly",
         "name": "frequency",
         "label": "Weekly"
@@ -303,7 +303,7 @@
     {
       "id": "label-hidden",
       "props": {
-        "selected": true,
+        "checked": true,
         "value": "weekly",
         "name": "frequency",
         "label": "Weekly",
@@ -316,7 +316,7 @@
       "status": "lagging",
       "name": "tanrei-radio-button",
       "props": {
-        "selected": "checked",
+        "checked": "checked",
         "value": "value",
         "name": "name",
         "disabled": "disabled",
@@ -327,13 +327,13 @@
       "events": {
         "change": "change"
       },
-      "notes": "Form-associated, with the native radio's idiom: `checked`, and a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27)."
+      "notes": "Form-associated, with the native radio's idiom: a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27)."
     },
     "swiftui": {
       "status": "lagging",
       "name": "TanreiRadioButton",
       "props": {
-        "selected": "selection",
+        "checked": "selection",
         "value": "value",
         "name": "TanreiRadioGroup",
         "disabled": "disabled",
@@ -344,13 +344,13 @@
       "events": {
         "change": "selection"
       },
-      "notes": "`TanreiRadioButton(_ title:, value: V, selection: Binding<V?>)`: selected is `selection == value`, and activation writes `value` to the binding, which is the change event. SwiftUI has no radio group on iOS, so `TanreiRadioGroup` (a container with no tokens) carries the group's name, the arrow keys and the position announcements; it is the radio group component (`radio-group`), which adds the frame and holds the selection. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, set by `TanreiRadioGroup` in error through the environment) is not built on this platform yet."
+      "notes": "`TanreiRadioButton(_ title:, value: V, selection: Binding<V?>)`: checked is `selection == value`, and activation writes `value` to the binding, which is the change event. SwiftUI has no radio group on iOS, so `TanreiRadioGroup` (a container with no tokens) carries the group's name, the arrow keys and the position announcements; it is the radio group component (`radio-group`), which adds the frame and holds the selection. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, set by `TanreiRadioGroup` in error through the environment) is not built on this platform yet."
     },
     "compose": {
       "status": "lagging",
       "name": "TanreiRadioButton",
       "props": {
-        "selected": "selected",
+        "checked": "selected",
         "value": "onClick",
         "name": "selectableGroup",
         "disabled": "enabled",
@@ -367,7 +367,7 @@
       "status": "lagging",
       "name": "TanreiRadioButton",
       "props": {
-        "selected": "groupValue",
+        "checked": "groupValue",
         "value": "value",
         "name": "TanreiRadioGroup",
         "disabled": "enabled",
@@ -378,13 +378,13 @@
       "events": {
         "change": "onChanged"
       },
-      "notes": "Flutter idiom: `TanreiRadioButton<T>(value:)` inside a `TanreiRadioGroup<T>(groupValue:, onChanged:, semanticLabel:)` ancestor, shaped like Flutter's `RadioGroup` (3.35), which the package's minimum Flutter (3.32) lacks and whose name it must not take; selected is `groupValue == value`. The group carries the arrow keys, the single Tab stop and the radio-group semantics; it is the radio group component (`radio-group`), which adds the frame. `enabled` is the inverse flag, as Flutter's radio has since `RadioGroup` replaced the per-radio `onChanged`. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, given by a `TanreiRadioGroup` in error through its inherited scope) is not built on this platform yet."
+      "notes": "Flutter idiom: `TanreiRadioButton<T>(value:)` inside a `TanreiRadioGroup<T>(groupValue:, onChanged:, semanticLabel:)` ancestor, shaped like Flutter's `RadioGroup` (3.35), which the package's minimum Flutter (3.32) lacks and whose name it must not take; checked is `groupValue == value`. The group carries the arrow keys, the single Tab stop and the radio-group semantics; it is the radio group component (`radio-group`), which adds the frame. `enabled` is the inverse flag, as Flutter's radio has since `RadioGroup` replaced the per-radio `onChanged`. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, given by a `TanreiRadioGroup` in error through its inherited scope) is not built on this platform yet."
     },
     "react-native": {
       "status": "lagging",
       "name": "RadioButton",
       "props": {
-        "selected": "selected",
+        "checked": "selected",
         "value": "value",
         "name": "RadioGroup",
         "disabled": "disabled",

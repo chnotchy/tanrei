@@ -84,7 +84,7 @@ export class TanreiRadioButton extends LitElement {
     groupSize: { state: true },
   };
 
-  /** Whether this option is the one chosen in its group (the spec's `selected`, a native radio's `checked`). */
+  /** Whether this option is the one chosen in its group (a native radio's `checked`). */
   checked = false;
 
   /** What this option stands for: carried by `change`, and submitted with a form. */
