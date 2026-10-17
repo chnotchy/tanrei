@@ -71,3 +71,5 @@ Thumbs.db
 !.vscode/settings.json
 dist-app/
 *.generated.css
+# The web package's fixture documents, written for the docs' build (apps/docs/scripts/fixture-documents.mjs).
+apps/docs/src/fixture-documents.generated.json
