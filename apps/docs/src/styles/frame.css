@@ -65,7 +65,14 @@
   }
   /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
      language (SEL-49), and choosing one never changes it. Until it is defined its options hold that width for it
-     (below). */
+     (below).
+     Nor is it given the bar's cell: the bar makes each item at least as tall as the minimum target and centres it
+     there (APB-11), which suits a Button, whose box is centred in its own element; a select's box stands at the top
+     of its element, so in a 44 high cell it stood 2 above the search beside it. The select is exactly as tall as its
+     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22). */
+  tanrei-app-bar > tanrei-select.docs-theme {
+    min-block-size: auto;
+  }
   /* A compact window: the theme and the language are one button and its menu; a wider one: the select and the
      language's button. By the shell's window class — a style query, and the shell's own word where the browser has
      none (until the shell is defined such a browser shows the wide arrangement). */
