@@ -771,7 +771,8 @@ test.describe('brand', () => {
       await mountFixtures(page, spec, { icons: true, theme, fixtures: brandFixtures() });
       const one = await bounds(image(page, 'small-brand', 'brand'));
       expect(one.height).toBeCloseTo(await resolveToken(page, T('brand-image-height')), 0);
-      expect(one.width).toBeCloseTo((one.height * 658) / 200, 0);
+      const [, , frameWidth, frameHeight] = WORDMARK.match(/viewBox="([^"]*)"/)![1].split(' ').map(Number);
+      expect(one.width).toBeCloseTo((one.height * frameWidth) / frameHeight, 0);
       expect((await bounds(image(page, 'small-brand-symbol', 'brand-symbol'))).height).toBeCloseTo(await resolveToken(page, T('brand-symbol-size')), 0);
       expect((await bounds(image(page, 'small-brand-wordmark', 'brand-wordmark'))).height).toBeCloseTo(await resolveToken(page, T('brand-wordmark-height')), 0);
       const color = await resolveColor(page, T('brand-color'));
