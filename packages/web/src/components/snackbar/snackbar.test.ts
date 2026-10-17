@@ -1992,6 +1992,9 @@ test.describe('controls: states, press, corners and focus style', () => {
       const c = part(page, 'action', 'action');
       await c.hover();
       await expect.poll(() => css(c, 'background-color')).toBe(await resolveColor(page, controlToken('action', form, 'container-color', 'hovered')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(c);
       const hovered = await css(c, 'background-color');
       await page.mouse.down();
       const result = { pressed: await c.getAttribute('data-pressed'), bg: await css(c, 'background-color'), hovered, color: await css(c, 'color'), ripple: await c.locator('.ripple').count(), opacity: await css(c, 'opacity') };

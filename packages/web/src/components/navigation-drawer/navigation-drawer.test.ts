@@ -6,7 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
-import { EVERY_ANIMATION } from '../../../test/motions.js';
+import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -433,6 +433,9 @@ test.describe('states, press and focus', () => {
       const fill = item(page, 'r', 1).locator('.indicator');
       await c.hover();
       await expect.poll(() => css(fill, 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-item-container-color')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(item(page, 'r', 1));
       const hovered = await css(fill, 'background-color');
       await page.mouse.down();
       const container = item(page, 'r', 1).locator('.container');

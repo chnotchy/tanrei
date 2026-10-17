@@ -8,6 +8,7 @@ import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tabs');
 type P = Page;
@@ -2372,6 +2373,9 @@ test.describe('states, press, corners and focus style', () => {
       await b.hover();
       const state = layer(page, 'primary', 1);
       await expect.poll(() => css(state, 'background-color')).toBe(await resolveColor(page, T('primary-hovered-container-color')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(tabAt(page, 'primary', 1));
       const hovered = await css(state, 'background-color');
       await page.mouse.down();
       const result = {

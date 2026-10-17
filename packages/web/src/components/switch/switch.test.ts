@@ -21,6 +21,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('switch');
@@ -509,6 +510,9 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
     const hovered = await resolveColor(page, T('selected-hovered-container-color'));
     await page.mouse.move(c.x + c.width / 2 + 4, c.y + c.height / 2 - 3);
     await expect.poll(() => painted(page, 'selected', 'container')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'selected'));
     await page.mouse.down();
     expect(await pressed(page, 'selected')).toBe('ripple');
     const ripple = ripples(page, 'selected');
@@ -568,6 +572,9 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await container(page, 'selected').hover();
     await expect.poll(() => painted(page, 'selected', 'container')).toBe(await resolveColor(page, T('selected-hovered-container-color')));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'selected'));
     const before = await drawn(page, 'selected');
     await page.mouse.down();
     expect(await pressed(page, 'selected')).toBe('none');

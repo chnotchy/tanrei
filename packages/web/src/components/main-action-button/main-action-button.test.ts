@@ -10,6 +10,7 @@ import { opticalSize } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('main-action-button');
 type P = Page;
@@ -800,6 +801,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { [T('tonal-pressed-label-color')]: 'rgb(0, 0, 255)', [T('tonal-pressed-container-elevation')]: 'var(--tanrei-sys-elevation-level1)' });
     await page.mouse.move(box.x + 30, box.y + 8);
     await expect.poll(() => css(page, id, 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     await page.mouse.down();
     expect(await pressed(page, id)).toBe('ripple');
     const ripple = ripples(page, id);
@@ -877,6 +881,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await host(page, id).hover();
     await expect.poll(() => drawn(page, id)).toEqual(await expected(page, 'filled', 'hovered-'));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     const before = await drawn(page, id);
     await page.mouse.down();
     expect(await pressed(page, id)).toBe('none');

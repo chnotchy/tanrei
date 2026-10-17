@@ -280,6 +280,9 @@ test.describe('press, feedback, corners and focus style', () => {
     const hovered = await resolveColor(page, '--tanrei-comp-button-filled-hovered-container-color');
     await page.mouse.move(box.x + 10, box.y + 8);
     await expect.poll(() => css(page, 'filled-medium', 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(page.locator(button('filled-medium')));
     await page.mouse.down();
     expect(await pressed(page, 'filled-medium')).toBe('ripple');
     const ripple = ripples(page, 'filled-medium');
@@ -426,6 +429,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await page.locator(button('filled-medium')).hover();
     const hovered = await resolveColor(page, '--tanrei-comp-button-filled-hovered-container-color');
     await expect.poll(() => css(page, 'filled-medium', 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(page.locator(button('filled-medium')));
     const before = await inner(page, 'filled-medium').evaluate((el) => { const s = getComputedStyle(el); return [s.backgroundColor, s.color, s.boxShadow, s.opacity, s.borderRadius]; });
     await page.mouse.down();
     expect(await pressed(page, 'filled-medium')).toBe('none');

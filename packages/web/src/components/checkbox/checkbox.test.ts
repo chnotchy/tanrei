@@ -9,6 +9,7 @@ import { RATIOS, atRatio, endMotion, holdMotionAt, paintedBehind, shoot, stageBe
 import { decodePng } from '../../../test/png.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('checkbox');
 type P = Page;
@@ -515,6 +516,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { [T('selected-pressed-box-color')]: 'rgb(0, 0, 255)' });
     await page.mouse.move(c.x + 12, c.y + 10);
     await expect.poll(() => css(container(page, id), 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     await page.mouse.down();
     expect(await pressed(page, id)).toBe('ripple');
     const ripple = ripples(page, id);
@@ -595,6 +599,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await container(page, 'selected').hover();
     await expect.poll(() => css(container(page, 'selected'), 'background-color')).toBe(await resolveColor(page, T('selected-hovered-container-color')));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'selected'));
     const all = () => drawn(page, 'selected');
     const before = await all();
     await page.mouse.down();

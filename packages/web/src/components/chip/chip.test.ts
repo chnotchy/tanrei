@@ -8,6 +8,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, settledPaint } from '../../../test/links.js';
 import { opticalSize } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('chip');
 type P = Page;
@@ -1144,6 +1145,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { [T('elevated-pressed-label-color')]: 'rgb(0, 0, 255)', [T('elevated-pressed-icon-color')]: 'rgb(0, 128, 0)' });
     await page.mouse.move(box.x + 30, box.y + 10);
     await expect.poll(() => css(page, id, 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     await page.mouse.down();
     expect(await pressed(inner(page, id))).toBe('ripple');
     const ripple = inner(page, id).locator('.ripple');
@@ -1205,6 +1209,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await inner(page, 'action-outlined').hover();
     await expect.poll(() => drawn(page, 'action-outlined')).toEqual(await expected(page, 'outlined', 'hovered-'));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'action-outlined'));
     const before = await drawn(page, 'action-outlined');
     await page.mouse.down();
     expect(await pressed(inner(page, 'action-outlined'))).toBe('none');
