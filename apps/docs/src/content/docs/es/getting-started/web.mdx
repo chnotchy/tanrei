@@ -2,23 +2,29 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 0943774f9129daec546c9ad9ea5ee0783b1eb8b0
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## Instalación
 
+### Desde npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### Desde el código fuente
 
-Necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
+Para usar el código fuente tal como está en `main`, antes de que se publique, necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,13 +39,7 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-El archivo empaquetado contiene lo mismo que publicará un lanzamiento, así que todo lo que sigue funciona igual. Para usar un estado más reciente del código fuente, haz pull, compila y empaqueta de nuevo, y luego instala el archivo nuevo.
-
-### Después del primer lanzamiento
-
-```sh
-npm install @tanrei/web
-```
+El archivo empaquetado contiene lo mismo que publica un lanzamiento, así que todo lo que sigue funciona igual. Para usar un estado más reciente del código fuente, haz pull, compila y empaqueta de nuevo, y luego instala el archivo nuevo.
 
 ## Uso
 

@@ -2,33 +2,50 @@
 title: Tu propio sistema de diseño
 description: Mantén un único archivo de capa en tu producto. Un solo comando escribe los tokens y el código de todas las plataformas que publicas, en un solo pull request.
 translationOf: getting-started/your-design-system.mdx
-sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+sourceHash: 6a744d359929fecafee83d3f56a73bdafe9a9d73
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 Los componentes de Tanrei no cambian cuando cambia el aspecto de tu producto. Lo que cambia es una **capa**: un pequeño archivo JSON que da valores al vocabulario compartido y declara tus paletas. `@tanrei/cli` convierte ese único archivo en todo lo que necesita cada plataforma.
 
-<Callout type="caution" title="Antes del primer lanzamiento">
-  `@tanrei/cli` y `@tanrei/mcp` todavía no están en npm. Hasta que lo estén, compílalos desde el código fuente e instala los archivos empaquetados en tu producto como dependencias de desarrollo; así, cada comando `npx tanrei …` de esta página ejecuta la copia instalada.
+<ReleaseNotice registry="npm" pkg={["@tanrei/cli", "@tanrei/mcp"]} />
 
-  ```sh
-  git clone https://github.com/chnotchy/tanrei.git
-  cd tanrei
-  pnpm install
-  pnpm --filter @tanrei/studio build:app   # Theme Studio, que sirve `tanrei studio`
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
-  ```
+## Instalación
 
-  ```sh
-  # en tu producto: la ruta a la carpeta en la que se escribieron los paquetes
-  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
-  ```
+### Desde npm
 
-  Para el servidor MCP, registra la copia instalada: `claude mcp add tanrei -- npx tanrei-mcp`, ejecutado en la carpeta de tu producto.
-</Callout>
+Añade la herramienta de línea de comandos a tu producto como dependencia de desarrollo; cada comando `npx tanrei …` de esta página ejecuta entonces esa copia. Incluye Theme Studio, que sirve `tanrei studio`.
+
+```sh
+npm install --save-dev @tanrei/cli
+```
+
+El servidor MCP no necesita instalación: `npx` descarga `@tanrei/mcp` cuando un agente lo inicia, tal como se registra más abajo en esta página.
+
+### Desde el código fuente
+
+Para usar el código fuente tal como está en `main`, compila los dos paquetes en un clon del repositorio e instala los archivos empaquetados en tu producto como dependencias de desarrollo:
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/studio build:app   # Theme Studio, que sirve `tanrei studio`
+pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# en tu producto: la ruta a la carpeta en la que se escribieron los paquetes
+npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+```
+
+Para el servidor MCP, registra en su lugar la copia instalada: `claude mcp add tanrei -- npx tanrei-mcp`, ejecutado en la carpeta de tu producto.
+
+## De una capa a cada plataforma
 
 <Steps>
 
@@ -121,7 +138,7 @@ Añade `"tailwind"` o `"shadcn"` a `outputs`. Ambos archivos solo **hacen corres
 - La salida `tokens` es un paquete **DTCG 2025.10** autocontenido, con un resolver estándar. Cualquier herramienta de tokens de diseño puede leerlo; los archivos de capa que lo produjeron viajan dentro, y cada grupo lleva indicaciones de uso para agentes en `$extensions["dev.tanrei.llm"]`.
 - `@tanrei/mcp` es un servidor de [Model Context Protocol](https://modelcontextprotocol.io). Un agente que trabaje en tu repositorio puede buscar en el vocabulario, ver de dónde viene un valor, comparar sistemas, **proponer una extensión** (un nuevo tamaño de Button, un paso, un token propio) con los valores que resultan, y **validar una edición de la capa antes de escribirla**. Además, se le comunican las reglas: cambiar los valores a través de una capa, extender el vocabulario solo añadiendo y con una justificación, dar un motivo a cada valor fijado y no tocar nunca un umbral.
 
-  Después del primer lanzamiento, regístralo desde npm (hasta entonces, consulta «Antes del primer lanzamiento» al principio de esta página):
+  Regístralo desde npm, en la carpeta de tu producto ([Usar Tanrei con agentes de IA](/es/getting-started/ai-agents/) tiene la configuración para otros clientes):
 
   ```bash
   claude mcp add tanrei -- npx -y @tanrei/mcp

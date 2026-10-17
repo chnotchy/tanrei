@@ -2,23 +2,29 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: 01f83728de768e7cac927018e146d1fa108b8016
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 تغلِّف الحزمة `@tanrei/react` كل عنصر مخصص من `@tanrei/web` بمكوّن React حقيقي له خصائص محدَّدة الأنواع ومعالجات أحداث. تُولَّد هذه الأغلفة من بيان العناصر المخصصة (custom elements manifest)، فتطابق دائمًا العناصر التي تغلِّفها.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## التثبيت
 
 يلزم React 18 أو أحدث.
 
+### من npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### من الشيفرة المصدرية
 
-كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمتين كلتيهما في نسخة مستنسخة من المستودع واحزمهما،
+لاستعمال الشيفرة المصدرية كما هي على `main`، افعل كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمتين كلتيهما في نسخة مستنسخة من المستودع واحزمهما،
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -32,12 +38,6 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 
 ```sh
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
-```
-
-### بعد الإصدار الأول
-
-```sh
-npm install @tanrei/react @tanrei/web
 ```
 
 ## الاستخدام

@@ -2,23 +2,29 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 0943774f9129daec546c9ad9ea5ee0783b1eb8b0
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 تحتوي الحزمة `@tanrei/web` على شيئين: ورقة أنماط تضم رموز التصميم (tokens) في صورة خصائص CSS مخصصة، وعناصر مخصصة قياسية مبنية بمكتبة Lit. ولا تشترط أي إطار عمل.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## التثبيت
 
+### من npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### من الشيفرة المصدرية
 
-تحتاج إلى Git، و Node 22.12 أو أحدث، و pnpm 12 (الأمر `corepack enable` يعطيك الإصدار الذي يثبّته المستودع). ابنِ الحزمة في نسخة مستنسخة من المستودع، ثم احزمها، وثبِّت الملف المحزوم في مشروعك:
+لاستعمال الشيفرة المصدرية كما هي على `main` قبل نشرها، تحتاج إلى Git، و Node 22.12 أو أحدث، و pnpm 12 (الأمر `corepack enable` يعطيك الإصدار الذي يثبّته المستودع). ابنِ الحزمة في نسخة مستنسخة من المستودع، ثم احزمها، وثبِّت الملف المحزوم في مشروعك:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,13 +39,7 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-يحمل الملف المحزوم ما سينشره الإصدار، فيعمل كل ما يلي بالطريقة نفسها. ولتأخذ حالة أحدث من الشيفرة المصدرية، اسحب التغييرات (pull) وابنِ واحزم من جديد، ثم ثبِّت الملف الجديد.
-
-### بعد الإصدار الأول
-
-```sh
-npm install @tanrei/web
-```
+يحمل الملف المحزوم ما ينشره الإصدار، فيعمل كل ما يلي بالطريقة نفسها. ولتأخذ حالة أحدث من الشيفرة المصدرية، اسحب التغييرات (pull) وابنِ واحزم من جديد، ثم ثبِّت الملف الجديد.
 
 ## الاستخدام
 

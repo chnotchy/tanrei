@@ -2,15 +2,15 @@
 title: SwiftUI
 description: أضف Tanrei إلى تطبيق iOS أو macOS عبر Swift Package Manager.
 translationOf: getting-started/swiftui.mdx
-sourceHash: 02740f9c5f67946f91b0fceca00e160f25a1ad9d
+sourceHash: 8e41163ad68f10b35e9eaf673e5381d8ca7b4b2d
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 توفّر حزمة Swift المسمّاة `Tanrei` عروض SwiftUI وبيئة للسمة وثوابت رموز (tokens) مولَّدة. تدعم iOS 17 و macOS 14 وما بعدهما، وهي مكتوبة لوضع اللغة Swift 6.
 
-<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+<ReleaseNotice platform="swiftui" registry="Swift Package Manager" pkg="Tanrei" />
 
 ## التثبيت
 
@@ -33,7 +33,7 @@ targets: [
 
 والسطر `.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` يتبع المستودع بدلًا من نسخة محلية مستنسخة.
 
-### بعد الإصدار الأول
+### بعد نشرها
 
 في Xcode اختر **File → Add Package Dependencies…**&lrm; وأدخل عنوان المستودع، أو أضفه إلى `Package.swift`:
 

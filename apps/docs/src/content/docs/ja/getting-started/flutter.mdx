@@ -2,15 +2,15 @@
 title: Flutter
 description: Flutter アプリに Tanrei を追加します。
 translationOf: getting-started/flutter.mdx
-sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+sourceHash: c647a8ce01e41a5d752e397bd42075b18baede2c
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `tanrei` パッケージは、Dart だけで書かれています。ウィジェット、継承される `TanreiTheme`、生成されたトークンの定数を提供します。`MaterialApp` にも `CupertinoApp` にも依存せず、どちらの中でも、素の `WidgetsApp` の中でも動作します。
 
-<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+<ReleaseNotice platform="flutter" registry="pub.dev" pkg="tanrei" />
 
 ## インストール
 
@@ -28,7 +28,7 @@ flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
 
 ローカルのクローンではなくリポジトリを追うには、`flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` を使います。
 
-### 最初のリリース後
+### 公開後
 
 ```sh
 flutter pub add tanrei

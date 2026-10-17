@@ -2,33 +2,50 @@
 title: 你自己的设计系统
 description: 在你的产品中只保留一个层文件。一条命令就能为你发布的每个平台写出令牌和代码，并且都在同一个拉取请求里。
 translationOf: getting-started/your-design-system.mdx
-sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+sourceHash: 6a744d359929fecafee83d3f56a73bdafe9a9d73
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 产品的外观改变时，Tanrei 的组件从不改变。改变的是一个**层**：一个小型 JSON 文件，它为共享词汇设定值，并声明你的调色板。`@tanrei/cli` 把这一个文件变成各平台所需的一切。
 
-<Callout type="caution" title="首次发布之前">
-  `@tanrei/cli` 和 `@tanrei/mcp` 还没有发布到 npm。在那之前，请从源码构建它们，并把打包出的文件作为开发依赖安装到你的产品中；这样本页上的每一条 `npx tanrei …` 命令运行的都是已安装的副本。
+<ReleaseNotice registry="npm" pkg={["@tanrei/cli", "@tanrei/mcp"]} />
 
-  ```sh
-  git clone https://github.com/chnotchy/tanrei.git
-  cd tanrei
-  pnpm install
-  pnpm --filter @tanrei/studio build:app   # Theme Studio，由 `tanrei studio` 提供
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
-  ```
+## 安装
 
-  ```sh
-  # 在你的产品中：路径指向写入这些包的文件夹
-  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
-  ```
+### 从 npm
 
-  至于 MCP 服务器，请注册已安装的副本：在你的产品文件夹中运行 `claude mcp add tanrei -- npx tanrei-mcp`。
-</Callout>
+把命令行工具作为开发依赖添加到你的产品中；本页上的每一条 `npx tanrei …` 命令运行的都是它。它带有 `tanrei studio` 所提供的 Theme Studio。
+
+```sh
+npm install --save-dev @tanrei/cli
+```
+
+MCP 服务器无需安装：代理启动它时，`npx` 会取来 `@tanrei/mcp`，注册方法见本页后文。
+
+### 从源码
+
+要使用 `main` 上的源码，请在仓库的克隆中构建这两个包，并把打包出的文件作为开发依赖安装到你的产品中：
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/studio build:app   # Theme Studio，由 `tanrei studio` 提供
+pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# 在你的产品中：路径指向写入这些包的文件夹
+npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+```
+
+至于 MCP 服务器，请改为注册已安装的副本：在你的产品文件夹中运行 `claude mcp add tanrei -- npx tanrei-mcp`。
+
+## 从一个层到每个平台
 
 <Steps>
 
@@ -121,7 +138,7 @@ npx tanrei studio
 - `tokens` 输出是一个自包含的 **DTCG 2025.10** 打包文件，带有标准的解析器。任何设计令牌工具都能读取它；生成它的层文件随包一同携带，每个分组还在 `$extensions["dev.tanrei.llm"]` 中带有面向代理的使用指引。
 - `@tanrei/mcp` 是一个 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。在你的仓库中工作的代理可以搜索词汇、查看某个值的来历、比较不同的系统、**提议一项扩展**（新的 Button 尺寸、新的一级、你自己的令牌）并看到由此得到的值，还可以**在写入之前校验对层的修改**。它同时会被告知规则：通过层来修改值；扩展词汇只能添加，并且要附带理由；每个固定的值都要给出原因；绝不触碰阈值。
 
-  首次发布之后，从 npm 注册它（在那之前，请看本页顶部的“首次发布之前”）：
+  在你的产品文件夹中，从 npm 注册它（其他客户端的设置见[与 AI 代理一起使用 Tanrei](/zh-cn/getting-started/ai-agents/)）：
 
   ```bash
   claude mcp add tanrei -- npx -y @tanrei/mcp

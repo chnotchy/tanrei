@@ -2,10 +2,10 @@
 title: Usar Tanrei con agentes de IA
 description: Conecta el servidor MCP de Tanrei, dale a un agente de programación las reglas de interfaz de tu producto en AGENTS.md y mantenlo dentro de los componentes y los valores del sistema predeterminado.
 translationOf: getting-started/ai-agents.mdx
-sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
+sourceHash: f8b46501af7f9450ed2f5c1ffd1b7a672b0e5342
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 Un agente de programación que escribe la interfaz de tu producto necesita lo mismo que una persona de tu equipo: qué componentes existen, qué recibe cada uno y de dónde sale cada valor. Tanrei guarda las tres cosas en archivos que incluyen sus paquetes y en un servidor MCP, así que el agente puede consultarlas en lugar de adivinar. Esta página muestra cómo conectarlos y te da un archivo de reglas para copiar en tu repositorio.
@@ -20,14 +20,14 @@ Un agente de programación que escribe la interfaz de tu producto necesita lo mi
 
 `@tanrei/mcp` es un servidor [Model Context Protocol](https://modelcontextprotocol.io) para los tokens de Tanrei y las capas de los sistemas de diseño. Un agente le pregunta qué tokens existen, a qué se resuelve un token en un sistema y por qué, qué puede cambiar una capa y cómo, y si una edición de una capa es válida antes de escribirla. Todas las herramientas son de solo lectura: el agente edita tu archivo de capa por sí mismo y el servidor comprueba la edición con la misma compilación que ejecuta `tanrei build`. Los componentes no están entre sus respuestas; su contrato es el manifiesto de arriba.
 
-<Callout type="caution" title="Prelanzamiento">
-  Los paquetes de Tanrei se publican como prelanzamientos bajo la etiqueta de npm `next`, así que instala `@tanrei/mcp@next`. Mantenlo en la misma versión que `@tanrei/web`, `@tanrei/cli` y las demás bibliotecas: comparten un mismo vocabulario.
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+Mantén `@tanrei/mcp` en la misma versión que `@tanrei/web`, `@tanrei/cli` y las demás bibliotecas: comparten un mismo vocabulario.
 
 En Claude Code, ejecuta esto en tu repositorio:
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 `--scope project` escribe el servidor en `.mcp.json`, en la raíz del repositorio. Haz commit de ese archivo y todas las personas que trabajen en el repositorio tendrán el mismo servidor.
@@ -39,7 +39,7 @@ Cursor (`.cursor/mcp.json`), Claude Desktop y la mayoría de los demás clientes
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -53,7 +53,7 @@ VS Code lee `.vscode/mcp.json`, donde los servidores van bajo `servers` y nombra
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }

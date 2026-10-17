@@ -2,15 +2,15 @@
 title: Jetpack Compose
 description: Jetpack Compose से बने Android ऐप में Tanrei जोड़ें।
 translationOf: getting-started/compose.mdx
-sourceHash: e564c9d2bb7d382cd74d239b9c27e2fd46818c69
+sourceHash: f1958195e67a8f92f0714022cbc34d27cfadffc0
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 Compose लाइब्रेरी में कंपोज़ेबल, एक `TanreiTheme` और जनरेट किए गए टोकन ऑब्जेक्ट मिलते हैं। यह किसी Material कंपोनेंट लाइब्रेरी पर नहीं, बल्कि Compose Foundation पर निर्भर है, इसलिए यह आपके ऐप में कोई दूसरा डिज़ाइन सिस्टम नहीं खींच लाती।
 
-<PreReleaseNotice registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
+<ReleaseNotice platform="compose" registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
 
 ## इंस्टॉल करें
 
@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-### पहली रिलीज़ के बाद
+### प्रकाशित होने के बाद
 
 ```kotlin
 // build.gradle.kts

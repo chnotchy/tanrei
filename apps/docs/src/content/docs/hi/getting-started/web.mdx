@@ -2,23 +2,29 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 0943774f9129daec546c9ad9ea5ee0783b1eb8b0
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` में दो चीज़ें हैं: डिज़ाइन टोकन की एक स्टाइलशीट, जिसमें टोकन CSS कस्टम प्रॉपर्टी के रूप में हैं, और Lit से बने, वेब मानकों पर आधारित कस्टम एलिमेंट। इसके लिए किसी फ़्रेमवर्क की ज़रूरत नहीं है।
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## इंस्टॉल करें
 
+### npm से
+
+```sh
+npm install @tanrei/web
+```
+
 ### सोर्स से
 
-आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
+`main` पर मौजूद सोर्स को उसके प्रकाशित होने से पहले इस्तेमाल करने के लिए आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,13 +39,7 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-पैक की गई फ़ाइल में वही है जो कोई रिलीज़ प्रकाशित करेगी, इसलिए नीचे का सब कुछ उसी तरह काम करता है। सोर्स की नई स्थिति लेने के लिए pull करें, फिर से बिल्ड और पैक करें, और नई फ़ाइल इंस्टॉल करें।
-
-### पहली रिलीज़ के बाद
-
-```sh
-npm install @tanrei/web
-```
+पैक की गई फ़ाइल में वही है जो कोई रिलीज़ प्रकाशित करती है, इसलिए नीचे का सब कुछ उसी तरह काम करता है। सोर्स की नई स्थिति लेने के लिए pull करें, फिर से बिल्ड और पैक करें, और नई फ़ाइल इंस्टॉल करें।
 
 ## इस्तेमाल
 

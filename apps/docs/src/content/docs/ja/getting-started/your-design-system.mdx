@@ -2,33 +2,50 @@
 title: 自分のデザインシステムを作る
 description: プロダクトに置くのはレイヤファイル 1 つ。コマンド 1 つで、出荷する全プラットフォーム分のトークンとコードが 1 つのプルリクエストに揃います。
 translationOf: getting-started/your-design-system.mdx
-sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+sourceHash: 6a744d359929fecafee83d3f56a73bdafe9a9d73
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 プロダクトの見た目を変えても、Tanrei のコンポーネントは変わりません。変わるのは**レイヤ**です — 共通の語彙の「値」を決め、自分のパレットを宣言する小さな JSON ファイル。`@tanrei/cli` がその 1 ファイルを、各プラットフォームが必要とするものすべてに変換します。
 
-<Callout type="caution" title="最初のリリースまで">
-  `@tanrei/cli` と `@tanrei/mcp` は、まだ npm にありません。公開されるまでは、ソースからビルドし、パックしたファイルをプロダクトに開発用の依存としてインストールしてください。このページの `npx tanrei …` のコマンドは、どれもインストールしたものを実行します。
+<ReleaseNotice registry="npm" pkg={["@tanrei/cli", "@tanrei/mcp"]} />
 
-  ```sh
-  git clone https://github.com/chnotchy/tanrei.git
-  cd tanrei
-  pnpm install
-  pnpm --filter @tanrei/studio build:app   # `tanrei studio` が配信する Theme Studio
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
-  ```
+## インストール
 
-  ```sh
-  # プロダクトで：パッケージを書き出したフォルダーへのパス
-  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
-  ```
+### npm から
 
-  MCP サーバーは、インストールしたものを登録します。プロダクトのフォルダーで `claude mcp add tanrei -- npx tanrei-mcp` を実行してください。
-</Callout>
+コマンドラインツールを、プロダクトに開発用の依存として加えます。このページの `npx tanrei …` のコマンドは、どれもそれを実行します。`tanrei studio` が配信する Theme Studio も入っています。
+
+```sh
+npm install --save-dev @tanrei/cli
+```
+
+MCP サーバーはインストールしなくてかまいません。このページの後のほうで登録するとおり、エージェントが起動するときに `npx` が `@tanrei/mcp` を取ってきます。
+
+### ソースから
+
+`main` のソースを使うには、リポジトリのクローンで 2 つのパッケージをビルドし、パックしたファイルをプロダクトに開発用の依存としてインストールします。
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/studio build:app   # `tanrei studio` が配信する Theme Studio
+pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# プロダクトで：パッケージを書き出したフォルダーへのパス
+npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+```
+
+MCP サーバーは、npm のものの代わりにインストールしたものを登録します。プロダクトのフォルダーで `claude mcp add tanrei -- npx tanrei-mcp` を実行してください。
+
+## レイヤから全プラットフォームへ
 
 <Steps>
 
@@ -121,7 +138,7 @@ npx tanrei studio
 - `tokens` の出力は、標準のリゾルバを備えた自己完結の **DTCG 2025.10** バンドルです。どのデザイントークンツールでも読めます。生成元のレイヤファイルも中に入っており、各グループには AI エージェント向けの使い方（`$extensions["dev.tanrei.llm"]`）が付いています。
 - `@tanrei/mcp` は [Model Context Protocol](https://modelcontextprotocol.io) のサーバーです。あなたのリポジトリで作業するエージェントは、語彙を検索し、値がどこから来たかを調べ、システム同士を比較し、**拡張を提案**（新しい Button サイズ、系列の段、自分のトークン）してその結果の値を確かめ、**レイヤの編集を書き込む前に検証**できます。エージェントにはルールも伝えられます — 値はレイヤで変える、語彙の拡張は追加のみ・理由つき、固定する値には理由を書く、閾値には触れない。
 
-  最初のリリース後は、npm から登録します（それまでは、このページの冒頭の「最初のリリースまで」を参照してください）。
+  プロダクトのフォルダーで、npm から登録します（ほかのクライアントの設定は [AI エージェントと Tanrei を使う](/ja/getting-started/ai-agents/) にあります）。
 
   ```bash
   claude mcp add tanrei -- npx -y @tanrei/mcp

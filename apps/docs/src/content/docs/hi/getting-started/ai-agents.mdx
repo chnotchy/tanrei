@@ -2,10 +2,10 @@
 title: AI एजेंट के साथ Tanrei का इस्तेमाल
 description: Tanrei का MCP सर्वर जोड़ें, कोडिंग एजेंट को AGENTS.md में अपने प्रॉडक्ट के UI के नियम दें, और उसे डिफ़ॉल्ट सिस्टम के कंपोनेंट और मानों तक रखें।
 translationOf: getting-started/ai-agents.mdx
-sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
+sourceHash: f8b46501af7f9450ed2f5c1ffd1b7a672b0e5342
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 आपके प्रॉडक्ट का इंटरफ़ेस लिखने वाले कोडिंग एजेंट को वही चाहिए जो आपकी टीम के किसी व्यक्ति को चाहिए: कौन-से कंपोनेंट हैं, हर कंपोनेंट क्या लेता है, और हर मान कहाँ से आता है। Tanrei ये तीनों चीज़ें अपने पैकेजों के साथ आने वाली फ़ाइल में और एक MCP सर्वर में रखता है, ताकि एजेंट अंदाज़ा लगाने के बजाय उन्हें देख सके। यह पेज बताता है कि इन्हें कैसे जोड़ें, और आपको नियमों की एक फ़ाइल देता है जिसे आप अपनी रिपॉज़िटरी में कॉपी कर सकते हैं।
@@ -20,14 +20,14 @@ import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 `@tanrei/mcp` Tanrei के टोकन और डिज़ाइन सिस्टम की लेयर के लिए एक [Model Context Protocol](https://modelcontextprotocol.io) सर्वर है। एजेंट इससे पूछता है कि कौन-से टोकन हैं, किसी सिस्टम में कोई टोकन किस मान पर पहुँचता है और क्यों, कोई लेयर क्या बदल सकती है और कैसे, और लेयर का कोई संपादन लिखने से पहले वह सही है या नहीं। हर टूल सिर्फ़ पढ़ता है: आपकी लेयर फ़ाइल एजेंट ख़ुद बदलता है, और सर्वर उस संपादन को उसी बिल्ड से जाँचता है जो `tanrei build` चलाता है। कंपोनेंट के बारे में यह जवाब नहीं देता; कंपोनेंट का कॉन्ट्रैक्ट ऊपर वाला मैनिफ़ेस्ट है।
 
-<Callout type="caution" title="प्री-रिलीज़">
-  Tanrei के पैकेज npm के टैग `next` के तहत प्री-रिलीज़ के रूप में प्रकाशित हैं, इसलिए `@tanrei/mcp@next` इंस्टॉल करें। इसे `@tanrei/web`, `@tanrei/cli` और बाक़ी लाइब्रेरी के ही वर्शन पर रखें: ये सब एक ही शब्दावली साझा करते हैं।
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+`@tanrei/mcp` को `@tanrei/web`, `@tanrei/cli` और बाक़ी लाइब्रेरी के ही वर्शन पर रखें: ये सब एक ही शब्दावली साझा करते हैं।
 
 Claude Code में, अपनी रिपॉज़िटरी में यह चलाएँ:
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 `--scope project` सर्वर को रिपॉज़िटरी के रूट पर `.mcp.json` में लिखता है। उस फ़ाइल को कमिट करें, तो रिपॉज़िटरी में काम करने वाले हर व्यक्ति के पास वही सर्वर होगा।
@@ -39,7 +39,7 @@ Cursor (`.cursor/mcp.json`), Claude Desktop और ज़्यादातर �
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -53,7 +53,7 @@ VS Code `.vscode/mcp.json` पढ़ता है, जिसमें सर्�
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
