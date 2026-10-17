@@ -945,6 +945,8 @@ export const tanrei = {
     },
     appBar: {
       actionsGap: 8,
+      brandColor: { kind: "role", role: "onSurface" },
+      brandSize: 24,
       containerGap: 8,
       containerPaddingBlockEnd: 12,
       containerPaddingInline: 4,

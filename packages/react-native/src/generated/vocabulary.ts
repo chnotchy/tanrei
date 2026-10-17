@@ -558,6 +558,8 @@ export type TanreiAppBarConditions = { readonly [Key in TanreiCoreAppBarConditio
  */
 export interface TanreiAppBarTokens {
   readonly actionsGap: number;
+  readonly brandColor: TanreiPaint;
+  readonly brandSize: number;
   readonly containerGap: number;
   readonly containerPaddingBlockEnd: number;
   readonly containerPaddingInline: number;

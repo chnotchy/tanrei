@@ -537,6 +537,8 @@ private let cupertinoAccordionTokens = TanreiAccordionTokens(
 
 private let cupertinoAppBarTokens = TanreiAppBarTokens(
   actionsGap: 8,
+  brandColor: .role(.onSurface),
+  brandSize: 24,
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 8,

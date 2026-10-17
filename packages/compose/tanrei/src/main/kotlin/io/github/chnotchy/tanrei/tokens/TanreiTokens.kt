@@ -1014,6 +1014,8 @@ public data class TanreiAppBarConditions(
 @Immutable
 public data class TanreiAppBarTokens(
     public val actionsGap: Dp,
+    public val brandColor: TanreiPaint,
+    public val brandSize: Dp,
     public val containerGap: Dp,
     public val containerPaddingBlockEnd: Dp,
     public val containerPaddingInline: Dp,
@@ -1028,6 +1030,7 @@ public data class TanreiAppBarTokens(
     public val conditions: TanreiAppBarConditions,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(brandColor.roles())
         addAll(subtitleColor.roles())
         addAll(titleColor.roles())
         addAll(conditions.referencedRoles())

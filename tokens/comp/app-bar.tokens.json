@@ -101,6 +101,24 @@
             "$value": "{tanrei.sys.target.spacing}"
           }
         },
+        "brand": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product puts its mark in its app bar as the link to its first page, at the size of the bar's icons so that it stands in line with them, in the color of the bar's text so that a one-color mark follows the scheme and the contrast.",
+              "since": "0.1.0"
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$description": "The height the product draws its mark at in the brand's cell: an icon's, so that a square mark stands where an icon button's icon stands.",
+            "$value": "{tanrei.sys.icon.medium}"
+          },
+          "color": {
+            "$type": "color",
+            "$description": "The brand's color: a mark drawn in the current color takes it; a mark of its own colors keeps them.",
+            "$value": "{tanrei.sys.color.on-surface}"
+          }
+        },
         "title": {
           "typescale": {
             "$type": "typography",

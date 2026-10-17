@@ -1481,6 +1481,30 @@
             "$description": "Between two actions."
           }
         },
+        "brand": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                1,
+                1,
+                1
+              ],
+              "hex": "#ffffff",
+              "alpha": 1
+            },
+            "$description": "The brand's color: a mark drawn in the current color takes it; a mark of its own colors keeps them."
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The height the product draws its mark at in the brand's cell: an icon's, so that a square mark stands where an icon button's icon stands."
+          }
+        },
         "container": {
           "gap": {
             "$type": "dimension",

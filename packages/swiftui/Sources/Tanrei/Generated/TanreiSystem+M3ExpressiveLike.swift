@@ -652,6 +652,8 @@ private let m3ExpressiveLikeAccordionTokens = TanreiAccordionTokens(
 
 private let m3ExpressiveLikeAppBarTokens = TanreiAppBarTokens(
   actionsGap: 8,
+  brandColor: .role(.onSurface),
+  brandSize: 24,
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 4,

@@ -713,6 +713,8 @@ const TanreiSystem acmeSystem = TanreiSystem(
   ),
   appBar: TanreiAppBarTokens(
     actionsGap: 8.0,
+    brandColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    brandSize: 24.0,
     containerGap: 8.0,
     containerPaddingBlockEnd: 12.0,
     containerPaddingInline: 4.0,

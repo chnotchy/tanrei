@@ -771,6 +771,8 @@ private object CupertinoSystemSource {
     fun appBar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiAppBarTokens =
         TanreiAppBarTokens(
             actionsGap = 8.dp,
+            brandColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            brandSize = 24.dp,
             containerGap = 8.dp,
             containerPaddingBlockEnd = 12.dp,
             containerPaddingInline = 8.dp,

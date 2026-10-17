@@ -108,6 +108,8 @@
     "tanrei.comp.accordion.trailing-text.typescale.compact": "typography",
     "tanrei.comp.accordion.trailing-text.typescale.regular": "typography",
     "tanrei.comp.app-bar.actions.gap": "dimension",
+    "tanrei.comp.app-bar.brand.color": "color",
+    "tanrei.comp.app-bar.brand.size": "dimension",
     "tanrei.comp.app-bar.container.gap": "dimension",
     "tanrei.comp.app-bar.container.height.large": "dimension",
     "tanrei.comp.app-bar.container.height.small": "dimension",

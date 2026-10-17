@@ -1512,6 +1512,8 @@ public struct TanreiAppBarConditions: Sendable, Equatable {
 /// Component tokens of app-bar (comp.app-bar).
 public struct TanreiAppBarTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
+  public var brandColor: TanreiPaint
+  public var brandSize: CGFloat
   public var containerGap: CGFloat
   public var containerPaddingBlockEnd: CGFloat
   public var containerPaddingInline: CGFloat
@@ -1527,6 +1529,8 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
 
   public init(
     actionsGap: CGFloat,
+    brandColor: TanreiPaint,
+    brandSize: CGFloat,
     containerGap: CGFloat,
     containerPaddingBlockEnd: CGFloat,
     containerPaddingInline: CGFloat,
@@ -1541,6 +1545,8 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     conditions: TanreiAppBarConditions
   ) {
     self.actionsGap = actionsGap
+    self.brandColor = brandColor
+    self.brandSize = brandSize
     self.containerGap = containerGap
     self.containerPaddingBlockEnd = containerPaddingBlockEnd
     self.containerPaddingInline = containerPaddingInline

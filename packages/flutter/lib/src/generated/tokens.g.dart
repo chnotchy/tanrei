@@ -2501,6 +2501,8 @@ class TanreiAppBarConditions {
 class TanreiAppBarTokens {
   const TanreiAppBarTokens({
     required this.actionsGap,
+    required this.brandColor,
+    required this.brandSize,
     required this.containerGap,
     required this.containerPaddingBlockEnd,
     required this.containerPaddingInline,
@@ -2517,6 +2519,10 @@ class TanreiAppBarTokens {
 
   /// `comp.app-bar.actions-gap`
   final double actionsGap;
+  /// `comp.app-bar.brand-color`
+  final TanreiPaint brandColor;
+  /// `comp.app-bar.brand-size`
+  final double brandSize;
   /// `comp.app-bar.container-gap`
   final double containerGap;
   /// `comp.app-bar.container-padding-block-end`
@@ -2545,6 +2551,8 @@ class TanreiAppBarTokens {
   /// A copy with the given tokens replaced.
   TanreiAppBarTokens copyWith({
     double? actionsGap,
+    TanreiPaint? brandColor,
+    double? brandSize,
     double? containerGap,
     double? containerPaddingBlockEnd,
     double? containerPaddingInline,
@@ -2559,6 +2567,8 @@ class TanreiAppBarTokens {
     TanreiAppBarConditions? conditions,
   }) => TanreiAppBarTokens(
         actionsGap: actionsGap ?? this.actionsGap,
+        brandColor: brandColor ?? this.brandColor,
+        brandSize: brandSize ?? this.brandSize,
         containerGap: containerGap ?? this.containerGap,
         containerPaddingBlockEnd: containerPaddingBlockEnd ?? this.containerPaddingBlockEnd,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,

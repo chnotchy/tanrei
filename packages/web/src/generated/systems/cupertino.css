@@ -151,6 +151,8 @@
     --tanrei-comp-accordion-trailing-text-typescale-regular-line-height: var(--tanrei-sys-typescale-body-line-height);
     --tanrei-comp-accordion-trailing-text-typescale-regular-font: var(--tanrei-sys-typescale-body-font);
     --tanrei-comp-app-bar-actions-gap: var(--tanrei-sys-target-spacing);
+    --tanrei-comp-app-bar-brand-color: var(--tanrei-sys-color-on-surface);
+    --tanrei-comp-app-bar-brand-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-app-bar-container-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-app-bar-container-height-large: round(nearest, calc(var(--tanrei-dial-size-unit) * 24), 0.25px);
     --tanrei-comp-app-bar-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);
