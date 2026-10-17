@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 0af397fedd3ebdb6ba0d433faffff05ca00a5d4b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -365,7 +365,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 `destructive` 不是变体：它可以与任何变体搭配，并保持该变体的强调程度（参见[破坏性操作](#破坏性操作)）。
 
-没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。侧边面板的关闭按钮也以同样的方式采用面板为关闭按钮规定的变体。
+没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。每个宿主的关闭按钮——弹出框、侧边面板、底部面板、提示块、消息条和图片预览的——都是一个 small 的纯图标按钮，以同样的方式采用宿主为关闭按钮规定的变体，在默认系统中是 tonal。在带颜色的表面上，例如表示状态的提示块或反色的消息条上，它还会以该表面的文字颜色绘制。
 
 ### 推荐
 

@@ -2,7 +2,7 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 0af397fedd3ebdb6ba0d433faffff05ca00a5d4b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -365,7 +365,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 
 `destructive` は variant ではありません。どの variant とも組み合わせられ、その variant の強調を保ちます（[破壊的なアクション](#破壊的なアクション)を参照）。
 
-`variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。サイドシートの閉じるボタンも、同じようにシートの閉じるボタン用の variant になります。
+`variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。ポップオーバー、サイドシート、ボトムシート、コールアウト、スナックバー、画像プレビューの閉じるボタンは、どれも小さいアイコンだけのボタンで、同じように置き場所の閉じるボタン用の variant（既定のシステムでは Tonal）になります。状態を示すコールアウトや反転したスナックバーのような色の付いた面では、その面の文字の色でも描かれます。
 
 ### 推奨
 
