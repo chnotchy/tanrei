@@ -2848,18 +2848,22 @@ test.describe('bounds of the time', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark: each fixture alone, and a docked overlay open from its anchor', async ({ page }) => {
-    test.setTimeout(300_000);
-    for (const theme of ['light', 'dark'] as const) {
-      for (const fixture of spec.fixtures) {
-        await page.setViewportSize(pickerWindow(fixture));
+  // A test per fixture — each alone in its window, a docked one open from its anchor — and so a page per fixture, of
+  // two mounts (light, dark). One page that mounted all 31 fixtures in both themes (62 mounts, each document carrying
+  // the bundle, the tokens and the 7 MB icon face inline) grew WebKit's web process on Linux from 0.5 GB to 2.2 GB, and
+  // under that pressure a later mount had no loaded icon face (its glyphs drawn as their names, on CI) or the page
+  // crashed (in a 4 GB container). A page closed after its test frees what its mounts held.
+  for (const fixture of spec.fixtures) {
+    test(`no axe violations in light and dark, the fixture alone: ${fixture.id}`, async ({ page }) => {
+      await page.setViewportSize(pickerWindow(fixture));
+      for (const theme of ['light', 'dark'] as const) {
         await mountFixtures(page, spec, { theme, icons: true, fixtures: [fixture] });
         await page.waitForTimeout(300);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${fixture.id} ${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 });
 
 test.describe('fixtures', () => {
