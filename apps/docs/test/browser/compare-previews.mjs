@@ -124,8 +124,9 @@ export async function comparePreviews({ componentCss, still }) {
     const root = host.attachShadow({ mode: 'open' });
     root.adoptedStyleSheets = [sheet];
     const wrap = document.createElement('div');
-    // A fixture's stage stands in a box of its staging's scope, as in the page.
-    if (element.parentElement.matches('[data-fixture-scope]')) wrap.setAttribute('data-fixture-scope', '');
+    // A fixture's stage stands in a box of its staging's scope that the page's rules draw as they draw its canvas (the
+    // text style it inherits), as in the page.
+    if (element.parentElement.matches('[data-fixture-scope]')) for (const { name, value } of element.parentElement.attributes) if (name !== 'style' && name !== 'id' && name !== 'data-pending') wrap.setAttribute(name, value);
     wrap.style.inlineSize = `${layout.clientWidth - parseFloat(around.paddingLeft) - parseFloat(around.paddingRight) + 1}px`;
     for (const property of ['display', 'flex-direction', 'flex-wrap', 'align-items', 'justify-content']) wrap.style.setProperty(property, around.getPropertyValue(property));
     const copy = document.importNode(source[index], true);
@@ -134,6 +135,11 @@ export async function comparePreviews({ componentCss, still }) {
       // (the column's, or the reader's) is laid out there in its copy too.
       if (element.style.inlineSize) copy.style.inlineSize = element.style.inlineSize;
       if (element.firstElementChild?.style.inlineSize && copy.firstElementChild) copy.firstElementChild.style.inlineSize = element.firstElementChild.style.inlineSize;
+      // What the package's own script wrote on the stage's light DOM once it was drawn (the Steps' measured marker
+      // column, `--_steps-measured`) is the component's state, which no script writes on the copy: the copy takes it.
+      const drawnParts = element.querySelectorAll('*');
+      const copiedParts = copy.querySelectorAll('*');
+      if (drawnParts.length === copiedParts.length) drawnParts.forEach((part, k) => { for (let i = 0; i < part.style.length; i++) if (part.style[i].startsWith('--')) copiedParts[k].style.setProperty(part.style[i], part.style.getPropertyValue(part.style[i])); });
     } else if (!getComputedStyle(element).display.startsWith('inline')) copy.style.inlineSize = `${element.getBoundingClientRect().width}px`;
     wrap.append(copy);
     root.append(wrap);
