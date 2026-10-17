@@ -1,10 +1,15 @@
 # @tanrei/cli
 
-> **Pre-release.** Nothing has been released: `@tanrei/cli` is not on npm yet, so `npx tanrei` works only after you build and install it from source. Documentation, with the from-source steps: <https://tanrei.chnotchy.com/getting-started/your-design-system/>.
+<!-- tanrei:status -->
+<!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/cli@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
+
+<!-- /tanrei:status -->
 
 Build your own design system on [Tanrei](https://github.com/chnotchy/tanrei): **one layer file in, tokens and code for every platform out.** Change a value, run one command, and the web, SwiftUI, Jetpack Compose, Flutter and React Native all move in the same pull request.
 
 ```bash
+npm install --save-dev @tanrei/cli
 npx tanrei init acme --extends tanrei   # or m3-like, m3-expressive-like, cupertino
 npx tanrei build
 ```

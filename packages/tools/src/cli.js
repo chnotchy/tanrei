@@ -107,6 +107,9 @@ function syncVersions() {
     if (text === null) continue;
     fs.writeFileSync(path.join(REPO_ROOT, rel), text.replace(pattern, replacement));
   }
+  // Everything `status` writes from the version is written again from the new one, in a process of its own: this one
+  // read tanrei.config.json before the edit.
+  execFileSync(process.execPath, [process.argv[1], 'status'], { stdio: 'inherit' });
   console.log(`✔ versions synced to ${version}`);
   return true;
 }
