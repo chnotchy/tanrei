@@ -1,25 +1,15 @@
 // While a palette's color is dragged, the preview is patched with the custom properties `liveProperties` works out
-// by the palette engine alone, and the layer is computed once the drag ends. The two must draw the same thing: the
-// sheet of the view the drag started from, with those properties written into it, is the sheet of the new layer —
-// for every palette of every shipped system, whatever its source becomes. Where that cannot be promised, the answer is
-// null and the layer is computed.
+// by the palette engine alone, and the layer is computed once the drag ends (a dial's drag: test/live-dials.test.js).
+// The two must draw the same thing: the sheet of the view the drag started from, with those properties written into
+// it, is the sheet of the new layer — for every palette of every shipped system, whatever its source becomes. Where
+// that cannot be promised, the answer is null and the layer is computed.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { patchedSheet as patched } from './helpers.js';
 import { shipped, studio } from './studio-node.js';
 
 const NS = studio.namespace;
 const SCOPE = 'live';
-
-/** The sheet of `view` with `properties` written in: each is declared once, in the base block, and replaced there. */
-function patched(css, properties) {
-  let out = css;
-  for (const [name, value] of Object.entries(properties)) {
-    const declaration = new RegExp(`(\\n\\s*${name.replace(/[-]/g, '\\-')}: )[^;]+;`, 'g');
-    assert.equal(out.match(declaration)?.length, 1, `${name} is declared once in the sheet`);
-    out = out.replace(declaration, `$1${value};`);
-  }
-  return out;
-}
 
 function sameSheet(from, to, what) {
   const properties = studio.liveProperties(from, to.layer);
