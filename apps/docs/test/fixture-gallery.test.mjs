@@ -59,16 +59,18 @@ describe('the gallery of fixtures', () => {
     }
   });
 
-  test('a presented fixture, and a whole page’s frame, is drawn alone in a window; every other one in the page', () => {
+  test('a presented fixture, a whole page’s frame and a stage the size of the window are drawn alone in a window; every other one in the page', () => {
     for (const spec of implemented) {
-      const page = fixtureDocument(spec.name).page;
+      const { page, windowed } = fixtureDocument(spec.name);
       for (const fixture of spec.fixtures) {
         const stage = stageOf(spec, fixture);
-        assert.equal(stage.kind, page || presented(spec, fixture) ? 'window' : 'inline', `${spec.name}/${fixture.id}`);
+        assert.equal(stage.kind, page || windowed.includes(fixture.id) || presented(spec, fixture) ? 'window' : 'inline', `${spec.name}/${fixture.id}`);
         if (stage.kind === 'window') assert.ok(stage.window.width >= 40 && stage.window.height >= 40, `${spec.name}/${fixture.id}`);
       }
     }
     assert.equal(stageOf(specs['app-shell'], specs['app-shell'].fixtures[0]).kind, 'window');
+    // A responsive drawer's stage is as wide as the window (`inline-size: 100vw`): it is drawn in one.
+    assert.deepEqual(fixtureDocument('navigation-drawer').windowed.sort(), ['responsive-medium', 'responsive-narrow', 'responsive-wide']);
     assert.equal(presented(specs.dialog, specs.dialog.fixtures[0]), true);
     assert.equal(presented(specs.button, specs.button.fixtures[0]), false);
   });

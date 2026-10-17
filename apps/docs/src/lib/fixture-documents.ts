@@ -15,6 +15,8 @@ export interface FixtureDocument {
   page: boolean;
   /** Every stage, in the spec's order: `<div class="stage" data-fixture="…">…</div>`. */
   stages: { id: string; html: string }[];
+  /** The stages that stand for a whole window (a rule of the staging sizes them by the window): drawn in a window of their own. */
+  windowed: string[];
   /** The step the staging takes in script once the component is defined, as a module's source. */
   after?: string;
   /** The same step taken apart, for a page that draws its stages one at a time: the step's source and the fixtures it reads, as source. */

@@ -10,8 +10,9 @@
 //
 // - `inline`: the fixture is drawn in the page's own document: the document's stage, with the component's staging
 //   (`staging`, scoped to the stage), at the size its baseline was taken at.
-// - `window`: a presented fixture (a modal dialog, an open menu, a docked picker, a tooltip), and every fixture that is
-//   a whole page's frame (the app shell), is drawn alone in a window of its own — an `iframe` of the fixture's
+// - `window`: a presented fixture (a modal dialog, an open menu, a docked picker, a tooltip), every fixture that is a
+//   whole page's frame (the app shell), and one whose staging sizes it by the window (a responsive drawer), is drawn
+//   alone in a window of its own — an `iframe` of the fixture's
 //   document (src/pages/fixtures/[component].astro) at the size of the stage its baseline was taken of. What it puts in
 //   the top layer or places against the window stays in that window, and what reads the window's width (a drawer's
 //   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it.
@@ -144,7 +145,7 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
   if (!document || !stage) return { ...base, drawn: false, kind: 'inline' };
   const markup = stageMarkup(stage.html);
   const size = document.sizes[fixture.id];
-  if (document.page || presented(spec, fixture)) return { ...base, drawn: true, kind: 'window', window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
+  if (document.page || document.windowed.includes(fixture.id) || presented(spec, fixture)) return { ...base, drawn: true, kind: 'window', window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
   return { ...base, drawn: true, kind: 'inline', html: stage.html, markup, reserve: size };
 }
 

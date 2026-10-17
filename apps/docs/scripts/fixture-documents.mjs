@@ -92,6 +92,32 @@ function stepOf(after) {
   return { source: found[1], fixtures: found[2] };
 }
 
+/**
+ * The stages that stand for a whole window: those a rule of the staging sizes by the window (`inline-size: 100vw` — a
+ * responsive drawer reads the window's width). A page draws each in a window of its own, never in its column. A rule's
+ * selector is read in the forms the staging writes it — `.stage:has(> tag[attr])`, `.stage > tag[attr]` — and a rule of
+ * another form stops the build, so that a new one is decided and not missed.
+ */
+function windowedOf(staging, stages) {
+  const windowed = new Set();
+  for (const [, selectors, declarations] of staging.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/\b\d*\.?\d+(vw|vh|dvh|svh|lvh|vmin|vmax)\b/.test(declarations)) continue;
+    for (const selector of selectors.split(',').map((each) => each.trim())) {
+      const form = /^\.stage(?::has\(>\s*|\s*>\s*)([a-z][a-z0-9-]*)((?:\[[a-z-]+(?:='[^']*')?\])*)\)?$/.exec(selector);
+      if (!form) throw new Error(`a rule of the staging sizes by the window in a form this script does not read: ${selector}`);
+      const [, tag, attributes] = form;
+      const wanted = [...attributes.matchAll(/\[([a-z-]+)(?:='([^']*)')?\]/g)];
+      for (const stage of stages) {
+        const head = new RegExp(`^<div class="stage"[^>]*>\\s*<${tag}((?:\\s+[^\\s=>]+(?:="[^"]*")?)*)\\s*>`).exec(stage.html);
+        if (!head) continue;
+        const has = new Map([...head[1].matchAll(/\s+([^\s=>]+)(?:="([^"]*)")?/g)].map((m) => [m[1], m[2] ?? '']));
+        if (wanted.every(([, name, value]) => has.has(name) && (value === undefined || has.get(name) === value))) windowed.add(stage.id);
+      }
+    }
+  }
+  return [...windowed];
+}
+
 /** The size of a fixture's stage in CSS pixels, read from its baseline's IHDR chunk; nothing where it has none. */
 function baseline(spec, id) {
   const file = path.join(repo, 'packages/web/snapshots', spec, `${id}.png`);
@@ -115,7 +141,8 @@ for (const file of fs.readdirSync(path.join(repo, 'specs')).filter((name) => nam
     const spec = loadSpec(name);
     if (!spec.platforms?.web || spec.platforms.web.status === 'planned') continue;
     const document = parts(await fixturesDocument(spec, { assets: NONE }));
-    documents[name] = { ...document, ...stagingOf(document.styles), step: stepOf(document.after), sizes:Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
+    const staged = stagingOf(document.styles);
+    documents[name] = { ...document, ...staged, step: stepOf(document.after), windowed: windowedOf(staged.staging, document.stages), sizes: Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
   } catch (error) {
     failed.push(`${name}: ${String(error).split('\n')[0]}`);
   }
