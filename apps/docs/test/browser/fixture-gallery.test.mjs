@@ -69,8 +69,15 @@ async function measure() {
   const laidOut = document.createElement('style');
   laidOut.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
   document.head.append(laidOut);
-  // A fixture is drawn when its stage comes near the view: every one is drawn here, as the page draws it.
-  for (const template of gallery.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(document.importNode(template.content, true));
+  // What each stage drawn in the page holds before it is drawn: the room of its baseline.
+  const held = new Map([...gallery.querySelectorAll('.docs-stage[data-stage="inline"][data-drawn]')].map((stage) => [stage, stage.getBoundingClientRect().height]));
+  // A fixture is drawn when its stage comes near the view: the page is scrolled through, and the page draws each one.
+  for (let y = 0; y < document.scrollingElement.scrollHeight; y += innerHeight / 2) {
+    scrollTo(0, y);
+    await frame();
+    await frame();
+  }
+  scrollTo(0, 0);
   const tags = new Set([...gallery.querySelectorAll('*')].map((e) => e.localName).filter((n) => n.includes('-')));
   await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
   await Promise.all([...gallery.querySelectorAll('*')].map((e) => e.updateComplete).filter(Boolean));
@@ -91,7 +98,7 @@ async function measure() {
       continue;
     }
     const area = stage.querySelector('.docs-stage-box').getBoundingClientRect();
-    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('.fixture-element > *');
+    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('[data-fixture-scope] > .stage');
     if (!drawn) {
       found.push(`${id}: nothing is drawn on its stage`);
       continue;
@@ -108,8 +115,26 @@ async function measure() {
     if ((r.width < 1 && r.height >= 1) || (r.height < 1 && r.width >= 1 && !empty)) found.push(`${id}: what it draws has no length (${Math.round(r.width)} × ${Math.round(r.height)})`);
     else if (outside(r, area)) found.push(`${id}: what it draws is cut by its stage (${Math.round(r.width)} × ${Math.round(r.height)} in ${Math.round(area.width)} × ${Math.round(area.height)})`);
   }
+  // A stage drawn in the page holds its baseline's room before it is drawn, and is as tall once it is — unless it is
+  // drawn narrower than its baseline (a layout wider than the column, laid out at the column's width), where it is
+  // taller by design.
+  const grown = [];
+  let narrowed = 0;
+  for (const [stage, before] of held) {
+    const canvas = stage.querySelector('[data-fixture-scope]');
+    const reserve = parseFloat(canvas.style.getPropertyValue('--docs-stage-reserve-inline'));
+    const after = stage.getBoundingClientRect().height;
+    if (canvas.getBoundingClientRect().width < reserve - 1) {
+      narrowed++;
+      continue;
+    }
+    if (after > before + 1) grown.push(`${stage.dataset.fixtureId}: its stage held ${Math.round(before)} and grew to ${Math.round(after)} when it was drawn`);
+  }
   laidOut.remove();
   return {
+    grown,
+    narrowed,
+    held: held.size,
     gallery: true,
     ids: stages.map((stage) => stage.dataset.fixtureId),
     drawn: stages.filter((stage) => stage.dataset.drawn !== undefined).length,
@@ -192,6 +217,9 @@ describe('a fixture document is the windows’ only: no reader is sent to it', (
   });
 });
 
+// What each page's stages did when they were drawn, at each width: read by the last test below.
+const drawing = [];
+
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {
   test('there are component pages', () => assert.ok(pages.length > 80, `found ${pages.length} component pages`));
   for (const { name, fixtures } of pages) {
@@ -211,6 +239,7 @@ describe('every component page shows its fixtures, each whole, on a stage of its
           if (JSON.stringify([...result.ids].sort()) !== JSON.stringify([...fixtures].sort())) problems.push(`${at}: the stages are not the spec's fixtures (${result.ids.length} stages, ${fixtures.length} fixtures)`);
           if (result.sideways > 1) problems.push(`${at}: the page scrolls sideways by ${result.sideways}px`);
           for (const line of result.found) problems.push(`${at}: ${line}`);
+          drawing.push({ name, at, held: result.held, narrowed: result.narrowed, grown: result.grown });
         } finally {
           await context.close();
         }
@@ -218,4 +247,21 @@ describe('every component page shows its fixtures, each whole, on a stage of its
       assert.deepEqual(problems, [], `${name}:\n  ${problems.join('\n  ')}`);
     });
   }
+});
+
+describe('a stage does not grow when it is drawn', () => {
+  // A stage drawn in the page holds the room of its baseline — the web package's document's stage — until it is drawn,
+  // and that stage is what it draws: nothing below it moves when it is. (While the site drew fixtures with a renderer
+  // of its own, 179 stages of 2390 grew at 1440 wide, and 345 at 390.) One drawn narrower than its baseline, at the
+  // column's width, is counted and left out: it is laid out anew there.
+  test('every stage drawn at its baseline’s width is as tall as the room it held', () => {
+    assert.ok(drawing.length > 160, `${drawing.length} pages and widths were drawn`);
+    for (const at of ['1440', '390']) {
+      const of = drawing.filter((each) => each.at === at);
+      const sum = (key) => of.reduce((total, each) => total + (Array.isArray(each[key]) ? each[key].length : each[key]), 0);
+      console.log(`${at}: ${sum('held')} stages drawn in the page, ${sum('narrowed')} narrower than their baseline, ${sum('grown')} grew`);
+    }
+    const grown = drawing.flatMap((each) => each.grown.map((line) => `${each.name} at ${each.at}: ${line}`));
+    assert.deepEqual(grown, []);
+  });
 });
