@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, validateAvailability, validatePackages, validateSpecs } from './checks.js';
+import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, layerProblems, validateAvailability, validatePackages, validateSpecs } from './checks.js';
 import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
 import { GENERATORS, regenerate } from './drift.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
@@ -22,6 +22,7 @@ function validate() {
   const results = [
     report('specs valid', validateSpecs()),
     report('system availability names what exists', validateAvailability()),
+    report('components live where their specs say', layerProblems()),
     report('publishable packages carry the license and NOTICE', validatePackages()),
     report('no retired names', checkRetiredTerms()),
     report('work markers say what is missing', checkWorkMarkers()),

@@ -10,6 +10,12 @@
 //   "tanrei.sys.motion.spring.standard.bouncy": { "from": "default-spatial", "rationale": "…" }      a step that is a GROUP
 //       of tokens (a named spring set: damping, stiffness, easing, duration) — cloned whole from a sibling, so it can
 //       never be half a spring; single fields are then changed under "tokens" like any token.
+//   "tanrei.comp.fab-menu":              { "document": "comp/fab-menu.tokens.json", "rationale": "…" }   the WHOLE
+//       vocabulary of a component that lives in this layer: its document, kept next to the layer
+//       (`tokens/systems/<layer>/comp/<component>.tokens.json`), and the rules that value its states. A system has it
+//       when the layer is in its chain, or when one of its layers includes the component from that layer
+//       (`components.include: [{ "name": "fab-menu", "from": "m3-like" }]`): the document's aliases then resolve
+//       against that system's own tokens, and none of the holding layer's values come along.
 //
 // Extensions are MATERIALISED into the documents before anything else looks at them, so the resolver, the
 // model, every emitter, the Figma plan, the MCP server and the Studio preview see ordinary tokens.
@@ -23,21 +29,69 @@ const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
 // `from` clones: on a component axis it adds a value; in a sys series it adds a step that is a group of tokens.
-const kindOf = (entry, id) => (!('from' in entry) ? 'token' : id.split('.')[1] === 'sys' ? 'group' : 'axis-value');
+// `document` names the whole vocabulary of a component that lives in the declaring layer.
+const kindOf = (entry, id) => ('document' in entry ? 'component' : !('from' in entry) ? 'token' : id.split('.')[1] === 'sys' ? 'group' : 'axis-value');
+
+/** Where the sources hold the document of a component that lives in a layer, relative to tokens/. */
+export const heldDocumentPath = (layerId, component) => `systems/${layerId}/comp/${component}.tokens.json`;
+/** Where a system's documents hold a component's vocabulary: the core's components and a layer's alike. */
+export const componentDocumentPath = (component) => `comp/${component}.tokens.json`;
+/** A source document a layer holds (`systems/…`): only a system that has its component reads it. */
+export const isHeldDocument = (name) => name.startsWith('systems/');
+
+/** The component a declaration of a whole component's vocabulary names (`<ns>.comp.<component>`), its shape checked. */
+function componentDeclaration(id, entry, layerId, CORE_NS) {
+  const segments = id.split('.');
+  if (segments[0] !== CORE_NS || segments[1] !== 'comp' || segments.length !== 3) throw new SystemError(`${id}: a component's whole vocabulary is declared as "${CORE_NS}.comp.<component>", in the core namespace, so that the names a product, a stylesheet and the native types use do not depend on where the component lives`);
+  const component = segments[2];
+  if (entry.document !== componentDocumentPath(component)) throw new SystemError(`${id}: "document" is "${componentDocumentPath(component)}" — the component's document, kept in tokens/systems/${layerId}/`);
+  for (const key of ['$type', 'from', 'scale', '$value', 'derive', 'onRole']) if (key in entry) throw new SystemError(`${id}: a component's whole vocabulary is its document; "${key}" belongs to a single token`);
+  for (const rule of entry.rules ?? []) {
+    if (typeof rule?.match !== 'string' || !rule.match.startsWith(`${CORE_NS}.comp.${component}.`)) throw new SystemError(`${id}: its rules value the component's own states — "match" starts with "${CORE_NS}.comp.${component}.", not ${JSON.stringify(rule?.match)}`);
+  }
+  return component;
+}
+
+/**
+ * The declaration of a component that a layer includes from the layer that holds it (`components.include:
+ * [{ name, from }]`), as that layer wrote it. `lend(from)` returns that layer as authored.
+ */
+function borrowed({ name, from }, layer, lend, CORE_NS) {
+  const id = `${CORE_NS}.comp.${name}`;
+  if (!lend) throw new SystemError(`${layer.id}: components.include takes "${name}" from "${from}"; building it needs that layer — pass "lend"`);
+  const entry = lend(from)?.vocabulary?.[id];
+  if (!entry || typeof entry !== 'object' || !('document' in entry)) throw new SystemError(`${layer.id}: components.include: "${name}" does not live in "${from}" — that layer declares no "${id}" with its document`);
+  return { id, component: componentDeclaration(id, entry, from, CORE_NS), entry };
+}
 
 /**
  * Collect the declarations of a layer chain, root first.
  * @returns {Record<string, { kind, type?, from?, scale?, rationale, description?, onRole?, declaredBy, definition? }>}
- * @param {{ namespace?: string }} [options] the core vocabulary's namespace; 'tanrei' by default
+ * @param {{ namespace?: string, lend?: (id: string) => object | undefined }} [options] the core vocabulary's namespace
+ *   ('tanrei' by default); `lend` returns a layer by id, for a component a layer includes from the layer that holds it
  */
-export function collectVocabulary(layers, { namespace: CORE_NS = 'tanrei' } = {}) {
+export function collectVocabulary(layers, { namespace: CORE_NS = 'tanrei', lend } = {}) {
   const out = {};
+  const copy = (rules) => JSON.parse(JSON.stringify(rules ?? []));
   for (const layer of layers) {
+    // A component included from the layer that holds it arrives as that layer declared it — its document and its
+    // rules, none of that layer's values — before this layer's own extensions, which may add to it.
+    for (const include of layer.components?.include ?? []) {
+      if (typeof include !== 'object' || include === null) continue;
+      const { id, component, entry } = borrowed(include, layer, lend, CORE_NS);
+      if (out[id]) throw new SystemError(`${layer.id}: components.include: "${component}" is already in this system (declared by layer "${out[id].declaredBy}"); there is nothing to include`);
+      out[id] = { kind: 'component', component, document: entry.document, rules: copy(entry.rules), rationale: entry.rationale, declaredBy: include.from, includedBy: layer.id, definition: {} };
+    }
     for (const [id, entry] of Object.entries(layer.vocabulary ?? {})) {
       if (out[id]) throw new SystemError(`${id}: already declared by layer "${out[id].declaredBy}". Declare a token once; change its value under "tokens".`);
       if (typeof entry.rationale !== 'string' || entry.rationale.length < 8) throw new SystemError(`${id}: an extension needs a "rationale" — why does this design system or product need it?`);
       const namespace = id.split('.')[0];
       const kind = kindOf(entry, id);
+      if (kind === 'component') {
+        const component = componentDeclaration(id, entry, layer.id, CORE_NS);
+        out[id] = { kind, component, document: entry.document, rules: copy(entry.rules), rationale: entry.rationale, description: entry.$description, declaredBy: layer.id, definition: {} };
+        continue;
+      }
       if (namespace !== CORE_NS) {
         if (namespace !== layer.id) throw new SystemError(`${id}: a layer's own tokens live in its own namespace — "${layer.id}.…", not "${namespace}.…"`);
         if (kind === 'group') throw new SystemError(`${id}: a step cloned with "from" belongs to a series of the core vocabulary — "${CORE_NS}.sys.<series>.…". In your own namespace declare each token with "$type".`);
@@ -148,6 +202,22 @@ function addAxisValue(docs, id, decl) {
   return null;
 }
 
+/**
+ * The whole vocabulary of a component that lives in a layer: its document, from the sources the caller passed
+ * (`systems/<layer>/comp/<component>.tokens.json`), becomes the system's `comp/<component>.tokens.json` — a document
+ * like the core's components', which everything after this step reads the same way.
+ */
+function addComponent(docs, id, decl, CORE_NS) {
+  const held = heldDocumentPath(decl.declaredBy, decl.component);
+  const name = componentDocumentPath(decl.component);
+  if (docs[name]) throw new SystemError(`${id}: the core vocabulary already has ${name}; a component lives in one place — the core, or the one layer that declares it`);
+  const doc = docs[held];
+  if (!doc) throw new SystemError(`${id}: the component's document (tokens/${held}) is not among the sources — pass the documents the layers hold along with the core's`);
+  const own = (node) => Object.keys(node ?? {}).filter((key) => !key.startsWith('$'));
+  if (own(doc).join() !== CORE_NS || own(doc[CORE_NS]).join() !== 'comp' || own(doc[CORE_NS].comp).join() !== decl.component) throw new SystemError(`${id}: tokens/${held} holds the group "${CORE_NS}.comp.${decl.component}" and nothing else`);
+  docs[name] = doc;
+}
+
 /** A step that is a group of tokens (a named spring set), cloned whole from a sibling group of the same series. */
 function addGroup(docs, id, decl) {
   const segments = id.split('.');
@@ -221,12 +291,15 @@ export function materializeVocabulary(docs, system) {
   const vocabulary = system.vocabulary ?? {};
   const SYS_COLOR = `${system.namespace ?? 'tanrei'}.sys.color.`;
   const notices = [];
-  if (!Object.keys(vocabulary).length) return notices;
+  // A component that lives in a layer first: an extension of the system may add to it (a size, a variant).
+  for (const [id, decl] of Object.entries(vocabulary)) if (decl.kind === 'component') addComponent(docs, id, decl, system.namespace ?? 'tanrei');
+  if (!Object.values(vocabulary).some((decl) => decl.kind !== 'component')) return notices;
   const core = new Map();
   for (const doc of Object.values(docs)) for (const entry of walkTokens(doc)) core.set(entry.id, entry);
   // Tokens (and steps that are groups) first: an axis value may be cloned from, or later re-pointed to, a step declared alongside it.
   const ordered = Object.entries(vocabulary).sort(([, a], [, b]) => Number(a.kind === 'axis-value') - Number(b.kind === 'axis-value'));
   for (const [id, decl] of ordered) {
+    if (decl.kind === 'component') continue; // in place above
     if (decl.kind === 'token' && id.startsWith(SYS_COLOR)) continue; // color roles are materialised by the palette engine
     const notice = decl.kind === 'axis-value' ? addAxisValue(docs, id, decl) : decl.kind === 'group' ? addGroup(docs, id, decl) : addToken(docs, id, decl, core, system);
     if (notice) notices.push(notice);
@@ -236,5 +309,5 @@ export function materializeVocabulary(docs, system) {
 
 /** The extensions of a system as a plain list, for bundles, reports and tools. */
 export function listExtensions(system) {
-  return Object.entries(system.vocabulary ?? {}).map(([id, d]) => ({ id, kind: d.kind, ...(d.type ? { $type: d.type } : {}), ...(d.from ? { from: d.from } : {}), declaredBy: d.declaredBy, rationale: d.rationale }));
+  return Object.entries(system.vocabulary ?? {}).map(([id, d]) => ({ id, kind: d.kind, ...(d.type ? { $type: d.type } : {}), ...(d.from ? { from: d.from } : {}), ...(d.document ? { document: d.document } : {}), declaredBy: d.declaredBy, ...(d.includedBy ? { includedBy: d.includedBy } : {}), rationale: d.rationale }));
 }
