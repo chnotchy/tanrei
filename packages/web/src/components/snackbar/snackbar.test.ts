@@ -1572,12 +1572,14 @@ test.describe('inverse', () => {
     expect(appeared).toEqual({ moving: [], container: m3Inverse, action: await resolveColor(page, T('action-inverse-content-color')) });
   });
 
-  test('SNK-30, SNK-34: each inverse form draws its bar, title, message, glyph, controls and focus indicator from its own tokens, in every scheme', async ({ page }) => {
-    // Six schemes, and in each four keyboard stops (the action's and the close Button's ring on two forms): 120 s was
-    // under what that takes where every input waits (harsh mode).
-    test.setTimeout(240_000);
-    const inverse = ['inverse', ...STATUSES.map((status) => `inverse-${status}`), 'inverse-expanded'];
-    await eachScheme(page, {}, async (scheme) => {
+  // One test for each scheme: each reads the five inverse forms and four keyboard stops on its own mount, so its cost
+  // does not grow with the number of schemes.
+  for (const { theme, contrast } of SCHEMES) {
+    const scheme = `${theme}${contrast ? `-${contrast}` : ''}`;
+    test(`SNK-30, SNK-34: each inverse form draws its bar, title, message, glyph, controls and focus indicator from its own tokens, in ${scheme}`, async ({ page }) => {
+      const inverse = ['inverse', ...STATUSES.map((status) => `inverse-${status}`), 'inverse-expanded'];
+      await mountFixtures(page, spec, { icons: true, theme, reducedMotion: true });
+      if (contrast) await page.evaluate((c) => document.documentElement.setAttribute('data-tanrei-contrast', c), contrast);
       for (const id of inverse) {
         const props = fixture(id).props;
         await readsForm(page, id, props, `${scheme} ${id}`);
@@ -1595,7 +1597,7 @@ test.describe('inverse', () => {
         expect(await css(inner(page, id, 'close'), 'outline-color'), `${scheme} ${id} close`).toBe(color);
       }
     });
-  });
+  }
 
   // One test for each contrast level: each reads its two themes' eight forms through some two hundred inputs, and the
   // three levels in one test took longer than its time where every input waits (harsh mode).
