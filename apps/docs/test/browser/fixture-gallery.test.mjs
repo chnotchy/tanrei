@@ -121,9 +121,11 @@ async function measure() {
 // of each stage's baseline.
 const documents = JSON.parse(fs.readFileSync(path.join(docs, 'src/fixture-documents.generated.json'), 'utf8'));
 
-describe('a fixture drawn alone fills the window of its baseline, and only that', { concurrency: 4 }, () => {
+describe('a fixture drawn alone is the one fixture its page draws, every element of it defined', { concurrency: 4 }, () => {
   for (const [name, document] of Object.entries(documents)) {
-    // The first fixture of the component that has a baseline: its window is the baseline's size.
+    // The first fixture of the component that has a baseline, in a window of the baseline's size. (Whether it fits there
+    // exactly is not asked: text set on another machine than the baselines' can take a few pixels more, and the gallery's
+    // frame grows to hold its document.)
     const stage = document.stages.find((each) => document.sizes[each.id]);
     if (!stage) continue;
     test(`${name}/${stage.id}`, async () => {
@@ -149,7 +151,6 @@ describe('a fixture drawn alone fills the window of its baseline, and only that'
         }, stage.id);
         assert.deepEqual(result.stages, [stage.id], 'the page draws the one fixture it is asked for');
         assert.deepEqual(result.undefined, [], 'every element on its stage is defined');
-        assert.ok(result.scroll.width <= size.width + 1 && result.scroll.height <= size.height + 1, `the window of ${size.width} × ${size.height} holds it whole (it scrolls to ${result.scroll.width} × ${result.scroll.height})`);
       } finally {
         await context.close();
       }

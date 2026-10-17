@@ -41,6 +41,24 @@ function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
       later(() => frame.removeAttribute('inert'));
     };
     frame.addEventListener('load', release);
+    // A fixture that is not presented stands in a frame of its stage's size, read from its baseline. Text set on
+    // another machine can take a few pixels more (the baselines are taken on Linux at a device pixel ratio of 2), and a
+    // stage's content can reach past the stage the baseline pictures: the frame grows to hold its document, never
+    // shrinks below the room it held, and is otherwise left as it was.
+    if (canvas.dataset.fit !== undefined) {
+      const least = Number(getComputedStyle(canvas).getPropertyValue('--docs-window-height')) || 0;
+      frame.addEventListener('load', () => {
+        const view = frame.contentWindow as (Window & typeof globalThis) | null;
+        const body = frame.contentDocument?.body;
+        if (!view || !body) return;
+        const fit = () => {
+          const root = frame.contentDocument!.scrollingElement ?? frame.contentDocument!.documentElement;
+          canvas.style.setProperty('--docs-window-height', String(Math.max(least, root.scrollHeight)));
+        };
+        new view.ResizeObserver(fit).observe(body);
+        fit();
+      });
+    }
     if (frame.contentDocument?.readyState === 'complete' && frame.contentDocument.querySelector('.stage')) release();
   }
   const width = () => Number(getComputedStyle(canvas).getPropertyValue('--docs-window-width')) || 1;
