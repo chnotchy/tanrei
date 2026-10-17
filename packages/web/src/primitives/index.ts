@@ -67,7 +67,8 @@
 //   group-item  — the internal channel between a button group and its Buttons and icon buttons: GroupItemController
 //                 (where the item sits), groupItemStyles() (its corners, width and hit area in the group), GROUP_PLACE;
 //                 a toolbar's items are `row` items of it, their hit areas capped at the measured half-gaps (TBR-9);
-//                 a dialog gives its actions their variant through it (HOST_VARIANT, DLG-20)
+//                 a dialog gives its actions their variant through it (HOST_VARIANT, DLG-20), and a host that draws a
+//                 Button on a colored surface of its own gives it a tone (HOST_TONE, giveTone(), BTN-45)
 //   actions     — ActionPlacement and actionBoxStyles(): the actions at the foot of a dialog or a side sheet, placed by
 //                 their flags as a full-width Button group places its items (BGR-13…19) into three hand-assigned slots,
 //                 row or column by fit, each given the host's variant (DLG-10, DLG-20, SSH-11, SSH-17); compChoice()
@@ -337,10 +338,14 @@ export {
   type GroupItem,
   GroupItemController,
   type GroupPlace,
+  HOST_TONE,
   HOST_VARIANT,
+  giveTone,
   groupItemReset,
   groupItemStyles,
   type PlacingGroup,
+  type Tone,
+  type ToneHost,
   type VariantHost,
 } from './group-item.js';
 export {

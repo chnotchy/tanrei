@@ -1,5 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, nothing, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
+import { ref } from 'lit/directives/ref.js';
 import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -333,8 +334,8 @@ export class TanreiButton extends LitElement {
   /**
    * BTN-10, BGR-1…4, BGR-7, BGR-16, BGR-22, BGR-23: where a button group places it (src/primitives/group-item.ts) — its
    * corners and minimum size as a connected group sets them, the padding the group adds at a rounded outer end, no
-   * outline or ring along an edge joined under a divider, its label free to wrap when the group narrows it. Internal
-   * between Tanrei elements.
+   * outline or ring along an edge joined under a divider, its label free to wrap when the group narrows it — and the
+   * variant (DLG-20, SSH-17) and the tone (BTN-45) a host gives it. Internal between Tanrei elements.
    * @internal
    */
   readonly [GROUP_ITEM] = new GroupItemController(this, () => this.container);
@@ -702,6 +703,7 @@ export class TanreiButton extends LitElement {
         data-tanrei-shape
         class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, 'full-width': full, busy, ...this[GROUP_ITEM].classes() })}
         data-host-variant=${this[GROUP_ITEM].variant ?? nothing}
+        ${ref(this[GROUP_ITEM].toneRef)}
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
         aria-label=${this.label || nothing}
