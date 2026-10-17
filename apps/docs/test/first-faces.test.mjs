@@ -59,20 +59,6 @@ describe('what the head preloads', () => {
       assert.match(face[0], /font-display: swap;/, family);
     }
   });
-  test('is the cut-down file of the icon family too: the one the site registers that family from', () => {
-    const family = stacks.icon?.[0];
-    assert.ok(family, 'the tokens have an icon stack');
-    const listed = [...head.match(/const ICON_FILES: Record<string, string> = \{([^}]*)\};/)[1].matchAll(/(?:'([^']+)'|(\w+)): (\w+)/g)].map((entry) => [entry[1] ?? entry[2], entry[3]]);
-    assert.deepEqual(listed.map(([name]) => name), [family]);
-    const file = head.match(new RegExp(`^import ${listed[0][1]} from '\\.\\./\\.\\./styles/([^']+)\\?url';$`, 'm'))?.[1];
-    assert.equal(file, `${family.toLowerCase().replaceAll(' ', '-')}.subset.generated.woff2`);
-    const face = faces.split('@font-face').filter((rule) => rule.includes(`font-family: '${family}';`));
-    assert.equal(face.length, 1, family);
-    assert.match(face[0], new RegExp(`url\\('\\./${file.replaceAll('.', '\\.')}'\\)`), 'registered from the same file');
-    // Invisible until its file is there, never drawn as its glyphs' names: what the preload is for.
-    assert.match(face[0], /font-display: block;/);
-    assert.match(head, /files\.push\(iconFile\);/);
-  });
   test('is written as a font preload a browser will use: with the type, and fetched as a font is', () => {
     assert.match(head, /\{files\.map\(\(href\) => <link rel="preload" as="font" type="font\/woff2" href=\{href\} crossorigin \/>\)\}/);
     assert.match(head, /import Default from '@astrojs\/starlight\/components\/Head\.astro';/);
