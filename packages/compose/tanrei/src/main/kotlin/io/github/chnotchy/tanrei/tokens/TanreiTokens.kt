@@ -2110,112 +2110,6 @@ public data class TanreiCalendarTokens(
 }
 
 /**
- * A control of callout: the key of one entry of [TanreiCalloutControls]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Close].
- */
-@JvmInline
-public value class TanreiCalloutControl(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Close: TanreiCalloutControl = TanreiCalloutControl("close")
-    }
-}
-
-/** What one control of callout draws in one interaction state. */
-@Immutable
-public data class TanreiCalloutControlStateTokens(
-    public val containerColor: TanreiPaint,
-    public val contentColor: TanreiPaint,
-    public val stateLayerColor: TanreiPaint,
-    public val infoContainerColor: TanreiPaint,
-    public val infoContentColor: TanreiPaint,
-    public val infoStateLayerColor: TanreiPaint,
-    public val warningContainerColor: TanreiPaint,
-    public val warningContentColor: TanreiPaint,
-    public val warningStateLayerColor: TanreiPaint,
-    public val errorContainerColor: TanreiPaint,
-    public val errorContentColor: TanreiPaint,
-    public val errorStateLayerColor: TanreiPaint,
-    public val successContainerColor: TanreiPaint,
-    public val successContentColor: TanreiPaint,
-    public val successStateLayerColor: TanreiPaint,
-    public val outlinedContainerColor: TanreiPaint,
-    public val outlinedContentColor: TanreiPaint,
-    public val outlinedStateLayerColor: TanreiPaint,
-) {
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(containerColor.roles())
-        addAll(contentColor.roles())
-        addAll(stateLayerColor.roles())
-        addAll(infoContainerColor.roles())
-        addAll(infoContentColor.roles())
-        addAll(infoStateLayerColor.roles())
-        addAll(warningContainerColor.roles())
-        addAll(warningContentColor.roles())
-        addAll(warningStateLayerColor.roles())
-        addAll(errorContainerColor.roles())
-        addAll(errorContentColor.roles())
-        addAll(errorStateLayerColor.roles())
-        addAll(successContainerColor.roles())
-        addAll(successContentColor.roles())
-        addAll(successStateLayerColor.roles())
-        addAll(outlinedContainerColor.roles())
-        addAll(outlinedContentColor.roles())
-        addAll(outlinedStateLayerColor.roles())
-    }
-}
-
-/** One control of callout: a full set of tokens per interaction state. */
-@Immutable
-public data class TanreiCalloutControlTokens(
-    public val enabled: TanreiCalloutControlStateTokens,
-    public val hovered: TanreiCalloutControlStateTokens,
-    public val focused: TanreiCalloutControlStateTokens,
-    public val pressed: TanreiCalloutControlStateTokens,
-) {
-    public operator fun get(state: TanreiInteractionState): TanreiCalloutControlStateTokens = when (state) {
-        TanreiInteractionState.Enabled -> enabled
-        TanreiInteractionState.Hovered -> hovered
-        TanreiInteractionState.Focused -> focused
-        TanreiInteractionState.Pressed -> pressed
-        TanreiInteractionState.Disabled -> enabled
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles()
-}
-
-/**
- * Every control of callout: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiCalloutControls(
-    public val close: TanreiCalloutControlTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiCalloutControl, TanreiCalloutControlTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiCalloutControl> get() = linkedSetOf(TanreiCalloutControl.Close) + extra.keys
-
-    public operator fun contains(key: TanreiCalloutControl): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiCalloutControl): TanreiCalloutControlTokens? = when (key) {
-        TanreiCalloutControl.Close -> close
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [close]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiCalloutControl): TanreiCalloutControlTokens = find(key) ?: close
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(close.referencedRoles())
-        extra.values.forEach { addAll(it.referencedRoles()) }
-    }
-}
-
-/**
  * A size of callout: the key of one entry of [TanreiCalloutSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Medium].
@@ -2285,54 +2179,44 @@ public data class TanreiCalloutVariantTokens(
     public val titleColor: TanreiPaint,
     public val bodyColor: TanreiPaint,
     public val iconColor: TanreiPaint,
-    public val focusRingColor: TanreiPaint,
     public val infoContainerColor: TanreiPaint,
     public val infoTitleColor: TanreiPaint,
     public val infoBodyColor: TanreiPaint,
     public val infoIconColor: TanreiPaint,
-    public val infoFocusRingColor: TanreiPaint,
     public val warningContainerColor: TanreiPaint,
     public val warningTitleColor: TanreiPaint,
     public val warningBodyColor: TanreiPaint,
     public val warningIconColor: TanreiPaint,
-    public val warningFocusRingColor: TanreiPaint,
     public val errorContainerColor: TanreiPaint,
     public val errorTitleColor: TanreiPaint,
     public val errorBodyColor: TanreiPaint,
     public val errorIconColor: TanreiPaint,
-    public val errorFocusRingColor: TanreiPaint,
     public val successContainerColor: TanreiPaint,
     public val successTitleColor: TanreiPaint,
     public val successBodyColor: TanreiPaint,
     public val successIconColor: TanreiPaint,
-    public val successFocusRingColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
         addAll(titleColor.roles())
         addAll(bodyColor.roles())
         addAll(iconColor.roles())
-        addAll(focusRingColor.roles())
         addAll(infoContainerColor.roles())
         addAll(infoTitleColor.roles())
         addAll(infoBodyColor.roles())
         addAll(infoIconColor.roles())
-        addAll(infoFocusRingColor.roles())
         addAll(warningContainerColor.roles())
         addAll(warningTitleColor.roles())
         addAll(warningBodyColor.roles())
         addAll(warningIconColor.roles())
-        addAll(warningFocusRingColor.roles())
         addAll(errorContainerColor.roles())
         addAll(errorTitleColor.roles())
         addAll(errorBodyColor.roles())
         addAll(errorIconColor.roles())
-        addAll(errorFocusRingColor.roles())
         addAll(successContainerColor.roles())
         addAll(successTitleColor.roles())
         addAll(successBodyColor.roles())
         addAll(successIconColor.roles())
-        addAll(successFocusRingColor.roles())
     }
 }
 
@@ -2368,53 +2252,28 @@ public data class TanreiCalloutVariants(
     }
 }
 
-/** What every variant of callout shares in one interaction state. */
-@Immutable
-public data class TanreiCalloutStateTokens(
-    public val opacity: Float,
-)
-
-/** `comp.callout`. Members are flat tokens, then per-state tokens, then one holder per axis (`controls[control]`, `sizes[size]`, `variants[variant]`). */
+/** `comp.callout`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `variants[variant]`). */
 @Immutable
 public data class TanreiCalloutTokens(
     public val actionsGap: Dp,
     public val actionsItemGap: Dp,
+    public val closeButtonVariant: Float,
     public val containerGap: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerPaddingInlineEndWithClose: Dp,
     public val containerShape: Dp,
-    public val controlsHeight: Dp,
-    public val controlsIconSize: Dp,
-    public val controlsShape: Dp,
     public val iconGap: Dp,
     public val iconOpacity: Float,
     public val iconSize: Dp,
-    public val motionFeedbackDuration: Int,
-    public val motionStateDuration: Int,
-    public val motionStateEasing: TanreiCubicBezier,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
     public val titleGap: Dp,
-    public val hovered: TanreiCalloutStateTokens,
-    public val focused: TanreiCalloutStateTokens,
-    public val pressed: TanreiCalloutStateTokens,
-    public val controls: TanreiCalloutControls,
     public val sizes: TanreiCalloutSizes,
     public val variants: TanreiCalloutVariants,
 ) {
-    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
-    public fun opacity(state: TanreiInteractionState): Float = when (state) {
-        TanreiInteractionState.Enabled -> 1f
-        TanreiInteractionState.Hovered -> hovered.opacity
-        TanreiInteractionState.Focused -> focused.opacity
-        TanreiInteractionState.Pressed -> pressed.opacity
-        TanreiInteractionState.Disabled -> 1f
-    }
-
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(outlineColor.roles())
-        addAll(controls.referencedRoles())
         addAll(variants.referencedRoles())
     }
 }

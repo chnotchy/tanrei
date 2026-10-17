@@ -1094,48 +1094,6 @@ export interface TanreiCalendarTokens {
 }
 
 /**
- * Every value of `comp.callout`'s `control` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `close` (with a dev-only warning).
- */
-export interface TanreiCalloutControlRegistry {
-  close: true;
-}
-export type TanreiCalloutControl = keyof TanreiCalloutControlRegistry;
-export type TanreiCoreCalloutControl = "close";
-
-/** What one `control` of `comp.callout` is drawn from in ONE interaction state. */
-export interface TanreiCalloutControlStateTokens {
-  readonly containerColor: TanreiPaint;
-  readonly contentColor: TanreiPaint;
-  readonly stateLayerColor: TanreiPaint;
-  readonly infoContainerColor: TanreiPaint;
-  readonly infoContentColor: TanreiPaint;
-  readonly infoStateLayerColor: TanreiPaint;
-  readonly warningContainerColor: TanreiPaint;
-  readonly warningContentColor: TanreiPaint;
-  readonly warningStateLayerColor: TanreiPaint;
-  readonly errorContainerColor: TanreiPaint;
-  readonly errorContentColor: TanreiPaint;
-  readonly errorStateLayerColor: TanreiPaint;
-  readonly successContainerColor: TanreiPaint;
-  readonly successContentColor: TanreiPaint;
-  readonly successStateLayerColor: TanreiPaint;
-  readonly outlinedContainerColor: TanreiPaint;
-  readonly outlinedContentColor: TanreiPaint;
-  readonly outlinedStateLayerColor: TanreiPaint;
-}
-/** One `control`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiCalloutControlTokens {
-  readonly enabled: TanreiCalloutControlStateTokens;
-  readonly hovered: TanreiCalloutControlStateTokens;
-  readonly focused: TanreiCalloutControlStateTokens;
-  readonly pressed: TanreiCalloutControlStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiCalloutControls = { readonly [Key in TanreiCoreCalloutControl]: TanreiCalloutControlTokens } & { readonly [Key in TanreiCalloutControl]?: TanreiCalloutControlTokens };
-
-/**
  * Every value of `comp.callout`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `medium` (with a dev-only warning).
@@ -1173,59 +1131,45 @@ export interface TanreiCalloutVariantTokens {
   readonly titleColor: TanreiPaint;
   readonly bodyColor: TanreiPaint;
   readonly iconColor: TanreiPaint;
-  readonly focusRingColor: TanreiPaint;
   readonly infoContainerColor: TanreiPaint;
   readonly infoTitleColor: TanreiPaint;
   readonly infoBodyColor: TanreiPaint;
   readonly infoIconColor: TanreiPaint;
-  readonly infoFocusRingColor: TanreiPaint;
   readonly warningContainerColor: TanreiPaint;
   readonly warningTitleColor: TanreiPaint;
   readonly warningBodyColor: TanreiPaint;
   readonly warningIconColor: TanreiPaint;
-  readonly warningFocusRingColor: TanreiPaint;
   readonly errorContainerColor: TanreiPaint;
   readonly errorTitleColor: TanreiPaint;
   readonly errorBodyColor: TanreiPaint;
   readonly errorIconColor: TanreiPaint;
-  readonly errorFocusRingColor: TanreiPaint;
   readonly successContainerColor: TanreiPaint;
   readonly successTitleColor: TanreiPaint;
   readonly successBodyColor: TanreiPaint;
   readonly successIconColor: TanreiPaint;
-  readonly successFocusRingColor: TanreiPaint;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiCalloutVariants = { readonly [Key in TanreiCoreCalloutVariant]: TanreiCalloutVariantTokens } & { readonly [Key in TanreiCalloutVariant]?: TanreiCalloutVariantTokens };
 
 /**
  * `comp.callout`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`controls`, `sizes`, `variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`sizes`, `variants`), keyed by the axis value.
  */
 export interface TanreiCalloutTokens {
   readonly actionsGap: number;
   readonly actionsItemGap: number;
+  readonly closeButtonVariant: number;
   readonly containerGap: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
   readonly containerPaddingInlineEndWithClose: number;
   readonly containerShape: number;
-  readonly controlsHeight: number;
-  readonly controlsIconSize: number;
-  readonly controlsShape: number;
-  readonly focusedOpacity: number;
-  readonly hoveredOpacity: number;
   readonly iconGap: number;
   readonly iconOpacity: number;
   readonly iconSize: number;
-  readonly motionFeedbackDuration: number;
-  readonly motionStateDuration: number;
-  readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
-  readonly pressedOpacity: number;
   readonly titleGap: number;
-  readonly controls: TanreiCalloutControls;
   readonly sizes: TanreiCalloutSizes;
   readonly variants: TanreiCalloutVariants;
 }
@@ -5717,7 +5661,6 @@ declare module './vocabulary' {
   interface TanreiButtonSizeRegistry {}
   interface TanreiButtonVariantRegistry {}
   interface TanreiCalendarConditionRegistry {}
-  interface TanreiCalloutControlRegistry {}
   interface TanreiCalloutSizeRegistry {}
   interface TanreiCalloutVariantRegistry {}
   interface TanreiCardVariantRegistry {}

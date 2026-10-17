@@ -3298,154 +3298,6 @@ public struct TanreiCalendarTokens: Sendable, Equatable {
   }
 }
 
-/// A value of callout's `control` axis.
-///
-/// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiCalloutControl(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiCalloutControl: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
-  /// The token key of the value, for example `"medium"`.
-  public let rawValue: String
-  public init(rawValue: String) { self.rawValue = rawValue }
-  public var description: String { rawValue }
-
-  public static let close = TanreiCalloutControl(rawValue: "close")
-
-  /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiCalloutControl] = [.close]
-  /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiCalloutControl.close
-}
-
-/// How one control of callout is drawn in one state.
-public struct TanreiCalloutControlStateTokens: Sendable, Equatable {
-  public var containerColor: TanreiPaint
-  public var contentColor: TanreiPaint
-  public var stateLayerColor: TanreiPaint
-  public var infoContainerColor: TanreiPaint
-  public var infoContentColor: TanreiPaint
-  public var infoStateLayerColor: TanreiPaint
-  public var warningContainerColor: TanreiPaint
-  public var warningContentColor: TanreiPaint
-  public var warningStateLayerColor: TanreiPaint
-  public var errorContainerColor: TanreiPaint
-  public var errorContentColor: TanreiPaint
-  public var errorStateLayerColor: TanreiPaint
-  public var successContainerColor: TanreiPaint
-  public var successContentColor: TanreiPaint
-  public var successStateLayerColor: TanreiPaint
-  public var outlinedContainerColor: TanreiPaint
-  public var outlinedContentColor: TanreiPaint
-  public var outlinedStateLayerColor: TanreiPaint
-
-  public init(
-    containerColor: TanreiPaint,
-    contentColor: TanreiPaint,
-    stateLayerColor: TanreiPaint,
-    infoContainerColor: TanreiPaint,
-    infoContentColor: TanreiPaint,
-    infoStateLayerColor: TanreiPaint,
-    warningContainerColor: TanreiPaint,
-    warningContentColor: TanreiPaint,
-    warningStateLayerColor: TanreiPaint,
-    errorContainerColor: TanreiPaint,
-    errorContentColor: TanreiPaint,
-    errorStateLayerColor: TanreiPaint,
-    successContainerColor: TanreiPaint,
-    successContentColor: TanreiPaint,
-    successStateLayerColor: TanreiPaint,
-    outlinedContainerColor: TanreiPaint,
-    outlinedContentColor: TanreiPaint,
-    outlinedStateLayerColor: TanreiPaint
-  ) {
-    self.containerColor = containerColor
-    self.contentColor = contentColor
-    self.stateLayerColor = stateLayerColor
-    self.infoContainerColor = infoContainerColor
-    self.infoContentColor = infoContentColor
-    self.infoStateLayerColor = infoStateLayerColor
-    self.warningContainerColor = warningContainerColor
-    self.warningContentColor = warningContentColor
-    self.warningStateLayerColor = warningStateLayerColor
-    self.errorContainerColor = errorContainerColor
-    self.errorContentColor = errorContentColor
-    self.errorStateLayerColor = errorStateLayerColor
-    self.successContainerColor = successContainerColor
-    self.successContentColor = successContentColor
-    self.successStateLayerColor = successStateLayerColor
-    self.outlinedContainerColor = outlinedContainerColor
-    self.outlinedContentColor = outlinedContentColor
-    self.outlinedStateLayerColor = outlinedStateLayerColor
-  }
-}
-
-/// One control of callout: a complete set of values per state. A component draws a state from that
-/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
-public struct TanreiCalloutControlTokens: Sendable, Equatable {
-  public var enabled: TanreiCalloutControlStateTokens
-  public var hovered: TanreiCalloutControlStateTokens
-  public var focused: TanreiCalloutControlStateTokens
-  public var pressed: TanreiCalloutControlStateTokens
-
-  public init(
-    enabled: TanreiCalloutControlStateTokens,
-    hovered: TanreiCalloutControlStateTokens,
-    focused: TanreiCalloutControlStateTokens,
-    pressed: TanreiCalloutControlStateTokens
-  ) {
-    self.enabled = enabled
-    self.hovered = hovered
-    self.focused = focused
-    self.pressed = pressed
-  }
-
-  /// The tokens of this control of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `disabled`, which callout has no group for.
-  public subscript(state state: TanreiInteraction) -> TanreiCalloutControlStateTokens? {
-    switch state {
-    case .enabled: return enabled
-    case .hovered: return hovered
-    case .focused: return focused
-    case .pressed: return pressed
-    case .disabled: return nil
-    }
-  }
-}
-
-/// The controls of callout: named fields for the core values, `extra` for what a design system added.
-/// Read one with `controls[key]`.
-public struct TanreiCalloutControls: Sendable, Equatable {
-  public var close: TanreiCalloutControlTokens
-  /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiCalloutControl: TanreiCalloutControlTokens]
-
-  public init(
-    close: TanreiCalloutControlTokens,
-    extra: [TanreiCalloutControl: TanreiCalloutControlTokens] = [:]
-  ) {
-    self.close = close
-    self.extra = extra
-  }
-
-  /// The tokens of one callout control, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiCalloutControl) -> TanreiCalloutControlTokens? {
-    switch key {
-    case .close: return close
-    default: return extra[key]
-    }
-  }
-
-  /// Total lookup: a callout control this design system does not have reads the tokens of `close`, the
-  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiCalloutControl) -> TanreiCalloutControlTokens {
-    if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no callout control \"\(key.rawValue)\"; using \"close\"")
-    return close
-  }
-
-  /// Every callout control of this design system: the core ones, then what it added.
-  public var keys: [TanreiCalloutControl] { TanreiCalloutControl.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
-}
-
 /// A value of callout's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -3543,80 +3395,65 @@ public struct TanreiCalloutVariantTokens: Sendable, Equatable {
   public var titleColor: TanreiPaint
   public var bodyColor: TanreiPaint
   public var iconColor: TanreiPaint
-  public var focusRingColor: TanreiPaint
   public var infoContainerColor: TanreiPaint
   public var infoTitleColor: TanreiPaint
   public var infoBodyColor: TanreiPaint
   public var infoIconColor: TanreiPaint
-  public var infoFocusRingColor: TanreiPaint
   public var warningContainerColor: TanreiPaint
   public var warningTitleColor: TanreiPaint
   public var warningBodyColor: TanreiPaint
   public var warningIconColor: TanreiPaint
-  public var warningFocusRingColor: TanreiPaint
   public var errorContainerColor: TanreiPaint
   public var errorTitleColor: TanreiPaint
   public var errorBodyColor: TanreiPaint
   public var errorIconColor: TanreiPaint
-  public var errorFocusRingColor: TanreiPaint
   public var successContainerColor: TanreiPaint
   public var successTitleColor: TanreiPaint
   public var successBodyColor: TanreiPaint
   public var successIconColor: TanreiPaint
-  public var successFocusRingColor: TanreiPaint
 
   public init(
     containerColor: TanreiPaint,
     titleColor: TanreiPaint,
     bodyColor: TanreiPaint,
     iconColor: TanreiPaint,
-    focusRingColor: TanreiPaint,
     infoContainerColor: TanreiPaint,
     infoTitleColor: TanreiPaint,
     infoBodyColor: TanreiPaint,
     infoIconColor: TanreiPaint,
-    infoFocusRingColor: TanreiPaint,
     warningContainerColor: TanreiPaint,
     warningTitleColor: TanreiPaint,
     warningBodyColor: TanreiPaint,
     warningIconColor: TanreiPaint,
-    warningFocusRingColor: TanreiPaint,
     errorContainerColor: TanreiPaint,
     errorTitleColor: TanreiPaint,
     errorBodyColor: TanreiPaint,
     errorIconColor: TanreiPaint,
-    errorFocusRingColor: TanreiPaint,
     successContainerColor: TanreiPaint,
     successTitleColor: TanreiPaint,
     successBodyColor: TanreiPaint,
-    successIconColor: TanreiPaint,
-    successFocusRingColor: TanreiPaint
+    successIconColor: TanreiPaint
   ) {
     self.containerColor = containerColor
     self.titleColor = titleColor
     self.bodyColor = bodyColor
     self.iconColor = iconColor
-    self.focusRingColor = focusRingColor
     self.infoContainerColor = infoContainerColor
     self.infoTitleColor = infoTitleColor
     self.infoBodyColor = infoBodyColor
     self.infoIconColor = infoIconColor
-    self.infoFocusRingColor = infoFocusRingColor
     self.warningContainerColor = warningContainerColor
     self.warningTitleColor = warningTitleColor
     self.warningBodyColor = warningBodyColor
     self.warningIconColor = warningIconColor
-    self.warningFocusRingColor = warningFocusRingColor
     self.errorContainerColor = errorContainerColor
     self.errorTitleColor = errorTitleColor
     self.errorBodyColor = errorBodyColor
     self.errorIconColor = errorIconColor
-    self.errorFocusRingColor = errorFocusRingColor
     self.successContainerColor = successContainerColor
     self.successTitleColor = successTitleColor
     self.successBodyColor = successBodyColor
     self.successIconColor = successIconColor
-    self.successFocusRingColor = successFocusRingColor
   }
 }
 
@@ -3659,112 +3496,59 @@ public struct TanreiCalloutVariants: Sendable, Equatable {
   public var keys: [TanreiCalloutVariant] { TanreiCalloutVariant.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
-/// Values of callout that depend on the state but not on the variant.
-public struct TanreiCalloutStateTokens: Sendable, Equatable {
-  public var opacity: Double
-
-  public init(
-    opacity: Double
-  ) {
-    self.opacity = opacity
-  }
-}
-
 /// Component tokens of callout (comp.callout).
 public struct TanreiCalloutTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsItemGap: CGFloat
+  public var closeButtonVariant: Double
   public var containerGap: CGFloat
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerPaddingInlineEndWithClose: CGFloat
   public var containerShape: CGFloat
-  public var controlsHeight: CGFloat
-  public var controlsIconSize: CGFloat
-  public var controlsShape: CGFloat
   public var iconGap: CGFloat
   public var iconOpacity: Double
   public var iconSize: CGFloat
-  public var motionFeedbackDuration: Double
-  public var motionStateDuration: Double
-  public var motionStateEasing: TanreiCubicBezier
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
   public var titleGap: CGFloat
-  public var controls: TanreiCalloutControls
   public var sizes: TanreiCalloutSizes
   public var variants: TanreiCalloutVariants
-  /// Values of the hovered state shared by every variant.
-  public var hovered: TanreiCalloutStateTokens
-  /// Values of the focused state shared by every variant.
-  public var focused: TanreiCalloutStateTokens
-  /// Values of the pressed state shared by every variant.
-  public var pressed: TanreiCalloutStateTokens
 
   public init(
     actionsGap: CGFloat,
     actionsItemGap: CGFloat,
+    closeButtonVariant: Double,
     containerGap: CGFloat,
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerPaddingInlineEndWithClose: CGFloat,
     containerShape: CGFloat,
-    controlsHeight: CGFloat,
-    controlsIconSize: CGFloat,
-    controlsShape: CGFloat,
     iconGap: CGFloat,
     iconOpacity: Double,
     iconSize: CGFloat,
-    motionFeedbackDuration: Double,
-    motionStateDuration: Double,
-    motionStateEasing: TanreiCubicBezier,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
     titleGap: CGFloat,
-    controls: TanreiCalloutControls,
     sizes: TanreiCalloutSizes,
-    variants: TanreiCalloutVariants,
-    hovered: TanreiCalloutStateTokens,
-    focused: TanreiCalloutStateTokens,
-    pressed: TanreiCalloutStateTokens
+    variants: TanreiCalloutVariants
   ) {
     self.actionsGap = actionsGap
     self.actionsItemGap = actionsItemGap
+    self.closeButtonVariant = closeButtonVariant
     self.containerGap = containerGap
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerPaddingInlineEndWithClose = containerPaddingInlineEndWithClose
     self.containerShape = containerShape
-    self.controlsHeight = controlsHeight
-    self.controlsIconSize = controlsIconSize
-    self.controlsShape = controlsShape
     self.iconGap = iconGap
     self.iconOpacity = iconOpacity
     self.iconSize = iconSize
-    self.motionFeedbackDuration = motionFeedbackDuration
-    self.motionStateDuration = motionStateDuration
-    self.motionStateEasing = motionStateEasing
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
     self.titleGap = titleGap
-    self.controls = controls
     self.sizes = sizes
     self.variants = variants
-    self.hovered = hovered
-    self.focused = focused
-    self.pressed = pressed
-  }
-
-  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `enabled`, `disabled`, which callout has no group for.
-  public subscript(state state: TanreiInteraction) -> TanreiCalloutStateTokens? {
-    switch state {
-    case .enabled: return nil
-    case .hovered: return hovered
-    case .focused: return focused
-    case .pressed: return pressed
-    case .disabled: return nil
-    }
   }
 }
 
