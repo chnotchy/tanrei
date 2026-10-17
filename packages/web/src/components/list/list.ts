@@ -1617,8 +1617,14 @@ export class TanreiList extends LitElement {
 
   // ── Keyboard ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-  /** The list's children changed: what each item is, where each is drawn, and where focus stands. */
-  private readonly onSlotChange = () => {
+  /**
+   * The list's children changed: what each item is, where each is drawn, and where focus stands. Only the list's own
+   * slot changing is that: a slot inside an item (a component that slots its rows into List items) changing what it
+   * holds bubbles here too, once per item, and is the item's content — which the item tells the list itself
+   * (item-update). Re-read for each of those, a list of N such items built re-read itself N times: O(N²).
+   */
+  private readonly onSlotChange = (event: Event) => {
+    if (event.target !== event.currentTarget) return;
     // LST-35, LST-40: the product changed the items while one was carried — it goes back, nothing is moved.
     if (this.carry) {
       const carry = this.carry;
