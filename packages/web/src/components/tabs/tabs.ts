@@ -3,6 +3,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   GlyphMirrorController,
   OpenAxesController,
   PressController,
@@ -14,6 +15,7 @@ import {
   answersPress,
   choiceAttribute,
   compChoice,
+  countWork,
   findInteractive,
   hostAria,
   keepInPlace,
@@ -920,7 +922,14 @@ export class TanreiTabs extends LitElement {
   private readonly axes = new OpenAxesController(this, { component: 'tabs', behavior: 'TAB-7', axes: AXES });
 
   private readonly keys = new RovingKeys({ wrap: true });
-  private readonly children$ = new MutationObserver(() => this.sync());
+  /**
+   * The re-read of the tabs and panels (`sync()`), once per turn however many of them said they changed in it: a row of
+   * N tabs built, or N labels changed at once, re-reads its N tabs once — not once per tab, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the tabs' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
+  private readonly children$ = new MutationObserver(this.syncs.request);
   /**
    * TAB-15, TAB-17: a change of size or place (a font arriving, the text size, the row resizing) puts things back at
    * once. One observer for every row (TAB-41): the rows that changed in a frame are told together, so that they are
@@ -982,13 +991,15 @@ export class TanreiTabs extends LitElement {
 
   constructor() {
     super();
+    // Before every handler below: a tab that changed in this task is read as it is now.
+    for (const type of ['keydown', 'click', 'pointerdown', 'focusin']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('click', this.onClickCapture, { capture: true });
     this.addEventListener('click', this.onClick);
     this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('lostpointercapture', this.onLostCapture);
     this.addEventListener('focusin', this.onFocusIn);
-    this.addEventListener('tanrei-tab-update', () => this.sync());
+    this.addEventListener('tanrei-tab-update', this.syncs.request);
   }
 
   override connectedCallback() {
@@ -1000,7 +1011,7 @@ export class TanreiTabs extends LitElement {
     if (this.hasUpdated) this.observe(null, this.strip, this.scroller);
     // TAB-36, TAB-39: a row that enters the document joins its group and takes its choice before it is drawn.
     this.followGroup();
-    this.sync();
+    this.syncs.now();
   }
 
   override disconnectedCallback() {
@@ -1024,7 +1035,7 @@ export class TanreiTabs extends LitElement {
   linkView(view: LinkedTabView) {
     if (this.linked === view) return;
     this.linked = view;
-    this.sync();
+    this.syncs.now();
   }
 
   /** @internal TBV-16: the Tab view that draws this row as its own (null: none); it announces the row's selections (TBV-18). */
@@ -1036,7 +1047,7 @@ export class TanreiTabs extends LitElement {
   unlinkView(view: LinkedTabView) {
     if (this.linked !== view) return;
     this.linked = null;
-    this.sync();
+    this.syncs.now();
   }
 
   /** @internal The linked Tab view, if it is connected. */
@@ -1051,7 +1062,7 @@ export class TanreiTabs extends LitElement {
 
   /** @internal The panels changed in the linked view: the tabs control them anew (TAB-13). */
   relink() {
-    this.sync();
+    this.syncs.now();
   }
 
   /** The row's tabs, in order. */
@@ -1124,7 +1135,7 @@ export class TanreiTabs extends LitElement {
     if (group) group.choice = value;
     this.value = value;
     this.known = value;
-    if (now) this.sync();
+    if (now) this.syncs.now();
     // TAB-40: the followers' panels have changed in this task; where `hold` is now is read with everything else the
     // followers read, once, before the frame is drawn. (The row acted on is drawn first: a Tab view that starts its
     // switch measures itself, and does so before anything else is written.)
@@ -1210,7 +1221,7 @@ export class TanreiTabs extends LitElement {
   private followNow(together: Following[]) {
     if (!this.adopt() || !this.hasUpdated) return;
     this.following = together;
-    this.sync();
+    this.syncs.now();
     this.following = null;
     this.followed = this.value;
   }
@@ -1332,6 +1343,7 @@ export class TanreiTabs extends LitElement {
    */
   private sync() {
     if (!this.hasUpdated) return;
+    countWork('tabs.sync');
     this.syncChoices();
     // TAB-36: a row that gained a tab of its group's choice, or had one enabled, has it selected in this frame.
     this.adopt();
@@ -1350,11 +1362,16 @@ export class TanreiTabs extends LitElement {
 
     const selected = this.selectedTab;
     if (this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
-    const values = tabs.map((tab) => tab.value);
-    for (const tab of tabs) if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
-    for (const value of new Set(values.filter(Boolean))) {
-      if (values.filter((each) => each === value).length > 1) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
+    // Each value's first tab and first panel, looked up once each: a row of N tabs is read in O(N), never a search of
+    // every tab for each tab or panel.
+    const tabOfValue = new Map<string, TanreiTab>();
+    const repeated = new Set<string>();
+    for (const tab of tabs) {
+      if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
+      else if (tabOfValue.has(tab.value)) repeated.add(tab.value);
+      else tabOfValue.set(tab.value, tab);
     }
+    for (const value of repeated) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
@@ -1374,7 +1391,9 @@ export class TanreiTabs extends LitElement {
     // TAB-13: where a Tab view is linked, each tab controls the view's panel of its value, and the row's own panels are
     // all hidden (TBV-15: the view reports them).
     const view = this.linkedView;
-    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panels.find((panel) => panel.value === tab.value) : undefined);
+    const panelOfValue = new Map<string, TanreiTabPanel>();
+    for (const panel of panels) if (!panelOfValue.has(panel.value)) panelOfValue.set(panel.value, panel);
+    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panelOfValue.get(tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
     const appearing: TanreiTab[] = [];
     tabs.forEach((tab, index) => {
@@ -1388,7 +1407,7 @@ export class TanreiTabs extends LitElement {
     // TAB-13: the selected tab's panel, named by its tab; the others hidden; a panel with nothing focusable is a Tab stop.
     const shown = selected && !view ? ownPanelOf(selected) : undefined;
     for (const panel of panels) {
-      const tab = tabs.find((each) => each.value && each.value === panel.value);
+      const tab = panel.value ? tabOfValue.get(panel.value) : undefined;
       const focusable = [...panel.children].some((child) => findInteractive(child));
       hostAria(panel, {
         role: 'tabpanel',
@@ -2337,7 +2356,7 @@ export class TanreiTabs extends LitElement {
       }
     }
     // TAB-13: the tab list, named by the row's label.
-    this.sync();
+    this.syncs.now();
     if (changed.has('fullWidth') && changed.get('fullWidth') !== undefined) void this.selectedTab?.updateComplete.then(() => this.reveal(this.selectedTab, false));
   }
 
