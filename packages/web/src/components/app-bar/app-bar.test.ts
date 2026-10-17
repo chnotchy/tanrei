@@ -1,4 +1,4 @@
-// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…23) is cited by a test title, every
+// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…24) is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -874,6 +874,19 @@ test.describe('brand', () => {
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
+  });
+
+  test('APB-24: in a lockup the symbol stands at the wordmark’s height (lockup.symbol.size); alone, or in a compact window under responsive, it keeps symbol.size', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await mountFixtures(page, spec, { icons: true, fixtures: brandFixtures() });
+    const symbol = await bounds(image(page, 'small-brand-lockup', 'brand-symbol'));
+    const wordmark = await bounds(image(page, 'small-brand-lockup', 'brand-wordmark'));
+    expect(Math.abs(symbol.height - wordmark.height)).toBeLessThanOrEqual(0.5);
+    expect(symbol.height).toBeCloseTo(await resolveToken(page, T('brand-lockup-symbol-size')), 0);
+    expect(symbol.width).toBeCloseTo(symbol.height, 0);
+    expect((await bounds(image(page, 'small-brand-symbol', 'brand-symbol'))).height).toBeCloseTo(await resolveToken(page, T('brand-symbol-size')), 0);
+    await page.setViewportSize({ width: 390, height: 600 });
+    await expect.poll(async () => Math.round((await image(page, 'small-brand-responsive', 'brand-symbol').boundingBox())?.height ?? 0)).toBe(Math.round(await resolveToken(page, T('brand-symbol-size'))));
   });
 
   test('APB-23: an unknown brand-layout is a lockup and is reported; an image in brand beside the parts shows alone and is reported; a brand without brand-label, and two images in one slot, still draw and are reported', async ({ page }) => {
