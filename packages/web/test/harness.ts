@@ -2585,6 +2585,36 @@ export async function missingWords(page: Page): Promise<string[]> {
   return page.evaluate(() => (globalThis as unknown as { tanreiWordsApi: { missingWords: () => string[] } }).tanreiWordsApi.missingWords());
 }
 
+// ── What the active system does not have ───────────────────────────────────────────────────────────────────────────
+// `setAvailabilityMode()` and `unavailableUses()`, called in the page as a product's test calls them: the test loads
+// `@tanrei/web/availability` beside the bundle, a second copy of the module that shares the bundle's mode and record
+// (src/primitives/availability.ts keeps them under a registered symbol), as the words above do.
+let availabilityScript: string | undefined;
+async function availabilityApi(page: Page) {
+  if (await page.evaluate(() => 'tanreiAvailabilityApi' in globalThis)) return;
+  availabilityScript ??= buildSync({
+    entryPoints: [path.join(pkg, 'dist/availability.js')],
+    bundle: true,
+    write: false,
+    format: 'iife',
+    globalName: 'tanreiAvailabilityApi',
+    define: { 'process.env.NODE_ENV': '"development"' },
+  }).outputFiles[0].text;
+  await page.addScriptTag({ content: availabilityScript });
+}
+
+/** `setAvailabilityMode()` of `@tanrei/web`, called in the page as a product calls it. */
+export async function setAvailabilityMode(page: Page, mode: string) {
+  await availabilityApi(page);
+  await page.evaluate((m) => (globalThis as unknown as { tanreiAvailabilityApi: { setAvailabilityMode: (mode: unknown) => void } }).tanreiAvailabilityApi.setAvailabilityMode(m), mode);
+}
+
+/** `unavailableUses()` of `@tanrei/web`, asked in the page. */
+export async function unavailableUses(page: Page): Promise<string[]> {
+  await availabilityApi(page);
+  return page.evaluate(() => (globalThis as unknown as { tanreiAvailabilityApi: { unavailableUses: () => string[] } }).tanreiAvailabilityApi.unavailableUses());
+}
+
 /**
  * What a field frame draws and exposes as its requirement, for the tests of FLD-24 and its copies: the tag's (or the
  * chip's) words where one is drawn, whether the asterisk is drawn, the requirement said in words in the description,
