@@ -6160,7 +6160,7 @@
             },
             "tanrei.comp.side-sheet.close-button.variant": {
               "$value": 4,
-              "reason": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only (0036)."
+              "reason": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only."
             },
             "tanrei.comp.carousel.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}",

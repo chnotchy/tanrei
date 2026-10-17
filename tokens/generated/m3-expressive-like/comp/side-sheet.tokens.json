@@ -179,7 +179,7 @@
                 ]
               },
               "dev.tanrei.derive": {
-                "fixed": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only (0036)."
+                "fixed": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only."
               }
             }
           }
