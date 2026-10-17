@@ -290,7 +290,6 @@ async function explainToken({ token: id, scheme = 'light', ...reference }) {
     ...(rule ? { rule } : {}),
     cssVar: cssVar(id),
     description: token.$description,
-    ...(token.$deprecated ? { deprecated: token.$deprecated } : {}),
     // Core vocabulary, or an extension a layer of this system declared — with who declared it and why.
     ...(extension ? { extension: true, ...extension } : {}),
     vocabulary: meta.vocabulary ?? null,

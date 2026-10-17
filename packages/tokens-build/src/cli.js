@@ -15,7 +15,7 @@ import { nativeChain } from './layers.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
 import { PRESET_CRITERIA_NOTE, checkInvariants, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
 import { buildIR } from './ir.js';
-import { CONFIG, GENERATED_HEADER, REPO_ROOT, TOKENS_DIR, buildModel, buildModelFromBundle, lintValues } from './model.js';
+import { CONFIG, GENERATED_HEADER, REPO_ROOT, TOKENS_DIR, buildModel, buildModelFromBundle, deprecatedInSources, lintValues } from './model.js';
 import { readBundle } from './reader.js';
 import { generateSchemeFiles, loadDefaultSystem, loadSystem } from './scheme.js';
 
@@ -71,6 +71,22 @@ function sourceDocuments() {
     .flatMap((set) => set.sources.map((s) => s.$ref))
     .filter((ref) => !ref.startsWith('generated/'))
     .map((ref) => JSON.parse(fs.readFileSync(path.join(TOKENS_DIR, ref), 'utf8')));
+}
+
+/** Every hand-authored JSON file under tokens/ (not its generated outputs, the lock or the schemas), by repository path. */
+function handAuthoredTokenFiles() {
+  const skip = new Set(['generated', 'schema', 'vocabulary.lock.json']);
+  const files = {};
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (skip.has(entry.name)) continue;
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file);
+      else if (entry.name.endsWith('.json')) files[path.relative(REPO_ROOT, file)] = JSON.parse(fs.readFileSync(file, 'utf8'));
+    }
+  };
+  walk(TOKENS_DIR);
+  return files;
 }
 
 function failOn(title, failures) {
@@ -177,7 +193,7 @@ async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
 }
 
 async function generate() {
-  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments())]);
+  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments()), ...deprecatedInSources(handAuthoredTokenFiles())]);
   failOn('system layer problem(s)', checkLayers());
   failOn('icon set problem(s)', validateIconSets(REPO_ROOT));
   const iconSets = loadIconSets(REPO_ROOT);
@@ -232,7 +248,7 @@ async function generate() {
 }
 
 async function validate() {
-  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments())]);
+  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments()), ...deprecatedInSources(handAuthoredTokenFiles())]);
   failOn('system layer problem(s)', checkLayers());
   failOn('icon set problem(s)', validateIconSets(REPO_ROOT));
   generateSchemes();
