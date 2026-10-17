@@ -165,8 +165,6 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
      * costs a twentieth of a second now, and the argument is ignored.)
      */
     warnings: () => (warnings ??= resolved.model().then(checkInvariants)),
-    /** Declarations core has since made redundant. */
-    notices: system.notices ?? [],
   };
   if (wantsModel) await resolved.warnings();
   return resolved;
@@ -178,7 +176,7 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
  * `resolveChain`. (It existed because a system read whole held a gigabyte; it is kept for its callers. A scheme is
  * still read only when `load` or `warnings` needs it — the warnings need the role colors of all of them.)
  * @param {object[]} chain layers, root first
- * @returns {Promise<{ id: string, chain: object[], digest: string, system: object, files: Record<string, object>, notices: object[],
+ * @returns {Promise<{ id: string, chain: object[], digest: string, system: object, files: Record<string, object>,
  *   tokens: (scheme?: string) => Record<string, object>, load: (scheme: string) => Promise<Record<string, object>>, warnings: () => Promise<string[]> }>}
  *   `tokens(scheme)` answers for a scheme that is loaded (the light one, or one a `load` has settled) and throws otherwise.
  */
@@ -208,7 +206,6 @@ export async function resolveChainByScheme(chain) {
     load,
     // From the light tokens and the role colors of every scheme: the model's warnings without the model's component colors.
     warnings: () => (warnings ??= invariantModel(files, id, reader.tokens('light'), reader).then(checkInvariants)),
-    notices: system.notices ?? [],
   };
 }
 

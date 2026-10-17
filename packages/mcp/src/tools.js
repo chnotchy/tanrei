@@ -505,7 +505,6 @@ async function proposeExtension({ kind, near, component, axis, from, value, scal
         built: true,
         how: `Built "${ctx.id}" + this fragment with the real pipeline (a stand-in for the rationale). Nothing was written.`,
         newTokens: { total: added.length, values: Object.fromEntries(added.slice(0, 40).map((other) => [other, briefValue(after[other])])) },
-        ...(trial.system.notices?.length ? { notices: trial.system.notices } : {}),
         // The parent is resolved once per chain digest and kept; the trial's warnings read its light tokens and role colors only.
         newWarnings: (await trial.warnings()).filter((warning) => !before.has(warning)),
       };
