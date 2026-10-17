@@ -67,6 +67,8 @@ async function measure() {
   const laidOut = document.createElement('style');
   laidOut.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
   document.head.append(laidOut);
+  // A fixture is drawn when its stage comes near the view: every one is drawn here, as the page draws it.
+  for (const template of gallery.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(document.importNode(template.content, true));
   const tags = new Set([...gallery.querySelectorAll('*')].map((e) => e.localName).filter((n) => n.includes('-')));
   await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
   await Promise.all([...gallery.querySelectorAll('*')].map((e) => e.updateComplete).filter(Boolean));

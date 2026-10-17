@@ -3,7 +3,9 @@
 //
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { register } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 
 register('./vite-shim.mjs', import.meta.url);
@@ -53,6 +55,12 @@ describe('the gallery of fixtures', () => {
     assert.deepEqual(windowOf(specs.dialog, byId('dialog', 'basic')), { width: 640, height: 640 });
     assert.deepEqual(windowOf(specs['date-time-picker'], { id: 'x', props: { layout: 'horizontal' } }), { width: 800, height: 640 });
     assert.deepEqual(windowOf(specs.tooltip, { id: 'x', props: {} }), { width: 320, height: 200 });
+  });
+
+  test('a fixture drawn in the page holds the room its baseline shows, less the stage’s padding', () => {
+    const header = fs.readFileSync(fileURLToPath(new URL('../../../packages/web/snapshots/button/filled-medium.png', import.meta.url))).subarray(16, 24);
+    const stage = stageOf(specs.button, specs.button.fixtures.find((f) => f.id === 'filled-medium'), true);
+    assert.deepEqual(stage.reserve, { width: header.readUInt32BE(0) / 2 - 32, height: header.readUInt32BE(4) / 2 - 32 });
   });
 
   test('a fixture as wide as its layout starts its stage at that width and fills it', () => {

@@ -32,6 +32,9 @@ export async function comparePreviews({ componentCss, still }) {
     '.docs-file-tree > figure > [data-part=stage] > *',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
+  // A fixture of the gallery is written in a template and drawn when its stage comes near the view: every one is drawn
+  // here, in the page and in its HTML alike, as the page would draw it.
+  for (const root of [document, served]) for (const template of root.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(root.importNode(template.content, true));
   const live = [...document.querySelectorAll(SELECTOR)];
   const source = [...served.querySelectorAll(SELECTOR)];
   if (live.length !== source.length) return { error: `the page holds ${live.length} previews, its HTML ${source.length}` };
