@@ -1,4 +1,4 @@
-// <tanrei-tabs>, <tanrei-tab> and <tanrei-tab-panel>, driven by specs/tabs.spec.json: every behaviour id (TAB-1…45, TAB-49, TAB-50) is
+// <tanrei-tabs>, <tanrei-tab> and <tanrei-tab-panel>, driven by specs/tabs.spec.json: every behaviour id (TAB-1…45, TAB-49…61) is
 // cited by a test title, every fixture has a baseline, and every state, look and choice of kind is read back from the
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -11,6 +11,8 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tabs');
+/** The fixtures whose tabs run in a row: what the horizontal rules of layout (TAB-14, TAB-16, TAB-34) are held to. */
+const ROWS = spec.fixtures.filter((f) => f.props.orientation !== 'vertical');
 type P = Page;
 const row = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-tabs`);
 const tabs = (page: P, id: string) => row(page, id).locator('tanrei-tab');
@@ -569,8 +571,9 @@ test.describe('layout', () => {
       return f.items!.findIndex((item) => item.props.value === f.props.value);
     };
     // The same height on every tab of every row: the row less track.padding above and below — 40 without stacked icons,
-    // 56 with them (the default system's numbers, read from its tokens).
-    for (const f of spec.fixtures) {
+    // 56 with them (the default system's numbers, read from its tokens). (A column is held to TAB-51 and TAB-52 by its
+    // own tests.)
+    for (const f of ROWS) {
       const n = selectedOf(f.id);
       const [p, b] = [await pill(page, f.id, n), await bounds(tabAt(page, f.id, n))];
       // (A small row has its own height: TAB-44.)
@@ -988,7 +991,9 @@ test.describe('layout', () => {
       for (const other of f.items!.map((_, m) => m).filter((m) => m !== n)) {
         const o = await pill(page, f.id, other);
         const c = await bounds(content(page, f.id, other));
-        expect(o.x + o.width <= c.x + 0.5 || o.x >= c.x + c.width - 0.5, `${f.id}/${other}`).toBe(true);
+        // (Apart along the row, or down a column.)
+        const apart = f.props.orientation === 'vertical' ? o.y + o.height <= c.y + 0.5 || o.y >= c.y + c.height - 0.5 : o.x + o.width <= c.x + 0.5 || o.x >= c.x + c.width - 0.5;
+        expect(apart, `${f.id}/${other}`).toBe(true);
         expect(await css(content(page, f.id, other), 'clip-path'), `${f.id}/${other}`).toBe('none');
       }
     }
@@ -1304,7 +1309,8 @@ test.describe('concentric at every size', () => {
     const half = await halfPixel(page);
     expect(inset).toBe(4);
     const heights = new Set<number>();
-    for (const f of spec.fixtures) {
+    // (A column's inset is TAB-52's, and its corners TAB-58's: their own tests.)
+    for (const f of ROWS) {
       const last = f.items!.length - 1;
       for (const [n, side] of [[0, 'start'], [last, 'end']] as const) {
         await choose(page, f.id, n);
@@ -3987,6 +3993,254 @@ test.describe('variants, the track, sizes and the transition', () => {
         expect(r.x + r.width - (first.x + first.width), id).toBeLessThanOrEqual((await resolveToken(page, T('track-padding'))) + 0.5);
       }
     }
+  });
+});
+
+test.describe('vertical', () => {
+  const V = 'vertical';
+  const only = (...ids: string[]) => ids.map((id) => spec.fixtures.find((f) => f.id === id)!);
+  /** Every tab's box on the page, in order. */
+  const boxes = async (page: P, id: string) => {
+    const out: { x: number; y: number; width: number; height: number }[] = [];
+    for (let n = 0; n < (await tabs(page, id).count()); n++) out.push(await bounds(tabAt(page, id, n)));
+    return out;
+  };
+
+  test('TAB-54, TAB-12: in a column Down and Up Arrow move focus and select, wrapping, Home and End go to the ends, and Right and Left do nothing in either direction; in a row Down and Up do nothing', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only(V, 'vertical-disabled-tab', 'primary') });
+    await wire(page);
+    await tabAt(page, V, 0).focus();
+    const moves: string[] = [];
+    for (const key of ['ArrowDown', 'ArrowUp', 'ArrowUp', 'Home', 'End', 'ArrowDown']) {
+      await page.keyboard.press(key);
+      moves.push((await focused(page)) as string);
+    }
+    expect(moves).toEqual(['notifications', 'general', 'accessibility', 'general', 'accessibility', 'general']);
+    expect(await log(page)).toEqual(['notifications:notifications', 'general:general', 'accessibility:accessibility', 'general:general', 'accessibility:accessibility', 'general:general']);
+    // Right and Left belong to no axis of a column: nothing moves, nothing is selected, in either layout direction.
+    for (const dir of ['ltr', 'rtl']) {
+      await page.locator(`[data-fixture="${V}"]`).evaluate((el, d) => el.setAttribute('dir', d), dir);
+      await tabAt(page, V, 0).focus();
+      for (const key of ['ArrowRight', 'ArrowLeft']) {
+        await page.keyboard.press(key);
+        expect(await focused(page), `${key}, ${dir}`).toBe('general');
+      }
+    }
+    expect((await log(page)).length).toBe(6);
+    // A disabled tab is skipped (TAB-2).
+    await tabAt(page, 'vertical-disabled-tab', 1).focus();
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('appearance');
+    // A row keeps Right and Left; Down and Up are the page's.
+    await tabAt(page, 'primary', 0).focus();
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('overview');
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('activity');
+  });
+
+  test('TAB-55: a column’s tab list is exposed as vertical, a row’s with the default orientation; every tab keeps its role, name, state and position', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only(V, 'primary') });
+    await expect(row(page, V).locator('[role="tablist"]')).toHaveAttribute('aria-orientation', 'vertical');
+    await expect(row(page, 'primary').locator('[role="tablist"]')).not.toHaveAttribute('aria-orientation');
+    await expect(page.getByRole('tablist', { name: 'Settings' })).toHaveCount(1);
+    await expect(tabAt(page, V, 0)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, V, 4)).toHaveAttribute('aria-posinset', '5');
+    await expect(tabAt(page, V, 4)).toHaveAttribute('aria-setsize', '5');
+    await expect(tabAt(page, V, 4)).toHaveAttribute('aria-label', 'Accessibility');
+  });
+
+  test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every container are the tab less track.padding all round', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'vertical-small', 'vertical-secondary') });
+    const [inset, padMedium, padSmall, medium, small, target] = await Promise.all(
+      [T('track-padding'), T('container-padding-inline-medium'), T('container-padding-inline-small'), T('container-height-medium'), T('container-height-small'), '--tanrei-sys-target-pointer'].map((n) => resolveToken(page, n)),
+    );
+    // Small is lower than the minimum target: in a column its tabs are the target tall, not 32.
+    expect(small).toBeLessThan(target);
+    for (const [id, height, pad] of [[V, Math.max(medium, target), padMedium], ['vertical-small', Math.max(small, target), padSmall], ['vertical-secondary', Math.max(medium, target), padMedium]] as const) {
+      const all = await boxes(page, id);
+      for (const [n, b] of all.entries()) {
+        expect(b.height, `${id} ${n}`).toBeCloseTo(height, 0);
+        expect([b.x, b.width], `${id} ${n}`).toEqual([expect.closeTo(all[0].x, 1), expect.closeTo(all[0].width, 1)]);
+        if (n) expect(b.y, `${id} ${n}`).toBeCloseTo(all[n - 1].y + all[n - 1].height, 0);
+        // The icon at the start edge, the label after it.
+        const [i, l] = [await bounds(icon(page, id, n)), await bounds(label(page, id, n))];
+        expect(i.x, `${id} ${n}`).toBeCloseTo(b.x + pad, 0);
+        expect(l.x, `${id} ${n}`).toBeGreaterThan(i.x + i.width - 0.5);
+        // The container, hovered or not, is the tab less the inset all round.
+        const c = await seat(page, id, n);
+        expect([c.x - b.x, c.y - b.y, b.x + b.width - (c.x + c.width), b.y + b.height - (c.y + c.height)], `${id} ${n}`).toEqual([expect.closeTo(inset, 0), expect.closeTo(inset, 0), expect.closeTo(inset, 0), expect.closeTo(inset, 0)]);
+      }
+      // The column hugs its widest tab: narrower than the 360 the stage gives the row.
+      expect((await bounds(track(page, id))).width, id).toBeLessThan(300);
+      // The indicator is the selected tab's container.
+      const f = spec.fixtures.find((each) => each.id === id)!;
+      const n = f.items!.findIndex((item) => item.props.value === f.props.value);
+      const [p, c] = [await pill(page, id, n), await seat(page, id, n)];
+      expect([p.x, p.y, p.width, p.height], id).toEqual([expect.closeTo(c.x, 0), expect.closeTo(c.y, 0), expect.closeTo(c.width, 0), expect.closeTo(c.height, 0)]);
+    }
+  });
+
+  test('TAB-52, TAB-17: Down Arrow slides the indicator down the column over the indicator motion, from its box on the one tab to its box on the next', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await mountFixtures(page, spec, { icons: true, fixtures: only(V) });
+    const [from, to] = [await seat(page, V, 0), await seat(page, V, 1)];
+    await tabAt(page, V, 0).focus();
+    await page.keyboard.press('ArrowDown');
+    expect(await slides(page, V)).toBeGreaterThan(0);
+    const half = await holdSlide(page, V, 0.5);
+    const mid = await pill(page, V, 0);
+    expect(mid.y).toBeCloseTo(from.y + (to.y - from.y) * half.progress, 0);
+    expect([mid.x, mid.width, mid.height]).toEqual([expect.closeTo(from.x, 0), expect.closeTo(from.width, 0), expect.closeTo(from.height, 0)]);
+    await finishSlide(page, V);
+    const end = await pill(page, V, 1);
+    expect([end.x, end.y, end.width, end.height]).toEqual([expect.closeTo(to.x, 0), expect.closeTo(to.y, 0), expect.closeTo(to.width, 0), expect.closeTo(to.height, 0)]);
+  });
+
+  test('TAB-53, TAB-21: under m3-like the underline is a line on the column’s end edge as tall as the selected tab, and the divider runs down the whole end edge — the left one in right-to-left', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, system: 'm3-like', fixtures: only(V, 'vertical-rtl') });
+    const thickness = await resolveToken(page, T('primary-underline-thickness'));
+    expect(thickness).toBeGreaterThan(0);
+    for (const [id, n, rtl] of [[V, 0, false], ['vertical-rtl', 1, true]] as const) {
+      const [l, tab, divider, outer] = [await line(page, id, n), await bounds(tabAt(page, id, n)), await bounds(row(page, id).locator('.divider')), await bounds(row(page, id).locator('.row'))];
+      expect([l.width, l.height, l.y], id).toEqual([expect.closeTo(thickness, 1), expect.closeTo(tab.height, 0), expect.closeTo(tab.y, 0)]);
+      expect(rtl ? l.x - tab.x : tab.x + tab.width - (l.x + l.width), id).toBeCloseTo(0, 0);
+      expect([divider.height, divider.y], id).toEqual([expect.closeTo(outer.height, 0), expect.closeTo(outer.y, 0)]);
+      expect(rtl ? divider.x - outer.x : outer.x + outer.width - (divider.x + divider.width), id).toBeCloseTo(0, 0);
+    }
+  });
+
+  test('TAB-21, TAB-51: in right-to-left the column stands at the row’s right edge, still runs from top to bottom, and each tab’s icon and label start at its right edge', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only('vertical-rtl') });
+    const id = 'vertical-rtl';
+    const host = await bounds(row(page, id));
+    const all = await boxes(page, id);
+    expect(all[0].x + all[0].width).toBeCloseTo(host.x + host.width, 0);
+    expect(all[1].y).toBeGreaterThan(all[0].y);
+    const pad = await resolveToken(page, T('container-padding-inline-medium'));
+    for (const n of [0, 2]) {
+      const [i, l] = [await bounds(icon(page, id, n)), await bounds(label(page, id, n))];
+      expect(i.x + i.width).toBeCloseTo(all[n].x + all[n].width - pad, 0);
+      expect(l.x + l.width).toBeLessThan(i.x + 0.5);
+    }
+  });
+
+  test('TAB-56, TAB-15: a column taller than its row scrolls inside the track, which keeps the row’s height; the selected tab is in view from the first frame and End brings the last one in; fullWidth changes nothing and is reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: only('vertical-scroll', V) });
+    const id = 'vertical-scroll';
+    const outer = await bounds(track(page, id));
+    expect(outer.height).toBeCloseTo(240, 0);
+    expect(await track(page, id).evaluate((el) => el.scrollHeight > el.clientHeight + 100)).toBe(true);
+    const inView = async (n: number) => {
+      const [b, o] = [await bounds(tabAt(page, id, n)), await bounds(track(page, id))];
+      return b.y >= o.y - 0.5 && b.y + b.height <= o.y + o.height + 0.5;
+    };
+    expect(await inView(10)).toBe(true);
+    expect(await inView(0)).toBe(false);
+    await tabAt(page, id, 10).focus();
+    await page.keyboard.press('End');
+    await expect.poll(() => inView(11)).toBe(true);
+    await expect(tabAt(page, id, 11)).toHaveAttribute('aria-selected', 'true');
+    // fullWidth is not a column's.
+    const before = await boxes(page, V);
+    await row(page, V).evaluate(async (el: any) => {
+      el.fullWidth = true;
+      await el.updateComplete;
+    });
+    await frames(page, 3);
+    expect(await boxes(page, V)).toEqual(before);
+    await expect.poll(() => seen.filter((w) => w.includes('TAB-56')).length).toBeGreaterThan(0);
+  });
+
+  test('TAB-57: a mouse dragged down a column carries the indicator and selects the tab it is released on; a touch drags nothing; a mouse moved sideways is not taken', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountFixtures(page, spec, { icons: true, fixtures: only(V) });
+    await wire(page);
+    const [a, b] = [await bounds(tabAt(page, V, 0)), await bounds(tabAt(page, V, 1))];
+    const x = a.x + a.width / 2;
+    const down = (dy: number): Step[] => Array.from({ length: 8 }, (_, i) => ({ x, y: (dy * (i + 1)) / 8, dt: 16 }));
+    // A touch: nothing is taken.
+    await drag(page, V, 0, down(b.y - a.y), { pointerType: 'touch' });
+    await frames(page);
+    expect(await log(page)).toEqual([]);
+    // A mouse moved sideways: not taken.
+    await drag(page, V, 0, Array.from({ length: 8 }, (_, i) => ({ x: x + (60 * (i + 1)) / 8, dt: 16 })), { pointerType: 'mouse' });
+    await frames(page);
+    expect(await log(page)).toEqual([]);
+    // A mouse held halfway down: the indicator is halfway, nothing is selected yet.
+    await drag(page, V, 0, down((b.y - a.y) / 2), { pointerType: 'mouse', up: null });
+    expect(await dragging(page, V)).toBe(true);
+    await finishCatchUp(page, V);
+    const [p0, p1, mid] = [await seat(page, V, 0), await seat(page, V, 1), await pill(page, V, 0)];
+    expect(mid.y).toBeCloseTo((p0.y + p1.y) / 2, 0);
+    await expect(tabAt(page, V, 0)).toHaveAttribute('aria-selected', 'true');
+    // Cancelled: it returns, and nothing is selected (TAB-30).
+    await pointer(page, V, 'pointercancel');
+    await frames(page);
+    expect(await log(page)).toEqual([]);
+    // A mouse released a whole tab down selects it, with one change.
+    await drag(page, V, 0, down(b.y - a.y), { pointerType: 'mouse' });
+    await expect(tabAt(page, V, 1)).toHaveAttribute('aria-selected', 'true');
+    expect(await log(page)).toEqual(['notifications:notifications']);
+  });
+
+  test('TAB-58: a column’s track is rounded by the indicator’s corner plus track.padding — concentric with it at the ends — not by half its width, and the corner grows with the indicator at 200 % text', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V, 'primary') });
+    const inset = await resolveToken(page, T('track-padding'));
+    const corner = () => track(page, V).evaluate((el) => Number.parseFloat(getComputedStyle(el).borderTopLeftRadius));
+    const p = await pill(page, V, 0);
+    expect(p.radius).toBeCloseTo(p.height / 2, 1);
+    expect(await corner()).toBeCloseTo(p.height / 2 + inset, 1);
+    expect(await corner()).toBeLessThan((await bounds(track(page, V))).width / 2 - 10);
+    // A row's track is as before: its own shape, at most half its height.
+    expect(await track(page, 'primary').evaluate((el) => Number.parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThan(1000);
+    await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
+    await expect.poll(async () => (await pill(page, V, 0)).height).toBeGreaterThan(p.height + 4);
+    const taller = await pill(page, V, 0);
+    // (The inset is in the text size's units too: twice as large now.)
+    await expect.poll(corner).toBeCloseTo(taller.height / 2 + (await resolveToken(page, T('track-padding'))), 1);
+  });
+
+  test('TAB-59: indicatorOffset draws the indicator along the column, between the selected tab and the one below it or above it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only('vertical-secondary') });
+    const id = 'vertical-secondary';
+    const [s0, s1, s2] = [await seat(page, id, 0), await seat(page, id, 1), await seat(page, id, 2)];
+    for (const [offset, to] of [[0.5, s2], [-0.5, s0]] as const) {
+      await row(page, id).evaluate((el: any, o) => (el.indicatorOffset = o), offset);
+      const now = await pill(page, id, 1);
+      expect(now.y, String(offset)).toBeCloseTo(s1.y + (to.y - s1.y) * 0.5, 0);
+      expect(now.x, String(offset)).toBeCloseTo(s1.x, 0);
+    }
+  });
+
+  test('TAB-60: an orientation the tabs do not define lays them out as a row, and a debug build reports it', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('odd', THREE, { value: 'overview' })] });
+    await row(page, 'odd').evaluate(async (el: any) => {
+      el.setAttribute('orientation', 'diagonal');
+      await el.updateComplete;
+    });
+    await frames(page, 3);
+    const [a, b] = [await bounds(tabAt(page, 'odd', 0)), await bounds(tabAt(page, 'odd', 1))];
+    expect(b.y).toBeCloseTo(a.y, 0);
+    expect(b.x).toBeGreaterThan(a.x + a.width - 0.5);
+    await expect(row(page, 'odd').locator('[role="tablist"]')).not.toHaveAttribute('aria-orientation');
+    await expect.poll(() => seen.join('\n')).toMatch(/orientation "diagonal" is not an orientation of the tabs/);
+  });
+
+  test('TAB-61, TAB-25: in a column narrower than its widest tab a label is truncated at its end and shown whole in the tooltip; the tabs are as wide as the column', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(V) });
+    await page.addStyleTag({ content: '[data-fixture="vertical"] tanrei-tabs::part(tablist) { inline-size: 120px; }' });
+    await frames(page, 3);
+    for (const b of await boxes(page, V)) expect(b.width).toBeCloseTo(120, 0);
+    expect(await truncated(label(page, V, 4))).toBe(true);
+    expect(await truncated(label(page, V, 2))).toBe(false);
+    await expect(tip(page, V, 4)).toHaveCount(1);
+    await expect(tip(page, V, 2)).toHaveCount(0);
+    await tabAt(page, V, 4).hover();
+    await expect.poll(() => tip(page, V, 4).evaluate((el: any) => el.open as boolean)).toBe(true);
+    await expect(tabAt(page, V, 4)).toHaveAttribute('aria-label', 'Accessibility');
   });
 });
 

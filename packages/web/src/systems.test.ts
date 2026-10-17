@@ -64,7 +64,9 @@ const SUBJECTS = [
   // glyph of its icon set, the title's and the body's text styles, and the close button.
   subject('callout', (fixture) => fixture.id === 'closable-title-actions', { icons: true }),
   // Primary with icons: the stacked icon and label, the selected text and filled glyph, the indicator's weight and corners, the divider.
-  subject('tabs', (fixture) => fixture.id === 'primary-icons', { icons: true }),
+  // And the column: the indicator inset all round, the track's concentric corners, and the underline and the divider
+  // on its end edge where a preset draws them (m3-like).
+  subject('tabs', (fixture) => fixture.id === 'primary-icons' || fixture.id === 'vertical', { icons: true }),
   // At rest under the primary tabs: the panel's clip and corners (square in every preset); the page turn the m3 presets
   // and cupertino draw shows only in the Tab view's own test frames.
   subject('tab-view', (fixture) => fixture.id === 'default'),

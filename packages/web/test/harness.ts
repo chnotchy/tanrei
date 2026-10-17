@@ -1310,10 +1310,11 @@ const STAGING: Record<string, Staging> = {
   tag: {
     css: () => `.stage:has(> tanrei-tag) { box-sizing: border-box; max-inline-size: 360px; }`,
   },
-  // A row of tabs is 360 wide and has no panel (TAB-14's verify). `track` is true, false or null (TAB-49): the attribute
-  // is absent for null, bare for true and `track="false"` for false, as the tooltip's `arrow` is.
+  // A row of tabs is 360 wide and has no panel (TAB-14's verify); a column of them stands at its start (TAB-51), and the
+  // column that scrolls is held to a row 240 tall (TAB-56's verify). `track` is true, false or null (TAB-49): the
+  // attribute is absent for null, bare for true and `track="false"` for false, as the tooltip's `arrow` is.
   tabs: {
-    css: () => `.stage > tanrei-tabs { inline-size: 360px; }`,
+    css: () => `.stage > tanrei-tabs { inline-size: 360px; }\n[data-fixture='vertical-scroll'] tanrei-tabs { block-size: 240px; }`,
     props: ({ track, ...props }) => ({ ...props, ...(track === undefined ? {} : { track: track === false ? 'false' : track }) }),
   },
   // A Tab view is 360 wide and each panel shows its content as body text inside sys.space.space200 of padding, which is
