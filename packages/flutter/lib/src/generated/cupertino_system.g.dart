@@ -2587,7 +2587,6 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     labelTypescale: _typescaleBody,
     markSize: 16.0,
     markWeight: 300.0,
-    markWidth: 2.0,
     motionFeedbackDuration: 450,
     motionMarkEnterScale: 0.5,
     motionMarkScaleDuration: 350,

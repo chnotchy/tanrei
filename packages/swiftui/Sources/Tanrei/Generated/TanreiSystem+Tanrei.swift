@@ -2473,7 +2473,6 @@ private let tanreiCheckboxTokens = TanreiCheckboxTokens(
   labelTypescale: tanreiTypescale.body,
   markSize: 20,
   markWeight: 500,
-  markWidth: 2,
   motionFeedbackDuration: 450,
   motionMarkEnterScale: 0.5,
   motionMarkScaleDuration: 350,
