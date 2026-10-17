@@ -2,7 +2,7 @@
 title: Barra de la aplicación
 description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Su borde inferior se mantiene como el borde de la cabecera de la pantalla, y toma su aspecto desplazado en cuanto el contenido se desplaza por debajo de ella.
 translationOf: components/app-bar.mdx
-sourceHash: 78382bf6a7fa5dac348ab77b2669e347f860d1bd
+sourceHash: ffb51ef8a4a9d33a5815c0a5336da5dad5688ee6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -254,14 +254,17 @@ Un sistema de diseño puede añadir tamaños. En SwiftUI, Compose, Flutter y Rea
 
 ### Marca
 
-Un producto puede poner su marca en la barra como el enlace a su primera página. La barra la coloca después del botón de navegación, en una celda tan grande como la de un botón de icono, de modo que una marca cuadrada dibujada a `comp.app-bar.brand.size` queda en línea con los iconos. La barra le da `comp.app-bar.brand.color` salvo que tus propios estilos la coloreen, así que una marca dibujada en el color actual sigue el esquema y el contraste.
+Un producto puede poner su logo en la barra como el enlace a su primera página. Da a la barra la dirección (`brandHref`, `brand-href` en la web) y el nombre del producto (`brandLabel`): la barra dibuja un solo enlace, con ese nombre, alrededor de las imágenes que le des, y oculta las imágenes a las tecnologías de apoyo, de modo que el nombre se lee una sola vez. Coloca la marca después del botón de navegación, en una celda tan grande como la de un botón de icono, y le da `comp.app-bar.brand.color` salvo que tus imágenes tengan colores propios.
 
-- **Una imagen (lo predeterminado).** En la web, da a tu propio enlace `slot="brand"`, con la marca dentro y el nombre del producto como texto alternativo. Se muestra en todos los anchos.
-- **El símbolo y el logotipo por separado.** Pon `brandLayout` en `split` (`brand-layout` en la web) y da el enlace dos veces: dibujado con el símbolo (`slot="brand-symbol"`) y con el logotipo (`slot="brand-wordmark"`). La barra muestra el logotipo mientras la ventana es medium o más ancha y el símbolo mientras es compact, nunca los dos. Dentro de un app shell sigue la clase de ventana del shell.
-- Muestra una sola marca a la vez. No escribas el nombre del producto como texto junto a la marca ni uses el título para ello: el título es el nombre de la pantalla.
-- SwiftUI, Compose, Flutter y React Native todavía no dibujan la marca.
+- **Una imagen.** Un único archivo de logo en `slot="brand"`, dibujado a `comp.app-bar.brand.image.height` de alto.
+- **Solo el símbolo.** En `slot="brand-symbol"`, dibujado a `comp.app-bar.brand.symbol.size` de alto, donde está el icono de un botón de icono.
+- **Solo el logotipo.** En `slot="brand-wordmark"`, dibujado a `comp.app-bar.brand.wordmark.height` de alto.
+- **El símbolo y el logotipo juntos.** Da los dos. Por defecto (`brandLayout` en `lockup`) quedan uno junto al otro, a `comp.app-bar.brand.lockup.gap` de distancia y alineados como indica `comp.app-bar.brand.lockup.alignment`.
+- **Según el ancho de la ventana.** Da los dos y pon `brandLayout` en `responsive` (`brand-layout` en la web): la barra muestra el logotipo mientras la ventana es medium o más ancha y el símbolo mientras es compact, nunca los dos. Dentro de un app shell sigue la clase de ventana del shell.
 
-La cabecera de este sitio usa lo predeterminado: una imagen, el símbolo de Tanrei.
+La barra da tamaño a cada imagen y conserva sus proporciones. No uses el título para el nombre del producto: el título es el nombre de la pantalla. SwiftUI, Compose, Flutter y React Native todavía no dibujan la marca.
+
+La cabecera de este sitio muestra solo el logotipo de Tanrei, en todos los anchos.
 
 ### Recomendado
 
