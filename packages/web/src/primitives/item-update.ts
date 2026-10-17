@@ -22,6 +22,8 @@ export function notifyItemUpdate(item: HTMLElement, type: string): void {
  */
 export class CoalescedSync {
   private queued = false;
+  /** A re-read is running: a handler it sets off (focus it moves, an event it fires) does not start another inside it. */
+  private running = false;
 
   constructor(private readonly run: () => void) {}
 
@@ -30,20 +32,27 @@ export class CoalescedSync {
     if (this.queued) return;
     this.queued = true;
     queueMicrotask(() => {
-      if (!this.queued) return;
-      this.queued = false;
-      this.run();
+      if (this.queued) this.now();
     });
   };
 
-  /** Re-reads now if a request is queued: before a read that needs the items' context in this task. */
+  /**
+   * Re-reads now if a request is queued: before a read that needs the items' context in this task. Inside a re-read
+   * that is running, the queued one stays queued and runs after it.
+   */
   flush(): void {
-    if (this.queued) this.now();
+    if (this.queued && !this.running) this.now();
   }
 
   /** Re-reads now, and settles a queued request with it. */
   now(): void {
     this.queued = false;
-    this.run();
+    const outer = this.running;
+    this.running = true;
+    try {
+      this.run();
+    } finally {
+      this.running = outer;
+    }
   }
 }
