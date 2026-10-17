@@ -152,7 +152,7 @@ test('list_systems: the shipped systems, and a product’s chain', async () => {
   assert.deepEqual([tanrei.patternRules, tanrei.valueChanges, tanrei.palettes], [0, 0, []]);
   assert.ok((shippedLayer('core').rules ?? []).length >= 18 && Object.keys(shippedLayer('core').tokens).length >= 30);
   assert.ok('accent' in shippedLayer('core').palettes);
-  assert.equal(m3.extends, 'tanrei');
+  assert.deepEqual([m3.extends, expressive.extends, cupertino.extends], ['core', 'm3-like', 'core'], 'the presets extend the root, not the default system');
   assert.ok(m3.palettes.includes('tertiary (intent roles)'));
   assert.deepEqual(m3.droppedPalettes, ['accent']);
   // An imitation preset is not held to Tanrei's accessibility criteria in any contrast scheme: its
@@ -282,7 +282,7 @@ test('resolve: value, where it comes from, and the CSS custom property', async (
 
   // A component token: the alias chain down to the reference tier, several ids at once, raw values on request.
   const many = (await server.call('resolve', { tokens: ['tanrei.comp.button.container.shape', 'tanrei.comp.button.filled.hovered.container.color', 'tanrei.sys.color.scrim'], system: 'm3-like', raw: true })).data;
-  assert.deepEqual(many.chain, ['core', 'tanrei', 'm3-like']);
+  assert.deepEqual(many.chain, ['core', 'm3-like']);
   assert.deepEqual([many.tokens[0].value, many.tokens[0].kind, many.tokens[0].aliasChain], ['9999px', 'alias', ['tanrei.sys.shape.corner.full']]);
   assert.equal(many.tokens[1].rule.fn, 'mix');
   assert.equal(many.tokens[1].$value.colorSpace, 'srgb');
@@ -305,7 +305,7 @@ test('resolve: value, where it comes from, and the CSS custom property', async (
 
   // A preset's extensions resolve like a product's: m3-expressive-like's two sizes, each member valued by the preset.
   const sized = (await server.call('resolve', { tokens: ['tanrei.comp.button.container.height.xsmall', 'tanrei.comp.button.container.height.xlarge', 'tanrei.comp.button.outline.width.xlarge', 'tanrei.comp.button.container.gap.xlarge'], system: 'm3-expressive-like' })).data;
-  assert.deepEqual(sized.chain, ['core', 'tanrei', 'm3-like', 'm3-expressive-like']);
+  assert.deepEqual(sized.chain, ['core', 'm3-like', 'm3-expressive-like']);
   assert.deepEqual(sized.tokens.map((t) => [t.value, t.extension, t.declaredBy, t.setBy]), [['32px', true, 'm3-expressive-like', 'm3-expressive-like'], ['136px', true, 'm3-expressive-like', 'm3-expressive-like'], ['3px', true, 'm3-expressive-like', 'm3-expressive-like'], ['16px', true, 'm3-expressive-like', 'm3-expressive-like']]);
   assert.equal((await server.call('resolve', { token: 'tanrei.comp.button.container.height.xlarge', system: 'm3-like' })).data.tokens[0].error.includes('not in system "m3-like"'), true, 'and exist only where they are declared');
 
@@ -537,7 +537,7 @@ test('validate_layer: the philosophy is enforced, with the way out', async () =>
     })
   ).data;
   assert.equal(bad.valid, false);
-  assert.deepEqual(bad.chain, ['core', 'tanrei', 'm3-like', 'bad']);
+  assert.deepEqual(bad.chain, ['core', 'm3-like', 'bad']);
   assert.equal(bad.problems.length, 6);
   assert.match(bad.problems[0], /tanrei\.sys\.color\.brand: not a token of this system\.[\s\S]*declare it under "vocabulary" with a "rationale"[\s\S]*"bad\.comp\.…"[\s\S]*propose_extension[\s\S]*declare a palette/);
   assert.doesNotMatch(bad.problems[0], /cannot be added/);
@@ -768,7 +768,7 @@ test('an inline layer may extend another inline layer, or a layer file in `dir` 
   const base = { id: 'house', name: 'House', extends: 'm3-like', tokens: { 'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason: 'A roomier rhythm for the whole product family.' } } };
   const app = { id: 'shop', name: 'Shop', extends: 'house', tokens: { 'tanrei.sys.behavior.pressed-feedback': { $value: 'dim', reason: 'The shop dims on press.' } } };
   const inline = (await server.call('validate_layer', { layer: app, parents: [base] })).data;
-  assert.deepEqual([inline.valid, inline.problems, inline.chain], [true, [], ['core', 'tanrei', 'm3-like', 'house', 'shop']]);
+  assert.deepEqual([inline.valid, inline.problems, inline.chain], [true, [], ['core', 'm3-like', 'house', 'shop']]);
   // `dim` on a base whose pressed opacity is 1 draws nothing: valid, and said like any other warning.
   assert.match(inline.warnings.first.join('\n'), /pressed-feedback is "dim", but every pressed opacity is 1 .*a press would show nothing/);
   // explain_token shows the choice as the layer wrote it — the name, not the index the documents keep.
@@ -793,7 +793,7 @@ test('an inline layer may extend another inline layer, or a layer file in `dir` 
   fs.writeFileSync(path.join(dir, 'house.system.json'), JSON.stringify(base));
   fs.writeFileSync(path.join(dir, 'shop.system.json'), JSON.stringify({ ...app, tokens: {} }));
   const local = (await server.call('validate_layer', { layer: app, dir })).data;
-  assert.deepEqual([local.valid, local.chain], [true, ['core', 'tanrei', 'm3-like', 'house', 'shop']]);
+  assert.deepEqual([local.valid, local.chain], [true, ['core', 'm3-like', 'house', 'shop']]);
   // Problems of a parent in the request are reported with the parent's name.
   const broken = (await server.call('validate_layer', { layer: app, parents: [{ ...base, tokens: { 'tanrei.sys.space.nope': { scale: 2 } } }] })).data;
   assert.equal(broken.valid, false);
