@@ -51,13 +51,17 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
                     <header>
                       <p data-part="title" id={`${id}-title`} data-tanrei-code="plain"><code>{stage.id}</code></p>
                       {stage.drawn && (
-                        <div data-part="actions" data-pagefind-ignore>
+                        <div data-part="actions" data-pagefind-ignore data-stage-actions={stage.kind === 'window' ? 4 : 3}>
+                          {/* Written in a template and drawn when the stage comes near the view (lib/fixture-stages.ts): a
+                              page of 368 fixtures would otherwise define over a thousand buttons as it loads. */}
+                          <template>
                           <tanrei-button class="docs-stage-action" variant="text" size="small" toggle label={t.stages.dark} data-stage-theme><span slot="icon" data-pagefind-ignore>dark_mode</span></tanrei-button>
                           {stage.kind === 'window' && (
                             <tanrei-button class="docs-stage-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
                           )}
                           <tanrei-copy-button class="docs-stage-action" size="small" text={stage.markup} label={t.stages.copy} copied-label={t.stages.copied} failed-label={t.stages.copyFailed}></tanrei-copy-button>
                           <tanrei-button class="docs-stage-action" variant="text" size="small" href={fixturePageHref(spec.name, stage.id)} target="new" target-label={t.stages.newTab} label={named(t.stages.openAlone, { id: stage.id })}><span slot="icon" data-pagefind-ignore>open_in_new</span></tanrei-button>
+                          </template>
                         </div>
                       )}
                     </header>
@@ -216,7 +220,20 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
   .docs-stage-box :global(:not(:defined)) {
     visibility: hidden;
   }
-  /* The actions hold the room of a small icon-only Button before they are defined, and are not drawn without script. */
+  /* The actions hold their room before they are drawn — as many small icon-only Buttons as the stage has, and the
+     gaps between them — and each holds the room of one before it is defined; without script there are none. */
+  [data-stage-actions]:has(> template) {
+    min-inline-size: calc(3 * var(--tanrei-comp-button-container-height-small) + 2 * var(--tanrei-comp-figure-header-gap));
+    min-block-size: var(--tanrei-comp-button-container-height-small);
+  }
+  [data-stage-actions='4']:has(> template) {
+    min-inline-size: calc(4 * var(--tanrei-comp-button-container-height-small) + 3 * var(--tanrei-comp-figure-header-gap));
+  }
+  @media (scripting: none) {
+    [data-stage-actions]:has(> template) {
+      display: none;
+    }
+  }
   :where(tanrei-button, tanrei-copy-button).docs-stage-action:not(:defined) {
     display: inline-block;
     inline-size: var(--tanrei-comp-button-container-height-small);

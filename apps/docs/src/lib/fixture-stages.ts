@@ -78,6 +78,36 @@ function scheme(stage: HTMLElement, box: HTMLElement) {
   if (pageScheme() === 'dark') apply();
 }
 
+/**
+ * A stage's actions are written in a template and drawn when the stage comes near the view: each is a Button or a Copy
+ * button, and a page of hundreds of fixtures would define them all as it loads (on the Field's page, over a thousand).
+ */
+function actions(stage: HTMLElement, box: HTMLElement) {
+  const holder = stage.querySelector<HTMLElement>('[data-stage-actions]');
+  const template = holder?.querySelector<HTMLTemplateElement>(':scope > template');
+  if (!holder || !template) return;
+  template.replaceWith(template.content.cloneNode(true));
+  scheme(stage, box);
+  stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
+    const frame = box.querySelector('iframe');
+    frame?.setAttribute('inert', '');
+    frame?.contentWindow?.location.reload();
+  });
+}
+
+const near = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      near.unobserve(entry.target);
+      const stage = entry.target as HTMLElement;
+      const box = stage.querySelector<HTMLElement>('.docs-stage-box');
+      if (box) actions(stage, box);
+    }
+  },
+  { rootMargin: '50% 0px' },
+);
+
 for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-drawn]')) {
   const box = stage.querySelector<HTMLElement>('.docs-stage-box');
   const canvas = stage.querySelector<HTMLElement>('.docs-stage-canvas');
@@ -85,12 +115,16 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   if (stage.dataset.stage === 'window') windowStage(canvas, handle);
   else if (handle) inlineStage(stage, canvas, handle);
-  scheme(stage, box);
-  stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
-    const frame = box.querySelector('iframe');
-    frame?.setAttribute('inert', '');
-    frame?.contentWindow?.location.reload();
-  });
+  // A window follows the page's scheme from its first load, before its actions are drawn.
+  const frame = box.querySelector<HTMLIFrameElement>('iframe');
+  if (frame && pageScheme() === 'dark') {
+    box.dataset.tanreiTheme = 'dark';
+    frame.addEventListener('load', () => {
+      const root = frame.contentDocument?.documentElement;
+      if (root && box.dataset.tanreiTheme) root.dataset.tanreiTheme = box.dataset.tanreiTheme;
+    });
+  }
+  near.observe(stage);
 }
 
 /**
