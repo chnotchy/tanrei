@@ -18,13 +18,18 @@ const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json
 // lives on <html> because component tokens are resolved at :root.
 const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast');if(c==='medium'||c==='high')document.documentElement.setAttribute('data-tanrei-contrast',c)}catch(e){}`;
 
+// The public URL (Cloudflare Pages, custom domain). Gives every page its canonical URL and the sitemap.
+const site = 'https://tanrei.chnotchy.com';
+const title = 'Tanrei';
+
 export default defineConfig({
-  // The public URL (Cloudflare Pages, custom domain). Gives every page its canonical URL and the sitemap.
-  site: 'https://tanrei.chnotchy.com',
+  site,
   integrations: [
     starlight({
-      title: 'Tanrei',
+      title,
       description: 'One design system for Web Components, SwiftUI, Jetpack Compose, Flutter and React Native.',
+      // The icons and the social image are the brand marks (design/brand/), rendered by the build: src/pages/favicon.svg.ts,
+      // favicon.ico.ts, apple-touch-icon.png.ts and og.png.ts (src/lib/brand.mjs). The SVG follows the reader's scheme.
       favicon: '/favicon.svg',
       defaultLocale: 'root',
       // English at the root; the translations and which of their pages must exist are in i18n/locales.mjs.
@@ -63,6 +68,14 @@ export default defineConfig({
         { tag: 'script', content: contrastBootstrap },
         { tag: 'script', content: tabsBootstrap },
         { tag: 'script', content: listingBootstrap },
+        // The ICO for a browser that does not read the SVG favicon; `sizes` keeps one that does from choosing the ICO.
+        { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
+        // A shared link of any page shows the wordmark (the framework already says `summary_large_image`).
+        { tag: 'meta', attrs: { property: 'og:image', content: new URL('/og.png', site).href } },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+        { tag: 'meta', attrs: { property: 'og:image:alt', content: title } },
       ],
       // The page that was not found is the docs' own (src/pages/404.astro and one for each language): Tanrei's Empty
       // state in the page frame, in place of the framework's page.
