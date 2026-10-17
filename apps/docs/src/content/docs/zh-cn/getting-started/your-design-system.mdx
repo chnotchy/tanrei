@@ -2,7 +2,7 @@
 title: 你自己的设计系统
 description: 在你的产品中只保留一个层文件。一条命令就能为你发布的每个平台写出令牌和代码，并且都在同一个拉取请求里。
 translationOf: getting-started/your-design-system.mdx
-sourceHash: 0a64c98b512636e1f2a35d3c4dbbb2b7e61e5f27
+sourceHash: f0aacb9b2c77df2484e95318e8f788358f113d78
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -105,6 +105,22 @@ npx tanrei studio
 
 会**针对你的层文件**打开 Theme Studio：你所做的编辑会随时保存到该文件（可以像其他改动一样用 git 审阅），同时在编辑器中所做的修改绝不会被覆盖，“Build”则会运行 `tanrei build`。它只监听 `127.0.0.1`，打印出的链接带有一次性密钥。本站上的 Studio 是同一个工具，只是用导入和导出代替了文件。
 
+## 用你的系统检查代码
+
+```bash
+npx tanrei audit src
+```
+
+会读取产品的代码——脚本（JS、TS、JSX）、标记（HTML、Vue、Svelte、Astro）和样式表（CSS、Sass、Less）——并报告你的系统没有的东西，每一处都给出文件、行和列，以及应改写成什么：
+
+- 系统没有的组件的元素——页面、模板、JSX 或字符串中的 `<tanrei-fab-menu>`、导入的 React 包装组件，或指向它的 CSS 选择器——并附上系统为同一用途提供的组件、拥有它的系统，以及把它纳入时要在你的层里写的那一行；
+- 从不适合该系统的入口导入——在默认系统的产品中导入 `@tanrei/web/m3-like` 或 `@tanrei/react/all`——并附上适合的入口；
+- 直接写出的、系统去掉了的 `variant="…"`，并附上系统提供的取值。
+
+检查依据的是产品的系统（`tanrei.json`），或 `--system` 指定的系统：`m3-like` 这样的内置系统，或一个层文件。可以传入文件、目录，或用引号括起的 glob（`'src/**/*.{ts,tsx,html,css}'`）；读取目录时跳过 `node_modules` 和隐藏目录。`--format json` 以数据形式输出结果。发现问题时以退出码 1 结束，因此可以在 CI 中与 `tanrei build --check` 并列运行；无法运行时退出码为 2。MCP 服务器的 `check_usage` 做的是同一项检查。
+
+它读的是文本，而不是运行中的页面：注释会被跳过，但放在变量里的 variant，或由片段拼成的标签名，是看不到的。
+
 ## Tailwind CSS 与 shadcn/ui
 
 在 `outputs` 中加入 `"tailwind"` 或 `"shadcn"`。这两个文件都只是把**名称映射**到 Tanrei 的自定义属性上，因此主题、对比度级别和实时调节量在底层照常工作。
@@ -120,7 +136,7 @@ npx tanrei studio
 
 - `tokens` 输出是一个自包含的 **DTCG 2025.10** 打包文件，带有标准的解析器。任何设计令牌工具都能读取它；生成它的层文件随包一同携带，每个分组还在 `$extensions["dev.tanrei.llm"]` 中带有面向代理的使用指引。
 - 其中还有 `components.json`，即你的系统提供的组件：每个组件都写有它的元素（或类）、React 中的名称以及注册它的模块；系统没有的组件也列在其中，并注明是哪一层把它排除的、应改用什么。读取它的代理只会推荐你的产品能用的组件。Tanrei 自带的每个系统也各有一份：`@tanrei/web/systems/<id>.components.json`。
-- `@tanrei/mcp` 是一个 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。在你的仓库中工作的代理可以搜索词汇、查看某个值的来历、比较不同的系统、**提议一项扩展**（新的 Button 尺寸、新的一级、你自己的令牌）并看到由此得到的值，还可以**在写入之前校验对层的修改**。它同时会被告知规则：通过层来修改值；扩展词汇只能添加，并且要附带理由；每个固定的值都要给出原因；绝不触碰阈值。至于界面本身，它根据系统的组件清单（components manifest）和规范作答：**该系统有哪些组件**（没有的组件该用什么代替）、一个组件的 props、事件和行为规则，以及**你的代码里有哪些元素、导入和变体是该系统没有的**，连同它们的位置。
+- `@tanrei/mcp` 是一个 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。在你的仓库中工作的代理可以搜索词汇、查看某个值的来历、比较不同的系统、**提议一项扩展**（新的 Button 尺寸、新的一级、你自己的令牌）并看到由此得到的值，还可以**在写入之前校验对层的修改**。它同时会被告知规则：通过层来修改值；扩展词汇只能添加，并且要附带理由；每个固定的值都要给出原因；绝不触碰阈值。至于界面本身，它根据系统的组件清单（components manifest）和规范作答：**该系统有哪些组件**（没有的组件该用什么代替）、一个组件的 props、事件和行为规则，以及**你的代码里有哪些元素、导入和变体是该系统没有的**，连同它们的位置——与 `tanrei audit` 做的是同一项检查。
 
   首次发布之后，从 npm 注册它（在那之前，请看本页顶部的“首次发布之前”）：
 
