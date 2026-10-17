@@ -817,7 +817,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` :host { display: block; /* APB-10: the system insets the bar reaches under and keeps its content out of (0 where the platform has none). */ --_inset-top: env(safe-area-inset-top, 0px); --_inset-left: env(safe-area-inset-left, 0px); --_inset-right: env(safe-area-inset-right, 0px); ${unsafeCSS(condition('flat'))} } :host([scrolled]) { ${unsafeCSS(condition('scrolled'))} } /* APB-18: the divider visibility — its attribute's, else comp.app-bar.outline.visibility's. */ ${dividerVisibilityHost(`${PREFIX}-outline-visibility`)} ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))} ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\\n'))} :host([hidden]) { display: none; } /* APB-1, APB-2, APB-4, APB-10: the parent's full width; the condition's color, elevation and bottom edge; the color reaches under the top inset and the side insets while the content stays inside them. */ .container { box-sizing: border-box; position: relative; display: flex; flex-direction: column; inline-size: 100%; padding-block-start: var(--_inset-top); padding-left: var(--_inset-left); padding-right: var(--_inset-right); background: var(--_c); box-shadow: var(--_e); /* APB-3: a change of condition moves over the condition motion. */ transition-property: background-color, box-shadow; transition-duration: ${t('motion-condition-duration')}; transition-timing-function: ${t('motion-condition-easing')}; } /* APB-1, APB-2: the bottom edge, inside the bar (it never changes the bar's height). APB-18, always: the scrolled condition's edge in both conditions, so that it stands still. */ .outline { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: ${t('outline-width')}; background: ${t('scrolled-outline-color')}; pointer-events: none; transition: background-color ${unsafeCSS(CONDITION_MOTION)}; } /* APB-18, scroll: each condition's own edge (none at rest in the default system). */ ${whenScroll( '.container', (container) => ` ${container} .outline { background: var(--_o); }`, )} /* APB-4: the top row — at least the small bar's height (a large bar's top row is always the small height); the navigation item padding-inline from the start edge, the title block, the actions padding-inline from the end edge, container.gap between them, each centred in the row. Logical, so right-to-left mirrors the order. */ .row { box-sizing: border-box; display: flex; align-items: center; gap: ${t('container-gap')}; min-block-size: ${t('container-height-small')}; padding-inline: ${t('container-padding-inline')}; } /* APB-4: without a navigation item the title block starts title.inset from the start edge; without actions it ends title.inset from the end edge. */ .row:not(.has-navigation) { padding-inline-start: ${t('title-inset')}; } .row:not(.has-actions) { padding-inline-end: ${t('title-inset')}; } .navigation, .actions { display: flex; flex: none; align-items: center; } .row:not(.has-navigation) .navigation, .row:not(.has-actions) .actions { display: none; } /* APB-4: comp.app-bar.actions.gap between two actions. */ .actions { gap: ${t('actions-gap')}; } /* APB-11: the items are laid out, never restyled — each keeps its own box, centred in a cell as large as the minimum target it answers to (BTN-5), so a neighbour's target never overlaps it and the row is at least that high. */ ::slotted(*) { display: inline-flex; align-items: center; justify-content: center; min-inline-size: var(--tanrei-sys-target-pointer); min-block-size: var(--tanrei-sys-target-pointer); } @media (pointer: coarse) { ::slotted(*) { min-inline-size: var(--tanrei-sys-target-touch); min-block-size: var(--tanrei-sys-target-touch); } } /* APB-5, APB-6: the title block — the title, and the subtitle under it, centred in the row as a block; at the start after the navigation slot, or (center) centred on the bar's full width, narrowed equally on both sides by the element's measured balance so it never runs under either slot. */ .title-area { box-sizing: border-box; flex: 1 1 0; min-inline-size: 0; } .row.center .title-area { padding-inline-start: var(--_balance-start, 0px); padding-inline-end: var(--_balance-end, 0px); text-align: center; } .title-block { display: flex; flex-direction: column; justify-content: center; min-inline-size: 0; } .title { margin: 0; font: ${t('title-typescale-small-font')}; letter-spacing: ${t('title-typescale-small-letter-spacing')}; color: ${t('title-color')};${unsafeCSS(oneLine)} } /* APB-5: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */ ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing')), { shadow: true }))} .subtitle { font: ${t('subtitle-typescale-small-font')}; letter-spacing: ${t('subtitle-typescale-small-letter-spacing')}; color: ${t('subtitle-color')};${unsafeCSS(oneLine)} } /* APB-17: the title and the subtitle are each a run of their own, in the direction of their first strong character: a left-to-right title in a right-to-left bar keeps its order and loses its right end when it is cut (APB-5, APB-7), never its beginning. Their lines are still placed by the layout: at its start edge, or centred (APB-6) (src/styles/product-text.ts). */ ${productText(':is(.title, .subtitle)', { align: 'start' })} .row.center :is(.title, .subtitle) { text-align: center; } /* APB-7, APB-8: a large bar's own title row under the top row — at least the size's height less the top row's, its block ending padding-block-end above the bottom edge, starting (and ending) title.inset from the edges. It collapses by moving up under the top row: the element pulls the block up by the scrolled distance and this row clips it. */ .expanded { display: flex; flex-direction: column; overflow: hidden; } .block { box-sizing: border-box; position: relative; display: flex; flex: none; flex-direction: column; justify-content: flex-end; min-block-size: calc(var(--_h) - ${t('container-height-small')}); margin-block-start: calc(-1 * var(--_collapse, 0px)); padding-inline: ${t('title-inset')}; padding-block-end: ${t('container-padding-block-end')}; } .block .title { font: var(--_title-font); letter-spacing: var(--_title-ls); } /* APB-7: a large bar's title's too. */ ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)', { shadow: true }))} .block .subtitle { font: var(--_subtitle-font); letter-spacing: var(--_subtitle-ls); } @media (prefers-reduced-motion: reduce) { .container, .outline { transition: none; } } @media (forced-colors: active) { .outline { background: CanvasText; } ${whenScroll( '.container', (container) => ` ${container} .outline { background: transparent; } :host([scrolled]) ${container} .outline { background: CanvasText; }`, )} } `"
+          "default": "css` :host { display: block; /* APB-10: the system insets the bar reaches under and keeps its content out of (0 where the platform has none). */ --_inset-top: env(safe-area-inset-top, 0px); --_inset-left: env(safe-area-inset-left, 0px); --_inset-right: env(safe-area-inset-right, 0px); ${unsafeCSS(condition('flat'))} } :host([scrolled]) { ${unsafeCSS(condition('scrolled'))} } /* APB-18: the divider visibility — its attribute's, else comp.app-bar.outline.visibility's. */ ${dividerVisibilityHost(`${PREFIX}-outline-visibility`)} ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))} ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\\n'))} :host([hidden]) { display: none; } /* APB-1, APB-2, APB-4, APB-10: the parent's full width; the condition's color, elevation and bottom edge; the color reaches under the top inset and the side insets while the content stays inside them. */ .container { box-sizing: border-box; position: relative; display: flex; flex-direction: column; inline-size: 100%; padding-block-start: var(--_inset-top); padding-left: var(--_inset-left); padding-right: var(--_inset-right); background: var(--_c); box-shadow: var(--_e); /* APB-3: a change of condition moves over the condition motion. */ transition-property: background-color, box-shadow; transition-duration: ${t('motion-condition-duration')}; transition-timing-function: ${t('motion-condition-easing')}; } /* APB-1, APB-2: the bottom edge, inside the bar (it never changes the bar's height). APB-18, always: the scrolled condition's edge in both conditions, so that it stands still. */ .outline { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: ${t('outline-width')}; background: ${t('scrolled-outline-color')}; pointer-events: none; transition: background-color ${unsafeCSS(CONDITION_MOTION)}; } /* APB-18, scroll: each condition's own edge (none at rest in the default system). */ ${whenScroll( '.container', (container) => ` ${container} .outline { background: var(--_o); }`, )} /* APB-4: the top row — at least the small bar's height (a large bar's top row is always the small height); the navigation item padding-inline from the start edge, the title block, the actions padding-inline from the end edge, container.gap between them, each centred in the row. Logical, so right-to-left mirrors the order. */ .row { box-sizing: border-box; display: flex; align-items: center; gap: ${t('container-gap')}; min-block-size: ${t('container-height-small')}; padding-inline: ${t('container-padding-inline')}; } /* APB-4: without a navigation item the title block starts title.inset from the start edge; without actions it ends title.inset from the end edge. */ .row:not(.has-navigation) { padding-inline-start: ${t('title-inset')}; } /* APB-19: a brand begins the bar where a navigation item would. */ .row.has-brand:not(.has-navigation) { padding-inline-start: ${t('container-padding-inline')}; } .row:not(.has-actions) { padding-inline-end: ${t('title-inset')}; } .lead, .actions { display: flex; flex: none; align-items: center; } /* APB-19: the brand stands after the navigation item at the gap between two icon buttons. The two items are the lead's own flex items, so that a navigation item the product does not draw (an app shell's menu button where the navigation has a place) leaves no gap before the brand. */ .lead { gap: ${t('actions-gap')}; } .navigation { display: contents; } .row:not(.has-navigation) .navigation, .row:not(.has-navigation):not(.has-brand) .lead, .row:not(.has-actions) .actions { display: none; } /* APB-19, APB-22: the brand — one link (or one image) in a cell as large as an icon button's, padded so that a symbol of brand.symbol.size stands where the icon of an icon button stands; its focus indicator around the cell, in the brand's shape. */ .brand { box-sizing: border-box; display: inline-flex; flex: none; align-items: center; justify-content: center; min-inline-size: var(--tanrei-sys-target-pointer); min-block-size: var(--tanrei-sys-target-pointer); padding-inline: calc((var(--tanrei-sys-target-pointer) - ${t('brand-symbol-size')}) / 2); border-radius: ${t('brand-shape')}; color: ${t('brand-color')}; text-decoration: none; outline: none; } @media (pointer: coarse) { .brand { min-inline-size: var(--tanrei-sys-target-touch); min-block-size: var(--tanrei-sys-target-touch); padding-inline: calc((var(--tanrei-sys-target-touch) - ${t('brand-symbol-size')}) / 2); } } .brand[hidden] { display: none; } a.brand:focus-visible { outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring); outline-offset: var(--tanrei-sys-focus-offset); } /* APB-20: the images in one row — a lockup's symbol and wordmark lockup.gap apart, aligned as lockup.alignment names — each at its token's height and as wide as its proportions make it. */ .images { display: inline-flex; align-items: ${t('brand-lockup-alignment')}; gap: ${t('brand-lockup-gap')}; } .images ::slotted(*) { flex: none; display: block; inline-size: auto; max-inline-size: none; } .images slot[name='brand']::slotted(*) { block-size: ${t('brand-image-height')}; } .images slot[name='brand-symbol']::slotted(*) { block-size: ${t('brand-symbol-size')}; } .images slot[name='brand-wordmark']::slotted(*) { block-size: ${t('brand-wordmark-height')}; } /* APB-24: beside the wordmark in a lockup, the symbol stands at the wordmark's height. */ .images.lockup slot[name='brand-symbol']::slotted(*) { block-size: ${t('brand-lockup-symbol-size')}; } /* APB-21: an image the brand does not show is in no box, so it is neither drawn nor exposed — said of the image itself too, so that an engine that reads its own style (WebKit) leaves it out of the accessibility tree. */ slot[hidden] { display: none; } .images slot[hidden]::slotted(*) { display: none; } /* APB-4: comp.app-bar.actions.gap between two actions. */ .actions { gap: ${t('actions-gap')}; } /* APB-11: the items are laid out, never restyled — each keeps its own box, centred in a cell as large as the minimum target it answers to (BTN-5), so a neighbour's target never overlaps it and the row is at least that high. */ :is(slot[name='navigation'], slot[name='actions'])::slotted(*) { display: inline-flex; align-items: center; justify-content: center; min-inline-size: var(--tanrei-sys-target-pointer); min-block-size: var(--tanrei-sys-target-pointer); } @media (pointer: coarse) { :is(slot[name='navigation'], slot[name='actions'])::slotted(*) { min-inline-size: var(--tanrei-sys-target-touch); min-block-size: var(--tanrei-sys-target-touch); } } /* APB-5, APB-6: the title block — the title, and the subtitle under it, centred in the row as a block; at the start after the navigation slot, or (center) centred on the bar's full width, narrowed equally on both sides by the element's measured balance so it never runs under either slot. */ .title-area { box-sizing: border-box; flex: 1 1 0; min-inline-size: 0; } .row.center .title-area { padding-inline-start: var(--_balance-start, 0px); padding-inline-end: var(--_balance-end, 0px); text-align: center; } .title-block { display: flex; flex-direction: column; justify-content: center; min-inline-size: 0; } .title { margin: 0; font: ${t('title-typescale-small-font')}; letter-spacing: ${t('title-typescale-small-letter-spacing')}; color: ${t('title-color')};${unsafeCSS(oneLine)} } /* APB-5: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */ ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing')), { shadow: true }))} .subtitle { font: ${t('subtitle-typescale-small-font')}; letter-spacing: ${t('subtitle-typescale-small-letter-spacing')}; color: ${t('subtitle-color')};${unsafeCSS(oneLine)} } /* APB-17: the title and the subtitle are each a run of their own, in the direction of their first strong character: a left-to-right title in a right-to-left bar keeps its order and loses its right end when it is cut (APB-5, APB-7), never its beginning. Their lines are still placed by the layout: at its start edge, or centred (APB-6) (src/styles/product-text.ts). */ ${productText(':is(.title, .subtitle)', { align: 'start' })} .row.center :is(.title, .subtitle) { text-align: center; } /* APB-7, APB-8: a large bar's own title row under the top row — at least the size's height less the top row's, its block ending padding-block-end above the bottom edge, starting (and ending) title.inset from the edges. It collapses by moving up under the top row: the element pulls the block up by the scrolled distance and this row clips it. */ .expanded { display: flex; flex-direction: column; overflow: hidden; } .block { box-sizing: border-box; position: relative; display: flex; flex: none; flex-direction: column; justify-content: flex-end; min-block-size: calc(var(--_h) - ${t('container-height-small')}); margin-block-start: calc(-1 * var(--_collapse, 0px)); padding-inline: ${t('title-inset')}; padding-block-end: ${t('container-padding-block-end')}; } .block .title { font: var(--_title-font); letter-spacing: var(--_title-ls); } /* APB-7: a large bar's title's too. */ ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)', { shadow: true }))} .block .subtitle { font: var(--_subtitle-font); letter-spacing: var(--_subtitle-ls); } @media (prefers-reduced-motion: reduce) { .container, .outline { transition: none; } } @media (forced-colors: active) { .outline { background: CanvasText; } ${whenScroll( '.container', (container) => ` ${container} .outline { background: transparent; } :host([scrolled]) ${container} .outline { background: CanvasText; }`, )} } `"
         }
       ],
       "exports": [
@@ -869,7 +869,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge\ndrawn as the edge of a region that stays (or, under `divider-visibility=\"scroll\"`, only once content scrolls under it).\n\nContract: specs/app-bar.spec.json. A layout region: no role of its own, never focusable, no events of its\nown. Its items are the product's icon-only `<tanrei-button>`s — the spec's `navigation` kind with `slot=\"navigation\"` and\nits `action` kind with `slot=\"actions\"` — which it lays out and never restyles (APB-11). The title is `headline`,\nbecause HTML's global `title` attribute would put a tooltip over the whole bar; it is the screen's heading, of\n`heading-level` (1 by default).\n\nScrolled: the bar connects to a scrolling element and sets `scrolled` from it — the document's scrolling element by\ndefault, the element whose id `scroll-target` names, or nothing with `scroll-target=\"none\"` (then set `scrolled`\nyourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).\n\nThe bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it\nat rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none\nat rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow\n`scrolled` under either.\n\nEvery visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and\nthe side insets; the content stays inside them (APB-10).",
+          "description": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge\ndrawn as the edge of a region that stays (or, under `divider-visibility=\"scroll\"`, only once content scrolls under it).\n\nContract: specs/app-bar.spec.json. A layout region: no role of its own, never focusable, no events of its\nown. Its items are the product's icon-only `<tanrei-button>`s — the spec's `navigation` kind with `slot=\"navigation\"` and\nits `action` kind with `slot=\"actions\"` — which it lays out and never restyles (APB-11). The title is `headline`,\nbecause HTML's global `title` attribute would put a tooltip over the whole bar; it is the screen's heading, of\n`heading-level` (1 by default).\n\nScrolled: the bar connects to a scrolling element and sets `scrolled` from it — the document's scrolling element by\ndefault, the element whose id `scroll-target` names, or nothing with `scroll-target=\"none\"` (then set `scrolled`\nyourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).\n\nThe brand (APB-19 to APB-23): one link to the product's first page (`brand-href`), named by the product's name\n(`brand-label`), drawn by the bar around the images the product gives it — an `<img>` or an inline `<svg>`, which the\nbar sizes from its tokens and hides from assistive technology: one image (`slot=\"brand\"`, a single logo file), the\nsymbol (`slot=\"brand-symbol\"`), the wordmark (`slot=\"brand-wordmark\"`), or both. One image, a symbol alone or a\nwordmark alone is shown at every width. Given both, `brand-layout` sets them side by side (`lockup`, the default:\n`comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says) or by turns\n(`responsive`: the wordmark while the window is medium or wider, the symbol while it is compact — the enclosing\n`<tanrei-app-shell>`'s window class, or the window's width against `--tanrei-sys-breakpoint-medium` outside one). The\nbrand stands after the navigation item in an icon button's cell, in `comp.app-bar.brand.color`, which an image drawn\nin `currentColor` takes. The link is the bar's: a router that follows links by their clicks reads it from the\nclick's composed path. Without `brand-href` the brand is one image named by `brand-label`.\n\nThe bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it\nat rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none\nat rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow\n`scrolled` under either.\n\nEvery visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and\nthe side insets; the content stays inside them (APB-10).",
           "name": "TanreiAppBar",
           "cssParts": [
             {
@@ -877,8 +877,12 @@
               "name": "container"
             },
             {
-              "description": "The row of the navigation item, the title block and the actions.",
+              "description": "The row of the navigation item, the brand, the title block and the actions.",
               "name": "top-row"
+            },
+            {
+              "description": "The brand: its link (or, without `brand-href`, its image) around the images it shows.",
+              "name": "brand"
             },
             {
               "description": "The title (the heading), in the top row and in a large bar's own title row.",
@@ -901,6 +905,18 @@
             {
               "description": "The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.",
               "name": "navigation"
+            },
+            {
+              "description": "The brand as one image (a single logo file), drawn `comp.app-bar.brand.image.height` high.",
+              "name": "brand"
+            },
+            {
+              "description": "The brand's symbol, drawn `comp.app-bar.brand.symbol.size` high.",
+              "name": "brand-symbol"
+            },
+            {
+              "description": "The brand's wordmark, drawn `comp.app-bar.brand.wordmark.height` high.",
+              "name": "brand-wordmark"
             },
             {
               "description": "The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.",
@@ -963,6 +979,40 @@
             },
             {
               "kind": "field",
+              "name": "brandHref",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address of the product's first page: the brand is a link to it. Empty draws the brand as an image (APB-22).",
+              "attribute": "brand-href"
+            },
+            {
+              "kind": "field",
+              "name": "brandLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The product's name: the brand's one accessible name, whichever of its images is shown (APB-22).",
+              "attribute": "brand-label"
+            },
+            {
+              "kind": "field",
+              "name": "brandLayout",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiAppBarBrandLayout"
+              },
+              "default": "'lockup'",
+              "description": "How the brand's symbol and wordmark stand when both are given (APB-21): `lockup` (side by side, the default) or\n`responsive` (the wordmark while the window is medium or wider, the symbol while it is compact). Reflected as\n`brand-layout`.",
+              "attribute": "brand-layout",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "scrolled",
               "privacy": "public",
               "type": {
@@ -1015,6 +1065,44 @@
                 "text": "boolean"
               },
               "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "brands",
+              "privacy": "private",
+              "type": {
+                "text": "Record<BrandSlot, number>"
+              },
+              "default": "{ brand: 0, 'brand-symbol': 0, 'brand-wordmark': 0 }",
+              "description": "How many images each brand slot holds (APB-19, APB-23)."
+            },
+            {
+              "kind": "field",
+              "name": "compact",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the window class is compact (APB-21): the app shell's, or the window's width against sys.breakpoint.medium."
+            },
+            {
+              "kind": "field",
+              "name": "shell",
+              "type": {
+                "text": "WindowClassSource | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "widths",
+              "type": {
+                "text": "MediaQueryList | null"
+              },
+              "privacy": "private",
+              "default": "null"
             },
             {
               "kind": "field",
@@ -1112,6 +1200,33 @@
               "kind": "field",
               "name": "resize$",
               "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "watchWindow",
+              "privacy": "private",
+              "description": "The app shell's window class where the bar stands in one and it has decided; else the window's width."
+            },
+            {
+              "kind": "method",
+              "name": "unwatchWindow",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "onWindow",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "shownBrand",
+              "type": {
+                "text": "BrandSlot[]"
+              },
+              "privacy": "private",
+              "description": "APB-21, APB-23: the brand's images shown — one image wherever `brand` holds one (the parts are then not shown); a\nsymbol or a wordmark alone; both as a lockup; or, responsive, the one the window's class asks for.",
               "readonly": true
             },
             {
@@ -1232,6 +1347,12 @@
             },
             {
               "kind": "method",
+              "name": "reportBrand",
+              "privacy": "private",
+              "description": "APB-23: a brand without a name, and an image in brand given beside the parts it takes the place of."
+            },
+            {
+              "kind": "method",
               "name": "observe",
               "privacy": "private",
               "description": "The boxes whose size moves the centred title's balance and the collapse's range."
@@ -1287,6 +1408,33 @@
               "default": "'start'",
               "description": "`start` (after the navigation button) or `center` (centred on the bar). A large bar's own title row always starts at the start. Reflected.",
               "fieldName": "titleAlignment"
+            },
+            {
+              "name": "brand-href",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address of the product's first page: the brand is a link to it. Empty draws the brand as an image (APB-22).",
+              "fieldName": "brandHref"
+            },
+            {
+              "name": "brand-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The product's name: the brand's one accessible name, whichever of its images is shown (APB-22).",
+              "fieldName": "brandLabel"
+            },
+            {
+              "name": "brand-layout",
+              "type": {
+                "text": "TanreiAppBarBrandLayout"
+              },
+              "default": "'lockup'",
+              "description": "How the brand's symbol and wordmark stand when both are given (APB-21): `lockup` (side by side, the default) or\n`responsive` (the wordmark while the window is medium or wider, the symbol while it is compact). Reflected as\n`brand-layout`.",
+              "fieldName": "brandLayout"
             },
             {
               "name": "scrolled",
