@@ -17840,7 +17840,17 @@
               "name": "onMouseDown",
               "privacy": "private",
               "readonly": true,
-              "description": "CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that\ngives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first\nelement of the shadow root that a click focuses, which is one with a tabindex (HTML, \"click focusable\") — the remove\naction, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses\nnothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back in\nthe next task, once the press has placed focus, so the Tab order (CHP-23), and focus moved to the remove action by\nassistive technology or by script, are as they were. It is the mouse event, not the pointer's, that focuses: a\ntouch's compatibility `mousedown` comes after the touch has ended."
+              "description": "CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that\ngives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first\nelement of the shadow root that a click focuses, which is one with a tabindex (HTML, \"click focusable\") — the remove\naction, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses\nnothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back\nonce the press has placed focus — in the next task, or at the next key or press if it comes first: a busy engine\nruns input before timers, and Tab moves focus in its keydown — so the Tab order (CHP-23) is as it was. Focus moved\nto the remove action by assistive technology or by script needs no tabindex. It is the mouse event, not the\npointer's, that focuses: a touch's compatibility `mousedown` comes after the touch has ended."
+            },
+            {
+              "kind": "field",
+              "name": "restoreRemoveStop",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "CHP-39: puts the remove action's tabindex back after a press elsewhere on the chip took it away; null when it is there."
             },
             {
               "kind": "method",
