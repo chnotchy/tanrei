@@ -1500,7 +1500,7 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 36,
+                "value": 40,
                 "unit": "px"
               },
               "$description": "The height of a brand given as one image (a product's single logo file): a wordmark's, which most logo files are drawn around."
@@ -1543,10 +1543,10 @@
             "height": {
               "$type": "dimension",
               "$value": {
-                "value": 36,
+                "value": 40,
                 "unit": "px"
               },
-              "$description": "The wordmark's height. Its width follows its proportions."
+              "$description": "The wordmark's height: the height of its frame, which keeps the capital of the default system's wordmark at least 24 px high (its minimum) and its ink inside the brand's cell. Its width follows its proportions."
             }
           }
         },

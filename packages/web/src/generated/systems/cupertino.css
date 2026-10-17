@@ -158,7 +158,7 @@
     --tanrei-comp-app-bar-brand-shape: var(--tanrei-sys-shape-corner-full);
     --tanrei-comp-app-bar-brand-shape-pill: 1;
     --tanrei-comp-app-bar-brand-symbol-size: var(--tanrei-sys-icon-medium);
-    --tanrei-comp-app-bar-brand-wordmark-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 9), 0.25px);
+    --tanrei-comp-app-bar-brand-wordmark-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 10), 0.25px);
     --tanrei-comp-app-bar-container-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-app-bar-container-height-large: round(nearest, calc(var(--tanrei-dial-size-unit) * 24), 0.25px);
     --tanrei-comp-app-bar-container-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);
