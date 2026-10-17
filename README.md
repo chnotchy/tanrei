@@ -1,7 +1,7 @@
 <h1>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="design/brand/generated/wordmark.dark.svg">
-    <img src="design/brand/generated/wordmark.light.svg" alt="Tanrei" width="198" height="60">
+    <img src="design/brand/generated/wordmark.light.svg" alt="Tanrei" width="180" height="60">
   </picture>
 </h1>
 
