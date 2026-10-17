@@ -2,13 +2,13 @@
 // Specs tab: everything here is read from specs/<name>.spec.json and the component token group. Every table is Tanrei's
 // Table (Table.astro), named by the heading above it; the two name mappings keep their first column, which names the
 // row, in view while the platforms scroll under it, and the tokens are at the compact density.
-import { componentHref, getSpec, memberOf, platforms, definedTags, type Forwarded } from '../lib/repo';
+import { componentHref, getSpec, memberOf, platforms, type Forwarded } from '../lib/repo';
 import { tokensIn, sharedSetsOf, sourceAlias, formatValue, ns } from '../lib/tokens';
 import { contentLang, localeBase, strings } from '../lib/i18n';
 import SourceNote from './SourceNote.astro';
 import Table from './Table.astro';
 import NameTag from './NameTag.astro';
-import { drawsFixture, drawsLive, liveFixture } from '../lib/fixtures';
+import FixtureGallery from './fixtures/FixtureGallery.astro';
 
 interface Props {
   name: string;
@@ -22,11 +22,6 @@ const groups = [spec.tokens, ...sharedSetsOf(spec.name)];
 const compTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type !== 'typography'));
 const typographyTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type === 'typography'));
 
-const webName = spec.platforms.web?.name;
-const defined = webName && definedTags.has(webName);
-const live = defined && drawsLive(spec);
-// The opener of a presented fixture is the system's own button (its tag from the button spec).
-const Button = getSpec('button').platforms.web?.name as any;
 const showDefault = (v: unknown) => (v === null ? 'null' : typeof v === 'string' ? `"${v}"` : String(v));
 const mapped = [
   ...spec.props.map((p) => ({ kind: t.property, name: p.name, key: 'props' as const })),
@@ -243,246 +238,9 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 
 <h3>{t.fixtures}</h3>
 <p class="docs-muted">{t.fixturesHelp}</p>
-<Table label={t.fixtures}><table class="fixtures">
-  <thead><tr><th scope="col">{t.fixture}</th><th scope="col">{t.props}</th><th scope="col">{t.live}</th></tr></thead>
-  <tbody>
-    {spec.fixtures.map((f) => (
-      <tr>
-        <td><code>{f.id}</code></td>
-        <td><code>{JSON.stringify(f.props)}</code></td>
-        {/* A fixture drawn in place is an example, not text of the page: the search index does not read it (as DemoFrame's stage). */}
-        <td class="live" data-tanrei-demo data-pagefind-ignore>
-          {live && drawsFixture(spec, f) ? (() => {
-            const lf = liveFixture(spec, f);
-            return (
-              <div
-                class="fixture"
-                data-presentation={lf.presentation}
-                data-inline={lf.inline ? '' : undefined}
-                data-open-prop={lf.openProp}
-                data-close-events={lf.closeEvents.join(' ')}
-                data-toggle-events={lf.toggleEvents.join(' ')}
-              >
-                {/* The fixture's stage color, where it names one (the schema's `surface`): the element stands on that surface. */}
-                <div class="fixture-element" style={(f as { surface?: string }).surface ? `background: var(--tanrei-sys-color-${(f as { surface?: string }).surface}); padding: 1rem` : undefined} set:html={lf.html} />
-                {lf.presentation !== 'none' && (
-                  <Button class="fixture-opener" variant="outlined" label={`${t.open} ${f.id}`}>{t.open}</Button>
-                )}
-              </div>
-            );
-          })() : <span class="docs-muted">{live || !defined ? t.notDefinedYet : t.notDrawnHere}</span>}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table></Table>
+<FixtureGallery name={spec.name} />
 <SourceNote files={[`specs/${spec.name}.spec.json`, ...groups.map((group) => `tokens/comp/${group.replace('comp.', '')}.tokens.json`), 'design/tokens/']} />
 
-<script>
-  import '../lib/register-web';
-
-  // The controller of presented fixtures (their presentation is decided in ../lib/fixtures.ts). It does what a product
-  // does with the component: opens it from its opener, and sets it closed again from its close, dismiss and toggle events.
-  type Presentable = HTMLElement & { updateComplete?: Promise<unknown> } & Record<string, unknown>;
-  const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
-
-  /** Whether anything the element draws is in the top layer (a popover or a modal dialog), which no box can hold. */
-  function inTopLayer(element: HTMLElement): boolean {
-    const walk = (root: ParentNode): boolean =>
-      [...root.querySelectorAll<HTMLElement>('*')].some((node) => node.matches(':popover-open, dialog:modal') || (!!node.shadowRoot && walk(node.shadowRoot)));
-    return (element.shadowRoot ? walk(element.shadowRoot) : false) || walk(element);
-  }
-
-  /** Everything the element draws, through its shadow trees: each drawn box, and whether any is placed against the window. */
-  function drawn(element: HTMLElement): { rects: DOMRect[]; fixed: boolean } {
-    const rects = [element.getBoundingClientRect()];
-    let fixed = false;
-    const walk = (root: ParentNode) => {
-      for (const node of root.querySelectorAll<HTMLElement>('*')) {
-        const r = node.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0 && node.checkVisibility({ visibilityProperty: true, opacityProperty: true })) {
-          rects.push(r);
-          if (getComputedStyle(node).position === 'fixed') fixed = true;
-        }
-        if (node.shadowRoot) walk(node.shadowRoot);
-      }
-    };
-    if (element.shadowRoot) walk(element.shadowRoot);
-    walk(element);
-    return { rects: rects.filter((r) => r.width > 0 && r.height > 0), fixed };
-  }
-
-  /** How far what the element draws reaches past each side of its box (0 where it stays inside). */
-  function overflow(element: HTMLElement, box: HTMLElement) {
-    const b = box.getBoundingClientRect();
-    const { rects, fixed } = drawn(element);
-    const reach = (f: (r: DOMRect) => number) => Math.max(0, ...rects.map(f));
-    return {
-      fixed,
-      top: reach((r) => b.top - r.top),
-      bottom: reach((r) => r.bottom - b.bottom),
-      left: reach((r) => b.left - r.left),
-      right: reach((r) => r.right - b.right),
-    };
-  }
-  const escapes = (o: ReturnType<typeof overflow>) => o.fixed || o.top > 1 || o.bottom > 1 || o.left > 1 || o.right > 1;
-
-  /** Whether a node is the element or inside it, through shadow roots. */
-  function within(element: HTMLElement, node: Node | null | undefined): boolean {
-    for (let n = node; n; n = n.parentNode ?? (n as ShadowRoot).host) if (n === element) return true;
-    return false;
-  }
-
-  /** Until what the element runs has finished (an opening slide), for at most a second: its layout is then its own. */
-  async function settled(element: HTMLElement) {
-    const running = document.getAnimations().filter((a) => within(element, (a.effect as KeyframeEffect | null)?.target));
-    await Promise.race([Promise.all(running.map((a) => a.finished.catch(() => undefined))), new Promise((r) => setTimeout(r, 1000))]);
-  }
-
-  async function control(box: HTMLElement) {
-    const element = box.querySelector<Presentable>('.fixture-element > *');
-    const opener = box.querySelector<HTMLElement>('.fixture-opener');
-    const prop = box.dataset.openProp;
-    if (!element || !prop) return;
-    await customElements.whenDefined(element.localName);
-    await element.updateComplete;
-    // A component that stands beside an anchor it does not wrap (a popover) and names none here takes the fixture's opener.
-    if (opener && 'anchorElement' in element && !element.hasAttribute('anchor')) element.anchorElement = opener;
-
-    const isOpen = () => element[prop] === true;
-    const sync = () => {
-      box.dataset.state = isOpen() ? 'open' : 'closed';
-    };
-    /**
-     * After a close: the opener shows again, and focus that was lost with what closed goes back to it. A fixture drawn
-     * with the `inline` test attribute draws its surface whatever `open` says, so it loses the attribute when it closes:
-     * closed, it is the real component again (a FAB menu's toggle, a search bar), and its opener draws it in place again.
-     */
-    const closed = async () => {
-      if (box.dataset.inline !== undefined && box.dataset.presentation === 'inplace') element.removeAttribute('inline');
-      await element.updateComplete;
-      sync();
-      await frame();
-      await settled(element);
-      let active = document.activeElement;
-      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
-      const lost = !active || active === document.body || active.getClientRects().length === 0 || !active.checkVisibility({ visibilityProperty: true });
-      // An overlay was opened from its opener, so focus goes back there even where the component keeps it (a search bar).
-      const kept = box.dataset.presentation === 'overlay' && within(element, active);
-      if (opener && (lost || kept)) opener.focus();
-    };
-    const setOpen = (value: boolean) => {
-      element[prop] = value;
-      if (value) sync();
-      else closed();
-    };
-
-    for (const name of (box.dataset.closeEvents ?? '').split(' ').filter(Boolean)) {
-      element.addEventListener(name, (event) => {
-        if (event.target === element && !event.defaultPrevented) setOpen(false);
-      });
-    }
-    for (const name of (box.dataset.toggleEvents ?? '').split(' ').filter(Boolean)) {
-      element.addEventListener(name, (event) => {
-        if (event.target !== element) return;
-        const detail = (event as CustomEvent<{ open?: boolean; expanded?: boolean }>).detail;
-        const value = detail?.open ?? detail?.expanded;
-        if (typeof value === 'boolean') setOpen(value);
-      });
-    }
-    // An overlay's action closes it, as a product's handler would.
-    element.addEventListener('click', (event) => {
-      if ((event.target as Element | null)?.closest?.('[data-fixture-action]')) setOpen(false);
-    });
-    opener?.addEventListener('click', () => {
-      if (box.dataset.inline !== undefined && box.dataset.presentation === 'inplace') element.setAttribute('inline', '');
-      setOpen(true);
-    });
-
-    if (box.dataset.presentation === 'check') {
-      // Drawn open but hidden, then placed by what it draws:
-      // 1. inside its cell as it is;
-      // 2. or with room made around it for what reaches past its box (a FAB menu's items above the toggle);
-      // 3. or, if it fills its parent or is placed against the window (a standard sheet, a drawer), on a stage that stands
-      //    for the window: the containing block of its fixed and absolute parts, clipping them;
-      // 4. or, if it is still in the top layer (a tooltip, a popover) or closed by itself before it could be placed, as an
-      //    overlay: closed, with its opener.
-      const stage = box.querySelector<HTMLElement>('.fixture-element')!;
-      const settle = async () => {
-        await element.updateComplete;
-        await frame();
-        await settled(element);
-        await frame();
-      };
-      // Hidden until then: first by visibility, which also hides what reaches the top layer; once nothing is there, by a
-      // clip instead, so that what the element hides itself (a picker's year grid) can be told from what it shows.
-      await element.updateComplete;
-      await frame();
-      if (isOpen() && !inTopLayer(element)) {
-        box.dataset.measuring = '';
-        await settle();
-      }
-      let o = overflow(element, box);
-      // An element with no size of its own fills its parent: room around it does not help, a stage does.
-      const own = element.getBoundingClientRect();
-      const fillsParent = own.width === 0 || own.height === 0;
-      if (isOpen() && !inTopLayer(element) && escapes(o) && !o.fixed && !fillsParent) {
-        stage.style.padding = `${o.top}px ${o.right}px ${o.bottom}px ${o.left}px`;
-        await settle();
-        o = overflow(element, box);
-      }
-      if (isOpen() && !inTopLayer(element) && escapes(o)) {
-        stage.style.padding = '';
-        stage.classList.add('window');
-        await settle();
-      }
-      delete box.dataset.measuring;
-      if (!isOpen() || inTopLayer(element)) {
-        stage.classList.remove('window');
-        element[prop] = false;
-        await element.updateComplete;
-        box.dataset.presentation = 'overlay';
-      } else {
-        box.dataset.presentation = 'inplace';
-      }
-    }
-    sync();
-  }
-
-  for (const box of document.querySelectorAll<HTMLElement>('.fixture[data-open-prop]')) control(box);
-
-  /**
-   * A fixture's step in script (`STAGED_FILES` in lib/fixtures.ts): a file upload that keeps its own files is handed the
-   * files its fixture lists, once it is defined — the same step the web package's harness runs (`Staging.after`). The
-   * size function is set first and answers a size with its item's text (it is left unset where no item has one); then
-   * `add()` is called once with one `File` per item, in order: named by the item, as many zero bytes long as its place
-   * among the items, so that no two are the same file, with one fixed time of last change and the media type a browser
-   * reports for the name's ending. Nothing is sent anywhere.
-   */
-  async function stageFiles(element: HTMLElement) {
-    // (A chat composer that keeps its own files is handed them the same way, by its `addFiles()`; it has no size function.)
-    type Upload = HTMLElement & { formatSize: ((bytes: number) => string) | null; add?: (files: File[]) => unknown; addFiles?: (files: File[]) => unknown };
-    let items: { name: string; sizeText: string }[] = [];
-    try {
-      items = JSON.parse(element.dataset.fixtureFiles ?? '[]');
-    } catch {
-      return;
-    }
-    if (!items.length) return;
-    await customElements.whenDefined(element.localName);
-    const upload = element as Upload;
-    const add = typeof upload.add === 'function' ? upload.add.bind(upload) : typeof upload.addFiles === 'function' ? upload.addFiles.bind(upload) : null;
-    if (!add) return;
-    const sizes = items.map((item) => item.sizeText ?? '');
-    if (sizes.some(Boolean)) upload.formatSize = (bytes) => sizes[bytes - 1] ?? '';
-    // The kind a browser reports of a file its picker hands over, for the endings the fixtures use: a staged file is
-    // judged by a media type of `accept` as a chosen one is (the fixture `tiles-own` takes `image/*`).
-    const kinds: Record<string, string> = { pdf: 'application/pdf', png: 'image/png', jpeg: 'image/jpeg', jpg: 'image/jpeg', mov: 'video/quicktime', csv: 'text/csv' };
-    const kind = (name: string) => kinds[name.slice(name.lastIndexOf('.') + 1).toLowerCase()] ?? '';
-    add(items.map((item, index) => new File([new Uint8Array(index + 1)], item.name, { lastModified: 1767225600000, type: kind(item.name) })));
-  }
-  for (const element of document.querySelectorAll<HTMLElement>('.fixture-element > [data-fixture-files]')) stageFiles(element);
-</script>
 
 <style>
   .num {
@@ -527,87 +285,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
       display: none;
     }
   }
-  .live {
-    white-space: nowrap;
-  }
-  .live :global(:not(:defined)) {
-    visibility: hidden;
-  }
-  /* A fixture sizes to what it draws, so that the controller can tell whether it stays inside its cell. */
-  .fixture {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    inline-size: max-content;
-  }
-  /* Presented fixtures the controller has not placed yet (see ../lib/fixtures.ts). */
-  .fixture[data-presentation='check']:not([data-state]) {
-    visibility: hidden;
-  }
-  .fixture[data-presentation='check'][data-measuring] {
-    visibility: visible;
-    clip-path: inset(50%);
-  }
-  /* The opener shows while its fixture is closed; an overlay's stays, so focus has somewhere to return to. */
-  .fixture:not([data-state]) .fixture-opener,
-  .fixture[data-presentation='inplace'][data-state='open'] .fixture-opener {
-    display: none;
-  }
-  /* A stage that stands for the window, for a fixture that fills its parent or is placed against the window: it is the
-     containing block of the fixture's fixed and absolute parts (layout containment) and clips them. */
-  /* The sample holder of an embedded text input's held fixtures (`HELD` in lib/fixtures.ts): the
-     product's own box around the typing — a visible box and its padding, and the focus indication on the box for as
-     long as the input has focus. The box is the page's; the element draws none. */
-  .fixture-element:has(> :global([data-fixture-holder])) {
-    box-sizing: border-box;
-    inline-size: 17.5rem;
-    max-inline-size: 100%;
-    background: var(--tanrei-sys-color-surface-container);
-    border-radius: var(--tanrei-sys-shape-corner-large);
-    padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
-    outline: var(--tanrei-sys-border-thick) solid transparent;
-    outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
-    cursor: text;
-  }
-  .fixture-element:has(> :global([data-fixture-holder])):focus-within {
-    outline-color: var(--tanrei-sys-color-focus-ring);
-  }
-  @media (forced-colors: active) {
-    .fixture-element:has(> :global([data-fixture-holder])) {
-      outline-color: CanvasText;
-    }
-    .fixture-element:has(> :global([data-fixture-holder])):focus-within {
-      outline-color: Highlight;
-    }
-  }
-  .fixture-element.window {
-    display: flex;
-    position: relative;
-    contain: layout paint;
-    overflow: hidden;
-    inline-size: 20rem;
-    block-size: 22.5rem;
-    border: var(--docs-hairline);
-    border-radius: var(--docs-radius-container);
-    background: var(--tanrei-sys-color-surface);
-  }
-  /* A presented surface sets its own text; the cell's nowrap must not reach into it. */
-  .fixture:not([data-presentation='none']) .fixture-element {
-    white-space: normal;
-  }
-  /* An overlay fixture draws nothing in its cell until it is opened. */
-  .fixture[data-presentation='overlay'] .fixture-element {
-    display: contents;
-  }
   td code {
     white-space: nowrap;
-  }
-  /* A fixture's props wrap, so that the live column stays in view beside them. */
-  .fixtures td:nth-child(2) {
-    min-inline-size: 10rem;
-  }
-  .fixtures td:nth-child(2) code {
-    white-space: normal;
-    overflow-wrap: anywhere;
   }
 </style>

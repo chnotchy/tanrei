@@ -1,0 +1,7 @@
+/*
+ * The page of a component's fixtures (pages/fixtures/[component].astro), which stands outside Starlight's frame: the
+ * tokens and the icon faces, which every other page has from Starlight's `customCss`, loaded into layers of the docs'
+ * own as every other stylesheet of `@tanrei/web` is. The components' own stylesheets come with `prose.css`.
+ */
+@import '@tanrei/web/tokens.css' layer(docs.tokens);
+@import '@tanrei/web/icons.css' layer(docs.icons);

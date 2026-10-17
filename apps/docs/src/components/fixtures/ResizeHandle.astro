@@ -1,0 +1,64 @@
+---
+// The width handle of a fixture's stage: a vertical window splitter (WAI-ARIA Authoring Practices), named after what it
+// resizes and pointing at it. Its behaviour is lib/resize-handle.ts: it reports each new width as a `docs-resize`
+// event and resizes nothing itself, so that Tanrei's own splitter can take its place by sending the same event.
+//
+// It is drawn once its script has given it a value (`aria-valuenow`), and not at all without script, where it could
+// do nothing.
+interface Props {
+  /** Its name: what it resizes (`Width of filled-medium`). */
+  label: string;
+  /** The id of the stage it resizes. */
+  controls: string;
+}
+const { label, controls } = Astro.props;
+---
+
+<div class="docs-resize-handle" role="separator" aria-orientation="vertical" tabindex="0" aria-label={label} aria-controls={controls} data-resize-handle></div>
+
+<style>
+  /* A bar on the stage's end edge, as tall as the stage, with a grip in its middle; the pointer's target is wider than
+     what is drawn (the system's minimum target). */
+  .docs-resize-handle {
+    position: absolute;
+    inset-block: 0;
+    /* Its bar stands in the middle of the stage's padding after the canvas, clear of what the fixture draws. */
+    inset-inline-end: calc((var(--tanrei-comp-figure-stage-padding-inline) + var(--tanrei-sys-target-touch)) / -2);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: var(--tanrei-sys-target-touch);
+    cursor: ew-resize;
+    touch-action: none;
+    outline: none;
+  }
+  .docs-resize-handle:not([aria-valuenow]) {
+    visibility: hidden;
+  }
+  @media (scripting: none) {
+    .docs-resize-handle {
+      display: none;
+    }
+  }
+  .docs-resize-handle::before {
+    content: '';
+    inline-size: var(--tanrei-sys-border-thick);
+    block-size: min(100%, var(--tanrei-sys-target-touch));
+    border-radius: var(--tanrei-sys-shape-corner-full);
+    background: var(--tanrei-sys-color-outline);
+    transition: background-color var(--tanrei-sys-motion-duration-short2) var(--tanrei-sys-motion-easing-standard);
+  }
+  .docs-resize-handle:hover::before,
+  .docs-resize-handle[data-dragging]::before {
+    background: var(--tanrei-sys-color-on-surface);
+  }
+  .docs-resize-handle:focus-visible::before {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+  @media (forced-colors: active) {
+    .docs-resize-handle::before {
+      background: CanvasText;
+    }
+  }
+</style>
