@@ -925,6 +925,21 @@ export function liveFixture(spec: Spec, fixture: Fixture, options: LiveOptions =
     const lang = direction === 'rtl' && /[\u0600-\u06ff]/.test(JSON.stringify(fixture)) ? ' lang="ar"' : /[\u3040-\u30ff\u4e00-\u9fff]/.test(JSON.stringify(fixture)) ? ' lang="ja"' : '';
     own = `${direction ? ` dir="${direction}"` : ''}${lang}`;
   }
+  // The divider, a linear progress indicator and the slider fill the length their place gives them, and a stage gives
+  // none: each is drawn at the length the web's harness gives it — a horizontal divider and a linear indicator 160 long,
+  // a vertical divider 48 high, a slider 320 long and a vertical one 240 high — and is otherwise drawn with no length at
+  // all. The tabs and the Tab view span their layout (a phone's 360, as the harness draws them).
+  const fills =
+    spec.name === 'divider'
+      ? fixture.props.orientation === 'vertical' ? 'block-size: 3rem' : 'inline-size: 10rem'
+      : spec.name === 'progress-indicator' && fixture.props.variant !== 'circular'
+        ? 'inline-size: 10rem'
+        : spec.name === 'slider'
+          ? fixture.props.orientation === 'vertical' ? 'block-size: 15rem' : 'inline-size: 20rem'
+          : spec.name === 'tabs' || spec.name === 'tab-view'
+            ? 'inline-size: 22.5rem'
+            : '';
+  if (fills) own = ` style="${fills}; max-inline-size: 100%"${fixture.direction ? ` dir="${fixture.direction}"` : ''}`;
   // The drop zone wraps a screen of the product's (DRZ-1): its content is the sample screen the web's harness draws —
   // the fixture's content as a paragraph above an outlined Button, on a surface 360 × 240 — and the zone is live: a
   // file dragged onto it from the reader's computer shows the overlay. A fixture whose id begins `dragged` is drawn at
