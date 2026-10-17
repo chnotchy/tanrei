@@ -430,7 +430,8 @@ export class TanreiAppBar extends LitElement {
     const hasBrand = shown.length > 0;
     // APB-21, APB-22: the slots stay, so that the bar hears what they hold; the ones not shown are in no box. The images
     // are the picture of one link (or one image) named by brand-label.
-    const images = html`<span class="images">${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.onSlotChange}></slot>`)}</span>`;
+    // APB-24: a lockup's symbol stands at the wordmark's height.
+    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.onSlotChange}></slot>`)}</span>`;
     const label = this.brandLabel.trim() || nothing;
     const brand = !hasBrand
       ? html`<span class="brand" hidden>${images}</span>`

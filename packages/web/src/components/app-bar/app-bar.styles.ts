@@ -212,6 +212,10 @@ export const styles = css`
   .images slot[name='brand-wordmark']::slotted(*) {
     block-size: ${t('brand-wordmark-height')};
   }
+  /* APB-24: beside the wordmark in a lockup, the symbol stands at the wordmark's height. */
+  .images.lockup slot[name='brand-symbol']::slotted(*) {
+    block-size: ${t('brand-lockup-symbol-size')};
+  }
   /* APB-21: an image the brand does not show is in no box, so it is neither drawn nor exposed — said of the image
      itself too, so that an engine that reads its own style (WebKit) leaves it out of the accessibility tree. */
   slot[hidden] {
