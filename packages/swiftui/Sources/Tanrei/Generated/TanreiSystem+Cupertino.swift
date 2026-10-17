@@ -3654,10 +3654,10 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
   itemGap: 8,
   itemHeight: 48,
   itemIconSize: 20,
-  itemLabelTypescale: cupertinoTypescale.bodyLarge,
+  itemLabelTypescale: cupertinoTypescale.label,
   itemPaddingInlineEnd: 20,
   itemPaddingInlineStart: 16,
-  itemShape: 9999,
+  itemShape: 14,
   listGap: 8,
   listOffset: 8,
   motionCloseDuration: 150,
@@ -3671,18 +3671,18 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
   sizes: TanreiFabMenuSizes(
     small: TanreiFabMenuSizeTokens(
       containerSize: 40,
-      containerShape: 9999,
+      containerShape: 10,
       iconSize: 20
     ),
     medium: TanreiFabMenuSizeTokens(
       containerSize: 48,
-      containerShape: 9999,
+      containerShape: 14,
       iconSize: 24
     ),
     large: TanreiFabMenuSizeTokens(
       containerSize: 64,
-      containerShape: 9999,
-      iconSize: 24
+      containerShape: 20,
+      iconSize: 32
     )
   ),
   variants: TanreiFabMenuVariants(
@@ -3704,11 +3704,11 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
       ),
       hovered: TanreiFabMenuVariantStateTokens(
         containerColor: .role(.primary),
-        containerElevation: cupertinoElevation.level3,
+        containerElevation: cupertinoElevation.level4,
         iconColor: .role(.onPrimary),
         stateLayerColor: .role(.onPrimary),
         openContainerColor: .role(.secondaryContainer),
-        openContainerElevation: cupertinoElevation.level3,
+        openContainerElevation: cupertinoElevation.level4,
         openIconColor: .role(.onSecondaryContainer),
         openStateLayerColor: .role(.onSecondaryContainer),
         itemContainerColor: .role(.primary),
@@ -3781,11 +3781,11 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
       ),
       hovered: TanreiFabMenuVariantStateTokens(
         containerColor: .role(.secondaryContainer),
-        containerElevation: cupertinoElevation.level3,
+        containerElevation: cupertinoElevation.level4,
         iconColor: .role(.onSecondaryContainer),
         stateLayerColor: .role(.onSecondaryContainer),
         openContainerColor: .role(.primary),
-        openContainerElevation: cupertinoElevation.level3,
+        openContainerElevation: cupertinoElevation.level4,
         openIconColor: .role(.onPrimary),
         openStateLayerColor: .role(.onPrimary),
         itemContainerColor: .role(.secondaryContainer),
@@ -3858,11 +3858,11 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
       ),
       hovered: TanreiFabMenuVariantStateTokens(
         containerColor: .role(.surfaceContainerLowest),
-        containerElevation: cupertinoElevation.level3,
+        containerElevation: cupertinoElevation.level4,
         iconColor: .role(.primary),
         stateLayerColor: .role(.primary),
         openContainerColor: .role(.secondaryContainer),
-        openContainerElevation: cupertinoElevation.level3,
+        openContainerElevation: cupertinoElevation.level4,
         openIconColor: .role(.onSecondaryContainer),
         openStateLayerColor: .role(.onSecondaryContainer),
         itemContainerColor: .role(.surfaceContainerLowest),

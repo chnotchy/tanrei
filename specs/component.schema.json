@@ -63,6 +63,12 @@
       ],
       "description": "Whether the component is shown where components are listed. The first value: it is listed by default — what a product places. The second: it is listed only when the reader asks for everything — a bare control that most products meet inside a higher level, kept for those who compose their own. The same value stands in specs/inventory.json. `validate` holds that a component of the second value is of the first level and is a member (`builtFrom`) of at least one component of the first value, so that its page is one link away from a listed one. It changes what is listed and nothing else: the search finds every component and the status matrix shows every one. The two names are written here and in one constant of the tools (packages/tools/src/levels.js), and nowhere else by hand."
     },
+    "layer": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "default": "core",
+      "description": "The design system layer the component lives in: the layer every system that ships it descends from. Left out, it is `core`, the root every system descends from, and the component's tokens are in tokens/comp/. A component that only one line of systems ships lives in that line's root (the FAB menu in `m3-like`): that layer declares the component's whole vocabulary, its tokens are in tokens/systems/<layer>/comp/, only the systems that descend from the layer have it, and a platform's main entry does not register it. The same value stands in specs/inventory.json."
+    },
     "builtFrom": {
       "type": "array",
       "minItems": 1,
@@ -334,7 +340,7 @@
     "tokens": {
       "type": "string",
       "pattern": "^comp\\.[a-z-]+$",
-      "description": "Component token group; must exist in tokens/comp/."
+      "description": "Component token group; must exist in tokens/comp/, or in tokens/systems/<layer>/comp/ for a component that lives in a layer."
     },
     "fixtures": {
       "type": "array",
