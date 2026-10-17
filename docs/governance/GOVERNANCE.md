@@ -4,22 +4,22 @@ The maintainers decide what Tanrei becomes. Most rules are **mechanical**: they 
 
 ## Taking part
 
-- **Issues are welcome**: bug reports, questions, and proposals for a component, a token or a change of behaviour. Open one at <https://github.com/chnotchy/tanrei/issues>.
-- **Pull requests are not accepted for now.** The maintainers make the changes, through the same checks a pull request would go through. When that changes, this file and [`CONTRIBUTING.md`](../../CONTRIBUTING.md) will say so.
+- **Outside contributions are not accepted.** The maintainers make every change, through the same checks any change goes through. Pull requests from outside are closed unmerged, and proposals for new components or tokens are not taken. The reason is the supply chain: every change from outside is a way for code the maintainers did not write to reach the products that install Tanrei, and the current security climate makes that a risk the project does not take ([`CONTRIBUTING.md`](../../CONTRIBUTING.md#outside-contributions-are-not-accepted)).
+- **Issues are for bug reports and questions.** Open one at <https://github.com/chnotchy/tanrei/issues>.
 - **Security problems are reported privately**, as [`SECURITY.md`](../../SECURITY.md) describes: never in a public issue.
 - **Conduct** follows the [Code of Conduct](../../CODE_OF_CONDUCT.md).
 
 ## Roles
 
 - **Maintainers** — own the direction, decide what the specs and tokens become, review and make changes, and are the only role that publishes releases or changes repository settings. `CODEOWNERS` lists them.
-- **Contributors** — report problems, propose changes and discuss them in issues.
+- **Users** — report bugs and ask questions in issues.
 
 ## Decisions
 
 | Kind | How |
 |---|---|
-| A fix, a platform implementation, docs, a non-breaking addition to a spec | Raised in an issue or made by the maintainers; every change goes through the same checks |
-| A new component, a breaking change, a change to the core token vocabulary | An issue first; the maintainers decide, and the decision reaches the repository as a spec or token change |
+| A fix, a platform implementation, docs, a non-breaking addition to a spec | Made by the maintainers, from a bug report or of their own accord; every change goes through the same checks |
+| A new component, a breaking change, a change to the core token vocabulary | The maintainers decide, before the spec or tokens change; the decision reaches the repository as a spec or token change |
 | Release, registry ownership, repository settings | Maintainers only |
 
 Decisions are recorded where they take effect: in the specs and tokens, in `AGENTS.md` and `CONTRIBUTING.md` as the current rules, and in the changelog from the first release on.
