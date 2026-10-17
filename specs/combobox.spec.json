@@ -263,6 +263,17 @@
       ],
       "default": "auto",
       "description": "How a group of options is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.combobox.separation, which follows the design system's choice."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a section start on one line — a section being the shown options of a group, or a run of adjacent shown options outside any group. auto: an option keeps the column while another shown option of its section has a leading icon; an option the filter hides does not count. always: every option keeps it. never: only an option that has an icon has the column. The menu's and the select's iconSpace, with the same values and default (CMB-67)."
     }
   ],
   "items": [
@@ -472,7 +483,7 @@
     },
     {
       "id": "CMB-34",
-      "text": "THE combobox SHALL lay out an option as one row: comp.combobox.option.padding-inline from each edge, the leading icon column (while any shown option has a leading icon), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.combobox.option.mark.size for the check (CMB-36), each comp.combobox.option.gap from the next; an empty column or box SHALL keep its width in every row so that labels align and wrap alike. It SHALL make the row at least comp.combobox.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.combobox.option.padding-block above and below; draw the label in comp.combobox.option.label.typescale and the supporting text in comp.combobox.option.supporting-text.typescale, both wrapping and growing the row rather than being cut; and make the whole row the option's target."
+      "text": "THE combobox SHALL lay out an option as one row: comp.combobox.option.padding-inline from each edge, the leading icon column (as CMB-67 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.combobox.option.mark.size for the check (CMB-36), each comp.combobox.option.gap from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.combobox.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.combobox.option.padding-block above and below; draw the label in comp.combobox.option.label.typescale and the supporting text in comp.combobox.option.supporting-text.typescale, both wrapping and growing the row rather than being cut; and make the whole row the option's target."
     },
     {
       "id": "CMB-35",
@@ -605,6 +616,11 @@
       "id": "CMB-63",
       "text": "THE combobox SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the typed text and the placeholder, the leading glyph and the chevron, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are those of its list, of its status row and of the gap between its clear button and its chevron (CMB-23, CMB-34 to CMB-41). WHEN a design system or a product sets a token of the box THE combobox SHALL follow it, as the text input, the select, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one combobox is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE combobox SHALL draw itself from the value it finds there.",
       "verify": "A proof: every value the box of a combobox had is the value of the token it reads now, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the combobox's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one combobox's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    },
+    {
+      "id": "CMB-67",
+      "text": "THE combobox SHALL decide the leading icon column for each section of its list as it is shown — the shown options of a group, with the options of a group inside it (CMB-43), or a run of adjacent shown options outside any group: the parts CMB-44 separates. WHILE iconSpace is auto a shown option SHALL keep the column, empty where it has no icon, WHERE a shown option of its section has a leading icon, so that the labels of a section start on one line, and a section where no shown option has one SHALL keep no column, its labels starting at the row's content start; an option the filter hides SHALL NOT count, so that no row keeps room for an icon that is not drawn. WHILE iconSpace is always every shown option SHALL keep the column, whether or not any option has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.combobox.option.leading-icon.size wide with comp.combobox.option.gap after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (CMB-43). WHEN the shown options change — the filter's text, an option added or removed, an option's leadingIcon — THE combobox SHALL decide the sections again; WHEN iconSpace names a value the combobox does not define THE combobox SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto: in the group Apps, Mail and Messages have icons and Copy link has none, so Copy link's label starts where Messages' does; in the group Files, Print and Save as PDF have none, so their labels start at the row's content start. Fixture icon-space-always: every label after the column. Fixture icon-space-never: Copy link's label starts at the row's content start. Test typing that leaves Copy link alone in its group (its label then starts at the row's content start), options outside any group, a leadingIcon given and taken away, and an unknown value (auto, reported)."
     }
   ],
   "accessibility": {
@@ -2877,6 +2893,197 @@
           }
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "platforms": {
@@ -2903,7 +3110,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "input",
@@ -2956,7 +3164,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "text",
@@ -3009,7 +3218,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
@@ -3062,7 +3272,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputChanged",
@@ -3115,7 +3326,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
