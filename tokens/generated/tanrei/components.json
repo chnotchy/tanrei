@@ -405,7 +405,7 @@
       },
       "react": {
         "name": "ColorInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked"
@@ -424,7 +424,7 @@
       },
       "react": {
         "name": "Combobox",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked"
@@ -565,7 +565,7 @@
       },
       "react": {
         "name": "EmbeddedTextInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -666,7 +666,7 @@
       },
       "react": {
         "name": "FilePicker",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -886,7 +886,7 @@
       },
       "react": {
         "name": "ModalLayer",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -961,7 +961,7 @@
       },
       "react": {
         "name": "NumberInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked"
@@ -996,7 +996,7 @@
       },
       "react": {
         "name": "OneTimeCodeInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -1465,7 +1465,7 @@
       },
       "react": {
         "name": "TextInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked"

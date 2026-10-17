@@ -84,12 +84,16 @@ test('each name comes from tanrei.config.json and from what the platforms genera
       assert.ok(component.web, `${component.name} has a web name`);
       assert.match(component.web.tag ?? component.web.class, tag);
       assert.ok(component.web.import.startsWith(`${CONFIG.packages.npmScope}/web`), component.web.import);
-      if (component.react) assert.equal(component.react.import, `${CONFIG.packages.npmScope}/react`);
+      // React: the system's own entry (the main one for the default system), and the building blocks' in every system.
+      const entry = component.listing === 'advanced' ? 'advanced' : id === DEFAULT_SYSTEM ? null : id;
+      if (component.react) assert.equal(component.react.import, `${CONFIG.packages.npmScope}/react${entry ? `/${entry}` : ''}`, `${id}: ${component.name}`);
     }
   }
   const tanrei = committed(DEFAULT_SYSTEM);
   // An element has its own module and a React wrapper; a class is a stylesheet of the package, with no wrapper.
   assert.deepEqual(find(tanrei, 'text-field').react, { name: 'TextField', import: `${CONFIG.packages.npmScope}/react` });
+  assert.deepEqual(find(tanrei, 'text-input').react, { name: 'TextInput', import: `${CONFIG.packages.npmScope}/react/advanced` }, 'a building block');
+  assert.deepEqual(find(committed('m3-like'), 'fab-menu').react, { name: 'FabMenu', import: `${CONFIG.packages.npmScope}/react/m3-like` });
   assert.deepEqual(find(tanrei, 'link').web, { class: `${CONFIG.web.tagPrefix}-link`, import: `${CONFIG.packages.npmScope}/web/link.css` });
   assert.equal(find(tanrei, 'link').react, undefined);
 });
@@ -119,6 +123,10 @@ test('a product on the default system that includes the FAB menu from m3-like li
   const fab = find(acme, 'fab-menu');
   assert.ok(fab);
   assert.equal(fab.layer, 'm3-like');
+  // A product's system has no entry of its own in React: its wrappers are imported from the entry of every wrapper.
+  assert.equal(fab.react.import, `${CONFIG.packages.npmScope}/react/all`);
+  assert.equal(find(acme, 'button').react.import, `${CONFIG.packages.npmScope}/react/all`);
+  assert.equal(find(acme, 'text-input').react.import, `${CONFIG.packages.npmScope}/react/advanced`);
   assert.equal(fab.web.import, `${CONFIG.packages.npmScope}/web/m3-like`);
   assert.equal(omitted(acme, 'fab-menu'), undefined);
   assert.equal(find(acme, 'segmented-button'), undefined, 'what the default system leaves out stays out');

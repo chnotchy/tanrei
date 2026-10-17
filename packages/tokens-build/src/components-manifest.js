@@ -12,13 +12,17 @@
 //
 // A component's `import` is the module a product imports to have it registered in this system: on the web, the
 // package's main entry for a component of the core and a layer's own entry (`@tanrei/web/m3-like`) for one that lives
-// in a layer; in React, the package's one entry. That is decided in one place, `importOf`, so that an entry that
-// changes what it registers changes every manifest with it. `module` is the component's own module: it registers the
-// component, and the components it is drawn with, in any system.
+// in a layer; in React, the entry of the system — the package's main entry for the default system, `@tanrei/react/<id>`
+// for another shipped system, `@tanrei/react/all` for a product's — and `@tanrei/react/advanced` for a component listed
+// as advanced, in every system. That is decided in one place, `importOf`, so that an entry that changes what it
+// registers changes every manifest with it; the React package's entries are generated from what the manifests say
+// (packages/react/scripts/entries.js). `module` is the component's own module: it registers the component, and the
+// components it is drawn with, in any system.
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG } from './config.js';
-import { ROOT_SYSTEM, componentChoices, outsideComponents } from './layers.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, componentChoices, outsideComponents } from './layers.js';
+import { REPO_ROOT } from './model.js';
 
 /** The catalog of every component, relative to the repository (or to the vocabulary the published CLI carries). */
 export const CATALOG_FILE = 'packages/tokens-build/generated/component-catalog.json';
@@ -28,15 +32,27 @@ export const manifestFile = (id) => `tokens/generated/${id}/components.json`;
 const WEB = `${CONFIG.packages.npmScope}/web`;
 const REACT = `${CONFIG.packages.npmScope}/react`;
 
+/** The React entry of a component listed as advanced, in every system, and the entry of every wrapper. */
+export const REACT_ADVANCED = `${REACT}/advanced`;
+export const REACT_ALL = `${REACT}/all`;
+
+let shipped;
+/** The shipped systems (every layer of the vocabulary but the root): each has its own React entry. */
+const shippedSystems = () =>
+  (shipped ??= new Set(fs.readdirSync(path.join(REPO_ROOT, 'tokens/systems')).filter((file) => file.endsWith('.system.json')).map((file) => file.slice(0, -'.system.json'.length)).filter((id) => id !== ROOT_SYSTEM)));
+
+/** The React entry that holds the components of shipped system `id`: the package's main entry for the default system. */
+export const reactEntryOf = (id) => (id === DEFAULT_SYSTEM ? REACT : `${REACT}/${id}`);
+
 /**
- * The module of each platform's package that registers `component` (a catalog entry) for a product: the one place an
- * entry's contents are decided.
+ * The module of each platform's package that registers `component` (a catalog entry) for a product of system `system`:
+ * the one place an entry's contents are decided.
  * @returns {{ web: string, react: string }}
  */
-export function importOf(component) {
+export function importOf(component, system) {
   return {
     web: component.layer === ROOT_SYSTEM ? WEB : `${WEB}/${component.layer}`,
-    react: REACT,
+    react: component.listing === 'advanced' ? REACT_ADVANCED : shippedSystems().has(system) ? reactEntryOf(system) : REACT_ALL,
   };
 }
 
@@ -82,7 +98,7 @@ export function componentsManifest(chain, catalog, held) {
   for (const component of [...catalog.components].sort((a, b) => a.name.localeCompare(b.name))) {
     if (left.has(component.name) || outside[component.name]) continue;
     const entry = { name: component.name, title: component.title, level: component.level, listing: component.listing, layer: component.layer };
-    const imports = importOf(component);
+    const imports = importOf(component, system.id);
     if (component.web) entry.web = component.web.tag ? { tag: component.web.tag, import: imports.web, module: component.web.module } : { class: component.web.class, import: component.web.stylesheet };
     if (component.react) entry.react = { name: component.react.name, import: imports.react };
     if (component.variant) {
