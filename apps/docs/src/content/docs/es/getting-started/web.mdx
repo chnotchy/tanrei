@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: cef4f1d0e212e7ec1198a599362852b927c506cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -73,15 +73,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
    ```
 
-4. Da los textos de tu producto. Tanrei no incluye textos propios: el texto de un tag de obligatoriedad, el nombre de un botón de cerrar y otros parecidos son tuyos. Dilos una sola vez, por idioma, o en cada elemento.
+4. Da los textos de tu producto. Un componente no tiene textos propios: el texto de un tag de obligatoriedad, el nombre de un botón de cerrar y otros parecidos son de tu producto. Para empezar con un inglés llano en todos ellos, importa una vez el paquete de textos en inglés:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   Para cambiar cualquiera de ellos, o para dar los textos de otro idioma, llama a `setWords()` después. Un texto que das gana sobre el paquete, y un texto en un elemento gana sobre ambos.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'Obligatorio', optionalText: 'Opcional', closeLabel: 'Cerrar' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'Obligatorio', optionalText: 'Opcional', closeLabel: 'Cerrar' }, { lang: 'es' });
    ```
 
-   Un componente sigue funcionando sin un texto, y te dice en la consola cuál le falta. Consulta [Textos](/es/foundations/words/).
+   Sin el paquete y sin tus textos, un componente sigue funcionando, y te dice en la consola cuál le falta. Consulta [Textos](/es/foundations/words/).
 
 </Steps>
 

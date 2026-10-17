@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: cef4f1d0e212e7ec1198a599362852b927c506cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -73,15 +73,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
    ```
 
-4. プロダクトの言葉を渡します。Tanrei は言葉を同梱しません。必須・任意のタグのテキストや閉じるボタンの名前などは、プロダクトのものです。言語ごとに一度だけ渡すか、要素ごとに書きます。
+4. プロダクトの言葉を渡します。コンポーネントは自分の言葉を持ちません。必須・任意のタグのテキストや閉じるボタンの名前などは、プロダクトのものです。まずはすべてを平易な英語にするなら、英語の言葉のパックを一度だけ import します。
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   どれかを変えるとき、または別の言語の言葉を渡すときは、そのあとで `setWords()` を呼びます。渡した言葉はパックの言葉に優先し、要素に書いた言葉はその両方に優先します。
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: '必須', optionalText: '任意', closeLabel: '閉じる' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: '必須', optionalText: '任意', closeLabel: '閉じる' }, { lang: 'ja' });
    ```
 
-   言葉がなくてもコンポーネントは動作し、どの言葉が足りないかをコンソールで知らせます。[言葉](/ja/foundations/words/)を参照してください。
+   パックも自分の言葉もなくてもコンポーネントは動作し、どの言葉が足りないかをコンソールで知らせます。[言葉](/ja/foundations/words/)を参照してください。
 
 </Steps>
 

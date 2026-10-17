@@ -2,7 +2,7 @@
 title: React
 description: Tanrei के Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: 27d513315921b88ae0421cee4a7261d7b4a56c8a
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -44,6 +44,7 @@ npm install @tanrei/react @tanrei/web
 
 ```tsx
 import '@tanrei/web/tokens.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -61,6 +62,8 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 ```
 
 प्रॉपर्टी के नाम वही हैं जो एलिमेंट के ऐट्रिब्यूट के हैं (`variant`, `size`, `disabled`)। इवेंट सामान्य React हैंडलर हैं।
+
+`@tanrei/web/words/en` हर उस लेबल और संदेश के लिए सादी अंग्रेज़ी में एक शब्द देता है जिसे कंपोनेंट दिखाते या कहते हैं, जैसे ज़रूरी वाले टैग का या बंद करने वाले बटन का नाम; इसे छोड़कर `@tanrei/react` के `setWords()` से अपने शब्द भी दे सकते हैं। देखें [शब्द](/hi/foundations/words/)।
 
 ## सर्वर रेंडरिंग
 

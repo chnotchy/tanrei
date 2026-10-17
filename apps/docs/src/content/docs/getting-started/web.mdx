@@ -71,15 +71,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>Cancel</tanrei-button>
    ```
 
-4. Give your product's words. Tanrei ships none: the text of a requirement tag, the name of a close button and the like are yours. Say them once, per language, or on each element.
+4. Give your product's words. A component has none of its own: the text of a requirement tag, the name of a close button and the like are your product's. To start with plain English for every one of them, import the English word pack once:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   Change any of them, or give the words of another language, with `setWords()` after it. A word you give wins over the pack, and a word on an element wins over both.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'Required', optionalText: 'Optional', closeLabel: 'Close' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: '必須', optionalText: '任意', closeLabel: '閉じる' }, { lang: 'ja' });
    ```
 
-   A component still works without a word, and tells you in the console which one it lacks. See [Words](/foundations/words/).
+   Without the pack and without your words, a component still works, and tells you in the console which word it lacks. See [Words](/foundations/words/).
 
 </Steps>
 
