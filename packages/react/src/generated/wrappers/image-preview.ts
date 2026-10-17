@@ -13,10 +13,10 @@ import { TanreiImagePreview as TanreiImagePreviewElement, type TanreiImagePrevie
  *
  * Events:
  * - `onClose` (`close`) — The person asked to close the preview: `detail.reason` is `button`, `escape`, `back` or `swipe`. Set `open` to false.
- * - `onIndexchange` (`indexchange`) — The person moved to another image: `detail.index`, which `index` already is. Not fired when you set `index`.
- * - `onZoomchange` (`zoomchange`) — The zoom changed by the person's gesture, control or key, or returned to 1 because the image changed: `detail.zoom`, once the change has ended. Not fired when you set `zoom`.
- * - `onControlshiddenchange` (`controlshiddenchange`) — The person hid or showed the controls: `detail.hidden`. Not fired when you set `controlsHidden`.
- * - `onLoaderror` (`loaderror`) — The source of an image the preview asked for did not load: `detail.index`. Once for each source that fails.
+ * - `onIndexChange` (`indexchange`) — The person moved to another image: `detail.index`, which `index` already is. Not fired when you set `index`.
+ * - `onZoomChange` (`zoomchange`) — The zoom changed by the person's gesture, control or key, or returned to 1 because the image changed: `detail.zoom`, once the change has ended. Not fired when you set `zoom`.
+ * - `onControlsHiddenChange` (`controlshiddenchange`) — The person hid or showed the controls: `detail.hidden`. Not fired when you set `controlsHidden`.
+ * - `onLoadError` (`loaderror`) — The source of an image the preview asked for did not load: `detail.index`. Once for each source that fails.
  */
 export const ImagePreview = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-image-preview',
@@ -24,9 +24,9 @@ export const ImagePreview = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewCloseDetail>>>,
-    onIndexchange: 'indexchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewIndexChangeDetail>>>,
-    onZoomchange: 'zoomchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewZoomChangeDetail>>>,
-    onControlshiddenchange: 'controlshiddenchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewControlsHiddenChangeDetail>>>,
-    onLoaderror: 'loaderror' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewLoadErrorDetail>>>,
+    onIndexChange: 'indexchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewIndexChangeDetail>>>,
+    onZoomChange: 'zoomchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewZoomChangeDetail>>>,
+    onControlsHiddenChange: 'controlshiddenchange' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewControlsHiddenChangeDetail>>>,
+    onLoadError: 'loaderror' as EventName<TanreiEvent<TanreiImagePreviewElement, CustomEvent<TanreiImagePreviewLoadErrorDetail>>>,
   },
 });

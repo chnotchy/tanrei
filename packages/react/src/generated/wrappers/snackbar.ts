@@ -11,7 +11,7 @@ import { TanreiSnackbar as TanreiSnackbarElement, type TanreiSnackbarDismissDeta
  * Events:
  * - `onAction` (`action`) — The action was activated; the snackbar closes.
  * - `onDismiss` (`dismiss`) — The snackbar closed without its action: `detail.reason` is `close`, `escape`, `timeout` or `host`.
- * - `onExpandedchange` (`expandedchange`) — The person expanded or collapsed the text with the expand button: `detail.expanded` is the new value. Not fired when the product sets `expanded`.
+ * - `onExpandedChange` (`expandedchange`) — The person expanded or collapsed the text with the expand button: `detail.expanded` is the new value. Not fired when the product sets `expanded`.
  */
 export const Snackbar = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-snackbar',
@@ -20,6 +20,6 @@ export const Snackbar = /* @__PURE__ */ createComponent({
   events: {
     onAction: 'action' as EventName<TanreiEvent<TanreiSnackbarElement>>,
     onDismiss: 'dismiss' as EventName<TanreiEvent<TanreiSnackbarElement, CustomEvent<TanreiSnackbarDismissDetail>>>,
-    onExpandedchange: 'expandedchange' as EventName<TanreiEvent<TanreiSnackbarElement, CustomEvent<TanreiSnackbarExpandedChangeDetail>>>,
+    onExpandedChange: 'expandedchange' as EventName<TanreiEvent<TanreiSnackbarElement, CustomEvent<TanreiSnackbarExpandedChangeDetail>>>,
   },
 });
