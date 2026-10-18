@@ -5342,6 +5342,10 @@
             "tanrei.comp.menu.container.shape": {
               "$value": "{tanrei.sys.shape.corner.none}"
             },
+            "tanrei.comp.search.suggestion.container.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on a suggestion's highlight, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.menu.leading-icon.size": {
               "$value": "{tanrei.sys.icon.medium}"
             },

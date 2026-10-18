@@ -278,8 +278,14 @@
             },
             "shape": {
               "$type": "dimension",
-              "$description": "The corners of a suggestion's highlight, inset in the view by its padding.",
-              "$value": "{tanrei.sys.shape.corner.small}"
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "$description": "The corners of a suggestion's highlight, inset in the view by its padding: the view's corner less that inset, so that the two curves keep one distance.",
+              "$extensions": {
+                "dev.tanrei.concentric": {
+                  "outer": "{tanrei.comp.search.view.container.shape}",
+                  "inset": "{tanrei.comp.search.view.padding-inline}"
+                }
+              }
             }
           },
           "leading-icon": {

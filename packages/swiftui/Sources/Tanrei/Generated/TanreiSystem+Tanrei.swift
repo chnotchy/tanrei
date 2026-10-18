@@ -3144,7 +3144,7 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
   optionMatchEmphasis: 100,
   optionPaddingBlock: 8,
   optionPaddingInline: 12,
-  optionShape: 6,
+  optionShape: 4,
   optionSupportingTextTypescale: tanreiTypescale.bodySmall,
   separation: 0,
   statusColor: .role(.onSurfaceVariant),
@@ -5383,7 +5383,7 @@ private let tanreiMenuTokens = TanreiMenuTokens(
   containerHeight: 48,
   containerPaddingBlock: 8,
   containerPaddingInline: 12,
-  containerShape: 6,
+  containerShape: 4,
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
@@ -5742,19 +5742,19 @@ private let tanreiMenuTokens = TanreiMenuTokens(
     )
   ),
   hovered: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   focused: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   pressed: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   disabled: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   )
 )
@@ -7066,7 +7066,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   suggestionContainerHeight: 56,
   suggestionContainerPaddingBlock: 8,
   suggestionContainerPaddingInline: 16,
-  suggestionContainerShape: 6,
+  suggestionContainerShape: 4,
   suggestionHeadlineTypescale: tanreiTypescale.body,
   suggestionLeadingIconSize: 24,
   suggestionSupportingTextTypescale: tanreiTypescale.bodySmall,
@@ -7353,7 +7353,7 @@ private let tanreiSelectTokens = TanreiSelectTokens(
   optionMarkSize: 24,
   optionPaddingBlock: 8,
   optionPaddingInline: 12,
-  optionShape: 6,
+  optionShape: 4,
   optionSupportingTextTypescale: tanreiTypescale.bodySmall,
   separation: 0,
   variants: TanreiSelectVariants(

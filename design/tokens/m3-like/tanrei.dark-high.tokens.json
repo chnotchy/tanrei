@@ -30266,7 +30266,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "The corners of a row's highlight and of its state layer."
+            "$description": "The corners of a row's highlight and of its state layer: the list's corner less the inset the rows stand at, so that the two curves keep one distance."
           },
           "supporting-text": {
             "typescale": {
@@ -55135,7 +55135,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "The corners of an item's row, which the state layer fills."
+            "$description": "The corners of an item's row, which the state layer fills: the sheet's corner less the inset the rows stand at, so that the two curves keep one distance."
           }
         },
         "control": {
@@ -73343,7 +73343,7 @@
                 "value": 8,
                 "unit": "px"
               },
-              "$description": "The corners of a suggestion's highlight, inset in the view by its padding."
+              "$description": "The corners of a suggestion's highlight, inset in the view by its padding: the view's corner less that inset, so that the two curves keep one distance."
             }
           },
           "headline": {
@@ -75938,7 +75938,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "The corners of an option's row."
+            "$description": "The corners of an option's row: the list's corner less the inset the rows stand at, so that the two curves keep one distance."
           },
           "supporting-text": {
             "typescale": {
