@@ -27,7 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type BrowserContextOptions, type Page, test as base, expect } from '@playwright/test';
+import { type BrowserContext, type BrowserContextOptions, type Page, test as base, expect } from '@playwright/test';
 import { appearAgain, mountForAppearing } from '../test/first-frame.js';
 import { type Frames, type Probe, expectFirstFrameAtRest } from '../test/frames.js';
 import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, itemsStagedInScript, loadSpec, pickerWindow } from '../test/harness.js';
@@ -109,9 +109,14 @@ const appearing: Probe = (root) => {
 
 const within = (keys: string[]) => (key: string) => keys.some((k) => key === k || key.startsWith(`${k}/`) || key.startsWith(`${k}>`) || key.startsWith(`${k}::`));
 
-/** One page for each worker, mounted with one spec's fixtures at a time. */
+/**
+ * A context for each worker, and in it one page for a spec at a time: a spec's fixtures are made to appear on the page
+ * that mounted them, and the next spec gets a new page. (One page given every spec's documents in turn grew until it
+ * crashed in the Linux container: five crashes in a run of five thousand.)
+ */
 interface Stage {
-  page: Page;
+  context: BrowserContext;
+  page: Page | null;
   spec: string | null;
   viewport: { width: number; height: number };
 }
@@ -122,19 +127,23 @@ const test = base.extend<{ appear: (spec: Spec, fixture: Fixture, measured: bool
       const u = workerInfo.project.use as BrowserContextOptions;
       const viewport = u.viewport ?? { width: 1280, height: 720 };
       const context = await browser.newContext({ viewport, deviceScaleFactor: u.deviceScaleFactor, userAgent: u.userAgent, isMobile: u.isMobile, hasTouch: u.hasTouch, colorScheme: u.colorScheme });
-      await use({ page: await context.newPage(), spec: null, viewport });
+      await use({ context, page: null, spec: null, viewport });
       await context.close();
     },
     { scope: 'worker' },
   ],
   appear: async ({ stage }, use, testInfo) => {
     await use(async (spec, fixture, measured) => {
+      if (stage.spec !== spec.name || !stage.page) {
+        stage.spec = null;
+        await stage.page?.close();
+        stage.page = await stage.context.newPage();
+      }
       const { page } = stage;
       const window = WINDOWS[spec.name]?.(fixture) ?? stage.viewport;
       const size = page.viewportSize();
       if (size?.width !== window.width || size?.height !== window.height) await page.setViewportSize(window);
       if (stage.spec !== spec.name) {
-        stage.spec = null;
         await mountForAppearing(page, spec);
         stage.spec = spec.name;
       }
