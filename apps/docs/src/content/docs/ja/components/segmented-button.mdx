@@ -2,7 +2,7 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: eeab1cd5b6d9aa62ca40f2c57812e80a25d358ea
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,23 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 概要
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[Tanrei システムでは提供しません]
-既定の Tanrei システムはセグメントボタンを提供しません。Material と cupertino のプリセットでは提供します。Tanrei では、複数の選択肢から 1 つを選ぶ場面には、下の内容が変わるなら[タブ](/ja/components/tabs/)を、値を設定するなら[ラジオボタン](/ja/components/radio-button/)を使います。それぞれが独立してオン・オフするボタンを並べる場面には[ボタングループ](/ja/components/button-group/)を使います。`@tanrei/web` はこれを登録せず、これを提供するプリセットのエントリーが登録します。既定のシステムの上に作るプロダクトでそれでも使いたい場合は、自分のレイヤーで取り込み、セグメントボタン自身のモジュールを読み込みます。そのとき、セグメントボタンはプロダクト自身のトークンで描かれます。提供しないシステムの下で使うと、開発時に警告が出ます。このページのデモは、これを提供する `m3-like` プリセットで表示しています。
-:::
-
-```js
-// これを提供するプリセットでは、プリセットのエントリーがほかのコンポーネントと一緒に登録します。
-import '@tanrei/web/m3-like'; // または '@tanrei/web/m3-expressive-like'、'@tanrei/web/cupertino'
-// 既定のシステムと、その上に作るプロダクトでは、自身のモジュールを読み込みます。
-import '@tanrei/web/components/segmented-button';
-```
-
-```json
-"components": { "include": ["segmented-button"] }
-```
-
-2 つ目のブロックは、自分のシステムのレイヤーファイル（`<id>.system.json`。[自分のデザインシステムを作る](/ja/getting-started/your-design-system/)を参照）に書きます。既定のシステムが外しているコンポーネントを取り戻す指定です。
 
 <DemoFrame label="単一選択、アイコン付き、アイコンのみ" system="m3-like">
   <tanrei-segmented-button label="期間" value="week">

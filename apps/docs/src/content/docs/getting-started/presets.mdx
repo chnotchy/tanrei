@@ -1,0 +1,92 @@
+---
+title: Presets
+description: Draw your product as one of the shipped presets — one stylesheet and one attribute, the fonts it asks for, the components it has — or take a single preset component into a system of your own.
+---
+
+import Steps from '../../../components/Steps.astro';
+import PresetFacts from '../../../components/PresetFacts.astro';
+
+Tanrei ships its default system, `tanrei`, and three presets: `m3-like`, `m3-expressive-like` and `cupertino`. A preset is a [design system layer](/foundations/design-systems/#the-systems-that-ship) like the one you would write yourself: it gives Tanrei's components the values of another design system, and it decides which components, and which values of their `variant`, it has. Use one as it is, or as the starting point of [your own design system](/getting-started/your-design-system/).
+
+## Use a preset on the web
+
+<Steps>
+
+1. Load the tokens, then the preset's stylesheet. Its tokens apply where its attribute is set.
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import '@tanrei/web/systems/m3-like.css';
+   ```
+
+2. Set the attribute on `<html>`, or on any part of the page: several systems can live on one page.
+
+   ```html
+   <html data-tanrei-system="m3-like">
+   ```
+
+3. Register the preset's components with its entry, in place of `@tanrei/web`. It registers the components the preset has and no other.
+
+   ```js
+   import '@tanrei/web/m3-like';
+   ```
+
+4. Load its fonts under the family names its tokens use, listed below. Tanrei bundles no font file: see [Fonts](/getting-started/web/#fonts).
+
+</Steps>
+
+What a preset has is listed in its components manifest, `@tanrei/web/systems/<id>.components.json`, which editors and coding agents read. On this site, choose a design system beside the [list of components](/components/), or at the top of the sidebar, and the lists show only what that system has.
+
+## The presets
+
+Each preset's facts below are read from its layer, its resolved tokens and its components manifest.
+
+### m3-like
+
+<PresetFacts system="m3-like" />
+
+### m3-expressive-like
+
+<PresetFacts system="m3-expressive-like" />
+
+### cupertino
+
+<PresetFacts system="cupertino" />
+
+## Take one preset component into your own system
+
+A component that a preset has and the default system does not — the FAB menu of `m3-like`, or the segmented button — is not out of reach of a product on the default system. Write a layer that extends `tanrei`, include the component in it, and import its own module. The component is then drawn with your system's tokens: its tokens alias your system's, so a FAB menu taken this way looks like the rest of your product, and none of the preset's values come along.
+
+<Steps>
+
+1. Include the component in your layer (`design/acme.system.json`; see [Your own design system](/getting-started/your-design-system/)). A component that lives in a preset's layer names that layer (`from`); one the default system leaves out is named alone.
+
+   ```json
+   {
+     "id": "acme",
+     "extends": "tanrei",
+     "components": {
+       "include": [{ "name": "fab-menu", "from": "m3-like" }, "segmented-button"]
+     }
+   }
+   ```
+
+2. Build. `npx tanrei build` writes your system's stylesheet, which holds the included components' tokens valued from yours, and your components manifest, which lists them.
+
+3. Load your stylesheet, set your attribute, and register the default system's components and the ones you took.
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import './styles/acme.css';
+   import '@tanrei/web';
+   import '@tanrei/web/components/fab-menu';
+   import '@tanrei/web/components/segmented-button';
+   ```
+
+   ```html
+   <html data-tanrei-system="acme">
+   ```
+
+</Steps>
+
+A component used under a system that does not have it is still drawn, and says so in the console of a development build. Each component's page says which systems have it, and what the others use instead.

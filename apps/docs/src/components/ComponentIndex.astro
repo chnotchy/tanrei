@@ -7,13 +7,21 @@
 // The list follows the specs' `listing` as the sidebar does: a
 // component shown on request is marked — the word at the end of its row — and drawn only to a reader who asked for
 // everything with the switch above the list (ListingSwitch.astro), which is the sidebar's switch too. A category whose
-// components are all shown on request is marked with them, so that no heading stands over nothing. Without script
-// every item is drawn.
-import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings } from '../lib/repo';
+// components are all shown on request is marked with them, so that no heading stands over nothing.
+//
+// The list follows the design system the reader chose beside the switch (SystemSelect.astro, the sidebar's choice too):
+// a component that system does not have — its components manifest lists it among what it does not have — is marked
+// with the systems that do not have it and not drawn under them, and so is a category none of whose components the
+// system has. In their place one line under the controls says what the chosen system does not have and what it uses
+// instead, each a link (lib/systems.ts). Without script every item is drawn, and every system's line.
+import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings, manifests } from '../lib/repo';
 import { contentLang, localeBase, strings } from '../lib/i18n';
-import { categoriesOf, groupOf, isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+import { ABSENT_ATTR, SYSTEM_ONLY_ATTR, absentFrom, categoriesOf, groupOf, isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+import { titleOf } from '../lib/systems';
 import ListingSwitch from './ListingSwitch.astro';
+import Sentence from './Sentence.astro';
 import SourceNote from './SourceNote.astro';
+import SystemSelect from './SystemSelect.astro';
 
 interface Props {
   /**
@@ -31,12 +39,35 @@ const base = localeBase(Astro);
 const categories = categoriesOf(statusComponents);
 /** The attribute of a row, or of a category, drawn only to a reader who asked for everything. */
 const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : {});
+/** The attribute of a row, or of a category, not drawn under the systems that do not have it. */
+const absent = (systems: string[]) => (systems.length ? { [ABSENT_ATTR]: systems.join(' ') } : {});
+/** The systems none of the rows of a category is in. */
+const absentAll = (rows: { name: string }[]) => rows.map((c) => absentFrom(c.name, manifests)).reduce((all, list) => all.filter((id) => list.includes(id)));
+/** A component's name as a link to its page, or as text where it has none. */
+const linked = (name: string) => ({ title: titleOf(name), href: componentHref(base, name) });
 ---
 
 <div class="not-content index">
-  <ListingSwitch lang={lang} />
+  <div class="controls">
+    <SystemSelect lang={lang} />
+    <ListingSwitch lang={lang} />
+  </div>
+  {manifests.filter((manifest) => manifest.omitted.length > 0).map((manifest) => (
+    <p class="absent" {...{ [SYSTEM_ONLY_ATTR]: manifest.system }}>
+      <Sentence text={t.system.notIn}><code slot="system">{manifest.system}</code></Sentence>{' '}
+      {manifest.omitted.map((entry, at) => (
+        <>
+          {at > 0 && ' · '}
+          <Sentence text={entry.insteadUse?.length ? t.system.insteadUse : '{component}'}>
+            <Fragment slot="component">{linked(entry.name).href ? <a class="tanrei-link" href={linked(entry.name).href}>{entry.title}</a> : entry.title}</Fragment>
+            <Fragment slot="components">{(entry.insteadUse ?? []).map(linked).map((member, index) => (<>{index > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</Fragment>
+          </Sentence>
+        </>
+      ))}
+    </p>
+  ))}
   {categories.map((category) => (
-    <section {...marked(statusComponents.filter((c) => groupOf(c) === category).every((c) => isOnRequest(c, listings)))}>
+    <section {...marked(statusComponents.filter((c) => groupOf(c) === category).every((c) => isOnRequest(c, listings)))} {...absent(absentAll(statusComponents.filter((c) => groupOf(c) === category)))}>
       <Heading class="docs-eyebrow">{t.category[category] ?? category}</Heading>
       <tanrei-list class="docs-index-list">
         {statusComponents.filter((c) => groupOf(c) === category).map((c) => {
@@ -52,7 +83,7 @@ const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : 
           // the parts, and after each item, are for the search index, which reads words, not one run.
           return (
             <>
-              <tanrei-list-item href={href} {...marked(onRequest)}>
+              <tanrei-list-item href={href} {...marked(onRequest)} {...absent(absentFrom(c.name, manifests))}>
                 <span class="entry">
                   <span class="text">
                     <span class="title">{c.title}</span>{' '}
@@ -80,6 +111,20 @@ const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : 
     display: grid;
     gap: 2rem;
     margin-top: 1.5rem;
+  }
+  /* The two controls of the lists, side by side where they fit, the select first. */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space300);
+  }
+  /* What the chosen system does not have, in the quiet small text of the list's meta line. */
+  .absent {
+    margin: 0;
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
   }
   /* A category's heading, at whatever level the page gave the block. */
   section > :global(.docs-eyebrow) {

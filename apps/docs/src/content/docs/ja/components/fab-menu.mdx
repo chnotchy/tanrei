@@ -2,7 +2,7 @@
 title: FAB メニュー
 description: 縮めたメインアクションボタンとして描くトグルから、関連するアクションの短いリストを開きます。リストが出ている間、トグルはそのリストを閉じるボタンになります。
 translationOf: components/fab-menu.mdx
-sourceHash: c0758189c0eef0167c0850043d5633746594d621
+sourceHash: 69aa6940fe6898a0910d96030f32d6cbf477668a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,9 +15,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[m3-like レイヤーのコンポーネント]
-FAB メニューは `m3-like` レイヤーにあります。これを持つのは、そのレイヤーを継ぐシステム（`m3-like` と `m3-expressive-like`）だけで、トークンもそれらのスタイルシートにしかありません。`@tanrei/web` はこれを登録せず、それらのシステムのエントリー（`@tanrei/web/m3-like`、`@tanrei/web/m3-expressive-like`）が登録します。既定の Tanrei システムと cupertino はどちらもフローティングアクションボタンを描かないので、これを持ちません。アクションを並べた[ボトムシート](/ja/components/bottom-sheet/)を開く[メインアクションボタン](/ja/components/main-action-button/)を使います。そうしたシステムの下で使うと、開発時にそのことを知らせます。ほかのシステムの上に作るプロダクトでこれを使うには、自分のレイヤーでこのレイヤーから取り込み（`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`）、FAB メニュー自身のモジュール `@tanrei/web/components/fab-menu` を読み込みます。その場合、FAB メニューはプロダクト自身のトークンで描かれます。このページのデモは `m3-like` で表示しています。
-:::
 
 <DemoFrame label="閉じた状態と開いた状態" system="m3-like">
   {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}

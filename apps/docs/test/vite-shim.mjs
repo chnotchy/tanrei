@@ -6,7 +6,8 @@
 // - `import x from './file.json'`: the file's value as the default export;
 // - `import x from './picture.png?inline'`: the file as a `data:` address;
 // - `import x from './mark.svg?raw'`: the file's text;
-// - `import.meta.glob('<pattern>', { eager: true, import: 'default' })` over JSON files: the object of path → value.
+// - `import.meta.glob('<pattern>', { eager: true, import: 'default' })` over JSON files: the object of path → value
+//   (a `*` in a file's or a folder's name).
 //
 // Anything else a module asks of Vite is not known here and fails the import with a sentence that says so.
 import fs from 'node:fs';
@@ -29,14 +30,27 @@ export async function resolve(specifier, context, nextResolve) {
   return nextResolve(specifier, context);
 }
 
-/** `import.meta.glob`, eager, default import, over JSON: the files the pattern names beside `file`. */
+/**
+ * `import.meta.glob`, eager, default import, over JSON: the files the pattern names beside `file`. A `*` stands for
+ * any part of one name, the file's or a folder's (a folder of each system, then its `components.json`); `**` and
+ * braces are not known here.
+ */
 function glob(pattern, file) {
-  const directory = path.resolve(path.dirname(file), path.dirname(pattern));
   const name = path.basename(pattern);
-  if (path.dirname(pattern).includes('*') || !name.endsWith('.json')) throw new Error(`${file}: import.meta.glob('${pattern}') is a form this test's shim does not know (test/vite-shim.mjs).`);
-  const matches = new RegExp(`^${name.split('*').map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
-  const entries = fs.readdirSync(directory).filter((entry) => matches.test(entry)).sort();
-  return `({${entries.map((entry) => `${JSON.stringify(`${path.dirname(pattern)}/${entry}`)}: ${fs.readFileSync(path.join(directory, entry), 'utf8')}`).join(',')}})`;
+  if (pattern.includes('**') || /[{}]/.test(pattern) || !name.endsWith('.json')) throw new Error(`${file}: import.meta.glob('${pattern}') is a form this test's shim does not know (test/vite-shim.mjs).`);
+  const like = (part) => new RegExp(`^${part.split('*').map((piece) => piece.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
+  // Each name of the pattern in turn: a name without `*` is taken as written, one with it is every entry it matches.
+  let found = [''];
+  for (const part of pattern.split('/')) {
+    found = found.flatMap((at) => {
+      if (!part.includes('*')) return [at ? `${at}/${part}` : part];
+      const directory = path.resolve(path.dirname(file), at);
+      if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) return [];
+      return fs.readdirSync(directory).filter((entry) => like(part).test(entry)).sort().map((entry) => `${at}/${entry}`);
+    });
+  }
+  const files = found.filter((rel) => fs.existsSync(path.resolve(path.dirname(file), rel)) && fs.statSync(path.resolve(path.dirname(file), rel)).isFile());
+  return `({${files.map((rel) => `${JSON.stringify(rel)}: ${fs.readFileSync(path.resolve(path.dirname(file), rel), 'utf8')}`).join(',')}})`;
 }
 
 export async function load(url, context, nextLoad) {

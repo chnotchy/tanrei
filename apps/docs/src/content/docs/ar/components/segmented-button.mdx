@@ -2,7 +2,7 @@
 title: الزر المقسَّم
 description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
 translationOf: components/segmented-button.mdx
-sourceHash: eeab1cd5b6d9aa62ca40f2c57812e80a25d358ea
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,23 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## نظرة عامة
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[ليس في نظام Tanrei]
-نظام Tanrei الافتراضي لا يتضمن الزر المقسَّم؛ أما إعدادات Material الجاهزة والإعداد الجاهز cupertino فتتضمنه. في Tanrei، الاختيار الواحد من بين عدة خيارات هو [علامات التبويب](/ar/components/tabs/) حيث يغيّر المحتوى الذي تحته، و[أزرار الاختيار](/ar/components/radio-button/) حيث يضبط قيمة؛ والأزرار التي يُبدَّل كل منها على حدة هي [مجموعة الأزرار](/ar/components/button-group/). لا يسجّله `@tanrei/web`، بل تسجّله مداخل الإعدادات الجاهزة التي تتضمنه. والمنتج المبني على النظام الافتراضي الذي يريده مع ذلك يضمّنه في طبقته ويستورد وحدته: فيُرسم حينئذ برموز المنتج نفسه. وإن استُخدم تحت نظام يستبعده نبّه إلى ذلك في أثناء التطوير. العروض التوضيحية في هذه الصفحة مرسومة تحت الإعداد الجاهز `m3-like`، وهو نظام يتضمنه.
-:::
-
-```js
-// في إعداد جاهز يتضمنه، يسجّله مدخل الإعداد الجاهز مع سائر المكوّنات:
-import '@tanrei/web/m3-like'; // أو '@tanrei/web/m3-expressive-like'، '@tanrei/web/cupertino'
-// في النظام الافتراضي، أو في منتج مبني عليه: وحدته الخاصة.
-import '@tanrei/web/components/segmented-button';
-```
-
-```json
-"components": { "include": ["segmented-button"] }
-```
-
-توضع الكتلة الثانية في ملف طبقة نظامك (`<id>.system.json`؛ راجع [نظام التصميم الخاص بك](/ar/getting-started/your-design-system/)): وهي تعيد مكوّنًا يستبعده النظام الافتراضي.
 
 <DemoFrame label="تحديد واحد، مع أيقونات، أيقونة فقط" system="m3-like">
   <tanrei-segmented-button label="النطاق" value="week">

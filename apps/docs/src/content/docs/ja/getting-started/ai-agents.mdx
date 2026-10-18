@@ -2,7 +2,7 @@
 title: AI エージェントと Tanrei を使う
 description: Tanrei の MCP サーバーをつなぎ、コーディングエージェントにプロダクトの UI の規則を AGENTS.md で渡し、既定のシステムのコンポーネントと値の中に留めます。
 translationOf: getting-started/ai-agents.mdx
-sourceHash: f71de545a719529973dd71afa242157ac819255e
+sourceHash: 69822916c84d74d567d7d17629f7fa8dc91ac991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -99,7 +99,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 - Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
 - Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
 - Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
-- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not in tanrei", or lists the variant under "Variants not shipped in", and in a development build it warns.
 - A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
 - Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
 - Keep every @tanrei/* package on the same version.
