@@ -71,12 +71,15 @@ A token's value also depends on a **context**: `scheme` = theme (light, dark) ×
 A design system is a layer file, `tokens/systems/<id>.system.json`, validated by `tokens/schema/system.schema.json`:
 
 ```
-tanrei.system.json            the root layer: palettes and the role → tone table
-  ├─ m3-like.system.json            extends tanrei
-  │    └─ m3-expressive-like.system.json   extends m3-like
-  └─ cupertino.system.json          extends tanrei
-(a product's own <id>.system.json extends any of them, in the product's repository)
+core.system.json              the root layer: palettes, the role → tone table, the per-state rules; leaves nothing out
+  └─ tanrei.system.json         the default system: the components and variants it leaves out
+       ├─ m3-like.system.json            extends tanrei
+       │    └─ m3-expressive-like.system.json   extends m3-like
+       └─ cupertino.system.json          extends tanrei
+(a product's own <id>.system.json extends any of them but the root, in the product's repository)
 ```
+
+The root has no output of its own — no stylesheet, bundle or native constant — and is not offered where a system is chosen; it is the first layer of every chain. The default system is the documents under `tokens/` as written plus what is generated from its layers, so neither the root nor the default system's own layer may set any other token (`pnpm validate` names the document that holds it).
 
 | Layer key | Does |
 |---|---|
@@ -85,6 +88,7 @@ tanrei.system.json            the root layer: palettes and the role → tone tab
 | `tokens` | per token id: set `$value` (fixed or alias, with a `reason`), replace `derive`, or `scale` the inherited definition |
 | `rules` | pattern rules, chiefly how per-state component tokens are valued (state-layer mix, explicit color, dim, nothing) |
 | `vocabulary` | **extends the vocabulary**: a step in a series, a value on a component axis, or tokens in the layer's own namespace — additive only, each with a `rationale` |
+| `components` | which components and `variant` values the system ships, as a change to what its parent ships: `omit` (each with a `reason` and what to use instead, `insteadUse`), `include` (bring back what an ancestor left out), `variants` (`omit` / `include` per component). An ancestor's choice stays unless a layer undoes it by name: a product on the default system brings back a component the default leaves out with one `include`, and draws it with the tokens every system values |
 
 Legal operations per token are computed by `packages/token-engine/src/operations.js`; the tools below offer only those.
 

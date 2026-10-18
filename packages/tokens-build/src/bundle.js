@@ -7,14 +7,15 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { listExtensions, mergeLayers, resolveNumericTokens, rootLayerProblems } from '@tanrei/token-engine';
 import { CONFIG } from './config.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, availabilityOf, componentChoices, layerChain } from './layers.js';
 import { SYSTEM_ID, assertSystemId, isSystemId } from './pure.js';
 import { generateSchemeFiles, loadSystem, sourceFiles } from './scheme.js';
 
-export const ROOT_SYSTEM = CONFIG.namespace;
 const RECIPE = 'dev.tanrei.system';
 
-export { SYSTEM_ID, assertSystemId, isSystemId };
+export { DEFAULT_SYSTEM, ROOT_SYSTEM, SYSTEM_ID, assertSystemId, availabilityOf, componentChoices, isSystemId, layerChain };
 
+/** Every layer in tokens/systems/, the root among them: what an `extends` may name. */
 export function listSystems(repoRoot) {
   return fs
     .readdirSync(path.join(repoRoot, 'tokens/systems'))
@@ -22,6 +23,13 @@ export function listSystems(repoRoot) {
     .map((f) => f.replace('.system.json', ''))
     .sort();
 }
+
+/**
+ * The systems that ship with Tanrei, by id: every layer but the root. The root values the vocabulary for the systems
+ * that extend it and has no outputs of its own — no stylesheet, no bundle, no native constant — so it is offered
+ * nowhere a system is chosen; it is read only as the first layer of every chain.
+ */
+export const shippedSystems = (repoRoot) => listSystems(repoRoot).filter((id) => id !== ROOT_SYSTEM);
 
 let validateLayer;
 /** Schema-validate one layer file's content. Returns problems. */
@@ -37,42 +45,25 @@ export function validateLayerFile(repoRoot, layer, fileId) {
 }
 
 /**
- * Problems of the layers that ship in `tokens/systems/`: each one's schema, and — for the root layer — every line the
- * default system cannot take. The default system is read from `tokens/` as it is written; only what is generated
- * from the root layer is the root layer's to set (`rootLayerProblems`).
+ * Problems of the layers that ship in `tokens/systems/`: each one's schema, and — for every layer the default system
+ * is made of (the root and the default system's own) — every line the default system cannot take. The default system
+ * is read from `tokens/` as it is written; only what is generated from its layers is theirs to set
+ * (`rootLayerProblems`): a line for anything else would reach the presets that extend them and never the default.
  * @param {(id: string) => object} [read] a shipped layer by id
  * @returns {string[]}
  */
 export function shippedLayerProblems(repoRoot, read = (id) => loadSystem(repoRoot, id)) {
+  let defaultChain = [];
+  try {
+    defaultChain = layerChain(DEFAULT_SYSTEM, read).map((layer) => layer.id);
+  } catch (error) {
+    return [`${DEFAULT_SYSTEM}.system.json: ${error.message}`];
+  }
   return listSystems(repoRoot).flatMap((id) => {
     const layer = read(id);
-    return [...validateLayerFile(repoRoot, layer, id), ...(id === ROOT_SYSTEM ? rootLayerProblems(sourceFiles(repoRoot), layer, { namespace: CONFIG.namespace }) : [])];
+    const role = id === ROOT_SYSTEM ? 'the root layer' : 'the default system\'s own layer';
+    return [...validateLayerFile(repoRoot, layer, id), ...(defaultChain.includes(id) ? rootLayerProblems(sourceFiles(repoRoot), layer, { namespace: CONFIG.namespace, role }) : [])];
   });
-}
-
-/** Layers from the root down to `id`, following `extends`. `read(id)` returns a parsed layer. */
-export function layerChain(id, read) {
-  const chain = [];
-  const seen = new Set();
-  for (let current = id; current; current = chain[0].extends) {
-    // The id the caller started from is the caller's own; every further one was WRITTEN IN A LAYER nobody has validated yet.
-    if (chain.length) assertSystemId(current, `${chain[0].id}.system.json "extends"`);
-    if (seen.has(current)) throw new Error(`"extends" cycle: ${[...seen, current].join(' → ')}`);
-    seen.add(current);
-    chain.unshift(read(current));
-  }
-  if (chain[0].id !== ROOT_SYSTEM) throw new Error(`system "${id}" does not extend "${ROOT_SYSTEM}"`);
-  return chain;
-}
-
-/**
- * What a system does not ship: the `unavailable` of the nearest layer in the chain that declares one.
- * @param {object[]} chain layers, root first
- * @returns {{ components: string[], variants: Record<string, string[]> }}
- */
-export function availabilityOf(chain) {
-  const declared = chain.findLast((layer) => layer.unavailable)?.unavailable ?? {};
-  return { components: declared.components ?? [], variants: declared.variants ?? {} };
 }
 
 /**
@@ -85,7 +76,8 @@ export function buildBundle(repoRoot, chain) {
   const files = resolveNumericTokens(sourceFiles(repoRoot), system);
   for (const [name, doc] of Object.entries(generateSchemeFiles(system, repoRoot, files))) files[`generated/${name}`] = doc;
 
-  const resolver = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tokens', `${ROOT_SYSTEM}.resolver.json`), 'utf8'));
+  // tokens/ is the default system's bundle: its resolver is the one every bundle starts from.
+  const resolver = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tokens', `${DEFAULT_SYSTEM}.resolver.json`), 'utf8'));
   resolver.name = system.name ?? system.id;
   resolver.description = `Design system "${system.id}" (${system.chain.join(' ← ')}), fully valued. Generated by Tanrei; do not edit.`;
   // A layer's own tokens arrive as ext/<namespace>.tokens.json: one more set, after the components.

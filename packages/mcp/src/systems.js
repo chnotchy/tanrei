@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { AXES, STATES, collectVocabulary as engineCollectVocabulary, dependencyIndex, expandStateVocabulary, listExtensions, materializeVocabulary, walkTokens } from '@tanrei/token-engine';
-import { listSystems, validateLayerFile } from '@tanrei/tokens-build/bundle';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, listSystems, shippedSystems as systemsOffered, validateLayerFile } from '@tanrei/tokens-build/bundle';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
 // resolve.js is the pipeline without the platform emitters: layers → bundle → DTCG resolver → model, all in memory.
 import { chainDigest, readSystemChain, resolveChainByScheme, systemIdOf, validateSystem } from '@tanrei/tokens-build/resolve';
@@ -12,7 +12,8 @@ import { SCHEMES, loadSystem, sourceFiles, vocabularyDigest } from '@tanrei/toke
 
 export { CONFIG, REPO_ROOT, SCHEMES };
 export const NS = CONFIG.namespace;
-export const ROOT_SYSTEM = NS;
+// The root layer every chain starts from, and the default system — the one a tool reads when it is named no system.
+export { DEFAULT_SYSTEM, ROOT_SYSTEM };
 export const VOCABULARY = 'dev.tanrei.vocabulary';
 export const LLM = 'dev.tanrei.llm';
 export const DERIVE = 'dev.tanrei.derive';
@@ -36,7 +37,10 @@ export class ToolError extends Error {
   }
 }
 
+/** Every layer that ships in tokens/systems/, the root among them: what a reference may name. */
 export const shippedSystems = () => listSystems(REPO_ROOT);
+/** The systems a product chooses from: every shipped layer but the root, which has no output of its own. */
+export const listedSystems = () => systemsOffered(REPO_ROOT);
 export const shippedLayer = (id) => loadSystem(REPO_ROOT, id);
 export const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
 
@@ -64,7 +68,7 @@ export function describeReference({ system, layerFile, layer, parents, dir } = {
     if (!fs.existsSync(file)) throw new ToolError(`${layerFile}: no such file. Pass an absolute path, or one relative to the server's working directory (${process.cwd()}).`);
     return { kind: 'file', file };
   }
-  const id = system ?? ROOT_SYSTEM;
+  const id = system ?? DEFAULT_SYSTEM;
   if (!shippedSystems().includes(id)) throw new ToolError(`"${id}" is not a shipped system. Shipped: ${shippedSystems().join(', ')}. For a product's own system pass "layerFile": the path of its <id>${LAYER_SUFFIX}.`);
   return { kind: 'shipped', id };
 }

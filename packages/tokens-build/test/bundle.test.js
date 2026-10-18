@@ -24,7 +24,7 @@ const product = { id: 'acme', name: 'Acme', extends: 'roomy',
     'tanrei.comp.button.container.padding-inline-start.medium': { scale: 2 },
     'tanrei.sys.color.outline-variant': { derive: { fn: 'alpha', of: { light: 'black', dark: 'white' }, amount: { light: [12], dark: [20] } } },
   } };
-const layers = { tanrei: loadSystem(REPO_ROOT), roomy: preset, acme: product };
+const layers = { core: loadSystem(REPO_ROOT, 'core'), tanrei: loadSystem(REPO_ROOT, 'tanrei'), roomy: preset, acme: product };
 
 test('every committed layer file is schema-valid', () => {
   for (const id of listSystems(REPO_ROOT)) assert.deepEqual(validateLayerFile(REPO_ROOT, loadSystem(REPO_ROOT, id), id), []);
@@ -47,7 +47,7 @@ test('a product on a preset on the root: bundle → DTCG resolver → CSS', asyn
   const paddingStep = root.tokens[padding].alias;
   const steps = root.tokens[padding].value.value / root.tokens['tanrei.dial.space.unit'].value.value;
   const chain = layerChain('acme', (id) => layers[id]);
-  assert.deepEqual(chain.map((l) => l.id), ['tanrei', 'roomy', 'acme']);
+  assert.deepEqual(chain.map((l) => l.id), ['core', 'tanrei', 'roomy', 'acme']);
   const { files } = buildBundle(REPO_ROOT, chain);
 
   const dir = tempDir('bundle');
@@ -70,8 +70,8 @@ test('a product on a preset on the root: bundle → DTCG resolver → CSS', asyn
 
   // The recipe travels inside the bundle.
   const recipe = files['dial/dial.tokens.json'].$extensions['dev.tanrei.system'];
-  assert.deepEqual(recipe.chain, ['tanrei', 'roomy', 'acme']);
-  assert.equal(recipe.layers[2].tokens['tanrei.comp.button.container.padding-inline-start.medium'].scale, 2);
+  assert.deepEqual(recipe.chain, ['core', 'tanrei', 'roomy', 'acme']);
+  assert.equal(recipe.layers[3].tokens['tanrei.comp.button.container.padding-inline-start.medium'].scale, 2);
 
   assert.deepEqual(checkInvariants(model), [], 'this product stays accessible');
   assert.equal(value('tanrei.comp.button.container.height.small').value, 40, 'size dial: 5 × 8');
@@ -87,22 +87,22 @@ test('a product on a preset on the root: bundle → DTCG resolver → CSS', asyn
 
 test('an extends cycle and a chain that misses the root are reported', () => {
   assert.throws(() => layerChain('a', (id) => ({ a: { id: 'a', extends: 'b' }, b: { id: 'b', extends: 'a' } })[id]), /"extends" cycle/);
-  assert.throws(() => layerChain('a', () => ({ id: 'a' })), /does not extend "tanrei"/);
+  assert.throws(() => layerChain('a', () => ({ id: 'a' })), /does not extend "core"/);
 });
 
 test('a layer that invents a color role is told to declare a palette', () => {
   const bad = { id: 'bad', extends: 'tanrei', tokens: { 'tanrei.sys.color.quaternary': { derive: { fn: 'tone', palette: 'accent', tone: [40] } } } };
-  assert.throws(() => buildBundle(REPO_ROOT, [layers.tanrei, bad]), /not a color role.*declare a palette/s);
+  assert.throws(() => buildBundle(REPO_ROOT, [layers.core, layers.tanrei, bad]), /not a color role.*declare a palette/s);
 });
 
-test('what a system does not ship is the nearest declared list, and every system stylesheet carries it', () => {
+test('what a system does not ship is worked out down its chain, and every system stylesheet carries it', () => {
   const read = (id) => loadSystem(REPO_ROOT, id);
   assert.ok(availabilityOf(layerChain('tanrei', read)).components.includes('fab-menu'));
-  // m3-expressive-like declares no list of its own, so it inherits m3-like's (Material's bar has no filled
+  // m3-expressive-like says nothing of its components, so it ships what m3-like ships (Material's bar has no filled
   // form; its tabs have no tonal kind).
   assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
   assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
-  assert.deepEqual(availabilityOf([{ id: 'a', unavailable: { components: ['x'] } }, { id: 'b' }]), { components: ['x'], variants: {} });
+  assert.deepEqual(availabilityOf([{ id: 'a', components: { omit: { x: { reason: 'Not drawn here.' } } } }, { id: 'b' }]), { components: ['x'], variants: {} });
   const css = (unavailable) => emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { scope: 'b', unavailable });
   assert.match(css({ components: ['fab-menu'], variants: { 'text-field': ['filled'] } }), /--tanrei-unavailable: "fab-menu text-field:filled";/);
   assert.match(css({ components: [], variants: {} }), /--tanrei-unavailable: "";/);
