@@ -5,8 +5,10 @@
 // the fixture's own page — what the fixture draws on its stage, and the props that make it as the caption. The stages
 // stand in groups by the first axis of the spec that tells its fixtures apart (`variant`, else `size`, …).
 //
-// A stage is sized to what it draws, and a stage whose fixture is as wide as its layout starts at the width the web
-// harness gives that layout and has a handle on its end edge that makes it narrower or wider. A presented fixture is
+// The stages stand one to a row, each as wide as the column, in one column — as a specification's figures stand one
+// under another, and as a reader scrolls them. What a stage draws keeps its own size inside it; a stage whose fixture
+// is as wide as its layout starts at the width the web harness gives that layout and has a handle on its end edge that
+// makes it narrower or wider. A presented fixture is
 // drawn alone, presented, in a window of its own: an `iframe` of the fixture's page, loaded when it comes near the view,
 // in a box that holds the window's size before anything is loaded (scaled down where the column is narrower).
 //
@@ -141,21 +143,21 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
   .docs-fixture-axis {
     margin: 0 0 var(--tanrei-sys-space-space150);
   }
-  /* The stages of a group: a wrapping row, each stage as wide as what it holds and never wider than the column. */
+  /* The stages of a group: one column, one stage to a row, each as wide as the column. A row of stages side by side
+     would set a small fixture beside an unrelated one and let a wide one push the next onto a row of its own: one under
+     another, every stage starts at the same edge, and the next is always below. */
   .docs-fixture-stages {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--tanrei-sys-space-space200);
   }
-  /* A stage: as wide as its canvas or its header, never wider than the column. Every stage of the page is laid out
-     with the page, as a product's screen is: a stage that is not laid out while it is away from the view
-     (`content-visibility: auto`) has no size then, and a component that measures its place once — the description
-     list choosing between its terms beside their values and above them — keeps the choice it made in no room. */
+  /* A stage: the column's width, whatever it draws. Every stage of the page is laid out with the page, as a product's
+     screen is: a stage that is not laid out while it is away from the view (`content-visibility: auto`) has no size
+     then, and a component that measures its place once — the description list choosing between its terms beside
+     their values and above them — keeps the choice it made in no room. */
   .docs-stage {
-    flex: 0 1 auto;
-    inline-size: fit-content;
-    min-inline-size: min(100%, 14rem);
+    display: block;
+    min-inline-size: 0;
   }
   /* The id breaks where it must, so that the header never makes a stage wider than what it draws. */
   .docs-stage [data-part='title'] code {

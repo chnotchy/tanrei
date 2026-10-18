@@ -7,18 +7,19 @@ import { RESIZE_EVENT, resizeHandle } from './resize-handle';
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
 const LEAST = 160;
 
-/** The width the stage's figure can give its canvas: the row's, less what the figure draws around the canvas. */
-function room(stage: HTMLElement, canvas: HTMLElement): number {
-  const row = stage.parentElement ?? stage;
-  return Math.max(LEAST, row.clientWidth - (stage.getBoundingClientRect().width - canvas.getBoundingClientRect().width));
+/** The width a stage can give its canvas: the stage's box (as wide as the column), less its padding. */
+function room(canvas: HTMLElement): number {
+  const box = canvas.parentElement ?? canvas;
+  const style = getComputedStyle(box);
+  return Math.max(LEAST, box.clientWidth - parseFloat(style.paddingInlineStart) - parseFloat(style.paddingInlineEnd));
 }
 
 /** An inline stage whose fixture is as wide as its layout: the handle sets the canvas's width, which the fixture fills. */
-function inlineStage(stage: HTMLElement, canvas: HTMLElement, handle: HTMLElement) {
+function inlineStage(canvas: HTMLElement, handle: HTMLElement) {
   resizeHandle(handle, {
     value: () => canvas.getBoundingClientRect().width,
     min: () => LEAST,
-    max: () => room(stage, canvas),
+    max: () => room(canvas),
   });
   handle.addEventListener(RESIZE_EVENT, (event) => {
     canvas.style.setProperty('--docs-stage-width', `${(event as CustomEvent<{ value: number }>).detail.value}px`);
@@ -146,7 +147,7 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   if (!box || !canvas) continue;
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   if (stage.dataset.stage === 'window') windowStage(canvas, handle);
-  else if (handle) inlineStage(stage, canvas, handle);
+  else if (handle) inlineStage(canvas, handle);
   // A window follows the page's scheme from its first load, before its actions are drawn.
   const frame = box.querySelector<HTMLIFrameElement>('iframe');
   if (frame && pageScheme() === 'dark') {
