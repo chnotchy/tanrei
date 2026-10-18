@@ -2,7 +2,7 @@
 title: "下拉选择字段"
 description: "以表单里一个完整字段的形式，让用户从一个封闭的列表中选择一个值——一个可以说明字段必填或选填的标签，一个显示选中的选项并打开选项列表的触发器，以及下方的一行帮助文本或错误——它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: 6a6f082facd8df680cd2fcc9423d36abeb1057a6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="select-field" />
 
 <DemoFrame label="一个必填的下拉选择字段，以及一个分了组、并用一个字形代表这个字段的下拉选择字段" column>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" placeholder="请选择国家/地区" supporting-text="发票将寄往该国家/地区。">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" placeholder="请选择国家/地区" supporting-text="发票将寄往该国家/地区。">
     <tanrei-option value="ca">加拿大</tanrei-option>
     <tanrei-option value="fr">法国</tanrei-option>
     <tanrei-option value="jp">日本</tanrei-option>
@@ -46,7 +46,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-select-field name="country" label="国家/地区" value="jp" requirement="required" required-text="必填"
+      <tanrei-select-field name="country" label="国家/地区" value="jp" required required-text="必填"
         supporting-text="发票将寄往该国家/地区。">
         <tanrei-option value="ca">加拿大</tanrei-option>
         <tanrei-option value="jp">日本</tanrei-option>
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Option, SelectField } from '@tanrei/react';
 
-    <SelectField label="国家/地区" value={country} requirement="required" requiredText="必填" onChange={(event) => setCountry(event.currentTarget.value)}>
+    <SelectField label="国家/地区" value={country} required requiredText="必填" onChange={(event) => setCountry(event.currentTarget.value)}>
       <Option value="ca">加拿大</Option>
       <Option value="jp">日本</Option>
     </SelectField>
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个控件：
 
 ```html
-<tanrei-field label="国家/地区" requirement="required" required-text="必填"
+<tanrei-field label="国家/地区" required required-text="必填"
   supporting-text="发票将寄往该国家/地区。">
   <tanrei-select name="country" placeholder="请选择国家/地区">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -105,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="手写出来的同一个字段：一个字段，里面有一个下拉选择框" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" supporting-text="发票将寄往该国家/地区。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" supporting-text="发票将寄往该国家/地区。">
     <tanrei-select placeholder="请选择国家/地区">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">肯尼亚</tanrei-option>
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="team" supporting-text="项目数量不限，共享角色">团队版</tanrei-option>
     <tanrei-option value="enterprise" supporting-text="单点登录和审计日志" disabled>企业版</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="区域" requirement="optional" optional-text="选填" placeholder="不限区域">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="区域" optional optional-text="选填" placeholder="不限区域">
     <tanrei-option value="emea">欧洲、中东和非洲</tanrei-option><tanrei-option value="apac">亚太地区</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" value="ke" error error-text="暂不支持配送到该国家/地区。请选择其他国家/地区。">
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="国家/地区" value="jp" supporting-text="发票将寄往该国家/地区。">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国家/地区" requirement="required" required-text="必填">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国家/地区" required required-text="必填">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select-field>
 </DemoFrame>
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段 | 来自下拉选择框 |
 | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
 | 事件 | — | `change`, `toggle` |
 | 插槽 | `label-icon` | `leading-icon`，以及选项 |
 | 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；列表用 `comp.select.*` |
@@ -185,7 +185,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-select>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
 - 选项仍然是你写在 `<tanrei-select-field>` 里的子元素。它们绝不会被移动或复制：它们通过一个插槽到达里面的下拉选择框，一有变化，下拉选择框就会重新读取。手动替换它们（`replaceChildren()`）的效果与在下拉选择框上相同。
-- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有值，禁用时什么都不提交，只读时照常提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而值为空时，报告缺少值。它的两个成员不向表单添加任何条目。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有值，禁用时什么都不提交，只读时照常提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；设置了 `required` 而值为空时，报告缺少值。它的两个成员不向表单添加任何条目。
 - `change` 是下拉选择框的事件，composed 并且冒泡。`toggle` 是下拉选择框的 CustomEvent，带有 `detail.open` 和 `detail.reason`：它是 composed 的，但不冒泡，所以要在这个元素上监听，`<details>` 之类的祖先绝不会收到它。它们的 target 是这个元素，在每个监听器里，`event.target.value` 和 `event.target.open` 都已经是新的值。
 - 部件：`field` 和 `select` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。`label` 和 `requirement-label` 指两者之中画出来的那一个——字段的标签行，或者下拉选择框的浮动标签——而 `field-label`、`select-label`、`field-requirement-label` 和 `select-requirement-label` 只指其中一个成员的。
 - 这个元素本身不能获得焦点：`focus()` 会把焦点交给触发器，页面自己的 `<label for>` 也会把焦点移到那里。按下标签行会让触发器获得焦点，不打开任何东西；按下触发器会打开列表；按下帮助文本什么都不会发生。
@@ -219,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 组件负责的部分
 
 - 它是一个不可编辑的组合框，也就是下拉选择框的那一个。它的名称是 `label`，无论标签是否绘制；它的描述是显示出来的辅助文本或错误文本，字段为选填时还加上选填文字。
-- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；列表打开时，暴露为已展开。
+- `error` 为 true 时，它暴露为无效；设置了 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；列表打开时，暴露为已展开。
 - 名称、描述和状态的关联方式，与字段把它们关联到它框住的任何控件时完全一样。在下一层手写的字段，是同一个控件。
 - 画出来的标签、必填和选填标记以及字形，不会再暴露第二次。
 - 它只是一个 Tab 停靠点。按下标签会把焦点移到触发器上，不打开任何东西；按下帮助文本什么都不会发生。

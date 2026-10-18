@@ -2,7 +2,7 @@
 title: फ़ील्ड
 description: एक कंट्रोल को वह सब देता है जो फ़ॉर्म हर फ़ील्ड को देता है, यानी ऐसा लेबल जो बता सकता है कि कंट्रोल ज़रूरी है या वैकल्पिक, सहायता की एक पंक्ति, और मान के अस्वीकार होने की वजह, और हर एक को सहायक तकनीक के लिए उस कंट्रोल से जोड़ता है। यह फ़्रेम है, कंट्रोल कभी नहीं।
 translationOf: components/field.mdx
-sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
+sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,8 +16,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field" />
 
 <DemoFrame label="एक स्लाइडर और एक स्विच, जिनमें से हर एक को फ़ील्ड नाम, सहायता और निशान देता है" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी" supporting-text="अलर्ट और मीडिया पर लागू होता है।"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचनाएँ" requirement="optional" optional-text="वैकल्पिक" supporting-text="जब कोई समीक्षा आपके इंतज़ार में हो, तब भेजी जाती हैं।"><tanrei-switch checked></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" supporting-text="अलर्ट और मीडिया पर लागू होता है।"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचनाएँ" optional optional-text="वैकल्पिक" supporting-text="जब कोई समीक्षा आपके इंतज़ार में हो, तब भेजी जाती हैं।"><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 टेक्स्ट फ़ील्ड बता सकता है कि वह क्या है, उसका जवाब देना ज़रूरी है या नहीं, जवाब कैसे देना है, और कोई जवाब क्यों अस्वीकार हुआ। फ़ील्ड यही चार चीज़ें उस कंट्रोल को देता है जो ख़ुद ऐसा नहीं कर सकता: स्लाइडर, स्विच, [टेक्स्ट इनपुट](/hi/components/text-input/), [कलर इनपुट](/hi/components/color-input/), [वन-टाइम कोड इनपुट](/hi/components/one-time-code-input/), या वह कंट्रोल जो आपके प्रॉडक्ट ने बनाया है। टेक्स्ट फ़ील्ड ख़ुद टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है। लेबल कंट्रोल के ऊपर रहता है और सहायता उसके नीचे। जब तक फ़ील्ड में त्रुटि है, त्रुटि टेक्स्ट सहायता की जगह ले लेता है, इसलिए त्रुटि वाला फ़ॉर्म सामान्य से ज़्यादा ऊँचा नहीं होता; कोई डिज़ाइन सिस्टम इसकी जगह सहायता को बनाए रख सकता है और त्रुटि टेक्स्ट उसके नीचे जोड़ सकता है।
@@ -31,12 +31,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" requirement="optional" optional-text="वैकल्पिक">
+    <tanrei-field label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" optional optional-text="वैकल्पिक">
       <tanrei-slider name="volume" value="40"></tanrei-slider>
     </tanrei-field>
 
     <!-- वैलिडेट प्रॉडक्ट करता है; फ़ील्ड वजह दिखाता है और कंट्रोल को अमान्य के रूप में चिह्नित करता है। -->
-    <tanrei-field label="वॉल्यूम" requirement="required" required-text="ज़रूरी" error error-text="0 से ऊपर का स्तर चुनें।">
+    <tanrei-field label="वॉल्यूम" required required-text="ज़रूरी" error error-text="0 से ऊपर का स्तर चुनें।">
       <tanrei-slider name="volume" value="0"></tanrei-slider>
     </tanrei-field>
 
@@ -69,10 +69,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="ज़रूरी और वैकल्पिक के तीन निशान, एक त्रुटि, एक अक्षम फ़ील्ड और लेबल का ग्लिफ़" plain column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="optional" optional-text="वैकल्पिक"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी" error error-text="0 से ऊपर का स्तर चुनें।"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" optional optional-text="वैकल्पिक"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" error error-text="0 से ऊपर का स्तर चुनें।"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="फ़ील्ड में टेक्स्ट इनपुट: सहायता और गिनती के साथ, और त्रुटि में" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="दिखने वाला नाम" supporting-text="आपकी टिप्पणियों के साथ दिखता है।" count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" requirement="required" required-text="ज़रूरी" error error-text="पूरा ईमेल पता दर्ज करें।"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" error error-text="पूरा ईमेल पता दर्ज करें।"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
 </DemoFrame>
 
 ### टेक्स्ट इनपुट के चारों ओर
@@ -134,7 +134,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### ज़रूरी और वैकल्पिक
 
-`requirement` के मान `none`, `required` या `optional` हैं। यह एक ही सेटिंग है, क्योंकि कोई कंट्रोल एक साथ दोनों नहीं होता।
+`required` और `optional` बताते हैं कि फ़ॉर्म कंट्रोल से क्या माँगता है। `required`, जो HTML का दिया नाम है, कंट्रोल को ज़रूरी के रूप में देता है और ज़रूरी का निशान बनाता है: `<tanrei-field label="ईमेल" required>`। `optional` वैकल्पिक का टैग बनाता है। कोई कंट्रोल एक साथ दोनों नहीं होता: दोनों सेट हों तो वह ज़रूरी है, और डेवलपमेंट बिल्ड बताता है कि `optional` अनदेखा किया गया। React में भी ये prop हैं, जैसे `<input>` पर `required`।
 
 - `required` कंट्रोल को ज़रूरी के रूप में देता है और लेबल के बग़ल में ज़रूरी का निशान बनाता है।
 - `optional` एक हल्का टैग बनाता है और उसका टेक्स्ट कंट्रोल के विवरण में जोड़ता है।
@@ -180,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - लेबल ही कंट्रोल का एक्सेसिबल नाम है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो। जिस कंट्रोल का अपना नाम है, वह उसे बनाए रखता है।
 - कंट्रोल का विवरण वह है जो सहायक पंक्ति दिखाती है: सहायता, या फ़ील्ड के त्रुटि में रहते उसकी जगह त्रुटि टेक्स्ट (`append` में पहले सहायता, फिर त्रुटि टेक्स्ट), फिर कंट्रोल के वैकल्पिक रहते `optionalText`। ये उस विवरण के बाद आते हैं जो कंट्रोल के पास पहले से है।
-- जब तक `error` true है, कंट्रोल अमान्य के रूप में दिया जाता है; जब तक `requirement` का मान `required` है, ज़रूरी के रूप में; और जब तक `disabled` true है, अक्षम के रूप में। जिस कंट्रोल के रोल में ज़रूरी का स्टेट नहीं है, जैसे स्लाइडर, वह इसकी जगह अपने विवरण में `requiredText` कहता है।
+- जब तक `error` true है, कंट्रोल अमान्य के रूप में दिया जाता है; जब तक `required` सेट है, ज़रूरी के रूप में; और जब तक `disabled` true है, अक्षम के रूप में। जिस कंट्रोल के रोल में ज़रूरी का स्टेट नहीं है, जैसे स्लाइडर, वह इसकी जगह अपने विवरण में `requiredText` कहता है।
 - जिस कंट्रोल की अपनी त्रुटि की अवस्था है, जैसे चेकबॉक्स या रेडियो बटन, वह उसी में दिखाया जाता है।
 - जब फ़ोकस फ़ील्ड के भीतर रहते हुए कोई त्रुटि आती है या उसके शब्द बदलते हैं, तो उसे एक बार, बिना टोके (polite), पढ़कर सुनाया जाता है: सिर्फ़ त्रुटि टेक्स्ट, सहायता दोबारा नहीं। त्रुटि की वजह से फ़ोकस कभी नहीं हटता।
 - लेबल को दबाने पर फ़ोकस कंट्रोल पर जाता है, और कंट्रोल ऑपरेट नहीं होता।

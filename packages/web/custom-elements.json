@@ -6921,7 +6921,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Asks one question that may have several answers among a few choices shown all at once. Built from a field group\n(`<tanrei-field-group>`) and checkboxes (`<tanrei-checkbox>`): the field group's label, requirement, description and\none error around the product's own checkboxes, whose checked values the group holds as one list under one name, and —\nwhere `select-all-label` is given — one more checkbox before the first that checks them all.\n\nContract: specs/checkbox-group.spec.json. `<tanrei-checkbox-group name=\"notify\" label=\"Notify me by\"><tanrei-checkbox\nvalue=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-checkbox-group>`: the checkboxes are the element's\nchildren and stay in the product's light DOM; each stands for its `value`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element around the\nselect-all checkbox and a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-checkbox-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the\nfield group's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group label=\"Notify me by\">\n<tanrei-checkbox name=\"notify\" value=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-field-group>` — for\ncheckboxes that each need a name of their own, a set that holds something else, or another rule for \"all\".\n\n`value` is a property only: an array of the checked values, in the order of the checkboxes, followed by the entries\nno checkbox stands for, which are kept; it is copied in and out. The first value is written as `checked` on the\nchildren; once the product has set `value`, `value` decides. A person's switch — of one checkbox, or of the select-all\ncheckbox — sets `value` and fires `input` and one `change`; the checkboxes fire nothing of their own.\n\nForm-associated: it submits one entry per value under `name` — what checkboxes of one name submit — and its\ncheckboxes submit nothing; a checkbox disabled by itself keeps its entry; a disabled group submits nothing. It\nreturns to its first value when the form is reset, is restored on navigation, follows `<fieldset disabled>`, and\nreports `valueMissing` while `requirement=\"required\"` and the list is empty, with `error-text`, else the required\ntext, else `label` as its message. It never sets `error` itself.\n\nThe element is not focusable itself and has no role: every checkbox is a stop of its own, `focus()` goes to the first\nenabled one, and the group, its name and its description are the field group's (`label`, never `aria-label`).",
+          "description": "Asks one question that may have several answers among a few choices shown all at once. Built from a field group\n(`<tanrei-field-group>`) and checkboxes (`<tanrei-checkbox>`): the field group's label, requirement, description and\none error around the product's own checkboxes, whose checked values the group holds as one list under one name, and —\nwhere `select-all-label` is given — one more checkbox before the first that checks them all.\n\nContract: specs/checkbox-group.spec.json. `<tanrei-checkbox-group name=\"notify\" label=\"Notify me by\"><tanrei-checkbox\nvalue=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-checkbox-group>`: the checkboxes are the element's\nchildren and stay in the product's light DOM; each stands for its `value`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element around the\nselect-all checkbox and a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-checkbox-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the\nfield group's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group label=\"Notify me by\">\n<tanrei-checkbox name=\"notify\" value=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-field-group>` — for\ncheckboxes that each need a name of their own, a set that holds something else, or another rule for \"all\".\n\n`value` is a property only: an array of the checked values, in the order of the checkboxes, followed by the entries\nno checkbox stands for, which are kept; it is copied in and out. The first value is written as `checked` on the\nchildren; once the product has set `value`, `value` decides. A person's switch — of one checkbox, or of the select-all\ncheckbox — sets `value` and fires `input` and one `change`; the checkboxes fire nothing of their own.\n\nForm-associated: it submits one entry per value under `name` — what checkboxes of one name submit — and its\ncheckboxes submit nothing; a checkbox disabled by itself keeps its entry; a disabled group submits nothing. It\nreturns to its first value when the form is reset, is restored on navigation, follows `<fieldset disabled>`, and\nreports `valueMissing` while `required` and the list is empty, with `error-text`, else the required\ntext, else `label` as its message. It never sets `error` itself.\n\nThe element is not focusable itself and has no role: every checkbox is a stop of its own, `focus()` goes to the first\nenabled one, and the group, its name and its description are the field group's (`label`, never `aria-label`).",
           "name": "TanreiCheckboxGroup",
           "cssParts": [
             {
@@ -7074,15 +7074,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26)."
             },
             {
               "kind": "field",
@@ -7337,13 +7349,22 @@
               "description": "Disables every control of the set and draws the frame as disabled."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26)."
             },
             {
               "name": "required-mark",
@@ -7413,14 +7434,6 @@
           "name": "TanreiFieldGroupRequiredMark",
           "declaration": {
             "name": "TanreiFieldGroupRequiredMark",
-            "module": "src/components/checkbox-group/checkbox-group.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldGroupRequirement",
-          "declaration": {
-            "name": "TanreiFieldGroupRequirement",
             "module": "src/components/checkbox-group/checkbox-group.ts"
           }
         },
@@ -7811,7 +7824,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another in one\nfield. Built from a Field (`<tanrei-field>`), the Text input it frames (`<tanrei-text-input>`) and one Chip\n(`<tanrei-chip>`) for each entry, standing in the Text input's box before the typing part: each text the product's\ncheck accepts becomes a chip that can be removed or taken back, and the list is the field's one value.\n\nContract: specs/chip-field.spec.json. `<tanrei-chip-field name=\"to\" label=\"Recipients\" type=\"email\"\nremove-label=\"Remove {entry}\"></tanrei-chip-field>`, with `field.separators = [',', ';', ' ']` (or the attribute\n`separators='[\",\", \";\", \" \"]'`).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the members' own elements, so it draws\nnothing of its own and has no token — every `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*`,\n`--tanrei-comp-text-input-*` and `--tanrei-comp-chip-*` value reaches the members by inheritance, and one chip field is set apart by setting such a\nproperty on this element. One level down, the same picture by hand: `<tanrei-field label=\"Recipients\">\n<tanrei-text-input type=\"email\"><tanrei-chip slot=\"entries\" kind=\"input\" size=\"small\" label=\"ada@example.com\"\nremove-label=\"Remove ada@example.com\"></tanrei-chip></tanrei-text-input></tanrei-field>`. What the chip field adds\nto that: making entries, the keys among them, the one Tab stop, the announcements, and the list as one form value.\n\n**An entry is made** of the typed text by Enter, by a separator the product lists (`separators`; none by default),\nby focus leaving the field, and from pasted text that holds a separator or a line break. Each candidate is trimmed,\nrefused where the list holds the same text (`duplicate`) or is full (`maxEntries`: `limit`), and otherwise asked of\nthe product with `check`: `event.preventDefault()` refuses it (`invalid`), and `event.detail.reason = '…'` gives the\nwords. The chip field knows no grammar: what an e-mail address is, is the product's check. A refused text stays in\nthe typing part, and while it does the field is in error with the words of the refusal — `error` and `errorText`\nthemselves do not change.\n\n**Keys.** The typing part is the one Tab stop. Backspace, or the arrow that points to the line's start, at the start\nof the text moves focus to the last entry; there the arrows, Home and End move among the entries, Backspace and\nDelete remove the one that has focus, Enter and Space take it back into the typing part to be changed, Escape and\nTab return to the typing part.\n\n`value` is an array of strings (assign a new array to change it); the `value` attribute is read once, as a JSON\narray. `inputValue` is the text being typed. Form-associated: it submits one value per entry under `name` — none\nwhile the list is empty, never the typed text —, resets to the list it was first given, is restored on navigation,\nfollows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and the list is empty.\n\nThe element is not focusable itself and has no role: `focus()` goes to the typing part, and its name is `label`.",
+          "description": "Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another in one\nfield. Built from a Field (`<tanrei-field>`), the Text input it frames (`<tanrei-text-input>`) and one Chip\n(`<tanrei-chip>`) for each entry, standing in the Text input's box before the typing part: each text the product's\ncheck accepts becomes a chip that can be removed or taken back, and the list is the field's one value.\n\nContract: specs/chip-field.spec.json. `<tanrei-chip-field name=\"to\" label=\"Recipients\" type=\"email\"\nremove-label=\"Remove {entry}\"></tanrei-chip-field>`, with `field.separators = [',', ';', ' ']` (or the attribute\n`separators='[\",\", \";\", \" \"]'`).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the members' own elements, so it draws\nnothing of its own and has no token — every `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*`,\n`--tanrei-comp-text-input-*` and `--tanrei-comp-chip-*` value reaches the members by inheritance, and one chip field is set apart by setting such a\nproperty on this element. One level down, the same picture by hand: `<tanrei-field label=\"Recipients\">\n<tanrei-text-input type=\"email\"><tanrei-chip slot=\"entries\" kind=\"input\" size=\"small\" label=\"ada@example.com\"\nremove-label=\"Remove ada@example.com\"></tanrei-chip></tanrei-text-input></tanrei-field>`. What the chip field adds\nto that: making entries, the keys among them, the one Tab stop, the announcements, and the list as one form value.\n\n**An entry is made** of the typed text by Enter, by a separator the product lists (`separators`; none by default),\nby focus leaving the field, and from pasted text that holds a separator or a line break. Each candidate is trimmed,\nrefused where the list holds the same text (`duplicate`) or is full (`maxEntries`: `limit`), and otherwise asked of\nthe product with `check`: `event.preventDefault()` refuses it (`invalid`), and `event.detail.reason = '…'` gives the\nwords. The chip field knows no grammar: what an e-mail address is, is the product's check. A refused text stays in\nthe typing part, and while it does the field is in error with the words of the refusal — `error` and `errorText`\nthemselves do not change.\n\n**Keys.** The typing part is the one Tab stop. Backspace, or the arrow that points to the line's start, at the start\nof the text moves focus to the last entry; there the arrows, Home and End move among the entries, Backspace and\nDelete remove the one that has focus, Enter and Space take it back into the typing part to be changed, Escape and\nTab return to the typing part.\n\n`value` is an array of strings (assign a new array to change it); the `value` attribute is read once, as a JSON\narray. `inputValue` is the text being typed. Form-associated: it submits one value per entry under `name` — none\nwhile the list is empty, never the typed text —, resets to the list it was first given, is restored on navigation,\nfollows a disabled `<fieldset>`, and reports a missing value while `required` is set and the list is empty.\n\nThe element is not focusable itself and has no role: `focus()` goes to the typing part, and its name is `label`.",
           "name": "TanreiChipField",
           "cssParts": [
             {
@@ -8095,15 +8108,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -8525,13 +8550,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -8647,14 +8681,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/chip-field/chip-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/chip-field/chip-field.ts"
           }
         },
@@ -10157,7 +10183,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people set one color as one complete field of a form. Built from a Field (`<tanrei-field>`) and the Color\ninput (`<tanrei-color-input>`) it frames: the box — a sample of the value, the value as text, a button that asks\nfor a picker — under the Field's label, or, in the filled and the outlined look, with the label floating in it,\nwith the Field's help and its error, tied together for assistive technology and taking part in a form as one\ncontrol. It looks and measures like a text field.\n\nContract: specs/color-field.spec.json. `<tanrei-color-field name=\"brand\" label=\"Brand color\" value=\"#0f766e\"\nsupporting-text=\"Six hexadecimal digits, like #0f766e.\" invalid-text=\"Enter six hexadecimal digits, like #0f766e.\"\npicker picker-label=\"Choose color\"></tanrei-color-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-color-input-*` value reaches the members by inheritance, and one color field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,\n`required-text` and `optional-text` are the Field's; `variant`, `size`, `value`, `invalid-text`, `picker` and\n`picker-label` the color input's. One level down, the same by hand: `<tanrei-field label=\"Brand color\"\nsupporting-text=\"Six hexadecimal digits, like #0f766e.\"><tanrei-color-input name=\"brand\" value=\"#0f766e\"\ninvalid-text=\"Enter six hexadecimal digits, like #0f766e.\" picker picker-label=\"Choose color\"></tanrei-color-input>\n</tanrei-field>` — and the box alone, where a row or a column names the color, is `<tanrei-color-input>` with a\n`label` of its own.\n\nIt is a block as wide as its place, and its box fills it (CLF-43): give it a narrower place for a narrower box.\n\n`value` is at every moment the color input's — a number sign and six lowercase hexadecimal digits, or empty: a\nvalue set as `0F766E` is read back as `#0f766e`, and one that is not a color as empty, with no event. The four\nevents are that input's own, with this element as their target: `event.target.value` is the new value in every\nlistener, and `pickerrequest` stays cancelable. It dispatches none itself.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports what its color input reports: a missing value\nwhile `requirement` is `required` and it is empty, and a bad input while a committed text is not a color. Enter in\nthe input presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input — never to the picker button —,\nand its name is `label` (with `label-hidden` where it is not drawn), never `aria-label`. It has two focus stops,\nits input's: the input, then the picker button while it is shown. A press on the label row, on the box, on the\nswatch or on a floating label focuses the input; a press on the help, the error text or the gap between a row and\nthe box does nothing.",
+          "description": "Lets people set one color as one complete field of a form. Built from a Field (`<tanrei-field>`) and the Color\ninput (`<tanrei-color-input>`) it frames: the box — a sample of the value, the value as text, a button that asks\nfor a picker — under the Field's label, or, in the filled and the outlined look, with the label floating in it,\nwith the Field's help and its error, tied together for assistive technology and taking part in a form as one\ncontrol. It looks and measures like a text field.\n\nContract: specs/color-field.spec.json. `<tanrei-color-field name=\"brand\" label=\"Brand color\" value=\"#0f766e\"\nsupporting-text=\"Six hexadecimal digits, like #0f766e.\" invalid-text=\"Enter six hexadecimal digits, like #0f766e.\"\npicker picker-label=\"Choose color\"></tanrei-color-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-color-input-*` value reaches the members by inheritance, and one color field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,\n`required-text` and `optional-text` are the Field's; `variant`, `size`, `value`, `invalid-text`, `picker` and\n`picker-label` the color input's. One level down, the same by hand: `<tanrei-field label=\"Brand color\"\nsupporting-text=\"Six hexadecimal digits, like #0f766e.\"><tanrei-color-input name=\"brand\" value=\"#0f766e\"\ninvalid-text=\"Enter six hexadecimal digits, like #0f766e.\" picker picker-label=\"Choose color\"></tanrei-color-input>\n</tanrei-field>` — and the box alone, where a row or a column names the color, is `<tanrei-color-input>` with a\n`label` of its own.\n\nIt is a block as wide as its place, and its box fills it (CLF-43): give it a narrower place for a narrower box.\n\n`value` is at every moment the color input's — a number sign and six lowercase hexadecimal digits, or empty: a\nvalue set as `0F766E` is read back as `#0f766e`, and one that is not a color as empty, with no event. The four\nevents are that input's own, with this element as their target: `event.target.value` is the new value in every\nlistener, and `pickerrequest` stays cancelable. It dispatches none itself.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports what its color input reports: a missing value\nwhile `required` is set and it is empty, and a bad input while a committed text is not a color. Enter in\nthe input presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input — never to the picker button —,\nand its name is `label` (with `label-hidden` where it is not drawn), never `aria-label`. It has two focus stops,\nits input's: the input, then the picker button while it is shown. A press on the label row, on the box, on the\nswatch or on a floating label focuses the input; a press on the help, the error text or the gap between a row and\nthe box does nothing.",
           "name": "TanreiColorField",
           "cssParts": [
             {
@@ -10317,15 +10343,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -10694,13 +10732,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -10842,14 +10889,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/color-field/color-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/color-field/color-field.ts"
           }
         },
@@ -11688,7 +11727,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people find one value by typing, as one complete field of a form. Built from a Field (`<tanrei-field>`) and\nthe Combobox (`<tanrei-combobox>`) it frames: the box with its list of options under the Field's label — or, in the\nfilled and the outlined look, with the label floating in it — with the Field's requirement mark, its help and its\nerror, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/combobox-field.spec.json.\n\n```html\n<tanrei-combobox-field name=\"city\" label=\"City\" requirement=\"required\" supporting-text=\"Where the order is sent.\" value=\"tokyo\">\n  <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n  <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n</tanrei-combobox-field>\n```\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-combobox-*` value reaches the members by inheritance, and one combobox field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,\n`required-text` and `optional-text` are the Field's, every other one the combobox's. One level down, the same by\nhand: `<tanrei-field label=\"City\" requirement=\"required\" supporting-text=\"Where the order is sent.\"><tanrei-combobox\nname=\"city\" value=\"tokyo\"><tanrei-option value=\"kyoto\">Kyoto</tanrei-option>…</tanrei-combobox></tanrei-field>` — and\nthe box alone, where a label stands elsewhere, is `<tanrei-combobox>` with a `label` of its own.\n\n**The options are this element's own children** — `<tanrei-option>`, optionally in `<tanrei-option-group>` — and\nthey stay there: nothing moves, copies or reads them here. They reach the combobox through a slot, and the combobox\nreads them as its own, again whenever one is added, removed or changed (CBF-2).\n\nIt is a block as wide as its place, and its box fills it (CBF-1): give it a narrower place for a narrower box.\n\n`value`, `inputValue` and `open` are at every moment the combobox's (CBF-3): this element keeps no copy, so each is\nthe new one in every listener and where the combobox writes it with no event (a text given up on leaving). The four\nevents are the combobox's own, with this element as their target; `toggle` does not bubble. It dispatches none\nitself.\n\nForm-associated: it submits the committed value under `name` — never the text of an edit, and nothing while\ndisabled —, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports\na missing value while `requirement` is `required` and the value is empty. Enter with no option active presses the\ndefault button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`. A press on the label row or on the box focuses the input;\na press on the label row while the list is open is a press outside the combobox, and closes the list; a press on\nthe help or the error text does nothing.",
+          "description": "Lets people find one value by typing, as one complete field of a form. Built from a Field (`<tanrei-field>`) and\nthe Combobox (`<tanrei-combobox>`) it frames: the box with its list of options under the Field's label — or, in the\nfilled and the outlined look, with the label floating in it — with the Field's requirement mark, its help and its\nerror, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/combobox-field.spec.json.\n\n```html\n<tanrei-combobox-field name=\"city\" label=\"City\" required supporting-text=\"Where the order is sent.\" value=\"tokyo\">\n  <tanrei-option value=\"kyoto\">Kyoto</tanrei-option>\n  <tanrei-option value=\"tokyo\">Tokyo</tanrei-option>\n</tanrei-combobox-field>\n```\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-combobox-*` value reaches the members by inheritance, and one combobox field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,\n`required-text` and `optional-text` are the Field's, every other one the combobox's. One level down, the same by\nhand: `<tanrei-field label=\"City\" required supporting-text=\"Where the order is sent.\"><tanrei-combobox\nname=\"city\" value=\"tokyo\"><tanrei-option value=\"kyoto\">Kyoto</tanrei-option>…</tanrei-combobox></tanrei-field>` — and\nthe box alone, where a label stands elsewhere, is `<tanrei-combobox>` with a `label` of its own.\n\n**The options are this element's own children** — `<tanrei-option>`, optionally in `<tanrei-option-group>` — and\nthey stay there: nothing moves, copies or reads them here. They reach the combobox through a slot, and the combobox\nreads them as its own, again whenever one is added, removed or changed (CBF-2).\n\nIt is a block as wide as its place, and its box fills it (CBF-1): give it a narrower place for a narrower box.\n\n`value`, `inputValue` and `open` are at every moment the combobox's (CBF-3): this element keeps no copy, so each is\nthe new one in every listener and where the combobox writes it with no event (a text given up on leaving). The four\nevents are the combobox's own, with this element as their target; `toggle` does not bubble. It dispatches none\nitself.\n\nForm-associated: it submits the committed value under `name` — never the text of an edit, and nothing while\ndisabled —, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports\na missing value while `required` is set and the value is empty. Enter with no option active presses the\ndefault button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`. A press on the label row or on the box focuses the input;\na press on the label row while the list is open is a press outside the combobox, and closes the list; a press on\nthe help or the error text does nothing.",
           "name": "TanreiComboboxField",
           "cssParts": [
             {
@@ -11900,15 +11939,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -12393,13 +12444,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -12663,14 +12723,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/combobox-field/combobox-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/combobox-field/combobox-field.ts"
           }
         },
@@ -17332,14 +17384,26 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
-              "attribute": "requirement",
+              "default": "false",
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates.",
+              "attribute": "required",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26).",
+              "attribute": "optional",
               "reflects": true
             },
             {
@@ -17469,13 +17533,22 @@
               "fieldName": "disabled"
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
-              "fieldName": "requirement"
+              "default": "false",
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates.",
+              "fieldName": "required"
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26).",
+              "fieldName": "optional"
             },
             {
               "name": "required-mark",
@@ -17601,7 +17674,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Frames one control with what a form gives every field: a label above it that can say the control is required or\noptional, a line of help, and the reason a value was refused, each tied to the control for assistive technology. It\nis a frame, never a control.\n\nContract: specs/field.spec.json. `<tanrei-field label=\"Volume\"><tanrei-slider></tanrei-slider></tanrei-field>`: the\ncontrol is the one element in the default slot. It stays in the product's light DOM, so it keeps its place in a\n`<form>`, its `name` and `value`, its events and its styles; the field is not form-associated, holds no value and\nemits no event. Every visual value is a `--tanrei-comp-field-*` token.\n\nThe label names the control; the help describes it, with the error text after it while the field is in error and\n`optional-text` after that while the control is optional. They are given as values, because an id cannot be referenced across a shadow root: a Tanrei\ncontrol asks for them (the composed `tanrei-field-connect` event; `src/primitives/field.ts`) and writes them on the\nelement that carries its semantics, its own `label` winning; any other element receives `aria-label` (only where it\nhas no name of its own), `aria-description`, `aria-invalid`, `aria-required` and, where it has the property,\n`disabled`. The field takes back exactly what it gave when the element leaves the slot.\n\n`requirement=\"required\"` exposes the control as required and draws the required mark beside the label — a small\nfilled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement=\"optional\"` draws the\noptional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While\nthe field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design\nsystem whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below\nit. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while\nfocus is inside the field is announced once, politely — the error text alone, never the help again.\n\nA press on the label moves focus to the control and never operates it; a press on the help, the error or the count\ndoes nothing. A control that names itself (a checkbox with its own label) takes a field with an empty `label`, which\nthen adds help and an error only. A control that is a field already — a composed field such as\n`<tanrei-text-field>`, which is this element around `<tanrei-text-input>`, or anything with a `supportingText` of its\nown — needs no field.\n\nA control may say of itself what only it knows, through the same connection (`src/primitives/field.ts`): that it\ndraws the label itself, floating in its own box — the field then draws no label row and gives the control the name,\nwhether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the\nsupporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is\nthen in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a\ncombobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).\n`count-text` is a count about the control's value as it is to\nbe drawn (\"12/40\"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive\ntechnology, which hears the count from the control (FLD-27). `value-text` is the control's present value in words\n(\"40 %\"), at the end of the label row, for a control whose value cannot be read from the control itself (a slider):\nthe field draws it, never reads or formats a value, and keeps it from assistive technology, which hears the value\nfrom the control (FLD-29, FLD-30).",
+          "description": "Frames one control with what a form gives every field: a label above it that can say the control is required or\noptional, a line of help, and the reason a value was refused, each tied to the control for assistive technology. It\nis a frame, never a control.\n\nContract: specs/field.spec.json. `<tanrei-field label=\"Volume\"><tanrei-slider></tanrei-slider></tanrei-field>`: the\ncontrol is the one element in the default slot. It stays in the product's light DOM, so it keeps its place in a\n`<form>`, its `name` and `value`, its events and its styles; the field is not form-associated, holds no value and\nemits no event. Every visual value is a `--tanrei-comp-field-*` token.\n\nThe label names the control; the help describes it, with the error text after it while the field is in error and\n`optional-text` after that while the control is optional. They are given as values, because an id cannot be referenced across a shadow root: a Tanrei\ncontrol asks for them (the composed `tanrei-field-connect` event; `src/primitives/field.ts`) and writes them on the\nelement that carries its semantics, its own `label` winning; any other element receives `aria-label` (only where it\nhas no name of its own), `aria-description`, `aria-invalid`, `aria-required` and, where it has the property,\n`disabled`. The field takes back exactly what it gave when the element leaves the slot.\n\n`required` exposes the control as required and draws the required mark beside the label — a small filled tag, an\nasterisk or nothing, as the design system or `required-mark` says; `optional` draws the optional tag, and is ignored\nwhile `required` is set. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While\nthe field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design\nsystem whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below\nit. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while\nfocus is inside the field is announced once, politely — the error text alone, never the help again.\n\nA press on the label moves focus to the control and never operates it; a press on the help, the error or the count\ndoes nothing. A control that names itself (a checkbox with its own label) takes a field with an empty `label`, which\nthen adds help and an error only. A control that is a field already — a composed field such as\n`<tanrei-text-field>`, which is this element around `<tanrei-text-input>`, or anything with a `supportingText` of its\nown — needs no field.\n\nA control may say of itself what only it knows, through the same connection (`src/primitives/field.ts`): that it\ndraws the label itself, floating in its own box — the field then draws no label row and gives the control the name,\nwhether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the\nsupporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is\nthen in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a\ncombobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).\n`count-text` is a count about the control's value as it is to\nbe drawn (\"12/40\"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive\ntechnology, which hears the count from the control (FLD-27). `value-text` is the control's present value in words\n(\"40 %\"), at the end of the label row, for a control whose value cannot be read from the control itself (a slider):\nthe field draws it, never reads or formats a value, and keeps it from assistive technology, which hears the value\nfrom the control (FLD-29, FLD-30).",
           "name": "TanreiField",
           "cssParts": [
             {
@@ -17715,14 +17788,26 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
-              "attribute": "requirement",
+              "default": "false",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates.",
+              "attribute": "required",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32).",
+              "attribute": "optional",
               "reflects": true
             },
             {
@@ -17838,13 +17923,22 @@
               "fieldName": "disabled"
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
-              "fieldName": "requirement"
+              "default": "false",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates.",
+              "fieldName": "required"
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32).",
+              "fieldName": "optional"
             },
             {
               "name": "required-mark",
@@ -28648,7 +28742,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people enter a number as one complete field. Built from a Field (`<tanrei-field>`) and the Number input\n(`<tanrei-number-input>`) it frames: the box — the number, its unit and its two steppers — under the Field's label,\nor, in the filled and the outlined look, with the label floating in it; with the Field's requirement mark, its help\nand its error, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/number-field.spec.json. `<tanrei-number-field name=\"quantity\" label=\"Quantity\" min=\"1\" max=\"99\"\nrequirement=\"required\" supporting-text=\"Up to 99 per order.\" increment-label=\"Increase\"\ndecrement-label=\"Decrease\"></tanrei-number-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*`, `--tanrei-comp-number-input-*` and, for the two steppers, `--tanrei-comp-button-*` value reaches the members by\ninheritance, and one number field is set apart by setting such a property on this element. Each property is its\nmember's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`, `error-text`, `error`,\n`disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the Field's, every other one the\nnumber input's. One level down, the same by hand: `<tanrei-field label=\"Quantity\" requirement=\"required\"\nsupporting-text=\"Up to 99 per order.\"><tanrei-number-input name=\"quantity\" min=\"1\" max=\"99\"\nincrement-label=\"Increase\" decrement-label=\"Decrease\"></tanrei-number-input></tanrei-field>` — and the box alone,\nwhere a label stands elsewhere (beside a slider, in a cell of a table), is `<tanrei-number-input>` with a `label`\nof its own.\n\nIt is a block as wide as its place, and its box fills it (NUM-47): give it a narrower place for a narrower box.\n\n`value` is at every moment the number input's — a number, or null while it holds none — and the four events are\nthat input's own, with this element as their target: `event.target.value` is the new value in every listener of\n`change`. It dispatches none itself, and coordinates nothing: the input tells its Field that it floats the label,\nwhere its number's line starts and ends, and its refusal of a text that is not a number, exactly as it does one\nlevel down.\n\nForm-associated (NUM-48): it submits the value under `name` as a plain decimal number (\"12.5\") whatever the locale\nshows — nothing while disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled\n`<fieldset>`, and reports what its number input reports: a missing value while `requirement` is `required` and it\nholds none, and a bad input while it holds a text that is not a number. Enter presses the default button of this\nelement's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, the field is one stop in the focus\norder, and its name is `label` (with `label-hidden` where it is not drawn), never `aria-label`. A press on the label\nrow, on the box or on a floating label focuses the input; a press on a stepper steps and moves no focus; a press on\nthe help or the error text does nothing.",
+          "description": "Lets people enter a number as one complete field. Built from a Field (`<tanrei-field>`) and the Number input\n(`<tanrei-number-input>`) it frames: the box — the number, its unit and its two steppers — under the Field's label,\nor, in the filled and the outlined look, with the label floating in it; with the Field's requirement mark, its help\nand its error, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/number-field.spec.json. `<tanrei-number-field name=\"quantity\" label=\"Quantity\" min=\"1\" max=\"99\"\nrequired supporting-text=\"Up to 99 per order.\" increment-label=\"Increase\"\ndecrement-label=\"Decrease\"></tanrei-number-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*`, `--tanrei-comp-number-input-*` and, for the two steppers, `--tanrei-comp-button-*` value reaches the members by\ninheritance, and one number field is set apart by setting such a property on this element. Each property is its\nmember's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`, `error-text`, `error`,\n`disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the Field's, every other one the\nnumber input's. One level down, the same by hand: `<tanrei-field label=\"Quantity\" required\nsupporting-text=\"Up to 99 per order.\"><tanrei-number-input name=\"quantity\" min=\"1\" max=\"99\"\nincrement-label=\"Increase\" decrement-label=\"Decrease\"></tanrei-number-input></tanrei-field>` — and the box alone,\nwhere a label stands elsewhere (beside a slider, in a cell of a table), is `<tanrei-number-input>` with a `label`\nof its own.\n\nIt is a block as wide as its place, and its box fills it (NUM-47): give it a narrower place for a narrower box.\n\n`value` is at every moment the number input's — a number, or null while it holds none — and the four events are\nthat input's own, with this element as their target: `event.target.value` is the new value in every listener of\n`change`. It dispatches none itself, and coordinates nothing: the input tells its Field that it floats the label,\nwhere its number's line starts and ends, and its refusal of a text that is not a number, exactly as it does one\nlevel down.\n\nForm-associated (NUM-48): it submits the value under `name` as a plain decimal number (\"12.5\") whatever the locale\nshows — nothing while disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled\n`<fieldset>`, and reports what its number input reports: a missing value while `required` is set and it\nholds none, and a bad input while it holds a text that is not a number. Enter presses the default button of this\nelement's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, the field is one stop in the focus\norder, and its name is `label` (with `label-hidden` where it is not drawn), never `aria-label`. A press on the label\nrow, on the box or on a floating label focuses the input; a press on a stepper steps and moves no focus; a press on\nthe help or the error text does nothing.",
           "name": "TanreiNumberField",
           "cssParts": [
             {
@@ -28812,15 +28906,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -29334,13 +29440,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -29567,14 +29682,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/number-field/number-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/number-field/number-field.ts"
           }
         },
@@ -30870,7 +30977,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Asks for a short code sent to the person as one complete field. Built from a Field (`<tanrei-field>`) and the\nOne-time-code input (`<tanrei-one-time-code-input>`) it frames: the input under the Field's label, with the Field's\nhelp and its error, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/one-time-code-field.spec.json. `<tanrei-one-time-code-field name=\"code\" label=\"Verification code\"\nsupporting-text=\"Enter the 6-digit code we sent to your phone.\" group-size=\"3\"></tanrei-one-time-code-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*` and\n`--tanrei-comp-one-time-code-input-*` value reaches the members by inheritance, and one instance is set apart by\nsetting such a property on this element. Each property is its member's, set on that member unchanged. One level\ndown, the same by hand: `<tanrei-field label=\"Verification code\"><tanrei-one-time-code-input name=\"code\"\ngroup-size=\"3\"></tanrei-one-time-code-input></tanrei-field>` — for something of the product's own inside the frame.\n\n`value` is at every moment the One-time-code input's, and the four events are that input's own, with this element\nas their target: `event.target.value` is the code in every listener. It dispatches none itself.\n\nForm-associated: it submits the code under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is\n`required` and it is empty. Enter in the cells presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the cells, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`.",
+          "description": "Asks for a short code sent to the person as one complete field. Built from a Field (`<tanrei-field>`) and the\nOne-time-code input (`<tanrei-one-time-code-input>`) it frames: the input under the Field's label, with the Field's\nhelp and its error, tied together for assistive technology and taking part in a form as one control.\n\nContract: specs/one-time-code-field.spec.json. `<tanrei-one-time-code-field name=\"code\" label=\"Verification code\"\nsupporting-text=\"Enter the 6-digit code we sent to your phone.\" group-size=\"3\"></tanrei-one-time-code-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*` and\n`--tanrei-comp-one-time-code-input-*` value reaches the members by inheritance, and one instance is set apart by\nsetting such a property on this element. Each property is its member's, set on that member unchanged. One level\ndown, the same by hand: `<tanrei-field label=\"Verification code\"><tanrei-one-time-code-input name=\"code\"\ngroup-size=\"3\"></tanrei-one-time-code-input></tanrei-field>` — for something of the product's own inside the frame.\n\n`value` is at every moment the One-time-code input's, and the four events are that input's own, with this element\nas their target: `event.target.value` is the code in every listener. It dispatches none itself.\n\nForm-associated: it submits the code under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is\nset and it is empty. Enter in the cells presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the cells, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`.",
           "name": "TanreiOneTimeCodeField",
           "cssParts": [
             {
@@ -31010,15 +31117,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -31381,13 +31500,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -31498,14 +31626,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/one-time-code-field/one-time-code-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/one-time-code-field/one-time-code-field.ts"
           }
         },
@@ -34470,7 +34590,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Asks one question that has exactly one answer among a few options shown all at once. Built from a field group\n(`<tanrei-field-group>`) and radio buttons (`<tanrei-radio-button>`): the field group itself, in its radio-group\nkind — its label, requirement, description and one error — around the product's own radio buttons, whose chosen\nvalue the group holds under one name.\n\nContract: specs/radio-group.spec.json. `<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\">\n<tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`: the radio\nbuttons are the element's children and stay in the product's light DOM; inside the group they need no `name`\n(RAD-25).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element, with\n`kind=\"radio-group\"` and `spacing=\"controls\"`, around a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-radio-button-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the field\ngroup's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group kind=\"radio-group\"\nlabel=\"Delivery\"><tanrei-radio-button name=\"delivery\" value=\"standard\" label=\"Standard\"></tanrei-radio-button>…\n</tanrei-field-group>` — the same picture and the same radio group, without the one value, the one `change` and the\nplace in a form as one control.\n\nIt holds one value. `value` decides which radio button is selected; a person's selection sets `value` and fires\n`input` and one `change`, and the radio buttons inside it fire nothing of their own. The arrow keys move through the\nenabled radio buttons, wrapping, and select as they go; the group is one stop in the focus order — the selected\nradio button, or the first enabled one.\n\nForm-associated: it submits `value` under `name` — also while the radio button of that value is one the product\ndisabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows\n`<fieldset disabled>`, and reports `valueMissing` while `requirement=\"required\"` and `value` is empty, in the\nbrowser's own words for an unanswered set of radio buttons. It never sets `error` itself.\n\nThe element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the\nradio group that assistive technology is told of — its name, its description and its required, invalid and disabled\nstates and its orientation — is the field group's own element (`label`, never `aria-label` on this one).",
+          "description": "Asks one question that has exactly one answer among a few options shown all at once. Built from a field group\n(`<tanrei-field-group>`) and radio buttons (`<tanrei-radio-button>`): the field group itself, in its radio-group\nkind — its label, requirement, description and one error — around the product's own radio buttons, whose chosen\nvalue the group holds under one name.\n\nContract: specs/radio-group.spec.json. `<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\">\n<tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`: the radio\nbuttons are the element's children and stay in the product's light DOM; inside the group they need no `name`\n(RAD-25).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element, with\n`kind=\"radio-group\"` and `spacing=\"controls\"`, around a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-radio-button-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the field\ngroup's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group kind=\"radio-group\"\nlabel=\"Delivery\"><tanrei-radio-button name=\"delivery\" value=\"standard\" label=\"Standard\"></tanrei-radio-button>…\n</tanrei-field-group>` — the same picture and the same radio group, without the one value, the one `change` and the\nplace in a form as one control.\n\nIt holds one value. `value` decides which radio button is selected; a person's selection sets `value` and fires\n`input` and one `change`, and the radio buttons inside it fire nothing of their own. The arrow keys move through the\nenabled radio buttons, wrapping, and select as they go; the group is one stop in the focus order — the selected\nradio button, or the first enabled one.\n\nForm-associated: it submits `value` under `name` — also while the radio button of that value is one the product\ndisabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows\n`<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the\nbrowser's own words for an unanswered set of radio buttons. It never sets `error` itself.\n\nThe element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the\nradio group that assistive technology is told of — its name, its description and its required, invalid and disabled\nstates and its orientation — is the field group's own element (`label`, never `aria-label` on this one).",
           "name": "TanreiRadioGroup",
           "cssParts": [
             {
@@ -34605,15 +34725,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26)."
             },
             {
               "kind": "field",
@@ -34865,13 +34997,22 @@
               "description": "Disables every control of the set and draws the frame as disabled."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldGroupRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26)."
             },
             {
               "name": "required-mark",
@@ -36913,7 +37054,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people choose one value from a closed list as one complete field of a form. Built from a Field\n(`<tanrei-field>`) and the Select (`<tanrei-select>`) it frames: the trigger and its list under the Field's label —\nor, in the filled and the outlined look, with the label floating in the box — with the Field's help and its error,\ntied together for assistive technology and taking part in a form as one control.\n\nContract: specs/select-field.spec.json.\n\n```html\n<tanrei-select-field name=\"country\" label=\"Country\" requirement=\"required\" supporting-text=\"Where your invoices are addressed.\">\n  <tanrei-option value=\"jp\">Japan</tanrei-option>\n  <tanrei-option value=\"ke\">Kenya</tanrei-option>\n</tanrei-select-field>\n```\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` value reaches the members by inheritance, and one select field is set apart by setting such a property on this\nelement. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,\n`error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the\nField's, every other one the select's. One level down, the same by hand: `<tanrei-field label=\"Country\"\nrequirement=\"required\"><tanrei-select name=\"country\">…options…</tanrei-select></tanrei-field>` — and the box alone,\nwhere a label stands elsewhere (a bar, a toolbar, a column of a table), is `<tanrei-select>` with a `label` of its\nown.\n\nThe options are its `<tanrei-option>` and `<tanrei-option-group>` children, exactly as a select's: they stay the\nproduct's, are never moved or copied, and reach the select inside through the default slot, which the select reads.\nReplacing them by hand works as on a select.\n\nIt is a block as wide as its place, and its box fills it (SEF-1): give it a narrower place for a narrower box.\n\n`value` and `open` are at every moment the select's, read through to it and never copied, and the two events are\nthat select's own, with this element as their target: `event.target.value` and `event.target.open` are new in every\nlistener. It dispatches none itself. `toggle` is composed and does not bubble: it is heard on this element and by no\nancestor.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is\n`required` and the value is empty.\n\nThe element is not focusable itself and has no role: `focus()` goes to the select's trigger, and its name is `label`\n(with `label-hidden` where it is not drawn), never `aria-label`. A press on the label row focuses the trigger and\nopens nothing; a press on the trigger opens the list; a press on the help or the error text does nothing.",
+          "description": "Lets people choose one value from a closed list as one complete field of a form. Built from a Field\n(`<tanrei-field>`) and the Select (`<tanrei-select>`) it frames: the trigger and its list under the Field's label —\nor, in the filled and the outlined look, with the label floating in the box — with the Field's help and its error,\ntied together for assistive technology and taking part in a form as one control.\n\nContract: specs/select-field.spec.json.\n\n```html\n<tanrei-select-field name=\"country\" label=\"Country\" required supporting-text=\"Where your invoices are addressed.\">\n  <tanrei-option value=\"jp\">Japan</tanrei-option>\n  <tanrei-option value=\"ke\">Kenya</tanrei-option>\n</tanrei-select-field>\n```\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` value reaches the members by inheritance, and one select field is set apart by setting such a property on this\nelement. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,\n`error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the\nField's, every other one the select's. One level down, the same by hand: `<tanrei-field label=\"Country\"\nrequired><tanrei-select name=\"country\">…options…</tanrei-select></tanrei-field>` — and the box alone,\nwhere a label stands elsewhere (a bar, a toolbar, a column of a table), is `<tanrei-select>` with a `label` of its\nown.\n\nThe options are its `<tanrei-option>` and `<tanrei-option-group>` children, exactly as a select's: they stay the\nproduct's, are never moved or copied, and reach the select inside through the default slot, which the select reads.\nReplacing them by hand works as on a select.\n\nIt is a block as wide as its place, and its box fills it (SEF-1): give it a narrower place for a narrower box.\n\n`value` and `open` are at every moment the select's, read through to it and never copied, and the two events are\nthat select's own, with this element as their target: `event.target.value` and `event.target.open` are new in every\nlistener. It dispatches none itself. `toggle` is composed and does not bubble: it is heard on this element and by no\nancestor.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is\nset and the value is empty.\n\nThe element is not focusable itself and has no role: `focus()` goes to the select's trigger, and its name is `label`\n(with `label-hidden` where it is not drawn), never `aria-label`. A press on the label row focuses the trigger and\nopens nothing; a press on the trigger opens the list; a press on the help or the error text does nothing.",
           "name": "TanreiSelectField",
           "cssParts": [
             {
@@ -37125,15 +37266,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -37503,13 +37656,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -37629,14 +37791,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/select-field/select-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/select-field/select-field.ts"
           }
         },
@@ -38774,7 +38928,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people choose a value, or a range of values, on a scale as one complete field. Built from a Field\n(`<tanrei-field>`) and the Slider (`<tanrei-slider>`) it frames: the track under the Field's label, with the value\nin words at the end of the label row, the Field's help and its error, tied together for assistive technology and\ntaking part in a form as one control.\n\nContract: specs/slider-field.spec.json. `<tanrei-slider-field name=\"text-size\" label=\"Text size\"\nsupporting-text=\"Applies to every page.\" min=\"50\" max=\"200\" step=\"10\" value=\"120\"></tanrei-slider-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*` and `--tanrei-comp-slider-*`\nvalue reaches the members by inheritance, and one slider field is set apart by setting such a property on this\nelement. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,\n`error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the\nField's, every other one the Slider's — `end-label` is the Slider's `label`, the name of a range's end handle,\nbecause `label` is the visible name here. It has no orientation: the track runs along the line. One level down, the\nsame by hand: `<tanrei-field label=\"Text size\" value-text=\"120\"><tanrei-slider name=\"text-size\" min=\"50\" max=\"200\"\nstep=\"10\" value=\"120\"></tanrei-slider></tanrei-field>`, with the product writing the Field's `value-text` at each\n`input` (`field.valueText = slider.shownValueText`).\n\nThat is the one thing it does that the pair by hand does not: unless `value-hidden` is set it gives its Field, as\nthe value text at the end of the label row, the words its Slider gives each handle — `value-text` (and\n`start-value-text`), or what `formatValue` writes, or the number in the page's locale — at every change, a range's\ntwo in reading order with an en dash between. `formatValue` is a property, never an attribute: a function the\nproduct gives once, from a value to its words (`field.formatValue = (value) => percent.format(value / 100)`). It\nwrites no number, unit or word itself.\n\nIt is a block as wide as its place, and its track fills it: give it a narrower place for a shorter track.\n\n`value` and `startValue` are at every moment the Slider's, and the two events are that Slider's own, with this\nelement as their target: `event.target.value` is the new value in every listener. It dispatches none itself.\n\nForm-associated: it submits the value under `name` — a range the start value and then the value, under the one name;\nnothing while disabled —, resets to its `value` and `start-value` attributes, is restored on navigation and follows a\ndisabled `<fieldset>`.\n\nThe element is not focusable itself and has no role: `focus()` goes to the handle — a range's start handle — and its\nname is `label` (with `label-hidden` where it is not drawn), never `aria-label`. A range's two handles are named by\n`start-label` and `end-label`. A press on the label row focuses the handle and changes no value; a press on the\nhelp or the error text does nothing.",
+          "description": "Lets people choose a value, or a range of values, on a scale as one complete field. Built from a Field\n(`<tanrei-field>`) and the Slider (`<tanrei-slider>`) it frames: the track under the Field's label, with the value\nin words at the end of the label row, the Field's help and its error, tied together for assistive technology and\ntaking part in a form as one control.\n\nContract: specs/slider-field.spec.json. `<tanrei-slider-field name=\"text-size\" label=\"Text size\"\nsupporting-text=\"Applies to every page.\" min=\"50\" max=\"200\" step=\"10\" value=\"120\"></tanrei-slider-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*` and `--tanrei-comp-slider-*`\nvalue reaches the members by inheritance, and one slider field is set apart by setting such a property on this\nelement. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,\n`error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the\nField's, every other one the Slider's — `end-label` is the Slider's `label`, the name of a range's end handle,\nbecause `label` is the visible name here. It has no orientation: the track runs along the line. One level down, the\nsame by hand: `<tanrei-field label=\"Text size\" value-text=\"120\"><tanrei-slider name=\"text-size\" min=\"50\" max=\"200\"\nstep=\"10\" value=\"120\"></tanrei-slider></tanrei-field>`, with the product writing the Field's `value-text` at each\n`input` (`field.valueText = slider.shownValueText`).\n\nThat is the one thing it does that the pair by hand does not: unless `value-hidden` is set it gives its Field, as\nthe value text at the end of the label row, the words its Slider gives each handle — `value-text` (and\n`start-value-text`), or what `formatValue` writes, or the number in the page's locale — at every change, a range's\ntwo in reading order with an en dash between. `formatValue` is a property, never an attribute: a function the\nproduct gives once, from a value to its words (`field.formatValue = (value) => percent.format(value / 100)`). It\nwrites no number, unit or word itself.\n\nIt is a block as wide as its place, and its track fills it: give it a narrower place for a shorter track.\n\n`value` and `startValue` are at every moment the Slider's, and the two events are that Slider's own, with this\nelement as their target: `event.target.value` is the new value in every listener. It dispatches none itself.\n\nForm-associated: it submits the value under `name` — a range the start value and then the value, under the one name;\nnothing while disabled —, resets to its `value` and `start-value` attributes, is restored on navigation and follows a\ndisabled `<fieldset>`.\n\nThe element is not focusable itself and has no role: `focus()` goes to the handle — a range's start handle — and its\nname is `label` (with `label-hidden` where it is not drawn), never `aria-label`. A range's two handles are named by\n`start-label` and `end-label`. A press on the label row focuses the handle and changes no value; a press on the\nhelp or the error text does nothing.",
           "name": "TanreiSliderField",
           "cssParts": [
             {
@@ -38922,15 +39076,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -39393,13 +39559,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -39591,14 +39766,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/slider-field/slider-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/slider-field/slider-field.ts"
           }
         },
@@ -44214,7 +44381,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people enter and edit text as one complete field. Built from a Field (`<tanrei-field>`) and the Text input\n(`<tanrei-text-input>`) it frames: the box under the Field's label — or, in the filled and the outlined look, with\nthe label floating in it — with the Field's help, its error and the count, tied together for assistive technology\nand taking part in a form as one control.\n\nContract: specs/text-field.spec.json. `<tanrei-text-field name=\"email\" label=\"Email\" type=\"email\"\nautocomplete=\"email\" requirement=\"required\" supporting-text=\"We never share your address.\"></tanrei-text-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` value reaches the members by inheritance, and one text field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,\n`required-text` and `optional-text` are the Field's, every other one the text input's. One level down, the same by\nhand: `<tanrei-field label=\"Email\" requirement=\"required\" supporting-text=\"We never share your address.\">\n<tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>` — and the box\nalone, where a label stands elsewhere, is `<tanrei-text-input>` with a `label` of its own.\n\nIt is a block as wide as its place, and its box fills it (TXF-62): give it a narrower place for a narrower box.\n\n`value` is at every moment the text input's, and the five events are that input's own, with this element as their\ntarget: `event.target.value` is the new value in every listener. It dispatches none itself. The one thing it does\nthat the pair by hand does not: while `counter` is set it gives its Field the count its text input keeps, at every\nchange (TXF-67) — by hand a product writes `field.countText = input.countText` in its `input` listener.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports what its text input reports: a missing value\nwhile `requirement` is `required` and it is empty, and a date's or a time's entry error. Enter in a single-line\nfield presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`. A press on the label row, on the box or on a floating\nlabel focuses the input; a press on the help, the error text, the count or the gap between a row and the box does\nnothing.",
+          "description": "Lets people enter and edit text as one complete field. Built from a Field (`<tanrei-field>`) and the Text input\n(`<tanrei-text-input>`) it frames: the box under the Field's label — or, in the filled and the outlined look, with\nthe label floating in it — with the Field's help, its error and the count, tied together for assistive technology\nand taking part in a form as one control.\n\nContract: specs/text-field.spec.json. `<tanrei-text-field name=\"email\" label=\"Email\" type=\"email\"\nautocomplete=\"email\" required supporting-text=\"We never share your address.\"></tanrei-text-field>`.\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing\nelse, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,\n`--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` value reaches the members by inheritance, and one text field is set apart by setting\nsuch a property on this element. Each property is its member's, set on that member unchanged: `label`,\n`label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,\n`required-text` and `optional-text` are the Field's, every other one the text input's. One level down, the same by\nhand: `<tanrei-field label=\"Email\" required supporting-text=\"We never share your address.\">\n<tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>` — and the box\nalone, where a label stands elsewhere, is `<tanrei-text-input>` with a `label` of its own.\n\nIt is a block as wide as its place, and its box fills it (TXF-62): give it a narrower place for a narrower box.\n\n`value` is at every moment the text input's, and the five events are that input's own, with this element as their\ntarget: `event.target.value` is the new value in every listener. It dispatches none itself. The one thing it does\nthat the pair by hand does not: while `counter` is set it gives its Field the count its text input keeps, at every\nchange (TXF-67) — by hand a product writes `field.countText = input.countText` in its `input` listener.\n\nForm-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is\nrestored on navigation, follows a disabled `<fieldset>`, and reports what its text input reports: a missing value\nwhile `required` is set and it is empty, and a date's or a time's entry error. Enter in a single-line\nfield presses the default button of this element's form.\n\nThe element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with\n`label-hidden` where it is not drawn), never `aria-label`. A press on the label row, on the box or on a floating\nlabel focuses the input; a press on the help, the error text, the count or the gap between a row and the box does\nnothing.",
           "name": "TanreiTextField",
           "cssParts": [
             {
@@ -44410,15 +44577,27 @@
             },
             {
               "kind": "field",
-              "name": "requirement",
+              "name": "required",
               "privacy": "public",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "attribute": "requirement",
+              "default": "false",
+              "attribute": "required",
               "reflects": true,
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "optional",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "optional",
+              "reflects": true,
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "kind": "field",
@@ -45052,13 +45231,22 @@
               "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
             },
             {
-              "name": "requirement",
+              "name": "required",
               "type": {
-                "text": "TanreiFieldRequirement"
+                "text": "boolean"
               },
-              "default": "'none'",
-              "fieldName": "requirement",
-              "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+              "default": "false",
+              "fieldName": "required",
+              "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates."
+            },
+            {
+              "name": "optional",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "optional",
+              "description": "Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -45375,14 +45563,6 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
-            "module": "src/components/text-field/text-field.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "TanreiFieldRequirement",
-          "declaration": {
-            "name": "TanreiFieldRequirement",
             "module": "src/components/text-field/text-field.ts"
           }
         },

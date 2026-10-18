@@ -95,7 +95,7 @@ The options are children of the select: each has a value and a label. `value` na
 A field around a select is a select field written out. Leave the select's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, the options and everything about choosing on the select.
 
 ```html
-<tanrei-field label="Country" requirement="required" required-text="Required"
+<tanrei-field label="Country" required required-text="Required"
   supporting-text="Where your invoices are addressed.">
   <tanrei-select name="country" placeholder="Choose a country">
     <tanrei-option value="jp">Japan</tanrei-option>
@@ -105,7 +105,7 @@ A field around a select is a select field written out. Leave the select's own `l
 ```
 
 <DemoFrame label="A field with a select in it: the same picture as a select field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" requirement="required" required-text="Required" supporting-text="Where your invoices are addressed.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" required required-text="Required" supporting-text="Where your invoices are addressed.">
     <tanrei-select placeholder="Choose a country">
       <tanrei-option value="jp">Japan</tanrei-option>
       <tanrei-option value="ke">Kenya</tanrei-option>
@@ -201,7 +201,7 @@ The value changes only when the person confirms an option in the open list: a pr
 - `change` is a composed, bubbling event. `toggle` is composed and does not bubble: it is heard on the select, and on a select field around it, and never by an ancestor such as a `<details>`.
 - The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
 - A floating label (`filled`, `outlined`) lies inside the container, so a press on it opens the list.
-- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` and `optional-text`, and a child for a `label-icon` slot, are the select field's and the field's. On a select they draw nothing; a debug build says so once and names `<tanrei-select-field>`.
+- `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` and `optional-text`, and a child for a `label-icon` slot, are the select field's and the field's. On a select they draw nothing; a debug build says so once and names `<tanrei-select-field>`.
 - Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
 - Before the element is defined, its options are running text. Hide `tanrei-select:not(:defined) > *` and reserve the height.
 - The web has no back gesture of its own, so `toggle` never carries the reason `back`.

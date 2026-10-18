@@ -135,7 +135,7 @@ Go one level down for an arrangement the chip field does not offer, such as entr
 ## Specs
 
 <DemoFrame label="Required, read-only, disabled, and keywords that are made by Enter alone" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" requirement="required" required-text="Required" remove-label="Remove {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" required required-text="Required" remove-label="Remove {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" readonly remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" disabled remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Authors" remove-label="Remove {entry}" supporting-text="Press Enter after each name." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -145,7 +145,7 @@ Go one level down for an arrangement the chip field does not offer, such as entr
 
 | Aspect | From the field | From the text input | The chip field's own |
 | --- | --- | --- | --- |
-| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`, and `inputValue` (the text input's `value`) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`, and `inputValue` (the text input's `value`) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
 | Events | — | `input`, `action` | `change`, `check`, `reject` |
 | Slots | `label-icon` | — | — |
 | Tokens | `comp.field.*` | `comp.input-box.*` for the box; `comp.text-input.*` for the entries place | none; the entries read `comp.chip.*` |
@@ -172,7 +172,7 @@ The chip field has no token of its own. To change one instance, set a member's t
 
 - The element's shadow root holds a `<tanrei-field>` with a `<tanrei-text-input>` in it, and a `<tanrei-chip>` for each entry in the text input's `entries` slot. Importing the element defines all three.
 - `value` is an array property: assign a new array to change it. The `value` attribute is read once, as a JSON array of strings, and is what a form's reset returns to. `separators` is an array too; its attribute is a JSON array.
-- The element is form-associated. It submits one value for each entry under `name`, in order, and nothing while the list is empty or the field is disabled. The typed text is never submitted. It follows a disabled `<fieldset>`, is restored on navigation, and reports a missing value while `requirement` is `required` and the list is empty.
+- The element is form-associated. It submits one value for each entry under `name`, in order, and nothing while the list is empty or the field is disabled. The typed text is never submitted. It follows a disabled `<fieldset>`, is restored on navigation, and reports a missing value while `required` is set and the list is empty.
 - `change`, `check` and `reject` are CustomEvents the element dispatches: `detail` is `{ value, added, removed }`, `{ text, values }` and `{ text, reason, message }`. `check` is cancelable and read when it returns: an answer given later is not read.
 - `input` and `action` are the text input's own. `action` is fired only by Enter on an empty typing part, and then asks for the form's submission. Enter on text makes an entry: the key is stopped before the text input hears it, so a `keydown` listener in the bubbling phase does not hear that press.
 - Parts: `field`, `text-input` and `chip` are the members. The field's and the text input's own parts keep their names (`label`, `supporting-text`, `container`, `input`, `entries`, and so on). A chip's are `entry-container`, `entry-label` and `entry-remove`.

@@ -2,7 +2,7 @@
 title: ワンタイムコード入力欄
 description: サインインや確認のためにユーザーへ送った短いコードを、マス目に分けて描いた 1 つのテキストの値として受け取ります。コードの長さと、まだ足りない分が見え、プラットフォームが 1 回の操作で入力できます。
 translationOf: components/one-time-code-input.mdx
-sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
+sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,7 +45,7 @@ Web では `<tanrei-one-time-code-input>` です。ほかのプラットフォ�
       <tanrei-field label="確認コード"
         supporting-text="携帯電話に送った 6 桁のコードを入力してください。"
         error-text="コードが正しくありません。メッセージを確かめて、もう一度入力してください。"
-        requirement="required" required-text="必須">
+        required required-text="必須">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -209,5 +209,5 @@ Web での既知の不足：
 
 - コントロールに名前を付けます。囲んでいるフィールドのラベルか、見えるラベルがほかの場所にあるときは、それと同じ言葉の `label` です。
 - 何を入力するのかを言葉で伝えます。何文字か、どこに送ったかです。マス目で長さが分かるのは、マス目が見えるユーザーだけです。
-- コードが違う、期限が切れている、必須である、といったことは、フィールドの `errorText`、`supportingText`、`requirement` で伝えます。色だけで示してはいけません。
+- コードが違う、期限が切れている、必須である、といったことは、フィールドの `errorText`、`supportingText`、`required` で伝えます。色だけで示してはいけません。
 - コードを入力できる時間に制限がある場合は、それを伝え、時間の延長か新しいコードを求められるようにします。

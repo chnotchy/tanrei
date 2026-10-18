@@ -124,7 +124,7 @@
       "name": "required",
       "type": "boolean",
       "default": false,
-      "description": "Exposes the trigger as required, where the platform's button has such a state. A Field sets it from its requirement. It draws nothing — the mark beside the label is the Field's — and it validates nothing: the file picker has no value that could be missing."
+      "description": "Exposes the trigger as required, where the platform's button has such a state. A Field that is required sets it. It draws nothing — the mark beside the label is the Field's — and it validates nothing: the file picker has no value that could be missing."
     }
   ],
   "slots": [

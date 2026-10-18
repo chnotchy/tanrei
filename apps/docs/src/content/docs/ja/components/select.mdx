@@ -2,7 +2,7 @@
 title: セレクト
 description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 222e3da773560b3e6266645a13820fe9856c0687
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 フィールドでセレクトを囲むと、セレクトフィールドを自分で書いたものになります。セレクトの `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、オプション、選ぶ操作に関するすべてはセレクトに指定します。
 
 ```html
-<tanrei-field label="国" requirement="required" required-text="必須"
+<tanrei-field label="国" required required-text="必須"
   supporting-text="請求書の宛先になります。">
   <tanrei-select name="country" placeholder="国を選択">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -107,7 +107,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 ```
 
 <DemoFrame label="フィールドの中にセレクトを入れたもの。セレクトフィールドと同じ見た目になります" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" requirement="required" required-text="必須" supporting-text="請求書の宛先になります。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" supporting-text="請求書の宛先になります。">
     <tanrei-select placeholder="国を選択">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">ケニア</tanrei-option>
@@ -203,7 +203,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 - `change` は、composed でバブルするイベントです。`toggle` は composed ですが、バブルしません。セレクトと、それを囲むセレクトフィールドでは受け取れますが、`<details>` のような祖先には届きません。
 - リストは、トップレイヤーにある `popover="manual"` の要素です。外側を押すとリストは閉じ、押した位置にある要素にもその操作が届きます。
 - 浮き上がるラベル（`filled`、`outlined`）はコンテナの中にあるので、ラベルを押すとリストが開きます。
-- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
+- `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
 - パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
 - 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-select:not(:defined) > *` を隠し、高さを確保しておいてください。
 - Web には固有の戻る操作がないので、`toggle` が理由 `back` を伝えることはありません。

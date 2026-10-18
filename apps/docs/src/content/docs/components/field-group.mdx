@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="A set of checkboxes with a name, a description and a requirement" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
     <tanrei-checkbox label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox label="Text message"></tanrei-checkbox>
     <tanrei-checkbox label="Push notification"></tanrei-checkbox>
@@ -32,7 +32,7 @@ On the web it is `<tanrei-field-group>`. The other platforms have not implemente
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required"
+    <tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." required required-text="Required"
                         error error-text="Choose at least one way to reach you.">
       <tanrei-checkbox name="notify" value="email" label="Email"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
@@ -41,8 +41,8 @@ On the web it is `<tanrei-field-group>`. The other platforms have not implemente
 
     <!-- Fields that belong together. -->
     <tanrei-field-group label="Shipping address" spacing="fields">
-      <tanrei-text-field label="Street" requirement="required" required-text="Required"></tanrei-text-field>
-      <tanrei-text-field label="City" requirement="required" required-text="Required"></tanrei-text-field>
+      <tanrei-text-field label="Street" required required-text="Required"></tanrei-text-field>
+      <tanrei-text-field label="City" required required-text="Required"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -65,7 +65,7 @@ On the web it is `<tanrei-field-group>`. The other platforms have not implemente
 ## Specs
 
 <DemoFrame label="An error for the set, a row, switches, and fields that belong together" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="Choose at least one way to reach you.">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required" error error-text="Choose at least one way to reach you.">
     <tanrei-checkbox label="Email"></tanrei-checkbox>
     <tanrei-checkbox label="Text message"></tanrei-checkbox>
   </tanrei-field-group>
@@ -74,7 +74,7 @@ On the web it is `<tanrei-field-group>`. The other platforms have not implemente
     <tanrei-checkbox label="Text"></tanrei-checkbox>
     <tanrei-checkbox label="Push"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacy" supporting-text="These apply to this device only." requirement="optional" optional-text="Optional">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacy" supporting-text="These apply to this device only." optional optional-text="Optional">
     <tanrei-switch label="Share usage data" checked></tanrei-switch>
     <tanrei-switch label="Show my status"></tanrei-switch>
   </tanrei-field-group>
@@ -99,17 +99,17 @@ On the web it is `<tanrei-field-group>`. The other platforms have not implemente
 
 ### A set of radio buttons: `kind`
 
-A group has neither a required nor an invalid state, so a field group says the requirement in words and marks its checkboxes invalid one by one. A set of radio buttons is different: it is required and invalid as a whole. `kind="radio-group"` tells the field group that its set is the radio buttons of one group, and it is then their radio group to assistive technology — required while `requirement` is `required`, invalid while `error` is true, saying its orientation — and `requiredText` is no longer part of its description, because the state says it.
+A group has neither a required nor an invalid state, so a field group says the requirement in words and marks its checkboxes invalid one by one. A set of radio buttons is different: it is required and invalid as a whole. `kind="radio-group"` tells the field group that its set is the radio buttons of one group, and it is then their radio group to assistive technology — required while `required` is set, invalid while `error` is true, saying its orientation — and `requiredText` is no longer part of its description, because the state says it.
 
 ```html
-<tanrei-field-group kind="radio-group" label="Delivery" requirement="required" required-text="Required">
+<tanrei-field-group kind="radio-group" label="Delivery" required required-text="Required">
   <tanrei-radio-button name="delivery" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="Express, next day"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="A field group whose kind is radio-group, around radio buttons of one name" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Delivery" requirement="required" required-text="Required">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Delivery" required required-text="Required">
     <tanrei-radio-button name="delivery-kind" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="Express, next day"></tanrei-radio-button>
   </tanrei-field-group>
@@ -126,7 +126,7 @@ A set is tall and is read from the top, so two things stand elsewhere than in a 
 - The description is under the label, before the controls, and it stays while the group is in error. "Choose all that apply" must be read before the options, and it is what a person needs again when the answer is refused.
 - The error text is a row of its own, below the last control.
 
-The label, the requirement tag and the asterisk are the field's.
+The label, the requirement tag and the asterisk are the field's. So are `required` and `optional`, which say what the form asks of the set: with both set, the set is required.
 
 ### Layout
 

@@ -2,7 +2,7 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: dc309afa21d548b5273dfcda626d60558fe8e988
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -90,14 +90,14 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 フィールドでテキスト入力欄を囲むと、テキストフィールドを自分で書いたものになります。入力欄の `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、入力に関するすべては入力欄に指定します。
 
 ```html
-<tanrei-field label="メールアドレス" requirement="required" required-text="必須"
+<tanrei-field label="メールアドレス" required required-text="必須"
   supporting-text="サインインにだけ使います。">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="フィールドの中のテキスト入力欄。見た目はテキストフィールドと同じです" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須" supporting-text="サインインにだけ使います。">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" supporting-text="サインインにだけ使います。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

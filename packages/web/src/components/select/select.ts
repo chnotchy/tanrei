@@ -62,7 +62,7 @@ function whenParsed(task: () => void) {
 }
 
 /** What left the element with the frame: each is an attribute of `<tanrei-select-field>`, or of the Field that frames a select. */
-const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'requirement', 'required-mark', 'required-text', 'optional-text'] as const;
+const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional', 'required-mark', 'required-text', 'optional-text'] as const;
 
 /**
  * Lets people choose one value from a closed list: a trigger that looks and measures like a text input's box and

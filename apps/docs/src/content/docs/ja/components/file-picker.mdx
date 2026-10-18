@@ -2,7 +2,7 @@
 title: ファイルピッカー
 description: プラットフォーム自身のピッカーでファイルを選ばせます。ボタンから開き、余裕のある場所では、ファイルをドラッグできる領域からも受け取ります。選ぶ前に制限を言葉で伝え、選ばれたファイルを判定し、通ったファイルと断ったファイルをプロダクトに渡します。何も保持せず、何も一覧にせず、フォームにも加わりません。
 translationOf: components/file-picker.mdx
-sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
+sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -171,7 +171,7 @@ React では、`judge()` は ref から使います。`ref.current.judge(files)`
 フォームがラベル、補足テキスト、エラー、必須の印を見せる場合は、ファイルピッカーを[フィールド](/ja/components/field/)の中に置きます。フィールドがそれらを描き、ファイルピッカーに渡します。トリガーは、それらによって名前が付き、説明されます。
 
 ```html
-<tanrei-field label="添付ファイル" requirement="required" required-text="必須"
+<tanrei-field label="添付ファイル" required required-text="必須"
               error error-text="10 MB 以下の PDF を選んでください。">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="PDF、10 MB まで" selection-text="ファイルが選ばれていません">
@@ -180,7 +180,7 @@ React では、`judge()` は ref から使います。`ref.current.judge(files)`
 </tanrei-field>
 ```
 
-ファイルピッカーは、何も送信しません。`name` も値もなく、`required` は支援技術に伝えるだけです。ファイルが足りないかどうかを伝えるのは、ファイルを保持するコンポーネントです。利用者側のコードか、フォームコントロールである[ファイルアップロード](/ja/components/file-upload/)です。
+ファイルピッカーは、何も送信しません。`name` も値もなく、`required` は支援技術に伝えるだけです。ファイルが足りないかどうかを伝えるのは、ファイルを保持するコンポーネントです。利用者側のコードか、フォームコントロールである[ファイルアップロード](/ja/components/file-upload/)です。フィールドと同じ言い方の `required` は、`required` と同じです。
 
 ### 右から左
 

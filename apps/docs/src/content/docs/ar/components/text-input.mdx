@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: dc309afa21d548b5273dfcda626d60558fe8e988
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -90,14 +90,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بحقل إدخال النص هو حقل نص مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` وكل ما يخص الكتابة على حقل الإدخال.
 
 ```html
-<tanrei-field label="البريد الإلكتروني" requirement="required" required-text="مطلوب"
+<tanrei-field label="البريد الإلكتروني" required required-text="مطلوب"
   supporting-text="نستخدمه لتسجيل دخولك فقط.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="حقل فيه حقل إدخال النص: الصورة نفسها التي لحقل النص" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" requirement="required" required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

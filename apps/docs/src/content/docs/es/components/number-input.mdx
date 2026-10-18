@@ -2,7 +2,7 @@
 title: Entrada numérica
 description: La caja de un número (escrito en la forma de la configuración regional o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), sin fila de etiqueta, ayuda ni texto de error propios. Para un número cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/number-input.mdx
-sourceHash: 2790f391198caf794180332adcdc03fd67075c81
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -100,7 +100,7 @@ Un control deslizante es para un valor que se elige a ojo, y una entrada numéri
 Un campo alrededor de una entrada numérica es un campo numérico escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value`, los límites y la unidad, en la entrada.
 
 ```html
-<tanrei-field label="Cantidad" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Cantidad" required required-text="Obligatorio"
   supporting-text="Hasta 99 por pedido.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Introduce un número."
     increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
@@ -108,7 +108,7 @@ Un campo alrededor de una entrada numérica es un campo numérico escrito por ex
 ```
 
 <DemoFrame label="Un campo con una entrada numérica dentro: la misma imagen que un campo numérico" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" requirement="required" required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" required required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
     <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>

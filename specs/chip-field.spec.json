@@ -117,9 +117,13 @@
       "note": "Also disables every entry (CHF-19)."
     },
     {
-      "name": "requirement",
-      "from": "field.requirement",
-      "note": "required asks for at least one entry (CHF-25)."
+      "name": "required",
+      "from": "field.required",
+      "note": "asks for at least one entry (CHF-25)."
+    },
+    {
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -331,7 +335,7 @@
     },
     {
       "id": "CHF-21",
-      "text": "THE chip field SHALL expose to assistive technology, in this order: the entries as one list named by label, each entry an item that holds its Chip — a button named by the entry's whole text — and beside it its remove action, a button named by removeLabel (CHF-2); then the typing part, a text box named by label and described by what the supporting row shows, invalid WHILE the field is in error or in an entry error and required WHILE requirement is required, all given by the Field (FLD-8, FLD-10, FLD-11). WHILE value is empty it SHALL expose no list. It SHALL add no role, role description or word of its own for being a field of several entries: what an entry is and how one is made is the product's to say in supportingText."
+      "text": "THE chip field SHALL expose to assistive technology, in this order: the entries as one list named by label, each entry an item that holds its Chip — a button named by the entry's whole text — and beside it its remove action, a button named by removeLabel (CHF-2); then the typing part, a text box named by label and described by what the supporting row shows, invalid WHILE the field is in error or in an entry error and required WHILE required is true, all given by the Field (FLD-8, FLD-10, FLD-11). WHILE value is empty it SHALL expose no list. It SHALL add no role, role description or word of its own for being a field of several entries: what an entry is and how one is made is the product's to say in supportingText."
     },
     {
       "id": "CHF-22",
@@ -347,7 +351,7 @@
     },
     {
       "id": "CHF-25",
-      "text": "WHILE requirement is required THE chip field SHALL expose its typing part as required (FLD-4, FLD-10) and, on the web, report an empty list to the form's constraint validation as a missing value — whatever text stands in the typing part, which is not an entry. THE chip field SHALL NOT validate otherwise because of requirement: it SHALL NOT set error or show an error text for an empty list, which is the product's to report."
+      "text": "WHILE required is true THE chip field SHALL expose its typing part as required (FLD-4, FLD-10) and, on the web, report an empty list to the form's constraint validation as a missing value — whatever text stands in the typing part, which is not an entry. THE chip field SHALL NOT validate otherwise because of required: it SHALL NOT set error or show an error text for an empty list, which is the product's to report."
     },
     {
       "id": "CHF-26",
@@ -414,7 +418,7 @@
         "action": "On an entry: moves focus to the typing part and types the character there."
       }
     ],
-    "labeling": "label names the typing part (a text box) and the list of entries; the supporting text with, in error, the error text after it describes the typing part, with optionalText while requirement is optional — all through the Field (FLD-10, FLD-11). Each entry is a button named by its whole text, cut or not, and its remove action a button named by removeLabel with the entry in it. A refusal is said by the Field's error announcement; an entry made or removed by addedText, addedCountText and removedText in a polite live region. Every word is the product's.",
+    "labeling": "label names the typing part (a text box) and the list of entries; the supporting text with, in error, the error text after it describes the typing part, with optionalText while optional is true — all through the Field (FLD-10, FLD-11). Each entry is a button named by its whole text, cut or not, and its remove action a button named by removeLabel with the entry in it. A refusal is said by the Field's error announcement; an entry made or removed by addedText, addedCountText and removedText in a polite live region. Every word is the product's.",
     "minimumTarget": true,
     "notes": [
       "One stop, not one for every entry: a person who moves through a form with Tab lands in the typing part, where entries are made, and passes a list of thirty addresses in one press. The entries are reached from there with the arrow keys or Backspace, and by pointer, touch and a screen reader's own navigation as the separate elements they are. This replaces, inside the chip field only, the stops a Chip has when it stands alone (CHP-23), which that sentence leaves to whatever holds the chips.",
@@ -543,7 +547,7 @@
         "value": [
           "ada@example.com"
         ],
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       }
     },
@@ -559,7 +563,7 @@
           " "
         ],
         "removeLabel": "Remove {entry}",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "error": true,
         "errorText": "Add at least one address."
@@ -578,7 +582,7 @@
         "value": [
           "alan@example.net"
         ],
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       }
     },
@@ -905,7 +909,7 @@
           "アクセシビリティ",
           "多言語対応"
         ],
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "supportingText": "キーワードごとに Enter を押してください。"
       }
@@ -978,7 +982,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1019,7 +1024,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": ".disabled(_:)",
-        "requirement": "requirement",
+        "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1060,7 +1066,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1101,7 +1108,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "enabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1142,7 +1150,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

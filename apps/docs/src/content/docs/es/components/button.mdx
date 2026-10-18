@@ -2,7 +2,7 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 9aadc7c7570bb1dc9d3df4a32b86c010a3e570a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -258,7 +258,7 @@ En la web, un botón es uno de los controles de su formulario, y `type` dice qu�
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="Nombre" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="Nombre" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">Borrar</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">Guardar borrador</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">Publicar</tanrei-button>
@@ -291,7 +291,7 @@ En la web, un botón es uno de los controles de su formulario, y `type` dice qu�
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="Nombre" name="name" requirement="required" />
+      <TextField label="Nombre" name="name" required />
       <Button type="reset" variant="text">Borrar</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">Guardar borrador</Button>
       <Button type="submit" name="intent" value="publish">Publicar</Button>

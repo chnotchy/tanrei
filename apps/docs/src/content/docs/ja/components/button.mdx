@@ -2,7 +2,7 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 9aadc7c7570bb1dc9d3df4a32b86c010a3e570a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -258,7 +258,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="名前" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="名前" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">クリア</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">公開</tanrei-button>
@@ -291,7 +291,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="名前" name="name" requirement="required" />
+      <TextField label="名前" name="name" required />
       <Button type="reset" variant="text">クリア</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</Button>
       <Button type="submit" name="intent" value="publish">公開</Button>

@@ -1,12 +1,11 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { type FrameProps, type FrameRequiredMark, type FrameRequirement, frameAnnounce, frameRequirement, frameWithWords, reportFrame, syncFrameMark } from '../../primitives/field-frame.js';
+import { type FrameProps, type FrameRequiredMark, frameAnnounce, frameRequirement, frameWithWords, reportFrame, syncFrameMark } from '../../primitives/field-frame.js';
 import { GROUP_ORIENTATIONS, type GroupOrientation, type GroupSemantics, groupDescribedBy, groupOrientation, groupRows } from '../../primitives/field-group-frame.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, OpenAxesController, WordsController, report } from '../../primitives/index.js';
 import type { TanreiFieldGroupSpacingRegistry } from '../../registry.js';
 import { AXES, CORE_SPACINGS, PREFIX, styles } from './field-group.styles.js';
 
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
-export type TanreiFieldGroupRequirement = FrameRequirement;
 /** How a required set is marked: the design system's answer (auto), a tag, an asterisk, or nothing. */
 export type TanreiFieldGroupRequiredMark = FrameRequiredMark;
 /** A column, or a row that wraps. */
@@ -92,7 +91,8 @@ export class TanreiFieldGroup extends LitElement {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -120,7 +120,11 @@ export class TanreiFieldGroup extends LitElement {
   disabled = false;
 
   /** What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates. */
-  requirement: TanreiFieldGroupRequirement = 'none';
+  /** What the form asks of the set: true draws the required mark and says the requirement (FGR-4). It never validates. */
+  required = false;
+
+  /** Draws the optional tag after the label and adds `optional-text` to the group's description; ignored while `required` is true (FGR-26). */
+  optional = false;
 
   /** How this set shows that it is required (`required-mark`): `tag`, `asterisk` or `none`; `auto` takes the design system's answer (`--tanrei-comp-field-group-requirement-mark`, which follows `--tanrei-sys-behavior-requirement-mark`). */
   requiredMark: TanreiFieldGroupRequiredMark = 'auto';
@@ -215,7 +219,7 @@ export class TanreiFieldGroup extends LitElement {
   private reports(changed: PropertyValues) {
     // FGR-24: a group says the requirement in words whichever mark is drawn; a radio group's required state needs none,
     // so its word is missed only where the tag would be drawn.
-    reportFrame(this, this.framed, changed, { unknown: 'FGR-22', words: 'FGR-24' }, this.words, { prefix: PREFIX, always: !this.isRadioGroup });
+    reportFrame(this, this.framed, changed, { unknown: 'FGR-22', words: 'FGR-24', both: 'FGR-26' }, this.words, { prefix: PREFIX, always: !this.isRadioGroup });
     if (changed.has('orientation') && !(GROUP_ORIENTATIONS as readonly string[]).includes(this.orientation)) {
       report(this, 'FGR-22', `orientation "${this.orientation}" is not vertical or horizontal; it is drawn as "vertical"`);
     }

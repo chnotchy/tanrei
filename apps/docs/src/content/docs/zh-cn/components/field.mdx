@@ -2,7 +2,7 @@
 title: "字段"
 description: "为一个控件配上表单给每个字段的东西——可以说明控件必填或选填的标签、一行帮助文本，以及值被拒绝的原因——并把每一样都与这个控件关联起来，供辅助技术使用。它是一个框架，从不是控件。"
 translationOf: components/field.mdx
-sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
+sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,8 +16,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field" />
 
 <DemoFrame label="滑块和开关，各由一个字段命名、提供帮助文本并加上标记" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" supporting-text="适用于提醒和媒体。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="选填" supporting-text="有评审等待你处理时发送。"><tanrei-switch checked></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" supporting-text="适用于提醒和媒体。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" optional optional-text="选填" supporting-text="有评审等待你处理时发送。"><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 文本字段可以说明自己是什么、是否必须填写、该怎么填，以及填写的内容为什么被拒绝。字段把同样的四样东西交给做不到这些的控件：滑块、开关、[文本输入框](/zh-cn/components/text-input/)、[颜色输入框](/zh-cn/components/color-input/)、[一次性验证码输入框](/zh-cn/components/one-time-code-input/)，或者你的产品自己构建的控件。文本字段本身就是包住一个文本输入框的字段。标签位于控件上方，帮助文本位于控件下方。字段处于错误状态时，错误文本取代帮助文本的位置，所以处于错误状态的表单不会比平时更高；设计系统也可以改为保留帮助文本，把错误文本加在它的下方。
@@ -31,12 +31,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field label="音量" supporting-text="适用于提醒和媒体。" requirement="optional" optional-text="选填">
+    <tanrei-field label="音量" supporting-text="适用于提醒和媒体。" optional optional-text="选填">
       <tanrei-slider name="volume" value="40"></tanrei-slider>
     </tanrei-field>
 
     <!-- 校验由产品来做；字段显示原因，并把控件标记为无效。 -->
-    <tanrei-field label="音量" requirement="required" required-text="必填" error error-text="请选择大于 0 的音量。">
+    <tanrei-field label="音量" required required-text="必填" error error-text="请选择大于 0 的音量。">
       <tanrei-slider name="volume" value="0"></tanrei-slider>
     </tanrei-field>
 
@@ -69,10 +69,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="三种必填和选填标记、错误、禁用的字段，以及标签的字形" plain column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="选填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" error error-text="请选择大于 0 的音量。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="选填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" error error-text="请选择大于 0 的音量。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="字段里的文本输入框：带帮助文本和计数的，以及处于错误状态的" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="显示名称" supporting-text="显示在你的评论旁边。" count-text="2/40"><tanrei-text-input value="李华" maxlength="40" counter></tanrei-text-input></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" error error-text="请输入完整的邮箱地址。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填" error error-text="请输入完整的邮箱地址。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
 </DemoFrame>
 
 ### 包住文本输入框
@@ -134,7 +134,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 必填和选填
 
-`requirement` 为 `none`、`required` 或 `optional`：只用一项设置，因为一个控件不可能既必填又选填。
+`required` 和 `optional` 说明表单对控件的要求。`required` 是 HTML 给它的名字，它把控件暴露为必填，并画出必填标记：`<tanrei-field label="邮箱" required>`。`optional` 画出选填小标签。一个控件不可能既必填又选填：两者都设置时它是必填的，开发构建会报告 `optional` 被忽略。在 React 中，它们和 `<input>` 上的 `required` 一样是 prop。
 
 - `required` 把控件暴露为必填，并在标签旁边绘制必填标记。
 - `optional` 绘制一个低调的小标签，并把它的文字加入控件的描述。
@@ -180,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 标签就是控件的无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。自己已有名称的控件保留自己的名称。
 - 控件的描述就是辅助文本那一行显示的内容——帮助文本；字段处于错误状态时，则是取代它的错误文本（在 `append` 下，是帮助文本之后再接错误文本）——控件为选填时，再接 `optionalText`。它们排在控件已有的描述之后。
-- `error` 为 true 时，控件暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用。角色没有必填状态的控件（例如滑块），改为在描述里说出 `requiredText`。
+- `error` 为 true 时，控件暴露为无效；设置了 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用。角色没有必填状态的控件（例如滑块），改为在描述里说出 `requiredText`。
 - 自己有错误状态的控件（例如复选框或单选按钮），会以它的错误状态绘制。
 - 焦点位于字段内时出现或改了措辞的错误，会以礼貌（polite）的方式朗读一次：只读错误文本，不再重读帮助文本。焦点绝不会因为错误而移动。
 - 按下标签会把焦点移到控件上，但不会操作控件。

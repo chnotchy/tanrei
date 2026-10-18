@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="A checkbox group, and one with a checkbox that checks them all" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
     <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="Push notification"></tanrei-checkbox>
@@ -46,7 +46,7 @@ Each checkbox is the choice named by its `value`. `value` on the group is the li
     <form>
       <tanrei-checkbox-group name="notify" label="Notify me by"
         supporting-text="Choose all that apply."
-        requirement="required" required-text="Required"
+        required required-text="Required"
         error-text="Choose at least one way to reach you.">
         <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
@@ -106,7 +106,7 @@ The same set, written by hand from its two members, is the same picture and the 
 
 ```html
 <tanrei-field-group label="Notify me by" supporting-text="Choose all that apply."
-                    requirement="required" required-text="Required">
+                    required required-text="Required">
   <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
@@ -114,7 +114,7 @@ The same set, written by hand from its two members, is the same picture and the 
 ```
 
 <DemoFrame label="The same set written by hand: a field group with checkboxes in it" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
     <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
@@ -152,7 +152,7 @@ Go one level down when the set is not one answer:
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="This number cannot receive text messages. Choose another way, or change the number.">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required" error error-text="This number cannot receive text messages. Choose another way, or change the number.">
     <tanrei-checkbox value="email" label="Email"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Text message" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="Push notification"></tanrei-checkbox>
@@ -172,7 +172,7 @@ Go one level down when the set is not one answer:
 
 | Aspect | From the field group | From the checkboxes | The group's own |
 | --- | --- | --- | --- |
-| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | Each checkbox's `value`, `label` and `disabled`, on the checkbox | `value`, `selectAllLabel` |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | Each checkbox's `value`, `label` and `disabled`, on the checkbox | `value`, `selectAllLabel` |
 | Events | — | None: a checkbox in a group fires nothing of its own | `change` |
 | Tokens | `comp.field-group.*` | `comp.checkbox.*` | None |
 
@@ -199,7 +199,7 @@ The checkbox group has no token of its own. Its frame reads the field group's to
 - The element's shadow root holds a `<tanrei-field-group>` around the select-all checkbox, while `select-all-label` is given, and a slot. The checkboxes stay your own children. Importing the element defines both members.
 - `value` is a property only: an array, copied in and out. There is no `value` attribute, because a list in an attribute needs a separator a value may contain, and HTML already has the form: `checked` on each child.
 - A checkbox with no `value` attribute and no value set has none: the "on" a bare checkbox submits is not read in a group. It is drawn unchecked, and a debug build reports it.
-- The element is form-associated. It takes `name` and `form`, and submits one entry under `name` for each value — what native checkboxes of one name submit. Its checkboxes submit nothing, whatever `name` they carry. It resets to its first value, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and the list is empty. The message is `error-text`, else the required text, else `label`: give `error-text` from the start, not only when `error` is set.
+- The element is form-associated. It takes `name` and `form`, and submits one entry under `name` for each value — what native checkboxes of one name submit. Its checkboxes submit nothing, whatever `name` they carry. It resets to its first value, follows a disabled `<fieldset>`, and reports a missing value while `required` is set and the list is empty. The message is `error-text`, else the required text, else `label`: give `error-text` from the start, not only when `error` is set.
 - `change` is a CustomEvent whose `detail.value` is a copy of the list; `input` is fired before it. A listener on a checkbox inside the group hears neither.
 - Parts: `field-group` is the frame, and its parts have the same names here as one level down: `label`, `requirement-label`, `supporting-text`, `error-text`. `select-all` is the select-all checkbox, and its parts are `select-all-container`, `select-all-box`, `select-all-mark` and `select-all-label`. Your own checkboxes are styled as they are anywhere, with `tanrei-checkbox::part(…)`.
 - The element is not focusable itself. `focus()` goes to the first enabled checkbox, and a page's own `<label for>` moves focus there.

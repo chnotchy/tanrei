@@ -2,7 +2,7 @@
 title: スライダーフィールド
 description: 目盛りの上で値または値の範囲を選んでもらう、完成した 1 つのフィールドです。ラベルの下にトラックがあり、ラベルの行の末尾に値を言葉で示し、補足の 1 行と、値が受け付けられなかった理由が付きます。
 translationOf: components/slider-field.mdx
-sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 ## 仕様
 
 <DemoFrame label="プロダクトの言葉で示した必須、任意、エラー、無効" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="任意" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="任意" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" error error-text="0 より大きい値を選んでください。" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -142,7 +142,7 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 
 | 観点 | フィールドから | スライダーから |
 | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `value`、`startValue`、`range`、`min`、`max`、`step`、`origin`、`stops`、`size`、`valueIndicator`、`valueText`、`startValueText`、`startLabel` と、スライダーの `label` にあたる `endLabel` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | `value`、`startValue`、`range`、`min`、`max`、`step`、`origin`、`stops`、`size`、`valueIndicator`、`valueText`、`startValueText`、`startLabel` と、スライダーの `label` にあたる `endLabel` |
 | イベント | — | `input`、`change` |
 | スロット | `label-icon` | — |
 | トークン | `comp.field.*` | `comp.slider.*` |
@@ -151,7 +151,7 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 
 スライダーは、自分の `disabled` と `orientation` を持っています。どちらもスライダーフィールドのプロパティではありません。フィールドの `disabled` がスライダーを無効にするので、ラベルと値のテキストも一緒に変わります。トラックは常に行の方向に伸びます。スライダーフィールドに縦の向きはありません。
 
-スライダーには常に値があるので、ここでの `requirement` は「空ではない」という意味にはなりません。すべてのコントロールに必須か任意かを示すフォームでは、スライダーフィールドにも示します。何を受け付けないか（0 の音量、狭すぎる範囲など）は、利用者側で `error` と `errorText` を使って伝えます。エラーになってもトラックは変わりません。エラーを伝えるのは、言葉と、不正という状態です。
+スライダーには常に値があるので、ここでの `required` は「空ではない」という意味にはなりません。すべてのコントロールに必須か任意かを示すフォームでは、スライダーフィールドにも示します。何を受け付けないか（0 の音量、狭すぎる範囲など）は、利用者側で `error` と `errorText` を使って伝えます。エラーになってもトラックは変わりません。エラーを伝えるのは、言葉と、不正という状態です。
 
 ハンドルの動き（ドラッグ、キー、刻み、値の表示）は[スライダーのページ](/ja/components/slider/)に、枠の動き（必須の印、値のテキスト、補足、エラーとその読み上げ）は[フィールドのページ](/ja/components/field/)にあります。
 

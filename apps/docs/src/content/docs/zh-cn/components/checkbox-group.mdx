@@ -2,7 +2,7 @@
 title: "复选框组"
 description: "提出一个可以有多个答案的问题，选项不多，同时全部显示出来——同一个标签之下的一组复选框，带有一段描述和一条错误；它在一个名称之下保存选中值的列表，还可以带上一个把它们全部选中的复选框。"
 translationOf: components/checkbox-group.mdx
-sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="一个复选框组，以及一个带有全选复选框的复选框组" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填">
     <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="推送通知"></tanrei-checkbox>
@@ -48,7 +48,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <form>
       <tanrei-checkbox-group name="notify" label="通知方式"
         supporting-text="可多选。"
-        requirement="required" required-text="必填"
+        required required-text="必填"
         error-text="请至少选择一种通知方式。">
         <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <tanrei-field-group label="通知方式" supporting-text="可多选。"
-                    requirement="required" required-text="必填">
+                    required required-text="必填">
   <tanrei-checkbox name="notify" value="email" label="邮件" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
@@ -116,7 +116,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="手写出来的同一组：一个字段组，里面有若干复选框" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填">
     <tanrei-checkbox name="notify" value="email" label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填" error error-text="这个号码无法接收短信。请选择其他方式，或者更换号码。">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填" error error-text="这个号码无法接收短信。请选择其他方式，或者更换号码。">
     <tanrei-checkbox value="email" label="邮件"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="短信" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="推送通知"></tanrei-checkbox>
@@ -174,7 +174,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段组 | 来自复选框 | 组自己的 |
 | --- | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | 每个复选框的 `value`、`label` 和 `disabled`，写在复选框上 | `value`, `selectAllLabel` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | 每个复选框的 `value`、`label` 和 `disabled`，写在复选框上 | `value`, `selectAllLabel` |
 | 事件 | — | 没有：组里的复选框自己不触发任何事件 | `change` |
 | 令牌 | `comp.field-group.*` | `comp.checkbox.*` | 没有 |
 
@@ -201,7 +201,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 这个元素的 shadow root 里有一个 `<tanrei-field-group>`，它包着全选复选框（给出 `select-all-label` 时才有）和一个插槽。复选框仍然是你自己的子元素。导入这个元素，两个成员也随之完成定义。
 - `value` 只是属性（property）：一个数组，写入和读出时都会复制。它没有 `value` 属性（attribute），因为把列表写进属性（attribute）需要一个分隔符，而值里可能就含有这个分隔符；HTML 也已经有了现成的写法：每个子元素上的 `checked`。
 - 既没有 `value` 属性（attribute）、也没有设置值的复选框就没有值：单独的复选框提交的那个“on”，在组里不会被读取。它画成未选中，调试构建会报告它。
-- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，并在 `name` 之下为每个值提交一个条目——与同名的原生复选框提交的内容相同。它的复选框无论带有什么 `name`，都不提交任何东西。它重置为最初的值，跟随被禁用的 `<fieldset>`，并在 `requirement` 为 `required` 而列表为空时报告缺少值。报告用的消息是 `error-text`，没有时是必填文字，再没有时是 `label`：请从一开始就给出 `error-text`，而不是只在设置 `error` 时才给。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，并在 `name` 之下为每个值提交一个条目——与同名的原生复选框提交的内容相同。它的复选框无论带有什么 `name`，都不提交任何东西。它重置为最初的值，跟随被禁用的 `<fieldset>`，并在 设置了 `required` 而列表为空时报告缺少值。报告用的消息是 `error-text`，没有时是必填文字，再没有时是 `label`：请从一开始就给出 `error-text`，而不是只在设置 `error` 时才给。
 - `change` 是 CustomEvent，它的 `detail.value` 是列表的一份副本；`input` 在它之前触发。写在组里某个复选框上的监听器，两者都收不到。
 - 部件：`field-group` 是框架，它的部件在这里的名称与下一层相同：`label`、`requirement-label`、`supporting-text`、`error-text`。`select-all` 是全选复选框，它的部件是 `select-all-container`、`select-all-box`、`select-all-mark` 和 `select-all-label`。你自己的复选框，样式的写法与在任何地方一样，用 `tanrei-checkbox::part(…)`。
 - 这个元素本身不能获得焦点。`focus()` 会把焦点交给第一个启用的复选框，页面自己的 `<label for>` 也会把焦点移到那里。

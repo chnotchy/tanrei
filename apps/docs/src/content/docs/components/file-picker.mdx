@@ -169,7 +169,7 @@ Leave it empty and nothing is drawn there, which suits an attach button whose fi
 Put the file picker in a [field](/components/field/) when the form shows a label, help, an error or a required mark. The field draws them and gives them to the file picker, whose trigger is then named and described by them.
 
 ```html
-<tanrei-field label="Attachment" requirement="required" required-text="Required"
+<tanrei-field label="Attachment" required required-text="Required"
               error error-text="Choose a PDF of 10 MB or less.">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="PDF, up to 10 MB" selection-text="No file chosen">
@@ -178,7 +178,7 @@ Put the file picker in a [field](/components/field/) when the form shows a label
 </tanrei-field>
 ```
 
-A file picker submits nothing. It has no `name` and no value, and `required` only tells assistive technology. Whether a file is missing is for the component that keeps the files to say: your code, or a [file upload](/components/file-upload/), which is a form control.
+A file picker submits nothing. It has no `name` and no value, and `required` only tells assistive technology. Whether a file is missing is for the component that keeps the files to say: your code, or a [file upload](/components/file-upload/), which is a form control. `required`, a field's word for it, is the same as `required`.
 
 ### Right to left
 

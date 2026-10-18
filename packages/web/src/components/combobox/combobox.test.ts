@@ -388,12 +388,12 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
 
   test('CMB-7: a filled or outlined combobox draws "*" after its floating label exactly while the Field that frames it gives an asterisk — for a tag too, and never for the mark none — requirement.asterisk-gap from the text, in the label’s style and its variant’s required-asterisk color (the error part while in error), hidden from assistive technology; it draws no tag and no optional label; with no Field, no mark or no drawn label it draws no mark', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined' })]);
-    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, `outlined-${mark}`, { label: 'City', requirement: 'required', requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
-    await frame(page, 'filled', { label: 'City', requirement: 'required', requiredText: 'Required' }, { variant: 'filled', value: 'tokyo' });
-    await frame(page, 'hidden', { label: 'City', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'City', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'City', requirement: 'required', requiredMark: 'asterisk' }, {});
-    await frame(page, 'error', { label: 'City', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, `outlined-${mark}`, { label: 'City', required: true, requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'filled', { label: 'City', required: true, requiredText: 'Required' }, { variant: 'filled', value: 'tokyo' });
+    await frame(page, 'hidden', { label: 'City', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'City', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'stacked', { label: 'City', required: true, requiredMark: 'asterisk' }, {});
+    await frame(page, 'error', { label: 'City', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
     const star = (id: string) => part(page, id, '.floating .asterisk');
     // The Field's answer: an asterisk for the tag too (the default system marks with the tag), none for the mark none.
     expect(await css(page.locator('html'), F('requirement-mark'))).toBe('tag');
@@ -548,10 +548,10 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
   test('CMB-12: the name, the description and the required state are the Field’s that frames it — its label names the input whether or not a label is drawn, its shown text describes it — and the combobox’s own label wins; the placeholder is never the name; the same name names its list and its chevron; while its Field says required it is exposed as required whichever mark is drawn and reports a missing value to the form while value is empty, and it is never required by itself; with neither name it still renders and is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('own', { placeholder: 'Type to find a city' }), fx('unnamed', { label: '', placeholder: 'Type to find a city' })]);
-    await frame(page, 'framed', { label: 'Country', supportingText: 'Where the order is sent.', requirement: 'required', requiredText: 'Required' }, { placeholder: 'Type' });
-    await frame(page, 'hidden', { label: 'Country', labelHidden: true, requirement: 'required', requiredMark: 'none' }, { value: 'tokyo' });
+    await frame(page, 'framed', { label: 'Country', supportingText: 'Where the order is sent.', required: true, requiredText: 'Required' }, { placeholder: 'Type' });
+    await frame(page, 'hidden', { label: 'Country', labelHidden: true, required: true, requiredMark: 'none' }, { value: 'tokyo' });
     await frame(page, 'both', { label: '' }, { label: 'Its own' });
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional', supportingText: 'Help.' }, {});
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional', supportingText: 'Help.' }, {});
     const name = async (id: string) => (await input(page, id).getAttribute('aria-label')) ?? '';
     expect([await name('own'), await name('framed'), await name('hidden'), await name('both'), await name('unnamed')]).toEqual(['City', 'Country', 'Country', 'Its own', '']);
     expect(await input(page, 'framed').getAttribute('aria-labelledby'), 'named by one thing').toBeNull();
@@ -573,10 +573,10 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const validity = (id: string) => host(page, id).evaluate((el) => [(el as unknown as HTMLInputElement).validity.valueMissing, (el as unknown as HTMLInputElement).validity.valid]);
     expect(await validity('framed'), 'empty and required: missing').toEqual([true, false]);
     expect(await validity('hidden'), 'a value: not missing').toEqual([false, true]);
-    await setFrame(page, 'framed', { requirement: 'none' });
+    await setFrame(page, 'framed', { required: false, optional: false });
     expect([await input(page, 'framed').getAttribute('aria-required'), await validity('framed')]).toEqual([null, [false, true]]);
     // Never by itself: the attribute of the frame it was says nothing to a bare combobox.
-    await host(page, 'own').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'own').evaluate((el) => el.setAttribute('required', ''));
     await settle(page, 'own');
     expect([await input(page, 'own').getAttribute('aria-required'), await validity('own')]).toEqual([null, [false, true]]);
     // Neither name: it renders, and says so once; a combobox its Field names says nothing.
@@ -585,7 +585,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
 
   test('CMB-14: a press on its floating label, a decorative leading glyph or the container’s padding moves focus to the input and does nothing else — it opens nothing and changes nothing — and so does a press on the label row of the Field that frames it, while a press on that Field’s supporting row does nothing; the hit area meets the minimum target; the input is one stop, the clear button a second, the chevron and the options none', async ({ page }) => {
     await mount(page, [fx('one', { value: 'tokyo', clearable: true, clearLabel: 'Clear city' }, CITIES, { slots: { 'leading-icon': 'location_on' } }), fx('after', {}), fx('floating', { variant: 'outlined', value: 'tokyo' })]);
-    await frame(page, 'framed', { label: 'Country', requirement: 'required', requiredText: 'Required', supportingText: 'Help.' }, { value: 'tokyo' });
+    await frame(page, 'framed', { label: 'Country', required: true, requiredText: 'Required', supportingText: 'Help.' }, { value: 'tokyo' });
     await listen(page, 'one');
     await listen(page, 'framed');
     await pressOn(part(page, 'one', '.leading-slot'));
@@ -955,7 +955,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
       bare('second', { value: 'tokyo', clearable: true }),
       bare('own', { value: 'tokyo', clearable: true, clearLabel: 'Clear city' }),
       // The attributes of the frame it was: a bare combobox knows none of them.
-      bare('old', { requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }),
+      bare('old', { required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }),
     ]);
     const named = (id: string) => part(page, id, '.clear').evaluate((el) => (el as HTMLElement & { label: string }).label);
     // No words: the button is drawn with no name, works, and is reported.
@@ -2189,7 +2189,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frame(
       page,
       'one',
-      { label: 'Token', supportingText: 'Used by the theme.', requirement: 'optional', optionalText: 'Optional' },
+      { label: 'Token', supportingText: 'Used by the theme.', required: false, optional: true, optionalText: 'Optional' },
       { value: 'b', clearable: true, clearLabel: 'Clear token', statusText: '3 of 12 shown' },
       '<tanrei-option-group label="Colors"><tanrei-option value="a" supporting-text="#111">Alpha</tanrei-option><tanrei-option value="b">Beta</tanrei-option></tanrei-option-group><tanrei-option value="g" disabled>Gamma</tanrei-option>',
     );
@@ -2229,7 +2229,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // Required, invalid, read-only, then disabled.
     await page.keyboard.press('Escape');
     await set(page, 'one', { status: 'idle', statusText: '', inputValue: 'Beta' });
-    await setFrame(page, 'one', { requirement: 'required', error: true, errorText: 'Choose a token of the list.' });
+    await setFrame(page, 'one', { required: true, error: true, errorText: 'Choose a token of the list.' });
     [box_] = await axNodes(page, 'combobox');
     expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Choose a token of the list.', expanded: false });
     await set(page, 'one', { readOnly: true });
@@ -2308,7 +2308,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-value', 'stacked-error-value', 'filled-value', 'outlined-value', 'stacked-disabled', 'open-supporting-text', 'open-status-error'].includes(f.id))]);
-    await frame(page, 'required', { label: 'City', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Choose a city.' }, { variant: 'outlined', value: 'tokyo' });
+    await frame(page, 'required', { label: 'City', required: true, requiredMark: 'asterisk', error: true, errorText: 'Choose a city.' }, { variant: 'outlined', value: 'tokyo' });
     const canvasText = await systemColor(page, 'CanvasText');
     for (const [id, selector] of [['required', '.floating'], ['required', '.floating .asterisk'], ['outlined-value', '.floating'], ['open-status-error', '.status']] as const) {
       expect(await css(part(page, id, selector), 'color'), `${id} ${selector}`).toBe(canvasText);
@@ -2644,7 +2644,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await page.evaluate(async () => {
       document.body.insertAdjacentHTML(
         'beforeend',
-        `<form id="f"><fieldset id="set"><tanrei-field label="City" requirement="required" required-text="Required"><tanrei-combobox id="c" name="city" value="tokyo">
+        `<form id="f"><fieldset id="set"><tanrei-field label="City" required required-text="Required"><tanrei-combobox id="c" name="city" value="tokyo">
            <tanrei-option value="kyoto">Kyoto</tanrei-option><tanrei-option value="lisbon">Lisbon</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option></tanrei-combobox></tanrei-field>
            <tanrei-combobox id="font" name="font" label="Font" allow-custom-value><tanrei-option value="Inter">Inter</tanrei-option></tanrei-combobox></fieldset></form>`,
       );
@@ -2748,7 +2748,7 @@ test.describe('the Field around it, the option elements and the options through 
     await set(page, 'outlined', { open: true });
     expect([await drawnFocused('outlined'), (await read(page, 'outlined')).shown]).toEqual([false, false]);
     // What it takes: the name, the description and the states (CMB-10, CMB-12, CMB-46 hold each in full).
-    await setFrame(page, 'stacked', { error: true, errorText: 'We do not deliver there yet.', requirement: 'required', requiredText: 'Required' });
+    await setFrame(page, 'stacked', { error: true, errorText: 'We do not deliver there yet.', required: true, requiredText: 'Required' });
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-invalid'), el.getAttribute('aria-required')])).toEqual(['City', 'true', 'true']);
     expect(await description(page, 'stacked'), 'the error text in the help’s place (FLD-11)').toBe('We do not deliver there yet.');
     // No count, and no refusal: a text that names no option is given up, and the Field is not put in error by it.
@@ -2767,7 +2767,7 @@ test.describe('the Field around it, the option elements and the options through 
       fx('bare', { value: 'tokyo' }),
       fx('large', { size: 'large' }),
       fx('floating', { variant: 'filled', value: 'tokyo' }),
-      fx('old', { requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }, `${CITY_OPTIONS}<span slot="label-icon">schedule</span>`),
+      fx('old', { required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }, `${CITY_OPTIONS}<span slot="label-icon">schedule</span>`),
     ]);
     for (const id of ['bare', 'large', 'floating', 'old']) {
       const [h, c] = [await box(host(page, id)), await box(container(page, id))];

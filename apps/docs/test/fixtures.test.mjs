@@ -482,7 +482,7 @@ describe('the text input, the text field and the field around a text input', () 
       assert.equal(each.items.length, 1, each.id);
       assert.ok(html.endsWith(`>${icons(each.items[0].content)}</${INPUT}></tanrei-field>`), `${each.id}: ${html.slice(-140)}`);
       // Nothing of the frame is written on the input: the field names it, describes it and says its error.
-      for (const [name] of inner.attributes) assert.ok(!['label', 'label-hidden', 'supporting-text', 'error-text', 'requirement', 'count-text', 'style', 'class'].includes(name), `${each.id}: ${name} on the input`);
+      for (const [name] of inner.attributes) assert.ok(!['label', 'label-hidden', 'supporting-text', 'error-text', 'required', 'optional', 'count-text', 'style', 'class'].includes(name), `${each.id}: ${name} on the input`);
     }
     assert.ok(twins.some((each) => each.items[0].content), 'some twins name icons');
   });

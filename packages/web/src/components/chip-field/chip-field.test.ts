@@ -899,7 +899,7 @@ test.describe('behavior', () => {
   });
 
   test('CHF-21: assistive technology meets, in order, the entries as one list named by label — each an item that holds its Chip, a button named by the entry’s whole text, and its remove action, a button named by removeLabel — then the typing part, a text box named by label and described by the supporting row, invalid in an entry error and required while requirement says so; with no entry there is no list, and the element has no role of its own', async ({ page, browserName }) => {
-    await mountField(page, `value='["ada@example.com","grace@example.org"]' supporting-text="Separate addresses with a comma." requirement="required" required-text="Required"`);
+    await mountField(page, `value='["ada@example.com","grace@example.org"]' supporting-text="Separate addresses with a comma." required required-text="Required"`);
     const list = f(page).getByRole('list', { name: 'Recipients', exact: true });
     await expect(list).toHaveCount(1);
     await expect(list.getByRole('listitem')).toHaveCount(2);
@@ -1024,9 +1024,9 @@ test.describe('behavior', () => {
     await set(page, { maxEntries: 0 });
     await page.keyboard.press('Enter');
     expect((await look(page)).said, 'a sentence without a place, as it is written').toBe('Added');
-    await set(page, { requirement: 'required' });
+    await set(page, { required: true });
     await expect(requirementTag(page)).toHaveAttribute('label', 'Required');
-    await set(page, { requirement: 'optional' });
+    await set(page, { required: false, optional: true });
     await expect(requirementTag(page)).toHaveAttribute('label', 'Optional');
     // The instance's own win over the product's.
     await set(page, { removeLabel: 'Take {entry} away', removedText: 'Took {entry}', duplicateText: 'Same.', limitText: 'No room.' });
@@ -1129,7 +1129,7 @@ test.describe('behavior', () => {
   });
 
   test('CHF-25: while requirement is required the typing part is exposed as required and an empty list is reported to the form’s constraint validation as a missing value, whatever text is typed; an entry makes it valid; nothing else is validated — error is not set and no error text is shown for an empty list', async ({ page }) => {
-    await mountField(page, 'requirement="required" required-text="Required"');
+    await mountField(page, 'required required-text="Required"');
     await expect(typing(page)).toHaveAttribute('required', '');
     const validity = () => f(page).evaluate((el: HTMLElement & { validity: ValidityState; validationMessage: string; willValidate: boolean; checkValidity(): boolean }) => ({ missing: el.validity.valueMissing, valid: el.checkValidity(), message: el.validationMessage !== '', will: el.willValidate }));
     expect(await validity()).toEqual({ missing: true, valid: false, message: true, will: true });
@@ -1146,7 +1146,7 @@ test.describe('behavior', () => {
     await page.keyboard.type('a@example.com');
     await page.keyboard.press('Enter');
     expect(await validity()).toEqual({ missing: false, valid: true, message: false, will: true });
-    await set(page, { value: [], requirement: 'optional' });
+    await set(page, { value: [], required: false, optional: true });
     expect(await validity()).toMatchObject({ missing: false, valid: true });
     now = await look(page);
     expect(now.error).toBe(false);

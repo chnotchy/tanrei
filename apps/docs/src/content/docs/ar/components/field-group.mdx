@@ -2,7 +2,7 @@
 title: مجموعة الحقول
 description: "تسمّي مجموعة من عناصر التحكم تجيب عن سؤال واحد، من خانات اختيار أو مفاتيح تبديل أو حقول ينتمي بعضها إلى بعض: بتسمية تستطيع أن تقول إن المجموعة مطلوبة أو اختيارية، ووصف، وخطأ واحد للمجموعة، وترتّب عناصر التحكم في عمود أو في صف."
 translationOf: components/field-group.mdx
-sourceHash: 331cc7481f9a59e99b0f78e5b5ea8524608f8ee1
+sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="مجموعة من خانات الاختيار لها اسم ووصف وعلامة المطلوب" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب">
     <tanrei-checkbox label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
     <tanrei-checkbox label="إشعار فوري"></tanrei-checkbox>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب"
+    <tanrei-field-group label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب"
                         error error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
       <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
@@ -43,8 +43,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- حقول ينتمي بعضها إلى بعض. -->
     <tanrei-field-group label="عنوان الشحن" spacing="fields">
-      <tanrei-text-field label="الشارع" requirement="required" required-text="مطلوب"></tanrei-text-field>
-      <tanrei-text-field label="المدينة" requirement="required" required-text="مطلوب"></tanrei-text-field>
+      <tanrei-text-field label="الشارع" required required-text="مطلوب"></tanrei-text-field>
+      <tanrei-text-field label="المدينة" required required-text="مطلوب"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -67,7 +67,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="خطأ للمجموعة، وترتيب في صف، ومفاتيح تبديل، وحقول ينتمي بعضها إلى بعض" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب" error error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب" error error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
     <tanrei-checkbox label="البريد الإلكتروني"></tanrei-checkbox>
     <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
   </tanrei-field-group>
@@ -76,7 +76,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
     <tanrei-checkbox label="إشعار فوري"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الخصوصية" supporting-text="تنطبق على هذا الجهاز فقط." requirement="optional" optional-text="اختياري">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الخصوصية" supporting-text="تنطبق على هذا الجهاز فقط." optional optional-text="اختياري">
     <tanrei-switch label="مشاركة بيانات الاستخدام" checked></tanrei-switch>
     <tanrei-switch label="إظهار حالتي"></tanrei-switch>
   </tanrei-field-group>
@@ -101,17 +101,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### مجموعة من أزرار الاختيار: الخاصية `kind`
 
-ليست للمجموعة حالة المطلوب ولا حالة عدم الصلاحية، ولذلك تقول مجموعة الحقول المطلوب بالكلمات وتعلّم خانات الاختيار فيها غير صالحة واحدة واحدة. ومجموعة أزرار الاختيار تختلف: فهي مطلوبة وغير صالحة بكاملها. القيمة `kind="radio-group"` تخبر مجموعة الحقول بأن ما فيها هو أزرار الاختيار لمجموعة واحدة، فتصير عندئذ مجموعة أزرار الاختيار لها عند التقنيات المساعدة: مطلوبة ما دامت `requirement` بالقيمة `required`، وغير صالحة ما دامت `error` بالقيمة true، وتقول اتجاهها. ولا يبقى `requiredText` جزءًا من وصفها، لأن الحالة تقوله.
+ليست للمجموعة حالة المطلوب ولا حالة عدم الصلاحية، ولذلك تقول مجموعة الحقول المطلوب بالكلمات وتعلّم خانات الاختيار فيها غير صالحة واحدة واحدة. ومجموعة أزرار الاختيار تختلف: فهي مطلوبة وغير صالحة بكاملها. القيمة `kind="radio-group"` تخبر مجموعة الحقول بأن ما فيها هو أزرار الاختيار لمجموعة واحدة، فتصير عندئذ مجموعة أزرار الاختيار لها عند التقنيات المساعدة: مطلوبة ما دامت `required` معيَّنة، وغير صالحة ما دامت `error` بالقيمة true، وتقول اتجاهها. ولا يبقى `requiredText` جزءًا من وصفها، لأن الحالة تقوله.
 
 ```html
-<tanrei-field-group kind="radio-group" label="التوصيل" requirement="required" required-text="مطلوب">
+<tanrei-field-group kind="radio-group" label="التوصيل" required required-text="مطلوب">
   <tanrei-radio-button name="delivery" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="مجموعة حقول نوعها radio-group، حول أزرار اختيار لها اسم واحد" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" requirement="required" required-text="مطلوب">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" required required-text="مطلوب">
     <tanrei-radio-button name="delivery-kind" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
   </tanrei-field-group>
@@ -128,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الوصف تحت التسمية، قبل عناصر التحكم، ويبقى ما دامت المجموعة في حالة خطأ. فالعبارة «اختر كل ما ينطبق» يجب أن تُقرأ قبل الخيارات، وهي ما يحتاج إليه الشخص من جديد حين تُرفض الإجابة.
 - نص الخطأ صف قائم بذاته، تحت آخر عنصر تحكم.
 
-أما التسمية ووسم المطلوب أو الاختياري والنجمة فهي ما للحقل.
+أما التسمية ووسم المطلوب أو الاختياري والنجمة فهي ما للحقل. وكذلك الخاصيتان `required` و `optional` اللتان تقولان ما يطلبه النموذج من المجموعة: فإن عُيِّنتا كلتاهما كانت المجموعة مطلوبة.
 
 ### التخطيط
 

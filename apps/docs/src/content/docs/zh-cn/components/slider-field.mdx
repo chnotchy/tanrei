@@ -2,7 +2,7 @@
 title: "滑块字段"
 description: "以一个完整字段的形式，让用户在一个刻度范围上选择一个值或一个取值范围——标签下方是轨道，标签行末尾是用文字写出的值，还有一行帮助文本和值被拒绝的原因。"
 translationOf: components/slider-field.mdx
-sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="带产品文字的必填、选填、错误和禁用" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="选填" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="选填" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" error error-text="请选择大于 0 的音量。" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -142,7 +142,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段 | 来自滑块 |
 | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`，以及 `endLabel`，也就是滑块的 `label` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`，以及 `endLabel`，也就是滑块的 `label` |
 | 事件 | — | `input`, `change` |
 | 插槽 | `label-icon` | — |
 | 令牌 | `comp.field.*` | `comp.slider.*` |
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 滑块有它自己的 `disabled` 和 `orientation`。两者都不是滑块字段的属性：字段的 `disabled` 禁用滑块，标签和值文本因此也随之变化；轨道则始终沿行内方向延伸：滑块字段没有垂直方向。
 
-滑块总是有值，所以 `requirement` 在这里并不表示“不为空”。把每个控件都标为必填或选填的表单，也会给这一个加上标记；表单拒绝的是什么——音量为 0、范围太窄——要由你用 `error` 和 `errorText` 来说明。错误不会改变轨道的任何东西：传达它的是文字和无效状态。
+滑块总是有值，所以 `required` 在这里并不表示“不为空”。把每个控件都标为必填或选填的表单，也会给这一个加上标记；表单拒绝的是什么——音量为 0、范围太窄——要由你用 `error` 和 `errorText` 来说明。错误不会改变轨道的任何东西：传达它的是文字和无效状态。
 
 手柄做什么，也就是拖动、按键、步进和数值指示器，写在[滑块的页面](/zh-cn/components/slider/)上。框架做什么，也就是必填标记、值文本、帮助文本、错误以及错误怎样朗读，写在[字段的页面](/zh-cn/components/field/)上。
 

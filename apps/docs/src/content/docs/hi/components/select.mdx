@@ -2,7 +2,7 @@
 title: सिलेक्ट
 description: लोगों को किसी बंद लिस्ट में से एक मान चुनने देता है। इसमें एक ट्रिगर होता है, जो टेक्स्ट इनपुट के बॉक्स जैसा दिखता है, उसी की नाप का होता है और चुना हुआ विकल्प दिखाता है, और विकल्पों की एक लिस्ट होती है, जो उसी से खुलती है और जिसे चाहें तो ग्रुप में बाँटा जा सकता है। इसकी अपनी न लेबल की पंक्ति है, न सहायता, न त्रुटि टेक्स्ट। यह बार, टूलबार या टेबल के लिए है, या उस फ़ील्ड के भीतर के लिए जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 222e3da773560b3e6266645a13820fe9856c0687
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 सिलेक्ट के चारों ओर का फ़ील्ड पूरा लिखा हुआ सिलेक्ट फ़ील्ड है। सिलेक्ट का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर कहे जाते हैं; `name`, `value`, विकल्प और चुनने से जुड़ी हर चीज़ सिलेक्ट पर।
 
 ```html
-<tanrei-field label="देश" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="देश" required required-text="ज़रूरी"
   supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
   <tanrei-select name="country" placeholder="देश चुनें">
     <tanrei-option value="jp">जापान</tanrei-option>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है: सिलेक्ट फ़ील्ड जैसा ही दिखता है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" requirement="required" required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-select placeholder="देश चुनें">
       <tanrei-option value="jp">जापान</tanrei-option>
       <tanrei-option value="ke">केन्या</tanrei-option>
@@ -203,7 +203,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `change` एक composed इवेंट है जो बबल होता है। `toggle` composed है और बबल नहीं होता: वह सिलेक्ट पर सुना जाता है, और उसके चारों ओर के सिलेक्ट फ़ील्ड पर, और `<details>` जैसे किसी पूर्वज एलिमेंट पर कभी नहीं।
 - लिस्ट टॉप लेयर में एक `popover="manual"` एलिमेंट है। बाहर दबाना उसे बंद करता है और उसके नीचे के एलिमेंट तक भी पहुँचता है।
 - फ़्लोट होने वाला लेबल (`filled`, `outlined`) कंटेनर के भीतर रहता है, इसलिए उसे दबाने पर लिस्ट खुलती है।
-- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` और `optional-text`, और `label-icon` स्लॉट के लिए कोई चाइल्ड, सिलेक्ट फ़ील्ड और फ़ील्ड के हैं। सिलेक्ट पर वे कुछ नहीं बनाते; डीबग बिल्ड एक बार इसकी रिपोर्ट करता है और `<tanrei-select-field>` का नाम लेता है।
+- `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` और `optional-text`, और `label-icon` स्लॉट के लिए कोई चाइल्ड, सिलेक्ट फ़ील्ड और फ़ील्ड के हैं। सिलेक्ट पर वे कुछ नहीं बनाते; डीबग बिल्ड एक बार इसकी रिपोर्ट करता है और `<tanrei-select-field>` का नाम लेता है।
 - भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`।
 - एलिमेंट के डिफ़ाइन होने से पहले उसके विकल्प पेज पर चलते टेक्स्ट की तरह रहते हैं। `tanrei-select:not(:defined) > *` को छिपाएँ और ऊँचाई के लिए जगह रखें।
 - वेब का अपना कोई बैक जेस्चर नहीं है, इसलिए `toggle` के साथ `back` कारण कभी नहीं आता।

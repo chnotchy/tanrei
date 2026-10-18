@@ -2,7 +2,7 @@
 title: 言葉
 description: Tanrei は言葉を同梱しません。コンポーネントが描いたり読み上げたりするラベル、名前、メッセージは、すべてプロダクトのものです。コンポーネントに書くか、プロダクト全体に一度だけ渡します。
 translationOf: foundations/words.mdx
-sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+sourceHash: 7f4c676206d1e892145fdf2bc56bea5f1a35bd75
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
@@ -45,13 +45,13 @@ setWords({
 コンポーネントに書いた属性は、プロダクトの言葉より常に優先されます。
 
 <DemoFrame label="コンポーネント自身に書いた言葉：1 つのフィールドだけ言い方を変える" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="会社名" requirement="required" required-text="請求書に必要"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="会社名" required required-text="請求書に必要"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="メールアドレス" requirement="required" required-text="必須"></tanrei-text-field>
-<tanrei-text-field label="会社名" requirement="required" required-text="請求書に必要"></tanrei-text-field>
+<tanrei-text-field label="メールアドレス" required required-text="必須"></tanrei-text-field>
+<tanrei-text-field label="会社名" required required-text="請求書に必要"></tanrei-text-field>
 ```
 
 ## 複数の言語

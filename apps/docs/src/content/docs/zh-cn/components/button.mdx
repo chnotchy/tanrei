@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 9aadc7c7570bb1dc9d3df4a32b86c010a3e570a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -258,7 +258,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="姓名" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="姓名" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">清除</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">保存草稿</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">发布</tanrei-button>
@@ -291,7 +291,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="姓名" name="name" requirement="required" />
+      <TextField label="姓名" name="name" required />
       <Button type="reset" variant="text">清除</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">保存草稿</Button>
       <Button type="submit" name="intent" value="publish">发布</Button>

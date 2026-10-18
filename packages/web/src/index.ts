@@ -29,13 +29,12 @@ export { observePreviousNextLinks } from './previous-next-links.js';
 export { observeTimeline } from './timeline.js';
 // The frames first: a field and a field group are defined before the controls they frame, so that a control already
 // finds its field when it is connected (one defined in another order asks again when its field is — primitives/field.ts).
-export { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from './components/field/field.js';
+export { TanreiField, type TanreiFieldRequiredMark } from './components/field/field.js';
 export {
   TanreiFieldGroup,
   type TanreiFieldGroupKind,
   type TanreiFieldGroupOrientation,
   type TanreiFieldGroupRequiredMark,
-  type TanreiFieldGroupRequirement,
   type TanreiFieldGroupSpacing,
 } from './components/field-group/field-group.js';
 export { TanreiAccordion, type TanreiAccordionDensity, type TanreiAccordionSeparation, type TanreiAccordionVariant } from './components/accordion/accordion.js';
@@ -319,7 +318,6 @@ export {
   type TanreiRadioGroupChangeDetail,
   type TanreiRadioGroupOrientation,
   type TanreiRadioGroupRequiredMark,
-  type TanreiRadioGroupRequirement,
 } from './components/radio-group/radio-group.js';
 export {
   TanreiSearch,

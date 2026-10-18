@@ -256,8 +256,8 @@ test('the one-time-code field is the first composed field: every entry forwarded
   }
   // The cross-references read it resolved: its fixtures are held to its members' props.
   assert.deepEqual(specProblems('specs/one-time-code-field.spec.json', written), []);
-  const wrong = { ...written, fixtures: [{ ...written.fixtures[0], props: { ...written.fixtures[0].props, requirement: 'sometimes' } }, ...written.fixtures.slice(1)] };
-  assert.match(specProblems('specs/one-time-code-field.spec.json', wrong).join('\n'), /fixture "supporting" sets requirement="sometimes", not a declared value/);
+  const wrong = { ...written, fixtures: [{ ...written.fixtures[0], props: { ...written.fixtures[0].props, requiredMark: 'sometimes' } }, ...written.fixtures.slice(1)] };
+  assert.match(specProblems('specs/one-time-code-field.spec.json', wrong).join('\n'), /fixture "supporting" sets requiredMark="sometimes", not a declared value/);
   // The control it frames is listed only on request from this day on: the first. The file picker is the second
   //: a base member of the file upload, which is listed. The text input is the third:
   // the control of the text field, which is listed.

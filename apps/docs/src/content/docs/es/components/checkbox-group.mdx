@@ -2,7 +2,7 @@
 title: Grupo de casillas de verificación
 description: Hace una pregunta que puede tener varias respuestas entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de casillas de verificación bajo una sola etiqueta, con una descripción y un solo error, que guarda la lista de los valores marcados con un solo nombre y puede traer una casilla que las marca todas.
 translationOf: components/checkbox-group.mdx
-sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="Un grupo de casillas de verificación, y otro con una casilla que las marca todas" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="Notificación push"></tanrei-checkbox>
@@ -48,7 +48,7 @@ Cada casilla es la opción que nombra su `value`. El `value` del grupo es la lis
     <form>
       <tanrei-checkbox-group name="notify" label="Avísame por"
         supporting-text="Elige todas las opciones que correspondan."
-        requirement="required" required-text="Obligatorio"
+        required required-text="Obligatorio"
         error-text="Elige al menos una forma de contacto.">
         <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
@@ -108,7 +108,7 @@ El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el 
 
 ```html
 <tanrei-field-group label="Avísame por" supporting-text="Elige todas las opciones que correspondan."
-                    requirement="required" required-text="Obligatorio">
+                    required required-text="Obligatorio">
   <tanrei-checkbox name="notify" value="email" label="Correo electrónico" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
@@ -116,7 +116,7 @@ El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el 
 ```
 
 <DemoFrame label="El mismo conjunto escrito a mano: un grupo de campos con casillas de verificación dentro" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox name="notify" value="email" label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
@@ -154,7 +154,7 @@ Baja a ese nivel cuando el conjunto no es una sola respuesta:
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio" error error-text="Este número no puede recibir mensajes de texto. Elige otra forma o cambia el número.">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio" error error-text="Este número no puede recibir mensajes de texto. Elige otra forma o cambia el número.">
     <tanrei-checkbox value="email" label="Correo electrónico"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Mensaje de texto" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="Notificación push"></tanrei-checkbox>
@@ -174,7 +174,7 @@ Baja a ese nivel cuando el conjunto no es una sola respuesta:
 
 | Aspecto | Del grupo de campos | De las casillas de verificación | Propio del grupo |
 | --- | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | El `value`, el `label` y el `disabled` de cada casilla, en la casilla | `value`, `selectAllLabel` |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | El `value`, el `label` y el `disabled` de cada casilla, en la casilla | `value`, `selectAllLabel` |
 | Eventos | — | Ninguno: una casilla dentro de un grupo no emite nada propio | `change` |
 | Tokens | `comp.field-group.*` | `comp.checkbox.*` | Ninguno |
 
@@ -201,7 +201,7 @@ El grupo de casillas de verificación no tiene ningún token propio. Su marco le
 - El shadow root del elemento contiene un `<tanrei-field-group>` alrededor de la casilla de seleccionar todo, mientras se da `select-all-label`, y de un slot. Las casillas siguen siendo tus propios hijos. Importar el elemento define los dos miembros.
 - `value` es solo una propiedad: un array, que se copia al entrar y al salir. No hay atributo `value`, porque una lista en un atributo necesita un separador que un valor puede contener, y HTML ya tiene la forma: `checked` en cada hijo.
 - Una casilla sin atributo `value` y sin un valor definido no tiene ninguno: el «on» que envía una casilla sin nada más no se lee en un grupo. Se dibuja sin marcar, y una compilación de depuración lo notifica.
-- El elemento está asociado a formularios. Recibe `name` y `form`, y envía con el nombre `name` una entrada por cada valor: lo mismo que envían las casillas nativas de un mismo nombre. Sus casillas no envían nada, lleven el `name` que lleven. Se restablece a su primer valor, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y la lista está vacía. El mensaje es `error-text`; si no lo hay, el texto de obligatorio, y si tampoco, `label`: da `error-text` desde el principio, no solo cuando `error` está activado.
+- El elemento está asociado a formularios. Recibe `name` y `form`, y envía con el nombre `name` una entrada por cada valor: lo mismo que envían las casillas nativas de un mismo nombre. Sus casillas no envían nada, lleven el `name` que lleven. Se restablece a su primer valor, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y la lista está vacía. El mensaje es `error-text`; si no lo hay, el texto de obligatorio, y si tampoco, `label`: da `error-text` desde el principio, no solo cuando `error` está activado.
 - `change` es un CustomEvent cuyo `detail.value` es una copia de la lista; antes de él se emite `input`. Un listener en una casilla dentro del grupo no oye ninguno de los dos.
 - Partes: `field-group` es el marco, y sus partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `requirement-label`, `supporting-text`, `error-text`. `select-all` es la casilla de seleccionar todo, y sus partes son `select-all-container`, `select-all-box`, `select-all-mark` y `select-all-label`. A tus propias casillas se les da estilo como en cualquier otro lugar, con `tanrei-checkbox::part(…)`.
 - El elemento no puede recibir el foco por sí mismo. `focus()` va a la primera casilla habilitada, y un `<label for>` propio de la página lleva el foco allí.

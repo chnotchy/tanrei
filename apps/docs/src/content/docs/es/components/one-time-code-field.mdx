@@ -2,7 +2,7 @@
 title: Campo de código de un solo uso
 description: Pide un código corto enviado a la persona como un único campo completo —las celdas bajo una etiqueta, con una línea de ayuda y las palabras para un código incorrecto—, unido para la tecnología de apoyo y que participa en un formulario como un solo control.
 translationOf: components/one-time-code-field.mdx
-sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ En la web es `<tanrei-one-time-code-field>`. Las demás plataformas todavía no 
       <tanrei-one-time-code-field name="code" label="Código de verificación"
         supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono."
         error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo."
-        requirement="required" required-text="Obligatorio"
+        required required-text="Obligatorio"
         group-size="3"></tanrei-one-time-code-field>
     </form>
 
@@ -105,8 +105,8 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 ## Especificaciones
 
 <DemoFrame label="Obligatorio con la palabra del producto, opcional, deshabilitado y un código oculto de cuatro" plain column>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" requirement="required" required-text="Obligatorio" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3"></tanrei-one-time-code-field>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de respaldo" requirement="optional" optional-text="Opcional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" required required-text="Obligatorio" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de respaldo" optional optional-text="Opcional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" disabled supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN de la carta" length="4" mask value="4821"></tanrei-one-time-code-field>
 </DemoFrame>
@@ -115,7 +115,7 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 
 | Aspecto | Del campo | De la entrada de código de un solo uso |
 | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
 | Eventos | — | `input`, `change`, `complete`, `action` |
 | Slots | `label-icon` | — |
 | Tokens | `comp.field.*` | `comp.one-time-code-input.*` |
@@ -138,7 +138,7 @@ El campo de código de un solo uso no tiene ningún token propio. Su marco lee l
 ### Qué dibuja la web de otra manera
 
 - El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-one-time-code-input>` dentro, y nada más. Importar el elemento define ambos.
-- El elemento está asociado a formularios. Recibe `name` y `form`, envía solo el código —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en las celdas pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
+- El elemento está asociado a formularios. Recibe `name` y `form`, envía solo el código —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en las celdas pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
 - `input`, `change`, `complete` y `action` son los CustomEvents de la entrada de código de un solo uso, con `detail.value`. Su destino es el elemento, y `event.target.value` es el código en todos los listeners.
 - Partes: `field` y `one-time-code-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `label-icon`, `requirement-label`, `supporting-text`; `input`, `cell`, `character`, `caret`, `separator`.
 - El elemento no puede recibir el foco por sí mismo: `focus()` va a las celdas, y un `<label for>` propio de la página lleva el foco allí. `autofocus` en el elemento da el foco a las celdas cuando se dibuja por primera vez, salvo que otra cosa tenga el foco.
@@ -172,7 +172,7 @@ El campo de código de un solo uso no tiene ningún token propio. Su marco lee l
 ### De qué se encarga el componente
 
 - Es un solo cuadro de texto, el de la entrada de código de un solo uso. Su nombre es `label`, se dibuje o no; su descripción es el texto de apoyo o de error que se muestra, junto con el texto de opcional mientras el campo es opcional.
-- Se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required`, como deshabilitado mientras `disabled` es true, como de solo lectura mientras `readOnly` es true y como un campo de contraseña mientras `mask` es true.
+- Se expone como no válido mientras `error` es true, como obligatorio mientras `required` está activado, como deshabilitado mientras `disabled` es true, como de solo lectura mientras `readOnly` es true y como un campo de contraseña mientras `mask` es true.
 - El nombre, la descripción y los estados se vinculan exactamente como un campo los vincula a cualquier control que enmarca. El campo escrito a mano, un nivel más abajo, es el mismo cuadro de texto.
 - La etiqueta dibujada, la marca de obligatoriedad, las celdas, el cursor de texto y las marcas de grupo no se exponen una segunda vez.
 - Es una sola parada para la tecla Tab. Una pulsación en la etiqueta lleva el foco a las celdas y no acciona nada; una pulsación en la ayuda no hace nada.
@@ -186,5 +186,5 @@ Las carencias conocidas en la web son las de sus miembros: lo que dicen los lect
 
 - Da `label`, siempre, con las palabras que una persona usaría para el código.
 - Di con palabras qué se espera: cuántos caracteres, y adónde se envió el código. Las celdas muestran la longitud solo a quienes las ven.
-- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `requirement`. El color nunca es la única señal.
+- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `required`. El color nunca es la única señal.
 - Donde el tiempo para introducir un código sea limitado, dilo, y deja que la persona pida más tiempo o un código nuevo.

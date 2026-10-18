@@ -225,8 +225,8 @@ test.describe('behavior', () => {
     await mount(page, [
       fx('plain', { label: 'Volume' }),
       fx('narrow', { label: 'A label of several words' }),
-      fx('hidden', { label: 'Volume', labelHidden: true, requirement: 'required' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
-      fx('empty', { requirement: 'required' }, '<tanrei-slider label="Volume" value="40"></tanrei-slider>'),
+      fx('hidden', { label: 'Volume', labelHidden: true, required: true }, slider(), { slots: { 'label-icon': 'volume_up' } }),
+      fx('empty', { required: true }, '<tanrei-slider label="Volume" value="40"></tanrei-slider>'),
     ]);
     const label = part(page, 'plain', '.label');
     expect(await css(label, 'color')).toBe(await color(page, 'standard-label-color'));
@@ -274,11 +274,11 @@ test.describe('behavior', () => {
   test('FLD-4: requirement none says and draws nothing; required exposes the control as required and draws the required mark; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled field keeps its mark — the asterisk from the disabled tokens, the tag drawn as a tag inside something disabled', async ({ page }) => {
     await mount(page, [
       fx('none', { label: 'Notifications' }, toggle()),
-      fx('required', { label: 'Notifications', requirement: 'required' }, toggle()),
-      fx('optional', { label: 'Notifications', requirement: 'optional' }, toggle()),
-      fx('disabled', { label: 'Notifications', requirement: 'required', disabled: true }, toggle()),
-      fx('disabled-asterisk', { label: 'Notifications', requirement: 'required', requiredMark: 'asterisk', disabled: true }, toggle()),
-      fx('empty-value', { label: 'Name', requirement: 'required' }, '<input />'),
+      fx('required', { label: 'Notifications', required: true }, toggle()),
+      fx('optional', { label: 'Notifications', required: false, optional: true }, toggle()),
+      fx('disabled', { label: 'Notifications', required: true, disabled: true }, toggle()),
+      fx('disabled-asterisk', { label: 'Notifications', required: true, requiredMark: 'asterisk', disabled: true }, toggle()),
+      fx('empty-value', { label: 'Name', required: true }, '<input />'),
     ]);
     expect(await semantics(page, 'none')).toMatchObject({ required: false, invalid: false, description: null });
     await expect(part(page, 'none', '.requirement-tag, .asterisk')).toHaveCount(0);
@@ -306,10 +306,10 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mount(page, [
       ...spec.fixtures.filter((f) => ['slider', 'slider-required', 'slider-optional', 'long-label', 'slider-required-error', 'slider-required-disabled'].includes(f.id)),
-      fx('optional-error', { label: 'Volume', requirement: 'optional', error: true, errorText: 'Too loud.' }),
-      fx('optional-disabled', { label: 'Volume', requirement: 'optional', disabled: true }),
-      fx('no-required-text', { label: 'Volume', requirement: 'required', requiredText: '' }),
-      fx('no-optional-text', { label: 'Volume', requirement: 'optional', optionalText: '' }),
+      fx('optional-error', { label: 'Volume', required: false, optional: true, error: true, errorText: 'Too loud.' }),
+      fx('optional-disabled', { label: 'Volume', required: false, optional: true, disabled: true }),
+      fx('no-required-text', { label: 'Volume', required: true, requiredText: '' }),
+      fx('no-optional-text', { label: 'Volume', required: false, optional: true, optionalText: '' }),
       // The tag's own fixtures, to lay the two over each other.
       fx('tags', {}, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag><tanrei-tag id="small-filled-disabled" size="small" variant="filled" label="Required" disabled></tanrei-tag><tanrei-tag id="small-tonal-disabled" size="small" variant="tonal" label="Optional" disabled></tanrei-tag>'),
     ]);
@@ -404,7 +404,7 @@ test.describe('behavior', () => {
 
   test('FLD-6: a required field draws the mark requiredMark names — the tag, the asterisk after the label’s text in its style and the asterisk color, hidden from assistive technology, or nothing — and under auto the one comp.field.requirement.mark names, which follows sys.behavior.requirement-mark unless it is set apart; requiredMark wins over both; every mark, and no drawn label, still exposes the required state', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
-    await mount(page, [...marks.map((mark) => fx(mark, { label: 'Volume', requirement: 'required', requiredMark: mark })), fx('hidden', { label: 'Volume', labelHidden: true, requirement: 'required' }), fx('optional', { label: 'Volume', requirement: 'optional', requiredMark: 'asterisk' })]);
+    await mount(page, [...marks.map((mark) => fx(mark, { label: 'Volume', required: true, requiredMark: mark })), fx('hidden', { label: 'Volume', labelHidden: true, required: true }), fx('optional', { label: 'Volume', required: false, optional: true, requiredMark: 'asterisk' })]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.required-tag').count()) > 0 && (await part(page, id, '.required-tag').isVisible()),
       asterisk: (await part(page, id, '.asterisk').count()) > 0 && (await part(page, id, '.asterisk').isVisible()),
@@ -626,9 +626,9 @@ test.describe('behavior', () => {
       ...spec.fixtures.filter((f) => ['slider-required-error', 'slider-required', 'checkbox-own-label-error', 'checkbox-own-label'].includes(f.id)),
       fx('icon-error', { label: 'Volume', error: true, errorText: 'Choose a level above 0.' }, slider({ value: 0 }), { slots: { 'label-icon': 'volume_up' } }),
       fx('own-error', {}, '<tanrei-checkbox label="I accept the terms of use" error></tanrei-checkbox>'),
-      fx('slider-zero', { label: 'Volume', requirement: 'required' }, slider({ value: 0 })),
-      fx('helped', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
-      fx('helped-error', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.', error: true, errorText: 'Wrong.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
+      fx('slider-zero', { label: 'Volume', required: true }, slider({ value: 0 })),
+      fx('helped', { label: 'Volume', required: true, requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
+      fx('helped-error', { label: 'Volume', required: true, requiredMark: 'asterisk', supportingText: 'Help.', error: true, errorText: 'Wrong.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
     ]);
     await placement(page, 'append');
     const id = 'slider-required-error';
@@ -709,9 +709,9 @@ test.describe('behavior', () => {
       ...spec.fixtures.filter((f) => ['slider', 'slider-label-hidden', 'checkbox-own-label', 'switch'].includes(f.id)),
       fx('two-labels', { label: 'Terms' }, checkbox({ label: 'I accept the terms of use' })),
       fx('nameless', {}, '<tanrei-slider value="40"></tanrei-slider>'),
-      fx('native', { label: 'City', requirement: 'required', requiredMark: 'none' }, '<input />'),
+      fx('native', { label: 'City', required: true, requiredMark: 'none' }, '<input />'),
       fx('native-named', { label: 'City' }, '<input aria-label="Town" />'),
-      fx('switch-required', { label: 'Notifications', requirement: 'required', requiredMark: 'asterisk' }, toggle()),
+      fx('switch-required', { label: 'Notifications', required: true, requiredMark: 'asterisk' }, toggle()),
     ]);
     expect((await semantics(page, 'slider')).name).toBe('Volume');
     expect((await semantics(page, 'slider-label-hidden')).name).toBe('Volume');
@@ -741,8 +741,8 @@ test.describe('behavior', () => {
   test('FLD-11: the description of the control is, in this order and after any description it has of its own, what the supporting row draws — the help, the error text while the field is in error, in the help’s place under the default system and after it under append — and optionalText while the control is optional, drawn label or not; a change is exposed at once; the glyph, the tag and the asterisk are not exposed', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['slider-supporting', 'slider-error', 'slider-label-hidden', 'switch-optional', 'slider-error-rtl'].includes(f.id)),
-      fx('own', { label: 'City', supportingText: 'As written on your mail.', requirement: 'optional' }, '<input aria-description="Autofilled." />'),
-      fx('hidden-optional', { label: 'Volume', labelHidden: true, requirement: 'optional', supportingText: 'Help.' }),
+      fx('own', { label: 'City', supportingText: 'As written on your mail.', required: false, optional: true }, '<input aria-description="Autofilled." />'),
+      fx('hidden-optional', { label: 'Volume', labelHidden: true, required: false, optional: true, supportingText: 'Help.' }),
     ]);
     expect((await semantics(page, 'slider-supporting')).description).toBe('Applies to alerts and media.');
     // In error, under the default system: the error text in the help's place, as the row draws it.
@@ -774,7 +774,7 @@ test.describe('behavior', () => {
     expect((await semantics(page, 'slider-error')).description).toBe('Applies to alerts and media. Choose a level above 0.');
     await placement(page, 'replace');
     await set(page, 'own', { error: false });
-    await set(page, 'own', { supportingText: '', requirement: 'none' });
+    await set(page, 'own', { supportingText: '', required: false, optional: false });
     expect(await control(page, 'own').getAttribute('aria-description')).toBe('Autofilled.');
     // The drawn marks are not exposed.
     for (const hidden of await part(page, 'switch-optional', '.requirement-tag, .asterisk, .label-icon').all()) expect(await hidden.getAttribute('aria-hidden')).toBe('true');
@@ -782,7 +782,7 @@ test.describe('behavior', () => {
 
   test('FLD-12: a press on the label, the label glyph or the requirement mark moves focus to the control and does nothing else — it does not switch or change it, and draws no press answer; a press on the supporting row does nothing; the field adds no stop to the focus order and handles no key', async ({ page }) => {
     await mount(page, [
-      fx('switch', { label: 'Notifications', requirement: 'required', supportingText: 'Sent when a review is waiting for you.' }, toggle({ checked: true }), { slots: { 'label-icon': 'volume_up' } }),
+      fx('switch', { label: 'Notifications', required: true, supportingText: 'Sent when a review is waiting for you.' }, toggle({ checked: true }), { slots: { 'label-icon': 'volume_up' } }),
       fx('slider', { label: 'Volume', supportingText: 'Help.' }),
       fx('native', { label: 'Accept' }, '<input type="checkbox" />'),
     ]);
@@ -818,7 +818,7 @@ test.describe('behavior', () => {
   });
 
   test('FLD-13: while focus is inside the field — gained by pointer or by keyboard — the label, the glyph, the mark and the supporting row are drawn from the focused tokens, their error parts while error is true; the field draws no focus indicator; the colors change over motion.state-duration, and at once where motion is reduced', async ({ page }) => {
-    await mount(page, [fx('a', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }), fx('error', { label: 'Volume', supportingText: 'Help.', error: true, errorText: 'Too loud.' })], { system: 'm3-like' });
+    await mount(page, [fx('a', { label: 'Volume', required: true, requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }), fx('error', { label: 'Volume', supportingText: 'Help.', error: true, errorText: 'Too loud.' })], { system: 'm3-like' });
     await placement(page, 'append');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const read = async (id: string) => ({
@@ -934,7 +934,7 @@ test.describe('behavior', () => {
       fx('own', { label: 'City' }, '<input disabled />'),
       fx('own-tanrei', { label: 'Volume' }, '<tanrei-slider value="40" disabled></tanrei-slider>'),
       fx('error', { label: 'Volume', supportingText: 'Help.', disabled: true, error: true, errorText: 'Too loud.' }),
-      fx('asterisk', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', disabled: true }),
+      fx('asterisk', { label: 'Volume', required: true, requiredMark: 'asterisk', disabled: true }),
       fx('enabled', { label: 'Volume' }),
     ]);
     await placement(page, 'append');
@@ -978,7 +978,7 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mount(page, [
       fx('none', { label: 'Volume', supportingText: 'Help.' }, ''),
-      fx('two', { label: 'Range', supportingText: 'Help.', error: true, requirement: 'required', disabled: true }, '<input id="first" /><input id="second" />'),
+      fx('two', { label: 'Range', supportingText: 'Help.', error: true, required: true, disabled: true }, '<input id="first" /><input id="second" />'),
       fx('text-field', { label: 'Outer', supportingText: 'Outer help.' }, '<tanrei-text-field label="Inner" supporting-text="Inner help."></tanrei-text-field>'),
     ]);
     await expect(part(page, 'none', '.label')).toBeVisible();
@@ -1057,7 +1057,7 @@ test.describe('behavior', () => {
 
   test('FLD-17: in forced colors the label, the asterisk, the supporting text and the error text are drawn in the platform’s text color and each requirement tag has a visible edge; an error is not told from help by a color of the field’s own', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    const fixtures = [...spec.fixtures.filter((f) => ['slider-required', 'slider-optional', 'slider-supporting', 'slider-error', 'slider-required-disabled'].includes(f.id)), fx('asterisk', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk' })];
+    const fixtures = [...spec.fixtures.filter((f) => ['slider-required', 'slider-optional', 'slider-supporting', 'slider-error', 'slider-required-disabled'].includes(f.id)), fx('asterisk', { label: 'Volume', required: true, requiredMark: 'asterisk' })];
     expect(fixtures).toHaveLength(6);
     await mount(page, fixtures);
     await placement(page, 'append');
@@ -1096,7 +1096,7 @@ test.describe('behavior', () => {
   });
 
   test('FLD-19: the direction is the nearest ancestor’s, not the root’s and not a setting of the field’s own; when it changes while the field is shown the field is drawn for the new direction at once, keeping its control with its value and focus', async ({ page }) => {
-    await mount(page, [fx('a', { label: 'Notifications', requirement: 'required', supportingText: 'Help.' }, toggle({ checked: true }))]);
+    await mount(page, [fx('a', { label: 'Notifications', required: true, supportingText: 'Help.' }, toggle({ checked: true }))]);
     expect(await host(page, 'a').evaluate((el) => 'dir' in el.constructor.prototype && Object.hasOwn(el.constructor.prototype, 'dir'))).toBe(false);
     const edges = async () => {
       const [h, label, own] = [await box(host(page, 'a')), await box(part(page, 'a', '.label')), await box(control(page, 'a'))];
@@ -1138,7 +1138,7 @@ test.describe('behavior', () => {
   });
 
   test('FLD-21: the label, the supporting or error text and the tag’s text are each text of their own direction, isolated — a left-to-right label keeps its order in a right-to-left layout — and are still placed and aligned by the layout direction', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('rtl-tag', { label: 'مستوى الصوت', requirement: 'required', supportingText: 'LE Audio, 2 Mbps' }, slider(), { direction: 'rtl' })]);
+    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('rtl-tag', { label: 'مستوى الصوت', required: true, supportingText: 'LE Audio, 2 Mbps' }, slider(), { direction: 'rtl' })]);
     const id = 'ltr-label-rtl';
     for (const selector of ['.label', '.supporting-text']) {
       expect(await css(part(page, id, selector), 'unicode-bidi'), selector).toBe('plaintext');
@@ -1170,16 +1170,13 @@ test.describe('behavior', () => {
     expect(await part(page, 'rtl-tag', '.required-tag').locator('.label').evaluate((el) => [getComputedStyle(el).unicodeBidi, el.getAttribute('dir')])).toEqual(['plaintext', 'auto']);
   });
 
-  test('FLD-22: a requirement the field does not know behaves as none and a requiredMark it does not know as auto, each reported in debug builds', async ({ page }) => {
+  test('FLD-22: a requiredMark the field does not know behaves as auto, reported in debug builds', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('requirement', { label: 'Notifications', requirement: 'mandatory' }, toggle()), fx('mark', { label: 'Notifications', requirement: 'required', requiredMark: 'star' }, toggle())]);
-    await expect(part(page, 'requirement', '.requirement-tag, .asterisk')).toHaveCount(0);
-    expect(await semantics(page, 'requirement')).toMatchObject({ required: false, description: null });
+    await mount(page, [fx('mark', { label: 'Notifications', required: true, requiredMark: 'star' }, toggle())]);
     await expect(part(page, 'mark', '.required-tag')).toBeVisible();
     await expect(part(page, 'mark', '.asterisk')).toBeHidden();
     expect((await semantics(page, 'mark')).required).toBe(true);
     const reports = seen.filter((w) => w.includes('FLD-22'));
-    expect(reports.filter((w) => w.includes('requirement "mandatory"'))).toHaveLength(1);
     expect(reports.filter((w) => w.includes('requiredMark "star"'))).toHaveLength(1);
     // `chip` is not a mark's name (the mark is the Tag's): an unknown name, it behaves as auto.
     await set(page, 'mark', { requiredMark: 'chip' });
@@ -1191,7 +1188,7 @@ test.describe('behavior', () => {
   test('FLD-23: the field leaves its control what it is — it emits no event, holds no value and takes no part in a form, and the control keeps its place in one; a control that replaces another is named, described and marked at once, and the old one gets back everything it was given', async ({ page }) => {
     await mount(page, [
       fx('form', { label: 'Volume', supportingText: 'Help.' }, '<tanrei-slider name="volume" value="40"></tanrei-slider>'),
-      fx('swap', { label: 'City', supportingText: 'Help.', error: true, requirement: 'required', disabled: true }, '<input id="old" aria-description="Mine." />'),
+      fx('swap', { label: 'City', supportingText: 'Help.', error: true, required: true, disabled: true }, '<input id="old" aria-description="Mine." />'),
       fx('swap-tanrei', { label: 'Volume', supportingText: 'Help.', error: true, disabled: true }),
     ]);
     // Not form-associated, no value; the control is still the form's.
@@ -1344,14 +1341,14 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     const bare = (id: string, props: Fixture['props'], inside: FixtureItem = slider()): Fixture => ({ id, props: { label: 'Volume', ...props }, items: [inside] });
     await mount(page, [
-      bare('auto', { requirement: 'required' }),
-      bare('tag', { requirement: 'required', requiredMark: 'tag' }),
-      bare('none', { requirement: 'required', requiredMark: 'none' }),
-      bare('second', { requirement: 'required' }),
-      bare('optional', { requirement: 'optional' }),
-      bare('text', { requirement: 'required' }, toggle()),
-      bare('own', { requirement: 'required', requiredText: 'Needed' }),
-      bare('own-optional', { requirement: 'optional', optionalText: 'If you like' }),
+      bare('auto', { required: true }),
+      bare('tag', { required: true, requiredMark: 'tag' }),
+      bare('none', { required: true, requiredMark: 'none' }),
+      bare('second', { required: true }),
+      bare('optional', { required: false, optional: true }),
+      bare('text', { required: true }, toggle()),
+      bare('own', { required: true, requiredText: 'Needed' }),
+      bare('own-optional', { required: false, optional: true, optionalText: 'If you like' }),
     ]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.requirement-tag').count()) > 0 && (await part(page, id, '.requirement-tag').isVisible()) ? await part(page, id, '.requirement-tag').getAttribute('label') : null,
@@ -1415,14 +1412,14 @@ test.describe('a control that is a box: a text input', () => {
   test('FLD-25: while its control draws the label itself the field draws no label row, no gap, no glyph and no tag, still names the control, and gives it whether the label is hidden and the required mark — an asterisk for its tag and its asterisk alike, none otherwise; and the optional word while the control is optional; its supporting row, its error and the description stay; a label glyph is reported; a press on that label is the control’s; and the row goes or comes at once when the control starts or stops', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
-      fx('floats', { label: 'Email', supportingText: 'Help.', requirement: 'required' }, textInput({ variant: 'outlined' })),
-      fx('stacked', { label: 'Email', supportingText: 'Help.', requirement: 'required' }, textInput({ variant: 'stacked' })),
-      fx('asterisk', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, textInput({ variant: 'outlined' })),
-      fx('none', { label: 'Email', requirement: 'required', requiredMark: 'none' }, textInput({ variant: 'filled' })),
-      fx('hidden', { label: 'Email', labelHidden: true, requirement: 'required' }, textInput({ variant: 'outlined' })),
-      fx('optional', { label: 'Company', requirement: 'optional', error: true, errorText: 'Wrong.' }, textInput({ variant: 'outlined' })),
+      fx('floats', { label: 'Email', supportingText: 'Help.', required: true }, textInput({ variant: 'outlined' })),
+      fx('stacked', { label: 'Email', supportingText: 'Help.', required: true }, textInput({ variant: 'stacked' })),
+      fx('asterisk', { label: 'Email', required: true, requiredMark: 'asterisk' }, textInput({ variant: 'outlined' })),
+      fx('none', { label: 'Email', required: true, requiredMark: 'none' }, textInput({ variant: 'filled' })),
+      fx('hidden', { label: 'Email', labelHidden: true, required: true }, textInput({ variant: 'outlined' })),
+      fx('optional', { label: 'Company', required: false, optional: true, error: true, errorText: 'Wrong.' }, textInput({ variant: 'outlined' })),
       { ...fx('glyph', { label: 'Name' }, textInput({ variant: 'outlined' })), slots: { 'label-icon': 'person' } },
-      fx('slider', { label: 'Volume', requirement: 'required' }),
+      fx('slider', { label: 'Volume', required: true }),
     ]);
     // No label row and no gap: the control stands at the field's top, and floats the field's label in its own box.
     for (const [id, label] of [['floats', 'Email*'], ['asterisk', 'Email*'], ['none', 'Email'], ['optional', 'Company Optional'], ['glyph', 'Name']] as const) {
@@ -1785,7 +1782,7 @@ test.describe('the value text', () => {
     await mount(page, [
       fx('own-line', { label: 'Price', valueText: '$1,000,000 – $2,000,000' }),
       fx('shares', { label: 'Price', valueText: '$100' }),
-      fx('tagged', { label: 'Yearly income before tax', requirement: 'required', valueText: '3,400,000 – 12,500,000' }),
+      fx('tagged', { label: 'Yearly income before tax', required: true, valueText: '3,400,000 – 12,500,000' }),
       fx('wraps', { label: 'Price', valueText: 'From one million two hundred thousand to two million four hundred thousand' }),
     ]);
     const gap = await token(page, 'value-text-gap');
@@ -1994,11 +1991,11 @@ test.describe('accessibility', () => {
       await mount(
         page,
         [
-          fx('native', { label: 'City', supportingText: 'As written on your mail.', requirement: 'required', error: true, errorText: 'Enter a city.' }, '<input />'),
-          fx('native-optional', { label: 'Notes', requirement: 'optional' }, '<textarea></textarea>'),
+          fx('native', { label: 'City', supportingText: 'As written on your mail.', required: true, error: true, errorText: 'Enter a city.' }, '<input />'),
+          fx('native-optional', { label: 'Notes', required: false, optional: true }, '<textarea></textarea>'),
           fx('select', { label: 'Country', disabled: true, supportingText: 'Help.' }, '<select><option>Portugal</option></select>'),
-          fx('range', { label: 'Volume', requirement: 'required' }, '<input type="range" />'),
-          fx('asterisk', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Too loud.' }),
+          fx('range', { label: 'Volume', required: true }, '<input type="range" />'),
+          fx('asterisk', { label: 'Volume', required: true, requiredMark: 'asterisk', error: true, errorText: 'Too loud.' }),
         ],
         { theme },
       );
@@ -2019,7 +2016,7 @@ test.describe('accessibility', () => {
     expect(await axNode(page, 'slider', 0)).toMatchObject({ name: 'Volume', description: 'Applies to alerts and media. Too loud for this device.', invalid: 'true' });
     await mount(page, [
       ...spec.fixtures.filter((f) => ['switch-optional', 'checkbox-own-label-error', 'slider-label-hidden', 'slider-required-disabled'].includes(f.id)),
-      fx('native', { label: 'City', supportingText: 'As written on your mail.', requirement: 'required', error: true, errorText: 'Enter a city.' }, '<input />'),
+      fx('native', { label: 'City', supportingText: 'As written on your mail.', required: true, error: true, errorText: 'Enter a city.' }, '<input />'),
     ]);
     await placement(page, 'append');
     expect(await axNode(page, 'switch')).toMatchObject({ name: 'Notifications', description: 'Optional' });
@@ -2072,7 +2069,7 @@ test.describe('fixtures', () => {
         const labelled = !!f.props.label && !f.props.labelHidden && !floats;
         expect(await part(page, f.id, '.label').count(), `${f.id} label`).toBe(labelled ? 1 : 0);
         if (labelled) await expect(part(page, f.id, '.label'), f.id).toContainText(String(f.props.label));
-        const requirement = f.props.requirement ?? 'none';
+        const requirement = f.props.required ? 'required' : f.props.optional ? 'optional' : 'none';
         const mark = f.props.requiredMark ?? 'auto';
         const tag = labelled && (requirement === 'optional' || (requirement === 'required' && mark !== 'asterisk'));
         expect(await part(page, f.id, '.requirement-tag').count(), `${f.id} tag`).toBe(tag ? 1 : 0);

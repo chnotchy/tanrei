@@ -2,7 +2,7 @@
 title: フィールドグループ
 description: 1 つの質問に答えるコントロールの集まり（チェックボックス、スイッチ、ひとまとまりのフィールド）に、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを添え、コントロールを縦または横に並べます。
 translationOf: components/field-group.mdx
-sourceHash: 331cc7481f9a59e99b0f78e5b5ea8524608f8ee1
+sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="名前、説明、必須の印を付けたチェックボックスの集まり" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="プッシュ通知"></tanrei-checkbox>
@@ -34,7 +34,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須"
+    <tanrei-field-group label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須"
                         error error-text="受け取り方法を 1 つ以上選んでください。">
       <tanrei-checkbox name="notify" value="email" label="メール"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
@@ -43,8 +43,8 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 
     <!-- ひとまとまりのフィールド。 -->
     <tanrei-field-group label="お届け先" spacing="fields">
-      <tanrei-text-field label="市区町村" requirement="required" required-text="必須"></tanrei-text-field>
-      <tanrei-text-field label="番地" requirement="required" required-text="必須"></tanrei-text-field>
+      <tanrei-text-field label="市区町村" required required-text="必須"></tanrei-text-field>
+      <tanrei-text-field label="番地" required required-text="必須"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -67,7 +67,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 ## 仕様
 
 <DemoFrame label="集まりに対するエラー、横並び、スイッチ、ひとまとまりのフィールド" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須" error error-text="受け取り方法を 1 つ以上選んでください。">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須" error error-text="受け取り方法を 1 つ以上選んでください。">
     <tanrei-checkbox label="メール"></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
   </tanrei-field-group>
@@ -76,7 +76,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="プッシュ"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="プライバシー" supporting-text="このデバイスにだけ適用されます。" requirement="optional" optional-text="任意">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="プライバシー" supporting-text="このデバイスにだけ適用されます。" optional optional-text="任意">
     <tanrei-switch label="利用状況データを共有する" checked></tanrei-switch>
     <tanrei-switch label="ステータスを表示する"></tanrei-switch>
   </tanrei-field-group>
@@ -101,17 +101,17 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 
 ### ラジオボタンの集まり: `kind`
 
-グループには必須の状態も invalid の状態もないので、フィールドグループは必須かどうかを言葉で伝え、チェックボックスを 1 つずつ invalid にします。ラジオボタンの集まりは違い、集まり全体として必須になり、invalid になります。`kind="radio-group"` は、集まりが 1 つのグループのラジオボタンであることをフィールドグループに伝えます。すると、フィールドグループは支援技術にとってそのラジオボタンのラジオグループになります。`requirement` が `required` の間は必須、`error` が true の間は invalid で、並びの向きも伝えます。`requiredText` は説明に含まれなくなります。状態がそれを伝えるためです。
+グループには必須の状態も invalid の状態もないので、フィールドグループは必須かどうかを言葉で伝え、チェックボックスを 1 つずつ invalid にします。ラジオボタンの集まりは違い、集まり全体として必須になり、invalid になります。`kind="radio-group"` は、集まりが 1 つのグループのラジオボタンであることをフィールドグループに伝えます。すると、フィールドグループは支援技術にとってそのラジオボタンのラジオグループになります。`required` が設定されている間は必須、`error` が true の間は invalid で、並びの向きも伝えます。`requiredText` は説明に含まれなくなります。状態がそれを伝えるためです。
 
 ```html
-<tanrei-field-group kind="radio-group" label="配送方法" requirement="required" required-text="必須">
+<tanrei-field-group kind="radio-group" label="配送方法" required required-text="必須">
   <tanrei-radio-button name="delivery" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="kind が radio-group のフィールドグループ。中に同じ名前のラジオボタンがあります" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" requirement="required" required-text="必須">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" required required-text="必須">
     <tanrei-radio-button name="delivery-kind" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
   </tanrei-field-group>
@@ -128,7 +128,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 - 説明は、ラベルの下、コントロールの前に置かれ、グループがエラーの間も残ります。「当てはまるものをすべて選んでください」は、選択肢より先に読まれる必要があります。回答が受け付けられなかったときに、もう 1 度必要になるのもこの説明です。
 - エラーテキストは、最後のコントロールの下に、独立した行として置かれます。
 
-ラベル、必須・任意のタグ、アスタリスクは、フィールドのものと同じです。
+ラベル、必須・任意のタグ、アスタリスクは、フィールドのものと同じです。必須かどうかを言う `required` と `optional` も同じです。両方を設定すると、集まりは必須になります。
 
 ### レイアウト
 

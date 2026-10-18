@@ -2,7 +2,7 @@
 title: बटन
 description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 9aadc7c7570bb1dc9d3df4a32b86c010a3e570a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -258,7 +258,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="नाम" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="नाम" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">मिटाएँ</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">प्रकाशित करें</tanrei-button>
@@ -291,7 +291,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="नाम" name="name" requirement="required" />
+      <TextField label="नाम" name="name" required />
       <Button type="reset" variant="text">मिटाएँ</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</Button>
       <Button type="submit" name="intent" value="publish">प्रकाशित करें</Button>

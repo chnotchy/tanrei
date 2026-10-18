@@ -2,7 +2,7 @@
 title: "纸片字段"
 description: "在一个字段里收集一列简短的文本——电子邮件地址、电话号码、关键词——一个接一个地键入。通过你的检查的每段文本都变成一个纸片，可以移除，也可以放回键入部分去修改；这个列表就是字段唯一的值。"
 translationOf: components/chip-field.mdx
-sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
+sourceHash: 374ab98701cf17cc824c70aaa8d253c2ebe8d4bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,7 +137,7 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 ## 规格
 
 <DemoFrame label="必填、只读、禁用，以及只靠 Enter 生成的关键词" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" requirement="required" required-text="必填" remove-label="移除 {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" required required-text="必填" remove-label="移除 {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" readonly remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" disabled remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="作者" remove-label="移除 {entry}" supporting-text="每输入一个姓名后按 Enter。" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -147,7 +147,7 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 
 | 方面 | 来自字段 | 来自文本输入框 | 纸片字段自己的 |
 | --- | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`，以及 `inputValue`（文本输入框的 `value`） | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`，以及 `inputValue`（文本输入框的 `value`） | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
 | 事件 | — | `input`, `action` | `change`, `check`, `reject` |
 | 插槽 | `label-icon` | — | — |
 | 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`；放条目的地方用 `comp.text-input.*` | 没有；条目读取 `comp.chip.*` |
@@ -174,7 +174,7 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-text-input>`；每个条目对应一个 `<tanrei-chip>`，放在文本输入框的 `entries` 插槽里。导入这个元素，三个成员也随之完成定义。
 - `value` 是一个数组属性（property）：要改变它，就赋给它一个新数组。`value` 属性（attribute）只读取一次，按字符串的 JSON 数组解读，表单重置时回到的就是它。`separators` 也是数组；它的属性（attribute）是一个 JSON 数组。
-- 这个元素是与表单关联的元素。它在 `name` 之下按顺序为每个条目提交一个值；列表为空或字段被禁用时什么都不提交。键入的文本绝不会被提交。它跟随被禁用的 `<fieldset>`，在导航返回时恢复，并在 `requirement` 为 `required` 而列表为空时报告缺少值。
+- 这个元素是与表单关联的元素。它在 `name` 之下按顺序为每个条目提交一个值；列表为空或字段被禁用时什么都不提交。键入的文本绝不会被提交。它跟随被禁用的 `<fieldset>`，在导航返回时恢复，并在 设置了 `required` 而列表为空时报告缺少值。
 - `change`、`check` 和 `reject` 是这个元素派发的 CustomEvent：它们的 `detail` 分别是 `{ value, added, removed }`、`{ text, values }` 和 `{ text, reason, message }`。`check` 可以取消，并在它返回时读取结果：之后才给出的回答不会被读取。
 - `input` 和 `action` 是文本输入框自己的事件。只有在空的键入部分上按 Enter 才会触发 `action`，随后请求表单提交。在有文本时按 Enter 会生成一个条目：这次按键在文本输入框收到之前就被拦下，所以冒泡阶段的 `keydown` 监听器收不到它。
 - 部件：`field`、`text-input` 和 `chip` 是各个成员。字段和文本输入框自己的部件保留原来的名称（`label`、`supporting-text`、`container`、`input`、`entries` 等等）。纸片的部件是 `entry-container`、`entry-label` 和 `entry-remove`。

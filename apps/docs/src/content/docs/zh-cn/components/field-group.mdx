@@ -2,7 +2,7 @@
 title: "字段组"
 description: "为回答同一个问题的一组控件——复选框、开关，或者相互关联的字段——命名：一个可以说明这一组必填或选填的标签、一段描述，以及针对整组的一条错误；并把这些控件排成一列或一行。"
 translationOf: components/field-group.mdx
-sourceHash: 331cc7481f9a59e99b0f78e5b5ea8524608f8ee1
+sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="一组复选框，带有名称、描述和必填标记" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填">
     <tanrei-checkbox label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox label="短信"></tanrei-checkbox>
     <tanrei-checkbox label="推送通知"></tanrei-checkbox>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填"
+    <tanrei-field-group label="通知方式" supporting-text="可多选。" required required-text="必填"
                         error error-text="请至少选择一种通知方式。">
       <tanrei-checkbox name="notify" value="email" label="邮件"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
@@ -43,8 +43,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- 相互关联的字段。 -->
     <tanrei-field-group label="收货地址" spacing="fields">
-      <tanrei-text-field label="街道地址" requirement="required" required-text="必填"></tanrei-text-field>
-      <tanrei-text-field label="城市" requirement="required" required-text="必填"></tanrei-text-field>
+      <tanrei-text-field label="街道地址" required required-text="必填"></tanrei-text-field>
+      <tanrei-text-field label="城市" required required-text="必填"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -67,7 +67,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="针对整组的错误、排成一行、开关，以及相互关联的字段" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填" error error-text="请至少选择一种通知方式。">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填" error error-text="请至少选择一种通知方式。">
     <tanrei-checkbox label="邮件"></tanrei-checkbox>
     <tanrei-checkbox label="短信"></tanrei-checkbox>
   </tanrei-field-group>
@@ -76,7 +76,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox label="短信"></tanrei-checkbox>
     <tanrei-checkbox label="推送"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="隐私" supporting-text="仅适用于此设备。" requirement="optional" optional-text="选填">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="隐私" supporting-text="仅适用于此设备。" optional optional-text="选填">
     <tanrei-switch label="共享使用情况数据" checked></tanrei-switch>
     <tanrei-switch label="显示我的状态"></tanrei-switch>
   </tanrei-field-group>
@@ -101,17 +101,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 一组单选按钮：`kind`
 
-组既没有必填状态，也没有无效状态，所以字段组用文字说明必填与否，并把它的复选框逐个标记为无效。一组单选按钮则不同：它是作为一个整体必填、作为一个整体无效的。`kind="radio-group"` 告诉字段组，它的这一组是同一个组的单选按钮；这时对辅助技术来说，它就是这些单选按钮的单选组——`requirement` 为 `required` 时必填，`error` 为 true 时无效，并说出自己的方向——而 `requiredText` 不再是它描述的一部分，因为状态已经说明了这一点。
+组既没有必填状态，也没有无效状态，所以字段组用文字说明必填与否，并把它的复选框逐个标记为无效。一组单选按钮则不同：它是作为一个整体必填、作为一个整体无效的。`kind="radio-group"` 告诉字段组，它的这一组是同一个组的单选按钮；这时对辅助技术来说，它就是这些单选按钮的单选组——设置了 `required` 时必填，`error` 为 true 时无效，并说出自己的方向——而 `requiredText` 不再是它描述的一部分，因为状态已经说明了这一点。
 
 ```html
-<tanrei-field-group kind="radio-group" label="配送方式" requirement="required" required-text="必填">
+<tanrei-field-group kind="radio-group" label="配送方式" required required-text="必填">
   <tanrei-radio-button name="delivery" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="加急配送（次日达）"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="种类为 radio-group 的字段组，包着同一个 name 的单选按钮" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方式" requirement="required" required-text="必填">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方式" required required-text="必填">
     <tanrei-radio-button name="delivery-kind" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="加急配送（次日达）"></tanrei-radio-button>
   </tanrei-field-group>
@@ -128,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 描述位于标签下方、控件之前，并且在字段组处于错误状态时仍然保留。“可多选”必须在选项之前读到，回答被拒绝时，用户需要再看一遍的也正是它。
 - 错误文本单独占一行，位于最后一个控件下方。
 
-标签、必填和选填小标签，以及星号，都与字段的相同。
+标签、必填和选填小标签，以及星号，都与字段的相同。说明表单要求的 `required` 和 `optional` 也一样：两者都设置时，这一组是必填的。
 
 ### 布局
 
