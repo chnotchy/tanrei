@@ -1875,6 +1875,10 @@ export class TanreiTextInput extends LitElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // TXI-65: entries the input holds when it first updates float its label in its first frame. The slot's
+    // `slotchange` arrives after that frame's style was read, and the label would be drawn over the chips and then
+    // move up over the label motion; it keeps the slot's answer from then on.
+    if (!this.hasUpdated) this.hasEntries = [...this.children].some((child) => child.slot === 'entries');
     const kind = this.dateKind;
     if (changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
       report(this, 'TXI-28', `locale "${this.locale}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);
