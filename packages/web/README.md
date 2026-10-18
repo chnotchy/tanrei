@@ -7571,9 +7571,15 @@ beside the bundle shares them (the test harness's `setAvailabilityMode(page, …
 
 ## The product's words: `setWords()`
 
-**Tanrei ships no words.** No element has a default text in any language: a word a component draws or exposes is the
+**No element has words of its own.** No element has a default text in any language: a word a component draws or exposes is the
 instance's own attribute, else what the product said once for every component, else — for locale data only — the
 browser's, else nothing.
+
+**The English word pack** is one such set the product may choose: `import '@tanrei/web/words/en'` gives a word in plain
+English for every key (`specs/words/en.json`, generated into `src/generated/words-en.ts`; `pnpm validate` and `pnpm drift`
+fail while a key has no word there), as one `setWords()` call, and exports them as `englishWords`. Nothing imports it on
+a product's behalf — not this package's entry, a component, the harness or a fixture — so a page that does not import it
+has no words it did not give.
 
 ```js
 import { setWords, missingWords } from '@tanrei/web'; // or '@tanrei/web/words': the two functions, no element

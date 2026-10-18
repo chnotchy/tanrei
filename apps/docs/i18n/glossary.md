@@ -135,7 +135,7 @@ A translation is natural technical writing in its language, not word for word: s
 | default | 既定 | 默认 |
 | opt in | オプトイン | 选择启用 |
 | right-to-left | 右から左（RTL） | 从右到左（RTL） |
-| words (of a product: what it gives the components to draw and say) | 言葉 for the idea and the page; 文言 only for one particular string (「エラーの文言」). The fixed sentence is 「Tanrei は言葉を同梱しません。」 | 文字 |
+| words (of a product: what it gives the components to draw and say) | 言葉 for the idea and the page; 文言 only for one particular string (「エラーの文言」). The fixed sentence is 「コンポーネントは自分の言葉を持ちません。」 The English word pack (`@tanrei/web/words/en`) is 「英語の言葉のパック」 | 文字; the English word pack is 英语文字包 |
 | select, choose (the verb) | In a control's name, the Sino-Japanese verb: 「日付を選択」「すべて選択」. Running text that tells the reader what to do may say 選ぶ | 选择 |
 
 ## Section headings of a component page: Japanese and Simplified Chinese
@@ -534,7 +534,7 @@ In Spanish, the terms the translators of the later component pages proposed, app
 | picker button / entry error (a color field) | botón del selector / error de entrada |
 | link item (a menu) / a new context / modifier key / middle click | elemento de enlace / un contexto nuevo / tecla modificadora / clic con el botón central |
 | media (the empty state's slot) | gráfico — «contenido multimedia» stays the List's |
-| "Tanrei ships no words of its own" | «Tanrei no incluye textos propios»; the page is «Textos» |
+| "A component has no words of its own"; the English word pack | «Un componente no tiene textos propios»; the page is «Textos»; «el paquete de textos en inglés» |
 | member (of a group) | miembro |
 | external link / origin (of a site) | enlace externo / origen |
 | sideways (scroll, drag, swipe) | hacia los lados; one movement is «hacia un lado» |
@@ -612,7 +612,7 @@ In Simplified Chinese, the terms the translators of the component pages proposed
 | member (of a group) / touch target | 成员 / 触摸目标 |
 | external link / host (of an address) / inert | 外部链接 / 主机名 / 惰性（inert） |
 | media (the empty state's slot) | 媒体 |
-| words (a product's); "Tanrei ships no words"; "once for the whole product" | 文字, 产品的文字; Tanrei 不自带任何文字; 为整个产品只给一次 |
+| words (a product's); "A component has no words of its own"; "once for the whole product"; the English word pack | 文字, 产品的文字; 组件没有自己的文字; 为整个产品只给一次; 英语文字包 |
 | your product's language | 你的产品的语言 |
 | placeholder (of a skeleton) / placeholder row; busy; pulse / wave | 占位符 / 占位行; 忙碌; 脉冲 / 波浪 |
 | sort; reorder; Move up / Move down | 排序; 调整顺序 (not 重新排序); 上移 / 下移 |
@@ -867,7 +867,7 @@ The later component pages, from what the pages say.
 | link item (a menu) / a new context / modifier key | लिंक आइटम / नया संदर्भ / मॉडिफ़ायर कुंजी |
 | external link / origin / destination / host | बाहरी लिंक / ओरिजिन / गंतव्य / होस्ट |
 | media (the empty state's slot) | मीडिया |
-| words (a product's); "Tanrei ships no words (of its own)" | शब्द, प्रॉडक्ट के शब्द; Tanrei अपना कोई शब्द साथ नहीं देता |
+| words (a product's); "A component has no words of its own"; the English word pack | शब्द, प्रॉडक्ट के शब्द; किसी कंपोनेंट के अपने कोई शब्द नहीं होते; अंग्रेज़ी शब्दों का पैक |
 | reported in development | डेवलपमेंट में रिपोर्ट होती है |
 | No matches (a list's empty text) | कोई नतीजा नहीं |
 | running text | चलता टेक्स्ट (before a postposition चलते टेक्स्ट) |
@@ -1047,6 +1047,7 @@ These supersede an older Arabic cell where the two disagree.
 
 | English | Arabic |
 |---|---|
+| "A component has no words of its own"; the English word pack | `ليس للمكوّن كلمات خاصة به`; `حزمة الكلمات الإنجليزية` |
 | a tab of the Tabs component | `التبويب`، plural `التبويبات` — the short form on component pages; the component's name stays `علامات التبويب`, and a browser's tab is `تبويب جديد` |
 | revised (a spec, by a proposal); a revision | `معدَّلة`، `عدّله المقترح`؛ `المراجعة` — never `منقَّحة` / `نقّح`: `التنقيح` is "debug" (`بنيات التنقيح`) |
 | landmark (accessibility) | `مَعلم (landmark)`, vowelled: `معلم` alone reads as "teacher" |

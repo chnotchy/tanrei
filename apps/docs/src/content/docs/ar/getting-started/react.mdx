@@ -2,7 +2,7 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: cf6d91c24ebc112a73f9026f155b2ad7d17c63ff
+sourceHash: b6474cec992f65a55cced26db1486d81eaebe091
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -44,6 +44,7 @@ npm install @tanrei/react @tanrei/web
 
 ```tsx
 import '@tanrei/web/tokens.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -61,6 +62,8 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 ```
 
 تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية.
+
+تعطي `@tanrei/web/words/en` كلمة بإنجليزية بسيطة لكل تسمية ورسالة ترسمها المكوّنات أو تقولها، مثل وسم المطلوب أو اسم زر الإغلاق؛ ويمكنك الاستغناء عنها وإعطاء كلماتك بالدالة `setWords()` من `@tanrei/react`. انظر [الكلمات](/ar/foundations/words/).
 
 ## مدخل لكل نظام تصميم
 

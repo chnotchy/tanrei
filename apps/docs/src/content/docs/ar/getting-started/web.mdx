@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
+sourceHash: 1c66a25e878944e390c4c6c4d1a0adaa67f19592
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -77,15 +77,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>إلغاء</tanrei-button>
    ```
 
-4. أعطِ كلمات منتجك. لا يتضمن Tanrei أي كلمة: نص وسم المطلوب أو الاختياري، واسم زر الإغلاق، وما شابههما، كلها كلماتك. قلها مرة واحدة لكل لغة، أو على كل عنصر.
+4. أعطِ كلمات منتجك. ليس للمكوّن كلمات خاصة به: نص وسم المطلوب أو الاختياري، واسم زر الإغلاق، وما شابههما، كلها كلمات منتجك. ولتبدأ بإنجليزية بسيطة لها كلها، استورد حزمة الكلمات الإنجليزية مرة واحدة:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   ولتغيّر أيًّا منها، أو لتعطي كلمات لغة أخرى، استدعِ `setWords()` بعدها. الكلمة التي تعطيها تغلب كلمة الحزمة، والكلمة المعطاة على العنصر تغلب الاثنتين.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'مطلوب', optionalText: 'اختياري', closeLabel: 'إغلاق' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'مطلوب', optionalText: 'اختياري', closeLabel: 'إغلاق' }, { lang: 'ar' });
    ```
 
-   يعمل المكوّن حتى من دون كلمة، ويخبرك في وحدة التحكم (console) بالكلمة التي تنقصه. انظر [الكلمات](/ar/foundations/words/).
+   يعمل المكوّن حتى من دون الحزمة ومن دون كلماتك، ويخبرك في وحدة التحكم (console) بالكلمة التي تنقصه. انظر [الكلمات](/ar/foundations/words/).
 
 </Steps>
 

@@ -2,7 +2,7 @@
 title: React
 description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
 translationOf: getting-started/react.mdx
-sourceHash: cf6d91c24ebc112a73f9026f155b2ad7d17c63ff
+sourceHash: b6474cec992f65a55cced26db1486d81eaebe091
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -44,6 +44,7 @@ npm install @tanrei/react @tanrei/web
 
 ```tsx
 import '@tanrei/web/tokens.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -61,6 +62,8 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 ```
 
 属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。
+
+`@tanrei/web/words/en` 为组件绘制或朗读的每一个标签和消息（例如必填标签、关闭按钮的名称）给出平实的英语文字；也可以不用它，而用 `@tanrei/react` 的 `setWords()` 给出你自己的文字。参见[文字](/zh-cn/foundations/words/)。
 
 ## 每个设计系统一个入口
 

@@ -8,6 +8,7 @@ import { GENERATORS, regenerate } from './drift.js';
 import { citationFiles, writeCitation } from './citation.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
+import { wordPackProblems } from './words.js';
 
 function report(title, problems) {
   if (!problems.length) {
@@ -27,6 +28,7 @@ function validate() {
     report('publishable packages carry the license and NOTICE', validatePackages()),
     report('no retired names', checkRetiredTerms()),
     report('work markers say what is missing', checkWorkMarkers()),
+    report('the English word pack has a word for every key', wordPackProblems()),
   ];
   return results.every(Boolean);
 }
@@ -60,6 +62,8 @@ function status() {
 function drift() {
   const checkOnly = process.argv.slice(3).includes('--check') || process.env.TANREI_CHECK_ONLY === '1';
   let ok = report('spec ↔ implementation parity', checkParity());
+  // The pack is generated from the list of keys, so a key a spec adds without its English word fails here too.
+  ok = report('the English word pack has a word for every key', wordPackProblems()) && ok;
 
   const stale = Object.entries({ ...statusFiles(), ...citationFiles() })
     .filter(([rel, content]) => {

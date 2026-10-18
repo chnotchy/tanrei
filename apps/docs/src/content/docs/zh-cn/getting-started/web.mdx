@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
+sourceHash: 1c66a25e878944e390c4c6c4d1a0adaa67f19592
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -77,15 +77,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
    ```
 
-4. 给出你的产品的文字。Tanrei 不自带任何文字：必填和选填小标签上的字、关闭按钮的名称等等，都是你的。可以按语言一次说完，也可以写在每个元素上。
+4. 给出你的产品的文字。组件没有自己的文字：必填和选填小标签上的字、关闭按钮的名称等等，都是你的产品的。想先让每一个都用平实的英语，就导入一次英语文字包：
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   要改其中任何一个，或者给出另一种语言的文字，就在它之后调用 `setWords()`。你给出的文字优先于包中的文字，写在元素上的文字又优先于这两者。
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: '必填', optionalText: '选填', closeLabel: '关闭' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: '必填', optionalText: '选填', closeLabel: '关闭' }, { lang: 'zh-cn' });
    ```
 
-   缺少某个文字时，组件仍然可以工作，并在控制台里告诉你缺的是哪一个。参见[文字](/zh-cn/foundations/words/)。
+   既没有这个包、也没有你的文字时，组件仍然可以工作，并在控制台里告诉你缺的是哪一个。参见[文字](/zh-cn/foundations/words/)。
 
 </Steps>
 

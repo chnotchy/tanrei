@@ -348,14 +348,18 @@ test.describe('the product’s words', () => {
   });
 });
 
-test.describe('Tanrei ships no words', () => {
+test.describe('No component has words of its own', () => {
+  /** The English word pack: words a product applies only by importing `@tanrei/web/words/en` (src/words/en.ts). */
+  const PACK = path.join(src, 'generated/words-en.ts');
   /** Every source file of the package that is not a test, a generated list of keys or the sample data of a test page. */
-  const sources = (dir: string): string[] =>
+  const everySource = (dir: string): string[] =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
       const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return sources(full);
+      if (entry.isDirectory()) return everySource(full);
       return /\.ts$/.test(entry.name) && !/\.test\.ts$/.test(entry.name) ? [full] : [];
     });
+  /** The same, without the pack: the files a component, a primitive or an entry is made of. */
+  const sources = (dir: string): string[] => everySource(dir).filter((file) => file !== PACK);
   /** The code of a file: its comments (where the old words may be told as examples to a developer) are not what a person reads. */
   const code = (file: string) =>
     fs
@@ -394,6 +398,21 @@ test.describe('Tanrei ships no words', () => {
       for (const match of code(file).matchAll(/^ {2}(\w+(?:Label|Text)) = (['"`])(.+)\2;$/gm)) found.push(`${path.relative(src, file)}: ${match[1]} = ${match[3]}`);
     }
     expect(found).toEqual([]);
+  });
+
+  test('the English word pack is imported by its own module alone: no entry, component, primitive, harness or other test applies it on a product’s behalf', () => {
+    const imports = (file: string) => /from '[^']*(?:generated\/words-en|words\/en)(?:\.js)?'|import '[^']*(?:generated\/words-en|words\/en)(?:\.js)?'/.test(fs.readFileSync(file, 'utf8'));
+    const tests = (dir: string): string[] =>
+      fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) return tests(full);
+        return /\.(?:ts|mjs)$/.test(entry.name) ? [full] : [];
+      });
+    const own = new Set([path.join(src, 'words/en.ts'), path.join(src, 'words/en.test.ts')]);
+    const importers = [...tests(src), ...tests(path.join(src, '../test'))].filter((file) => !own.has(file) && imports(file));
+    expect(importers.map((file) => path.relative(src, file))).toEqual([]);
+    // The pack itself holds the words: a word for every key, and nothing else.
+    expect(fs.existsSync(PACK)).toBe(true);
   });
 
   test('every key of the product’s words is one a spec declares, and the package lists them nowhere by hand', () => {

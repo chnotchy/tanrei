@@ -1,16 +1,16 @@
 ---
 title: Textos
-description: Tanrei no incluye textos propios. Cada etiqueta, cada nombre y cada mensaje que un componente dibuja o dice es de tu producto, dado en el componente o una sola vez para todo el producto.
+description: Un componente no tiene textos propios. Cada etiqueta, cada nombre y cada mensaje que dibuja o dice es de tu producto, dado en el componente, una sola vez para todo el producto o tomado del paquete de textos en inglés que importas.
 translationOf: foundations/words.mdx
-sourceHash: 7f4c676206d1e892145fdf2bc56bea5f1a35bd75
+sourceHash: cde7229312c583aa11ef0dc7634daa997d078d17
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
-**Tanrei no incluye textos propios.** Ningún componente tiene un texto predeterminado en ningún idioma: ni «Obligatorio», ni «Cerrar», ni «Aceptar». Un texto que un componente dibuja o dice es uno que escribió tu producto.
+**Un componente no tiene textos propios.** Ningún componente tiene un texto predeterminado en ningún idioma: ni «Obligatorio», ni «Cerrar», ni «Aceptar». Un texto que un componente dibuja o dice es uno que dio tu producto: escrito por ti, o tomado del [paquete de textos en inglés](#el-paquete-de-textos-en-inglés), que importas tú.
 
-Un valor predeterminado oculta el fallo que provoca. Un producto en japonés que olvida un texto muestra inglés junto a su propio texto, y nada lo notifica. Un producto en inglés también tiene su propia voz («Mandatory», «Done», «Nothing found»). Por eso un componente no tiene ningún texto al que recurrir, y te avisa cuando falta uno.
+Un valor predeterminado oculta el fallo que provoca. Un producto en japonés que olvida un texto muestra inglés junto a su propio texto, y nada lo notifica. Un producto en inglés también tiene su propia voz («Mandatory», «Done», «Nothing found»). Por eso un componente no tiene ningún texto al que recurrir, y te avisa cuando falta uno. El paquete de textos en inglés no es un recurso así: nada lo aplica salvo tu propia importación.
 
 ## De dónde sale un texto
 
@@ -19,10 +19,27 @@ Un componente mira en tres lugares, en este orden, y en ningún otro.
 | Lugar | Qué da | Ejemplo |
 | --- | --- | --- |
 | **El propio componente** | Los textos sobre esta única cosa, y cualquier texto que esta diga de otra manera | `label`, `error-text`; `close-label="Cerrar filtros"` |
-| **Los textos de tu producto** | Los textos que dices igual dondequiera que se dibuje la parte, dados una sola vez por idioma | `requiredText`, `closeLabel`, `previousMonthLabel` |
+| **Los textos de tu producto** | Los textos que dices igual dondequiera que se dibuje la parte, dados una sola vez por idioma, o el paquete de textos en inglés que importas | `requiredText`, `closeLabel`, `previousMonthLabel` |
 | **La plataforma** | Lo que el navegador ya tiene en el idioma del lector | Los nombres de los meses y de los días de la semana, las cifras, «a. m.», el mensaje propio del navegador cuando falta un valor |
 
 Después de estos no hay nada: ningún idioma de reserva, y ningún inglés «por ahora».
+
+## El paquete de textos en inglés
+
+Tanrei escribe para ti un conjunto de los textos de tu producto: un texto en inglés llano y neutro para cada clave, como «Required», «Close» y «Previous month». Impórtalo una vez:
+
+```js
+import '@tanrei/web/words/en';
+```
+
+Da los textos de toda la página, como lo haría una llamada a `setWords()`. Nada lo importa por ti: ni `@tanrei/web`, ni `@tanrei/react`, ni un componente, ni el `lang` de la página. El texto del paquete para cada clave está en [la tabla de claves](#las-claves).
+
+- **Tus propios textos siguen ganando.** Llama a `setWords()` después de la importación, y las claves que des sustituyen a las del paquete; un texto en un componente gana sobre ambos. La importación da todas las claves cuando se ejecuta, así que un texto que diste antes queda sustituido.
+- **Parte de sus textos.** El módulo también los exporta: `import { englishWords } from '@tanrei/web/words/en'`.
+- **En un producto en otro idioma**, una clave que el conjunto de tu idioma no tiene se lee del conjunto de la página, y con el paquete importado eso es inglés. Impórtalo ahí solo donde el inglés sea el texto que quieres para una clave que no escribiste; sin él, el texto que falta se notifica.
+- **No oculta lo que no debe.** Con el paquete importado, todas las claves tienen texto, así que `missingWords()` está vacío. Para encontrar los textos que tu producto aún no ha escrito, pregúntalo en una prueba que no importe el paquete.
+
+En React, la importación es la misma línea, en el módulo que se renderiza primero.
 
 ## Da los textos de tu producto una sola vez
 
@@ -106,7 +123,7 @@ Un control sin nombre accesible falla a las personas que usan un lector de panta
 
 ## Haz fallar una prueba cuando falte un texto
 
-`missingWords()` devuelve las claves que hicieron falta desde que se cargó la página y que nadie dio. Pregúntale al final de una prueba que recorra tu producto.
+`missingWords()` devuelve las claves que hicieron falta desde que se cargó la página y que nadie dio. Pregúntale al final de una prueba que recorra tu producto. A una página que importa el paquete de textos en inglés no le falta ninguno.
 
 ```js
 import { missingWords } from '@tanrei/web';
@@ -123,7 +140,7 @@ Un glifo, un asterisco, una raya, una cifra y un separador que da la configuraci
 
 ## Las claves
 
-Todas las claves, las propiedades que las leen y los huecos que el componente rellena en su frase. La mayoría de las claves tienen el nombre de su propiedad. Tres son distintas: `label` y `failedLabel` de un botón de copiar leen `copyLabel` y `copyFailedLabel`, y `overflowLabel` de la ruta de navegación lee `breadcrumbsOverflowLabel`.
+Todas las claves, las propiedades que las leen, los huecos que el componente rellena en su frase y su texto en el paquete en inglés. La mayoría de las claves tienen el nombre de su propiedad. Tres son distintas: `label` y `failedLabel` de un botón de copiar leen `copyLabel` y `copyFailedLabel`, y `overflowLabel` de la ruta de navegación lee `breadcrumbsOverflowLabel`.
 
 <ProductWordKeys />
 
@@ -131,4 +148,4 @@ Los textos que tratan de una sola cosa (el `label` de un campo, el `label` de un
 
 ## Otras plataformas
 
-La regla es la misma en todas las plataformas. Hasta ahora solo está construida la web; SwiftUI, Jetpack Compose, Flutter y React Native recibirán los textos del producto con su estilo propio.
+La regla es la misma en todas las plataformas. Hasta ahora solo está construida la web; SwiftUI, Jetpack Compose, Flutter y React Native recibirán los textos del producto, y el mismo paquete de textos en inglés, con su estilo propio.
