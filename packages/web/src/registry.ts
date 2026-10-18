@@ -233,6 +233,11 @@ export interface TanreiSwatchSizeRegistry {
   large: true;
 }
 
+export interface TanreiHandleSizeRegistry {
+  small: true;
+  medium: true;
+}
+
 export interface TanreiSwatchShapeRegistry {
   square: true;
   circle: true;

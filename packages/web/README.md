@@ -161,7 +161,7 @@ components can read them the way `<tanrei-button>` does:
 
 Never cache the value and never branch on a system's id. An unknown name is treated as the first value.
 
-### What `<tanrei-button>`, an interactive `<tanrei-card>`, `<tanrei-main-action-button>`, the toggle and items of `<tanrei-fab-menu>`, `<tanrei-chip>`, the days, years and view toggle of `<tanrei-calendar>`, the rows of `<tanrei-list>` and `<tanrei-menu>`, the tabs of `<tanrei-tabs>`, the selectors of `<tanrei-date-time-picker>`, the destinations of the navigation bar and the destinations and group rows of the drawer, the bar and the suggestions of `<tanrei-search>`, the segments of `<tanrei-segmented-button>`, the halves of `<tanrei-button-with-menu>` and the drag handle of `<tanrei-bottom-sheet>` draw
+### What `<tanrei-button>`, an interactive `<tanrei-card>`, `<tanrei-main-action-button>`, the toggle and items of `<tanrei-fab-menu>`, `<tanrei-chip>`, the days, years and view toggle of `<tanrei-calendar>`, the rows of `<tanrei-list>` and `<tanrei-menu>`, the tabs of `<tanrei-tabs>`, the selectors of `<tanrei-date-time-picker>`, the destinations of the navigation bar and the destinations and group rows of the drawer, the bar and the suggestions of `<tanrei-search>`, the segments of `<tanrei-segmented-button>`, the halves of `<tanrei-button-with-menu>`, the drag handle of `<tanrei-bottom-sheet>` and `<tanrei-handle>` draw
 
 | Choice | Value | On the web |
 |---|---|---|
@@ -6200,6 +6200,76 @@ are the Button's (the `drag-handle` control's tokens, see "Choices of kind"); a 
 pressed. Everything is logical, so right-to-left keeps it centred and the content follows the direction. Parts:
 `container` (and its `::backdrop`), `handle`, `grip`, `content`. The web has no gallery app; the fixtures are drawn by the
 test harness (`test/harness.ts`) in a 400 × 720 window on a `surface` page.
+
+## `<tanrei-handle>`
+
+The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a short capsule for one
+axis, a quarter-circle arc for two (`specs/handle.spec.json`, HDL-1…25). It sizes nothing: it reports the drag, the
+step a key asks for and an activation, and its owner keeps the size and gives it back as `value`.
+
+```html
+<tanrei-handle label="Resize notes" value="4" min="2" max="12" value-text="4 lines"></tanrei-handle>
+<script type="module">
+  const handle = document.querySelector('tanrei-handle');
+  handle.addEventListener('resize', (e) => resizeBy(e.detail.block)); // the distance from the press, in px
+  handle.addEventListener('step', (e) => step(e.detail)); // { axis, direction, amount: one | large | limit }
+  handle.addEventListener('activate', () => toggleSize()); // a press without a drag, Enter, Space
+</script>
+```
+
+| `<tanrei-handle>` | Type | Default | |
+|---|---|---|---|
+| `axis` | `vertical` \| `horizontal` \| `both` | `vertical` | the size it changes: a height (a horizontal capsule), a width (an upright one), both (an arc). Any other value is `vertical`, reported (HDL-20); reflected |
+| `corner` | `bottom-end` \| `bottom-start` \| `top-end` \| `top-start` | `bottom-end` | the corner an arc bows toward, logical; ignored for one axis. Any other value is `bottom-end`, reported; reflected |
+| `size` | `small` \| `medium` (open) | `medium` | `small` for a text field's corner. A size a layer adds is drawn from its tokens; one the active system lacks is `medium`, reported; reflected |
+| `value` | number \| null | `null` | the owner's size, in its unit. Set: a focusable `role="separator"` with `aria-valuenow`. Null: a `<button>` |
+| `min` / `max` | number | `0` / `100` | `aria-valuemin` / `aria-valuemax` while `value` is set |
+| `valueText` / `value-text` | string | `""` | `aria-valuetext` where it is not empty |
+| `expanded` | boolean \| null | `null` | the button's `aria-expanded` while `value` is null; the attribute takes `true` and `false`, no attribute is null |
+| `label` | string | `""` | the accessible name, the instance's own (no product words: HDL-21). An empty one is reported (HDL-8) |
+| `disabled` | boolean | `false` | disabled tokens, no focus, no press, no event, no resize cursor; `aria-disabled` / `disabled`; reflected |
+| `revealed` | boolean | `false` | draws the line at rest (HDL-23 to HDL-25); reflected |
+
+| Event | When |
+|---|---|
+| `resizestart` | a press moved past the 8 px slop: `detail.pointerType` (`mouse`, `touch`, `pen`) |
+| `resize` | each pointer move of the drag: `detail.inline` (toward the end edge: to the left in right-to-left) and `detail.block` (downward), from the press |
+| `resizeend` | once: on release, or cancelled (`pointercancel`, the capture taken away, the element removed or disabled mid-drag) with `detail.cancelled` |
+| `step` | a key of HDL-9 while `value` is set: `detail.axis` (`inline`, `block`), `detail.direction` (1, −1), `detail.amount` (`one`, `large`, `limit`) |
+| `activate` | a press released within the slop, Enter or Space, or assistive technology's click |
+
+Every event bubbles within the tree the handle stands in and is not composed: an element that puts a handle in its own
+shadow root hears it on the handle and says what it means in its own events.
+
+**Drawing (HDL-1…4, HDL-13).** The box (part `container`) is `container.length × container.breadth` of the size,
+turned for a width, a square of `container.breadth` for an arc, its corners `container.shape` through the corner rule.
+The capsule (part `line`) is a box with round ends (`sys.shape.corner.full`, a pill whatever the smoothing). The arc
+(part `line`) is an SVG `<circle>` whose geometry is CSS (`cx`, `cy`, `r` from the tokens), drawn a quarter of the way
+round by `stroke-dasharray` with round caps: the circle's first quarter runs from its right to its bottom, which is the
+bottom-end arc in left-to-right; the other corners and right-to-left mirror the SVG with `scale()`. Its centre is
+`arc.radius + inset` in from the corner's edges. The states are the Button's (`stateRules`, `PressController`,
+`rippleStyles`, `focusRing`); under a fine pointer and a press the line takes `line.active-*` (the arc only its
+thickness), and its size, color and the box's color move over `motion.state-*`.
+
+**Out of sight (HDL-23…25).** Under `@media (hover: hover)` and without `revealed`, the line has `opacity: 0` at rest
+and 1 while `:hover`, `:focus-visible`, `[data-pressed]` (held for press-hold) or `.dragging`; the box is clear at rest
+anyway. The element stays in the focus order, its target and cursor stay. Where the primary pointer cannot hover the
+rule does not apply and the line is drawn.
+
+**Drag and keys (HDL-5…10, HDL-17).** The target is `minimumTarget()` (`sys.target.pointer`, `touch` for a coarse
+pointer). The cursor is `ns-resize`, `ew-resize`, or the diagonal through the corner (`nwse-resize` for bottom-end in
+left-to-right, mirrored in right-to-left). A `pointerdown` refuses its `mousedown` (no focus, no selection, no caret)
+and captures the pointer (`setPointerCapture`), so the drag follows it past the window; `touch-action: none` keeps a
+touch from scrolling. The capture does not reach into an iframe: an owner that holds one sets `pointer-events: none` on
+it between `resizestart` and `resizeend`. The click that a drag's release makes is swallowed. The separator takes Enter
+on `keydown` and Space on `keyup`, as a button does. The web has no adjustable action for a custom element: assistive
+technology that adjusts a separator sends the arrow keys, which HDL-9 answers, so HDL-10 is HDL-9 here.
+
+**Forced colors (HDL-16).** The line is `ButtonText`, `Highlight` under a fine pointer and a press, `GrayText`
+disabled (`forced-color-adjust: none` on the line only); the box is transparent; the focus outline is `Highlight`.
+
+The fixtures are drawn by the test harness (`test/harness.ts`) on a 160 × 96 box whose corners are concentric with the
+arc, the handle at its bottom edge, its end edge or its corner.
 
 ## `<tanrei-side-sheet>`
 

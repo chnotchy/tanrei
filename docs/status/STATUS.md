@@ -99,7 +99,7 @@ Listing: 83 default · 8 advanced. A component of the first value is shown where
 | Embedded text input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Handle | base | default | containment | ✓ | · planned | · planned | · planned | · planned | · planned |
+| Handle | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 
 ## Not shipped by a system
 

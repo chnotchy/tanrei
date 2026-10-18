@@ -38648,6 +38648,601 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/handle/handle.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium']"
+          },
+          "default": "['small', 'medium']",
+          "description": "The values every design system has. A layer may add more; those get their styles on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES_OF_RESIZE",
+          "type": {
+            "text": "['vertical', 'horizontal', 'both']"
+          },
+          "default": "['vertical', 'horizontal', 'both']",
+          "description": "The axes and the corners the component defines (HDL-20: anything else is drawn as the first)."
+        },
+        {
+          "kind": "variable",
+          "name": "CORNERS",
+          "type": {
+            "text": "['bottom-end', 'bottom-start', 'top-end', 'top-start']"
+          },
+          "default": "['bottom-end', 'bottom-start', 'top-end', 'top-start']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[{ name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-length-${value}` }]",
+          "description": "HDL-20: a size a layer added gets its block on demand; one the active system lacks is drawn as medium and reported."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))} ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\\n'))} /* HDL-3: the handle takes no room but its box's; the component it stands on, or the product, places it. HDL-6: nothing of it is ever selected as text. */ :host { display: inline-block; vertical-align: top; -webkit-user-select: none; user-select: none; } :host([hidden]) { display: none; } /* HDL-3: the box — a pill of container.length × container.breadth across the line, turned for a width, a square of container.breadth at its corner for an arc — in the box color of its state (clear at rest), corners eased by the smoothing (HDL-13), no elevation. HDL-6: a press on it never pans or zooms the page. */ .container { ${unsafeCSS(stateColors)} --_c: var(--_c-r); --_l: var(--_l-r); --_l-len: var(--_len); --_l-thk: var(--_thk); --_shown: 1; all: unset; box-sizing: border-box; position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; inline-size: var(--_box-len); block-size: var(--_box-br); ${unsafeCSS(cornerRadius(`${PREFIX}-container-shape`))} background-color: var(--_c); opacity: 1; touch-action: none; -webkit-tap-highlight-color: transparent; transition-property: background-color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } .container.horizontal { inline-size: var(--_box-br); block-size: var(--_box-len); } .container.both { inline-size: var(--_box-br); block-size: var(--_box-br); } /* HDL-5: the platform's resize cursor for the axis — the diagonal one through the corner, mirrored in right-to-left (HDL-17) — over the whole target; none while disabled. */ .container.vertical { cursor: ns-resize; } .container.horizontal { cursor: ew-resize; } .container.both:is(.bottom-end, .top-start) { cursor: nwse-resize; } .container.both:is(.bottom-start, .top-end) { cursor: nesw-resize; } :host(:dir(rtl)) .container.both:is(.bottom-end, .top-start) { cursor: nesw-resize; } :host(:dir(rtl)) .container.both:is(.bottom-start, .top-end) { cursor: nwse-resize; } .container.disabled { cursor: default; } /* HDL-1: the capsule, centred in the box, lying across the axis it resizes, with round ends whatever the smoothing. HDL-4: it grows about its centre. */ .capsule { display: block; flex: none; inline-size: var(--_l-len); block-size: var(--_l-thk); --tanrei-corner-radius: var(--tanrei-sys-shape-corner-full); --tanrei-corner-pill: 1; background-color: var(--_l); opacity: var(--_shown); pointer-events: none; transition-property: inline-size, block-size, background-color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } .horizontal .capsule { inline-size: var(--_l-thk); block-size: var(--_l-len); } /* HDL-2: the arc — a quarter of a circle of arc.radius with round ends, bowed toward its corner, its centre arc.radius plus inset in from that corner's two edges. It is drawn for the bottom-end corner of a left-to-right layout (the circle's first quarter runs from its right to its bottom) and turned to the others by mirroring the drawing (HDL-17: the end corners are at the left in right-to-left). HDL-4: it grows only thicker, at the same radius. */ .arc { --_sx: 1; --_sy: 1; --_dir: 1; position: absolute; inset: 0; inline-size: 100%; block-size: 100%; overflow: visible; opacity: var(--_shown); pointer-events: none; transform: scale(calc(var(--_sx) * var(--_dir)), var(--_sy)); transition: opacity ${unsafeCSS(STATE_MOTION)}; } .bottom-start .arc, .top-start .arc { --_sx: -1; } .top-end .arc, .top-start .arc { --_sy: -1; } :host(:dir(rtl)) .arc { --_dir: -1; } .arc circle { --_from-edge: calc(var(--_box-br) - var(--_radius) - ${t('inset')}); cx: var(--_from-edge); cy: var(--_from-edge); r: var(--_radius); fill: none; stroke: var(--_l); stroke-width: var(--_l-thk); stroke-linecap: round; stroke-dasharray: calc(pi * var(--_radius) / 2) calc(pi * var(--_radius) * 2); transition-property: stroke-width, stroke; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* HDL-5: the target reaches sys.target.pointer for a fine pointer and sys.target.touch for a coarse one, centred on the box, without changing what is drawn. */ ${minimumTarget('.container')} /* HDL-4, HDL-12: each state paints the box, the line and the opacity from that state's tokens, pressed over focused over hovered; under a fine pointer and a press the line takes its larger form. */ ${stateRules(on, { hovered: `${paint('-h', { active: true })} opacity: ${T('hovered-opacity')};`, focused: `${paint('-f')} opacity: ${T('focused-opacity')};`, pressed: `${paint('-p', { active: true })} opacity: ${T('pressed-opacity')};`, pressedContent: `${paint('-p', { box: false, active: true })} opacity: ${T('pressed-opacity')};`, disabled: '', })} /* HDL-11: the pressed form appears without delay. */ .container[data-pressed]:not([data-pressed='none']) :is(.capsule, .arc, .arc circle) { transition-duration: 0s; } /* HDL-15: disabled draws from the disabled tokens and answers nothing. */ .container.disabled { --_c: var(--_c-d); --_l: var(--_l-d); opacity: ${t('disabled-opacity')}; } /* HDL-23, HDL-25: out of sight at rest where the primary pointer hovers and revealed is false; in sight while a fine pointer is over it, while it has keyboard focus and while a press (held for press-hold) or a drag holds it. */ @media (hover: hover) { .container:not(.revealed) { --_shown: 0; } .container:not(.revealed):is(:not(.disabled):hover, :focus-visible, [data-pressed], .dragging) { --_shown: 1; } } /* HDL-12: the ripple grows over motion.feedback-duration and fades over motion.state-duration. */ ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* HDL-13, HDL-14: the ring (or the glow) around the box, sys.focus.offset outside it, never animated. */ ${focusRing(on)} ${pressHold('.hold')} .hold { display: none; } ${shape} @media (prefers-reduced-motion: reduce) { .container, .capsule, .arc, .arc circle { transition: none; } } /* HDL-16: the person's colors — the line in ButtonText, Highlight under a fine pointer and a press, GrayText while disabled; no fill in the box; the focus indicator in Highlight. */ @media (forced-colors: active) { .container { --_c: transparent; background-color: transparent; } .capsule, .arc { forced-color-adjust: none; --_l: ButtonText; } @media (hover: hover) { .container:not(.disabled):hover :is(.capsule, .arc) { --_l: Highlight; } } .container:not(.disabled)[data-pressed] :is(.capsule, .arc), .container.dragging :is(.capsule, .arc) { --_l: Highlight; } .container.disabled :is(.capsule, .arc) { --_l: GrayText; } .container:focus-visible { outline-color: Highlight; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES_OF_RESIZE",
+          "declaration": {
+            "name": "AXES_OF_RESIZE",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CORNERS",
+          "declaration": {
+            "name": "CORNERS",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/handle/handle.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text\nfield's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that\nbows toward its corner.\n\nContract: specs/handle.spec.json. It never sizes anything itself: it tells its owner how far it was dragged\n(`resizestart`, `resize`, `resizeend`), which step a key asked for (`step`) and that it was pressed without a drag\n(`activate`); the owner keeps the size and gives it back as `value`, which assistive technology reads. With a `value`\nit is a focusable separator (the window splitter pattern); without one, a button, with `expanded` where the owner has\ntwo sizes. Every visual value comes from `--tanrei-comp-handle-*` tokens.\n\nOut of sight until it is used (HDL-23): drawn while a mouse is over it, while it has keyboard focus and while a press\nor a drag holds it, and always on a touch screen (HDL-25) or with `revealed`. It is one Tab stop all the same.\n\nA press takes no focus and selects nothing, so a field keeps its caret while its handle is dragged. The drag follows\nthe pointer anywhere (pointer capture); an owner that holds an iframe sets `pointer-events: none` on it between\n`resizestart` and `resizeend`, or the iframe takes the pointer as it passes over it. The events bubble within the\ntree the handle stands in and do not leave a shadow root: an element that puts a handle in its own shadow root hears\nthem on the handle and says what it means in its own events.\n\nAssistive technology's increment and decrement (HDL-10) reach a web page as the arrow keys, which HDL-9 answers.",
+          "name": "TanreiHandle",
+          "cssParts": [
+            {
+              "description": "The box the line is drawn in, which carries the states and the focus ring: a `role=\"separator\"` element with a value, a `<button>` without one.",
+              "name": "container"
+            },
+            {
+              "description": "The drawn line: the capsule, or the arc's SVG (hidden from assistive technology).",
+              "name": "line"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'handle')"
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "axis",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleAxis"
+              },
+              "default": "'vertical'",
+              "description": "Which size it changes: `vertical` a height (the line lies across it), `horizontal` a width (the line stands upright), `both` a height and a width at a corner (an arc).",
+              "attribute": "axis",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "corner",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleCorner"
+              },
+              "default": "'bottom-end'",
+              "description": "The corner an arc bows toward while `axis` is both, in logical terms. Ignored for one axis.",
+              "attribute": "corner",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleSize"
+              },
+              "default": "'medium'",
+              "description": "`medium` for a sheet, a pane or a frame; `small` for a text field's corner. The hit area meets the minimum target at both.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The size it stands for, as its owner counts it (lines, pixels, a percentage), told to assistive technology. Null makes it a button with no value.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The least value, told to assistive technology with `value`.",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The greatest value, told to assistive technology with `value`.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value in your words (\"6 lines\", `value-text`), read in place of the number. Empty reads the number.",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "privacy": "public",
+              "type": {
+                "text": "boolean | null"
+              },
+              "default": "null",
+              "description": "While `value` is null: whether what it switches is at its larger size (`aria-expanded`). Null tells no such state; the attribute takes `true` and `false`.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name, saying what it resizes (\"Resize message\"), in your words. Never drawn. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws it as unavailable; it takes no input and no focus.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "revealed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
+              "attribute": "revealed",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "axes",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new OpenAxesController(this, { component: 'handle', behavior: 'HDL-20', axes: AXES })"
+            },
+            {
+              "kind": "field",
+              "name": "press",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new PressController(this, { container: () => this.container, holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null, disabled: () => this.disabled, })",
+              "description": "HDL-11, HDL-12: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "drag",
+              "type": {
+                "text": "Drag | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "swallowClick",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "A drag has just ended: the click the release makes is not an activation (HDL-7)."
+            },
+            {
+              "kind": "field",
+              "name": "container",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "shownAxis",
+              "type": {
+                "text": "TanreiHandleAxis"
+              },
+              "privacy": "private",
+              "description": "HDL-20: an axis or a corner the component does not define is drawn as the first.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "shownCorner",
+              "type": {
+                "text": "TanreiHandleCorner"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "separator",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "HDL-8: a value makes it a separator; none makes it a button.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "activate",
+              "privacy": "private",
+              "description": "HDL-7. Every event of the handle bubbles within the tree it stands in and stops at a shadow root (not composed):\nan owner hears it on the handle."
+            },
+            {
+              "kind": "field",
+              "name": "onPointerDown",
+              "privacy": "private",
+              "readonly": true,
+              "description": "HDL-6: a press on the target belongs to the handle. It takes no focus and selects nothing (the press's mousedown is\nrefused), and the pointer is captured, so that the drag follows it past the window's edge."
+            },
+            {
+              "kind": "field",
+              "name": "onMouseDown",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPointerMove",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPointerUp",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPointerCancel",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onLostCapture",
+              "privacy": "private",
+              "readonly": true,
+              "description": "The capture was taken away without a release (the element moved out of the tree under the pointer): a cancel."
+            },
+            {
+              "kind": "method",
+              "name": "endDrag",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "cancelled",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "HDL-6: resizeend once, with the distance where it ended; a press that never moved is no drag and ends nothing."
+            },
+            {
+              "kind": "field",
+              "name": "onClick",
+              "privacy": "private",
+              "readonly": true,
+              "description": "HDL-7: a press released without a drag, a button's Enter or Space, and assistive technology's click activate the\nhandle; the click a drag's release makes does not."
+            },
+            {
+              "kind": "field",
+              "name": "onKeyDown",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onKeyUp",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "stepFor",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TanreiHandleStepDetail | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "HDL-9, HDL-17: the step a key asks for, along the axis of the handle; null for a key that is not its."
+            },
+            {
+              "kind": "field",
+              "name": "onFocus",
+              "privacy": "private",
+              "readonly": true,
+              "description": "HDL-13: where style queries are missing, the focus style is read when focus arrives."
+            },
+            {
+              "kind": "method",
+              "name": "lineTemplate",
+              "privacy": "private"
+            }
+          ],
+          "events": [
+            {
+              "name": "activate",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows."
+            },
+            {
+              "name": "resizeend",
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeEndDetail>"
+              },
+              "description": "The drag ended, once: released, or cancelled by the platform (`detail.cancelled`)."
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeStartDetail>"
+              },
+              "description": "A drag began: a press on the handle moved past the touch slop.",
+              "name": "resizestart"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeDetail>"
+              },
+              "description": "The drag moved: `detail.inline` and `detail.block`, the distance from the press.",
+              "name": "resize"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleStepDetail>"
+              },
+              "description": "A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.",
+              "name": "step"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "axis",
+              "type": {
+                "text": "TanreiHandleAxis"
+              },
+              "default": "'vertical'",
+              "description": "Which size it changes: `vertical` a height (the line lies across it), `horizontal` a width (the line stands upright), `both` a height and a width at a corner (an arc).",
+              "fieldName": "axis"
+            },
+            {
+              "name": "corner",
+              "type": {
+                "text": "TanreiHandleCorner"
+              },
+              "default": "'bottom-end'",
+              "description": "The corner an arc bows toward while `axis` is both, in logical terms. Ignored for one axis.",
+              "fieldName": "corner"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiHandleSize"
+              },
+              "default": "'medium'",
+              "description": "`medium` for a sheet, a pane or a frame; `small` for a text field's corner. The hit area meets the minimum target at both.",
+              "fieldName": "size"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The size it stands for, as its owner counts it (lines, pixels, a percentage), told to assistive technology. Null makes it a button with no value.",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The least value, told to assistive technology with `value`.",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The greatest value, told to assistive technology with `value`.",
+              "fieldName": "max"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value in your words (\"6 lines\", `value-text`), read in place of the number. Empty reads the number.",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean | null"
+              },
+              "default": "null",
+              "description": "While `value` is null: whether what it switches is at its larger size (`aria-expanded`). Null tells no such state; the attribute takes `true` and `false`.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name, saying what it resizes (\"Resize message\"), in your words. Never drawn. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws it as unavailable; it takes no input and no focus.",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "revealed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
+              "fieldName": "revealed"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-handle",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiHandle",
+          "declaration": {
+            "name": "TanreiHandle",
+            "module": "src/components/handle/handle.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-handle",
+          "declaration": {
+            "name": "TanreiHandle",
+            "module": "src/components/handle/handle.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/image-preview/image-preview.styles.ts",
       "declarations": [
         {

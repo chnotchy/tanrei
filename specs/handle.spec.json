@@ -260,7 +260,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-handle",
       "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
       "events": { "resizeStart": "resizestart", "resize": "resize", "resizeEnd": "resizeend", "step": "step", "activate": "activate" },
