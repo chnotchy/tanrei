@@ -41,6 +41,14 @@ test('every shipped system has its manifest, and it is what its layers and the c
   }
 });
 
+test('the catalog names the elements a component draws among its children, and no component’s own element among them', () => {
+  const byName = new Map(catalog.components.map((component) => [component.name, component]));
+  const own = new Set(catalog.components.map((component) => component.web?.tag).filter(Boolean));
+  assert.deepEqual(byName.get('fab-menu').web.items, [`${CONFIG.web.tagPrefix}-fab-menu-item`]);
+  assert.deepEqual(byName.get('segmented-button').web.items, [`${CONFIG.web.tagPrefix}-segment`]);
+  for (const component of catalog.components) for (const tag of component.web?.items ?? []) assert.equal(own.has(tag), false, `${component.name}: <${tag}> is a component's own element`);
+});
+
 test('the default system lists neither the FAB menu nor the segmented button, and says why and what to use', () => {
   const tanrei = committed(DEFAULT_SYSTEM);
   assert.equal(tanrei.system, DEFAULT_SYSTEM);

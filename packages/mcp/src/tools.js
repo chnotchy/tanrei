@@ -607,10 +607,10 @@ export const TOOLS = [
   },
   {
     name: 'check_usage',
-    description: "Check code against a system's components manifest: every element (`<tanrei-…>`, a tag in a string, an imported React wrapper), every import of a web module or React wrapper, and every literal `variant` the system does not have, each with its file, line and column, why, and what to use instead (`insteadUse`; for a component, also the shipped systems that have it and the layer line that takes it into a product). An unknown `tanrei-` element is reported with the nearest components. A wrapper imported from another entry than the system's is a warning. It reads the text, not a syntax tree: a variant set from a variable is not seen, and markup in a comment is checked like any other. Pass `code` (with an optional `path` to name it) or `files`. Reads, never writes.",
+    description: "Check code against a system's components manifest — the check `tanrei audit` runs: every element (`<tanrei-…>`, a tag in a string, an imported React wrapper) and every CSS selector naming an element of a component the system does not have; every import of an entry that does not fit the system (another system's, or the one of every component), of a web module or of a React wrapper it does not have; and every literal `variant` the system leaves out. Each with its file, line and column, why, and what to write instead (`insteadUse` for a component, also the shipped systems that have it and the layer line that takes it into a product; `use` for an import; `values` for a variant). An unknown `tanrei-` element is reported with the nearest components. Comments are skipped. It reads the text, not a syntax tree: a variant set from a variable is not seen. Pass `code` (with `path`, whose extension says how to read it: .html, .css, or script by default) or `files`. Reads, never writes.",
     inputSchema: object({
       code: { type: 'string', maxLength: 1048576, description: 'Source text: HTML, a template, JSX/TSX, Vue, Svelte…' },
-      path: { type: 'string', description: 'With `code`: the name findings carry as `file`.' },
+      path: { type: 'string', description: 'With `code`: the name findings carry as `file`; its extension says how to read the text (.html, .vue, .svelte and .astro as markup, .css, .scss and .less as a stylesheet, anything else as script).' },
       files: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50, description: "Paths of files to read (absolute, or relative to the server's working directory)." },
       ...systemProperties,
     }),

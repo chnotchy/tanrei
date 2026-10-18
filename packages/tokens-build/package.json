@@ -27,6 +27,7 @@
     "./reader": "./src/reader.js",
     "./bundle": "./src/bundle.js",
     "./components-manifest": "./src/components-manifest.js",
+    "./components-audit": "./src/components-audit.js",
     "./invariants": "./src/invariants.js",
     "./scheme": "./src/scheme.js",
     "./emit/css": "./src/emit/css.js",

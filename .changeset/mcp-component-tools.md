@@ -16,8 +16,8 @@ component specs (never from the documentation site):
   events, slots, items, states, the behaviour as EARS rules with their stable ids, accessibility and one fixture as an
   example; `available: false` with what to use instead where the system does not have it.
 - `find_component` — which component does a job, by the words of its name, summary and props.
-- `check_usage` — the elements, imports and literal variants in code that the system does not have, each with its file,
-  line and column and what to use instead; a React wrapper imported from another entry than the system's is a warning.
+- `check_usage` — the elements, selectors, imports and literal variants in code that the system does not have, each
+  with its file, line and column and what to use instead: the check `tanrei audit` runs.
 - `tanrei://components/<id>` — each shipped system's components manifest.
 
 The server's instructions now say to call `list_components` first and use nothing it does not list, and to use the
