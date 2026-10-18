@@ -49,12 +49,12 @@
       "note": "The one disabled of the one-time-code field: the Field passes it to the control (FLD-14, OTC-20), whose own disabled is not a prop here."
     },
     {
-      "name": "requirement",
-      "from": "field.requirement"
-    },
-    {
       "name": "required",
       "from": "field.required"
+    },
+    {
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -131,7 +131,7 @@
     },
     {
       "id": "OTF-2",
-      "text": "THE one-time-code field SHALL give each of its props, unchanged, to the member it is from and SHALL hold no state between the two: label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText are the Field's; value, length, type, groupSize, mask and readOnly are the One-time-code input's. A value a member does not know SHALL be passed on as given and answered by that member (FLD-22, OTC-19). THE one-time-code field SHALL never set the One-time-code input's own label, error or disabled: the Field's label names the control (FLD-10, OTC-22), the Field's error puts it in its error condition (FLD-8, OTC-17) and the Field's disabled disables it (FLD-14, OTC-20), so that each is said once, in the place where the label follows."
+      "text": "THE one-time-code field SHALL give each of its props, unchanged, to the member it is from and SHALL hold no state between the two: label, labelHidden, supportingText, errorText, error, disabled, required, optional, requiredMark, requiredText and optionalText are the Field's; value, length, type, groupSize, mask and readOnly are the One-time-code input's. A value a member does not know SHALL be passed on as given and answered by that member (FLD-22, OTC-19). THE one-time-code field SHALL never set the One-time-code input's own label, error or disabled: the Field's label names the control (FLD-10, OTC-22), the Field's error puts it in its error condition (FLD-8, OTC-17) and the Field's disabled disables it (FLD-14, OTC-20), so that each is said once, in the place where the label follows."
     },
     {
       "id": "OTF-3",
@@ -139,7 +139,7 @@
     },
     {
       "id": "OTF-4",
-      "text": "WHERE the platform has forms (the web) THE one-time-code field SHALL be the one control the form meets, and what OTC-29 says of a One-time-code input SHALL hold of the one-time-code field as a whole: it takes name; it submits the code alone, an empty string WHILE it holds none, and nothing WHILE disabled (OTC-20); it is restored on navigation and resets to the value it was first given; and it reports a missing value WHILE requirement is required and the value is empty, and nothing for a code shorter than length. Its members SHALL add no entry of their own to the form, and the action key SHALL submit the form the one-time-code field belongs to as OTC-13 says, unless action was cancelled."
+      "text": "WHERE the platform has forms (the web) THE one-time-code field SHALL be the one control the form meets, and what OTC-29 says of a One-time-code input SHALL hold of the one-time-code field as a whole: it takes name; it submits the code alone, an empty string WHILE it holds none, and nothing WHILE disabled (OTC-20); it is restored on navigation and resets to the value it was first given; and it reports a missing value WHILE required is true and the value is empty, and nothing for a code shorter than length. Its members SHALL add no entry of their own to the form, and the action key SHALL submit the form the one-time-code field belongs to as OTC-13 says, unless action was cancelled."
     },
     {
       "id": "OTF-5",
@@ -170,7 +170,7 @@
         "action": "The One-time-code input's own, as its spec's keyboard table says (OTC-6, OTC-8 to OTC-11, OTC-13). The one-time-code field handles no key."
       }
     ],
-    "labeling": "One text box, the One-time-code input's (OTC-2); the frame has no role. Its accessible name is label, drawn or not (labelHidden), and its description is the supporting text with, in error, the error text after it, with optionalText while requirement is optional (FLD-10, FLD-11, OTC-22). It is exposed as invalid while error is true, required while requirement is required, disabled while disabled is true, read-only while readOnly is true, and as a protected text entry while mask is true. The label's drawn text, the requirement mark, the cells, the caret and the group marks are not exposed a second time (FLD-11, OTC-2).",
+    "labeling": "One text box, the One-time-code input's (OTC-2); the frame has no role. Its accessible name is label, drawn or not (labelHidden), and its description is the supporting text with, in error, the error text after it, with optionalText while optional is true (FLD-10, FLD-11, OTC-22). It is exposed as invalid while error is true, required while required is true, disabled while disabled is true, read-only while readOnly is true, and as a protected text entry while mask is true. The label's drawn text, the requirement mark, the cells, the caret and the group marks are not exposed a second time (FLD-11, OTC-2).",
     "minimumTarget": true,
     "notes": [
       "What the one-time-code field adds to its members is their being one thing: one tag or one call, one set of props, one value and one entry in a form (OTF-2 to OTF-4). The tie between the two — the name, the description, required, invalid, disabled — is not the one-time-code field's: it is what a Field gives any control it frames, and it runs here exactly as it runs in a product's own Field.",
@@ -222,7 +222,7 @@
       "direction": "rtl",
       "props": {
         "label": "رمز التحقق",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك.",
         "groupSize": 3,
@@ -241,8 +241,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -271,8 +271,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -301,8 +301,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -331,8 +331,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -361,8 +361,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

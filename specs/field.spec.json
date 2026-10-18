@@ -99,21 +99,16 @@
       "description": "Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows."
     },
     {
-      "name": "requirement",
-      "type": "enum",
-      "values": [
-        "none",
-        "required",
-        "optional"
-      ],
-      "default": "none",
-      "description": "What the form asks of the control. required exposes it as required and draws the required mark beside the label; optional draws the optional tag; none says and draws nothing. One setting with three states, because a control is never both. It never validates: a missing answer is the product's to report with error."
-    },
-    {
       "name": "required",
       "type": "boolean",
       "default": false,
-      "description": "HTML's name for what requirement required says: true makes the control required, as requirement required does, whatever requirement names; false leaves requirement as it is. For a product that writes the platform's own word; the two never disagree, because required true wins."
+      "description": "What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates: a missing answer is the product's to report with error."
+    },
+    {
+      "name": "optional",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the optional tag after the label and adds optionalText to the control's description, because assistive technology has no state for it. Ignored while required is true: a control is never both."
     },
     {
       "name": "requiredMark",
@@ -125,7 +120,7 @@
         "none"
       ],
       "default": "auto",
-      "description": "How this control shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless the control is required (requirement required, or required true)."
+      "description": "How this control shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless required is true."
     },
     {
       "name": "requiredText",
@@ -918,17 +913,17 @@
     },
     {
       "id": "FLD-4",
-      "text": "THE field SHALL take from requirement what the form asks of its control: none says nothing and draws nothing; required exposes the control as required (FLD-10) and draws the required mark (FLD-5, FLD-6); optional draws the optional tag (FLD-5) and adds optionalText to the control's description (FLD-11), because assistive technology has no state for it. THE field SHALL NOT validate because of requirement: it SHALL NOT set the error condition for a missing value or show an error text of its own; what a missing value means is the product's to say with error and errorText. WHILE disabled is true THE field SHALL keep its mark: an asterisk drawn from the field's disabled tokens (FLD-14), a requirement tag drawn as a tag inside something disabled (FLD-5, TAG-21).",
-      "verify": "Unit: requirement required sets the required state on the control and never the invalid state; optional adds optionalText to the description (the fixtures give \"Optional\") and no required state."
+      "text": "THE field SHALL take from required and optional what the form asks of its control: WHILE required is true it exposes the control as required (FLD-10) and draws the required mark (FLD-5, FLD-6); WHILE optional is true it draws the optional tag (FLD-5) and adds optionalText to the control's description (FLD-11), because assistive technology has no state for it; WHILE both are false it says nothing and draws nothing. THE field SHALL NOT validate because of required: it SHALL NOT set the error condition for a missing value or show an error text of its own; what a missing value means is the product's to say with error and errorText. WHILE disabled is true THE field SHALL keep its mark: an asterisk drawn from the field's disabled tokens (FLD-14), a requirement tag drawn as a tag inside something disabled (FLD-5, TAG-21).",
+      "verify": "Unit: required true sets the required state on the control and never the invalid state; optional adds optionalText to the description (the fixtures give \"Optional\") and no required state."
     },
     {
       "id": "FLD-5",
-      "text": "WHILE the label is drawn and requirement is optional, or requirement is required and the required mark is tag (FLD-6), THE field SHALL draw after the label's text, comp.field.requirement.gap from it and centred on the label's last line, a requirement tag: the Tag component, drawn as every tag is — size small, variant filled for required and tonal for optional, status default, no glyph and no dot, its label requiredText or optionalText on one line (TAG-1, TAG-2, TAG-5) — from the Tag's own tokens (comp.tag.container.height.small, comp.tag.label.typescale.small, comp.tag.filled.container.color, comp.tag.tonal.container.color and the others those sentences name). THE field SHALL have no token for the requirement tag's fill, lettering, text style, paddings or corners and SHALL set none of the Tag's for it, so that a design system or a product that restyles its small tags restyles the requirement tag with them and nothing restyles the requirement tag alone. THE field SHALL draw the requirement tag the same at rest, WHILE focus is inside the field and WHILE error is true, because a tag has no states (TAG-9) and what the form asks has not changed; WHILE disabled is true THE field SHALL have it drawn as a tag inside something disabled (TAG-21), from the Tag's own disabled tokens, so that the tag fades with the label it follows and no part of a disabled field reads as live. The requirement tag is text, never a control: it SHALL take no focus and no hover, focus or press answer of its own (a press on it does what a press on the label does, FLD-12). It SHALL NOT make the label's row taller: where it is taller than the label's line it SHALL reach equally above and below that line. WHEN the label and the requirement tag do not fit on one line THE field SHALL wrap the label (FLD-2) and move the tag whole to a line of its own after the label's last line, never cutting or splitting it. WHILE requiredText or optionalText is empty THE field SHALL NOT draw the tag of that kind and in debug builds SHALL report it. THE field SHALL keep the required tag from assistive technology, because the required state already says it, and SHALL give the optional tag's text as part of the description (FLD-4).",
+      "text": "WHILE the label is drawn and optional is true, or required is true and the required mark is tag (FLD-6), THE field SHALL draw after the label's text, comp.field.requirement.gap from it and centred on the label's last line, a requirement tag: the Tag component, drawn as every tag is — size small, variant filled for required and tonal for optional, status default, no glyph and no dot, its label requiredText or optionalText on one line (TAG-1, TAG-2, TAG-5) — from the Tag's own tokens (comp.tag.container.height.small, comp.tag.label.typescale.small, comp.tag.filled.container.color, comp.tag.tonal.container.color and the others those sentences name). THE field SHALL have no token for the requirement tag's fill, lettering, text style, paddings or corners and SHALL set none of the Tag's for it, so that a design system or a product that restyles its small tags restyles the requirement tag with them and nothing restyles the requirement tag alone. THE field SHALL draw the requirement tag the same at rest, WHILE focus is inside the field and WHILE error is true, because a tag has no states (TAG-9) and what the form asks has not changed; WHILE disabled is true THE field SHALL have it drawn as a tag inside something disabled (TAG-21), from the Tag's own disabled tokens, so that the tag fades with the label it follows and no part of a disabled field reads as live. The requirement tag is text, never a control: it SHALL take no focus and no hover, focus or press answer of its own (a press on it does what a press on the label does, FLD-12). It SHALL NOT make the label's row taller: where it is taller than the label's line it SHALL reach equally above and below that line. WHEN the label and the requirement tag do not fit on one line THE field SHALL wrap the label (FLD-2) and move the tag whole to a line of its own after the label's last line, never cutting or splitting it. WHILE requiredText or optionalText is empty THE field SHALL NOT draw the tag of that kind and in debug builds SHALL report it. THE field SHALL keep the required tag from assistive technology, because the required state already says it, and SHALL give the optional tag's text as part of the description (FLD-4).",
       "verify": "Fixtures slider-required, slider-optional, slider-required-ja, slider-required-error, slider-required-disabled and slider-rtl. Unit: the label's row is as tall with the tag as without it; the tag is not in the accessibility tree while the control is exposed as required; the required and optional tags overlay the tag fixtures small-filled and small-tonal pixel for pixel under every shipped system, at rest and with error true, and with disabled true the tag fixtures small-filled-disabled and small-tonal-disabled; with comp.tag.container.shape and comp.tag.tonal.container.color set for the page the requirement tags change as every other small tag there does; the requirement tag's element carries no token of its own, and no token of comp.field names a tag's fill, lettering, text style, padding or corner."
     },
     {
       "id": "FLD-6",
-      "text": "WHILE requirement is required and the label is drawn THE field SHALL draw the required mark that requiredMark names — tag (FLD-5), asterisk or none — and WHILE requiredMark is auto, the one comp.field.requirement.mark names: that token follows sys.behavior.requirement-mark, the design system's one answer for every field and every set of controls, unless a layer gives comp.field.requirement.mark a value of its own. As asterisk it SHALL draw the character \"*\" after the label's text, comp.field.requirement.asterisk-gap from it, in the label's text style, in comp.field.standard.required-asterisk.color (comp.field.standard.error.required-asterisk.color WHILE error is true), and SHALL keep it from assistive technology, because the required state already says it; as none it SHALL draw no mark and still expose the required state. WHILE the label is not drawn THE field SHALL draw no mark, and SHALL still expose the required state and the optional description.",
+      "text": "WHILE required is true and the label is drawn THE field SHALL draw the required mark that requiredMark names — tag (FLD-5), asterisk or none — and WHILE requiredMark is auto, the one comp.field.requirement.mark names: that token follows sys.behavior.requirement-mark, the design system's one answer for every field and every set of controls, unless a layer gives comp.field.requirement.mark a value of its own. As asterisk it SHALL draw the character \"*\" after the label's text, comp.field.requirement.asterisk-gap from it, in the label's text style, in comp.field.standard.required-asterisk.color (comp.field.standard.error.required-asterisk.color WHILE error is true), and SHALL keep it from assistive technology, because the required state already says it; as none it SHALL draw no mark and still expose the required state. WHILE the label is not drawn THE field SHALL draw no mark, and SHALL still expose the required state and the optional description.",
       "verify": "Fixture slider-required-asterisk. Under the default system the mark is tag. Unit: with sys.behavior.requirement-mark set to asterisk and to none a field under auto follows it; with comp.field.requirement.mark set against the system's choice the field's token wins; requiredMark tag, asterisk and none each win over both; requiredMark chip is an unknown value (FLD-22)."
     },
     {
@@ -947,12 +942,12 @@
     },
     {
       "id": "FLD-10",
-      "text": "THE field SHALL make label the accessible name of its control, whether or not the label is drawn (labelHidden), WHERE the control has no accessible name of its own; a control that names itself (a checkbox or a switch with its own label, a control the product named) SHALL keep that name, and WHERE such a control stands under a drawn label THE field SHALL in debug builds report that the control has two labels. WHILE label is empty and the control has no name of its own THE field SHALL still render and in debug builds report that the control has no accessible name. WHILE requirement is required THE field SHALL expose the control as required, whichever mark is drawn and where none is.",
+      "text": "THE field SHALL make label the accessible name of its control, whether or not the label is drawn (labelHidden), WHERE the control has no accessible name of its own; a control that names itself (a checkbox or a switch with its own label, a control the product named) SHALL keep that name, and WHERE such a control stands under a drawn label THE field SHALL in debug builds report that the control has two labels. WHILE label is empty and the control has no name of its own THE field SHALL still render and in debug builds report that the control has no accessible name. WHILE required is true THE field SHALL expose the control as required, whichever mark is drawn and where none is.",
       "verify": "Unit: the accessible name of a slider in a field is the field's label with labelHidden false and true; a checkbox with its own label in a field with an empty label keeps its name and nothing is reported."
     },
     {
       "id": "FLD-11",
-      "text": "THE field SHALL make these the description of its control, in this order, after any description the control has of its own and whether or not the label is drawn: supportingText, WHILE the row draws it (FLD-7); the error text WHILE the field is in error (FLD-31); optionalText WHILE requirement is optional — the order in which a field group describes its set (FGR-11). The description SHALL say what the row draws: WHERE comp.field.error-text.placement is replace, the error text in the help's place WHILE the field is in error; WHERE it is append, the help and then the error text. WHEN one of these texts comes, goes or changes THE field SHALL expose the new description at once. The label glyph, the required tag and the asterisk SHALL NOT be exposed."
+      "text": "THE field SHALL make these the description of its control, in this order, after any description the control has of its own and whether or not the label is drawn: supportingText, WHILE the row draws it (FLD-7); the error text WHILE the field is in error (FLD-31); optionalText WHILE optional is true — the order in which a field group describes its set (FGR-11). The description SHALL say what the row draws: WHERE comp.field.error-text.placement is replace, the error text in the help's place WHILE the field is in error; WHERE it is append, the help and then the error text. WHEN one of these texts comes, goes or changes THE field SHALL expose the new description at once. The label glyph, the required tag and the asterisk SHALL NOT be exposed."
     },
     {
       "id": "FLD-12",
@@ -1000,7 +995,7 @@
     },
     {
       "id": "FLD-22",
-      "text": "WHEN requirement names a value the field does not know THE field SHALL behave as none, WHEN requiredMark names a value it does not know THE field SHALL behave as auto, and in debug builds THE field SHALL report the unknown value."
+      "text": "WHEN requiredMark names a value the field does not know THE field SHALL behave as auto, and in debug builds THE field SHALL report the unknown value."
     },
     {
       "id": "FLD-23",
@@ -1008,13 +1003,13 @@
     },
     {
       "id": "FLD-24",
-      "text": "THE field SHALL have no words of its own: it SHALL take requiredText and optionalText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives requiredText WHILE requirement is required and the required mark is tag THE field SHALL draw the asterisk of FLD-6 in the tag's place, so that the requirement is still shown without a word, SHALL keep the required state on its control (FLD-10), and in debug builds SHALL report the missing words once. IF neither gives optionalText WHILE requirement is optional THE field SHALL draw no tag, SHALL add nothing to the description for it, and in debug builds SHALL report the missing words once.",
-      "verify": "Unit, with no product's words set: requirement required and no requiredText draws the asterisk and no tag, and the report names requiredText; requirement optional and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+      "text": "THE field SHALL have no words of its own: it SHALL take requiredText and optionalText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives requiredText WHILE required is true and the required mark is tag THE field SHALL draw the asterisk of FLD-6 in the tag's place, so that the requirement is still shown without a word, SHALL keep the required state on its control (FLD-10), and in debug builds SHALL report the missing words once. IF neither gives optionalText WHILE optional is true THE field SHALL draw no tag, SHALL add nothing to the description for it, and in debug builds SHALL report the missing words once.",
+      "verify": "Unit, with no product's words set: required true and no requiredText draws the asterisk and no tag, and the report names requiredText; optional true and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
     },
     {
       "id": "FLD-25",
-      "text": "WHILE its control draws the label itself — a control whose look floats its name inside its own box (for one, a text input of the filled or the outlined look, TXI-13) — THE field SHALL draw no label row, no gap below it, no label glyph and no requirement tag, as WHILE labelHidden is true (FLD-2), and SHALL still give the control label as its accessible name (FLD-10). With the name it SHALL give the control three things to draw the label by: whether labelHidden is true, so that the control draws none either; and the required mark, as an asterisk WHILE requirement is required and the mark FLD-6 names is tag or asterisk, and as none otherwise; and optionalText WHILE requirement is optional, because a person who sees the asterisk on the required fields of a form must also see which ones may be left out, and the optional tag of the label row has no room in a label that floats. The control draws both after the label's text, from its own tokens (for a text input, TXI-50). THE field SHALL keep its supporting row, its error condition, and the description and the states it gives (FLD-7 to FLD-11, FLD-14) unchanged. A press on a label the control draws is a press on the control, and the control's to answer (for a text input, TXI-8): FLD-12 speaks of the row the field draws. WHILE requirement is optional THE field SHALL keep optionalText in the description as well (FLD-11); WHILE the label-icon slot holds a glyph it SHALL report it as FLD-3 says. WHEN the control starts or stops drawing the label THE field SHALL leave out or draw its label row at once, without motion.",
-      "verify": "Fixtures text-outlined-empty, text-filled-filled, text-outlined-required and text-outlined-label-hidden. Unit: a Field around a text input whose variant changes from stacked to outlined loses its label row and keeps the input's accessible name; requiredMark tag gives the input an asterisk; requirement optional gives it optionalText, which it draws after its floating label."
+      "text": "WHILE its control draws the label itself — a control whose look floats its name inside its own box (for one, a text input of the filled or the outlined look, TXI-13) — THE field SHALL draw no label row, no gap below it, no label glyph and no requirement tag, as WHILE labelHidden is true (FLD-2), and SHALL still give the control label as its accessible name (FLD-10). With the name it SHALL give the control three things to draw the label by: whether labelHidden is true, so that the control draws none either; and the required mark, as an asterisk WHILE required is true and the mark FLD-6 names is tag or asterisk, and as none otherwise; and optionalText WHILE optional is true, because a person who sees the asterisk on the required fields of a form must also see which ones may be left out, and the optional tag of the label row has no room in a label that floats. The control draws both after the label's text, from its own tokens (for a text input, TXI-50). THE field SHALL keep its supporting row, its error condition, and the description and the states it gives (FLD-7 to FLD-11, FLD-14) unchanged. A press on a label the control draws is a press on the control, and the control's to answer (for a text input, TXI-8): FLD-12 speaks of the row the field draws. WHILE optional is true THE field SHALL keep optionalText in the description as well (FLD-11); WHILE the label-icon slot holds a glyph it SHALL report it as FLD-3 says. WHEN the control starts or stops drawing the label THE field SHALL leave out or draw its label row at once, without motion.",
+      "verify": "Fixtures text-outlined-empty, text-filled-filled, text-outlined-required and text-outlined-label-hidden. Unit: a Field around a text input whose variant changes from stacked to outlined loses its label row and keeps the input's accessible name; requiredMark tag gives the input an asterisk; optional true gives it optionalText, which it draws after its floating label."
     },
     {
       "id": "FLD-26",
@@ -1048,13 +1043,13 @@
     },
     {
       "id": "FLD-32",
-      "text": "WHILE required is true THE field SHALL behave in every respect as WHILE requirement is required, whatever requirement names: every sentence that holds WHILE requirement is required — this field's, and those of each component built from a field — SHALL hold, and WHILE required is false requirement alone SHALL say what the form asks."
+      "text": "IF required and optional are both true THEN THE field SHALL behave as WHILE required alone is true — it draws the required mark and no optional tag, and says no optionalText — and in debug builds SHALL report that optional is ignored, because a control is never both required and optional."
     }
   ],
   "accessibility": {
     "role": "none",
     "keyboard": [],
-    "labeling": "The field has no role of its own: it is a frame, and assistive technology meets the control. label is the control's accessible name, drawn or not (labelHidden), unless the control names itself. The control's description is what the supporting row draws — the help (supportingText) and, while the field is in error, the error text in its place or after it (FLD-11) — then optionalText while requirement is optional. The control is exposed as invalid while error is true, as required while requirement is required — whichever mark is drawn, and the mark itself is hidden — and as disabled while disabled is true. The label glyph is decorative.",
+    "labeling": "The field has no role of its own: it is a frame, and assistive technology meets the control. label is the control's accessible name, drawn or not (labelHidden), unless the control names itself. The control's description is what the supporting row draws — the help (supportingText) and, while the field is in error, the error text in its place or after it (FLD-11) — then optionalText while optional is true. The control is exposed as invalid while error is true, as required while required is true — whichever mark is drawn, and the mark itself is hidden — and as disabled while disabled is true. The label glyph is decorative.",
     "minimumTarget": true,
     "notes": [
       "Not interactive by itself: the field takes no focus and adds no key (FLD-12), so it has no target of its own to size and minimumTarget holds through its control, whose own spec sizes its hit area. A press on the label moves focus to the control and never operates it; the label therefore widens where a pointer can land without widening what a press does.",
@@ -1108,7 +1103,7 @@
       "id": "slider-required",
       "props": {
         "label": "Volume",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "valueText": "40"
       },
@@ -1125,7 +1120,7 @@
       "id": "slider-optional",
       "props": {
         "label": "Volume",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional",
         "valueText": "40"
       },
@@ -1142,7 +1137,7 @@
       "id": "slider-required-asterisk",
       "props": {
         "label": "Volume",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "valueText": "40"
       },
@@ -1177,7 +1172,7 @@
       "id": "slider-required-error",
       "props": {
         "label": "Volume",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a level above 0.",
         "requiredText": "Required",
@@ -1230,7 +1225,7 @@
       "id": "slider-required-disabled",
       "props": {
         "label": "Volume",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -1281,7 +1276,7 @@
       "id": "slider-required-label-icon",
       "props": {
         "label": "Volume",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "slots": {
@@ -1315,7 +1310,7 @@
       "id": "switch-optional",
       "props": {
         "label": "Notifications",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -1361,7 +1356,7 @@
       "id": "long-label",
       "props": {
         "label": "How loud alerts, calls and media are played when this device is connected to a speaker, a car or a pair of headphones that reports its own level",
-        "requirement": "required",
+        "required": true,
         "supportingText": "A level the connected device cannot play is lowered to the nearest one it can, and the change is shown here the next time the device connects.",
         "requiredText": "Required",
         "valueText": "40"
@@ -1379,7 +1374,7 @@
       "id": "slider-required-ja",
       "props": {
         "label": "音量",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "supportingText": "通知とメディアに適用されます。",
         "valueText": "40"
@@ -1397,7 +1392,7 @@
       "id": "slider-optional-ja",
       "props": {
         "label": "音量",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "items": [
@@ -1413,7 +1408,7 @@
       "id": "slider-error-ja",
       "props": {
         "label": "音量",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "error": true,
         "errorText": "0 より大きい値を選んでください。",
@@ -1433,7 +1428,7 @@
       "direction": "rtl",
       "props": {
         "label": "مستوى الصوت",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "ينطبق على التنبيهات والوسائط.",
         "valueText": "40"
@@ -1455,7 +1450,7 @@
       "direction": "rtl",
       "props": {
         "label": "עוצמת קול",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "רשות",
         "error": true,
         "errorText": "יש לבחור רמה מעל 0.",
@@ -1542,7 +1537,7 @@
       "direction": "rtl",
       "props": {
         "label": "رمز التحقق",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك."
       },
@@ -1560,7 +1555,7 @@
       "id": "file-upload-required-error",
       "props": {
         "label": "Attachment",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a PDF of 10 MB or less.",
         "requiredText": "Required"
@@ -1579,7 +1574,7 @@
       "id": "file-picker-required-error",
       "props": {
         "label": "Attachment",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a PDF of 10 MB or less.",
         "requiredText": "Required"
@@ -2653,7 +2648,7 @@
       "id": "text-stacked-required",
       "props": {
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -2669,7 +2664,7 @@
       "id": "text-stacked-optional",
       "props": {
         "label": "Company",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -2685,7 +2680,7 @@
       "id": "text-stacked-required-asterisk",
       "props": {
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -2701,7 +2696,7 @@
       "id": "text-stacked-required-ja",
       "props": {
         "label": "氏名",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -2718,7 +2713,7 @@
       "id": "text-stacked-optional-ja",
       "props": {
         "label": "会社名",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "items": [
@@ -2734,7 +2729,7 @@
       "id": "text-stacked-required-label-icon",
       "props": {
         "label": "Display name",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "slots": {
@@ -2754,7 +2749,7 @@
       "id": "text-stacked-required-error",
       "props": {
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Enter your email address.",
         "requiredText": "Required"
@@ -2772,7 +2767,7 @@
       "id": "text-stacked-required-disabled",
       "props": {
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -2791,7 +2786,7 @@
       "direction": "rtl",
       "props": {
         "label": "אימייל",
-        "requirement": "required",
+        "required": true,
         "requiredText": "חובה"
       },
       "items": [
@@ -2807,7 +2802,7 @@
       "id": "text-outlined-required",
       "props": {
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -2823,7 +2818,7 @@
       "id": "text-outlined-optional",
       "props": {
         "label": "Company",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -3187,7 +3182,7 @@
       "direction": "rtl",
       "props": {
         "label": "الطبقة",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "الصق ملف الطبقة هنا.",
         "countText": "41/200"
@@ -3802,7 +3797,7 @@
       "id": "number-stacked-required",
       "props": {
         "label": "Quantity",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -3820,7 +3815,7 @@
       "id": "number-stacked-optional",
       "props": {
         "label": "Quantity",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -3838,7 +3833,7 @@
       "id": "number-stacked-required-asterisk",
       "props": {
         "label": "Quantity",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -3856,7 +3851,7 @@
       "id": "number-stacked-required-error",
       "props": {
         "label": "Quantity",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Enter how many you need.",
         "requiredText": "Required"
@@ -3876,7 +3871,7 @@
       "id": "number-stacked-required-disabled",
       "props": {
         "label": "Quantity",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -3896,7 +3891,7 @@
       "id": "number-stacked-required-label-icon",
       "props": {
         "label": "Duration",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "slots": {
@@ -3919,7 +3914,7 @@
       "id": "number-stacked-required-ja",
       "props": {
         "label": "数量",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -3939,7 +3934,7 @@
       "id": "number-stacked-optional-ja",
       "props": {
         "label": "数量",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意",
         "supportingText": "1 回の注文で 99 個まで。"
       },
@@ -3998,7 +3993,7 @@
       "direction": "rtl",
       "props": {
         "label": "الكمية",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "حتى 99 لكل طلب."
       },
@@ -4041,7 +4036,7 @@
       "direction": "rtl",
       "props": {
         "label": "כמות",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "רשות",
         "error": true,
         "errorText": "יש להזמין לפחות 1."
@@ -4062,7 +4057,7 @@
       "id": "number-long-label",
       "props": {
         "label": "How many copies of the printed annual report should we send to the address you gave above",
-        "requirement": "required",
+        "required": true,
         "supportingText": "Each copy is 180 pages; orders of more than ten copies are sent in several parcels over the following week.",
         "requiredText": "Required"
       },
@@ -4299,7 +4294,7 @@
       "id": "number-outlined-required",
       "props": {
         "label": "Quantity",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -4547,7 +4542,7 @@
       "id": "color-stacked-required",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -4563,7 +4558,7 @@
       "id": "color-stacked-optional",
       "props": {
         "label": "Accent color",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -4577,7 +4572,7 @@
       "id": "color-stacked-required-asterisk",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -4593,7 +4588,7 @@
       "id": "color-stacked-required-label-icon",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "slots": {
@@ -4612,7 +4607,7 @@
       "id": "color-stacked-required-error",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a brand color.",
         "requiredText": "Required"
@@ -4628,7 +4623,7 @@
       "id": "color-stacked-required-disabled",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -4645,7 +4640,7 @@
       "id": "color-stacked-required-ja",
       "props": {
         "label": "ブランドカラー",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -4663,7 +4658,7 @@
       "id": "color-stacked-optional-ja",
       "props": {
         "label": "アクセントカラー",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意",
         "supportingText": "# と 6 桁の 16 進数で入力します。"
       },
@@ -4678,7 +4673,7 @@
       "id": "color-stacked-required-rtl",
       "props": {
         "label": "لون العلامة",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب"
       },
       "direction": "rtl",
@@ -4733,7 +4728,7 @@
       "id": "color-long-label",
       "props": {
         "label": "The color of the primary buttons, the links and the selected items of the public site and of every message the product sends, in the light theme",
-        "requirement": "required",
+        "required": true,
         "supportingText": "Six hexadecimal digits after a number sign, like #0f766e. It is checked against white text and against the page background before it is saved, and a color that fails either check is refused with the reason.",
         "requiredText": "Required"
       },
@@ -4924,7 +4919,7 @@
       "id": "color-outlined-required",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -6357,7 +6352,7 @@
       "id": "select-stacked-required",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -6408,7 +6403,7 @@
       "id": "select-stacked-optional",
       "props": {
         "label": "Country",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -6461,7 +6456,7 @@
       "id": "select-stacked-required-asterisk",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -6512,7 +6507,7 @@
       "id": "select-stacked-required-disabled",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -6566,7 +6561,7 @@
       "id": "select-stacked-required-error",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a country.",
         "requiredText": "Required"
@@ -6619,7 +6614,7 @@
       "id": "select-stacked-required-ja",
       "props": {
         "label": "国",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -6658,7 +6653,7 @@
       "id": "select-stacked-optional-ja",
       "props": {
         "label": "国",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "items": [
@@ -6697,7 +6692,7 @@
       "id": "select-outlined-required",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -7786,7 +7781,7 @@
       "direction": "rtl",
       "props": {
         "label": "المنطقة الزمنية",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "تُعرض المواعيد بهذا التوقيت."
       },
@@ -8716,7 +8711,7 @@
       "id": "combobox-stacked-required",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -8767,7 +8762,7 @@
       "id": "combobox-stacked-optional",
       "props": {
         "label": "City",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -8818,7 +8813,7 @@
       "id": "combobox-stacked-required-asterisk",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -8869,7 +8864,7 @@
       "id": "combobox-stacked-required-error",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose the city you are sending to.",
         "requiredText": "Required"
@@ -8922,7 +8917,7 @@
       "id": "combobox-stacked-required-disabled",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -10109,7 +10104,7 @@
       "id": "combobox-long-label",
       "props": {
         "label": "Which of the cities we deliver to is nearest to the place where you will collect the parcel",
-        "requirement": "required",
+        "required": true,
         "supportingText": "If none of them is near enough, leave this empty and write to us: we open new routes when several people ask for the same one.",
         "requiredText": "Required"
       },
@@ -10161,7 +10156,7 @@
       "id": "combobox-stacked-required-ja",
       "props": {
         "label": "都市",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -10200,7 +10195,7 @@
       "id": "combobox-open-filtered-ja",
       "props": {
         "label": "都市",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "items": [
@@ -10242,7 +10237,7 @@
       "direction": "rtl",
       "props": {
         "label": "المدينة",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "إلى أين نرسل الطلب."
       },
@@ -10369,7 +10364,7 @@
       "direction": "rtl",
       "props": {
         "label": "עיר",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "רשות",
         "error": true,
         "errorText": "יש לבחור עיר מהרשימה."
@@ -11031,7 +11026,7 @@
       "id": "combobox-outlined-required",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -11216,7 +11211,7 @@
       "id": "entries-email-required",
       "props": {
         "label": "Recipients",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -11236,7 +11231,7 @@
       "id": "entries-email-required-empty-error",
       "props": {
         "label": "Recipients",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "error": true,
         "errorText": "Add at least one address."
@@ -11254,7 +11249,7 @@
       "id": "entries-email-optional",
       "props": {
         "label": "Cc",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -11604,7 +11599,7 @@
       "id": "entries-keywords-ja",
       "props": {
         "label": "キーワード",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "supportingText": "キーワードごとに Enter を押してください。"
       },
@@ -11782,8 +11777,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -11963,8 +11958,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12125,7 +12120,7 @@
           }
         }
       },
-      "notes": "`TanreiField(\"Volume\", supportingText:, errorText:, error:, requirement:) { TanreiSlider(value: $volume) }`, the glyph given by name through `labelIcon:`. `labelHidden` follows the `.labelsHidden()` environment and `disabled` follows `.disabled(_:)`, which also disables the content. The content is one view; the field sets `.accessibilityLabel`, `.accessibilityHint` (the description) and the invalid and required values on it, and offers the same values in the environment (`\\.tanreiField`) for a control the product built. The product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet: the supporting row is a `VStack` of the help and, in error, the error text — in the help's place, or `comp.field.error-text.gap` below it, as `comp.field.error-text.placement` names (FLD-7); the hint is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
+      "notes": "`TanreiField(\"Volume\", supportingText:, errorText:, error:, required:, optional:) { TanreiSlider(value: $volume) }`, the glyph given by name through `labelIcon:`. `labelHidden` follows the `.labelsHidden()` environment and `disabled` follows `.disabled(_:)`, which also disables the content. The content is one view; the field sets `.accessibilityLabel`, `.accessibilityHint` (the description) and the invalid and required values on it, and offers the same values in the environment (`\\.tanreiField`) for a control the product built. The product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet: the supporting row is a `VStack` of the help and, in error, the error text — in the help's place, or `comp.field.error-text.gap` below it, as `comp.field.error-text.placement` names (FLD-7); the hint is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
     },
     "compose": {
       "status": "planned",
@@ -12137,8 +12132,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12299,7 +12294,7 @@
           }
         }
       },
-      "notes": "`TanreiField(label = \"Volume\", supportingText = …, isError = …, requirement = …) { TanreiSlider(…) }`, the glyph given by name through `labelIcon`. `enabled` is the inverse flag and is offered to the content through `LocalTanreiFieldState`, with the name, the description and `isError`; Tanrei controls read it, and a control the product built reads the same composition local. The field adds `contentDescription`, `stateDescription` and `error(…)` to the merged semantics of its content. The product's words are read from `LocalTanreiWords`. Not built on this platform yet: the supporting row is a `Column` of the help and, in error, the error text — in the help's place, or `comp.field.error-text.gap` below it, as `comp.field.error-text.placement` names (FLD-7); the description offered through `LocalTanreiFieldState` is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
+      "notes": "`TanreiField(label = \"Volume\", supportingText = …, isError = …, required = …, optional = …) { TanreiSlider(…) }`, the glyph given by name through `labelIcon`. `enabled` is the inverse flag and is offered to the content through `LocalTanreiFieldState`, with the name, the description and `isError`; Tanrei controls read it, and a control the product built reads the same composition local. The field adds `contentDescription`, `stateDescription` and `error(…)` to the merged semantics of its content. The product's words are read from `LocalTanreiWords`. Not built on this platform yet: the supporting row is a `Column` of the help and, in error, the error text — in the help's place, or `comp.field.error-text.gap` below it, as `comp.field.error-text.placement` names (FLD-7); the description offered through `LocalTanreiFieldState` is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
     },
     "flutter": {
       "status": "planned",
@@ -12311,8 +12306,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12473,7 +12468,7 @@
           }
         }
       },
-      "notes": "`TanreiField(labelText: 'Volume', helperText: …, errorText: …, isError: …, requirement: …, child: TanreiSlider(…))`, the glyph given by name through `labelIcon`. `enabled` is the inverse flag. The names follow `InputDecoration`, as the text field's do. The field wraps its child in a `Semantics(label:, hint:, enabled:)` node and an inherited `TanreiFieldScope` that Tanrei controls and the product's own read. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet: `errorText` takes the helper's place, as `InputDecoration`'s does, under `comp.field.error-text.placement` replace, and is drawn below `helperText`, which stays, `comp.field.error-text.gap` away, under append (FLD-7); the `Semantics` hint is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
+      "notes": "`TanreiField(labelText: 'Volume', helperText: …, errorText: …, isError: …, required: …, optional: …, child: TanreiSlider(…))`, the glyph given by name through `labelIcon`. `enabled` is the inverse flag. The names follow `InputDecoration`, as the text field's do. The field wraps its child in a `Semantics(label:, hint:, enabled:)` node and an inherited `TanreiFieldScope` that Tanrei controls and the product's own read. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet: `errorText` takes the helper's place, as `InputDecoration`'s does, under `comp.field.error-text.placement` replace, and is drawn below `helperText`, which stays, `comp.field.error-text.gap` away, under append (FLD-7); the `Semantics` hint is what the row draws, then the optional text (FLD-11, FLD-31). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field's set on it (FLD-5); generated tokens with none of the field's values for it and with the system's choice of mark, which the field's own token follows (FLD-6); the first mark named tag."
     },
     "react-native": {
       "status": "planned",
@@ -12485,8 +12480,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

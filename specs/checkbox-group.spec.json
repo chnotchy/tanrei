@@ -79,13 +79,13 @@
       "note": "The value is kept, and on the web it is not submitted (CKG-6, CKG-8)."
     },
     {
-      "name": "requirement",
-      "from": "field-group.requirement",
-      "note": "required means at least one checkbox checked: on the web an empty list is reported to the form's own validation (CKG-8)."
+      "name": "required",
+      "from": "field-group.required",
+      "note": "means at least one checkbox checked: on the web an empty list is reported to the form's own validation (CKG-8)."
     },
     {
-      "name": "required",
-      "from": "field-group.required"
+      "name": "optional",
+      "from": "field-group.optional"
     },
     {
       "name": "requiredMark",
@@ -151,7 +151,7 @@
   "behavior": [
     {
       "id": "CKG-1",
-      "text": "THE checkbox group SHALL be a field group whose spacing is controls, around its checkboxes: the field group itself, with the field group's own tokens, measures and sentences, and no copy of it — its rows, their order and their gaps (FGR-1), the label (FGR-2), the requirement, its mark and its words (FGR-4, FGR-5, FGR-6, FGR-24), the description, which stays while the group is in error (FGR-7), the error text (FGR-8), the column and the row that wraps (FGR-3, FGR-13), the disabled frame (FGR-14) and what an unknown value of requirement, requiredMark or orientation does (FGR-22), each from the prop of the same name, which is the field group's. It SHALL have no look and no token of its own: it SHALL draw no container, edge, fill or elevation, SHALL add no padding around its rows and no distance between its checkboxes but the field group's, and SHALL leave each checkbox drawn from the checkbox's own tokens at the checkbox's own size (CHK-4, CHK-12, CHK-15).",
+      "text": "THE checkbox group SHALL be a field group whose spacing is controls, around its checkboxes: the field group itself, with the field group's own tokens, measures and sentences, and no copy of it — its rows, their order and their gaps (FGR-1), the label (FGR-2), the requirement, its mark and its words (FGR-4, FGR-5, FGR-6, FGR-24), the description, which stays while the group is in error (FGR-7), the error text (FGR-8), the column and the row that wraps (FGR-3, FGR-13), the disabled frame (FGR-14) and what an unknown value of required, optional, requiredMark or orientation does (FGR-22), each from the prop of the same name, which is the field group's. It SHALL have no look and no token of its own: it SHALL draw no container, edge, fill or elevation, SHALL add no padding around its rows and no distance between its checkboxes but the field group's, and SHALL leave each checkbox drawn from the checkbox's own tokens at the checkbox's own size (CHK-4, CHK-12, CHK-15).",
       "verify": "Each fixture laid over its twin — the field group's fixture it names as its twin: the same label, requirement, description and error around checkboxes with the same labels, checked by hand — is the same picture, pixel for pixel; a difference is a finding. Under the default system: a one-line label (20), 4, one line of description (16), 8, the checkboxes with their containers 8 apart, 4, one line of error text (16)."
     },
     {
@@ -180,18 +180,18 @@
     },
     {
       "id": "CKG-7",
-      "text": "THE checkbox group SHALL take from requirement what the form asks of the set, as a field group does (FGR-4): required means that the list holds at least one entry. It SHALL NOT set the error condition itself because the list is empty or for any other reason, and SHALL know no least and no greatest number of choices: error and errorText are the product's to set from value. WHILE error is true THE checkbox group SHALL be a field group in error (FGR-8): errorText below the last checkbox, and every checkbox it holds, the select-all checkbox among them, in the checkbox's own error condition (CHK-4), exposed as invalid and described by errorText (FGR-10, FGR-11); the announcement of an error that appears under the person's focus is the field group's (FGR-9). WHILE error is false THE checkbox group SHALL leave to one checkbox the error condition the product gave that one alone (FGR-8), and SHALL have no message for one checkbox: the words are the set's. A change of value SHALL NOT clear error.",
+      "text": "THE checkbox group SHALL take from required and optional what the form asks of the set, as a field group does (FGR-4): required means that the list holds at least one entry.",
       "verify": "Fixtures required-error (no checkbox checked, every box in its error form) and error-selected (the checked box in its error form too, the description still there). Unit: checking a checkbox while error is true leaves error true."
     },
     {
       "id": "CKG-8",
-      "text": "WHERE the platform has forms that submit named values (the web) THE checkbox group SHALL take part in its form as one control: WHILE it is not disabled it SHALL submit one entry under its own name for each entry of value, in the list's order, and nothing WHILE the list is empty — what checkboxes of one name submit by themselves, so that whatever receives the form reads the same list from either; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE requirement is required and the list is empty, in the product's words, because the platform has a message for one unchecked checkbox and none for a set; and its checkboxes, the select-all checkbox among them, SHALL submit nothing of their own, whatever name they carry (CHK-23), so that no entry is submitted twice. A checkbox the product disabled itself SHALL still have its entry submitted WHILE the list holds it, because the value is the group's and that checkbox's disabled says only that the person cannot switch it. WHERE the platform has no such forms value and change are the whole of it.",
+      "text": "WHERE the platform has forms that submit named values (the web) THE checkbox group SHALL take part in its form as one control: WHILE it is not disabled it SHALL submit one entry under its own name for each entry of value, in the list's order, and nothing WHILE the list is empty — what checkboxes of one name submit by themselves, so that whatever receives the form reads the same list from either; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE required is true and the list is empty, in the product's words, because the platform has a message for one unchecked checkbox and none for a set; and its checkboxes, the select-all checkbox among them, SHALL submit nothing of their own, whatever name they carry (CHK-23), so that no entry is submitted twice. A checkbox the product disabled itself SHALL still have its entry submitted WHILE the list holds it, because the value is the group's and that checkbox's disabled says only that the person cannot switch it. WHERE the platform has no such forms value and change are the whole of it.",
       "verify": "Web: FormData of a form holding a group named notify with two checked checkboxes has two entries under notify, in the order of the checkboxes, and none under a checkbox's own name; reset restores the first list; a required group with an empty list makes the form's checkValidity false, and the message is the group's errorText where it has one."
     },
     {
       "id": "CKG-9",
-      "text": "THE checkbox group SHALL be exposed to assistive technology as the field group it is, and SHALL add nothing to it: one group that contains its checkboxes, named by label whether or not the label is drawn (FGR-10); described by supportingText, errorText WHILE error is true, requiredText WHILE requirement is required and optionalText WHILE it is optional (FGR-11); and disabled WHILE disabled is true (FGR-14). A group has neither a required nor an invalid state, so the requirement is said in the product's words and each checkbox says invalid for itself. Each checkbox SHALL expose its own role, its name and its checked state (CHK-14), and the select-all checkbox its mixed state WHILE it is indeterminate. THE checkbox group SHALL NOT expose a second group around the first, SHALL give its checkboxes no position in a set, and SHALL NOT say how many are checked: a product that wants the count said writes it in supportingText.",
-      "verify": "Unit: exactly one group in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose neither state on the group, the invalid state on each checkbox and requiredText in the group's description; no checkbox has a position or a set size."
+      "text": "THE checkbox group SHALL be exposed to assistive technology as the field group it is, and SHALL add nothing to it: one group that contains its checkboxes, named by label whether or not the label is drawn (FGR-10); described by supportingText, errorText WHILE error is true, requiredText WHILE required is true and optionalText WHILE optional is true (FGR-11); and disabled WHILE disabled is true (FGR-14). A group has neither a required nor an invalid state, so the requirement is said in the product's words and each checkbox says invalid for itself. Each checkbox SHALL expose its own role, its name and its checked state (CHK-14), and the select-all checkbox its mixed state WHILE it is indeterminate. THE checkbox group SHALL NOT expose a second group around the first, SHALL give its checkboxes no position in a set, and SHALL NOT say how many are checked: a product that wants the count said writes it in supportingText.",
+      "verify": "Unit: exactly one group in the accessibility tree, named by label with labelHidden false and true; required true and error true expose neither state on the group, the invalid state on each checkbox and requiredText in the group's description; no checkbox has a position or a set size."
     },
     {
       "id": "CKG-10",
@@ -359,7 +359,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "value": [
           "email"
@@ -393,7 +393,7 @@
       "id": "optional",
       "props": {
         "label": "Notify me by",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -424,7 +424,7 @@
       "id": "required-asterisk",
       "props": {
         "label": "Notify me by",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "requiredText": "Required",
         "value": [
@@ -460,7 +460,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose at least one way to reach you.",
         "requiredText": "Required"
@@ -614,7 +614,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required",
         "value": [
@@ -682,7 +682,7 @@
       "id": "long-label",
       "props": {
         "label": "Which of these ways may we use to reach you when a delivery is late, damaged or returned to the depot before you have seen it",
-        "requirement": "required",
+        "required": true,
         "supportingText": "Choose all that apply. We use the first one that answers, and we never use a way you have not chosen here, whatever the reason.",
         "error": true,
         "errorText": "Choose at least one way to reach you, or tell us below that you do not want to be reached about deliveries at all.",
@@ -717,7 +717,7 @@
       "props": {
         "label": "連絡方法",
         "supportingText": "当てはまるものをすべて選んでください。",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "value": [
           "email"
@@ -753,7 +753,7 @@
       "props": {
         "label": "طرق الإشعار",
         "supportingText": "اختر كل ما ينطبق.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "value": [
           "email"
@@ -856,7 +856,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "value": [
           "text"
@@ -1034,8 +1034,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1056,7 +1056,7 @@
           "notes": "A `tanrei-checkbox` child: inside a `tanrei-checkbox-group` it takes its `checked` from the group's value and its own `value` attribute, submits nothing itself and fires no `input` or `change` of its own (CHK-23). A child with no `value` attribute has no value: the `on` a bare checkbox submits by default is not read inside a group."
         }
       },
-      "notes": "`<tanrei-checkbox-group label=\"Notify me by\" name=\"notify\"><tanrei-checkbox value=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-checkbox-group>`; class `TanreiCheckboxGroup`; in `@tanrei/react`, `CheckboxGroup` with `value` and `onChange`. Composed as every composed element on the web is (a custom element whose shadow root holds its members' own elements); what differs here: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group spacing=\"controls\">` — the member's own element, not drawing code shared with it — around, in this order, the select-all `<tanrei-checkbox part=\"select-all\">` while `select-all-label` is given, and a `<slot>`; the product's checkboxes stay in its light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. Name, description and states are the field group's own `fieldset` and `legend`, once: the host has no role. The field group gives `disabled`, the error condition and the error text to each checkbox by the `tanrei-field-connect` event it already answers — a slotted checkbox's event passes the field group on its composed path before it reaches the host, so the group forwards nothing. `value` is a property only, an array that is copied in and out; there is no `value` attribute, because the first value is written where HTML writes it, as `checked` on the children (CKG-3), and that is also what a reset returns to where the property was never set. A checkbox finds its group with `closest('tanrei-checkbox-group')` when it connects; the group's checkboxes are those among its descendants whose nearest checkbox group it is, found again when its child list changes. A checkbox inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is a copy of the list; a listener set on a checkbox inside a group hears nothing. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; it submits a `FormData` of one entry per value under `name` (`ElementInternals.setFormValue`), restores the list on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>`, and reports `valueMissing` while `requirement=\"required\"` and the list is empty, anchored on its first enabled checkbox, with the message `errorText`, else the required text (the instance's or the product's), else `label` — never a browser's sentence for one unchecked box. The host is not focusable and does not delegate focus; `focus()` moves to the first enabled checkbox. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native checkboxes of one `name`, which submits the same entries. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group, and `select-all-label` is the instance's alone."
+      "notes": "`<tanrei-checkbox-group label=\"Notify me by\" name=\"notify\"><tanrei-checkbox value=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-checkbox-group>`; class `TanreiCheckboxGroup`; in `@tanrei/react`, `CheckboxGroup` with `value` and `onChange`. Composed as every composed element on the web is (a custom element whose shadow root holds its members' own elements); what differs here: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group spacing=\"controls\">` — the member's own element, not drawing code shared with it — around, in this order, the select-all `<tanrei-checkbox part=\"select-all\">` while `select-all-label` is given, and a `<slot>`; the product's checkboxes stay in its light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. Name, description and states are the field group's own `fieldset` and `legend`, once: the host has no role. The field group gives `disabled`, the error condition and the error text to each checkbox by the `tanrei-field-connect` event it already answers — a slotted checkbox's event passes the field group on its composed path before it reaches the host, so the group forwards nothing. `value` is a property only, an array that is copied in and out; there is no `value` attribute, because the first value is written where HTML writes it, as `checked` on the children (CKG-3), and that is also what a reset returns to where the property was never set. A checkbox finds its group with `closest('tanrei-checkbox-group')` when it connects; the group's checkboxes are those among its descendants whose nearest checkbox group it is, found again when its child list changes. A checkbox inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is a copy of the list; a listener set on a checkbox inside a group hears nothing. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; it submits a `FormData` of one entry per value under `name` (`ElementInternals.setFormValue`), restores the list on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>`, and reports `valueMissing` while `required` and the list is empty, anchored on its first enabled checkbox, with the message `errorText`, else the required text (the instance's or the product's), else `label` — never a browser's sentence for one unchecked box. The host is not focusable and does not delegate focus; `focus()` moves to the first enabled checkbox. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native checkboxes of one `name`, which submits the same entries. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group, and `select-all-label` is the instance's alone."
     },
     "swiftui": {
       "status": "planned",
@@ -1069,8 +1069,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1090,7 +1090,7 @@
           }
         }
       },
-      "notes": "`TanreiCheckboxGroup(\"Notify me by\", selection: $channels, supportingText:, errorText:, error:, requirement:, orientation:, selectAllLabel:) { TanreiCheckbox(\"Email\", value: Channel.email) … }`, generic over a `Hashable` value: `selection` is a `Binding<Set<V>>`, and writing it is the change event; a set has no order to keep (CKG-4). The view is a `TanreiFieldGroup` around its content — the field group's own view, which reads `comp.field-group` from the environment, so one group is set apart with `.tanreiTheme(_:)` on it — and the checkboxes inside read and write the selection through the environment: `TanreiCheckbox(_:value:)` is the Checkbox with its `isOn` bound to membership. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The select-all checkbox is a `TanreiCheckbox` with `isIndeterminate`. No forms: CKG-8 does not apply. The product's words are read from the `\\.tanreiWords` environment value."
+      "notes": "`TanreiCheckboxGroup(\"Notify me by\", selection: $channels, supportingText:, errorText:, error:, required:, optional:, orientation:, selectAllLabel:) { TanreiCheckbox(\"Email\", value: Channel.email) … }`, generic over a `Hashable` value: `selection` is a `Binding<Set<V>>`, and writing it is the change event; a set has no order to keep (CKG-4). The view is a `TanreiFieldGroup` around its content — the field group's own view, which reads `comp.field-group` from the environment, so one group is set apart with `.tanreiTheme(_:)` on it — and the checkboxes inside read and write the selection through the environment: `TanreiCheckbox(_:value:)` is the Checkbox with its `isOn` bound to membership. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The select-all checkbox is a `TanreiCheckbox` with `isIndeterminate`. No forms: CKG-8 does not apply. The product's words are read from the `\\.tanreiWords` environment value."
     },
     "compose": {
       "status": "planned",
@@ -1103,8 +1103,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1124,7 +1124,7 @@
           }
         }
       },
-      "notes": "`TanreiCheckboxGroup(label = \"Notify me by\", values = channels, onValuesChange = { channels = it }, supportingText = …, isError = …, requirement = …, orientation = …, selectAllLabel = …) { TanreiCheckbox(value = \"email\", label = \"Email\") … }`: controlled, as Compose is — `values` is a `Set<T>`, the group calls `onValuesChange` and the caller moves it. The composable is a `TanreiFieldGroup` around its content, which runs in a `TanreiCheckboxGroupScope` whose `TanreiCheckbox(value, label)` is the Checkbox with `checked` and its click taken from the group; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is the `TanreiCheckbox(state: ToggleableState, onClick)` overload. No forms: CKG-8 does not apply. The product's words are read from `LocalTanreiWords`."
+      "notes": "`TanreiCheckboxGroup(label = \"Notify me by\", values = channels, onValuesChange = { channels = it }, supportingText = …, isError = …, required = …, optional = …, orientation = …, selectAllLabel = …) { TanreiCheckbox(value = \"email\", label = \"Email\") … }`: controlled, as Compose is — `values` is a `Set<T>`, the group calls `onValuesChange` and the caller moves it. The composable is a `TanreiFieldGroup` around its content, which runs in a `TanreiCheckboxGroupScope` whose `TanreiCheckbox(value, label)` is the Checkbox with `checked` and its click taken from the group; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is the `TanreiCheckbox(state: ToggleableState, onClick)` overload. No forms: CKG-8 does not apply. The product's words are read from `LocalTanreiWords`."
     },
     "flutter": {
       "status": "planned",
@@ -1137,8 +1137,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1159,7 +1159,7 @@
           "notes": "`TanreiCheckbox.value` is the checked state on this platform, so the entry a checkbox stands for has a name of its own: `TanreiCheckbox<T>.inGroup(entry:, label:, enabled:)` is the Checkbox itself, checked from the group and without `value` and `onChanged`."
         }
       },
-      "notes": "`TanreiCheckboxGroup<T>(values:, onChanged:, labelText: 'Notify me by', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, selectAllLabel: …, children: [TanreiCheckbox<T>.inGroup(entry:, label:), …])`: `values` is a `Set<T>`. The widget builds a `TanreiFieldGroup` around its children and an inherited scope that gives each checkbox its checked state and takes its change; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is a `TanreiCheckbox` with `tristate`. `FormField` integration is the product's: CKG-8 does not apply. The product's words are read from the `TanreiWords` inherited widget."
+      "notes": "`TanreiCheckboxGroup<T>(values:, onChanged:, labelText: 'Notify me by', helperText: …, errorText: …, isError: …, required: …, optional: …, orientation: …, selectAllLabel: …, children: [TanreiCheckbox<T>.inGroup(entry:, label:), …])`: `values` is a `Set<T>`. The widget builds a `TanreiFieldGroup` around its children and an inherited scope that gives each checkbox its checked state and takes its change; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is a `TanreiCheckbox` with `tristate`. `FormField` integration is the product's: CKG-8 does not apply. The product's words are read from the `TanreiWords` inherited widget."
     },
     "react-native": {
       "status": "planned",
@@ -1172,8 +1172,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

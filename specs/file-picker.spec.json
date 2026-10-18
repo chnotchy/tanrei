@@ -124,18 +124,7 @@
       "name": "required",
       "type": "boolean",
       "default": false,
-      "description": "Exposes the trigger as required, where the platform's button has such a state. A Field sets it from its requirement. It draws nothing — the mark beside the label is the Field's — and it validates nothing: the file picker has no value that could be missing."
-    },
-    {
-      "name": "requirement",
-      "type": "enum",
-      "values": [
-        "none",
-        "required",
-        "optional"
-      ],
-      "default": "none",
-      "description": "What the form asks of the file picker, in the words a Field's requirement uses: required behaves as required true; optional and none change nothing, because the file picker draws no requirement mark of its own (a Field draws it)."
+      "description": "Exposes the trigger as required, where the platform's button has such a state. A Field that is required sets it. It draws nothing — the mark beside the label is the Field's — and it validates nothing: the file picker has no value that could be missing."
     }
   ],
   "slots": [
@@ -299,10 +288,6 @@
       "id": "FPK-31",
       "text": "THE file picker SHALL offer the product, and a component that holds it, a way in the platform's idiom to have files judged that came neither through its picker nor onto its area — files pasted, dropped on another part of the product's screen, or made by the product: it SHALL judge them as one arrival by the rule of FPK-9 and answer with the files that passed and with the refused files and their reasons, each in the order given; SHALL emit neither select nor reject for them, as a control's events tell what a person did; and SHALL keep none of them (FPK-7).",
       "verify": "On the web: `judge(files)` returns `{ accepted: File[], refused: { file, reason }[] }` and dispatches no event; it answers the same with `disabled` set."
-    },
-    {
-      "id": "FPK-32",
-      "text": "WHILE requirement is required THE file picker SHALL behave in every respect as WHILE required is true, whatever required is; WHILE requirement is optional or none it SHALL behave as required alone says; and WHEN requirement names a value the file picker does not know THE file picker SHALL behave as none and in debug builds report the unknown value."
     }
   ],
   "accessibility": {
@@ -537,8 +522,7 @@
         "selectionText": "selectionText",
         "disabled": "disabled",
         "error": "error",
-        "required": "required",
-        "requirement": "requirement"
+        "required": "required"
       },
       "events": {
         "select": "select",
@@ -561,8 +545,7 @@
         "selectionText": "selectionText",
         "disabled": "disabled",
         "error": "isError",
-        "required": "isRequired",
-        "requirement": "requirement"
+        "required": "isRequired"
       },
       "events": {
         "select": "onSelect",
@@ -585,8 +568,7 @@
         "selectionText": "selectionText",
         "disabled": "enabled",
         "error": "isError",
-        "required": "required",
-        "requirement": "requirement"
+        "required": "required"
       },
       "events": {
         "select": "onSelect",
@@ -609,8 +591,7 @@
         "selectionText": "selectionText",
         "disabled": "enabled",
         "error": "isError",
-        "required": "required",
-        "requirement": "requirement"
+        "required": "required"
       },
       "events": {
         "select": "onSelect",
@@ -633,8 +614,7 @@
         "selectionText": "selectionText",
         "disabled": "disabled",
         "error": "error",
-        "required": "required",
-        "requirement": "requirement"
+        "required": "required"
       },
       "events": {
         "select": "onSelect",

@@ -7,7 +7,7 @@ import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileIte
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
-import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerRequirement, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
+import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
 import '../list/list.js';
 import type { TanreiListMoveDetail } from '../list/list.js';
 import { styles } from './file-upload.styles.js';
@@ -42,7 +42,7 @@ const ROWS: readonly string[] = ['own', 'given'];
 
 
 /** FUP-56: the props that are the file picker's, given to it unchanged. Its `maxFiles` and its `label` are never set, and its `selectionText` is the file upload's to fill (FUP-2). */
-const PICKER = ['layout', 'multiple', 'accept', 'maxSize', 'constraintsText', 'dropText', 'disabled', 'error', 'required', 'requirement'] as const;
+const PICKER = ['layout', 'multiple', 'accept', 'maxSize', 'constraintsText', 'dropText', 'disabled', 'error', 'required'] as const;
 /**
  * FUP-58: what the file upload gives every file item, and the file item's attribute a product's own item would say it
  * with. A file item writes two of them on itself when the product said nothing (it reflects `form` and `fit`, each
@@ -221,7 +221,6 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     disabled: { type: Boolean, reflect: true },
     error: { type: Boolean, reflect: true },
     required: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
     name: { type: String, reflect: true },
     rows: { type: String, reflect: true },
     typeErrorText: { type: String, attribute: 'type-error-text' },
@@ -325,9 +324,6 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   /** @from tanrei-file-picker.required */
   required = false;
 
-  /** @from tanrei-file-picker.requirement */
-  requirement: TanreiFilePickerRequirement = 'none';
-
   /** The name the files are submitted under: the kept files while `rows` is `own`, the files of the product's rows while it is `given`. Web only. A product that sends files itself gives none. */
   name = '';
 
@@ -425,7 +421,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   }
 
   private get isRequired(): boolean {
-    return this.required || this.requirement === 'required' || this.field.required;
+    return this.required || this.field.required;
   }
 
   /** The one element in the trigger slot; the first where there are several (FPK-5). */

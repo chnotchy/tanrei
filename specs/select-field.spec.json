@@ -70,13 +70,13 @@
       "from": "select.readOnly"
     },
     {
-      "name": "requirement",
-      "from": "field.requirement",
+      "name": "required",
+      "from": "field.required",
       "note": "The Field exposes its select as required (FLD-10, SEL-11)."
     },
     {
-      "name": "required",
-      "from": "field.required"
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -141,13 +141,13 @@
   "behavior": [
     {
       "id": "SEF-1",
-      "text": "THE select field SHALL be a Field that frames one select, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and every other prop to its select, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its select; SHALL give its select every option and option group the product gives it, in the order given, as that select's own items, read, drawn and chosen by the select (SEL-17, SEL-31 to SEL-45); and SHALL emit its select's events as its own, each once. It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that select do when a product places the one in the other (FLD-1 to FLD-28; SEL-1 to SEL-64) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, SEL-15, SEL-7); the supporting row and the error, started where the value starts (FLD-7 to FLD-9, FLD-26); the rows drawn focused while the list is open (FLD-13, SEL-20); the name, the description and the states (FLD-10, FLD-11, FLD-14, SEL-11); and the width, which is the Field's and which the select fills (FLD-1, SEL-49).",
+      "text": "THE select field SHALL be a Field that frames one select, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, required, optional, requiredMark, requiredText and optionalText to its Field and every other prop to its select, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its select; SHALL give its select every option and option group the product gives it, in the order given, as that select's own items, read, drawn and chosen by the select (SEL-17, SEL-31 to SEL-45); and SHALL emit its select's events as its own, each once. It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that select do when a product places the one in the other (FLD-1 to FLD-28; SEL-1 to SEL-64) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, SEL-15, SEL-7); the supporting row and the error, started where the value starts (FLD-7 to FLD-9, FLD-26); the rows drawn focused while the list is open (FLD-13, SEL-20); the name, the description and the states (FLD-10, FLD-11, FLD-14, SEL-11); and the width, which is the Field's and which the select fills (FLD-1, SEL-49).",
       "verify": "The twin test: every fixture of the select field has a twin, the Field's fixture select-<id>, a Field around a select written by hand with the same values and the same options; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (SEL-63), never a baseline to update."
     },
     {
       "id": "SEF-2",
       "text": "WHERE the platform has forms (the web) THE select field SHALL be the one control the form sees: it SHALL take name, submit its select's value, reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its select would report there (SEL-11), be submitted WHILE readOnly is true (SEL-47), and be left out WHILE disabled is true or a disabled group of the form holds it (SEL-46); its select and its Field SHALL take no part in the form themselves.",
-      "verify": "Unit, on the web: a form with one select field submits one entry under the field's name; reset and restore reach the select; requirement required with an empty value reports valueMissing on the select field and focuses its select's container when the form reports it."
+      "verify": "Unit, on the web: a form with one select field submits one entry under the field's name; reset and restore reach the select; required true with an empty value reports valueMissing on the select field and focuses its select's container when the form reports it."
     },
     {
       "id": "SEF-3",
@@ -1438,7 +1438,7 @@
       "id": "stacked-required",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -1484,7 +1484,7 @@
       "id": "stacked-optional",
       "props": {
         "label": "Country",
-        "requirement": "optional",
+        "optional": true,
         "placeholder": "Choose a country",
         "optionalText": "Optional"
       },
@@ -1531,7 +1531,7 @@
       "id": "stacked-required-asterisk",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -1577,7 +1577,7 @@
       "id": "stacked-required-disabled",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "value": "jp",
         "disabled": true,
         "requiredText": "Required"
@@ -1625,7 +1625,7 @@
       "id": "stacked-required-error",
       "props": {
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a country.",
         "requiredText": "Required"
@@ -1673,7 +1673,7 @@
       "id": "stacked-required-ja",
       "props": {
         "label": "国",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "placeholder": "国を選択"
       },
@@ -1706,7 +1706,7 @@
       "id": "stacked-optional-ja",
       "props": {
         "label": "国",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意",
         "value": "jp"
       },
@@ -1740,7 +1740,7 @@
       "props": {
         "variant": "outlined",
         "label": "Country",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -2714,7 +2714,7 @@
       "props": {
         "label": "المنطقة الزمنية",
         "value": "Asia/Tokyo",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "تُعرض المواعيد بهذا التوقيت."
       },
@@ -2934,8 +2934,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2966,7 +2966,7 @@
           "notes": "As the option: the same element, the product's child, with its options inside it."
         }
       },
-      "notes": "The tag `tanrei-select-field`, the class `TanreiSelectField`, the React name `SelectField`. It takes every attribute, property, event and child of the select and of its Field, under the same names. The element is composed as every field element is; what follows is what is particular to it. Members: `<tanrei-field>` holding one `<tanrei-select>` in its default slot; the product places none, and gives the options. The host is `display: block`, as the Field is. Value member: `tanrei-select`. The host is the form's element — `name`, the value and its state, validity anchored on the select's trigger, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the select inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the select: `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, and `inline`, the select's attribute for tests and fixtures, which is no prop of the spec and is passed on so that an open fixture and its twin are staged alike. Attributes are the members' own: kebab-case, except `readonly`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the select's are never set by the element and reach the select through the connection. Events: `change` is the select's own composed, bubbling Event and leaves by itself with the host as its target. `toggle` is the select's CustomEvent, composed and not bubbling: it is heard on the host, as on any shadow host, and by no ancestor. Two props are the select's at every moment and are read through to it, never copied — `value` (the element's value is its value member's) and `open`, by the same accessor, as the combobox field reads its three — so each is already new in every listener of `change` and of `toggle`, capturing or bubbling, and when `open` is taken back with no event. No listener of the element's takes either. None is stopped and none is copied. Slots: `label-icon` is passed to the Field and `leading-icon` to the select, each by a slot element of the same name rendered only while the host has a child for it. The default slot is passed to the select — `<tanrei-select><slot></slot></tanrei-select>` — and is always rendered, where a field element otherwise has no default slot: the product's `<tanrei-option>` and `<tanrei-option-group>` children are assigned to it, and the select reads them through it. A child that is neither, and has no slot name the element has, is not rendered and is reported in a debug build. Parts: the member hosts are `field` and `select`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter` (never drawn here). Exported from the select: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `select-label`, `field-requirement-label`, `select-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()` and `blur()` call the select's; a press on the label row focuses the trigger by FLD-12 and opens nothing, a press on the trigger opens the list, and a press on the help does nothing. The list is the select's own popover in the top layer: it is placed against the trigger, both in the select's shadow tree, and a press on the Field's rows is a press outside it (SEL-27). The connection is the Field's with its control, with one value more upward, `drawnFocused` (SEL-63, FLD-13), the same value the combobox says; the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` reach the members by inheritance, and one select field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"Country\" requirement=\"required\" supporting-text=\"Where your invoices are addressed.\"><tanrei-select name=\"country\" value=\"jp\"><tanrei-option value=\"jp\">Japan</tanrei-option></tanrei-select></tanrei-field>`. Before the element is defined its options are running text in the page, as a select's are: hide `tanrei-select-field:not(:defined) > *` and reserve the block size. Words: none of its own; `required-text` and `optional-text` left empty are read by the Field from the product's words."
+      "notes": "The tag `tanrei-select-field`, the class `TanreiSelectField`, the React name `SelectField`. It takes every attribute, property, event and child of the select and of its Field, under the same names. The element is composed as every field element is; what follows is what is particular to it. Members: `<tanrei-field>` holding one `<tanrei-select>` in its default slot; the product places none, and gives the options. The host is `display: block`, as the Field is. Value member: `tanrei-select`. The host is the form's element — `name`, the value and its state, validity anchored on the select's trigger, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the select inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`. On the select: `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, and `inline`, the select's attribute for tests and fixtures, which is no prop of the spec and is passed on so that an open fixture and its twin are staged alike. Attributes are the members' own: kebab-case, except `readonly`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the select's are never set by the element and reach the select through the connection. Events: `change` is the select's own composed, bubbling Event and leaves by itself with the host as its target. `toggle` is the select's CustomEvent, composed and not bubbling: it is heard on the host, as on any shadow host, and by no ancestor. Two props are the select's at every moment and are read through to it, never copied — `value` (the element's value is its value member's) and `open`, by the same accessor, as the combobox field reads its three — so each is already new in every listener of `change` and of `toggle`, capturing or bubbling, and when `open` is taken back with no event. No listener of the element's takes either. None is stopped and none is copied. Slots: `label-icon` is passed to the Field and `leading-icon` to the select, each by a slot element of the same name rendered only while the host has a child for it. The default slot is passed to the select — `<tanrei-select><slot></slot></tanrei-select>` — and is always rendered, where a field element otherwise has no default slot: the product's `<tanrei-option>` and `<tanrei-option-group>` children are assigned to it, and the select reads them through it. A child that is neither, and has no slot name the element has, is not rendered and is reported in a debug build. Parts: the member hosts are `field` and `select`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter` (never drawn here). Exported from the select: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `select-label`, `field-requirement-label`, `select-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()` and `blur()` call the select's; a press on the label row focuses the trigger by FLD-12 and opens nothing, a press on the trigger opens the list, and a press on the help does nothing. The list is the select's own popover in the top layer: it is placed against the trigger, both in the select's shadow tree, and a press on the Field's rows is a press outside it (SEL-27). The connection is the Field's with its control, with one value more upward, `drawnFocused` (SEL-63, FLD-13), the same value the combobox says; the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` reach the members by inheritance, and one select field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"Country\" required supporting-text=\"Where your invoices are addressed.\"><tanrei-select name=\"country\" value=\"jp\"><tanrei-option value=\"jp\">Japan</tanrei-option></tanrei-select></tanrei-field>`. Before the element is defined its options are running text in the page, as a select's are: hide `tanrei-select-field:not(:defined) > *` and reserve the block size. Words: none of its own; `required-text` and `optional-text` left empty are read by the Field from the product's words."
     },
     "swiftui": {
       "status": "planned",
@@ -2983,8 +2983,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3032,8 +3032,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3081,8 +3081,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3130,8 +3130,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

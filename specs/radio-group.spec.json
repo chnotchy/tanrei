@@ -60,13 +60,13 @@
       "note": "The value is kept, and on the web it is not submitted (RGP-7, RGP-9)."
     },
     {
-      "name": "requirement",
-      "from": "field-group.requirement",
-      "note": "required exposes the radio group as required, and on the web an empty value is reported to the form's own validation (RGP-9, RGP-10)."
+      "name": "required",
+      "from": "field-group.required",
+      "note": "exposes the radio group as required, and on the web an empty value is reported to the form's own validation (RGP-9, RGP-10)."
     },
     {
-      "name": "required",
-      "from": "field-group.required"
+      "name": "optional",
+      "from": "field-group.optional"
     },
     {
       "name": "requiredMark",
@@ -162,18 +162,18 @@
     },
     {
       "id": "RGP-8",
-      "text": "THE radio group SHALL take from requirement what the form asks of the set, as a field group does (FGR-4), and SHALL NOT set the error condition itself because an answer is missing or for any other reason: error and errorText are the product's to set. WHILE error is true THE radio group SHALL draw errorText and the error parts of its frame (FGR-8), SHALL be exposed as invalid (RGP-10), and SHALL have every radio button it holds, selected or not, drawn in the radio button's own error form (RAD-26), as a field group in error marks each control that has an error condition (FGR-8): the refusal is the set's, said by the words below it and by the group's invalid state, and shown on every option, because any of them may be the answer that puts it right. A disabled radio button SHALL be drawn as disabled, without the error color (RAD-26), and THE radio group SHALL NOT expose a radio button as invalid or describe it by errorText: the group says both once (RGP-10). WHEN error becomes true, or errorText changes while error is true, and focus is on one of the group's radio buttons THE radio group SHALL have assistive technology announce errorText once, politely, and SHALL NOT move focus (FGR-9). A change of value SHALL NOT clear error.",
+      "text": "THE radio group SHALL take from required and optional what the form asks of the set, as a field group does (FGR-4), and SHALL NOT set the error condition itself because an answer is missing or for any other reason: error and errorText are the product's to set. WHILE error is true THE radio group SHALL draw errorText and the error parts of its frame (FGR-8), SHALL be exposed as invalid (RGP-10), and SHALL have every radio button it holds, selected or not, drawn in the radio button's own error form (RAD-26), as a field group in error marks each control that has an error condition (FGR-8): the refusal is the set's, said by the words below it and by the group's invalid state, and shown on every option, because any of them may be the answer that puts it right. A disabled radio button SHALL be drawn as disabled, without the error color (RAD-26), and THE radio group SHALL NOT expose a radio button as invalid or describe it by errorText: the group says both once (RGP-10). WHEN error becomes true, or errorText changes while error is true, and focus is on one of the group's radio buttons THE radio group SHALL have assistive technology announce errorText once, politely, and SHALL NOT move focus (FGR-9). A change of value SHALL NOT clear error.",
       "verify": "Fixtures required-error (no option selected, every ring in the error color), error-selected (the selected ring and its fill in the error color too, the description still there) and error-one-disabled (the disabled option drawn as any disabled option). Under the default system the error text and the options' rings and fills take the error role; the label, the description and the options' labels keep their resting colors."
     },
     {
       "id": "RGP-9",
-      "text": "WHERE the platform has forms that submit named values (the web) THE radio group SHALL take part in its form as one control: it SHALL submit value under its own name WHILE value is not the empty string and the group is not disabled, and nothing otherwise — also WHILE the radio button of that value is one the product disabled by itself, because the value is the group's and a radio button's disabled says who may change it; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE requirement is required and value is the empty string, in the platform's own words for an unanswered set of radio buttons where it has them, and otherwise in errorText, else requiredText, else label — never in words of Tanrei's; and its radio buttons SHALL submit nothing of their own. Enter on a focused radio button SHALL be left to the form (RAD-1). WHERE the platform has no such forms value and change are the whole of it.",
+      "text": "WHERE the platform has forms that submit named values (the web) THE radio group SHALL take part in its form as one control: it SHALL submit value under its own name WHILE value is not the empty string and the group is not disabled, and nothing otherwise — also WHILE the radio button of that value is one the product disabled by itself, because the value is the group's and a radio button's disabled says who may change it; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE required is true and value is the empty string, in the platform's own words for an unanswered set of radio buttons where it has them, and otherwise in errorText, else requiredText, else label — never in words of Tanrei's; and its radio buttons SHALL submit nothing of their own. Enter on a focused radio button SHALL be left to the form (RAD-1). WHERE the platform has no such forms value and change are the whole of it.",
       "verify": "Web: FormData of a form holding the group has one entry under the group's name and none under an option's; reset restores the first value; a required, empty group makes the form's checkValidity false."
     },
     {
       "id": "RGP-10",
-      "text": "THE radio group SHALL be exposed to assistive technology as the field group it is, in its radio-group kind, and SHALL add no group to it (FGR-25): one radio group that contains its radio buttons — named by label, whether or not the label is drawn; required WHILE requirement is required; invalid WHILE error is true; disabled WHILE disabled is true; saying its orientation where the platform's radio group has one; and described by, in this order, supportingText, errorText WHILE error is true, and optionalText WHILE requirement is optional, each new text exposed at once WHEN it changes (FGR-11). requiredText SHALL NOT be part of the description, because the required state carries it, and the requirement tag and the asterisk SHALL be kept from assistive technology as drawn parts. Each radio button SHALL expose its role, its checked state, its position in the group and the group's size as RAD-16 says, counted in the order given with disabled options included. WHERE the platform forms a radio group with a container of its own THE radio group SHALL be that container and SHALL NOT expose a second group around it. WHILE label is empty THE radio group SHALL still render and in debug builds report that the set has no accessible name (FGR-10).",
-      "verify": "Unit: exactly one radio group and no other group in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose both states on it; three radios say 1, 2 and 3 of 3. The same reading of each fixture's twin gives the same tree."
+      "text": "THE radio group SHALL be exposed to assistive technology as the field group it is, in its radio-group kind, and SHALL add no group to it (FGR-25): one radio group that contains its radio buttons — named by label, whether or not the label is drawn; required WHILE required is true; invalid WHILE error is true; disabled WHILE disabled is true; saying its orientation where the platform's radio group has one; and described by, in this order, supportingText, errorText WHILE error is true, and optionalText WHILE optional is true, each new text exposed at once WHEN it changes (FGR-11). requiredText SHALL NOT be part of the description, because the required state carries it, and the requirement tag and the asterisk SHALL be kept from assistive technology as drawn parts. Each radio button SHALL expose its role, its checked state, its position in the group and the group's size as RAD-16 says, counted in the order given with disabled options included. WHERE the platform forms a radio group with a container of its own THE radio group SHALL be that container and SHALL NOT expose a second group around it. WHILE label is empty THE radio group SHALL still render and in debug builds report that the set has no accessible name (FGR-10).",
+      "verify": "Unit: exactly one radio group and no other group in the accessibility tree, named by label with labelHidden false and true; required true and error true expose both states on it; three radios say 1, 2 and 3 of 3. The same reading of each fixture's twin gives the same tree."
     },
     {
       "id": "RGP-11",
@@ -209,12 +209,12 @@
     },
     {
       "id": "RGP-18",
-      "text": "WHEN requirement, requiredMark or orientation names a value the radio group does not know THE radio group SHALL do with it what the field group does (FGR-22) — behave as none for requirement, and render with the prop's default (auto, vertical) for the two others — and in debug builds the unknown value SHALL be reported once."
+      "text": "WHEN requiredMark or orientation names a value the radio group does not know THE radio group SHALL do with it what the field group does (FGR-22) — render with the prop's default (auto, vertical) — and in debug builds the unknown value SHALL be reported once."
     },
     {
       "id": "RGP-19",
-      "text": "THE radio group SHALL have no words of its own: requiredText and optionalText are the field group's, read as FGR-24 says — from the instance's prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives requiredText WHILE requirement is required and the required mark is tag THEN THE radio group SHALL show the asterisk of FGR-6 in the tag's place, as the field group does, and SHALL keep its required state (RGP-10), which needs no word. IF neither gives optionalText WHILE requirement is optional THEN THE radio group SHALL show no tag and SHALL add nothing to the description for it. In debug builds the missing words SHALL be reported once.",
-      "verify": "Unit, with no product's words set: requirement required and no requiredText draws the asterisk and no tag, and the report names requiredText; requirement optional and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+      "text": "THE radio group SHALL have no words of its own: requiredText and optionalText are the field group's, read as FGR-24 says — from the instance's prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives requiredText WHILE required is true and the required mark is tag THEN THE radio group SHALL show the asterisk of FGR-6 in the tag's place, as the field group does, and SHALL keep its required state (RGP-10), which needs no word. IF neither gives optionalText WHILE optional is true THEN THE radio group SHALL show no tag and SHALL add nothing to the description for it. In debug builds the missing words SHALL be reported once.",
+      "verify": "Unit, with no product's words set: required true and no requiredText draws the asterisk and no tag, and the report names requiredText; optional true and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
     }
   ],
   "accessibility": {
@@ -390,7 +390,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "value": "standard",
         "requiredText": "Required"
       },
@@ -423,7 +423,7 @@
       "id": "optional",
       "props": {
         "label": "Delivery",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -455,7 +455,7 @@
       "id": "required-asterisk",
       "props": {
         "label": "Delivery",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "value": "standard"
       },
@@ -488,7 +488,7 @@
       "id": "required-error",
       "props": {
         "label": "Delivery",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose how the order reaches you.",
         "requiredText": "Required"
@@ -523,7 +523,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "value": "express",
         "error": true,
         "errorText": "Express delivery does not reach this address. Choose another way.",
@@ -559,7 +559,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "error": true,
         "errorText": "Express delivery does not reach this address. Choose another way.",
@@ -703,7 +703,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "value": "standard",
         "requiredText": "Required"
@@ -769,7 +769,7 @@
       "id": "long-label",
       "props": {
         "label": "How should we deliver the parts of this order that are in stock today, given that the rest will follow when they arrive from the supplier",
-        "requirement": "required",
+        "required": true,
         "supportingText": "You can change this until the first parcel ships. After that the choice holds for every parcel of the order, whatever is in it.",
         "error": true,
         "errorText": "Choose how the order reaches you, or go back one step and remove the parts that are not in stock yet.",
@@ -805,7 +805,7 @@
       "props": {
         "label": "配送方法",
         "supportingText": "発送されるまで変更できます。",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "value": "standard"
       },
@@ -838,7 +838,7 @@
       "id": "error-ja",
       "props": {
         "label": "配送方法",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "error": true,
         "errorText": "配送方法を選んでください。"
@@ -874,7 +874,7 @@
       "props": {
         "label": "طريقة التوصيل",
         "supportingText": "يمكنك تغيير هذا حتى يُشحن الطلب.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "value": "express"
       },
@@ -909,7 +909,7 @@
       "props": {
         "label": "גודל",
         "orientation": "horizontal",
-        "requirement": "required",
+        "required": true,
         "requiredText": "חובה",
         "error": true,
         "errorText": "יש לבחור גודל."
@@ -985,8 +985,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1006,7 +1006,7 @@
           "notes": "A `tanrei-radio-button` child without a `name`: inside a `tanrei-radio-group` it takes its group, its `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25)."
         }
       },
-      "notes": "`<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\"><tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`; class `TanreiRadioGroup`; in `@tanrei/react`, `RadioGroup` with `value` and `onChange`. Composed in the construction the checkbox group has: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group part=\"field-group\" kind=\"radio-group\" spacing=\"controls\">` — the member's own element, not drawing code shared with it — around a `<slot>`; the radio buttons stay in the product's light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts — `label`, `requirement-label`, `supporting-text`, `error-text` — are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. The radio group that assistive technology is told of is the field group's own element in its radio-group kind — name, description, required, invalid, disabled and orientation, once (FGR-25): the host has no role, and nothing is tied across a shadow root. The field group gives `disabled` to each radio button by the `tanrei-field-connect` event it already answers — a slotted radio button's event passes the field group on its composed path before it reaches the host — and writes the announcement of RGP-8. The host takes `disabled` from outside by itself — from a field group around it (FGR-15) and from `<fieldset disabled>` — and gives the field group inside the three together; the inner field group's own question to a group around it is stopped at the host, so that an outer field group counts one member, the radio group (a frame's question, by contrast, leaves). What the host keeps is what a frame cannot do. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; the `value` attribute is the first value and what a reset returns to, the `value` property is the live one; it submits `value`, restores it on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>` and reports `valueMissing` while `requirement=\"required\"` and `value` is empty, anchored on the radio button that is the tab stop, with the browser's own message for an unanswered set of radio buttons, in the browser's language — a required native radio button is asked once — and, where a browser gives none, `errorText`, else the required text, else `label`. A radio button finds its group with `closest('tanrei-radio-group')` when it connects; the group's radio buttons are those among its descendants whose nearest radio group it is — direct children or deeper, inside the product's own elements — found again when its child list changes (a `MutationObserver`: `slotchange` does not fire for a change below a slotted element); a radio button inside a shadow root of the product's own is found by neither side and groups by its `name` there. The group sets each option's `checked`, and its radio buttons take their tab stop, `aria-posinset` and `aria-setsize` from it again whenever its options change (RGP-11); it handles the arrow keys on the host. A radio button's own `disabled` attribute is never written, so an enabled group cannot enable what the product disabled. A radio button inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is the value; a listener set on a radio button inside a group hears nothing. A press on the frame's texts selects nothing and moves no focus into the group (RGP-6); the browser's own answer to a press on plain text — focus leaves what had it — is not prevented, because preventing it would prevent selecting the text. The host is not focusable and does not delegate focus, because its controls are light-DOM children; `focus()` moves to the radio button that is the stop. Radio buttons with one `name` and no `tanrei-radio-group` still form a group by themselves (RAD-25); inside a `<tanrei-field-group kind=\"radio-group\">` they are this component one level down. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native radio buttons of one `name`, which submits the same entry. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group. Its field group gives each radio button the error condition, and the radio button draws its error form (RGP-8, FGR-8, RAD-26)."
+      "notes": "`<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\"><tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`; class `TanreiRadioGroup`; in `@tanrei/react`, `RadioGroup` with `value` and `onChange`. Composed in the construction the checkbox group has: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group part=\"field-group\" kind=\"radio-group\" spacing=\"controls\">` — the member's own element, not drawing code shared with it — around a `<slot>`; the radio buttons stay in the product's light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts — `label`, `requirement-label`, `supporting-text`, `error-text` — are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. The radio group that assistive technology is told of is the field group's own element in its radio-group kind — name, description, required, invalid, disabled and orientation, once (FGR-25): the host has no role, and nothing is tied across a shadow root. The field group gives `disabled` to each radio button by the `tanrei-field-connect` event it already answers — a slotted radio button's event passes the field group on its composed path before it reaches the host — and writes the announcement of RGP-8. The host takes `disabled` from outside by itself — from a field group around it (FGR-15) and from `<fieldset disabled>` — and gives the field group inside the three together; the inner field group's own question to a group around it is stopped at the host, so that an outer field group counts one member, the radio group (a frame's question, by contrast, leaves). What the host keeps is what a frame cannot do. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; the `value` attribute is the first value and what a reset returns to, the `value` property is the live one; it submits `value`, restores it on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>` and reports `valueMissing` while `required` and `value` is empty, anchored on the radio button that is the tab stop, with the browser's own message for an unanswered set of radio buttons, in the browser's language — a required native radio button is asked once — and, where a browser gives none, `errorText`, else the required text, else `label`. A radio button finds its group with `closest('tanrei-radio-group')` when it connects; the group's radio buttons are those among its descendants whose nearest radio group it is — direct children or deeper, inside the product's own elements — found again when its child list changes (a `MutationObserver`: `slotchange` does not fire for a change below a slotted element); a radio button inside a shadow root of the product's own is found by neither side and groups by its `name` there. The group sets each option's `checked`, and its radio buttons take their tab stop, `aria-posinset` and `aria-setsize` from it again whenever its options change (RGP-11); it handles the arrow keys on the host. A radio button's own `disabled` attribute is never written, so an enabled group cannot enable what the product disabled. A radio button inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is the value; a listener set on a radio button inside a group hears nothing. A press on the frame's texts selects nothing and moves no focus into the group (RGP-6); the browser's own answer to a press on plain text — focus leaves what had it — is not prevented, because preventing it would prevent selecting the text. The host is not focusable and does not delegate focus, because its controls are light-DOM children; `focus()` moves to the radio button that is the stop. Radio buttons with one `name` and no `tanrei-radio-group` still form a group by themselves (RAD-25); inside a `<tanrei-field-group kind=\"radio-group\">` they are this component one level down. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native radio buttons of one `name`, which submits the same entry. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group. Its field group gives each radio button the error condition, and the radio button draws its error form (RGP-8, FGR-8, RAD-26)."
     },
     "swiftui": {
       "status": "planned",
@@ -1019,8 +1019,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1039,7 +1039,7 @@
           }
         }
       },
-      "notes": "`TanreiRadioGroup(\"Delivery\", selection: $delivery, supportingText:, errorText:, error:, requirement:, orientation:) { TanreiRadioButton(\"Standard\", value: Delivery.standard) … }`, generic over a `Hashable` value: `selection` is a `Binding<V?>`, nil for none, and writing it is the change event. This is the container the radio button already uses to form a group on this platform (its `name`), which so far drew nothing; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and the radio buttons inside read the selection from it. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The options are laid out by the field group's `Layout` (a column, or a row that wraps). iOS has no radio group trait: the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and required and invalid are added to the hint in words. No forms: RGP-9 does not apply. The product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+      "notes": "`TanreiRadioGroup(\"Delivery\", selection: $delivery, supportingText:, errorText:, error:, required:, optional:, orientation:) { TanreiRadioButton(\"Standard\", value: Delivery.standard) … }`, generic over a `Hashable` value: `selection` is a `Binding<V?>`, nil for none, and writing it is the change event. This is the container the radio button already uses to form a group on this platform (its `name`), which so far drew nothing; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and the radio buttons inside read the selection from it. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The options are laid out by the field group's `Layout` (a column, or a row that wraps). iOS has no radio group trait: the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and required and invalid are added to the hint in words. No forms: RGP-9 does not apply. The product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
     },
     "compose": {
       "status": "planned",
@@ -1052,8 +1052,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1072,7 +1072,7 @@
           }
         }
       },
-      "notes": "`TanreiRadioGroup(label = \"Delivery\", value = delivery, onValueChange = { delivery = it }, supportingText = …, isError = …, requirement = …, orientation = …) { TanreiRadioButton(value = \"standard\", label = \"Standard\") … }`: controlled, as Compose is — the group calls `onValueChange` and the caller moves `value`. The content runs in a `TanreiRadioGroupScope` whose `TanreiRadioButton(value, label)` takes `selected` and its click from the group; the group is built around `TanreiFieldGroup` in its radio-group kind (FGR-25), which applies `Modifier.selectableGroup()` itself, so the product does not, and has the name, the description and the error in its semantics. `enabled` is the inverse flag. A `Column` or a `FlowRow`. The bare `TanreiRadioButton(selected, onClick)` inside a `selectableGroup()` stays for options that are not laid out by a group (RAD-25). No forms: RGP-9 does not apply. The product's words are read from `LocalTanreiWords`. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+      "notes": "`TanreiRadioGroup(label = \"Delivery\", value = delivery, onValueChange = { delivery = it }, supportingText = …, isError = …, required = …, optional = …, orientation = …) { TanreiRadioButton(value = \"standard\", label = \"Standard\") … }`: controlled, as Compose is — the group calls `onValueChange` and the caller moves `value`. The content runs in a `TanreiRadioGroupScope` whose `TanreiRadioButton(value, label)` takes `selected` and its click from the group; the group is built around `TanreiFieldGroup` in its radio-group kind (FGR-25), which applies `Modifier.selectableGroup()` itself, so the product does not, and has the name, the description and the error in its semantics. `enabled` is the inverse flag. A `Column` or a `FlowRow`. The bare `TanreiRadioButton(selected, onClick)` inside a `selectableGroup()` stays for options that are not laid out by a group (RAD-25). No forms: RGP-9 does not apply. The product's words are read from `LocalTanreiWords`. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
     },
     "flutter": {
       "status": "planned",
@@ -1085,8 +1085,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1105,7 +1105,7 @@
           }
         }
       },
-      "notes": "`TanreiRadioGroup<T>(groupValue:, onChanged:, labelText: 'Delivery', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, children: [TanreiRadioButton<T>(value:, label:), …])`. This is the `TanreiRadioGroup<T>` the radio button already stands in on this platform, which so far drew nothing and took a `semanticLabel`; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and `labelText` with `labelHidden` replaces `semanticLabel`. `groupValue` is nullable for none; `enabled` is the inverse flag. A `Column` or a `Wrap`; the radio-group semantics, the arrow keys and the single tab stop stay where they are. `FormField` integration is the product's: RGP-9 does not apply. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+      "notes": "`TanreiRadioGroup<T>(groupValue:, onChanged:, labelText: 'Delivery', helperText: …, errorText: …, isError: …, required: …, optional: …, orientation: …, children: [TanreiRadioButton<T>(value:, label:), …])`. This is the `TanreiRadioGroup<T>` the radio button already stands in on this platform, which so far drew nothing and took a `semanticLabel`; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and `labelText` with `labelHidden` replaces `semanticLabel`. `groupValue` is nullable for none; `enabled` is the inverse flag. A `Column` or a `Wrap`; the radio-group semantics, the arrow keys and the single tab stop stay where they are. `FormField` integration is the product's: RGP-9 does not apply. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
     },
     "react-native": {
       "status": "planned",
@@ -1118,8 +1118,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

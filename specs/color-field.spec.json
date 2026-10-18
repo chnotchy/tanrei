@@ -63,13 +63,13 @@
       "note": "The Field disables its color input, the picker button with it (FLD-14, CLI-31); the color field is then left out of its form (CLF-44)."
     },
     {
-      "name": "requirement",
-      "from": "field.requirement",
+      "name": "required",
+      "from": "field.required",
       "note": "The Field exposes its color input as required (FLD-10, CLI-11)."
     },
     {
-      "name": "required",
-      "from": "field.required"
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -131,13 +131,13 @@
   "behavior": [
     {
       "id": "CLF-43",
-      "text": "THE color field SHALL be a Field that frames one color input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and variant, size, value, invalidText, picker and pickerLabel to its color input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its color input's events as its own, each once. THE color field SHALL be as wide as the place it stands in, and its color input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CLI-44). Its value SHALL at every moment be the value its color input holds — a color in the value's own form, or the empty string (CLI-16) — and not the text the product set where the two differ (CLI-21). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that color input do when a product places the one in the other (FLD-1 to FLD-28; CLI-1 to CLI-44) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CLI-15, CLI-7); the supporting row, started at the value's text, after the swatch (FLD-7 to FLD-9, FLD-26, CLI-43); the name, the description and the states (FLD-10, FLD-11, FLD-14, CLI-11); and the entry error of a text that is not a color, shown in the Field's row (FLD-28, CLI-20).",
+      "text": "THE color field SHALL be a Field that frames one color input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, required, optional, requiredMark, requiredText and optionalText to its Field and variant, size, value, invalidText, picker and pickerLabel to its color input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its color input's events as its own, each once. THE color field SHALL be as wide as the place it stands in, and its color input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CLI-44). Its value SHALL at every moment be the value its color input holds — a color in the value's own form, or the empty string (CLI-16) — and not the text the product set where the two differ (CLI-21). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that color input do when a product places the one in the other (FLD-1 to FLD-28; CLI-1 to CLI-44) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CLI-15, CLI-7); the supporting row, started at the value's text, after the swatch (FLD-7 to FLD-9, FLD-26, CLI-43); the name, the description and the states (FLD-10, FLD-11, FLD-14, CLI-11); and the entry error of a text that is not a color, shown in the Field's row (FLD-28, CLI-20).",
       "verify": "The twin test: every fixture of the color field has a twin, the Field's fixture color-<id>, a Field around a color input written by hand with the same values; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (CLI-43), never a baseline to update. Unit: set value to \"0F766E\" and read it back as \"#0f766e\" with no event emitted."
     },
     {
       "id": "CLF-44",
       "text": "WHERE the platform has forms (the web) THE color field SHALL be the one control the form sees: it SHALL take name, submit its color input's value, reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its color input would report there (CLI-11, CLI-20), and be left out WHILE disabled is true or a disabled group of the form holds it; its color input and its Field SHALL take no part in the form themselves. WHEN the action key asks for the form's submission (CLI-19) the form asked SHALL be the color field's own.",
-      "verify": "Unit, on the web: a form with one color field submits one entry under the field's name, the color in its own form; reset and restore reach the color input; requirement required with an empty value reports valueMissing on the color field and focuses its input when the form reports it; a committed text that is not a color reports badInput; Enter in the input presses the form's default button (BTN-30)."
+      "verify": "Unit, on the web: a form with one color field submits one entry under the field's name, the color in its own form; reset and restore reach the color input; required true with an empty value reports valueMissing on the color field and focuses its input when the form reports it; a committed text that is not a color reports badInput; Enter in the input presses the form's default button (BTN-30)."
     },
     {
       "id": "CLF-45",
@@ -315,7 +315,7 @@
       "id": "stacked-required",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "value": "#0f766e",
         "requiredText": "Required"
       },
@@ -325,7 +325,7 @@
       "id": "stacked-optional",
       "props": {
         "label": "Accent color",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "twin": "field.color-stacked-optional"
@@ -334,7 +334,7 @@
       "id": "stacked-required-asterisk",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "value": "#0f766e"
       },
@@ -344,7 +344,7 @@
       "id": "stacked-required-label-icon",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "value": "#0f766e",
         "requiredText": "Required"
       },
@@ -357,7 +357,7 @@
       "id": "stacked-required-error",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose a brand color.",
         "requiredText": "Required"
@@ -368,7 +368,7 @@
       "id": "stacked-required-disabled",
       "props": {
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "value": "#0f766e",
         "disabled": true,
         "requiredText": "Required"
@@ -379,7 +379,7 @@
       "id": "stacked-required-ja",
       "props": {
         "label": "ブランドカラー",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "value": "#0f766e",
         "picker": true,
@@ -391,7 +391,7 @@
       "id": "stacked-optional-ja",
       "props": {
         "label": "アクセントカラー",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意",
         "supportingText": "# と 6 桁の 16 進数で入力します。"
       },
@@ -401,7 +401,7 @@
       "id": "stacked-required-rtl",
       "props": {
         "label": "لون العلامة",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "value": "#0f766e",
         "picker": true,
@@ -438,7 +438,7 @@
       "id": "long-label",
       "props": {
         "label": "The color of the primary buttons, the links and the selected items of the public site and of every message the product sends, in the light theme",
-        "requirement": "required",
+        "required": true,
         "value": "#0f766e",
         "supportingText": "Six hexadecimal digits after a number sign, like #0f766e. It is checked against white text and against the page background before it is saved, and a color that fails either check is refused with the reason.",
         "requiredText": "Required"
@@ -558,7 +558,7 @@
       "props": {
         "variant": "outlined",
         "label": "Brand color",
-        "requirement": "required",
+        "required": true,
         "value": "#0f766e",
         "requiredText": "Required"
       },
@@ -579,8 +579,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -594,7 +594,7 @@
         "pickerRequest": "pickerrequest",
         "entryError": "entryerror"
       },
-      "notes": "The tag `tanrei-color-field`, the class `TanreiColorField`, the React name `ColorField`. The element is composed as every composed element on the web is (the web package's README, Composed elements); what follows is what is particular to it. Members: `<tanrei-field>` holding one `<tanrei-color-input>` in its default slot; the product places none. The host is `display: block`. Value member: `tanrei-color-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the color input: `variant`, `size`, `value`, `invalidText`, `picker`, `pickerLabel`. Attributes are the members' own, kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `invalid-text`, `picker-label`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `pickerrequest` and `entryerror` are the color input's own composed events and leave by themselves, with the host as their target and `value` already new; `pickerrequest` stays cancelable from outside, and the input reads the result of its own dispatch before it opens the browser's picker. None is stopped and none is copied. Their detail types are the member's, re-exported: `TanreiColorInputPickerRequestDetail`, `TanreiColorInputEntryErrorDetail`. The color input changes a value the product sets without an event — it holds `0F766E` as `#0f766e`, and a text that is not a color as empty (CLI-21) — so the host's `value` is the value member's at every moment, read back changed with no event (CLF-43). Slots: `label-icon` is passed to the Field by a slot element of the same name, rendered only while the host has a child for it. The element has no default slot. Parts: the member hosts are `field` and `color-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`. Exported from the color input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `swatch`, `input`, `picker-button`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `color-input-label`, `field-requirement-label`, `color-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()` and `blur()` call the color input's; a press on the label row focuses the input by FLD-12, a press on the box by CLI-24, and a press on the help does nothing. The browser's picker is opened by the color input from inside its own shadow root, in the user activation of the press on its picker button: two shadow roots deep, which `showPicker()` allows. The connection is the Field's with its control (FLD-25, FLD-26, FLD-28; CLI-43); the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-color-input-*` reach the members by inheritance, and one color field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"Brand color\" requirement=\"required\" supporting-text=\"Six hexadecimal digits, like #0f766e.\"><tanrei-color-input name=\"brand\" value=\"#0f766e\" picker picker-label=\"Choose color\"></tanrei-color-input></tanrei-field>`. Words: the element has none and reads none (CLF-47)."
+      "notes": "The tag `tanrei-color-field`, the class `TanreiColorField`, the React name `ColorField`. The element is composed as every composed element on the web is (the web package's README, Composed elements); what follows is what is particular to it. Members: `<tanrei-field>` holding one `<tanrei-color-input>` in its default slot; the product places none. The host is `display: block`. Value member: `tanrei-color-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`. On the color input: `variant`, `size`, `value`, `invalidText`, `picker`, `pickerLabel`. Attributes are the members' own, kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `invalid-text`, `picker-label`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `pickerrequest` and `entryerror` are the color input's own composed events and leave by themselves, with the host as their target and `value` already new; `pickerrequest` stays cancelable from outside, and the input reads the result of its own dispatch before it opens the browser's picker. None is stopped and none is copied. Their detail types are the member's, re-exported: `TanreiColorInputPickerRequestDetail`, `TanreiColorInputEntryErrorDetail`. The color input changes a value the product sets without an event — it holds `0F766E` as `#0f766e`, and a text that is not a color as empty (CLI-21) — so the host's `value` is the value member's at every moment, read back changed with no event (CLF-43). Slots: `label-icon` is passed to the Field by a slot element of the same name, rendered only while the host has a child for it. The element has no default slot. Parts: the member hosts are `field` and `color-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`. Exported from the color input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `swatch`, `input`, `picker-button`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `color-input-label`, `field-requirement-label`, `color-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()` and `blur()` call the color input's; a press on the label row focuses the input by FLD-12, a press on the box by CLI-24, and a press on the help does nothing. The browser's picker is opened by the color input from inside its own shadow root, in the user activation of the press on its picker button: two shadow roots deep, which `showPicker()` allows. The connection is the Field's with its control (FLD-25, FLD-26, FLD-28; CLI-43); the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-color-input-*` reach the members by inheritance, and one color field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"Brand color\" required supporting-text=\"Six hexadecimal digits, like #0f766e.\"><tanrei-color-input name=\"brand\" value=\"#0f766e\" picker picker-label=\"Choose color\"></tanrei-color-input></tanrei-field>`. Words: the element has none and reads none (CLF-47)."
     },
     "swiftui": {
       "status": "planned",
@@ -609,8 +609,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -639,8 +639,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -669,8 +669,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -699,8 +699,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
         "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
