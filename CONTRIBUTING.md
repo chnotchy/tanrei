@@ -1,14 +1,16 @@
 # Contributing to Tanrei
 
-Thank you for helping. Tanrei is one design system on five platforms, so the rules are about keeping those five honest with each other. [`AGENTS.md`](AGENTS.md) is the short version and applies to people as much as to AI agents; this page is the long one. How the pieces fit: [`docs/architecture/overview.md`](docs/architecture/overview.md). Who decides what: [`docs/governance/GOVERNANCE.md`](docs/governance/GOVERNANCE.md).
+Tanrei is one design system on five platforms, so the rules are about keeping those five honest with each other. [`AGENTS.md`](AGENTS.md) is the short version and applies to people as much as to AI agents; this page is the long one. How the pieces fit: [`docs/architecture/overview.md`](docs/architecture/overview.md). Who decides what: [`docs/governance/GOVERNANCE.md`](docs/governance/GOVERNANCE.md).
 
-## Issues and pull requests
+## Outside contributions are not accepted
 
-- **Issues are welcome**: a bug, a question, a proposal for a component or a token. [Open one](https://github.com/chnotchy/tanrei/issues) and say what you saw or what it is for.
-- **Pull requests are not accepted for now.** The maintainers make the changes, by the process on this page; when that changes, this page will say so.
+Every change to Tanrei is made by its maintainers. Pull requests from outside are not accepted, and neither are proposals for new components or tokens. The reason is the supply chain: Tanrei is code that runs inside other people's products, every change from outside is a way for code its maintainers did not write to reach them, and the current security climate makes that a risk the project does not take. What Tanrei covers, and how it changes, is the maintainers' decision.
+
+- **Issues are for bug reports and questions.** [Open one](https://github.com/chnotchy/tanrei/issues) and say what you saw, where, and what you expected.
+- **A pull request is closed unmerged**, whatever it contains.
 - **Security problems** go privately, as [`SECURITY.md`](SECURITY.md) describes, never into an issue.
 
-The rest of this page is how a change is made in this repository, whoever makes it.
+The rest of this page is how the maintainers make a change in this repository. It is public so that what each check guards, and why, can be read by anyone who uses Tanrei.
 
 ## Setup
 
@@ -40,7 +42,7 @@ The same steps apply to people and to AI agents. The checks named here are the o
 
 - Visual value changes → `tokens/` (colors: the palette declarations and role rules in `tokens/systems/<id>.system.json`).
 - Anything about a component's surface or behaviour → `specs/<name>.spec.json`.
-- A new component, or a breaking change to an existing one, is the maintainers' decision: open an issue that says what it is for before you write it. A non-breaking addition to an existing spec needs no issue first.
+- A new component, or a breaking change to an existing one, is the maintainers' decision, made before the spec changes. A non-breaking addition to an existing spec needs no decision first.
 
 Write behaviour as EARS sentences with stable ids (`BTN-7`). Tests cite those ids, so the requirement and its proof stay linked.
 
@@ -88,13 +90,13 @@ TANREI_HARSH=1 pnpm --filter @tanrei/web test:ci-like src/components/<name> --pr
 
 ### 5. Record it
 
-`pnpm changeset` — one version for all platforms. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
+`pnpm changeset` — one version for all platforms. During the 0.x prereleases backward compatibility is not kept: a change may break anything, with no deprecation period first, and its changeset says what broke and what to use instead. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
 
 ## Adding a component
 
 The shared conventions every component follows are in [`docs/architecture/overview.md`](docs/architecture/overview.md#component-conventions). The `add-component` skill in `.claude/skills/` walks an agent through the same steps.
 
-1. **Inventory.** The name must exist in `specs/inventory.json`. Changing the inventory, like adding a component, starts with an issue.
+1. **Inventory.** The name must exist in `specs/inventory.json`. Changing the inventory, like adding a component, is the maintainers' decision, made before the spec is written.
 2. **Tokens.** Write `tokens/comp/<name>.tokens.json` (aliases only; container heights may be literals) and add it to the `comp` set in `tokens/tanrei.resolver.json`. Conditions that recolor every state (selected, error, …) are `dev.tanrei.states.variants`. A part whose disabled or pressed look differs from the fallback rules gets its own rule in every shipped system (`tokens/systems/*.system.json`).
 3. **Spec.** `specs/<name>.spec.json`, every platform `planned`. Behaviour in EARS form with a stable id prefix (`CHK-1`…); a pressable component copies BTN-8, BTN-9 and BTN-10 for its own name. Fixtures cover each variant, each size and each non-default condition. Every prop and event is mapped for every platform in its idiom.
    - **Repeated items** (tabs, list and menu items, destinations) are item kinds under `items`, each with its own `props` (no `axis`), `slots` and `events`; a group kind that holds items says `"container": true`. Fixtures list their items in order (`items: [{ "kind", "props", "content" }]`, never a text grammar in `content`), selection stays the component's prop (by the item's `value`, else by index), and every platform maps every kind under `platforms.<p>.items.<kind>` (`name`, `props`, `events`) — the parity check looks for those names in the implementation file.
@@ -231,4 +233,4 @@ Renovate (the GitHub App) opens the dependency updates, as `renovate.json` says:
 - All prose is original. Write your own text, and copy no text or assets from anywhere.
 - Conventional Commits; one changeset per user-visible change.
 
-By contributing you agree that your contribution is licensed under Apache-2.0.
+Tanrei is licensed under Apache-2.0 ([`LICENSE`](LICENSE)).

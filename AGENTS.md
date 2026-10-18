@@ -1,6 +1,6 @@
 # Tanrei — agent & contributor rules
 
-Tanrei is one design system shipped to five platforms (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native). These rules apply to humans and AI agents alike. Nested `AGENTS.md` files add local rules; the nearest one wins on conflict, but none may weaken this file.
+Tanrei is one design system shipped to five platforms (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native). These rules apply to humans and AI agents alike. Every change is made by the maintainers: outside contributions are not accepted (pull requests, and proposals for new components or tokens), for the supply chain's sake; issues are for bug reports and questions ([CONTRIBUTING.md](CONTRIBUTING.md#outside-contributions-are-not-accepted)). Nested `AGENTS.md` files add local rules; the nearest one wins on conflict, but none may weaken this file.
 
 ## The two sources of truth
 
@@ -11,7 +11,7 @@ Everything else is **derived**: generated token outputs, platform implementation
 
 ## Hard rules
 
-- **Spec first.** Never change a component's public surface (props, events, states, slots, a11y semantics, token bindings) in a platform package without the same change in `specs/` in the same commit. A new component, or a breaking change to one, is the maintainers' decision: open an issue before writing it.
+- **Spec first.** Never change a component's public surface (props, events, states, slots, a11y semantics, token bindings) in a platform package without the same change in `specs/` in the same commit. A new component, or a breaking change to one, is the maintainers' decision, made before the spec changes.
 - **Never hand-edit generated files.** Anything under a `generated/` directory, `custom-elements.json`, and `docs/status/` is produced by `pnpm generate`. Edit the source or the generator instead.
 - **No hardcoded design values in components.** Colors, radii, type, spacing, motion, and opacity come from `tanrei.comp.*` / `tanrei.sys.*` tokens. Component tokens alias system tokens; the only literals allowed are a component's own container heights (the invariant check enforces exactly this).
 - **Names come from `tanrei.config.json`.** Do not hardcode the namespace, npm scope, or tag prefix anywhere a generator could supply it.
