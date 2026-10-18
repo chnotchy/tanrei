@@ -217,19 +217,18 @@ export function TabsOfEveryKind() {
   );
 }
 
-// HTML's `required` on every field and group of fields, beside `requirement` (FLD-32, FGR-26); and `requirement` on the
-// controls that had only `required` (ETI-29, FPK-32).
+// What a form asks of a field is two booleans, as HTML says the first: `required`, and `optional` for the optional tag
+// (FLD-4, FGR-4). `requirement` is no prop.
 export const required = (
   <>
     <TextField label="Email" required />
-    <NumberField label="Seats" required requirement="optional" />
+    <NumberField label="Seats" optional />
     <RadioGroup label="Delivery" required />
-    <FilePicker requirement="required" />
-    <FileUpload requirement="required" required={false} />
+    <FilePicker required />
     {/* @ts-expect-error required is a boolean */}
     <TextField label="Email" required="yes" />
-    {/* @ts-expect-error a requirement the file picker does not have */}
-    <FilePicker requirement="mandatory" />
+    {/* @ts-expect-error requirement is no prop of a field */}
+    <TextField label="Email" requirement="required" />
   </>
 );
 

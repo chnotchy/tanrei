@@ -62,7 +62,7 @@ test.describe('behavior', () => {
   test('TXF-62: it is a Field that frames one text input, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the input’s own label, labelHidden, error and disabled are never set; the label-icon slot is the Field’s and the two icon slots the input’s; it draws no part, has no token and writes no custom property', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="Email" label-hidden error disabled supporting-text="Help." requirement="required" required-text="Required" variant="outlined" size="large" type="email" value="ada@example.com" placeholder="you@example.com" maxlength="40" counter prefix-text="@" readonly>
+      `<${TAG} id="plain" label="Email" label-hidden error disabled supporting-text="Help." required required-text="Required" variant="outlined" size="large" type="email" value="ada@example.com" placeholder="you@example.com" maxlength="40" counter prefix-text="@" readonly>
          <span slot="label-icon">mail</span><span slot="leading-icon">search</span><span slot="trailing-icon">close</span>
        </${TAG}>`,
     );
@@ -78,7 +78,7 @@ test.describe('behavior', () => {
         root: [...root.childNodes].filter(drawn).map((node) => (node as Element).localName ?? '#text'),
         inFrame: [...frame!.childNodes].filter(drawn).map((node) => ((node as Element).localName === 'slot' ? `slot ${(node as HTMLSlotElement).name} → ${(node as Element).slot}` : ((node as Element).localName ?? '#text'))),
         inInput: [...input.children].map((node) => `slot ${(node as HTMLSlotElement).name} → ${node.slot}`),
-        frame: ['label', 'labelHidden', 'error', 'disabled', 'supportingText', 'requirement', 'requiredText'].map((name) => framing[name]),
+        frame: ['label', 'labelHidden', 'error', 'disabled', 'supportingText', 'required', 'requiredText'].map((name) => framing[name]),
         input: ['variant', 'size', 'type', 'value', 'placeholder', 'maxLength', 'counter', 'prefixText', 'readOnly'].map((name) => input[name]),
         // The four props both members have are the Field's: the input's own are never set by the element.
         own: ['label', 'labelHidden', 'error', 'disabled'].map((name) => input[name]),
@@ -91,7 +91,7 @@ test.describe('behavior', () => {
     expect(built.root, 'one member in the shadow root, and no text').toEqual(['tanrei-field']);
     expect(built.inFrame, 'the Field holds the passing slot of its glyph and its one control').toEqual(['slot label-icon → label-icon', 'tanrei-text-input']);
     expect(built.inInput, 'the input holds the passing slots of its two icons').toEqual(['slot leading-icon → leading-icon', 'slot trailing-icon → trailing-icon']);
-    expect(built.frame).toEqual(['Email', true, true, true, 'Help.', 'required', 'Required']);
+    expect(built.frame).toEqual(['Email', true, true, true, 'Help.', true, 'Required']);
     expect(built.input).toEqual(['outlined', 'large', 'email', 'ada@example.com', 'you@example.com', 40, true, '@', true]);
     expect(built.own, 'the input’s own label, labelHidden, error and disabled').toEqual(['', false, false, false]);
     expect(built.inputHasName).toBe(false);
@@ -184,7 +184,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<form id="form">
-         <${TAG} id="email" name="email" label="Email" requirement="required" value="ada@example.com"></${TAG}>
+         <${TAG} id="email" name="email" label="Email" required value="ada@example.com"></${TAG}>
          <${TAG} id="due" name="due" label="Due" type="date" locale="en-US" max="2026-12-31" unavailable-text="Too late." segment-empty-text="Empty" value="not a date"></${TAG}>
          <${TAG} id="off" name="off" label="Off" value="x" disabled></${TAG}>
          <button id="send">Send</button>
@@ -235,7 +235,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<button id="before">Before</button>
-       <${TAG} id="plain" style="inline-size: 320px" label="Notes" supporting-text="A few words about the change." counter maxlength="40" value="a" requirement="required" required-text="Required"><span slot="label-icon">notes</span></${TAG}>
+       <${TAG} id="plain" style="inline-size: 320px" label="Notes" supporting-text="A few words about the change." counter maxlength="40" value="a" required required-text="Required"><span slot="label-icon">notes</span></${TAG}>
        <${TAG} id="floating" style="inline-size: 320px; margin-block-start: 24px" variant="outlined" label="Email" error error-text="Enter a complete address."></${TAG}>
        <${TAG} id="date" style="inline-size: 320px; margin-block-start: 24px" label="Due" type="date" locale="en-US" picker picker-label="Choose date" segment-empty-text="Empty"></${TAG}>
        <${TAG} id="stops" style="inline-size: 320px; margin-block-start: 24px" label="Message" multiline resize="manual" resize-label="Resize" value="One"><tanrei-button slot="trailing-icon" variant="text" label="Clear"><span slot="icon">close</span></tanrei-button></${TAG}>
@@ -318,7 +318,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<tanrei-field id="outer" label="Outer" supporting-text="Outer help."><${TAG} id="inner" label="Inner" supporting-text="Inner help."></${TAG}></tanrei-field>
-       <tanrei-field-group id="group" label="Sign in" error error-text="Group error" requirement="required" required-text="Required"><${TAG} id="grouped" name="grouped" label="Email" supporting-text="Help." value="ada@example.com"></${TAG}></tanrei-field-group>`,
+       <tanrei-field-group id="group" label="Sign in" error error-text="Group error" required required-text="Required"><${TAG} id="grouped" name="grouped" label="Email" supporting-text="Help." value="ada@example.com"></${TAG}></tanrei-field-group>`,
     );
     // Both frames are drawn, and the text field keeps its own name and description.
     await expect(one(page, 'outer').locator('.frame > .label-row > .label').first()).toHaveText('Outer');
@@ -347,11 +347,11 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="required" label="Email" requirement="required"></${TAG}>
-       <${TAG} id="optional" label="Company" requirement="optional"></${TAG}>
+      `<${TAG} id="required" label="Email" required></${TAG}>
+       <${TAG} id="optional" label="Company" optional></${TAG}>
        <${TAG} id="grip" label="Message" multiline resize="manual"></${TAG}>
        <${TAG} id="date" label="Due" type="date" locale="en-US"></${TAG}>
-       <${TAG} id="own" label="Email" requirement="required" required-text="Needed"></${TAG}>`,
+       <${TAG} id="own" label="Email" required required-text="Needed"></${TAG}>`,
     );
     // With no words: the asterisk stands in the tag's place, no optional tag, a grip without a name, a segment without a value text.
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveCount(0);

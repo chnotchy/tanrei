@@ -58,7 +58,8 @@ type Group = HTMLElement & {
   disabled: boolean;
   error: boolean;
   errorText: string;
-  requirement: string;
+  required: boolean;
+  optional: boolean;
   requiredText: string;
   label: string;
   selectAllLabel: string;
@@ -291,14 +292,14 @@ test.describe('checkbox group', () => {
   test('CKG-1: the shadow root holds the field group\'s own element — spacing controls — around the select-all checkbox, only while one is asked for, and a slot the product\'s checkboxes pass through; the eleven props of the frame are on it as given; the group is a block that writes no custom property, so a field group token set on it is read inside; and the rows measure what the field group\'s do', async ({ page }) => {
     await page_(
       page,
-      `${group_('supporting-text="Choose all that apply." requirement="required" required-mark="tag" required-text="Required" optional-text="Optional" error error-text="Choose one." orientation="horizontal" label-hidden select-all-label="All of these"')}
+      `${group_('supporting-text="Choose all that apply." required required-mark="tag" required-text="Required" optional-text="Optional" error error-text="Choose one." orientation="horizontal" label-hidden select-all-label="All of these"')}
        <${TAG} id="plain" label="Days" style="--tanrei-comp-field-group-gap-controls: 40px"><${BOX} value="a" label="A"></${BOX}><${BOX} value="b" label="B"></${BOX}></${TAG}>`,
     );
     const built = (selector: string) =>
       page.locator(selector).evaluate((el) => {
         const root = el.shadowRoot!;
         const frame = root.querySelector('tanrei-field-group')! as HTMLElement & Record<string, unknown>;
-        const names = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText', 'orientation'];
+        const names = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'];
         return {
           root: [...root.children].map((child) => child.localName),
           frame: [...frame.children].map((child) => child.localName + (child.getAttribute('part') ? `[${child.getAttribute('part')}]` : '')),
@@ -493,7 +494,7 @@ test.describe('checkbox group', () => {
   });
 
   test('CKG-5: every enabled checkbox is a stop of its own, in the order given — three, four with the select-all checkbox, a disabled one passed — and the group is none; no arrow key moves focus or checks, and Enter switches nothing; a press on the label, the requirement mark, the description or the error text checks nothing and moves no focus in; focus() goes to the first enabled checkbox it shows, the select-all checkbox where one is drawn', async ({ page }) => {
-    await page_(page, `<button id="before">Before</button><label id="for" for="g">A label of the page</label>${group_('supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="Choose one."')}<button id="after">After</button>`);
+    await page_(page, `<button id="before">Before</button><label id="for" for="g">A label of the page</label>${group_('supporting-text="Choose all that apply." required required-text="Required" error error-text="Choose one."')}<button id="after">After</button>`);
     expect(await g(page).evaluate((el) => ({ delegates: el.shadowRoot!.delegatesFocus, tabindex: el.getAttribute('tabindex'), tabIndex: el.tabIndex }))).toEqual({ delegates: false, tabindex: null, tabIndex: -1 });
     const stops = async (count: number, back = false) => {
       const seen: string[] = [];
@@ -594,7 +595,7 @@ test.describe('checkbox group', () => {
   });
 
   test('CKG-7: required means at least one, and the group never sets error itself — not for an empty list; in error it is a field group in error: the error text below the last checkbox, the description still there, and every checkbox it holds, the select-all checkbox among them, in its own error condition, invalid and described by the error text, through the slot; not in error it leaves one checkbox the error the product gave it; a change of value does not clear error; an error that appears under the person\'s focus is announced by the field group', async ({ page }) => {
-    await page_(page, group_('requirement="required" required-text="Required" supporting-text="Choose all that apply." error-text="Choose at least one way to reach you." select-all-label="All of these"'));
+    await page_(page, group_('required required-text="Required" supporting-text="Choose all that apply." error-text="Choose at least one way to reach you." select-all-label="All of these"'));
     const marks = () =>
       g(page).evaluate((el) =>
         [el.shadowRoot!.querySelector('tanrei-checkbox')!, ...el.querySelectorAll('tanrei-checkbox')].map((each) => {
@@ -746,7 +747,7 @@ test.describe('checkbox group', () => {
   test('CKG-8: while required and its list is empty it reports a missing value to the form\'s own validation, anchored on its first enabled checkbox, in the product\'s words — errorText, else the required text of the instance or of the product, else the label, never a browser\'s sentence for one unchecked box — and the form is not submitted; one entry, of a checkbox or of none, satisfies it; it never sets error', async ({ page }) => {
     await page_(
       page,
-      `<form id="f"><${TAG} id="g" name="notify" label="Notify me by" requirement="required" error-text="Choose at least one way to reach you." required-text="Required">${BOXES}</${TAG}><button id="send">Send</button></form>
+      `<form id="f"><${TAG} id="g" name="notify" label="Notify me by" required error-text="Choose at least one way to reach you." required-text="Required">${BOXES}</${TAG}><button id="send">Send</button></form>
        <input id="native" type="checkbox" required />
        <script>window.submitted = 0; document.getElementById('f').addEventListener('submit', (event) => { event.preventDefault(); window.submitted++; });</script>`,
     );
@@ -789,9 +790,9 @@ test.describe('checkbox group', () => {
     await setValue(page, []);
     expect(await validity()).toMatchObject({ valid: false, missing: true, error: false });
     // Not required, or disabled: nothing is asked.
-    expect(await message((el) => (el.requirement = 'optional'))).toBe('');
+    expect(await message((el) => ((el.required = false), (el.optional = true)))).toBe('');
     await g(page).evaluate((el) => {
-      (el as Group).requirement = 'required';
+      (el as Group).required = true;
       (el as Group).disabled = true;
     });
     await settle(page);
@@ -817,8 +818,8 @@ test.describe('checkbox group', () => {
     const seen = warnings(page);
     await page_(
       page,
-      `${group_('supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="Choose one." select-all-label="All of these"', BOXES.replace('id="email"', 'id="email" checked'))}
-       <${TAG} id="unseen" label="Days" label-hidden requirement="optional" optional-text="Optional" disabled><${BOX} value="mon" label="Monday"></${BOX}></${TAG}>`,
+      `${group_('supporting-text="Choose all that apply." required required-text="Required" error error-text="Choose one." select-all-label="All of these"', BOXES.replace('id="email"', 'id="email" checked'))}
+       <${TAG} id="unseen" label="Days" label-hidden optional optional-text="Optional" disabled><${BOX} value="mon" label="Monday"></${BOX}></${TAG}>`,
     );
     const said = (selector: string) =>
       page.locator(selector).evaluate((el) => {
@@ -1151,11 +1152,11 @@ test.describe('checkbox group', () => {
 
   test('FGR-15, W8: inside a field group it is one member — the field group passes it disabled, and neither its error nor its requirement; its checkboxes are the checkboxes of the field group in its own shadow root, never of a frame around the group, though they ask before that field group is drawn; disabled by the field group around it, it submits nothing', async ({ page }) => {
     const seen = warnings(page);
-    await page_(page, `<form id="f"><${FRAME} id="outer" label="Contact" spacing="fields" error error-text="Something here is wrong." requirement="required" required-text="Required">${group_('name="notify" select-all-label="All of these"', BOXES.replace('id="email"', 'id="email" checked'))}</${FRAME}></form>`);
+    await page_(page, `<form id="f"><${FRAME} id="outer" label="Contact" spacing="fields" error error-text="Something here is wrong." required required-text="Required">${group_('name="notify" select-all-label="All of these"', BOXES.replace('id="email"', 'id="email" checked'))}</${FRAME}></form>`);
     const boxes = () => g(page).evaluate((el) => [el.shadowRoot!.querySelector('tanrei-checkbox')!, ...el.querySelectorAll('tanrei-checkbox')].map((each) => [each.shadowRoot!.querySelector('input')!.disabled, each.shadowRoot!.querySelector('input')!.getAttribute('aria-invalid'), each.shadowRoot!.querySelector('input')!.getAttribute('aria-description')].join(' | ')));
     // The outer group's error and requirement reach neither the group nor a checkbox.
     expect(await boxes()).toEqual(Array(4).fill('false |  | '));
-    expect(await g(page).evaluate((el) => [(el as Group).error, (el as Group).requirement, (el as Group).disabled])).toEqual([false, 'none', false]);
+    expect(await g(page).evaluate((el) => [(el as Group).error, (el as Group).required, (el as Group).optional, (el as Group).disabled])).toEqual([false, false, false, false]);
     await expect(g(page).locator('.error-text')).toHaveCount(0);
     expect(await entries(page, '#f')).toEqual(['notify=email']);
     // The inner group's own error does reach them: they are its field group's controls.

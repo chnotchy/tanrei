@@ -86,7 +86,7 @@ test.describe('behavior', () => {
   test('CLF-43: it is a Field that frames one color input, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the input’s own label, labelHidden, error and disabled are never set; the label-icon slot is held for its Field; it draws no part, holds no state and writes no custom property of its own', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="Brand color" label-hidden error disabled supporting-text="Help." error-text="Too light." requirement="required" required-mark="tag" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="#0f766e" invalid-text="Not a color." picker picker-label="Choose color">
+      `<${TAG} id="plain" label="Brand color" label-hidden error disabled supporting-text="Help." error-text="Too light." required required-mark="tag" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="#0f766e" invalid-text="Not a color." picker picker-label="Choose color">
          <span slot="label-icon">format_paint</span>
        </${TAG}>
        <${TAG} id="bare" label="Brand color"></${TAG}>`,
@@ -104,7 +104,7 @@ test.describe('behavior', () => {
         inFrame: [...frame!.childNodes].filter(drawn).map((node) => ((node as Element).localName === 'slot' ? `slot ${(node as HTMLSlotElement).name} → ${(node as Element).slot}` : ((node as Element).localName ?? '#text'))),
         inInput: input.childNodes.length,
         parts: [frame!.getAttribute('part'), input.getAttribute('part')],
-        onField: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
+        onField: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
         onInput: ['variant', 'size', 'value', 'invalidText', 'picker', 'pickerLabel'].map((name) => input[name]),
         neverSet: [input.label, input.labelHidden, input.error, input.disabled, input.hasAttribute('label'), input.hasAttribute('disabled'), input.name],
         written: [...(el as HTMLElement).style].concat([...framing.style], [...input.style]).filter((name) => name.startsWith('--')),
@@ -116,7 +116,7 @@ test.describe('behavior', () => {
       inFrame: ['slot label-icon → label-icon', 'tanrei-color-input'],
       inInput: 0,
       parts: ['field', 'color-input'],
-      onField: ['Brand color', true, 'Help.', 'Too light.', true, true, 'required', 'tag', 'Required', 'Optional'],
+      onField: ['Brand color', true, 'Help.', 'Too light.', true, true, true, false, 'tag', 'Required', 'Optional'],
       onInput: ['outlined', 'large', '#0f766e', 'Not a color.', true, 'Choose color'],
       neverSet: ['', false, false, false, false, false, ''],
       written: [],
@@ -126,7 +126,7 @@ test.describe('behavior', () => {
     expect(await one(page, 'bare').evaluate((el) => el.shadowRoot!.querySelectorAll('slot').length)).toBe(0);
     // It has no state and no prop of its own: seventeen properties, each a member's (and the form's `name`).
     expect(await one(page, 'bare').evaluate((el) => [...(el.constructor as unknown as { elementProperties: Map<string, unknown> }).elementProperties.keys()].sort())).toEqual(
-      ['disabled', 'error', 'errorText', 'formDisabled', 'invalidText', 'label', 'labelHidden', 'name', 'optionalText', 'picker', 'pickerLabel', 'required', 'requiredMark', 'requiredText', 'requirement', 'size', 'supportingText', 'value', 'variant'],
+      ['disabled', 'error', 'errorText', 'formDisabled', 'invalidText', 'label', 'labelHidden', 'name', 'optional', 'optionalText', 'picker', 'pickerLabel', 'required', 'requiredMark', 'requiredText', 'size', 'supportingText', 'value', 'variant'],
     );
   });
 
@@ -271,7 +271,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<form id="form">
-         <${TAG} id="brand" name="brand" label="Brand color" requirement="required" value="0F766E" invalid-text="Sechs Hexadezimalziffern."></${TAG}>
+         <${TAG} id="brand" name="brand" label="Brand color" required value="0F766E" invalid-text="Sechs Hexadezimalziffern."></${TAG}>
          <fieldset id="set"><${TAG} id="accent" name="accent" label="Accent color" value="#fde047"></${TAG}></fieldset>
          <${TAG} id="off" name="off" label="Off" value="#000000" disabled></${TAG}>
          <${TAG} id="none" name="none" label="None"></${TAG}>
@@ -353,7 +353,7 @@ test.describe('behavior', () => {
       page,
       `<button id="before">Before</button>
        <label id="outside" for="plain">A label of the page</label>
-       <${TAG} id="plain" style="inline-size: 320px" label="Brand color" supporting-text="Six hexadecimal digits." value="#0f766e" requirement="required" required-text="Required" picker picker-label="Choose color"><span slot="label-icon">format_paint</span></${TAG}>
+       <${TAG} id="plain" style="inline-size: 320px" label="Brand color" supporting-text="Six hexadecimal digits." value="#0f766e" required required-text="Required" picker picker-label="Choose color"><span slot="label-icon">format_paint</span></${TAG}>
        <${TAG} id="floating" style="inline-size: 320px; margin-block-start: 24px" variant="outlined" label="Accent color" error error-text="Too light."></${TAG}>
        <button id="after">After</button>`,
     );
@@ -450,7 +450,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<tanrei-field id="outer" label="Outer" supporting-text="Outer help."><${TAG} id="inner" label="Inner" supporting-text="Inner help."></${TAG}></tanrei-field>
-       <tanrei-field-group id="group" label="Palette" error error-text="Group error" requirement="required" required-text="Required"><${TAG} id="grouped" name="grouped" label="Primary" supporting-text="Help." value="#0f766e" picker picker-label="Choose color"></${TAG}></tanrei-field-group>`,
+       <tanrei-field-group id="group" label="Palette" error error-text="Group error" required required-text="Required"><${TAG} id="grouped" name="grouped" label="Primary" supporting-text="Help." value="#0f766e" picker picker-label="Choose color"></${TAG}></tanrei-field-group>`,
     );
     // Both frames are drawn, and the color field keeps its own name and description.
     await expect(one(page, 'outer').locator('.frame > .label-row > .label').first()).toHaveText('Outer');
@@ -480,9 +480,9 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="required" label="Brand color" requirement="required" picker></${TAG}>
-       <${TAG} id="optional" label="Accent color" requirement="optional"></${TAG}>
-       <${TAG} id="own" label="Brand color" requirement="required" required-text="Needed" picker picker-label="Choose" invalid-text="Not a color."></${TAG}>`,
+      `<${TAG} id="required" label="Brand color" required picker></${TAG}>
+       <${TAG} id="optional" label="Accent color" optional></${TAG}>
+       <${TAG} id="own" label="Brand color" required required-text="Needed" picker picker-label="Choose" invalid-text="Not a color."></${TAG}>`,
     );
     // With no words: the asterisk stands in the tag's place, no optional tag, a picker button without a name.
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveCount(0);

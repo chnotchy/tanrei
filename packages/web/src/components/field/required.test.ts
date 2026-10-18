@@ -1,9 +1,9 @@
-// `required`, HTML's name for `requirement="required"`, on the Field, the Field group and every component built from
-// one (FLD-32, FGR-26); and `requirement` on the controls that had only `required` — the embedded text input, the file
-// picker and the file upload (ETI-29, FPK-32). Each is held to the name it stands beside: the element written with
-// one draws and exposes what the same element written with the other does — the same tree of elements and attributes
-// through every shadow root (but for the two names themselves and the ids that tie parts together), the same
-// validity, and in Chromium the same accessibility tree. No picture is compared: the look is the DOM's.
+// `required` and `optional`, the two booleans of the Field, the Field group and every component built from one (FLD-4,
+// FLD-32, FGR-4, FGR-26): `required` alone says the form asks for an answer, `optional` alone draws the optional tag,
+// and with both the element is required, `optional` is ignored and a debug build says so once. The old name,
+// `requirement`, is no attribute any more: written on an element it changes nothing. The look is held by the DOM —
+// the same tree of elements and attributes through every shadow root, but for the two names themselves and the ids
+// that tie parts together — the same validity, and in Chromium the same accessibility tree. No picture is compared.
 import { type Page, expect, test } from '@playwright/test';
 import { axTree } from '../../../test/ax-tree.js';
 import { type Fixture, loadSpec, mountFixtures } from '../../../test/harness.js';
@@ -35,7 +35,7 @@ const FRAMED: { name: string; props: Props; items?: Fixture['items'] }[] = [
  */
 function described(id: string): string[] {
   const lines: string[] = [];
-  const SKIPPED = new Set(['required', 'requirement', 'data-fixture', 'style']);
+  const SKIPPED = new Set(['required', 'optional', 'requirement', 'data-fixture', 'style']);
   const TIES = new Set(['id', 'for', 'aria-describedby', 'aria-labelledby', 'aria-controls', 'aria-activedescendant', 'aria-owns', 'list', 'popovertarget', 'anchor', 'name']);
   const walk = (root: Element | ShadowRoot, depth: number) => {
     for (const el of root.children) {
@@ -73,70 +73,35 @@ async function settle(page: Page) {
 }
 
 const tag = (name: string) => `tanrei-${name}`;
+const IDS = ['none', 'required', 'optional', 'both'];
 
 for (const { name, props, items } of FRAMED) {
   const label = `${name}${props.kind ? ` (${props.kind})` : ''}`;
-  test(`${label}: required draws and exposes what requirement required does, and wins over optional; false leaves requirement alone (FLD-32, FGR-26)`, async ({ page, browserName }) => {
-    const spec = loadSpec(name);
-    const stage = (id: string, extra: Props): Fixture => ({ id, props: { ...props, ...extra }, ...(items ? { items } : {}) });
-    await mountFixtures(page, spec, {
-      icons: true,
-      fixtures: [
-        stage('requirement', { requirement: 'required' }),
-        stage('required', { required: true }),
-        stage('over-optional', { required: true, requirement: 'optional' }),
-        stage('optional', { requirement: 'optional' }),
-        stage('false-optional', { required: false, requirement: 'optional' }),
-      ],
-    });
-    await settle(page);
-    const by = await page.evaluate((f) => Object.fromEntries(['requirement', 'required', 'over-optional', 'optional', 'false-optional'].map((id) => [id, (new Function(`return (${f})`)() as (id: string) => string[])(id)])), described.toString());
-    expect(by.required).toEqual(by.requirement);
-    expect(by['over-optional']).toEqual(by.requirement);
-    expect(by['false-optional']).toEqual(by.optional);
-    // The two are told apart at all: an optional one is drawn otherwise.
-    expect(by.optional).not.toEqual(by.requirement);
-    // The element's own property reads what it was given.
-    expect(await page.locator(`[data-fixture="required"] > ${tag(name)}, [data-fixture="required"] ${tag(name)}`).first().evaluate((el) => (el as HTMLElement & { required: boolean }).required)).toBe(true);
-    if (browserName === 'chromium') {
-      expect(await axTree(page, '[data-fixture="required"]')).toEqual(await axTree(page, '[data-fixture="requirement"]'));
-      expect(await axTree(page, '[data-fixture="over-optional"]')).toEqual(await axTree(page, '[data-fixture="requirement"]'));
-    }
-  });
-}
-
-/** The controls that had only `required`: `requirement="required"` is the same; optional and none change nothing. */
-const CONTROLS: { name: string; props: Props; slots?: Fixture['slots'] }[] = [
-  { name: 'embedded-text-input', props: { label: 'Message' } },
-  { name: 'file-picker', props: { label: 'Attachment', constraintsText: 'Any file' }, slots: { trigger: 'Choose a file' } },
-  { name: 'file-upload', props: { label: 'Attachments', constraintsText: 'Any file' }, slots: { trigger: 'Choose a file' } },
-];
-for (const { name, props, slots } of CONTROLS) {
-  test(`${name}: requirement required is required true; optional and none change nothing, and an unknown value behaves as none and is reported (ETI-29, FPK-32)`, async ({ page, browserName }) => {
+  test(`${label}: required and optional are two booleans — with both, it is required, optional is ignored and reported once — and requirement is no attribute (FLD-4, FLD-32, FGR-4, FGR-26)`, async ({ page, browserName }) => {
     const warnings: string[] = [];
     page.on('console', (message) => message.type() === 'warning' && warnings.push(message.text()));
     const spec = loadSpec(name);
-    await mountFixtures(page, spec, {
-      icons: true,
-      fixtures: [
-        { id: 'required', props: { ...props, required: true }, ...(slots ? { slots } : {}) },
-        { id: 'requirement', props: { ...props, requirement: 'required' }, ...(slots ? { slots } : {}) },
-        { id: 'both', props: { ...props, required: true, requirement: 'optional' }, ...(slots ? { slots } : {}) },
-        { id: 'none', props, ...(slots ? { slots } : {}) },
-        { id: 'optional', props: { ...props, requirement: 'optional' }, ...(slots ? { slots } : {}) },
-        { id: 'unknown', props: { ...props, requirement: 'mandatory' }, ...(slots ? { slots } : {}) },
-      ],
+    const stage = (id: string, extra: Props): Fixture => ({ id, props: { ...props, ...extra }, ...(items ? { items } : {}) });
+    await mountFixtures(page, spec, { icons: true, fixtures: [stage('none', {}), stage('required', { required: true }), stage('optional', { optional: true }), stage('both', { required: true, optional: true })] });
+    await settle(page);
+    const read = () => page.evaluate(([f, ids]) => Object.fromEntries(ids.map((id) => [id, (new Function(`return (${f})`)() as (id: string) => string[])(id)])), [described.toString(), IDS] as const);
+    const by = await read();
+    // Each draws and exposes something of its own, and both together are required alone.
+    expect(by.required).not.toEqual(by.none);
+    expect(by.optional).not.toEqual(by.none);
+    expect(by.optional).not.toEqual(by.required);
+    expect(by.both).toEqual(by.required);
+    expect(warnings.filter((line) => line.includes('required and optional are both true'))).toHaveLength(1);
+    // The element's own properties read what it was given.
+    const host = (id: string) => page.locator(`[data-fixture="${id}"] > ${tag(name)}, [data-fixture="${id}"] ${tag(name)}`).first();
+    expect(await host('both').evaluate((el) => [(el as HTMLElement & { required: boolean }).required, (el as HTMLElement & { optional: boolean }).optional])).toEqual([true, true]);
+    // The old name is no attribute: written on an element, it asks nothing.
+    await host('none').evaluate(async (el) => {
+      el.setAttribute('requirement', 'required');
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
     });
     await settle(page);
-    const by = await page.evaluate((f) => Object.fromEntries(['required', 'requirement', 'both', 'none', 'optional', 'unknown'].map((id) => [id, (new Function(`return (${f})`)() as (id: string) => string[])(id)])), described.toString());
-    expect(by.requirement).toEqual(by.required);
-    expect(by.both).toEqual(by.required);
-    expect(by.optional).toEqual(by.none);
-    expect(by.unknown).toEqual(by.none);
-    // Told apart at all, where the platform has a required state for the control: a button has none on the web, so
-    // the file picker's required changes nothing it draws or exposes there (FPK-21: a Field says it in words).
-    if (name !== 'file-picker') expect(by.none).not.toEqual(by.required);
-    expect(warnings.filter((line) => line.includes('requirement "mandatory"'))).toHaveLength(1);
-    if (browserName === 'chromium') expect(await axTree(page, '[data-fixture="requirement"]')).toEqual(await axTree(page, '[data-fixture="required"]'));
+    expect((await read()).none).toEqual(by.none);
+    if (browserName === 'chromium') expect(await axTree(page, '[data-fixture="both"]')).toEqual(await axTree(page, '[data-fixture="required"]'));
   });
 }

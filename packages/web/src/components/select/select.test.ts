@@ -312,12 +312,12 @@ test.describe('behavior: the trigger', () => {
 
   test('SEL-7: a floating label draws the asterisk the Field that frames it gives — for a tag or an asterisk named there, by the Field or by the design system — after its text, requirement.asterisk-gap from it, in the label’s style and the required-asterisk color of its variant, hidden from assistive technology; no mark where the Field names none, where the label is not drawn or where no Field frames it; never a tag, never an optional label', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined' }), fx('bare-attribute', { variant: 'outlined' }, '<tanrei-option value="jp">Japan</tanrei-option>')], { system: 'm3-like' });
-    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, mark, { label: 'Country', requirement: 'required', requiredMark: mark }, { variant: 'outlined' });
-    await frame(page, 'filled', { label: 'Country', requirement: 'required', requiredMark: 'tag' }, { variant: 'filled' });
-    await frame(page, 'hidden', { label: 'Country', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Country', requirement: 'optional' }, { variant: 'filled' });
-    await frame(page, 'error', { label: 'Country', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'Country', requirement: 'required', requiredMark: 'asterisk' }, {});
+    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, mark, { label: 'Country', required: true, requiredMark: mark }, { variant: 'outlined' });
+    await frame(page, 'filled', { label: 'Country', required: true, requiredMark: 'tag' }, { variant: 'filled' });
+    await frame(page, 'hidden', { label: 'Country', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Country', required: false, optional: true }, { variant: 'filled' });
+    await frame(page, 'error', { label: 'Country', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'stacked', { label: 'Country', required: true, requiredMark: 'asterisk' }, {});
     const asterisks = (id: string) => part(page, id, '.floating .asterisk').count();
     // A tag named by the Field reaches a floating label as the asterisk; the asterisk is the asterisk.
     for (const id of ['tag', 'asterisk', 'filled']) expect(await asterisks(id), id).toBe(1);
@@ -338,7 +338,7 @@ test.describe('behavior: the trigger', () => {
     // A stacked select draws no label, so no asterisk: the mark above it is the Field's.
     expect([await part(page, 'stacked', '.floating').count(), await fieldRow(page, 'stacked', '.label-row .asterisk').count()]).toEqual([0, 1]);
     // No Field: no mark, whatever is written on the select.
-    await host(page, 'bare-attribute').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'bare-attribute').evaluate((el) => el.setAttribute('required', ''));
     await set(page, 'bare-attribute', { placeholder: 'x' });
     for (const id of ['bare', 'bare-attribute']) expect([await asterisks(id), await container(page, id).getAttribute('aria-required')], id).toEqual([0, null]);
     // Under auto the Field gives what the design system names: m3-like names the asterisk…
@@ -366,7 +366,7 @@ test.describe('behavior: the trigger', () => {
   test('SEL-9: in error — its own, or its Field’s — the select is exposed as invalid and draws every part of its trigger from the error parts of its variant — a stacked one a line inside its edge at rest — while its list and options stay as they are; it shows no error text of its own and never sets error itself', async ({ page }) => {
     await mountSpec(page, ['stacked-error', 'stacked-error-value', 'stacked-value', 'filled-error']);
     await frame(page, 'framed', { label: 'Country', error: true, errorText: 'We cannot ship there yet.' }, { value: 'jp' });
-    await frame(page, 'required', { label: 'Country', requirement: 'required' }, {});
+    await frame(page, 'required', { label: 'Country', required: true }, {});
     for (const id of ['stacked-error-value', 'framed']) {
       expect(await container(page, id).getAttribute('aria-invalid'), id).toBe('true');
       const edge = part(page, id, '.edge');
@@ -409,7 +409,7 @@ test.describe('behavior: the trigger', () => {
       fx('nameless', { label: '', value: 'x' }, [option('', 'x'), option('Other', 'y')]),
     ]);
     await frame(page, 'framed', { label: 'Shipping country', supportingText: 'Where your order goes.' }, { placeholder: 'Choose a country' });
-    await frame(page, 'hidden', { label: 'Shipping country', labelHidden: true, requirement: 'required' }, { name: 'country', placeholder: 'Choose a country' });
+    await frame(page, 'hidden', { label: 'Shipping country', labelHidden: true, required: true }, { name: 'country', placeholder: 'Choose a country' });
     await frame(page, 'own', { label: '' }, { label: 'Its own' });
     await frame(page, 'both', { label: '', supportingText: 'Help.' }, { label: 'Its own' });
     const name = (id: string) => container(page, id).getAttribute('aria-label');
@@ -433,11 +433,11 @@ test.describe('behavior: the trigger', () => {
     expect(await validity('framed')).toEqual({ missing: false, valid: true, message: false });
     await set(page, 'hidden', { value: 'jp' });
     expect(await validity('hidden')).toEqual({ missing: false, valid: true, message: false });
-    await setField(page, 'hidden', { requirement: 'none' });
+    await setField(page, 'hidden', { required: false, optional: false });
     await set(page, 'hidden', { value: '' });
     expect([await container(page, 'hidden').getAttribute('aria-required'), await validity('hidden')]).toEqual([null, { missing: false, valid: true, message: false }]);
     // No requirement of its own: the attribute that left does nothing, and the select does not validate because of it.
-    await host(page, 'own-requirement').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'own-requirement').evaluate((el) => el.setAttribute('required', ''));
     await set(page, 'own-requirement', { placeholder: 'Choose' });
     expect([await container(page, 'own-requirement').getAttribute('aria-required'), await validity('own-requirement')]).toEqual([null, { missing: false, valid: true, message: false }]);
     await expect(container(page, 'nameless')).toBeVisible();
@@ -449,7 +449,7 @@ test.describe('behavior: the trigger', () => {
 
   test('SEL-13: the select adds one stop to the focus order, its container; a press on the label row of the Field that frames it moves focus to the container and opens nothing; a label that floats in the container is part of it, and a press on it opens the list', async ({ page }) => {
     await mount(page, [fx('one', { value: 'jp' }), fx('two', { value: 'fr' }), fx('floating', { variant: 'outlined' })], { system: 'm3-like' });
-    await frame(page, 'framed', { label: 'Country', requirement: 'required', requiredMark: 'tag', supportingText: 'Help.' }, { value: 'jp' });
+    await frame(page, 'framed', { label: 'Country', required: true, requiredMark: 'tag', supportingText: 'Help.' }, { value: 'jp' });
     // One stop: Tab from the first select's container reaches the second's, and back.
     await focusSelect(page, 'one');
     await tab(page);
@@ -746,8 +746,8 @@ test.describe('behavior: the trigger', () => {
       fx('open', { value: 'jp', open: true }, [group('Asia', [option('Japan', 'jp', { supportingText: 'UTC+9', leadingIcon: 'schedule' })]), option('Kenya', 'ke')]),
       fx('none', { placeholder: 'Nothing to choose' }, []),
     ]);
-    await frame(page, 'framed', { label: 'Shipping country', requirement: 'required', requiredText: '', optionalText: '' }, {});
-    await frame(page, 'framed-optional', { label: 'Billing country', requirement: 'optional', requiredText: '', optionalText: '' }, {});
+    await frame(page, 'framed', { label: 'Shipping country', required: true, requiredText: '', optionalText: '' }, {});
+    await frame(page, 'framed-optional', { label: 'Billing country', required: false, optional: true, requiredText: '', optionalText: '' }, {});
     /** Every word a select holds: the text of its shadow root, and every name it says by attribute. */
     const words = () =>
       page.evaluate((tag) =>
@@ -778,7 +778,7 @@ test.describe('behavior: the trigger', () => {
 
   test('SEL-63: the select says to the Field that frames it that it draws the label while its variant floats one, where its value starts and ends, and that it is drawn focused while its list is open — and says it again when it changes; it takes the Field’s name, description and states, whether the label is hidden and whether an asterisk follows it; it keeps no count and reports no refusal', async ({ page }) => {
     await mount(page, [fx('base', {})], { system: 'm3-like', reducedMotion: true });
-    await frame(page, 'one', { label: 'Country', supportingText: 'Where your invoices are addressed.', requirement: 'required' }, { value: 'jp' });
+    await frame(page, 'one', { label: 'Country', supportingText: 'Where your invoices are addressed.', required: true }, { value: 'jp' });
     await frame(page, 'icon', { label: 'Language', supportingText: 'Applies to this device.' }, { value: 'ja' }, '<tanrei-option value="en">English</tanrei-option><tanrei-option value="ja">日本語</tanrei-option><span slot="leading-icon">translate</span>');
     await frame(page, 'other', { label: 'Other' }, { value: 'fr' });
     const id = 'one';
@@ -837,7 +837,7 @@ test.describe('behavior: the trigger', () => {
       fx('bare', { value: 'jp' }),
       fx('floating', { variant: 'outlined', value: 'jp' }),
       // What a person coming from the select field writes by habit: the harness writes each as its attribute.
-      fx('left', { value: 'jp', supportingText: 'Help.', errorText: 'No.', requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional' }, `${COUNTRY_OPTIONS}<span slot="label-icon">schedule</span>`),
+      fx('left', { value: 'jp', supportingText: 'Help.', errorText: 'No.', required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional' }, `${COUNTRY_OPTIONS}<span slot="label-icon">schedule</span>`),
       fx('one', { value: 'jp', supportingText: 'Help.' }),
     ]);
     for (const id of ['bare', 'floating', 'left', 'one']) {
@@ -861,7 +861,7 @@ test.describe('behavior: the trigger', () => {
     // Reported once for each element, naming what was given and the select field.
     await expect.poll(() => seen.filter((w) => w.includes('SEL-64')).length).toBe(2);
     const report = seen.find((w) => w.includes('SEL-64') && w.includes('label-icon'))!;
-    for (const name of ['supporting-text', 'error-text', 'requirement', 'required-mark', 'required-text', 'optional-text', 'label-icon', 'tanrei-select-field']) expect(report, name).toContain(name);
+    for (const name of ['supporting-text', 'error-text', 'required', 'optional', 'required-mark', 'required-text', 'optional-text', 'label-icon', 'tanrei-select-field']) expect(report, name).toContain(name);
     await set(page, 'left', { placeholder: 'y' });
     await set(page, 'left', { value: 'ca' });
     expect(seen.filter((w) => w.includes('SEL-64')), 'once for the element').toHaveLength(2);
@@ -1810,7 +1810,7 @@ test.describe('behavior: the list', () => {
 test.describe('behavior: conditions, exposure, size and direction', () => {
   test('SEL-46: a disabled select — its own disabled, or its Field’s — is not focusable, does not open, emits nothing, is exposed as disabled, is left out of form submission and draws every part of its trigger, the chevron, the floating label and its asterisk included, from the disabled tokens of its variant, of its error parts while in error', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-disabled', 'outlined-disabled'].includes(f.id)), fx('after', { value: 'ca' }), fx('error', { value: 'jp', disabled: true, error: true })], { system: 'm3-like' });
-    await frame(page, 'framed', { label: 'Country', disabled: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined', value: 'jp' });
+    await frame(page, 'framed', { label: 'Country', disabled: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined', value: 'jp' });
     const id = 'stacked-disabled';
     await listen(page, id);
     expect(await container(page, id).evaluate((el) => [el.getAttribute('aria-disabled'), el.hasAttribute('tabindex'), el.tabIndex])).toEqual(['true', false, -1]);
@@ -1922,11 +1922,11 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frame(
       page,
       'one',
-      { label: 'Plan', supportingText: 'Billed monthly.', requirement: 'required' },
+      { label: 'Plan', supportingText: 'Billed monthly.', required: true },
       { value: 'team', placeholder: 'Choose a plan' },
       '<tanrei-option-group label="Plans"><tanrei-option value="free" supporting-text="One project">Free</tanrei-option><tanrei-option value="team" supporting-text="Unlimited projects" leading-icon="group">Team</tanrei-option></tanrei-option-group><tanrei-option value="enterprise" disabled>Enterprise</tanrei-option>',
     );
-    await frame(page, 'states', { label: 'Country', labelHidden: true, requirement: 'optional', error: true, errorText: 'Choose a country.' }, { placeholder: 'Choose a country' });
+    await frame(page, 'states', { label: 'Country', labelHidden: true, required: false, optional: true, error: true, errorText: 'Choose a country.' }, { placeholder: 'Choose a country' });
     const comboboxes = async () => {
       const found = await axNodes(page, 'combobox');
       return ['Plan', 'Country', 'Region', 'Language'].map((name) => found.find((node) => node.name === name)!);
@@ -2054,8 +2054,8 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     const floating = spec.fixtures.filter((f) => (f.props.variant === 'filled' || f.props.variant === 'outlined') && !f.props.disabled);
     expect(floating.length).toBeGreaterThanOrEqual(10);
     await mount(page, floating);
-    await frame(page, 'required', { label: 'Country', requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'error', { label: 'Country', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Choose a country.' }, { variant: 'filled' });
+    await frame(page, 'required', { label: 'Country', required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'error', { label: 'Country', required: true, requiredMark: 'asterisk', error: true, errorText: 'Choose a country.' }, { variant: 'filled' });
     const canvasText = await page.evaluate(() => {
       const probe = document.createElement('div');
       probe.style.color = 'CanvasText';
@@ -2106,7 +2106,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
 
   test('SEL-55: in a right-to-left layout the leading icon is at the right of the container and the chevron at the left, a floating label starts at the right edge with its asterisk at its left; the list is aligned to the container’s right edge, and in each option the leading icon is at the right and the check at the left', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['open-rtl', 'outlined-rtl'].includes(f.id))], { system: 'm3-like' });
-    await frame(page, 'floating', { label: 'المنطقة الزمنية', requirement: 'required', requiredMark: 'asterisk', supportingText: 'تُعرض المواعيد بهذا التوقيت.' }, { variant: 'outlined' }, '<tanrei-option value="t" leading-icon="schedule">طوكيو</tanrei-option>', 'rtl');
+    await frame(page, 'floating', { label: 'المنطقة الزمنية', required: true, requiredMark: 'asterisk', supportingText: 'تُعرض المواعيد بهذا التوقيت.' }, { variant: 'outlined' }, '<tanrei-option value="t" leading-icon="schedule">طوكيو</tanrei-option>', 'rtl');
     const right = (b: { x: number; width: number }) => b.x + b.width;
     const open = 'open-rtl';
     await set(page, open, { open: false });
@@ -2428,7 +2428,7 @@ test.describe('the form, a frame around it and the option elements', () => {
     await page.evaluate(async () => {
       document.body.insertAdjacentHTML(
         'beforeend',
-        `<form id="f"><fieldset id="set"><tanrei-field label="Country" requirement="required" required-text="Required"><tanrei-select id="s" name="country" value="fr">
+        `<form id="f"><fieldset id="set"><tanrei-field label="Country" required required-text="Required"><tanrei-select id="s" name="country" value="fr">
            <tanrei-option value="">None</tanrei-option><tanrei-option value="ca">Canada</tanrei-option><tanrei-option value="fr">France</tanrei-option></tanrei-select></tanrei-field></fieldset></form>`,
       );
       for (let round = 0; round < 2; round++) for (const el of document.querySelectorAll('#f tanrei-field, #s')) await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;

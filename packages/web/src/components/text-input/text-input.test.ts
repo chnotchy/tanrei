@@ -1143,7 +1143,7 @@ test.describe('behavior', () => {
     expect(seen.find((w) => w.includes('TXI-23'))).toContain('no accessible name');
     // A bare input is never required, and has no requirement to set.
     await expect(input(page, 'stacked-empty')).toHaveJSProperty('required', false);
-    expect(await host(page, 'stacked-empty').evaluate((el) => ['requirement', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
+    expect(await host(page, 'stacked-empty').evaluate((el) => ['optional', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
     // In a Field: the Field's label is the name, drawn or hidden; the input's own label wins.
     await frame(page, 'named', { label: 'City', supportingText: 'Where you live.' }, { prefixText: 'JP', counter: true, maxLength: 20 });
     await frame(page, 'hidden', { label: 'Hidden', labelHidden: true }, {});
@@ -1160,7 +1160,7 @@ test.describe('behavior', () => {
       ['req-asterisk', { requiredMark: 'asterisk' }, {}],
       ['req-outlined', {}, { variant: 'outlined' }],
     ] as const) {
-      await frame(page, id, { label: 'City', requirement: 'required', ...field }, { name: 'city', ...props });
+      await frame(page, id, { label: 'City', required: true, ...field }, { name: 'city', ...props });
       await expect(input(page, id), id).toHaveJSProperty('required', true);
       expect(await host(page, id).evaluate((el) => [(el as any).validity.valueMissing, (el as any).validationMessage !== '']), id).toEqual([true, true]);
     }
@@ -1169,11 +1169,11 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'req-none').evaluate((el) => (el as any).validity.valid)).toBe(true);
     await expect(input(page, 'req-none')).not.toHaveAttribute('aria-invalid');
     // Optional: not required; the Field adds its optional text to the description.
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     await expect(input(page, 'optional')).toHaveJSProperty('required', false);
     await expect(host(page, 'optional').getByRole('textbox')).toHaveAccessibleDescription('Optional');
     // The Field takes its requirement back: the input is not required any more.
-    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).requirement = 'none'));
+    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).required = false));
     await expect(input(page, 'req-tag')).toHaveJSProperty('required', false);
     expect(seen.filter((w) => w.includes('TXI-23')), 'a framed input is named by its Field').toHaveLength(1);
   });
@@ -1435,7 +1435,7 @@ test.describe('behavior', () => {
     // In a Field, which shows the words of the refusal in its supporting row and announces them (FLD-28).
     await frame(page, 'd', { label: 'Due', supportingText: 'By the end of the year.' }, { type: 'date', locale: 'en-US', max: '2026-12-31', invalidText: 'Finish the date.', unavailableText: 'Too late.' });
     await frame(page, 'listed', { label: 'On', errorText: 'Check the date.' }, { type: 'date', locale: 'en-US', disabledDates: ['2026-09-27'] });
-    await frame(page, 'req', { label: 'Born', requirement: 'required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'req', { label: 'Born', required: true }, { type: 'date', locale: 'en-US' });
     const id = 'd';
     await listenDates(host(page, id));
     const committed = async () => (await dateEvents(page)).filter((e) => !e.startsWith('input:'));
@@ -1672,7 +1672,7 @@ test.describe('behavior', () => {
 
   test('TXI-6: the resize grip, a floating label’s asterisk and the segments are drawn from the tokens of the highest-precedence state, and the focused segment is highlighted in selection.color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    await frame(page, 'required', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'required', { label: 'Email', required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
     const colors = { 'required-asterisk': 'rgb(5, 0, 0)', 'resize-grip': 'rgb(6, 0, 0)' };
     // At rest: the plain parts.
     expect(await css(part(page, 'stacked-multiline-manual', '.grip'), 'color')).toBe(await resolveColor(page, T('stacked-resize-grip-color')));
@@ -2816,7 +2816,7 @@ test.describe('behavior', () => {
       ],
     });
     // In a Field: its help is the description, its requirement the required state, and its error the invalid one.
-    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', requirement: 'required', requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', required: true, requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
     await frame(page, 'refused', { label: 'Start date', error: true, errorText: 'Choose a date after today.' }, { type: 'date', locale: 'en-US', value: '2026-09-27' });
     // The accessibility tree of stacked-date: a group named "Start date" with three spin buttons.
     const group = host(page, 'stacked-date').getByRole('group', { name: 'Start date', exact: true });
@@ -2875,15 +2875,15 @@ test.describe('behavior', () => {
   test('TXI-50: a floating label is followed by an asterisk exactly while the Field that frames the input gives one — for its tag and its asterisk alike, and under auto for the mark the design system names; none where the Field or the system says none, where the label is not drawn or the input is stacked, and never outside a Field; the asterisk follows the label’s text in its style and place, resting and floated, from the input’s own tokens, and is kept from assistive technology', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [fixture('bare', { variant: 'outlined', label: 'Email' }), fixture('plain', { variant: 'outlined', label: 'Email' })] });
-    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', requirement: 'required', requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
-    await frame(page, 'filled-auto', { label: 'Email', requirement: 'required', requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
-    await frame(page, 'hidden', { label: 'Email', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
+    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', required: true, requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'filled-auto', { label: 'Email', required: true, requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
+    await frame(page, 'hidden', { label: 'Email', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
     await frame(page, 'not-required', { label: 'Email' }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, {});
-    await frame(page, 'in-error', { label: 'Email', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
-    await frame(page, 'optional-wordless', { label: 'Company', requirement: 'optional', optionalText: '' }, { variant: 'filled' });
-    await frame(page, 'optional-stacked', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'stacked', { label: 'Email', required: true, requiredMark: 'asterisk' }, {});
+    await frame(page, 'in-error', { label: 'Email', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'optional-wordless', { label: 'Company', required: false, optional: true, optionalText: '' }, { variant: 'filled' });
+    await frame(page, 'optional-stacked', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     const asterisks = (id: string) => host(page, id).locator('label.label .asterisk');
     // Under the default system the Field's mark is the tag: a floating label draws it as the asterisk.
     expect(await token(page, '--tanrei-comp-field-requirement-mark')).toBe('tag');
@@ -4127,7 +4127,7 @@ test.describe('the input and the Field that frames it', () => {
     await expect(host(page, 'pair').getByRole('textbox', { name: 'Email', exact: true })).toHaveCount(1);
     await host(page, 'pair').evaluate((el) => ((el.parentElement as any).labelHidden = false));
     // Required: the asterisk the Field gives, after the floating label.
-    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { requirement: 'required', requiredText: 'Required' }));
+    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { required: true, requiredText: 'Required' }));
     await expect(part(page, 'pair', 'label.label .asterisk')).toHaveCount(1);
     // Back to stacked: the Field's row again, with its own mark, and no label in the input.
     await host(page, 'pair').evaluate((el) => ((el as any).variant = 'stacked'));
@@ -4162,7 +4162,7 @@ test.describe('the input and the Field that frames it', () => {
          <div style="inline-size: 137px"><tanrei-text-input id="narrow" label="Filter" value="a value much wider than the place it stands in"></tanrei-text-input></div>
          <div style="inline-size: 137px"><tanrei-text-input id="code" label="Layer" type="code" multiline no-wrap value="a line of code much wider than the place it stands in"></tanrei-text-input></div>
          <div style="display: flex; align-items: center; inline-size: 500px"><span id="beside" style="flex: none; inline-size: 120px">Beside</span><tanrei-text-input id="in-a-row" label="Beside" style="flex: 1"></tanrei-text-input></div>
-         <tanrei-field label="Email" supporting-text="Help." requirement="required" required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
+         <tanrei-field label="Email" supporting-text="Help." required required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
          <tanrei-field label="Email" style="inline-size: 300px"><tanrei-text-input id="framed-outlined" variant="outlined"></tanrei-text-input></tanrei-field>`,
       ),
     );

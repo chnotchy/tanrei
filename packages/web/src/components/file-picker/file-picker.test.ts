@@ -1388,8 +1388,8 @@ test.describe('behavior', () => {
         document.querySelector('main')!.innerHTML = markup.map(([id, html]) => `<div class="stage" data-in="${id}" style="inline-size: 360px">${html}</div>`).join('');
       },
       [
-        ['help', field('label="Attachment" supporting-text="We keep it for a year." requirement="optional" optional-text="Optional"', 'constraints-text="PDF, up to 10 MB" selection-text="No file chosen"')],
-        ['error', field('label="Attachment" supporting-text="We keep it for a year." error error-text="Choose a PDF of 10 MB or less." requirement="required" required-text="Required"')],
+        ['help', field('label="Attachment" supporting-text="We keep it for a year." optional optional-text="Optional"', 'constraints-text="PDF, up to 10 MB" selection-text="No file chosen"')],
+        ['error', field('label="Attachment" supporting-text="We keep it for a year." error error-text="Choose a PDF of 10 MB or less." required required-text="Required"')],
         ['off', field('label="Attachment" disabled')],
         ['own', field('label="Attachment"', 'label="Supporting documents"')],
       ],

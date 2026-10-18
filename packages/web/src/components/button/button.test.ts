@@ -1514,7 +1514,7 @@ test.describe('in a form', () => {
   const FIELD = (id: string, rest = '') => `<tanrei-text-field id="${id}" name="${id}" label="${id}" ${rest}></tanrei-text-field>`;
 
   test('BTN-27: a submit button asks its form to submit after click, exactly once — by a pointer, Enter, Space and element.click() — with the form’s validation first; a cancelled click validates and sends nothing; a button without type does nothing to the form; the submission is not held for press-hold', async ({ page }) => {
-    await mountForm(page, `<form id="f">${FIELD('who', 'requirement="required"')}<tanrei-button id="send" type="submit">Send</tanrei-button><tanrei-button id="plain">Other</tanrei-button></form>`);
+    await mountForm(page, `<form id="f">${FIELD('who', 'required')}<tanrei-button id="send" type="submit">Send</tanrei-button><tanrei-button id="plain">Other</tanrei-button></form>`);
     // The required field is empty: click, the field is told it is invalid (the platform shows its message), no submit.
     await press(page, 'send');
     expect(await log(page)).toEqual(['click:send', 'invalid:who']);
@@ -1591,7 +1591,7 @@ test.describe('in a form', () => {
   test('BTN-28: a reset button asks its form to reset after click — one reset event, then every control at its initial value — validates and submits nothing; a cancelled reset or a cancelled click leaves the values', async ({ page }) => {
     await mountForm(
       page,
-      `<form id="f">${FIELD('who', 'value="Ada" requirement="required"')}<tanrei-checkbox id="agree" name="agree" label="Agree"></tanrei-checkbox><input id="plain" name="plain" value="native" aria-label="Plain" />
+      `<form id="f">${FIELD('who', 'value="Ada" required')}<tanrei-checkbox id="agree" name="agree" label="Agree"></tanrei-checkbox><input id="plain" name="plain" value="native" aria-label="Plain" />
         <tanrei-button id="clear" type="reset" name="intent" value="clear">Clear</tanrei-button></form>`,
     );
     const change = () =>
