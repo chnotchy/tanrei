@@ -217,6 +217,22 @@ export function TabsOfEveryKind() {
   );
 }
 
+// HTML's `required` on every field and group of fields, beside `requirement` (FLD-32, FGR-26); and `requirement` on the
+// controls that had only `required` (ETI-29, FPK-32).
+export const required = (
+  <>
+    <TextField label="Email" required />
+    <NumberField label="Seats" required requirement="optional" />
+    <RadioGroup label="Delivery" required />
+    <FilePicker requirement="required" />
+    <FileUpload requirement="required" required={false} />
+    {/* @ts-expect-error required is a boolean */}
+    <TextField label="Email" required="yes" />
+    {/* @ts-expect-error a requirement the file picker does not have */}
+    <FilePicker requirement="mandatory" />
+  </>
+);
+
 // The product's words are given through the same package: Tanrei ships none.
 const words: TanreiWords = {};
 setWords(words);
