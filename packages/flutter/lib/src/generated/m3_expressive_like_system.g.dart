@@ -6035,6 +6035,37 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  meter: TanreiMeterTokens(
+    errorIndicatorColor: TanreiPaint.role(TanreiColorRole.error),
+    indicatorColor: TanreiPaint.role(TanreiColorRole.primary),
+    infoIndicatorColor: TanreiPaint.role(TanreiColorRole.info),
+    motionValueDuration: 300,
+    motionValueEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    stopIndicatorSize: 4.0,
+    successIndicatorColor: TanreiPaint.role(TanreiColorRole.success),
+    trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+    trackGap: 4.0,
+    trackSeparation: 1.0,
+    trackShape: 9999.0,
+    warningIndicatorColor: TanreiPaint.role(TanreiColorRole.warning),
+    sizes: TanreiMeterSizes(
+      small: TanreiMeterSizeTokens(
+        linearThickness: 4.0,
+        circularSize: 24.0,
+        circularThickness: 4.0,
+      ),
+      medium: TanreiMeterSizeTokens(
+        linearThickness: 4.0,
+        circularSize: 40.0,
+        circularThickness: 4.0,
+      ),
+      large: TanreiMeterSizeTokens(
+        linearThickness: 4.0,
+        circularSize: 48.0,
+        circularThickness: 4.0,
+      ),
+    ),
+  ),
   modalLayer: TanreiModalLayerTokens(
     motionEnterDuration: 300,
     motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),

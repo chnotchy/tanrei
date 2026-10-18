@@ -117,6 +117,7 @@ private object M3LikeSystemSource {
             mainActionButton = mainActionButton(typescale, elevation),
             menu = menu(typescale, elevation),
             menubar = menubar(typescale, elevation),
+            meter = meter(typescale, elevation),
             modalLayer = modalLayer(typescale, elevation),
             navigationBar = navigationBar(typescale, elevation),
             navigationDrawer = navigationDrawer(typescale, elevation),
@@ -5729,6 +5730,28 @@ private object M3LikeSystemSource {
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun meter(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMeterTokens =
+        TanreiMeterTokens(
+            errorIndicatorColor = TanreiPaint.Role(TanreiColorRole.Error),
+            indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
+            infoIndicatorColor = TanreiPaint.Role(TanreiColorRole.Info),
+            motionValueDuration = 300,
+            motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            stopIndicatorSize = 4.dp,
+            successIndicatorColor = TanreiPaint.Role(TanreiColorRole.Success),
+            trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            trackGap = 4.dp,
+            trackSeparation = 1f,
+            trackShape = 9999.dp,
+            warningIndicatorColor = TanreiPaint.Role(TanreiColorRole.Warning),
+            sizes = TanreiMeterSizes(
+                small = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 24.dp, circularThickness = 4.dp),
+                medium = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 40.dp, circularThickness = 4.dp),
+                large = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 48.dp, circularThickness = 4.dp),
             ),
         )
 

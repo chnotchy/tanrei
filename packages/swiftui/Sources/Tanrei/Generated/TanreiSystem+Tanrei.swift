@@ -5890,6 +5890,38 @@ private let tanreiMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let tanreiMeterTokens = TanreiMeterTokens(
+  errorIndicatorColor: .role(.error),
+  indicatorColor: .role(.primary),
+  infoIndicatorColor: .role(.info),
+  motionValueDuration: 300,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  stopIndicatorSize: 0,
+  successIndicatorColor: .role(.success),
+  trackColor: .role(.surfaceVariant),
+  trackGap: 4,
+  trackSeparation: 0,
+  trackShape: 9999,
+  warningIndicatorColor: .role(.warning),
+  sizes: TanreiMeterSizes(
+    small: TanreiMeterSizeTokens(
+      linearThickness: 2,
+      circularSize: 16,
+      circularThickness: 2
+    ),
+    medium: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 24,
+      circularThickness: 2
+    ),
+    large: TanreiMeterSizeTokens(
+      linearThickness: 8,
+      circularSize: 40,
+      circularThickness: 2
+    )
+  )
+)
+
 private let tanreiModalLayerTokens = TanreiModalLayerTokens(
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
@@ -10014,6 +10046,7 @@ extension TanreiSystem {
     mainActionButton: tanreiMainActionButtonTokens,
     menu: tanreiMenuTokens,
     menubar: tanreiMenubarTokens,
+    meter: tanreiMeterTokens,
     modalLayer: tanreiModalLayerTokens,
     navigationBar: tanreiNavigationBarTokens,
     navigationDrawer: tanreiNavigationDrawerTokens,

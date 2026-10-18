@@ -6015,6 +6015,38 @@ private let m3ExpressiveLikeMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let m3ExpressiveLikeMeterTokens = TanreiMeterTokens(
+  errorIndicatorColor: .role(.error),
+  indicatorColor: .role(.primary),
+  infoIndicatorColor: .role(.info),
+  motionValueDuration: 300,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  stopIndicatorSize: 4,
+  successIndicatorColor: .role(.success),
+  trackColor: .role(.secondaryContainer),
+  trackGap: 4,
+  trackSeparation: 1,
+  trackShape: 9999,
+  warningIndicatorColor: .role(.warning),
+  sizes: TanreiMeterSizes(
+    small: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 24,
+      circularThickness: 4
+    ),
+    medium: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 40,
+      circularThickness: 4
+    ),
+    large: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 48,
+      circularThickness: 4
+    )
+  )
+)
+
 private let m3ExpressiveLikeModalLayerTokens = TanreiModalLayerTokens(
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
@@ -10139,6 +10171,7 @@ extension TanreiSystem {
     mainActionButton: m3ExpressiveLikeMainActionButtonTokens,
     menu: m3ExpressiveLikeMenuTokens,
     menubar: m3ExpressiveLikeMenubarTokens,
+    meter: m3ExpressiveLikeMeterTokens,
     modalLayer: m3ExpressiveLikeModalLayerTokens,
     navigationBar: m3ExpressiveLikeNavigationBarTokens,
     navigationDrawer: m3ExpressiveLikeNavigationDrawerTokens,
