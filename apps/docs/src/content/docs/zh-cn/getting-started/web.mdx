@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: d1e9ec01d253afa6bea58125af2b81a99e5d01a6
+sourceHash: d7a902eae657f6f6948c5db7f205778e61104046
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -132,6 +132,50 @@ npm install @tanrei/web
   这两个属性既可以用在 `<html>` 上，也可以用在任意子树上。生成的样式表把整套令牌声明在 `:root, [data-tanrei-contrast]` 上，因此在嵌套元素上设置 `data-tanrei-contrast` 时，其中的组件令牌也会按该对比度级别重新解析，而不只是系统颜色。
 </Callout>
 
+### 记住用户选择的主题
+
+如果用户可以在你的产品里选择主题，就要保存这个选择，并在页面第一次绘制之前把它放到 `<html>` 上：如果由之后才运行的脚本来设置，页面会先用系统的主题显示一帧。`@tanrei/web/theme-script` 两件事都做。`themeScript()` 是一段要内联在 `<head>` 里、写在样式表之前的小脚本，`saveTheme()` 保存一个选择并立即绘制它。
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light'、'dark'，或者 'system'，重新跟随操作系统
+loadTheme();       // 保存的内容：'light'、'dark' 或 'system'
+```
+
+在 Next.js（App Router）中，把它内联在根布局里。加上 `suppressHydrationWarning`，是因为脚本会在 React 水合之前改变 `<html>` 的一个属性。
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+在 Astro 中，把它内联在布局里：
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## 在自己的 CSS 中使用令牌
 
 每个令牌都是一个以其路径命名的自定义属性：`tanrei.sys.color.primary` 对应 `--tanrei-sys-color-primary`。
@@ -144,6 +188,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+要从脚本设置令牌，请使用 `@tanrei/web` 的 `setTokens()`：在根上是 `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`，对页面的一部分则加上 `{ on: element }`。在根上用 `style.setProperty()` 单独设置一个令牌，会让 Safari 花几秒钟重新计算整个页面的样式；`setTokens()` 的写法不会这样。
 
 ## 文本样式
 
