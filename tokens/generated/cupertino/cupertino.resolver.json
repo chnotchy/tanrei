@@ -64,6 +64,9 @@
           "$ref": "comp/progress-indicator.tokens.json"
         },
         {
+          "$ref": "comp/meter.tokens.json"
+        },
+        {
           "$ref": "comp/loading-indicator.tokens.json"
         },
         {

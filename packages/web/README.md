@@ -203,7 +203,7 @@ or by empty space (`gap`). One choice for the whole system, which a component an
 | Level | Where | On the web |
 |---|---|---|
 | System | `sys.behavior.separation` | `--tanrei-sys-behavior-separation: divider \| gap`, wherever the system is declared |
-| Component | `comp.button-group.connected.separation`, `comp.button-with-menu.container.separation`, `comp.progress-indicator.track.separation`, `comp.menu.separation` | `--tanrei-comp-<…>-separation`, whose value is `var(--tanrei-sys-behavior-separation)` until a layer (or your own CSS) sets it to a name |
+| Component | `comp.button-group.connected.separation`, `comp.button-with-menu.container.separation`, `comp.progress-indicator.track.separation`, `comp.meter.track.separation`, `comp.menu.separation` | `--tanrei-comp-<…>-separation`, whose value is `var(--tanrei-sys-behavior-separation)` until a layer (or your own CSS) sets it to a name |
 | Instance | the `separation` attribute: `auto` (the default), `divider`, `gap` | the attribute wins over both tokens; any other value is `auto` and is reported in debug builds |
 
 | Component | `divider` | `gap` |
@@ -211,6 +211,7 @@ or by empty space (`gap`). One choice for the whole system, which a component an
 | `<tanrei-button-group variant="connected">` | the items touch, square where they meet, a line on each seam; no item draws its outline or its elevation's ring along a seam | the items `connected.gap` apart, `connected.inner-shape` where they face each other |
 | `<tanrei-button-with-menu>` | the same, between its two halves | the same |
 | `<tanrei-progress-indicator>` | the indicator is drawn on the track, touching it | `track.gap` between the indicator and the track (on a ring at both ends of the arc); the stop indicator on a bar is drawn by its size under either |
+| `<tanrei-meter>` | the same as the progress indicator's determinate form | the same |
 | `<tanrei-menu>` (and its submenus) | a line of `divider.thickness` between a group and what is next to it, `divider.space` above and below, a separator | `group.gap` of empty space there, no line and no separator |
 
 Each component reads the choice with a style container query on a private property of its host
@@ -991,6 +992,52 @@ screen (an IntersectionObserver) the animation is paused.
 (clamped) and `aria-valuetext`; indeterminate, `aria-busy="true"` and no value. Never focusable, never a live region.
 A size the active system lacks draws medium, a variant the component does not define draws linear and a separation it
 does not define is `auto`; each is reported (PRG-12). Parts: `track`, `indicator`, `stop-indicator`.
+
+## `<tanrei-meter>`
+
+Where a known value stands in a known range, as a bar or a ring (`specs/meter.spec.json`, MTR-1…15).
+
+```html
+<tanrei-meter value="0.62" label="Storage used" value-text="9.3 GB of 15 GB"></tanrei-meter>
+<tanrei-meter value="0.85" status="warning" label="Storage used" value-text="Almost full: 12.8 GB of 15 GB"></tanrei-meter>
+<tanrei-meter variant="circular" value="0.62" label="Battery"></tanrei-meter>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `variant` | `linear` \| `circular` | `linear` | drawn by the component; reflected |
+| `size` | `small` \| `medium` \| `large` (+ values a layer adds) | `medium` | the bar's thickness or the ring's square; reflected |
+| `separation` | `auto` \| `divider` \| `gap` | `auto` | as the progress indicator's (see Separation): `auto` takes `comp.meter.track.separation`; reflected |
+| `status` | `default` \| `info` \| `success` \| `warning` \| `error` | `default` | the indicator's color, and nothing else (MTR-3, MTR-9); the product decides it — no thresholds; reflected |
+| `value` | number | `0` | clamped to the range; not a finite number is drawn and exposed as `min` (MTR-10) |
+| `min`, `max` | number | `0`, `1` | `max` not above `min` draws the track only and exposes 0 of 0…1 (MTR-10) |
+| `label` | string | `""` | the accessible name, required (MTR-14) |
+| `valueText` / `value-text` | string | `""` | read instead of the percentage; say what the status means here |
+
+**The drawing is the progress indicator's determinate form** (`src/primitives/range-track.ts`: `rangeTrackStyles()`,
+`renderRangeBar()`, `renderRangeRing()`, `rangeOf()`, `rangeAxes()`), read from `--tanrei-comp-meter-*`, which alias
+the progress indicator's tokens by default: the two match side by side, and a layer can set either apart. The meter
+never runs an indeterminate motion. Its own parts: the indicator and the stop indicator are drawn in `--_indicator`,
+the color of the `status` attribute (`comp.meter.<status>.indicator.color`, `comp.meter.indicator.color` for default
+and for an unknown status).
+
+**Motion.** A change of value moves the end, and a change of status fades the indicator's color, over
+`motion.value-duration` with `motion.value-easing` (MTR-6); the first frame has nothing to transition from. Under
+`prefers-reduced-motion: reduce` the end moves at once and the color still fades. A change of the direction around
+it is drawn at once (MTR-13): the bar's ends are logical insets, and a flip of direction moves a physical one from
+one value to another (the track after a gap goes from `right: 0` to its start), which the value's transition would
+run — so a `DirectionController` finishes the transitions the flip started, in the ResizeObserver callback of the
+same frame, before it is painted.
+
+**Forced colors** (MTR-15): the track is an inset edge of `sys.border.hairline` in `CanvasText` over `Canvas` (on a
+ring, a hairline stroke), and the indicator is filled in `CanvasText`, whatever the status.
+
+**Semantics.** The host is the meter: `role="meter"`, `aria-label`, `aria-valuemin`, `-max`, `-now` (clamped) and
+`aria-valuetext` while `value-text` is set — never a progressbar, never `aria-busy`. The native `<meter>` is not
+drawn: what of it can be styled differs by engine (the pseudo-elements are WebKit's own). Never focusable, never a live
+region; nothing of `status` is exposed. A size the active system lacks draws medium; a variant, separation or status
+the meter does not define draws linear, auto or default; each is reported (MTR-11). Parts: `track`, `indicator`,
+`stop-indicator`.
 
 ## `<tanrei-loading-indicator>`
 

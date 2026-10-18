@@ -15172,6 +15172,187 @@ class TanreiMenubarTokens {
       };
 }
 
+/// The key of a size of meter (`comp.meter`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiMeterSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiMeterSize(String name) {
+  static const small = TanreiMeterSize('small');
+  static const medium = TanreiMeterSize('medium');
+  static const large = TanreiMeterSize('large');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiMeterSize> core = <TanreiMeterSize>[small, medium, large];
+}
+
+/// The tokens of one meter size.
+@immutable
+class TanreiMeterSizeTokens {
+  const TanreiMeterSizeTokens({
+    required this.linearThickness,
+    required this.circularSize,
+    required this.circularThickness,
+  });
+
+  /// `comp.meter.linear-thickness.<size>`
+  final double linearThickness;
+  /// `comp.meter.circular-size.<size>`
+  final double circularSize;
+  /// `comp.meter.circular-thickness.<size>`
+  final double circularThickness;
+
+  /// A copy with the given tokens replaced.
+  TanreiMeterSizeTokens copyWith({
+    double? linearThickness,
+    double? circularSize,
+    double? circularThickness,
+  }) => TanreiMeterSizeTokens(
+        linearThickness: linearThickness ?? this.linearThickness,
+        circularSize: circularSize ?? this.circularSize,
+        circularThickness: circularThickness ?? this.circularThickness,
+      );
+}
+
+/// Every size of meter: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiMeterSizes {
+  const TanreiMeterSizes({
+    required this.small,
+    required this.medium,
+    required this.large,
+    this.extra = const <TanreiMeterSize, TanreiMeterSizeTokens>{},
+  });
+
+  /// `comp.meter` size `small`
+  final TanreiMeterSizeTokens small;
+  /// `comp.meter` size `medium`
+  final TanreiMeterSizeTokens medium;
+  /// `comp.meter` size `large`
+  final TanreiMeterSizeTokens large;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiMeterSize, TanreiMeterSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiMeterSizes copyWith({
+    TanreiMeterSizeTokens? small,
+    TanreiMeterSizeTokens? medium,
+    TanreiMeterSizeTokens? large,
+    Map<TanreiMeterSize, TanreiMeterSizeTokens>? extra,
+  }) => TanreiMeterSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        large: large ?? this.large,
+        extra: extra == null ? this.extra : <TanreiMeterSize, TanreiMeterSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiMeterSizeTokens operator [](TanreiMeterSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        'large' => large,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiMeterSize size) => TanreiMeterSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiMeterSize> get keys => <TanreiMeterSize>[...TanreiMeterSize.core, ...extra.keys];
+
+  TanreiMeterSizeTokens _fallback(TanreiMeterSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('meter size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
+/// `comp.meter.*`
+@immutable
+class TanreiMeterTokens {
+  const TanreiMeterTokens({
+    required this.errorIndicatorColor,
+    required this.indicatorColor,
+    required this.infoIndicatorColor,
+    required this.motionValueDuration,
+    required this.motionValueEasing,
+    required this.stopIndicatorSize,
+    required this.successIndicatorColor,
+    required this.trackColor,
+    required this.trackGap,
+    required this.trackSeparation,
+    required this.trackShape,
+    required this.warningIndicatorColor,
+    required this.sizes,
+  });
+
+  /// `comp.meter.error-indicator-color`
+  final TanreiPaint errorIndicatorColor;
+  /// `comp.meter.indicator-color`
+  final TanreiPaint indicatorColor;
+  /// `comp.meter.info-indicator-color`
+  final TanreiPaint infoIndicatorColor;
+  /// `comp.meter.motion-value-duration`
+  final int motionValueDuration;
+  /// `comp.meter.motion-value-easing`
+  final TanreiCubicBezier motionValueEasing;
+  /// `comp.meter.stop-indicator-size`
+  final double stopIndicatorSize;
+  /// `comp.meter.success-indicator-color`
+  final TanreiPaint successIndicatorColor;
+  /// `comp.meter.track-color`
+  final TanreiPaint trackColor;
+  /// `comp.meter.track-gap`
+  final double trackGap;
+  /// `comp.meter.track-separation`
+  final double trackSeparation;
+  /// `comp.meter.track-shape`
+  final double trackShape;
+  /// `comp.meter.warning-indicator-color`
+  final TanreiPaint warningIndicatorColor;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiMeterSizes sizes;
+
+  /// A copy with the given tokens replaced.
+  TanreiMeterTokens copyWith({
+    TanreiPaint? errorIndicatorColor,
+    TanreiPaint? indicatorColor,
+    TanreiPaint? infoIndicatorColor,
+    int? motionValueDuration,
+    TanreiCubicBezier? motionValueEasing,
+    double? stopIndicatorSize,
+    TanreiPaint? successIndicatorColor,
+    TanreiPaint? trackColor,
+    double? trackGap,
+    double? trackSeparation,
+    double? trackShape,
+    TanreiPaint? warningIndicatorColor,
+    TanreiMeterSizes? sizes,
+  }) => TanreiMeterTokens(
+        errorIndicatorColor: errorIndicatorColor ?? this.errorIndicatorColor,
+        indicatorColor: indicatorColor ?? this.indicatorColor,
+        infoIndicatorColor: infoIndicatorColor ?? this.infoIndicatorColor,
+        motionValueDuration: motionValueDuration ?? this.motionValueDuration,
+        motionValueEasing: motionValueEasing ?? this.motionValueEasing,
+        stopIndicatorSize: stopIndicatorSize ?? this.stopIndicatorSize,
+        successIndicatorColor: successIndicatorColor ?? this.successIndicatorColor,
+        trackColor: trackColor ?? this.trackColor,
+        trackGap: trackGap ?? this.trackGap,
+        trackSeparation: trackSeparation ?? this.trackSeparation,
+        trackShape: trackShape ?? this.trackShape,
+        warningIndicatorColor: warningIndicatorColor ?? this.warningIndicatorColor,
+        sizes: sizes ?? this.sizes,
+      );
+}
+
 /// `comp.modal-layer.*`
 @immutable
 class TanreiModalLayerTokens {
@@ -25748,6 +25929,7 @@ class TanreiSystem {
     required this.mainActionButton,
     required this.menu,
     required this.menubar,
+    required this.meter,
     required this.modalLayer,
     required this.navigationBar,
     required this.navigationDrawer,
@@ -25846,6 +26028,7 @@ class TanreiSystem {
   final TanreiMainActionButtonTokens mainActionButton;
   final TanreiMenuTokens menu;
   final TanreiMenubarTokens menubar;
+  final TanreiMeterTokens meter;
   final TanreiModalLayerTokens modalLayer;
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
@@ -25943,6 +26126,7 @@ class TanreiSystem {
     TanreiMainActionButtonTokens? mainActionButton,
     TanreiMenuTokens? menu,
     TanreiMenubarTokens? menubar,
+    TanreiMeterTokens? meter,
     TanreiModalLayerTokens? modalLayer,
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
@@ -26038,6 +26222,7 @@ class TanreiSystem {
         mainActionButton: mainActionButton ?? this.mainActionButton,
         menu: menu ?? this.menu,
         menubar: menubar ?? this.menubar,
+        meter: meter ?? this.meter,
         modalLayer: modalLayer ?? this.modalLayer,
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,

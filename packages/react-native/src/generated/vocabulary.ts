@@ -3248,6 +3248,48 @@ export interface TanreiMenubarTokens {
 }
 
 /**
+ * Every value of `comp.meter`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiMeterSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+export type TanreiMeterSize = keyof TanreiMeterSizeRegistry;
+export type TanreiCoreMeterSize = "small" | "medium" | "large";
+
+/** The tokens of one `size` of `comp.meter`. */
+export interface TanreiMeterSizeTokens {
+  readonly linearThickness: number;
+  readonly circularSize: number;
+  readonly circularThickness: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiMeterSizes = { readonly [Key in TanreiCoreMeterSize]: TanreiMeterSizeTokens } & { readonly [Key in TanreiMeterSize]?: TanreiMeterSizeTokens };
+
+/**
+ * `comp.meter`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`sizes`), keyed by the axis value.
+ */
+export interface TanreiMeterTokens {
+  readonly errorIndicatorColor: TanreiPaint;
+  readonly indicatorColor: TanreiPaint;
+  readonly infoIndicatorColor: TanreiPaint;
+  readonly motionValueDuration: number;
+  readonly motionValueEasing: TanreiCubicBezier;
+  readonly stopIndicatorSize: number;
+  readonly successIndicatorColor: TanreiPaint;
+  readonly trackColor: TanreiPaint;
+  readonly trackGap: number;
+  readonly trackSeparation: number;
+  readonly trackShape: number;
+  readonly warningIndicatorColor: TanreiPaint;
+  readonly sizes: TanreiMeterSizes;
+}
+
+/**
  * `comp.modal-layer`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -5525,6 +5567,7 @@ export interface TanreiComponents {
   readonly mainActionButton: TanreiMainActionButtonTokens;
   readonly menu: TanreiMenuTokens;
   readonly menubar: TanreiMenubarTokens;
+  readonly meter: TanreiMeterTokens;
   readonly modalLayer: TanreiModalLayerTokens;
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
@@ -5647,6 +5690,7 @@ declare module './vocabulary' {
   interface TanreiMainActionButtonVariantRegistry {}
   interface TanreiMenuConditionRegistry {}
   interface TanreiMenubarConditionRegistry {}
+  interface TanreiMeterSizeRegistry {}
   interface TanreiNavigationBarConditionRegistry {}
   interface TanreiNavigationDrawerVariantRegistry {}
   interface TanreiNavigationDrawerConditionRegistry {}

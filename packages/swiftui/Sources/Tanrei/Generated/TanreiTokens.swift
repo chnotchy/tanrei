@@ -10417,6 +10417,133 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
   }
 }
 
+/// A value of meter's `size` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiMeterSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiMeterSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let small = TanreiMeterSize(rawValue: "small")
+  public static let medium = TanreiMeterSize(rawValue: "medium")
+  public static let large = TanreiMeterSize(rawValue: "large")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiMeterSize] = [.small, .medium, .large]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiMeterSize.medium
+}
+
+/// Everything of meter that depends on its size.
+public struct TanreiMeterSizeTokens: Sendable, Equatable {
+  public var linearThickness: CGFloat
+  public var circularSize: CGFloat
+  public var circularThickness: CGFloat
+
+  public init(
+    linearThickness: CGFloat,
+    circularSize: CGFloat,
+    circularThickness: CGFloat
+  ) {
+    self.linearThickness = linearThickness
+    self.circularSize = circularSize
+    self.circularThickness = circularThickness
+  }
+}
+
+/// The sizes of meter: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiMeterSizes: Sendable, Equatable {
+  public var small: TanreiMeterSizeTokens
+  public var medium: TanreiMeterSizeTokens
+  public var large: TanreiMeterSizeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiMeterSize: TanreiMeterSizeTokens]
+
+  public init(
+    small: TanreiMeterSizeTokens,
+    medium: TanreiMeterSizeTokens,
+    large: TanreiMeterSizeTokens,
+    extra: [TanreiMeterSize: TanreiMeterSizeTokens] = [:]
+  ) {
+    self.small = small
+    self.medium = medium
+    self.large = large
+    self.extra = extra
+  }
+
+  /// The tokens of one meter size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiMeterSize) -> TanreiMeterSizeTokens? {
+    switch key {
+    case .small: return small
+    case .medium: return medium
+    case .large: return large
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a meter size this design system does not have reads the tokens of `medium`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiMeterSize) -> TanreiMeterSizeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no meter size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
+  }
+
+  /// Every meter size of this design system: the core ones, then what it added.
+  public var keys: [TanreiMeterSize] { TanreiMeterSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Component tokens of meter (comp.meter).
+public struct TanreiMeterTokens: Sendable, Equatable {
+  public var errorIndicatorColor: TanreiPaint
+  public var indicatorColor: TanreiPaint
+  public var infoIndicatorColor: TanreiPaint
+  public var motionValueDuration: Double
+  public var motionValueEasing: TanreiCubicBezier
+  public var stopIndicatorSize: CGFloat
+  public var successIndicatorColor: TanreiPaint
+  public var trackColor: TanreiPaint
+  public var trackGap: CGFloat
+  public var trackSeparation: Double
+  public var trackShape: CGFloat
+  public var warningIndicatorColor: TanreiPaint
+  public var sizes: TanreiMeterSizes
+
+  public init(
+    errorIndicatorColor: TanreiPaint,
+    indicatorColor: TanreiPaint,
+    infoIndicatorColor: TanreiPaint,
+    motionValueDuration: Double,
+    motionValueEasing: TanreiCubicBezier,
+    stopIndicatorSize: CGFloat,
+    successIndicatorColor: TanreiPaint,
+    trackColor: TanreiPaint,
+    trackGap: CGFloat,
+    trackSeparation: Double,
+    trackShape: CGFloat,
+    warningIndicatorColor: TanreiPaint,
+    sizes: TanreiMeterSizes
+  ) {
+    self.errorIndicatorColor = errorIndicatorColor
+    self.indicatorColor = indicatorColor
+    self.infoIndicatorColor = infoIndicatorColor
+    self.motionValueDuration = motionValueDuration
+    self.motionValueEasing = motionValueEasing
+    self.stopIndicatorSize = stopIndicatorSize
+    self.successIndicatorColor = successIndicatorColor
+    self.trackColor = trackColor
+    self.trackGap = trackGap
+    self.trackSeparation = trackSeparation
+    self.trackShape = trackShape
+    self.warningIndicatorColor = warningIndicatorColor
+    self.sizes = sizes
+  }
+}
+
 /// Component tokens of modal-layer (comp.modal-layer).
 public struct TanreiModalLayerTokens: Sendable, Equatable {
   public var motionEnterDuration: Double
@@ -17987,6 +18114,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _menubar.value }
     set { _menubar.value = newValue }
   }
+  public var meter: TanreiMeterTokens {
+    get { _meter.value }
+    set { _meter.value = newValue }
+  }
   public var modalLayer: TanreiModalLayerTokens {
     get { _modalLayer.value }
     set { _modalLayer.value = newValue }
@@ -18170,6 +18301,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _mainActionButton: TanreiBox<TanreiMainActionButtonTokens>
   private var _menu: TanreiBox<TanreiMenuTokens>
   private var _menubar: TanreiBox<TanreiMenubarTokens>
+  private var _meter: TanreiBox<TanreiMeterTokens>
   private var _modalLayer: TanreiBox<TanreiModalLayerTokens>
   private var _navigationBar: TanreiBox<TanreiNavigationBarTokens>
   private var _navigationDrawer: TanreiBox<TanreiNavigationDrawerTokens>
@@ -18266,6 +18398,7 @@ public struct TanreiSystem: Sendable, Equatable {
     mainActionButton: TanreiMainActionButtonTokens,
     menu: TanreiMenuTokens,
     menubar: TanreiMenubarTokens,
+    meter: TanreiMeterTokens,
     modalLayer: TanreiModalLayerTokens,
     navigationBar: TanreiNavigationBarTokens,
     navigationDrawer: TanreiNavigationDrawerTokens,
@@ -18361,6 +18494,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._mainActionButton = TanreiBox(mainActionButton)
     self._menu = TanreiBox(menu)
     self._menubar = TanreiBox(menubar)
+    self._meter = TanreiBox(meter)
     self._modalLayer = TanreiBox(modalLayer)
     self._navigationBar = TanreiBox(navigationBar)
     self._navigationDrawer = TanreiBox(navigationDrawer)

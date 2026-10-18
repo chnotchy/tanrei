@@ -316,6 +316,7 @@ export {
   type TanreiProgressIndicatorSize,
   type TanreiProgressIndicatorVariant,
 } from './components/progress-indicator/progress-indicator.js';
+export { TanreiMeter, type TanreiMeterSeparation, type TanreiMeterSize, type TanreiMeterStatus, type TanreiMeterVariant } from './components/meter/meter.js';
 export { TanreiRadioButton, type TanreiRadioButtonChangeDetail, type TanreiRadioButtonOwner } from './components/radio-button/radio-button.js';
 export {
   TanreiRadioGroup,

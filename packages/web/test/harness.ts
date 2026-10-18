@@ -1038,6 +1038,10 @@ const STAGING: Record<string, Staging> = {
   'progress-indicator': {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
+  // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
+  meter: {
+    css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
+  },
   // A loading indicator's fixture is the shown indicator from its first frame: no show delay and no entrance (LDG-11's
   // verify). A test's own fixture may name either.
   'loading-indicator': {

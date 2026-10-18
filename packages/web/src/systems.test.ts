@@ -21,6 +21,8 @@ const SUBJECTS = [
   subject('bottom-sheet', (fixture) => fixture.id === 'modal', { window: { width: 400, height: 720 }, wholeWindow: true }),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
+  // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
+  subject('meter', (fixture) => fixture.id === 'linear'),
   // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.

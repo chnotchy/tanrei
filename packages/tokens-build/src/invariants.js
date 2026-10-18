@@ -426,6 +426,31 @@ export function checkInvariants(model) {
     }
   }
 
+  // A meter's value is read where its indicator ends against its track (WCAG 1.4.11). The indicator color of each of
+  // its statuses — default, info, success, warning and error — is held 3:1 against the track, and against every
+  // surface role the meter may stand on (where a gap separation leaves space, the surface shows between them), in
+  // every scheme. A non-text ratio is not raised in the high-contrast schemes. A pair the role pairs already hold at
+  // 3:1 or more (a status's own color on a surface is held as text there) is left to them.
+  const meter = `${CONFIG.namespace}.comp.meter`;
+  const meterGrounds = [[`${meter}.track.color`, 'its track'], ...SURFACES.map((surface) => [`${CONFIG.namespace}.sys.color.${surface}`, 'the surface it stands on'])];
+  for (const part of ['indicator.color', ...STATUSES.map((status) => `${status}.indicator.color`)]) {
+    const fgId = `${meter}.${part}`;
+    if (!model.tokens[fgId]) continue;
+    for (const [bgId, what] of meterGrounds) {
+      const isRole = bgId.startsWith(`${CONFIG.namespace}.sys.color.`);
+      if (!isRole && !model.tokens[bgId]) continue;
+      const [fgRole, bgRole] = [role(model.tokens[fgId]), isRole ? bgId.split('.').at(-1) : role(model.tokens[bgId])];
+      if (fgRole && bgRole && (held.get(`${fgRole} ${bgRole}`) ?? 0) >= NON_TEXT) continue;
+      for (const scheme of model.schemes) {
+        const fg = fgRole && model.colors[scheme][fgRole] ? model.colors[scheme][fgRole].value : inScheme(scheme, fgId);
+        const bg = bgRole && model.colors[scheme][bgRole] ? model.colors[scheme][bgRole].value : inScheme(scheme, bgId);
+        if (!fg || !bg || rgba(bg).a < 1) continue;
+        const ratio = contrast(fg, bg);
+        if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (a meter's indicator against ${what}, where its value is read — WCAG 1.4.11)`);
+      }
+    }
+  }
+
   // The fill inside a radio's ring (WCAG 1.4.11). The center of a chosen radio is a part of the mark, and it is held
   // 3:1 against the color it meets: the ring itself where the fill meets the ring (an inset of 0, the default system's
   // one shape), or the gap where an inset leaves one (a dot, Material's), which shows what the radio stands on. Each is

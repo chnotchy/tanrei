@@ -884,6 +884,26 @@
       }
     },
     {
+      "name": "meter",
+      "title": "Meter",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-meter",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/meter"
+      },
+      "react": {
+        "name": "Meter",
+        "import": "@tanrei/react/cupertino"
+      },
+      "variants": [
+        "linear",
+        "circular"
+      ]
+    },
+    {
       "name": "modal-layer",
       "title": "Modal layer",
       "level": "base",
