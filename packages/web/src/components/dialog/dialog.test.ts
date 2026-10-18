@@ -3,6 +3,7 @@
 // top layer), and every value is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
 import { type Fixture, type FixtureItem, dialogWindow, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
@@ -738,9 +739,10 @@ test.describe('compact window', () => {
     }).toBe(WIDE.height / 2);
     expect(await d.evaluate((el) => el.getAnimations().length)).toBe(0);
     expect(await focused(page)).toBe('Cancel');
+    await watchTransitions(d);
     await page.setViewportSize(COMPACT);
     await expect.poll(async () => Math.round((await bounds(d)).y + (await bounds(d)).height)).toBe(COMPACT.height);
-    expect(await d.evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await transitionsRun(d)).toEqual([]);
     expect(await focused(page)).toBe('Cancel');
     // Escape still dismisses it.
     await page.keyboard.press('Escape');
