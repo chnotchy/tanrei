@@ -124,9 +124,9 @@ test.describe('behavior', () => {
     });
     // The slot is passed on only while the element has a child for it: a Field with no glyph draws no room for one.
     expect(await one(page, 'bare').evaluate((el) => el.shadowRoot!.querySelectorAll('slot').length)).toBe(0);
-    // It has no state and no prop of its own: sixteen properties, each a member's (and the form's `name`).
+    // It has no state and no prop of its own: seventeen properties, each a member's (and the form's `name`).
     expect(await one(page, 'bare').evaluate((el) => [...(el.constructor as unknown as { elementProperties: Map<string, unknown> }).elementProperties.keys()].sort())).toEqual(
-      ['disabled', 'error', 'errorText', 'formDisabled', 'invalidText', 'label', 'labelHidden', 'name', 'optionalText', 'picker', 'pickerLabel', 'requiredMark', 'requiredText', 'requirement', 'size', 'supportingText', 'value', 'variant'],
+      ['disabled', 'error', 'errorText', 'formDisabled', 'invalidText', 'label', 'labelHidden', 'name', 'optionalText', 'picker', 'pickerLabel', 'required', 'requiredMark', 'requiredText', 'requirement', 'size', 'supportingText', 'value', 'variant'],
     );
   });
 
