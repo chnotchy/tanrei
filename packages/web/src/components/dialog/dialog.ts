@@ -5,6 +5,7 @@ import {
   ActionPlacement,
   AvailabilityController,
   BUTTON_VARIANTS,
+  CompactWindow,
   type DividerVisibilityProp,
   GlyphMirrorController,
   HOST_VARIANT,
@@ -18,6 +19,7 @@ import {
   holdPageScroll,
   isDisabledControl,
   isDividerVisibility,
+  keyboardCover,
   modalLayer,
   report,
   syncDividerVisibility,
@@ -36,6 +38,10 @@ export type TanreiDialogDividerVisibility = DividerVisibilityProp;
 /** What decides the container's width outside a compact window (DLG-27): its widest part, or one of three fixed widths. */
 export type TanreiDialogWidth = 'content' | 'small' | 'medium' | 'large';
 const WIDTHS: readonly string[] = ['content', 'small', 'medium', 'large'];
+
+/** How it is presented in a compact window (DLG-17): with the bottom sheet's appearance, or centred still. */
+export type TanreiDialogCompactPresentation = 'sheet' | 'own';
+const COMPACT_PRESENTATIONS: readonly string[] = ['sheet', 'own'];
 
 /** Why the dialog was dismissed (DLG-5, DLG-25). The web has no back of its own; Android's back gesture arrives as `back`. */
 export type TanreiDialogDismissReason = 'escape' | 'back' | 'scrim' | 'close';
@@ -61,7 +67,10 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * true: in the top layer over `::backdrop` (the scrim, `comp.dialog.scrim.color`), with everything else inert and the page
  * held from scrolling. Focus goes to the slotted element marked `autofocus`, or to the dialog itself, stays inside it
  * (Tab wraps), and returns where it was when the dialog closes. It is an operated modal overlay.
- * Centred in the window, or at the bottom of a window narrower than `comp.dialog.compact.window-width` (DLG-17).
+ * Centred in the window, or — in a window narrower than `comp.dialog.compact.window-width` — with the bottom sheet's
+ * appearance at its bottom edge (DLG-17, DLG-18): docked to the edge, as wide as the window up to the bottom sheet's
+ * greatest width, in its color, elevation and top corners, square at the bottom, sliding up with its motion; still a
+ * modal dialog, with no drag. `compact-presentation="own"` keeps it centred in every window.
  *
  * While `closedby` is not `none`, Escape, the platform's back, a press on the scrim and — while `closable` — its close
  * button fire `cancel`, whose `detail.reason` says which (`escape`, `back`, `scrim`, `close`). It is cancelable: the
@@ -126,6 +135,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
     closable: { type: Boolean, reflect: true },
     closeLabel: { type: String, attribute: 'close-label' },
     width: { type: String, reflect: true },
+    compactPresentation: { type: String, attribute: 'compact-presentation', reflect: true },
     filled: { state: true },
   };
 
@@ -167,6 +177,13 @@ export class TanreiDialog extends LitElement implements VariantHost {
    */
   width: TanreiDialogWidth = 'content';
 
+  /**
+   * How it is presented in a window narrower than `comp.dialog.compact.window-width`: `sheet` (the default) with the
+   * bottom sheet's appearance at the window's bottom edge, `own` centred as in every other window. Anything else is
+   * `sheet` (DLG-17). The attribute is `compact-presentation`; reflected.
+   */
+  compactPresentation: TanreiDialogCompactPresentation = 'sheet';
+
   /** Which parts hold something (DLG-8: an empty part is left out). */
   private filled = { icon: false, content: false, actions: false };
 
@@ -176,9 +193,8 @@ export class TanreiDialog extends LitElement implements VariantHost {
   // DLG-10: a button that draws (or changes) its label changes whether the row fits.
   private readonly placement = new ActionPlacement(this, (action) => this.resize$?.observe(action));
 
-  /** DLG-17: the compact width it matches the window against, and the query for it. */
-  private compactWidth = Number.NaN;
-  private compactQuery: MediaQueryList | null = null;
+  /** DLG-17: the window, matched against the resolved `compact.window-width`; crossing it re-places at once. */
+  private readonly compact = new CompactWindow(() => this.layout());
 
   /** DLG-4: where focus was when it opened. */
   private opener: Element | null = null;
@@ -222,7 +238,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
     super.disconnectedCallback();
     this.mutation$.disconnect();
     this.resize$?.disconnect();
-    this.watchCompact(Number.NaN);
+    this.compact.stop();
     if (this.shown) this.withdraw(false);
   }
 
@@ -320,34 +336,22 @@ export class TanreiDialog extends LitElement implements VariantHost {
 
   /** DLG-7, DLG-17: above the on-screen keyboard (the part of the layout viewport the visual viewport no longer covers). */
   private readonly onViewport = () => {
-    const viewport = window.visualViewport;
     const dialog = this.dialog;
-    if (!viewport || !dialog) return;
-    const covered = Math.max(0, document.documentElement.clientHeight - (viewport.offsetTop + viewport.height));
+    if (!dialog || !window.visualViewport) return;
+    const covered = keyboardCover();
     dialog.style.setProperty('--_keyboard', `${covered}px`);
+    dialog.classList.toggle('keyboard', covered > 0);
   };
 
   /**
-   * DLG-17: a media query cannot read a custom property, so the resolved `compact.window-width` (the probe's width) is
-   * matched with `matchMedia('(width < …px)')`, re-read whenever the dialog lays out; 0 is no compact window.
+   * DLG-17: whether it is a sheet now — a compact window (the resolved `compact.window-width`, src/primitives/
+   * compact-sheet.ts), unless it keeps its own presentation. Re-read whenever the dialog lays out; crossing the width
+   * lays it out at once, with no motion and focus where it is.
    */
   private readCompact(): boolean {
-    const probe = this.renderRoot?.querySelector<HTMLElement>('.probe');
-    const width = probe ? Number.parseFloat(getComputedStyle(probe).inlineSize) || 0 : 0;
-    this.watchCompact(width);
-    return !!this.compactQuery?.matches;
+    const compact = this.compact.read(this.renderRoot?.querySelector('.probe'));
+    return compact && this.compactPresentation !== 'own';
   }
-
-  private watchCompact(width: number) {
-    if (Object.is(width, this.compactWidth)) return;
-    this.compactQuery?.removeEventListener('change', this.onCompact);
-    this.compactWidth = width;
-    this.compactQuery = width > 0 && typeof matchMedia === 'function' ? matchMedia(`(width < ${width}px)`) : null;
-    this.compactQuery?.addEventListener('change', this.onCompact);
-  }
-
-  /** DLG-17: the window crossed the width: the other placement at once (no motion), focus where it is. */
-  private readonly onCompact = () => this.layout();
 
   /** DLG-9, DLG-10, DLG-17: the choices the script reads, on the dialog — the placement, and the fallback where style queries are missing. */
   private applyChoices(dialog: HTMLDialogElement) {
@@ -515,6 +519,10 @@ export class TanreiDialog extends LitElement implements VariantHost {
       if (this.closable && !this.dismissible) {
         report(this, 'DLG-25', 'closable is ignored while closedby is none: a dialog the person must answer offers no way out but its actions');
       }
+    }
+    // DLG-17: a compact presentation the dialog does not define is a sheet.
+    if (changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
+      report(this, 'DLG-17', `compact-presentation "${this.compactPresentation}" is not one of ${COMPACT_PRESENTATIONS.join(', ')}; the dialog is a sheet in a compact window`);
     }
     // DLG-27: a width the dialog does not define is drawn as content.
     if (changed.has('width') && !WIDTHS.includes(this.width)) {
