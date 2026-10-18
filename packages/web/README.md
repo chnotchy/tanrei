@@ -137,8 +137,8 @@ carries the list as `--tanrei-unavailable: "<component> <component>:<variant> �
 element, so it follows `data-tanrei-system` like every token. The warning names the system from
 `--tanrei-system: "<id>"` when the sheet declares it, otherwise from the nearest `data-tanrei-system`, and what the
 system uses instead from `--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"` (AVL-2), which the build
-writes from the `insteadUse` of the system's components manifest (`segmented-button=tabs,radio-button,button-group`
-in the default system's). A product's sheet from `tanrei build` declares the same three lists in its own scope, worked
+writes from the `insteadUse` of the system's components manifest (`fab-menu=main-action-button,bottom-sheet
+segmented-button=tabs,radio-button,button-group` in the default system's). A product's sheet from `tanrei build` declares the same three lists in its own scope, worked
 out from its layers, so an element under the product's `data-tanrei-system` never reads the default system's from
 `:root`. An element another component draws in its shadow root is reported under the element the product wrote, by
 its name: `<tanrei-text-field variant="outlined">` reports `variant "outlined" of text-field`, not its text input's.

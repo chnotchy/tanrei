@@ -8,7 +8,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
 import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
-import { heldComponents, sheetAvailability } from '@tanrei/tokens-build/layers';
+import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { createStudio } from '../src/core.js';
 import { catalogOf } from '../src/listing.js';
 
@@ -43,6 +43,7 @@ export const studio = createStudio({
   validateSchema: (layer) => (validate(layer) ? [] : validate.errors.map((e) => `${e.instancePath || '/'} ${e.message}`)),
   emitCss,
   heldComponents,
+  outsideStandIns,
   sheetAvailability,
   checkInvariants,
   contrast,

@@ -3,7 +3,7 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, heldComponents, listSystems, shippedSystems } from './bundle.js';
+import { ROOT_SYSTEM, heldComponents, listSystems, outsideStandIns, shippedSystems } from './bundle.js';
 import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
@@ -97,6 +97,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
     // The native targets type the system with the whole vocabulary: a component that lives in a layer the product does
     // not extend is valued with the product's own tokens there (`nativeChain`), as the shipped systems' native outputs are.
     const held = heldComponents(listSystems(REPO_ROOT), (layer) => loadSystem(REPO_ROOT, layer));
+    const standIns = outsideStandIns(listSystems(REPO_ROOT), (layer) => loadSystem(REPO_ROOT, layer));
     const native = nativeChain(chain, held);
     const nativeIr = native === chain || !targets.some((t) => NATIVE.has(t)) ? ir : buildIR(await (await resolveChain(native, { model: false })).model());
     const note = warnings.length ? `⚠ ${warnings.length} accessibility/structure warning(s) in system "${id}" — see a11y-report.json in the tokens output.` : null;
@@ -105,7 +106,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
       tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
       // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
       // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
-      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held) }), ...webRegistry(ir, id) }),
+      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id) }),
       swiftui: () => flat(emitSwift(nativeIr, { external: true })),
       compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),
       flutter: () => flat(emitDart(nativeIr, { external: true })),

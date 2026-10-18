@@ -7,13 +7,13 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { componentDocumentPath, listExtensions, mergeLayers, resolveNumericTokens, rootLayerProblems } from '@tanrei/token-engine';
 import { CONFIG } from './config.js';
-import { DEFAULT_SYSTEM, ROOT_SYSTEM, availabilityOf, componentChoices, heldComponents, layerChain, outsideComponents } from './layers.js';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, availabilityOf, componentChoices, heldComponents, layerChain, outsideComponents, outsideStandIns } from './layers.js';
 import { SYSTEM_ID, assertSystemId, isSystemId } from './pure.js';
 import { generateSchemeFiles, heldDocuments, loadSystem, sourceFiles } from './scheme.js';
 
 const RECIPE = 'dev.tanrei.system';
 
-export { DEFAULT_SYSTEM, ROOT_SYSTEM, SYSTEM_ID, assertSystemId, availabilityOf, componentChoices, heldComponents, isSystemId, layerChain, outsideComponents };
+export { DEFAULT_SYSTEM, ROOT_SYSTEM, SYSTEM_ID, assertSystemId, availabilityOf, componentChoices, heldComponents, isSystemId, layerChain, outsideComponents, outsideStandIns };
 
 /** Every layer in tokens/systems/, the root among them: what an `extends` may name. */
 export function listSystems(repoRoot) {
