@@ -1,19 +1,19 @@
 ---
 title: Cómo contribuir
-description: Cómo informar de un problema o proponer un cambio en Tanrei, y dónde están las reglas.
+description: Por qué Tanrei no acepta contribuciones externas, cómo informar de un error o hacer una pregunta, y dónde están las reglas.
 translationOf: project/contributing.mdx
-sourceHash: 7795aad349f2be975531197c5bf333ed64f2fb63
+sourceHash: 047c352a18358e9c52169217ade9ae4863801dcc
 ---
 
 import Callout from '../../../../components/Callout.astro';
 
-<Callout title="Las incidencias son bienvenidas; por ahora no se aceptan pull requests">
-  El repositorio es público en [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei). Para informar de un error, hacer una pregunta o proponer un cambio, [abre una incidencia](https://github.com/chnotchy/tanrei/issues). Por ahora no se aceptan pull requests: los cambios los hacen los mantenedores, siguiendo las reglas de abajo. Informa de un problema de seguridad en privado, como describe el `SECURITY.md` del repositorio, nunca en una incidencia.
+<Callout title="No se aceptan contribuciones externas">
+  El repositorio es público en [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei), para que cualquiera pueda leer cómo se hace Tanrei. Todos los cambios los hacen los mantenedores: las pull requests externas se cierran sin fusionarse, y no se aceptan propuestas de componentes ni de tokens nuevos. El motivo es la cadena de suministro: Tanrei es código que se ejecuta dentro de los productos de otras personas, cada cambio externo es una vía para que llegue a ellos código que sus mantenedores no escribieron, y la situación actual de la seguridad hace de eso un riesgo que el proyecto no asume. Para informar de un error o hacer una pregunta, [abre una incidencia](https://github.com/chnotchy/tanrei/issues). Informa de un problema de seguridad en privado, como describe el `SECURITY.md` del repositorio, nunca en una incidencia.
 </Callout>
 
 ## Dónde están las reglas
 
-El `AGENTS.md` de la raíz del repositorio es la guía de referencia para quien contribuye, sea una persona o una IA. Es breve, y leerlo primero ahorra tiempo. Cada paquete y cada directorio de código fuente puede añadir un `AGENTS.md` anidado con reglas locales; se aplica el archivo más cercano, y ninguno puede debilitar el de la raíz. El `CONTRIBUTING.md` de la raíz es la versión extensa.
+El `AGENTS.md` de la raíz del repositorio es la guía de referencia para quien modifica el repositorio, sea una persona o una IA. Es breve, y leerlo primero ahorra tiempo. Cada paquete y cada directorio de código fuente puede añadir un `AGENTS.md` anidado con reglas locales; se aplica el archivo más cercano, y ninguno puede debilitar el de la raíz. El `CONTRIBUTING.md` de la raíz es la versión extensa.
 
 El material más extenso está en el directorio `docs/` del repositorio: la descripción general de la arquitectura y la gobernanza, que dice quién decide qué.
 
@@ -26,7 +26,7 @@ Todo cambio sigue estos pasos, lo haga quien lo haga.
 3. **No dejes que una plataforma diga más de lo que hay.** Si no puedes terminar una plataforma, deja su estado como realmente es. La matriz se genera a partir del repositorio y no debe afirmar más de lo que existe.
 4. **Añade un changeset** para todo lo que los usuarios puedan ver, y usa Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`).
 
-## Lo que se rechazará
+## Lo que ningún cambio puede contener
 
 - Colores, radios, tipografía, espaciado, movimiento u opacidad escritos a mano dentro de un componente.
 - Imágenes de referencia de las instantáneas actualizadas para que una prueba pase.
