@@ -2,7 +2,7 @@
 title: "弹出框"
 description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它。"
 translationOf: components/popover.mdx
-sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
+sourceHash: f9906ec3c79edf05de52fdc0d19ab96b89bd2ae4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ### 动效
 
-弹出框淡入，同时从朝向锚点的那条边变大；关闭时淡出。被打断的动效会从当前位置掉头。在减弱动态效果时，它立即出现和消失。
+弹出框的出现方式与 Tanrei 中所有出现的界面相同：从朝向锚点的那条边的中点淡入，同时略微变大（默认系统中从 96 % 开始）；关闭时沿原路返回，稍快一些。被打断的动效会从当前位置掉头。在减弱动态效果时，它只淡入淡出。在 m3-like 预设下，它改为像 Material 的菜单那样从那条边展开。在页面标记中写有 open 的弹出框从第一帧起就在那里，不带动效。
 
 <ComponentSpecs name="popover" />
 
