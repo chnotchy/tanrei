@@ -1,6 +1,6 @@
 ---
 title: Snackbar
-description: Tells a person briefly, at the bottom edge of the screen, what the app just did, with at most one action, without taking focus or interrupting their work.
+description: Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did, with at most one action, without taking focus or interrupting their work.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -24,7 +24,7 @@ This page describes the snackbar as the spec has it now: a bar drawn on a surfac
 
 ### Usage
 
-You don't place a snackbar. You ask a host to show one, and the host queues it, places it at the bottom of its area, times it out and announces it. `show` resolves once that snackbar has closed: with `action` when its action was activated, or with `dismiss` and the reason. So "undo" code reads from top to bottom.
+You don't place a snackbar. You ask a host to show one, and the host queues it, places it at the bottom of its area or at its top end, times it out and announces it. `show` resolves once that snackbar has closed: with `action` when its action was activated, or with `dismiss` and the reason. So "undo" code reads from top to bottom.
 
 | Platform | The host | Showing a snackbar |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ You don't place a snackbar. You ask a host to show one, and the host queues it, 
 | Flutter | `TanreiSnackbarMessenger`, around the page it reports on | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`, a controller whose `closed` is a future |
 | React Native | rendered by `TanreiProvider` in its overlay layer | `useSnackbar().show(options)`, a promise |
 
-Each host also closes the snackbar that is showing (`dismissCurrent`) and drops the waiting ones as well (`clear`), both with the reason `host`. A snackbar element drawn outside a host is drawn in place, centred across the width it is given as a host centres it: no timeout, queue, entrance or announcement. That form is for documentation pages and tests, like the demo above.
+Each host also closes the snackbar that is showing (`dismissCurrent`) and drops the waiting ones as well (`clear`), both with the reason `host`. A snackbar element drawn outside a host is drawn in place, centred across the width it is given as a host centres it (or at the end of that width when its `placement` is `top-end`): no timeout, queue, entrance or announcement. That form is for documentation pages and tests, like the demo above.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -272,9 +272,43 @@ Being drawn inverse changes colors and nothing else: the size, the corners, the 
 
 ### Long text
 
-While collapsed, the title and the message each show at most three lines, and end with an ellipsis where they are cut. An expand button then appears between the action and the close button. Activating it shows the whole text, emits `toggle` with the new `expanded` value (`expandedchange` on the web), keeps focus on the button and does not close the snackbar. The bar grows upward from its bottom edge, at once where motion is reduced. Its content is aligned to the top, so the glyph, the first line and the controls beside it keep their distance from the top edge while the bar grows or shrinks, and an action on its own row keeps its distance from the bottom edge. Your code may also set `expanded`, which emits nothing.
+While collapsed, the title and the message each show at most three lines, and end with an ellipsis where they are cut. An expand button then appears between the action and the close button. Activating it shows the whole text, emits `toggle` with the new `expanded` value (`expandedchange` on the web), keeps focus on the button and does not close the snackbar. The bar grows upward from its bottom edge, or downward from its top edge when it is placed at the top end, at once where motion is reduced. Its content is aligned to the top, so the glyph, the first line and the controls beside it keep their distance from the top edge while the bar grows or shrinks, and an action on its own row keeps its distance from the bottom edge. Your code may also set `expanded`, which emits nothing.
 
 If the expanded text is still taller than the space the host has, the bar takes that height and its text scrolls inside it, while the glyph and the controls stay in place. Assistive technology always gets the whole text, whether it is cut or not.
+
+### Placement
+
+| `placement` | Where the bar stands | Use it for |
+| --- | --- | --- |
+| `bottom` (default) | At the bottom of the window, centred, a margin above the bottom edge. | Most products, and every product on a phone. |
+| `top-end` | At the top of the window on the end side: the top right, or the top left in a right-to-left layout. In a compact window (narrower than 600 in the default system) it stands across the top instead. | The desktop screens of a business application, where the bottom of the screen is where the work is. |
+
+Choose one placement for the whole product and give it to the host, so that people learn where messages appear: `placement` on `<tanrei-snackbar-host>` applies to every snackbar it shows, and a snackbar asked for with its own `placement` keeps it. On a phone keep the bottom, where Material puts the snackbar and where the thumb is. On the desktop screens of a business application, such as a dashboard, an admin console or an editor whose own toolbar, status bar or table pagination sits at the bottom, use `top-end`, where Carbon and Fluent put their notifications.
+
+At the top end the bar stands a margin below the top edge and from the end edge, inside the safe area, and below a sticky header, so that it never covers the top app bar. On the web it reads the header's height from `--tanrei-app-shell-scroll-offset`, which [App shell](/components/app-shell/) sets on the document's root; a product with a frame of its own sets that property to the height of its own sticky header. It comes down from above the top edge instead of rising from below, and an expanded bar grows downward. Nothing else changes: it is still one snackbar at a time and never a stack, its controls are still reached at the host's place in the focus order, and it is announced the same way.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Every snackbar this host shows stands at the top end. -->
+    <tanrei-snackbar-host placement="top-end"></tanrei-snackbar-host>
+
+    <script type="module">
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+      snackbars.show({ message: 'Report exported', action: 'Open' });
+      // One snackbar asked for at the bottom keeps its own placement.
+      snackbars.show({ message: 'Photo saved', placement: 'bottom' });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <SnackbarHost ref={snackbars} placement="top-end" />
+    ```
+  </TabItem>
+</Tabs>
+
+SwiftUI, Compose, Flutter and React Native do not have the top-end placement yet: their snackbars stand at the bottom.
 
 ### Duration
 
@@ -292,7 +326,7 @@ A timed snackbar pauses while the pointer is over it, while focus is inside it, 
 A snackbar is a read overlay. People take in its message, so showing it never moves focus.
 
 - **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has faded out. A snackbar requested while a Tanrei modal dialog is open waits until the dialog closes.
-- **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard. It is drawn above its area's content and below a modal dialog and its scrim.
+- **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard; or, with `placement="top-end"`, at the top end, below a sticky header (see [Placement](#placement)). Either way it is drawn above its area's content and below a modal dialog and its scrim.
 - **Announcement.** When it appears, assistive technology reads the status label, the title and the message once, followed by the action's label: politely, after what is being read, or assertively for warning and error. Nothing takes keyboard or screen-reader focus.
 - **Focus.** The action, the expand button and the close button are reached with Tab at the host's place in the focus order, which is why the host goes last. The bar itself is not a Tab stop, except its text while an expanded bar scrolls it.
 - **Closing.** The snackbar closes when its action is activated (`action`), or without it (`dismiss`), for one of these reasons:
@@ -305,14 +339,14 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 | `host` | Your code closed it or cleared the queue. |
 
 - **Focus back.** When a snackbar closes while focus is inside it, focus returns to the element that had it before focus entered the snackbar.
-- **Motion.** It rises into place from below the bottom edge while fading in, and fades out in place. Where motion is reduced it fades without moving; on Android, whose setting removes every animation, it appears and disappears at once.
+- **Motion.** It rises into place from below the bottom edge while fading in, or comes down from above the top edge at the top end, and fades out in place. Where motion is reduced it fades without moving; on Android, whose setting removes every animation, it appears and disappears at once.
 
 ### Do
 
 - Say what happened in the past tense: "Message sent", "3 files moved".
 - Give the action a short verb that people expect after the message: "Undo", "View", "Retry".
 - Choose the status that matches what happened, and give every status form a `statusLabel`.
-- Decide once, for the whole product, whether snackbars are drawn on a surface or inverse.
+- Decide once, for the whole product, whether snackbars are drawn on a surface or inverse, and where they stand.
 - Keep the text short enough that it rarely needs the expand button.
 - Keep the default `auto` duration unless you have a reason. It never times anyone out of an action.
 - Put the host last on the page or in the layout, so its controls come last in the focus order.
@@ -338,6 +372,7 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 - The action is named by its label, the expand button by `expandLabel` and the close button by `closeLabel`. All are reached with Tab at the host's place in the focus order, and activated with Enter or Space.
 - The expand button exposes whether the text is expanded, and keeps the same name in both states. An expanded bar whose text scrolls makes the text a focus stop, named by the title and scrolled with the arrow keys and Page Up and Page Down.
 - Escape closes the snackbar while focus is inside it. When it closes with focus inside, focus returns to where it was before.
+- Where the bar stands changes nothing else. A snackbar at the top end is reached with Tab at the host's place in the focus order and announced exactly as one at the bottom, and it never covers a sticky header.
 - A snackbar with an action does not time out by default. Timed snackbars pause while hovered, focused or expanded, lengthen to Android's accessibility timeout and, with an action, never time out while a screen reader runs.
 - The action meets the minimum target on both axes without changing its drawn size, and the expand and close buttons, which are Buttons, keep their own. Every focus ring shows for keyboard focus only, in a color of the snackbar's form, so that it is visible on every bar: a surface, a status's tint and an inverse bar.
 - The expand and close glyphs keep at least 3:1 against their circle in every state and form. In the default system they keep at least 8.0:1 at rest, and 6.2:1 focused or pressed.
