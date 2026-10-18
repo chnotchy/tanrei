@@ -7,6 +7,7 @@
 // measurements that do not apply to it; the default system's violations fail its build.
 import { getSpec } from '../lib/repo';
 import { fill, strings } from '../lib/i18n';
+import { ns } from '../lib/tokens';
 
 type Json = Record<string, any>;
 // One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Products import the one they use.
@@ -20,18 +21,28 @@ const all = strings(Astro.currentLocale);
 const t = { light: all.light, dark: all.dark, ...all.gallery };
 
 const variants = getSpec('button').props.find((prop) => prop.name === 'variant')!.values!;
+// The root layer (the one without `extends`) is the first layer of every chain and has no output of its own: it is not
+// shown. The default system is shown with it — what the root values, the default system draws — and a preset with
+// what its own layer changes.
+const root = Object.values(layers).find((layer) => !layer.extends)!;
 const systems = Object.values(layers)
-  .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+  .filter((layer) => layer.extends)
+  .sort((a, b) => Number(a.id !== ns) - Number(b.id !== ns) || a.id.localeCompare(b.id))
   .map((layer) => {
+    const isDefault = layer.id === ns;
+    const made = isDefault ? [root, layer] : [layer];
     const report = Object.values(reports).find((r) => r.system === layer.id);
     const fidelity = Object.values(fidelities).find((f) => f.system === layer.id);
     return {
       layer,
+      isDefault,
       fidelity,
-      extensions: Object.keys(layer.vocabulary ?? {}).length,
+      extensions: made.reduce((n, l) => n + Object.keys(l.vocabulary ?? {}).length, 0),
+      changes: made.reduce((n, l) => n + Object.keys(l.tokens ?? {}).length, 0),
+      rules: made.reduce((n, l) => n + (l.rules ?? []).length, 0),
       count: report?.count ?? 0,
       raised: (report?.measurements ?? []).filter((w: string) => /^\[\w+-(medium|high)\]/.test(w)).length,
-      declared: Object.entries(layer.palettes ?? {}).filter(([, palette]) => (palette as Json | null)?.roles === 'intent').map(([name]) => name),
+      declared: made.flatMap((l) => Object.entries(l.palettes ?? {}).filter(([, palette]) => (palette as Json | null)?.roles === 'intent').map(([name]) => name)),
     };
   });
 const rows = [
@@ -42,7 +53,7 @@ const rows = [
 ---
 
 {
-  systems.map(({ layer, count, raised, declared, fidelity, extensions }) => (
+  systems.map(({ layer, isDefault, count, raised, declared, fidelity, extensions, changes, rules: ruleCount }) => (
     <tanrei-figure class="system not-content" flush data-tanrei-code="plain">
       <figure aria-labelledby={`system-${layer.id}`} aria-describedby={`system-${layer.id}-caption`}>
         <div data-part="frame">
@@ -61,12 +72,12 @@ const rows = [
           <div data-part="attachment" class="facts">
             <tanrei-description-list layout="inline" density="compact" separation="gap">
               <dl>
-                {layer.extends && (<div><dt>{t.extends}</dt><dd><code>{layer.extends}</code></dd></div>)}
+                {!isDefault && (<div><dt>{t.extends}</dt><dd><code>{layer.extends}</code></dd></div>)}
                 <div><dt>{t.palettes}</dt>{declared.length ? declared.map((name) => <dd><code>{name}</code></dd>) : <dd>{all.noPalettes}</dd>}</div>
-                <div><dt>{t.changes}</dt><dd>{Object.keys(layer.tokens ?? {}).length}</dd></div>
-                <div><dt>{t.rules}</dt><dd>{(layer.rules ?? []).length}</dd></div>
+                <div><dt>{t.changes}</dt><dd>{changes}</dd></div>
+                <div><dt>{t.rules}</dt><dd>{ruleCount}</dd></div>
                 {extensions > 0 && (<div><dt>{t.extensions}</dt><dd>{extensions}</dd></div>)}
-                {layer.extends && (
+                {!isDefault && (
                   <div>
                     <dt>{t.fidelity}</dt>
                     <dd>
@@ -80,7 +91,7 @@ const rows = [
                   <dt>WCAG</dt>
                   <dd>
                     {count === 0
-                      ? `${t.passes} ${layer.extends ? t.notApplied : t.failsBuild}`
+                      ? `${t.passes} ${isDefault ? t.failsBuild : t.notApplied}`
                       : <Fragment><strong>{count}</strong> {count === 1 ? t.measuredOne : t.measured}{raised ? fill(t.raised, { count: String(raised) }) : count === 1 ? t.standardOnlyOne : t.standardOnly}{' '}{t.notApplied}</Fragment>}
                   </dd>
                 </div>

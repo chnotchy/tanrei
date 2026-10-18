@@ -2,7 +2,7 @@
 title: FAB मेन्यू
 description: सिमटे हुए मुख्य ऐक्शन बटन के रूप में बने टॉगल से संबंधित क्रियाओं की एक छोटी लिस्ट खोलता है, और जब तक वे दिखती हैं, टॉगल उस लिस्ट का बंद करने वाला बटन बन जाता है।
 translationOf: components/fab-menu.mdx
-sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,8 +15,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[Tanrei सिस्टम में नहीं]
-डिफ़ॉल्ट Tanrei सिस्टम FAB मेन्यू नहीं देता, और cupertino भी नहीं देता, क्योंकि Apple के पास कोई फ़्लोटिंग ऐक्शन बटन नहीं है; Material प्रीसेट इसे देते हैं। Tanrei में ऐसा [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) इस्तेमाल करें जो क्रियाओं की एक [बॉटम शीट](/hi/components/bottom-sheet/) खोलता हो। कंपोनेंट फिर भी हर सिस्टम में काम करता है, और जहाँ सिस्टम इसे छोड़ देता है वहाँ डेवलपमेंट में एक चेतावनी देता है। इस पेज के डेमो `m3-like` प्रीसेट में बने हैं, जो इसे देने वाला एक सिस्टम है।
+:::note[m3-like लेयर का कंपोनेंट]
+FAB मेन्यू `m3-like` लेयर में रहता है: यह सिर्फ़ उन सिस्टम में होता है जो इस लेयर से आगे बढ़ते हैं — `m3-like` और `m3-expressive-like` — और इसके टोकन सिर्फ़ उन्हीं की स्टाइलशीट में होते हैं। `@tanrei/web` इसे रजिस्टर नहीं करता; `@tanrei/web/m3-like` करता है। डिफ़ॉल्ट Tanrei सिस्टम और cupertino में यह नहीं है, क्योंकि दोनों में से कोई फ़्लोटिंग ऐक्शन बटन नहीं बनाता: ऐसा [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) इस्तेमाल करें जो क्रियाओं की एक [बॉटम शीट](/hi/components/bottom-sheet/) खोलता हो। इनमें से किसी के तहत इस्तेमाल करने पर यह डेवलपमेंट में बताता है। किसी दूसरे सिस्टम पर बना प्रोडक्ट इसे चाहे तो अपनी लेयर में इसे इस लेयर से शामिल करता है — `"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }` — और इसे अपने ही टोकन से बनाता है। इस पेज के डेमो `m3-like` में बने हैं।
 :::
 
 <DemoFrame label="बंद और खुला" system="m3-like">
@@ -61,7 +61,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </style>
 
     <script type="module">
-      import '@tanrei/web/components/fab-menu';
+      // FAB मेन्यू m3-like लेयर में रहता है: मुख्य एंट्री के साथ, इसे उस लेयर की एंट्री रजिस्टर करती है।
+      import '@tanrei/web/m3-like';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // टॉगल खोलने या बंद करने को कहता है; open आप सेट करते हैं।
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));

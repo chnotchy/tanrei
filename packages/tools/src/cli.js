@@ -2,9 +2,10 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, validateAvailability, validatePackages, validateSpecs } from './checks.js';
+import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, layerProblems, validateAvailability, validatePackages, validateSpecs } from './checks.js';
 import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
 import { GENERATORS, regenerate } from './drift.js';
+import { citationFiles, writeCitation } from './citation.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
 
@@ -22,6 +23,7 @@ function validate() {
   const results = [
     report('specs valid', validateSpecs()),
     report('system availability names what exists', validateAvailability()),
+    report('components live where their specs say', layerProblems()),
     report('publishable packages carry the license and NOTICE', validatePackages()),
     report('no retired names', checkRetiredTerms()),
     report('work markers say what is missing', checkWorkMarkers()),
@@ -31,6 +33,8 @@ function validate() {
 
 function status() {
   const s = writeStatus();
+  // How to cite the project, from tanrei.config.json (citation.js).
+  writeCitation();
   const width = Math.max(...s.components.map((c) => c.title.length));
   // The level is a column of its own, as wide as the longest of the names.
   const level = Math.max('Level'.length, ...Object.values(s.levels).map((name) => name.length));
@@ -57,7 +61,7 @@ function drift() {
   const checkOnly = process.argv.slice(3).includes('--check') || process.env.TANREI_CHECK_ONLY === '1';
   let ok = report('spec ↔ implementation parity', checkParity());
 
-  const stale = Object.entries(statusFiles())
+  const stale = Object.entries({ ...statusFiles(), ...citationFiles() })
     .filter(([rel, content]) => {
       const file = path.join(REPO_ROOT, rel);
       return !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== content;
@@ -107,6 +111,9 @@ function syncVersions() {
     if (text === null) continue;
     fs.writeFileSync(path.join(REPO_ROOT, rel), text.replace(pattern, replacement));
   }
+  // Everything `status` writes from the version is written again from the new one, in a process of its own: this one
+  // read tanrei.config.json before the edit.
+  execFileSync(process.execPath, [process.argv[1], 'status'], { stdio: 'inherit' });
   console.log(`✔ versions synced to ${version}`);
   return true;
 }

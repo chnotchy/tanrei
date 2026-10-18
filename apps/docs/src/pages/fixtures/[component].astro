@@ -23,10 +23,15 @@ const spec = specs[Astro.params.component as string];
 const document = fixtureDocument(spec.name)!;
 const stages = document.stages.map((stage) => stage.html).join('\n');
 const holder = document.page ? 'div' : 'main';
+// The system the stages are drawn under (a component that lives in a layer is drawn under that layer's): its scope on the
+// page, and its opt-in stylesheet.
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const systemSheet = document.system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${document.system}.css`))?.[1] : undefined;
+if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no generated stylesheet for the system "${document.system}"`);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tanrei-system={document.system}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -42,6 +47,7 @@ const holder = document.page ? 'div' : 'main';
         if (stored === 'dark' || stored === 'light') document.documentElement.dataset.tanreiTheme = stored;
       })();
     </script>
+    {systemSheet && <link rel="stylesheet" href={systemSheet} />}
     <Fragment set:html={`<style>${document.styles}</style>`} />
   </head>
   <body data-component={spec.name}>

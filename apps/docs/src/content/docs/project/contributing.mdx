@@ -1,17 +1,17 @@
 ---
 title: Contributing
-description: How to report a problem or propose a change to Tanrei, and where the rules live.
+description: Why Tanrei does not accept outside contributions, how to report a bug or ask a question, and where the rules live.
 ---
 
 import Callout from '../../../components/Callout.astro';
 
-<Callout title="Issues are welcome; pull requests are not accepted for now">
-  The repository is public at [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei). Report a bug, ask a question or propose a change by [opening an issue](https://github.com/chnotchy/tanrei/issues). Pull requests are not accepted for now: the maintainers make the changes, following the rules below. Report a security problem privately, as the repository's `SECURITY.md` describes, never in an issue.
+<Callout title="Outside contributions are not accepted">
+  The repository is public at [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei), so that anyone can read how Tanrei is made. Every change is made by the maintainers: pull requests from outside are closed unmerged, and proposals for new components or tokens are not taken. The reason is the supply chain: Tanrei runs inside other people's products, every change from outside is a way for code its maintainers did not write to reach them, and the current security climate makes that a risk the project does not take. To report a bug or ask a question, [open an issue](https://github.com/chnotchy/tanrei/issues). Report a security problem privately, as the repository's `SECURITY.md` describes, never in an issue.
 </Callout>
 
 ## Where the rules live
 
-The repository's root `AGENTS.md` is the authoritative guide for contributors, human or AI. It is short, and reading it first will save time. Each package and source directory may add a nested `AGENTS.md` with local rules; the nearest file applies, and none of them may weaken the root. `CONTRIBUTING.md` at the root is the long form.
+The repository's root `AGENTS.md` is the authoritative guide for whoever changes the repository, human or AI. It is short, and reading it first will save time. Each package and source directory may add a nested `AGENTS.md` with local rules; the nearest file applies, and none of them may weaken the root. `CONTRIBUTING.md` at the root is the long form.
 
 Longer-form material lives under the repository's `docs/` directory: the architecture overview, and the governance, which says who decides what.
 
@@ -24,7 +24,7 @@ Every change follows these steps, whoever makes it.
 3. **Keep platforms honest.** If you cannot finish a platform, leave its status as it truly is. The matrix is generated from the repository and must not claim more than exists.
 4. **Add a changeset** for anything users can see, and use Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`).
 
-## Things that will be declined
+## What no change may contain
 
 - Hardcoded colors, radii, type, spacing, motion or opacity inside a component.
 - Snapshot baselines updated to make a test pass.

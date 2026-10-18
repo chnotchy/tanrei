@@ -34,7 +34,15 @@ const live = defined && drawsLive(spec);
 const groups = galleryOf(spec, live);
 const named = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (place, key: string) => (key in values ? String(values[key]) : place));
 const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { surface?: string } | undefined)?.surface;
+// A component that lives in a layer is drawn under that layer's system, as its tests draw it: the stages are scoped to
+// it, and its opt-in stylesheet is loaded.
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
+const systemSheet = system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1] : undefined;
+if (system && !systemSheet) throw new Error(`FixtureGallery: no generated stylesheet for the system "${system}"`);
 ---
+
+{systemSheet && <link rel="stylesheet" href={systemSheet} />}
 
 <div class="docs-fixture-gallery not-content" data-fixture-gallery data-component={spec.name}>
   {groups.map((group) => (
@@ -67,7 +75,7 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
                         </div>
                       )}
                     </header>
-                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-demo data-pagefind-ignore>
+                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-system={system} data-tanrei-demo data-pagefind-ignore>
                       {!stage.drawn ? (
                         <p class="docs-muted docs-stage-none">{live || !defined ? t.notDefinedYet : t.notDrawnHere}</p>
                       ) : sized ? (

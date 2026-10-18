@@ -5,7 +5,7 @@ import path from 'node:path';
 import { ENUM, cannot, enumName, extensionRecipes as engineRecipes, legalOperations as engineOperations, matchingRules, operationFor, ruleDependencies } from '@tanrei/token-engine';
 import { idToVar as cssVar } from '@tanrei/tokens-build/emit/css';
 import { PRESET_CRITERIA_NOTE, isCriterionFinding, leadWithStructure } from '@tanrei/tokens-build/invariants';
-import { CONFIG, DERIVE, NS, REPO_ROOT, ROOT_SYSTEM, SCHEMES, SEGMENT, STATE, ToolError, declaredExtensions, isPlaceholder, isRef, loadContext, readLayers, shippedLayer, shippedSystems, trialBuild, validateLayer } from './systems.js';
+import { CONFIG, DEFAULT_SYSTEM, DERIVE, NS, REPO_ROOT, ROOT_SYSTEM, SCHEMES, SEGMENT, STATE, ToolError, declaredExtensions, isPlaceholder, isRef, listedSystems, loadContext, readLayers, shippedLayer, shippedSystems, trialBuild, validateLayer } from './systems.js';
 
 // Names come from tanrei.config.json; the engine is a pure library and takes the namespace as a parameter.
 const legalOperations = (descriptor) => engineOperations(descriptor, { namespace: NS });
@@ -17,7 +17,7 @@ const SYS_COLOR = `${NS}.sys.color.`;
 
 // ── shared input fragments ───────────────────────────────────────────────
 const systemProperties = {
-  system: { type: 'string', description: `A shipped system id (default "${ROOT_SYSTEM}"), or the path of a product's <id>.system.json.` },
+  system: { type: 'string', description: `A shipped system id (default "${DEFAULT_SYSTEM}"), or the path of a product's <id>.system.json.` },
   layerFile: { type: 'string', description: "Path of a product's <id>.system.json (absolute, or relative to the server's working directory). Wins over `system`." },
 };
 const schemeProperty = { type: 'string', enum: SCHEMES, default: 'light', description: 'Theme × contrast. Only colors differ between schemes.' };
@@ -146,15 +146,15 @@ async function listSystemsTool({ layerFile, warnings = true }) {
   // for their warning counts (seconds each), not after.
   const ctx = layerFile ? await loadContext({ layerFile }) : null;
   const shipped = [];
-  for (const id of shippedSystems()) {
+  for (const id of listedSystems()) {
     const summary = summarizeLayer(shippedLayer(id), readLayers({ system: id }).chain);
     const fidelity = fidelityOf(id);
     if (fidelity) summary.fidelity = fidelity;
     if (warnings) {
       const findings = await (await loadContext({ system: id })).warnings();
-      // The root system has none (a violation fails its build). An imitation preset is not held to Tanrei's accessibility
+      // The default system has none (a violation fails its build). An imitation preset is not held to Tanrei's accessibility
       // criteria in any contrast scheme: its contrast findings are measurements, not warnings.
-      if (id === ROOT_SYSTEM) summary.accessibilityWarnings = findings.length;
+      if (id === DEFAULT_SYSTEM) summary.accessibilityWarnings = findings.length;
       else {
         // A structural or functional finding is not a measurement: it fails the preset's build, so a shipped preset has none.
         const failures = findings.filter((f) => !isCriterionFinding(f));
@@ -163,7 +163,7 @@ async function listSystemsTool({ layerFile, warnings = true }) {
     }
     shipped.push(summary);
   }
-  const result = { root: ROOT_SYSTEM, schemes: SCHEMES, shipped };
+  const result = { root: ROOT_SYSTEM, default: DEFAULT_SYSTEM, schemes: SCHEMES, shipped };
   if (ctx) {
     const known = new Set(shippedSystems());
     result.product = {
@@ -557,7 +557,7 @@ const object = (properties, required = []) => ({ type: 'object', additionalPrope
 export const TOOLS = [
   {
     name: 'list_systems',
-    description: "The design systems that ship with Tanrei (the root `tanrei` and the presets that extend it) and, with `layerFile`, a product's own layer chain. A system is a LAYER: it changes values of a small shared core vocabulary, and may EXTEND it under `vocabulary` — each system lists its extensions with the layer that declared them, and a preset measured against the published system it reproduces lists its `fidelity` (equal / measured reference tokens, how many differ or have no counterpart, and the reference). Start here.",
+    description: "The design systems that ship with Tanrei (the default `tanrei` and the presets; every chain starts at the root layer `core`, which values the vocabulary and is not listed) and, with `layerFile`, a product's own layer chain. A system is a LAYER: it changes values of a small shared core vocabulary, and may EXTEND it under `vocabulary` — each system lists its extensions with the layer that declared them, and a preset measured against the published system it reproduces lists its `fidelity` (equal / measured reference tokens, how many differ or have no counterpart, and the reference). Start here.",
     inputSchema: object({
       layerFile: systemProperties.layerFile,
       warnings: { type: 'boolean', default: true, description: 'Count accessibility/structure warnings per system (builds each system once; cached). For an imitation preset the count is of contrast measurements that do not apply to it, under `accessibility`.' },

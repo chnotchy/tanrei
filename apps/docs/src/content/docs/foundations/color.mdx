@@ -53,7 +53,7 @@ Every theme exists at three contrast levels. **Standard** is the default. **Medi
 
 ## How schemes are generated
 
-Colors are not picked by hand. A system file (`tokens/systems/tanrei.system.json`) declares the palettes — a seed color for the accent and for error, the hue and chroma of the neutrals — and states, as data, which tone of which palette each role takes in light and dark at each contrast level. At build time a generator:
+Colors are not picked by hand. A system file (`tokens/systems/core.system.json`) declares the palettes — a seed color for the accent and for error, the hue and chroma of the neutrals — and states, as data, which tone of which palette each role takes in light and dark at each contrast level. At build time a generator:
 
 1. converts each key color into a **tonal palette** in the HCT color space using the Apache-2.0 `material-color-utilities` library, where tone maps predictably to contrast;
 2. clamps the neutral palettes to the theme's chroma, which is zero by default for pure grays;
