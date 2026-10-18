@@ -27,6 +27,8 @@ studioTest('no control is hand-made: at every level, with the folds open, the on
     await page.waitForSelector(`[data-studio][data-level="${name}"]`);
     // Open what is drawn on opening: «specVersion and attribution», the import, a rule's row is there already.
     for (const selector of ['[data-about-more] > summary', '.ts-import > summary']) for (const fold of await page.locator(selector).all()) await fold.click();
+    // (A fold writes what it holds at its `toggle` event, a task after the press.)
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-about-more], .ts-import')].every((fold) => !fold.open || fold.children.length > 1));
     if (name === 'tokens') {
       await page.locator('[data-search] input').fill('button.container.height.medium');
       await page.locator('[data-token="tanrei.comp.button.container.height.medium"] > span').click();
