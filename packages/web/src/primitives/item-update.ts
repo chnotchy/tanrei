@@ -10,3 +10,49 @@
 export function notifyItemUpdate(item: HTMLElement, type: string): void {
   item.dispatchEvent(new Event(type, { bubbles: true }));
 }
+
+/**
+ * The container's side of the channel: it re-reads its items once per turn, however many of them said they changed in
+ * it. Building a container of N items has each item say so as it first draws; a container that re-read all N on each
+ * of the N calls did O(N²) work — seconds for a menu of 1,000 items — where one re-read is O(N).
+ *
+ * `request()` queues the re-read for a microtask, which runs before the next frame, so no frame draws the items with
+ * what they said before. A reader that needs the items' context within the same task (a key press, focus, a click)
+ * calls `flush()` first; a re-read the container makes itself calls `now()`, which settles a queued request with it.
+ */
+export class CoalescedSync {
+  private queued = false;
+  /** A re-read is running: a handler it sets off (focus it moves, an event it fires) does not start another inside it. */
+  private running = false;
+
+  constructor(private readonly run: () => void) {}
+
+  /** The items changed: re-read them once, in a microtask. */
+  readonly request = (): void => {
+    if (this.queued) return;
+    this.queued = true;
+    queueMicrotask(() => {
+      if (this.queued) this.now();
+    });
+  };
+
+  /**
+   * Re-reads now if a request is queued: before a read that needs the items' context in this task. Inside a re-read
+   * that is running, the queued one stays queued and runs after it.
+   */
+  flush(): void {
+    if (this.queued && !this.running) this.now();
+  }
+
+  /** Re-reads now, and settles a queued request with it. */
+  now(): void {
+    this.queued = false;
+    const outer = this.running;
+    this.running = true;
+    try {
+      this.run();
+    } finally {
+      this.running = outer;
+    }
+  }
+}
