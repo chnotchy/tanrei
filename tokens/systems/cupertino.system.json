@@ -407,6 +407,7 @@
     "tanrei.comp.calendar.in-range.container.color": {"$value": "{tanrei.sys.color.surface-container-highest}", "reason": "secondary-container equals surface-bright in cupertino's dark scheme, so the band would vanish."},
     "tanrei.comp.calendar.view-toggle.label.typescale": {"$value": "{tanrei.sys.typescale.heading-5}", "reason": "Apple's month title is semibold, heading-5 here."},
     "tanrei.comp.calendar.navigation.axis": {"$value": 1, "reason": "Apple's graphical date picker pages its months sideways, with chevrons at the end of the month row."},
+    "tanrei.comp.callout.close-button.variant": {"$value": 4, "reason": "Keeps the bare close glyph this preset draws on a notice; the change to a tonal close button is the default system's."},
     "tanrei.comp.date-time-picker.time.entry-modes": {"$value": 1, "reason": "Apple's time picker is a set of wheels."},
     "tanrei.comp.date-time-picker.wheel.selection.container.color": {"$value": "{tanrei.sys.color.surface-container-highest}", "reason": "Apple's wheel marks the chosen row with a grey band."},
     "tanrei.comp.date-time-picker.unselected.selector.container.color": {"$value": "{tanrei.sys.color.surface-container-highest}", "reason": "Apple's fill for the parts of a time."},

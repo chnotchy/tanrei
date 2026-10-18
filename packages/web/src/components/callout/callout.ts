@@ -2,6 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
+  BUTTON_VARIANTS,
   GROUP_ITEM,
   GROUP_PLACE,
   GlyphDrawnController,
@@ -10,15 +11,18 @@ import {
   type GroupPlace,
   OpenAxesController,
   type PlacingGroup,
-  PressController,
+  type Tone,
+  compChoice,
   focusWithin,
+  giveTone,
+  giveVariant,
   hostAria,
   report,
   returnFocus,
-  syncFocusStyle,
   WordsController,
 } from '../../primitives/index.js';
 import type { TanreiCalloutSizeRegistry, TanreiCalloutVariantRegistry } from '../../registry.js';
+import '../button/button.js';
 import { AXES, STATUSES, styles } from './callout.styles.js';
 
 /** The core variants (tonal, outlined), plus any a design system's generated `.d.ts` registers. */
@@ -39,6 +43,21 @@ const GLYPHS: Record<(typeof STATUSES)[number], string> = { info: 'info', warnin
 const ACTION_PLACE: GroupPlace = { variant: 'standard', first: true, last: true };
 
 const isStatus = (status: string): status is (typeof STATUSES)[number] => (STATUSES as readonly string[]).includes(status);
+
+const PREFIX = '--tanrei-comp-callout';
+
+/**
+ * CLO-10: the tone the close button is drawn in on a filled look (BTN-45) — the body color of the callout's form, the
+ * content color of the fill it stands on. A look a layer adds falls back to the tonal look's color of the form, as every
+ * part of such a look does (callout.styles.ts). The outlined look has no fill: no tone.
+ */
+const toneOf = (variant: string, form: TanreiCalloutStatus): Tone | null => {
+  if (variant === 'outlined') return null;
+  const name = (look: string) => `${PREFIX}-${form === 'default' ? '' : `${form}-`}body-color-${look}`;
+  // Only a token name is written into a custom property; anything else is drawn as the default look (CLO-30).
+  const look = /^[a-z0-9][a-z0-9-]*$/.test(variant) ? variant : 'tonal';
+  return { color: look === 'tonal' ? `var(${name('tonal')})` : `var(${name(look)}, var(${name('tonal')}))` };
+};
 
 /**
  * `open` is a boolean that defaults to true, and its attribute says so: absent is true, `open` (or any other value) is
@@ -63,7 +82,10 @@ let titles = 0;
  * own content (text, or the product's blocks — long-form blocks in a `<div class="tanrei-prose" data-measure="false">`),
  * the title is the `headline` attribute or the `title` slot, a glyph of the icon set goes in the `icon` slot, and the
  * product's Buttons or links in the `actions` slot. Every visual value is a `--tanrei-comp-callout-*` token, one set per
- * variant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`).
+ * variant and status; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`). Its close
+ * button is a small icon-only `<tanrei-button>` in the variant `--tanrei-comp-callout-close-button-variant` names, drawn
+ * on a filled look in the body color of the callout's form (a tone): its container that color made translucent, its
+ * glyph that color, its states the Button's own.
  *
  * It is a note (`role="note"`), read where it stands and never announced. With `live` it is a live region instead: it
  * is announced once when it is shown after the page was presented and when its title, body or status changes — politely
@@ -85,7 +107,7 @@ let titles = 0;
  * @csspart title - The title.
  * @csspart body - The body.
  * @csspart actions - The row of actions.
- * @csspart close - The close button.
+ * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
  * @fires dismiss - The person closed the callout with its close button. Fired once, after `open` became false; never when the product sets `open`.
  */
 export class TanreiCallout extends LitElement implements PlacingGroup {
@@ -156,17 +178,10 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
    * `data-mirror` says so; the callout's own glyphs go through the same rule, which marks none of them under the
    * default icon set. `iconGlyph()` draws the mark. The callout mirrors nothing itself.
    */
-  private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.icon.own, .glyph' });
+  private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]', drawn: '.icon.own' });
 
   /** CLO-29: each glyph box carries `data-drawn` while the icon set can draw its ligature; until then it draws nothing. */
-  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon, .glyph') ?? []);
-
-  /** CLO-17, CLO-18: the close button's pressed state. */
-  private readonly press = new PressController(this, {
-    container: () => this.renderRoot?.querySelector<HTMLElement>('.close') ?? null,
-    holdCarrier: () => this.renderRoot.querySelector('.close .hold'),
-    disabled: () => false,
-  });
+  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon') ?? []);
 
   /** CLO-31: the custom state the styles read to take an empty callout out of the layout. */
   private readonly internals: ElementInternals | null = typeof this.attachInternals === 'function' ? this.attachInternals() : null;
@@ -299,9 +314,6 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
     this.dispatchEvent(new CustomEvent('dismiss', { bubbles: true }));
   };
 
-  /** CLO-19: where style queries are missing, the focus style is read when focus arrives. */
-  private readonly onFocus = (event: FocusEvent) => syncFocusStyle(this, event.target as HTMLElement);
-
   /**
    * CLO-21: announced once — through the live region of its politeness, a frame after both were emptied, so that a text
    * equal to the last one is announced again. Nothing is announced while it is not live, not open or empty. The two
@@ -350,6 +362,9 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
     // presentation and is not announced then; one the product adds later is.
     if (!this.presented) this.announceFirst = !this.upgraded && document.readyState === 'complete';
     if (this.presented) this.watchContent();
+    // CLO-10: a close button connected again (the callout was moved) has let go of what it was given; an update gives it
+    // its variant and its tone again, after it has connected.
+    if (this.hasUpdated) this.requestUpdate();
   }
 
   override disconnectedCallback() {
@@ -404,6 +419,14 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
     if (has('open') && !this.open) this.announce();
     this.presented = true;
 
+    // CLO-10: the close button's variant, as the system names it now (a system switch is seen at the next update), and on
+    // a filled look the tone of the form — given through the Button's channel; everything else is the Button's own.
+    const button = this.renderRoot.querySelector('tanrei-button.close');
+    if (button) {
+      giveVariant(button, compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
+      giveTone(button, toneOf(this.variant, this.form));
+    }
+
     // CLO-30: a status this spec does not have is drawn as default. (An unknown size or variant is the axes' to report.)
     if (has('status') && this.status !== 'default' && !isStatus(this.status)) {
       report(this, 'CLO-30', `status "${this.status}" is not a status of a callout; it is drawn as "default"`);
@@ -431,7 +454,6 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
     const own = form !== 'default' && !this.hasIcon ? GLYPHS[form] : '';
     // CLO-20: the status in words, then the title and the body — phrases of one text ("Warning, …"). Not while status is default.
     const statusLabel = form !== 'default' ? this.statusLabel.trim() : '';
-    const p = this.press;
     return html`
       <div
         part="container"
@@ -451,24 +473,9 @@ export class TanreiCallout extends LitElement implements PlacingGroup {
         </div>
         ${this.closable
           ? html`<span class="end"
-              ><button
-                part="close"
-                class="close"
-                type="button"
-                data-tanrei-shape
-                aria-label=${this.words.get('closeLabel', this.closeLabel).trim() || nothing}
-                @click=${this.onClose}
-                @focus=${this.onFocus}
-                @pointerdown=${p.onPointerDown}
-                @pointerup=${p.release}
-                @pointercancel=${p.release}
-                @pointerleave=${p.release}
-                @keydown=${p.onKeyDown}
-                @keyup=${p.onKeyUp}
-                @blur=${p.onBlur}
-              >
-                <span class="glyph hold" aria-hidden="true"><span class="ink">close</span></span>
-              </button></span
+              ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel).trim()} @click=${this.onClose}
+                ><span slot="icon">close</span></tanrei-button
+              ></span
             >`
           : nothing}
       </div>

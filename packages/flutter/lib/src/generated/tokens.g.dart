@@ -5118,209 +5118,6 @@ class TanreiCalendarTokens {
       };
 }
 
-/// The key of a control of callout (`comp.callout`, axis `control`).
-///
-/// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiCalloutControl('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [close].
-extension type const TanreiCalloutControl(String name) {
-  static const close = TanreiCalloutControl('close');
-
-  /// The core values, in the order the component declares them.
-  static const List<TanreiCalloutControl> core = <TanreiCalloutControl>[close];
-}
-
-/// What one control of callout looks like in one interaction state.
-@immutable
-class TanreiCalloutControlStateTokens {
-  const TanreiCalloutControlStateTokens({
-    required this.containerColor,
-    required this.contentColor,
-    required this.stateLayerColor,
-    required this.infoContainerColor,
-    required this.infoContentColor,
-    required this.infoStateLayerColor,
-    required this.warningContainerColor,
-    required this.warningContentColor,
-    required this.warningStateLayerColor,
-    required this.errorContainerColor,
-    required this.errorContentColor,
-    required this.errorStateLayerColor,
-    required this.successContainerColor,
-    required this.successContentColor,
-    required this.successStateLayerColor,
-    required this.outlinedContainerColor,
-    required this.outlinedContentColor,
-    required this.outlinedStateLayerColor,
-  });
-
-  /// `comp.callout.<control>.<state>.container-color`
-  final TanreiPaint containerColor;
-  /// `comp.callout.<control>.<state>.content-color`
-  final TanreiPaint contentColor;
-  /// `comp.callout.<control>.<state>.state-layer-color`
-  final TanreiPaint stateLayerColor;
-  /// `comp.callout.<control>.<state>.info-container-color`
-  final TanreiPaint infoContainerColor;
-  /// `comp.callout.<control>.<state>.info-content-color`
-  final TanreiPaint infoContentColor;
-  /// `comp.callout.<control>.<state>.info-state-layer-color`
-  final TanreiPaint infoStateLayerColor;
-  /// `comp.callout.<control>.<state>.warning-container-color`
-  final TanreiPaint warningContainerColor;
-  /// `comp.callout.<control>.<state>.warning-content-color`
-  final TanreiPaint warningContentColor;
-  /// `comp.callout.<control>.<state>.warning-state-layer-color`
-  final TanreiPaint warningStateLayerColor;
-  /// `comp.callout.<control>.<state>.error-container-color`
-  final TanreiPaint errorContainerColor;
-  /// `comp.callout.<control>.<state>.error-content-color`
-  final TanreiPaint errorContentColor;
-  /// `comp.callout.<control>.<state>.error-state-layer-color`
-  final TanreiPaint errorStateLayerColor;
-  /// `comp.callout.<control>.<state>.success-container-color`
-  final TanreiPaint successContainerColor;
-  /// `comp.callout.<control>.<state>.success-content-color`
-  final TanreiPaint successContentColor;
-  /// `comp.callout.<control>.<state>.success-state-layer-color`
-  final TanreiPaint successStateLayerColor;
-  /// `comp.callout.<control>.<state>.outlined-container-color`
-  final TanreiPaint outlinedContainerColor;
-  /// `comp.callout.<control>.<state>.outlined-content-color`
-  final TanreiPaint outlinedContentColor;
-  /// `comp.callout.<control>.<state>.outlined-state-layer-color`
-  final TanreiPaint outlinedStateLayerColor;
-
-  /// A copy with the given tokens replaced.
-  TanreiCalloutControlStateTokens copyWith({
-    TanreiPaint? containerColor,
-    TanreiPaint? contentColor,
-    TanreiPaint? stateLayerColor,
-    TanreiPaint? infoContainerColor,
-    TanreiPaint? infoContentColor,
-    TanreiPaint? infoStateLayerColor,
-    TanreiPaint? warningContainerColor,
-    TanreiPaint? warningContentColor,
-    TanreiPaint? warningStateLayerColor,
-    TanreiPaint? errorContainerColor,
-    TanreiPaint? errorContentColor,
-    TanreiPaint? errorStateLayerColor,
-    TanreiPaint? successContainerColor,
-    TanreiPaint? successContentColor,
-    TanreiPaint? successStateLayerColor,
-    TanreiPaint? outlinedContainerColor,
-    TanreiPaint? outlinedContentColor,
-    TanreiPaint? outlinedStateLayerColor,
-  }) => TanreiCalloutControlStateTokens(
-        containerColor: containerColor ?? this.containerColor,
-        contentColor: contentColor ?? this.contentColor,
-        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
-        infoContainerColor: infoContainerColor ?? this.infoContainerColor,
-        infoContentColor: infoContentColor ?? this.infoContentColor,
-        infoStateLayerColor: infoStateLayerColor ?? this.infoStateLayerColor,
-        warningContainerColor: warningContainerColor ?? this.warningContainerColor,
-        warningContentColor: warningContentColor ?? this.warningContentColor,
-        warningStateLayerColor: warningStateLayerColor ?? this.warningStateLayerColor,
-        errorContainerColor: errorContainerColor ?? this.errorContainerColor,
-        errorContentColor: errorContentColor ?? this.errorContentColor,
-        errorStateLayerColor: errorStateLayerColor ?? this.errorStateLayerColor,
-        successContainerColor: successContainerColor ?? this.successContainerColor,
-        successContentColor: successContentColor ?? this.successContentColor,
-        successStateLayerColor: successStateLayerColor ?? this.successStateLayerColor,
-        outlinedContainerColor: outlinedContainerColor ?? this.outlinedContainerColor,
-        outlinedContentColor: outlinedContentColor ?? this.outlinedContentColor,
-        outlinedStateLayerColor: outlinedStateLayerColor ?? this.outlinedStateLayerColor,
-      );
-}
-
-/// The per-state tokens of one callout control. How a state looks is a value of the design system;
-/// the widget only selects the state.
-@immutable
-class TanreiCalloutControlTokens {
-  const TanreiCalloutControlTokens({
-    required this.enabled,
-    required this.hovered,
-    required this.focused,
-    required this.pressed,
-  });
-
-  final TanreiCalloutControlStateTokens enabled;
-  final TanreiCalloutControlStateTokens hovered;
-  final TanreiCalloutControlStateTokens focused;
-  final TanreiCalloutControlStateTokens pressed;
-
-  /// A copy with the given tokens replaced.
-  TanreiCalloutControlTokens copyWith({
-    TanreiCalloutControlStateTokens? enabled,
-    TanreiCalloutControlStateTokens? hovered,
-    TanreiCalloutControlStateTokens? focused,
-    TanreiCalloutControlStateTokens? pressed,
-  }) => TanreiCalloutControlTokens(
-        enabled: enabled ?? this.enabled,
-        hovered: hovered ?? this.hovered,
-        focused: focused ?? this.focused,
-        pressed: pressed ?? this.pressed,
-      );
-
-  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
-  TanreiCalloutControlStateTokens of(TanreiInteractionState state) => switch (state) {
-        TanreiInteractionState.enabled => enabled,
-        TanreiInteractionState.hovered => hovered,
-        TanreiInteractionState.focused => focused,
-        TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => enabled,
-      };
-}
-
-/// Every control of callout: the core values by name, the values a design system added in [extra].
-/// Look one up with `controls[key]`; the lookup is total.
-@immutable
-class TanreiCalloutControls {
-  const TanreiCalloutControls({
-    required this.close,
-    this.extra = const <TanreiCalloutControl, TanreiCalloutControlTokens>{},
-  });
-
-  /// `comp.callout` control `close`
-  final TanreiCalloutControlTokens close;
-
-  /// The controls a design system added to the core vocabulary.
-  final Map<TanreiCalloutControl, TanreiCalloutControlTokens> extra;
-
-  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
-  /// those with the same key): a copy never loses a value the design system added.
-  TanreiCalloutControls copyWith({
-    TanreiCalloutControlTokens? close,
-    Map<TanreiCalloutControl, TanreiCalloutControlTokens>? extra,
-  }) => TanreiCalloutControls(
-        close: close ?? this.close,
-        extra: extra == null ? this.extra : <TanreiCalloutControl, TanreiCalloutControlTokens>{...this.extra, ...extra},
-      );
-
-  /// The tokens of [control].
-  ///
-  /// A control this design system does not have resolves to [close], the default; debug builds report it
-  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiCalloutControlTokens operator [](TanreiCalloutControl control) => switch (control.name) {
-        'close' => close,
-        _ => extra[control] ?? _fallback(control),
-      };
-
-  /// Whether this design system has [control].
-  bool has(TanreiCalloutControl control) => TanreiCalloutControl.core.contains(control) || extra.containsKey(control);
-
-  /// Every control this design system has: the core values, then the added ones.
-  List<TanreiCalloutControl> get keys => <TanreiCalloutControl>[...TanreiCalloutControl.core, ...extra.keys];
-
-  TanreiCalloutControlTokens _fallback(TanreiCalloutControl control) {
-    assert(() {
-      debugTanreiReportUnknownValue('callout control', control.name, 'close');
-      return true;
-    }());
-    return close;
-  }
-}
-
 /// The key of a size of callout (`comp.callout`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -5433,27 +5230,22 @@ class TanreiCalloutVariantTokens {
     required this.titleColor,
     required this.bodyColor,
     required this.iconColor,
-    required this.focusRingColor,
     required this.infoContainerColor,
     required this.infoTitleColor,
     required this.infoBodyColor,
     required this.infoIconColor,
-    required this.infoFocusRingColor,
     required this.warningContainerColor,
     required this.warningTitleColor,
     required this.warningBodyColor,
     required this.warningIconColor,
-    required this.warningFocusRingColor,
     required this.errorContainerColor,
     required this.errorTitleColor,
     required this.errorBodyColor,
     required this.errorIconColor,
-    required this.errorFocusRingColor,
     required this.successContainerColor,
     required this.successTitleColor,
     required this.successBodyColor,
     required this.successIconColor,
-    required this.successFocusRingColor,
   });
 
   /// `comp.callout.container-color.<variant>`
@@ -5464,8 +5256,6 @@ class TanreiCalloutVariantTokens {
   final TanreiPaint bodyColor;
   /// `comp.callout.icon-color.<variant>`
   final TanreiPaint iconColor;
-  /// `comp.callout.focus-ring-color.<variant>`
-  final TanreiPaint focusRingColor;
   /// `comp.callout.info-container-color.<variant>`
   final TanreiPaint infoContainerColor;
   /// `comp.callout.info-title-color.<variant>`
@@ -5474,8 +5264,6 @@ class TanreiCalloutVariantTokens {
   final TanreiPaint infoBodyColor;
   /// `comp.callout.info-icon-color.<variant>`
   final TanreiPaint infoIconColor;
-  /// `comp.callout.info-focus-ring-color.<variant>`
-  final TanreiPaint infoFocusRingColor;
   /// `comp.callout.warning-container-color.<variant>`
   final TanreiPaint warningContainerColor;
   /// `comp.callout.warning-title-color.<variant>`
@@ -5484,8 +5272,6 @@ class TanreiCalloutVariantTokens {
   final TanreiPaint warningBodyColor;
   /// `comp.callout.warning-icon-color.<variant>`
   final TanreiPaint warningIconColor;
-  /// `comp.callout.warning-focus-ring-color.<variant>`
-  final TanreiPaint warningFocusRingColor;
   /// `comp.callout.error-container-color.<variant>`
   final TanreiPaint errorContainerColor;
   /// `comp.callout.error-title-color.<variant>`
@@ -5494,8 +5280,6 @@ class TanreiCalloutVariantTokens {
   final TanreiPaint errorBodyColor;
   /// `comp.callout.error-icon-color.<variant>`
   final TanreiPaint errorIconColor;
-  /// `comp.callout.error-focus-ring-color.<variant>`
-  final TanreiPaint errorFocusRingColor;
   /// `comp.callout.success-container-color.<variant>`
   final TanreiPaint successContainerColor;
   /// `comp.callout.success-title-color.<variant>`
@@ -5504,8 +5288,6 @@ class TanreiCalloutVariantTokens {
   final TanreiPaint successBodyColor;
   /// `comp.callout.success-icon-color.<variant>`
   final TanreiPaint successIconColor;
-  /// `comp.callout.success-focus-ring-color.<variant>`
-  final TanreiPaint successFocusRingColor;
 
   /// A copy with the given tokens replaced.
   TanreiCalloutVariantTokens copyWith({
@@ -5513,53 +5295,43 @@ class TanreiCalloutVariantTokens {
     TanreiPaint? titleColor,
     TanreiPaint? bodyColor,
     TanreiPaint? iconColor,
-    TanreiPaint? focusRingColor,
     TanreiPaint? infoContainerColor,
     TanreiPaint? infoTitleColor,
     TanreiPaint? infoBodyColor,
     TanreiPaint? infoIconColor,
-    TanreiPaint? infoFocusRingColor,
     TanreiPaint? warningContainerColor,
     TanreiPaint? warningTitleColor,
     TanreiPaint? warningBodyColor,
     TanreiPaint? warningIconColor,
-    TanreiPaint? warningFocusRingColor,
     TanreiPaint? errorContainerColor,
     TanreiPaint? errorTitleColor,
     TanreiPaint? errorBodyColor,
     TanreiPaint? errorIconColor,
-    TanreiPaint? errorFocusRingColor,
     TanreiPaint? successContainerColor,
     TanreiPaint? successTitleColor,
     TanreiPaint? successBodyColor,
     TanreiPaint? successIconColor,
-    TanreiPaint? successFocusRingColor,
   }) => TanreiCalloutVariantTokens(
         containerColor: containerColor ?? this.containerColor,
         titleColor: titleColor ?? this.titleColor,
         bodyColor: bodyColor ?? this.bodyColor,
         iconColor: iconColor ?? this.iconColor,
-        focusRingColor: focusRingColor ?? this.focusRingColor,
         infoContainerColor: infoContainerColor ?? this.infoContainerColor,
         infoTitleColor: infoTitleColor ?? this.infoTitleColor,
         infoBodyColor: infoBodyColor ?? this.infoBodyColor,
         infoIconColor: infoIconColor ?? this.infoIconColor,
-        infoFocusRingColor: infoFocusRingColor ?? this.infoFocusRingColor,
         warningContainerColor: warningContainerColor ?? this.warningContainerColor,
         warningTitleColor: warningTitleColor ?? this.warningTitleColor,
         warningBodyColor: warningBodyColor ?? this.warningBodyColor,
         warningIconColor: warningIconColor ?? this.warningIconColor,
-        warningFocusRingColor: warningFocusRingColor ?? this.warningFocusRingColor,
         errorContainerColor: errorContainerColor ?? this.errorContainerColor,
         errorTitleColor: errorTitleColor ?? this.errorTitleColor,
         errorBodyColor: errorBodyColor ?? this.errorBodyColor,
         errorIconColor: errorIconColor ?? this.errorIconColor,
-        errorFocusRingColor: errorFocusRingColor ?? this.errorFocusRingColor,
         successContainerColor: successContainerColor ?? this.successContainerColor,
         successTitleColor: successTitleColor ?? this.successTitleColor,
         successBodyColor: successBodyColor ?? this.successBodyColor,
         successIconColor: successIconColor ?? this.successIconColor,
-        successFocusRingColor: successFocusRingColor ?? this.successFocusRingColor,
       );
 }
 
@@ -5618,59 +5390,34 @@ class TanreiCalloutVariants {
   }
 }
 
-/// The tokens of callout that vary by interaction state but not by variant.
-@immutable
-class TanreiCalloutStateTokens {
-  const TanreiCalloutStateTokens({
-    required this.opacity,
-  });
-
-  /// `comp.callout.<state>.opacity`
-  final double opacity;
-
-  /// A copy with the given tokens replaced.
-  TanreiCalloutStateTokens copyWith({
-    double? opacity,
-  }) => TanreiCalloutStateTokens(
-        opacity: opacity ?? this.opacity,
-      );
-}
-
 /// `comp.callout.*`
 @immutable
 class TanreiCalloutTokens {
   const TanreiCalloutTokens({
     required this.actionsGap,
     required this.actionsItemGap,
+    required this.closeButtonVariant,
     required this.containerGap,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerPaddingInlineEndWithClose,
     required this.containerShape,
-    required this.controlsHeight,
-    required this.controlsIconSize,
-    required this.controlsShape,
     required this.iconGap,
     required this.iconOpacity,
     required this.iconSize,
-    required this.motionFeedbackDuration,
-    required this.motionStateDuration,
-    required this.motionStateEasing,
     required this.outlineColor,
     required this.outlineWidth,
     required this.titleGap,
-    required this.controls,
     required this.sizes,
     required this.variants,
-    required this.hovered,
-    required this.focused,
-    required this.pressed,
   });
 
   /// `comp.callout.actions-gap`
   final double actionsGap;
   /// `comp.callout.actions-item-gap`
   final double actionsItemGap;
+  /// `comp.callout.close-button-variant`
+  final double closeButtonVariant;
   /// `comp.callout.container-gap`
   final double containerGap;
   /// `comp.callout.container-padding-block`
@@ -5681,107 +5428,59 @@ class TanreiCalloutTokens {
   final double containerPaddingInlineEndWithClose;
   /// `comp.callout.container-shape`
   final double containerShape;
-  /// `comp.callout.controls-height`
-  final double controlsHeight;
-  /// `comp.callout.controls-icon-size`
-  final double controlsIconSize;
-  /// `comp.callout.controls-shape`
-  final double controlsShape;
   /// `comp.callout.icon-gap`
   final double iconGap;
   /// `comp.callout.icon-opacity`
   final double iconOpacity;
   /// `comp.callout.icon-size`
   final double iconSize;
-  /// `comp.callout.motion-feedback-duration`
-  final int motionFeedbackDuration;
-  /// `comp.callout.motion-state-duration`
-  final int motionStateDuration;
-  /// `comp.callout.motion-state-easing`
-  final TanreiCubicBezier motionStateEasing;
   /// `comp.callout.outline-color`
   final TanreiPaint outlineColor;
   /// `comp.callout.outline-width`
   final double outlineWidth;
   /// `comp.callout.title-gap`
   final double titleGap;
-  /// The `control` axis: `controls[control]`.
-  final TanreiCalloutControls controls;
   /// The `size` axis: `sizes[size]`.
   final TanreiCalloutSizes sizes;
   /// The `variant` axis: `variants[variant]`.
   final TanreiCalloutVariants variants;
-  /// `comp.callout.hovered.*`
-  final TanreiCalloutStateTokens hovered;
-  /// `comp.callout.focused.*`
-  final TanreiCalloutStateTokens focused;
-  /// `comp.callout.pressed.*`
-  final TanreiCalloutStateTokens pressed;
 
   /// A copy with the given tokens replaced.
   TanreiCalloutTokens copyWith({
     double? actionsGap,
     double? actionsItemGap,
+    double? closeButtonVariant,
     double? containerGap,
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerPaddingInlineEndWithClose,
     double? containerShape,
-    double? controlsHeight,
-    double? controlsIconSize,
-    double? controlsShape,
     double? iconGap,
     double? iconOpacity,
     double? iconSize,
-    int? motionFeedbackDuration,
-    int? motionStateDuration,
-    TanreiCubicBezier? motionStateEasing,
     TanreiPaint? outlineColor,
     double? outlineWidth,
     double? titleGap,
-    TanreiCalloutControls? controls,
     TanreiCalloutSizes? sizes,
     TanreiCalloutVariants? variants,
-    TanreiCalloutStateTokens? hovered,
-    TanreiCalloutStateTokens? focused,
-    TanreiCalloutStateTokens? pressed,
   }) => TanreiCalloutTokens(
         actionsGap: actionsGap ?? this.actionsGap,
         actionsItemGap: actionsItemGap ?? this.actionsItemGap,
+        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerGap: containerGap ?? this.containerGap,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerPaddingInlineEndWithClose: containerPaddingInlineEndWithClose ?? this.containerPaddingInlineEndWithClose,
         containerShape: containerShape ?? this.containerShape,
-        controlsHeight: controlsHeight ?? this.controlsHeight,
-        controlsIconSize: controlsIconSize ?? this.controlsIconSize,
-        controlsShape: controlsShape ?? this.controlsShape,
         iconGap: iconGap ?? this.iconGap,
         iconOpacity: iconOpacity ?? this.iconOpacity,
         iconSize: iconSize ?? this.iconSize,
-        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
-        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,
         titleGap: titleGap ?? this.titleGap,
-        controls: controls ?? this.controls,
         sizes: sizes ?? this.sizes,
         variants: variants ?? this.variants,
-        hovered: hovered ?? this.hovered,
-        focused: focused ?? this.focused,
-        pressed: pressed ?? this.pressed,
       );
-
-  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
-  /// resting tokens of this class apply).
-  TanreiCalloutStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
-        TanreiInteractionState.enabled => null,
-        TanreiInteractionState.hovered => hovered,
-        TanreiInteractionState.focused => focused,
-        TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => null,
-      };
 }
 
 /// The key of a variant of card (`comp.card`, axis `variant`).

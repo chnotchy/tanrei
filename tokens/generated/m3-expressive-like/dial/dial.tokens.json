@@ -6326,6 +6326,10 @@
             "tanrei.comp.calendar.in-range.label.color": {
               "$value": "{tanrei.sys.color.on-secondary-container}"
             },
+            "tanrei.comp.callout.close-button.variant": {
+              "$value": 4,
+              "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here."
+            },
             "tanrei.comp.date-time-picker.modal.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}"
             },
