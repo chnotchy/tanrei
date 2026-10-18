@@ -352,7 +352,7 @@
     },
     {
       "id": "SEL-30",
-      "text": "WHEN the list opens THE select SHALL fade it in and grow it from the edge that faces the container, as a popover's container does (POP-26), over comp.select.motion.open-duration with comp.select.motion.open-easing, and WHEN it closes fade it out over comp.select.motion.close-duration with comp.select.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. WHEN it is told to close while still opening, or to open while still closing, it SHALL turn round from where it is, and WHILE closed or closing it SHALL take no pointer input (POP-27). The value and the open state SHALL change when the list closes, not when its motion ends."
+      "text": "WHEN the list opens THE select SHALL make it appear as a popover's container appears (POP-26) — from where that appearance starts it, grown from the middle of the edge that faces the container — over comp.select.motion.open-duration with comp.select.motion.open-easing, and WHEN it closes take it back the same way over comp.select.motion.close-duration with comp.select.motion.close-easing; WHERE motion is reduced it SHALL only fade in and out, over sys.motion.role.reduced. WHEN it is told to close while still opening, or to open while still closing, it SHALL turn round from where it is, and WHILE closed or closing it SHALL take no pointer input (POP-27). The value and the open state SHALL change when the list closes, not when its motion ends."
     },
     {
       "id": "SEL-31",

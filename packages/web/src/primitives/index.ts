@@ -111,7 +111,7 @@
 //   placement   — placeAnchored(): where a surface that opens beside a control goes (the thirteen placements, offsets,
 //                 flipping, shifting, holding, the arrow's point: TIP-9, TIP-22…25, POP-2…5); anchorGone() (the anchor
 //                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice
-//   arrow       — arrowStyles(), shadowLayers() and shadeFilter(): the arrow of an anchored surface, one shape with it
+//   arrow       — arrowStyles(), shadowLayers(), shadeFilter() and shadeOn(): the arrow of an anchored surface, one shape with it
 //                 under one elevation (TIP-25, POP-10); arrowOutlineStyles(): its outline in forced colors (POP-32)
 //   anchored    — AnchoredSurfaceController and anchoredSurfaceStyles(): a surface presented in the top layer, placed
 //                 beside its anchor, limited to the room, following it, with its open and close motion (POP-1…5,
@@ -186,7 +186,7 @@ export {
   placeAnchored,
   usableLength,
 } from './placement.js';
-export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadowLayers } from './arrow.js';
+export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadeOn, shadowLayers } from './arrow.js';
 export { type AnchoredStyleOptions, AnchoredSurfaceController, type AnchoredSurfaceOptions, anchoredSurfaceStyles } from './anchored.js';
 export {
   AnimatedSize,

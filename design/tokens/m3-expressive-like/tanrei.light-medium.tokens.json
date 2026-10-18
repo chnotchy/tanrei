@@ -68589,7 +68589,7 @@
               "value": 100,
               "unit": "ms"
             },
-            "$description": "How long the container takes to fade out. The menu's."
+            "$description": "How long the container takes to leave the way it came: an anchored surface's exit."
           },
           "close-easing": {
             "$type": "cubicBezier",
@@ -68606,7 +68606,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long the container takes to fade in and grow from the anchor's side. The menu's."
+            "$description": "How long the container takes to appear from the anchor's side: an anchored surface's entrance."
           },
           "open-easing": {
             "$type": "cubicBezier",

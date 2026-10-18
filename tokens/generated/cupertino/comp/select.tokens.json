@@ -309,21 +309,21 @@
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the list takes to appear."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the list takes to go."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "stacked": {

@@ -189,6 +189,12 @@ test.describe('expectNoFlicker', () => {
       "(el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, easing: 'cubic-bezier(0.3, 0, 1, 1)', fill: 'forwards' })",
       // A box that narrows and is then taken out of the layout: its box goes to nothing, which is no jump.
       "(el) => el.animate([{ inlineSize: '200px' }, { inlineSize: '100px' }], { duration: 300 }).finished.then(() => (el.style.display = 'none'))",
+      // A surface that leaves the way it came — shrinking toward its top edge's middle, so its left edge moves right —
+      // and is then taken out of the layout: its way ends where it was last laid out, not at the 0 × 0 box after.
+      // …and one that is laid out only from the frame after the change (put in the top layer, then placed), and grows
+      // from its edge's middle: its way starts where it was first laid out.
+      "(el) => { el.style.display = 'none'; requestAnimationFrame(() => { el.style.display = ''; el.style.transformOrigin = '50% 0'; el.animate([{ scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1 }], { duration: 300, easing: 'cubic-bezier(0.2, 0, 0, 1)' }); }); }",
+      "(el) => { el.style.transformOrigin = '50% 0'; el.animate([{ scale: 1, opacity: 1 }, { scale: 0.9, opacity: 0 }], { duration: 300, easing: 'cubic-bezier(0.3, 0, 1, 1)', fill: 'forwards' }).finished.then(() => (el.style.display = 'none')); }",
       "(el) => { el.innerHTML = '<i style=\"display: block; block-size: 4px; background: rgb(0, 0, 0)\"></i>'; el.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 1000, iterations: Infinity }); }",
     ]) {
       const seen = await animate(page, how);
