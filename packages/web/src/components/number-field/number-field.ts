@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
   NUMBER_OR_NULL,
   TanreiNumberInput,
@@ -16,7 +16,6 @@ import {
 // The members' own types are the number field's: it has no detail type and no type for a prop of its own.
 export type {
   TanreiFieldRequiredMark,
-  TanreiFieldRequirement,
   TanreiNumberInputAlign,
   TanreiNumberInputEntryErrorDetail,
   TanreiNumberInputInputDetail,
@@ -25,7 +24,7 @@ export type {
 };
 
 /** NUM-47: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** NUM-47: the nineteen props that are the number input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
   'variant',
@@ -68,7 +67,7 @@ const INPUT_PARTS = exported(TanreiNumberInput, { label: { as: 'number-input-lab
  * and its error, tied together for assistive technology and taking part in a form as one control.
  *
  * Contract: specs/number-field.spec.json. `<tanrei-number-field name="quantity" label="Quantity" min="1" max="99"
- * requirement="required" supporting-text="Up to 99 per order." increment-label="Increase"
+ * required supporting-text="Up to 99 per order." increment-label="Increase"
  * decrement-label="Decrease"></tanrei-number-field>`.
  *
  * Composed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing
@@ -76,8 +75,8 @@ const INPUT_PARTS = exported(TanreiNumberInput, { label: { as: 'number-input-lab
  * `--tanrei-comp-input-box-*`, `--tanrei-comp-number-input-*` and, for the two steppers, `--tanrei-comp-button-*` value reaches the members by
  * inheritance, and one number field is set apart by setting such a property on this element. Each property is its
  * member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`, `error-text`, `error`,
- * `disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the Field's, every other one the
- * number input's. One level down, the same by hand: `<tanrei-field label="Quantity" requirement="required"
+ * `disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the Field's, every other one the
+ * number input's. One level down, the same by hand: `<tanrei-field label="Quantity" required
  * supporting-text="Up to 99 per order."><tanrei-number-input name="quantity" min="1" max="99"
  * increment-label="Increase" decrement-label="Decrease"></tanrei-number-input></tanrei-field>` — and the box alone,
  * where a label stands elsewhere (beside a slider, in a cell of a table), is `<tanrei-number-input>` with a `label`
@@ -93,7 +92,7 @@ const INPUT_PARTS = exported(TanreiNumberInput, { label: { as: 'number-input-lab
  *
  * Form-associated (NUM-48): it submits the value under `name` as a plain decimal number ("12.5") whatever the locale
  * shows — nothing while disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled
- * `<fieldset>`, and reports what its number input reports: a missing value while `requirement` is `required` and it
+ * `<fieldset>`, and reports what its number input reports: a missing value while `required` is set and it
  * holds none, and a bad input while it holds a text that is not a number. Enter presses the default button of this
  * element's form.
  *
@@ -145,8 +144,8 @@ export class TanreiNumberField extends ComposedControl<number | null> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
     required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -189,11 +188,11 @@ export class TanreiNumberField extends ComposedControl<number | null> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
-
   /** @from tanrei-field.required */
   required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

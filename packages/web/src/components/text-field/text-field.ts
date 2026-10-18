@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
   DISABLED_DATES,
   TanreiTextInput,
@@ -18,7 +18,6 @@ import {
 // The members' own types are the text field's: it has no detail type and no type for a prop of its own.
 export type {
   TanreiFieldRequiredMark,
-  TanreiFieldRequirement,
   TanreiTextInputActionDetail,
   TanreiTextInputEntryErrorDetail,
   TanreiTextInputPickerRequestDetail,
@@ -30,7 +29,7 @@ export type {
 };
 
 /** TXF-62: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** TXF-62: the twenty-seven props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
   'variant',
@@ -82,15 +81,15 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  * and taking part in a form as one control.
  *
  * Contract: specs/text-field.spec.json. `<tanrei-text-field name="email" label="Email" type="email"
- * autocomplete="email" requirement="required" supporting-text="We never share your address."></tanrei-text-field>`.
+ * autocomplete="email" required supporting-text="We never share your address."></tanrei-text-field>`.
  *
  * Composed (`src/primitives/composed.ts`): its shadow root holds the two members' own elements and nothing
  * else, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,
  * `--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` value reaches the members by inheritance, and one text field is set apart by setting
  * such a property on this element. Each property is its member's, set on that member unchanged: `label`,
- * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,
+ * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,
  * `required-text` and `optional-text` are the Field's, every other one the text input's. One level down, the same by
- * hand: `<tanrei-field label="Email" requirement="required" supporting-text="We never share your address.">
+ * hand: `<tanrei-field label="Email" required supporting-text="We never share your address.">
  * <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input></tanrei-field>` — and the box
  * alone, where a label stands elsewhere, is `<tanrei-text-input>` with a `label` of its own.
  *
@@ -103,7 +102,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  *
  * Form-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is
  * restored on navigation, follows a disabled `<fieldset>`, and reports what its text input reports: a missing value
- * while `requirement` is `required` and it is empty, and a date's or a time's entry error. Enter in a single-line
+ * while `required` is set and it is empty, and a date's or a time's entry error. Enter in a single-line
  * field presses the default button of this element's form.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with
@@ -156,8 +155,8 @@ export class TanreiTextField extends ComposedControl<string> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
     required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -210,11 +209,11 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
-
   /** @from tanrei-field.required */
   required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

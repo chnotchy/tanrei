@@ -1,13 +1,13 @@
 import { type PropertyDeclarations, html } from 'lit';
 import { ComposedControl, type ValueMember, exported, forward } from '../../primitives/composed.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiOneTimeCodeInput, type TanreiOneTimeCodeInputDetail, type TanreiOneTimeCodeInputType } from '../one-time-code-input/one-time-code-input.js';
 
 // The members' own types are the one-time-code field's: it has no detail type and no type for `type` of its own.
-export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiOneTimeCodeInputDetail, TanreiOneTimeCodeInputType };
+export type { TanreiFieldRequiredMark, TanreiOneTimeCodeInputDetail, TanreiOneTimeCodeInputType };
 
 /** OTF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** OTF-2: the props that are the One-time-code input's. Its own `label`, `error` and `disabled` are never set. */
 const INPUT = ['value', 'length', 'type', 'groupSize', 'mask', 'readOnly'] as const;
 
@@ -38,8 +38,8 @@ const INPUT_PARTS = exported(TanreiOneTimeCodeInput);
  * as their target: `event.target.value` is the code in every listener. It dispatches none itself.
  *
  * Form-associated: it submits the code under `name` — nothing while disabled —, resets to its `value` attribute, is
- * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is
- * `required` and it is empty. Enter in the cells presses the default button of this element's form.
+ * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is
+ * set and it is empty. Enter in the cells presses the default button of this element's form.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the cells, and its name is `label` (with
  * `label-hidden` where it is not drawn), never `aria-label`.
@@ -74,8 +74,8 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
     required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -105,11 +105,11 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
-
   /** @from tanrei-field.required */
   required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

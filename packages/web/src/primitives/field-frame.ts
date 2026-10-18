@@ -28,9 +28,8 @@ import type { WordsController } from './words.js';
 // one shadow root (`aria-labelledby` / `aria-describedby` to the rows' ids) for a component whose control is in its own
 // root; strings through `primitives/field.ts` for a control in another tree.
 
-/** What the form asks of a control (FLD-4). The first value is what an unknown one behaves as (FLD-22). */
-export const REQUIREMENTS = ['none', 'required', 'optional'] as const;
-export type FrameRequirement = (typeof REQUIREMENTS)[number];
+/** What the form asks of a control (FLD-4), as `required` and `optional` say it: required wins over optional (FLD-32). */
+export type FrameRequirement = 'none' | 'required' | 'optional';
 /** How a required control is marked (FLD-6). The first value is what an unknown one behaves as (FLD-22). */
 export const REQUIRED_MARKS = ['auto', 'tag', 'asterisk', 'none'] as const;
 export type FrameRequiredMark = (typeof REQUIRED_MARKS)[number];
@@ -41,23 +40,24 @@ export type FrameRequiredMark = (typeof REQUIRED_MARKS)[number];
  */
 export const SYSTEM_MARKS = ['tag', 'asterisk', 'none'] as const;
 
-/** The frame's props, as every component that draws it has them (the same eleven names, types and defaults). */
+/** The frame's props, as every component that draws it has them (the same ten names, types and defaults). */
 export interface FrameProps {
   label: string;
   labelHidden: boolean;
   supportingText: string;
   errorText: string;
   error: boolean;
-  requirement: string;
-  /** HTML's name for requirement required (FLD-32, FGR-26): true wins over whatever requirement names. */
+  /** The form asks for an answer: the required mark, and the required state (FLD-4). */
   required: boolean;
+  /** The answer may be left out: the optional tag, and optionalText in the description (FLD-4). Ignored while required is true (FLD-32). */
+  optional: boolean;
   requiredMark: string;
   requiredText: string;
   optionalText: string;
 }
 
-/** What says the requirement: `requirement`, and `required`, which wins where it is true (FLD-32, FGR-26). */
-type Asked = Pick<FrameProps, 'requirement'> & Partial<Pick<FrameProps, 'required'>>;
+/** What says the requirement: `required`, and `optional`, which `required` wins over (FLD-32, FGR-26). */
+type Asked = Partial<Pick<FrameProps, 'required' | 'optional'>>;
 
 /**
  * FLD-24 and its copies: the frame's props with its two words read — the instance's prop, else the product's words
@@ -70,17 +70,16 @@ export function frameWithWords(props: FrameProps, words: WordsController): Frame
     supportingText: props.supportingText,
     errorText: props.errorText,
     error: props.error,
-    requirement: props.requirement,
     required: props.required,
+    optional: props.optional,
     requiredMark: props.requiredMark,
     requiredText: words.get('requiredText', props.requiredText),
     optionalText: words.get('optionalText', props.optionalText),
   };
 }
 
-/** FLD-4, FLD-22, FLD-32: the requirement — required while `required` is true, else `requirement`, an unknown value behaving as none. */
-export const frameRequirement = (props: Asked): FrameRequirement =>
-  props.required === true ? 'required' : (REQUIREMENTS as readonly string[]).includes(props.requirement) ? (props.requirement as FrameRequirement) : 'none';
+/** FLD-4, FLD-32: the requirement — required while `required` is true, else optional while `optional` is, else none. */
+export const frameRequirement = (props: Asked): FrameRequirement => (props.required === true ? 'required' : props.optional === true ? 'optional' : 'none');
 
 /** FLD-2: the label row is drawn. */
 export const frameLabelled = (props: Pick<FrameProps, 'label' | 'labelHidden'>): boolean => !!props.label && !props.labelHidden;
@@ -101,8 +100,8 @@ export const frameErrorText = (props: Pick<FrameProps, 'errorText' | 'error'>): 
 export const frameOptionalText = (props: Asked & Pick<FrameProps, 'optionalText'>): string => (frameRequirement(props) === 'optional' ? props.optionalText : '');
 
 /**
- * The debug reports every frame makes about its own props (FLD-22, FLD-24 and their copies): an unknown requirement or
- * required mark, and a requirement word that neither the instance nor the product's words gave (recorded for
+ * The debug reports every frame makes about its own props (FLD-22, FLD-24, FLD-32 and their copies): an unknown
+ * required mark, required and optional both true, and a requirement word that neither the instance nor the product's words gave (recorded for
  * `missingWords()` in every build). `props` are the frame's with its words read (`frameWithWords()`); `ids` are the
  * component's own behaviour ids for the two sentences and `prefix` its token prefix. The required word is needed only
  * where the tag would be drawn — the mark is tag, by the frame's own prop or by the design system's answer, and the
@@ -113,13 +112,13 @@ export function reportFrame(
   host: Element,
   props: FrameProps,
   changed: { has: (name: never) => boolean },
-  ids: { unknown: string; words: string },
+  ids: { unknown: string; words: string; both: string },
   words: WordsController,
   { prefix, always = false, row = true, tag = 'tag' }: { prefix: string; always?: boolean; row?: boolean; tag?: string },
 ) {
   const has = (name: keyof FrameProps) => changed.has(name as never);
-  if (has('requirement') && !(REQUIREMENTS as readonly string[]).includes(props.requirement)) {
-    report(host, ids.unknown, `requirement "${props.requirement}" is not none, required or optional; it behaves as "none"`);
+  if ((has('required') || has('optional')) && props.required && props.optional) {
+    report(host, ids.both, 'required and optional are both true; it is required, and optional is ignored');
   }
   if (has('requiredMark') && !(REQUIRED_MARKS as readonly string[]).includes(props.requiredMark)) {
     report(host, ids.unknown, `requiredMark "${props.requiredMark}" is not auto, tag, asterisk or none; it behaves as "auto"`);

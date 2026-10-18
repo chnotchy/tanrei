@@ -27,7 +27,7 @@ export interface GroupSemantics {
  * FGR-11: the words that carry the requirement, because a group has no required state: requiredText, or optionalText.
  * FGR-25: a group whose role has the state says only optionalText in words.
  */
-export function groupRequirementText(props: Pick<FrameProps, 'requirement' | 'requiredText' | 'optionalText'> & Partial<Pick<FrameProps, 'required'>>, { requiredState = false }: GroupSemantics = {}): string {
+export function groupRequirementText(props: Pick<FrameProps, 'required' | 'optional' | 'requiredText' | 'optionalText'>, { requiredState = false }: GroupSemantics = {}): string {
   const asked = frameRequirement(props);
   return asked === 'required' ? (requiredState ? '' : props.requiredText) : asked === 'optional' ? props.optionalText : '';
 }
@@ -69,8 +69,8 @@ export function groupRows(props: FrameProps, semantics: GroupSemantics = {}, dis
     label: frameLabelRow({
       label: props.label,
       labelHidden: props.labelHidden,
-      requirement: props.requirement,
       required: props.required,
+      optional: props.optional,
       requiredMark: props.requiredMark,
       requiredText: props.requiredText,
       optionalText: props.optionalText,

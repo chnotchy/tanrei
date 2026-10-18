@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
   TanreiColorInput,
   type TanreiColorInputEntryErrorDetail,
@@ -11,10 +11,10 @@ import {
 } from '../color-input/color-input.js';
 
 // The members' own types are the color field's: it has no detail type and no type for a prop of its own.
-export type { TanreiColorInputEntryErrorDetail, TanreiColorInputPickerRequestDetail, TanreiColorInputSize, TanreiColorInputVariant, TanreiFieldRequiredMark, TanreiFieldRequirement };
+export type { TanreiColorInputEntryErrorDetail, TanreiColorInputPickerRequestDetail, TanreiColorInputSize, TanreiColorInputVariant, TanreiFieldRequiredMark };
 
 /** CLF-43: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CLF-43: the six props that are the color input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = ['variant', 'size', 'value', 'invalidText', 'picker', 'pickerLabel'] as const;
 
@@ -44,7 +44,7 @@ const INPUT_PARTS = exported(TanreiColorInput, { label: { as: 'color-input-label
  * else, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,
  * `--tanrei-comp-input-box-*` and `--tanrei-comp-color-input-*` value reaches the members by inheritance, and one color field is set apart by setting
  * such a property on this element. Each property is its member's, set on that member unchanged: `label`,
- * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,
+ * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,
  * `required-text` and `optional-text` are the Field's; `variant`, `size`, `value`, `invalid-text`, `picker` and
  * `picker-label` the color input's. One level down, the same by hand: `<tanrei-field label="Brand color"
  * supporting-text="Six hexadecimal digits, like #0f766e."><tanrei-color-input name="brand" value="#0f766e"
@@ -61,7 +61,7 @@ const INPUT_PARTS = exported(TanreiColorInput, { label: { as: 'color-input-label
  *
  * Form-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is
  * restored on navigation, follows a disabled `<fieldset>`, and reports what its color input reports: a missing value
- * while `requirement` is `required` and it is empty, and a bad input while a committed text is not a color. Enter in
+ * while `required` is set and it is empty, and a bad input while a committed text is not a color. Enter in
  * the input presses the default button of this element's form.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the input — never to the picker button —,
@@ -112,8 +112,8 @@ export class TanreiColorField extends ComposedControl<string> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
     required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -143,11 +143,11 @@ export class TanreiColorField extends ComposedControl<string> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
-
   /** @from tanrei-field.required */
   required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';
