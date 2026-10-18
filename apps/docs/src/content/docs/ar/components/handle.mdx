@@ -1,0 +1,187 @@
+---
+title: مقبض تغيير الحجم
+description: العلامة التي يسحبها الشخص، أو يحرّكها من لوحة المفاتيح، ليغيّر حجم ما تقف عليه — لوحة أو حقل أو جزء من الواجهة أو إطار معاينة. خط قصير لاتجاه واحد، وقوس ربع دائرة لاتجاهين. تخبر بمقدار ما حُرّكت؛ أما تغيير الحجم فمن شأن مالكها.
+translationOf: components/handle.mdx
+sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="مقبض يغيّر ارتفاعًا، ومقبض يغيّر عرضًا، ومقبض في زاوية يغيّر الاثنين">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="تغيير حجم الملاحظات" value="4" min="2" max="12" value-text="4 أسطر" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="تغيير حجم المعاينة" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="تغيير حجم الرسالة" value="6" min="3" max="12" value-text="6 أسطر" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+يقف مقبض تغيير الحجم (handle) على حافة أو زاوية لشيء يجوز للشخص أن يغيّر حجمه: الحافة العلوية للوحة، أو الزاوية السفلية لحقل نص، أو حافة جزء من الواجهة أو معاينة. حين يُسحب يخبر بالمسافة التي تحرّكها؛ وحين يُحرَّك من لوحة المفاتيح يخبر بالخطوة المطلوبة؛ وحين يُضغط دون سحب يخبر بذلك. ولا يغيّر حجم أي شيء بنفسه أبدًا. فالحجم يحفظه ما يقف عليه المقبض، وهو الذي يقرر مقدار الخطوة، ويعيد الحجم إلى المقبض لتقرأه التقنيات المساعدة.
+
+على الويب هو `<tanrei-handle>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="الملاحظات"></textarea>
+      <!-- على الحافة السفلية: يغيّر الارتفاع. قيمته ملك للمالك، وبوحدة المالك. -->
+      <tanrei-handle label="تغيير حجم الملاحظات" value="4" min="2" max="12" value-text="4 أسطر"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} أسطر`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // المسافة من نقطة الضغط بالبكسل: block موجبة نحو الأسفل.
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // الخطوة هنا سطر واحد؛ ويطلب Home وEnd الأصغر والأكبر.
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // ضُغط دون سحب: بدّل بين الحجمين اللذين تعرفهما، كي لا يحتاج أي حجم إلى سحب.
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="تغيير حجم الملاحظات"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} أسطر`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="مخفي حتى يُستخدم: مرّر المؤشر فوقه، أو انتقل إليه بالمفتاح Tab" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="تغيير حجم اللوحة" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="تغيير حجم التعليق" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## الإرشادات
+
+### متى تُستخدم
+
+استخدمه حيث ينبغي أن يستطيع الشخص إعطاء شيء الحجم الذي يريده: حقل لإجابة طويلة، أو لوحة فوق خريطة، أو لوحة جانبية، أو معاينة لصفحة بعرض آخر.
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| نقل عنصر في قائمة إلى مكان آخر | مقبض إعادة الترتيب في [القائمة](/ar/components/list/)، ويُرسم بنقاط. الخط يغيّر الحجم، والنقاط تغيّر المكان. |
+| اختيار بين أحجام ثابتة قليلة، ولا شيء بينها | [زر مقسّم](/ar/components/segmented-button/)، أو [زر](/ar/components/button/) يبدّل بينها. |
+| لوحة ترتفع من الحافة السفلية | [اللوحة السفلية](/ar/components/bottom-sheet/)، التي ترسم مقبض السحب الخاص بها. |
+
+### هيئاته
+
+| `axis` | يُرسم | يقف على |
+| --- | --- | --- |
+| `vertical` (الافتراضي) | خطًّا أفقيًّا قصيرًا | حافة سفلية أو علوية: يغيّر ارتفاعًا. |
+| `horizontal` | خطًّا قائمًا قصيرًا | حافة البداية أو النهاية: يغيّر عرضًا. |
+| `both` | قوس ربع دائرة منحنيًا نحو `corner` | زاوية: يغيّر ارتفاعًا وعرضًا معًا. |
+
+يُكتب `corner` بالاتجاهات المنطقية: `end` هي اليمين في تخطيط من اليسار إلى اليمين، واليسار في تخطيط من اليمين إلى اليسار، فيتبع قوس `bottom-end` اتجاه الصفحة من تلقاء نفسه.
+
+| `size` | يُستخدم لـ |
+| --- | --- |
+| `medium` (الافتراضي) | لوحة، أو جزء من الواجهة، أو إطار. |
+| `small` | زاوية حقل نص، حيث تغطي علامة أكبر النص. |
+
+يحافظ الحجمان كلاهما على الحد الأدنى لهدف اللمس. وتمتد منطقة الاستجابة عند الحاجة إلى ما بعد ما يقف عليه المقبض، دون أن يتغيّر ما يُرسم.
+
+### ما يخبرك به، وما تفعله
+
+| الحدث | متى | ما تفعله |
+| --- | --- | --- |
+| `resizestart` | بدأ السحب: تحرّك الضغط أبعد من هامش اللمس. | احفظ الحجم عند البداية. أوقف `pointer-events` في أي iframe داخل ما تغيّر حجمه. |
+| `resize` | في كل إطار يتحرّك فيه السحب. `inline` و`block` هما المسافة من نقطة الضغط بالبكسل: `inline` نحو حافة النهاية، و`block` نحو الأسفل. | اضبط الحجم: حجم البداية زائد المسافة، بوحدتك أنت، وضمن حدودك. |
+| `resizeend` | انتهى السحب، مرة واحدة. تكون `cancelled` مساوية لـ true حين تلغيه المنصة. | احتفظ بالحجم، أو أعده إلى ما كان عليه إن أُلغي. أعد تشغيل الـ iframe. |
+| `step` | طلب مفتاح تغييرًا: `axis` و`direction` (1 أو −1) و`amount` (`one` أو `large`، أو `limit` للمفتاحين Home وEnd). | قرّر مقدار الخطوة — سطر، أو 1 أو 10 بكسل، أو 5% — وغيّر الحجم بمقدارها. |
+| `activate` | ضُغط وأُفلت دون سحب، أو Enter أو Space. | بدّل بين حجمين تعرفهما: الارتفاع الذي يحتاجه نصّه وأصغر ارتفاع، أو العرض كله والعرض الذي كان عليه. |
+
+بعد كل تغيير، أعطِ المقبض الحجم الجديد في `value` (مع `min` و`max`، و`valueText` حيث لا يكفي الرقم). هذا ما تقرأه التقنيات المساعدة. والمقبض بلا `value` زر: استخدم هذه الهيئة حين لا يفعل المقبض سوى التبديل بين أحجام تعرفها، وأعطه `expanded`.
+
+### مخفي حتى يُستخدم
+
+المقبض هادئ: في السكون لا يُرسم شيء، كي يُرى ما يقف عليه لا أدواته. ويظهر حين تكون الفأرة فوقه، وحين يصل إليه التركيز من لوحة المفاتيح، وطوال الضغط أو السحب. وفوقه يأخذ المؤشر أيضًا مؤشر تغيير الحجم. وعلى شاشة اللمس، التي لا تحويم فيها، يُرسم دائمًا.
+
+اضبط `revealed` حيث يجب أن يُرى المقبض كي يُعثر عليه: مقبض السحب في لوحة، الذي يقول إن اللوحة يمكن سحبها. واضبطه أيضًا طوال وجود المؤشر فوق ما يقف عليه المقبض، إن أردت أن يظهر حينها (حقل يُظهر مقبض زاويته حين يُشار إليه).
+
+### أين تضعه
+
+لا يشغل المقبض إلا مساحة صندوقه، وأنت من يضعه على الحافة أو في الزاوية. ضع الخط في منتصف حافته. وضع القوس في زاويته، واجعل نصف قطر تلك الزاوية مساويًا لـ `arc.radius` زائد `inset`، ليشترك القوس والزاوية في مركز واحد.
+
+### افعل
+
+- أعطِ كل مقبض `label` يقول ما الذي يغيّر حجمه: «تغيير حجم الملاحظات»، «تغيير حجم المعاينة».
+- أعِد إليه الحجم في `value` بعد كل تغيير، مع `valueText` بوحدتك.
+- استجب لـ `activate` بحجم لا يحتاج إلى سحب.
+- احتفظ بالحجم الذي اختاره الشخص حتى يغيّره من جديد.
+
+### لا تفعل
+
+- لا تستخدم المقبض لنقل شيء إلى مكان آخر.
+- لا تصغّر شيئًا إلى ما دون الحجم الذي يحتاجه محتواه ليُستخدم، ولا توسّع صفحة حتى تحتاج إلى تمرير جانبي.
+- لا تضع المقبض فوق نص يقرؤه الشخص؛ فهو علامة على حافة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="handle" />
+
+### ما يتكفل به المكوّن
+
+- مع `value` هو فاصل يقبل التركيز — مقسِّم النوافذ في ARIA Authoring Practices — يسمّيه `label`، بقيمته ومداه ونص قيمته واتجاه خطه. ومن دونها هو زر، بحالة التوسيع حين تعطيه إياها.
+- هو موضع توقف واحد في ترتيب التركيز، حتى وهو مخفي. والتركيز من لوحة المفاتيح يُظهره فورًا مع حلقة التركيز، فيرى مستخدم لوحة المفاتيح دائمًا أين التركيز.
+- مفاتيح الأسهم في محوره تطلب خطوة، وShift مع سهم وPage Up وPage Down خطوة كبيرة، وHome وEnd أصغر حجم وأكبره. ويفعّله Enter وSpace. وكل مفتاح آخر يصل إليك.
+- الضغط لا يأخذ التركيز ولا يحدّد نصًّا، فيحتفظ الحقل بمؤشر الكتابة (caret) طوال سحب مقبضه. ويتبع السحب المؤشر حتى خارج حافة النافذة.
+- حين يُضغط دون سحب يتفعّل، فيُبلغ كل حجم تقدّمه بنقرة أو لمسة واحدة.
+- مع النص المكبَّر يحتفظ بحجمه: فهو علامة على حافة، لا نص.
+- في وضع الألوان المفروضة يأخذ الخط لون نص الأزرار، ولون التمييز حين يُشار إليه أو يُضغط، ولون النص المعطّل حين يكون معطّلًا.
+- في تخطيط من اليمين إلى اليسار تكون زوايا النهاية للقوس على اليسار، ويدور مؤشره المائل معه، ويشير السهم الأيسر نحو حافة النهاية، وتكون `inline` موجبة نحو اليسار.
+
+### ما عليك فعله
+
+- أعطه `label`. من دونه يُرسم المقبض ويعمل، وتبلّغ عنه نسخة التصحيح.
+- حافظ على `value` و`min` و`max` و`valueText` محدَّثة، بالوحدة التي يعرفها الناس.
+- استجب لـ `activate` بحجم لا يحتاج إلى سحب. فالسحب وحده لا يكفي لمن لا يستطيع السحب.
+- طوال السحب، امنع أي iframe داخل ما تغيّر حجمه من أخذ المؤشر (`pointer-events: none`)، وإلا توقف السحب حين يمر المؤشر فوقه.
+- تأكّد من أن المحتوى يبقى صالحًا للاستخدام في كل حجم تسمح به.

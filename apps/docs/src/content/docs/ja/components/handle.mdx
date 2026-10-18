@@ -1,0 +1,187 @@
+---
+title: ハンドル
+description: 人がドラッグして、またはキーボードで動かして、それが付いているもの（シート、フィールド、ペイン、プレビューの枠）の大きさを変えるための印です。1 方向なら短い線、2 方向なら 1/4 円の弧で描きます。どれだけ動いたかを知らせ、大きさを変えるのは持ち主です。
+translationOf: components/handle.mdx
+sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="高さを変えるハンドル、幅を変えるハンドル、角にあって両方を変えるハンドル">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="メモの大きさを変更" value="4" min="2" max="12" value-text="4 行" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="プレビューの大きさを変更" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="メッセージの大きさを変更" value="6" min="3" max="12" value-text="6 行" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+ハンドルは、人が大きさを変えてよいものの縁や角に付きます。シートの上端、テキストフィールドの下の角、ペインやプレビューの縁などです。ドラッグされるとどれだけ動いたかを、キーボードで動かされるとどの刻みを求められたかを、ドラッグせずに押されるとそのことを知らせます。自分では何の大きさも変えません。大きさを持つのは付いている側で、1 刻みが何かもそちらが決め、支援技術が読めるように大きさをハンドルに渡し返します。
+
+Web では `<tanrei-handle>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="メモ"></textarea>
+      <!-- 下の縁に置くと高さを変えます。value は持ち主のもので、単位も持ち主のものです。 -->
+      <tanrei-handle label="メモの大きさを変更" value="4" min="2" max="12" value-text="4 行"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} 行`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // 押した点からの距離（px）。block は下向きが正です。
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // ここでは 1 刻みが 1 行です。Home と End は最小と最大を求めます。
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // ドラッグせずに押されたら、知っている 2 つの大きさを行き来します。どの大きさもドラッグなしで届くように。
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="メモの大きさを変更"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} 行`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="使うまでは見えません。ポインターを乗せるか、Tab で移動してください" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="パネルの大きさを変更" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="コメントの大きさを変更" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## ガイドライン
+
+### 使う場面
+
+人が好きな大きさにできるようにしたいところで使います。長い回答を書くフィールド、地図の上のシート、サイドパネル、別の幅で見るページのプレビューなどです。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| リストの項目を別の位置へ動かす | [リスト](/ja/components/list/)の並べ替えハンドル。点で描きます。線は大きさを変え、点は位置を変えます。 |
+| いくつかの決まった大きさから選び、その間はない | [セグメントボタン](/ja/components/segmented-button/)、または大きさを切り替える[ボタン](/ja/components/button/)。 |
+| 下端からせり上がるシート | 自前のドラッグハンドルを描く[ボトムシート](/ja/components/bottom-sheet/)。 |
+
+### 形
+
+| `axis` | 描き方 | 付ける場所 |
+| --- | --- | --- |
+| `vertical`（既定） | 横向きの短い線 | 下端か上端。高さを変えます。 |
+| `horizontal` | 縦向きの短い線 | 始端か終端。幅を変えます。 |
+| `both` | `corner` に向かってふくらむ 1/4 円の弧 | 角。高さと幅を同時に変えます。 |
+
+`corner` は論理方向で書きます。`end` は左から右へのレイアウトでは右、右から左へのレイアウトでは左です。そのため `bottom-end` の弧はページの方向に自然に従います。
+
+| `size` | 用途 |
+| --- | --- |
+| `medium`（既定） | シート、ペイン、枠。 |
+| `small` | テキストフィールドの角。大きな印では文字を隠してしまうところです。 |
+
+どちらのサイズも最小ターゲットを保ちます。当たり判定は、描いた形を変えずに、必要なら付いているものの外まで広がります。
+
+### 知らせること、持ち主がすること
+
+| イベント | いつ | すること |
+| --- | --- | --- |
+| `resizestart` | ドラッグが始まったとき。押したまま、タッチのスロップを越えて動いたときです。 | 始めの大きさを覚えておきます。大きさを変えるものの中に iframe があれば、その `pointer-events` を切ります。 |
+| `resize` | ドラッグが動くフレームごと。`inline` と `block` は押した点からの距離（px）で、`inline` は終端の向き、`block` は下向きが正です。 | 始めの大きさに距離を足して、自分の単位で、自分の範囲内で大きさを決めます。 |
+| `resizeend` | ドラッグが終わったとき、1 回だけ。プラットフォームが取り消したときは `cancelled` が true です。 | 大きさを保つか、取り消されたなら元に戻します。iframe を元に戻します。 |
+| `step` | キーが変化を求めたとき。`axis`、`direction`（1 か −1）、`amount`（`one`、`large`、Home と End なら `limit`）を運びます。 | 1 刻みが何か（1 行、1 px や 10 px、5 %）を決めて、その分だけ大きさを変えます。 |
+| `activate` | ドラッグせずに押して離したとき、または Enter か Space。 | 知っている 2 つの大きさを行き来します。文字が全部入る高さと最小の高さ、全幅と直前の幅などです。 |
+
+大きさを変えるたびに、新しい大きさを `value` としてハンドルに渡します（`min`、`max`、数字だけでは伝わらないなら `valueText` も）。支援技術が読むのはこれです。`value` のないハンドルはボタンです。知っている大きさを切り替えるだけのハンドルにはこの形を使い、`expanded` を渡します。
+
+### 使うまでは見えない
+
+ハンドルは控えめです。静止時は何も描かず、目に入るのは道具ではなく付いているものです。マウスが乗ったとき、キーボードのフォーカスが来たとき、押されている間とドラッグの間に見えるようになります。乗っている間はポインターもリサイズのカーソルになります。ホバーのないタッチスクリーンでは常に描きます。
+
+見えていないと見つけられないハンドルには `revealed` を付けます。シートのグリップがそうで、シートを引っ張れることを示します。付いているものにポインターが乗っている間だけハンドルを見せたいとき（ポインターが乗るとフィールドが角のハンドルを見せる、など）も、その間だけ付けます。
+
+### 置き方
+
+ハンドルが占めるのは自分の箱だけで、縁や角に置くのは持ち主です。線は縁の中央に置きます。弧は角に置き、その角の半径を `arc.radius` と `inset` の和にすると、弧と角が同じ中心を持ちます。
+
+### 推奨
+
+- どのハンドルにも、何の大きさを変えるかを言う `label` を付けます（「メモの大きさを変更」「プレビューの大きさを変更」）。
+- 変えるたびに大きさを `value` として渡し返し、`valueText` には自分の単位で書きます。
+- `activate` にはドラッグの要らない大きさで応えます。
+- 変えられた大きさは、人がまた変えるまで保ちます。
+
+### 非推奨
+
+- ハンドルを、何かを別の位置へ動かすために使わない。
+- 中身が使えなくなる大きさまで縮めたり、ページが横にスクロールする幅まで広げたりしない。
+- 人が読んでいる文字の上にハンドルを置かない。ハンドルは縁に付ける印です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="handle" />
+
+### コンポーネントが担うこと
+
+- `value` があれば、`label` で名前の付いた、フォーカスできるセパレーターです（ARIA Authoring Practices のウィンドウスプリッター）。値、範囲、値のテキスト、線の向きを伝えます。`value` がなければボタンで、渡されたときは展開状態を伝えます。
+- 見えていない間も、フォーカス順のひとつの止まり位置です。キーボードのフォーカスが来るとすぐにフォーカスリングと一緒に見えるので、キーボードを使う人にはフォーカスの位置が常に見えます。
+- 軸の矢印キーで 1 刻み、Shift と矢印キーや Page Up と Page Down で大きな刻み、Home と End で最小と最大の大きさを求めます。Enter と Space で作動します。ほかのキーはすべて持ち主に届きます。
+- 押してもフォーカスを取らず、文字も選択しません。そのため、ハンドルをドラッグしている間もフィールドはキャレットを保ちます。ドラッグはウィンドウの端を越えてもポインターに付いていきます。
+- ドラッグせずに押すと作動するので、どの大きさもクリックやタップ 1 回で届きます。
+- 文字を大きくしてもハンドルの大きさは変わりません。文字ではなく縁の印だからです。
+- 強制カラーモードでは、線はボタンの文字色、ポインターが乗っているときと押されているときはハイライトの色、無効のときは無効な文字の色になります。
+- 右から左へのレイアウトでは、弧の終端側の角は左にあり、斜めのカーソルもそれに合わせて向きを変え、左矢印キーが終端の向きを指し、`inline` は左向きが正です。
+
+### 利用者側で行うこと
+
+- `label` を付けます。ないとハンドルは描かれて動きますが、デバッグビルドで報告されます。
+- `value`、`min`、`max`、`valueText` を、人が知っている単位で最新に保ちます。
+- `activate` にはドラッグの要らない大きさで応えます。ドラッグできない人にとって、ドラッグだけでは足りません。
+- ドラッグの間は、大きさを変えるものの中の iframe がポインターを取らないようにします（`pointer-events: none`）。そうしないと、ポインターが iframe の上を通るときにドラッグが止まります。
+- 許すどの大きさでも中身が使えることを確かめます。

@@ -1,0 +1,187 @@
+---
+title: साइज़ हैंडल
+description: वह निशान जिसे कोई खींचकर, या कीबोर्ड से हिलाकर, उस चीज़ का साइज़ बदलता है जिस पर वह लगा है — शीट, फ़ील्ड, पेन या प्रीव्यू का फ़्रेम। एक दिशा के लिए छोटी लाइन, दो दिशाओं के लिए चौथाई गोले का चाप। वह बताता है कि उसे कितना हिलाया गया; साइज़ उसका मालिक बदलता है।
+translationOf: components/handle.mdx
+sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="ऊँचाई बदलने वाला हैंडल, चौड़ाई बदलने वाला हैंडल, और कोने में दोनों बदलने वाला हैंडल">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="नोट्स का साइज़ बदलें" value="4" min="2" max="12" value-text="4 लाइनें" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="प्रीव्यू का साइज़ बदलें" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="मैसेज का साइज़ बदलें" value="6" min="3" max="12" value-text="6 लाइनें" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+साइज़ हैंडल किसी ऐसी चीज़ के किनारे या कोने पर लगता है जिसका साइज़ कोई बदल सकता है: शीट का ऊपरी किनारा, टेक्स्ट फ़ील्ड का निचला कोना, किसी पेन या प्रीव्यू का किनारा। खींचने पर वह बताता है कि वह कितना हिला; कीबोर्ड से हिलाने पर, कौन-सा कदम माँगा गया; बिना खींचे दबाने पर, यही बात। वह ख़ुद किसी चीज़ का साइज़ कभी नहीं बदलता। साइज़ वह चीज़ रखती है जिस पर हैंडल लगा है, वही तय करती है कि एक कदम कितना है, और साइज़ हैंडल को लौटाती है ताकि सहायक तकनीक उसे पढ़ सके।
+
+वेब पर यह `<tanrei-handle>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="नोट्स"></textarea>
+      <!-- निचले किनारे पर: यह ऊँचाई बदलता है। value मालिक की है, मालिक की इकाई में। -->
+      <tanrei-handle label="नोट्स का साइज़ बदलें" value="4" min="2" max="12" value-text="4 लाइनें"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} लाइनें`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // दबाने की जगह से दूरी, पिक्सेल में: block नीचे की ओर पॉज़िटिव है।
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // यहाँ एक कदम एक लाइन है; Home और End सबसे छोटा और सबसे बड़ा माँगते हैं।
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // बिना खींचे दबाया गया: अपने जाने हुए दो साइज़ के बीच बदलें, ताकि किसी साइज़ के लिए खींचना ज़रूरी न हो।
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="नोट्स का साइज़ बदलें"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} लाइनें`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="इस्तेमाल होने तक नहीं दिखता: पॉइंटर उस पर ले जाएँ, या Tab से उस तक पहुँचें" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="पैनल का साइज़ बदलें" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="टिप्पणी का साइज़ बदलें" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+वहाँ इस्तेमाल करें जहाँ किसी को किसी चीज़ को अपनी पसंद का साइज़ देने देना चाहिए: लंबे जवाब का फ़ील्ड, नक़्शे के ऊपर की शीट, साइड पैनल, किसी पेज का दूसरी चौड़ाई पर प्रीव्यू।
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| लिस्ट के किसी आइटम को दूसरी जगह ले जाना | [लिस्ट](/hi/components/list/) का क्रम बदलने वाला हैंडल, जो बिंदुओं से बनता है। लाइन साइज़ बदलती है; बिंदु जगह बदलते हैं। |
+| कुछ तय साइज़ में से एक चुनना, बीच का कोई नहीं | [सेगमेंटेड बटन](/hi/components/segmented-button/), या साइज़ बदलने वाला [बटन](/hi/components/button/)। |
+| नीचे के किनारे से ऊपर उठने वाली शीट | [बॉटम शीट](/hi/components/bottom-sheet/), जो अपना ड्रैग हैंडल ख़ुद बनाती है। |
+
+### इसके रूप
+
+| `axis` | कैसे बनता है | कहाँ लगता है |
+| --- | --- | --- |
+| `vertical` (डिफ़ॉल्ट) | एक छोटी आड़ी लाइन | निचला या ऊपरी किनारा: ऊँचाई बदलता है। |
+| `horizontal` | एक छोटी खड़ी लाइन | शुरू या आख़िर का किनारा: चौड़ाई बदलता है। |
+| `both` | `corner` की ओर झुका चौथाई गोले का चाप | कोना: ऊँचाई और चौड़ाई एक साथ बदलता है। |
+
+`corner` लॉजिकल दिशा में लिखा जाता है: बाएँ से दाएँ लेआउट में `end` दायाँ है और दाएँ से बाएँ लेआउट में बायाँ, इसलिए `bottom-end` चाप ख़ुद पेज की दिशा के साथ चलता है।
+
+| `size` | किसके लिए |
+| --- | --- |
+| `medium` (डिफ़ॉल्ट) | शीट, पेन, फ़्रेम। |
+| `small` | टेक्स्ट फ़ील्ड का कोना, जहाँ बड़ा निशान टेक्स्ट को ढक देगा। |
+
+दोनों साइज़ कम से कम टार्गेट रखते हैं। ज़रूरत हो तो छूने का हिस्सा, बनी हुई चीज़ बदले बिना, उस चीज़ के बाहर तक जाता है जिस पर हैंडल लगा है।
+
+### यह क्या बताता है, और आप क्या करते हैं
+
+| इवेंट | कब | आप क्या करते हैं |
+| --- | --- | --- |
+| `resizestart` | खींचना शुरू हुआ: दबाने के बाद पॉइंटर टच स्लॉप से आगे चला। | शुरू का साइज़ याद रखें। जिस चीज़ का साइज़ बदल रहे हैं उसके किसी भी iframe का `pointer-events` बंद करें। |
+| `resize` | खींचने के हर फ़्रेम में। `inline` और `block` दबाने की जगह से पिक्सेल में दूरी हैं: `inline` आख़िरी किनारे की ओर, `block` नीचे की ओर। | साइज़ तय करें: शुरू का साइज़ और दूरी, अपनी इकाई में, अपनी सीमाओं के भीतर। |
+| `resizeend` | खींचना ख़त्म हुआ, एक बार। प्लैटफ़ॉर्म ने रद्द किया हो तो `cancelled` true है। | साइज़ रखें, या रद्द हुआ हो तो पहले जैसा करें। iframe फिर चालू करें। |
+| `step` | किसी कुंजी ने बदलाव माँगा: `axis`, `direction` (1 या −1) और `amount` (`one`, `large`, या Home और End के लिए `limit`)। | तय करें कि एक कदम क्या है — एक लाइन, 1 या 10 पिक्सेल, 5% — और साइज़ उतना बदलें। |
+| `activate` | बिना खींचे दबाकर छोड़ा, या Enter या Space। | अपने जाने हुए दो साइज़ के बीच बदलें: टेक्स्ट को जितनी ऊँचाई चाहिए और सबसे छोटी, पूरी चौड़ाई और पहले वाली। |
+
+हर बदलाव के बाद नया साइज़ हैंडल को `value` के रूप में दें (`min`, `max` के साथ, और जहाँ अकेली संख्या बात न कहे वहाँ `valueText`)। सहायक तकनीक यही पढ़ती है। बिना `value` का हैंडल एक बटन है: यह रूप वहाँ इस्तेमाल करें जहाँ हैंडल सिर्फ़ जाने हुए साइज़ के बीच बदलता है, और उसे `expanded` दें।
+
+### इस्तेमाल होने तक नहीं दिखता
+
+हैंडल शांत रहता है: रुका हुआ हो तो कुछ नहीं बनता, ताकि वह चीज़ दिखे जिस पर वह लगा है, उसके औज़ार नहीं। वह तब दिखता है जब माउस उसके ऊपर हो, जब कीबोर्ड फ़ोकस उस तक पहुँचे, और जब तक उसे दबाया या खींचा जा रहा हो। उसके ऊपर पॉइंटर साइज़ बदलने वाला कर्सर भी ले लेता है। टच स्क्रीन पर, जहाँ होवर नहीं होता, वह हमेशा बनता है।
+
+जहाँ हैंडल को ढूँढ़ने के लिए उसका दिखना ज़रूरी है, वहाँ `revealed` लगाएँ: शीट का ग्रिप, जो बताता है कि शीट खींची जा सकती है। अगर आप चाहते हैं कि पॉइंटर उस चीज़ पर हो जिस पर हैंडल लगा है तब हैंडल दिखे (कोई फ़ील्ड जो पॉइंटर आने पर अपने कोने का हैंडल दिखाए), तो उस समय भी इसे लगाएँ।
+
+### कहाँ रखें
+
+हैंडल सिर्फ़ अपने बॉक्स की जगह लेता है: उसे किनारे या कोने पर आप रखते हैं। लाइन को किनारे के बीच में रखें। चाप को कोने में रखें, और उस कोने का रेडियस `arc.radius` और `inset` का जोड़ रखें, ताकि चाप और कोने का केंद्र एक हो।
+
+### करें
+
+- हर हैंडल को ऐसा `label` दें जो बताए कि वह किसका साइज़ बदलता है: "नोट्स का साइज़ बदलें", "प्रीव्यू का साइज़ बदलें"।
+- हर बदलाव के बाद साइज़ `value` के रूप में लौटाएँ, `valueText` अपनी इकाई में।
+- `activate` का जवाब ऐसे साइज़ से दें जिसके लिए खींचना ज़रूरी न हो।
+- बदला हुआ साइज़ तब तक रखें जब तक व्यक्ति उसे फिर न बदले।
+
+### न करें
+
+- किसी चीज़ को दूसरी जगह ले जाने के लिए हैंडल का इस्तेमाल न करें।
+- किसी चीज़ को इतना छोटा न करें कि उसकी सामग्री इस्तेमाल न हो सके, और पेज को इतना चौड़ा न करें कि उसे आड़ा स्क्रोल करना पड़े।
+- हैंडल को उस टेक्स्ट पर न रखें जिसे व्यक्ति पढ़ रहा है; वह किनारे का निशान है।
+
+## सुलभता
+
+<ComponentAccessibility name="handle" />
+
+### कंपोनेंट क्या सँभालता है
+
+- `value` हो तो वह फ़ोकस होने वाला सेपरेटर है — ARIA Authoring Practices का विंडो स्प्लिटर — जिसका नाम `label` है, और जिसमें उसका मान, दायरा, मान का टेक्स्ट और उसकी लाइन की दिशा है। न हो तो वह बटन है, और आप दें तो खुली हुई स्टेट के साथ।
+- न दिखते समय भी वह फ़ोकस क्रम का एक स्टॉप है। कीबोर्ड फ़ोकस आते ही वह फ़ोकस रिंग के साथ तुरंत दिखता है, इसलिए कीबोर्ड इस्तेमाल करने वाले को फ़ोकस हमेशा दिखता है।
+- उसकी धुरी की ऐरो कुंजियाँ एक कदम माँगती हैं, Shift के साथ ऐरो और Page Up और Page Down बड़ा कदम, Home और End सबसे छोटा और सबसे बड़ा साइज़। Enter और Space उसे एक्टिवेट करते हैं। बाक़ी हर कुंजी आप तक पहुँचती है।
+- दबाने से फ़ोकस नहीं जाता और कोई टेक्स्ट नहीं चुना जाता, इसलिए हैंडल खींचते समय फ़ील्ड का कैरेट बना रहता है। खींचना विंडो के किनारे से आगे भी पॉइंटर के साथ चलता है।
+- बिना खींचे दबाने पर वह एक्टिवेट होता है, इसलिए आपका दिया हर साइज़ एक क्लिक या टैप से मिल जाता है।
+- बड़े टेक्स्ट में भी उसका साइज़ वही रहता है: वह किनारे का निशान है, टेक्स्ट नहीं।
+- फ़ोर्स्ड कलर मोड में लाइन बटन के टेक्स्ट का रंग लेती है, पॉइंटर ऊपर हो या दबाया जाए तो हाइलाइट का रंग, और अक्षम हो तो अक्षम टेक्स्ट का रंग।
+- दाएँ से बाएँ लेआउट में चाप के आख़िरी कोने बाईं ओर होते हैं, उसका तिरछा कर्सर साथ में मुड़ता है, बायाँ ऐरो आख़िरी किनारे की ओर इशारा करता है, और `inline` बाईं ओर पॉज़िटिव है।
+
+### आपको क्या करना है
+
+- `label` दें। उसके बिना भी हैंडल बनता है और काम करता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।
+- `value`, `min`, `max` और `valueText` को उस इकाई में ताज़ा रखें जिसे लोग जानते हैं।
+- `activate` का जवाब ऐसे साइज़ से दें जिसके लिए खींचना ज़रूरी न हो। जो खींच नहीं सकता, उसके लिए सिर्फ़ खींचना काफ़ी नहीं है।
+- खींचने के दौरान, जिस चीज़ का साइज़ बदल रहे हैं उसके किसी iframe को पॉइंटर न लेने दें (`pointer-events: none`), वरना पॉइंटर उसके ऊपर से गुज़रते ही खींचना रुक जाएगा।
+- पक्का करें कि हर उस साइज़ पर सामग्री काम करती है जिसकी आप अनुमति देते हैं।

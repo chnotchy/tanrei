@@ -191,6 +191,7 @@ As common nouns: page titles, headings, running text.
 | FAB menu | FAB メニュー | FAB 菜单 |
 | Field | フィールド | 字段 |
 | Field group | フィールドグループ | 字段组 |
+| Handle (the mark dragged to change a size; not a slider's or a switch's handle) | ハンドル — where a slider's is near, サイズ変更のハンドル | 调整手柄 — never 滑块, nor 手柄 alone where the Slider's is near |
 | Figure | 図 | 图示 |
 | File item | ファイル項目 | 文件项 |
 | File picker (the component; the platform's own picker stays ピッカー, ファイルピッカー in running text) | ファイルピッカー | 文件选择器 — the platform's own picker is 平台的文件选择器, short 选择器 |
@@ -413,6 +414,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | FAB menu | Menú FAB | FAB मेन्यू | قائمة FAB |
 | Field | Campo | फ़ील्ड | الحقل |
 | Field group | Grupo de campos | फ़ील्ड ग्रुप | مجموعة الحقول |
+| Handle (the mark dragged to change a size) | Tirador de tamaño — short «el tirador», masculine; a sheet's is «tirador de arrastre» | साइज़ हैंडल (masculine), short हैंडल | مقبض تغيير الحجم, with `(handle)` on the page's first mention; short `المقبض` |
 | File item | Elemento de archivo | फ़ाइल आइटम (masculine) | عنصر الملف, with `(file item)` on the page's first mention; plural `عناصر الملفات`; short `العنصر` |
 | File picker (the component) | Selector de archivos — the platform's own is «el selector de archivos de la plataforma» | फ़ाइल पिकर — the platform's own is प्लैटफ़ॉर्म का फ़ाइल पिकर | منتقي الملفات, with `(file picker)` on the page's first mention; the platform's own is `منتقي الملفات الخاص بالمنصة`, short `المنتقي` |
 | Drop zone (a wrapper that takes files dropped anywhere on it; not the File picker's drop area) | Zona de soltar archivos — feminine, short «la zona»; the picker's drop area stays «la zona para soltar del selector de archivos» | ड्रॉप ज़ोन — masculine, short ज़ोन; not ड्रॉप एरिया | ساحة الإفلات, with `(drop zone)` on the page's first mention, short `الساحة`, feminine; not `منطقة الإفلات` |
