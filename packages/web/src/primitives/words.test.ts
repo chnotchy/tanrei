@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, missingWords, mountFixtures, setWords, rootTokens } from '../../test/harness.js';
+import { allSettled } from '../../test/settled.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const src = path.resolve(here, '..');
@@ -337,6 +338,8 @@ test.describe('the product’s words', () => {
     await setWords(page, { requiredText: 'Required', optionalText: 'Optional' });
     await setWords(page, { requiredText: '必須' }, { lang: 'ja' });
     expect(await drawn(page, 'one')).toBe('Required');
+    // What a render connected has settled (MOT-3: two frame callbacks, once): at rest, nothing asks for a frame.
+    await allSettled(page);
     await page.evaluate(() => {
       const w = window as unknown as { __frames: number };
       w.__frames = 0;
