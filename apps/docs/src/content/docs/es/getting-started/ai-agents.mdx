@@ -1,0 +1,137 @@
+---
+title: Usar Tanrei con agentes de IA
+description: Conecta el servidor MCP de Tanrei, dale a un agente de programación las reglas de interfaz de tu producto en AGENTS.md y mantenlo dentro de los componentes y los valores del sistema predeterminado.
+translationOf: getting-started/ai-agents.mdx
+sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
+---
+
+import Callout from '../../../../components/Callout.astro';
+import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
+
+Un agente de programación que escribe la interfaz de tu producto necesita lo mismo que una persona de tu equipo: qué componentes existen, qué recibe cada uno y de dónde sale cada valor. Tanrei guarda las tres cosas en archivos que incluyen sus paquetes y en un servidor MCP, así que el agente puede consultarlas en lugar de adivinar. Esta página muestra cómo conectarlos y te da un archivo de reglas para copiar en tu repositorio.
+
+## Qué puede leer un agente en los paquetes
+
+- **Los componentes.** `@tanrei/web` incluye un Custom Elements Manifest, `custom-elements.json`: cada elemento con sus atributos, propiedades, eventos, slots y partes CSS, cada uno con su descripción. `@tanrei/react` incluye los tipos de los mismos componentes, así que una prop que no existe falla en la comprobación de tipos.
+- **Los valores.** Cada token es una propiedad personalizada de `@tanrei/web/tokens.css`, nombrada por su ruta: `tanrei.sys.color.primary` es `--tanrei-sys-color-primary`. Si tu producto tiene su propia capa, la salida `tokens` de `tanrei build` es un paquete DTCG cuyos grupos llevan indicaciones de uso para agentes en `$extensions["dev.tanrei.llm"]` ([Tu propio sistema de diseño](/es/getting-started/your-design-system/)).
+- **Qué salió mal.** Un componente mal usado se dibuja igualmente y, en una compilación de desarrollo, escribe en la consola una advertencia que empieza por `[tanrei]` y nombra el elemento, el problema y la regla que incumple: un botón sin etiqueta ni icono, un texto que tu producto no ha dado, un componente que el sistema deja fuera. Una compilación de producción (`NODE_ENV=production`) no escribe ninguna.
+
+## Conectar el servidor MCP
+
+`@tanrei/mcp` es un servidor [Model Context Protocol](https://modelcontextprotocol.io) para los tokens de Tanrei y las capas de los sistemas de diseño. Un agente le pregunta qué tokens existen, a qué se resuelve un token en un sistema y por qué, qué puede cambiar una capa y cómo, y si una edición de una capa es válida antes de escribirla. Todas las herramientas son de solo lectura: el agente edita tu archivo de capa por sí mismo y el servidor comprueba la edición con la misma compilación que ejecuta `tanrei build`. Los componentes no están entre sus respuestas; su contrato es el manifiesto de arriba.
+
+<Callout type="caution" title="Prelanzamiento">
+  Los paquetes de Tanrei se publican como prelanzamientos bajo la etiqueta de npm `next`, así que instala `@tanrei/mcp@next`. Mantenlo en la misma versión que `@tanrei/web`, `@tanrei/cli` y las demás bibliotecas: comparten un mismo vocabulario.
+</Callout>
+
+En Claude Code, ejecuta esto en tu repositorio:
+
+```sh
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+```
+
+`--scope project` escribe el servidor en `.mcp.json`, en la raíz del repositorio. Haz commit de ese archivo y todas las personas que trabajen en el repositorio tendrán el mismo servidor.
+
+Cursor (`.cursor/mcp.json`), Claude Desktop y la mayoría de los demás clientes leen el mismo servidor desde JSON, por stdio:
+
+```json
+{
+  "mcpServers": {
+    "tanrei": {
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+VS Code lee `.vscode/mcp.json`, donde los servidores van bajo `servers` y nombran su transporte:
+
+```json
+{
+  "servers": {
+    "tanrei": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+El servidor necesita Node.js 20 o posterior. Resuelve un `layerFile` relativo desde su directorio de trabajo, que normalmente es la raíz del repositorio.
+
+### Qué responde el servidor
+
+Sus herramientas y lo que responde cada una:
+
+- `list_systems`: los sistemas incluidos con Tanrei y, si le das tu archivo de capa, la cadena de capas de tu producto, con lo que cada una añade al vocabulario y sus hallazgos de accesibilidad
+- `search_tokens`: tokens encontrados por id, con una subcadena o un glob, con el tipo, la clase y la descripción de cada uno
+- `resolve`: a qué se resuelve un token en un sistema y un esquema, a través de qué alias y reglas, qué capa lo fijó y su propiedad personalizada de CSS
+- `explain_token`: por qué existe un token, qué lo sigue, los cambios que una capa puede escribir para él y cómo añadir vocabulario a su lado, cada uno como un fragmento de capa
+- `diff_systems`: los tokens cuyo valor difiere entre dos sistemas
+- `validate_layer`: todos los problemas de una capa a la vez, cada uno con su solución; después, la compilación real y las advertencias que imprime. No escribe nada
+- `propose_extension`: un nuevo paso, tamaño, variante o token propio como fragmento de capa, comprobado con una compilación de prueba, con los valores que produce
+- `mimicry_gaps`: los rasgos de otros sistemas de diseño que ningún token puede expresar todavía
+
+Sus recursos y lo que contiene cada uno:
+
+- `tanrei://philosophy`: las ideas detrás del vocabulario y las reglas que sigue una capa, en una sola página
+- `tanrei://schema/system`: el JSON Schema de un archivo de capa
+- `tanrei://systems/<id>`: el archivo de capa de cada sistema incluido, tal como está escrito
+
+El servidor también le da al agente sus reglas al conectarse: cambiar los valores mediante una capa, añadir vocabulario solo bajo `vocabulary` y con una justificación, dar un motivo a cada valor fijado, no cambiar nunca un umbral de accesibilidad y no editar nunca un archivo generado. Estas dos listas son las del propio servidor: una comprobación mantiene esta página fiel a las herramientas y los recursos que tiene el servidor, en todos los idiomas, así que una herramienta que el servidor gane se añade aquí con ella.
+
+## Un archivo de reglas para tu repositorio
+
+Muchos agentes de programación leen `AGENTS.md` en la raíz de un repositorio. Cursor lo hace. Claude Code lo lee cuando el repositorio no tiene `CLAUDE.md`; si lo tiene, añade a ese archivo una línea `@AGENTS.md` y Claude Code leerá los dos. Copia esta sección en tu `AGENTS.md`:
+
+```text title="AGENTS.md" wrap
+## UI
+
+This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
+
+- Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
+- Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
+- Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
+- Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
+- Keep every @tanrei/* package on the same version.
+```
+
+Las reglas están en inglés, el idioma de los nombres del código; tradúcelas si tu equipo escribe sus reglas en otro idioma. Si tu producto tiene su propia capa, sustituye la regla «Stay on the default system» por estas dos, con el nombre y el archivo de tu capa:
+
+```text title="AGENTS.md" wrap
+- Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
+- Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
+```
+
+Cursor también lee reglas de proyecto en `.cursor/rules/*.mdc`; si guardas tus reglas allí, una regla con `alwaysApply: true` puede contener el mismo texto.
+
+## Mantener a un agente en los componentes del sistema predeterminado
+
+El sistema predeterminado, `tanrei`, deja fuera algunos componentes y variantes, que otros sistemas incluidos conservan. Bajo `tanrei` se siguen dibujando y funcionando, así que lo que impide que un agente recurra a ellos es la regla de arriba y las señales de más abajo. Hoy el sistema predeterminado deja fuera:
+
+<LeftOutOfDefault />
+
+Lo que le indica a un agente, y a quien revise su trabajo, que recurrió a uno de ellos:
+
+- La página de cada componente indica, en su descripción general, qué sistemas no lo incluyen o qué variantes suyas dejan fuera.
+- En una compilación de desarrollo, cada elemento que el sistema activo deja fuera avisa una vez en la consola: al conectarse y cuando cambia su `variant`.
+- Las propias pruebas de navegador de tu producto pueden mantener la línea: haz fallar una página ante cualquier advertencia `[tanrei]`. Con Playwright:
+
+  ```ts
+  import { expect, test } from '@playwright/test';
+
+  test('the home page draws no Tanrei warning', async ({ page }) => {
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().startsWith('[tanrei]')) warnings.push(message.text());
+    });
+    await page.goto('/');
+    expect(warnings).toEqual([]);
+  });
+  ```
+
+  Ejecútala contra una compilación de desarrollo: una compilación de producción no escribe advertencias.
