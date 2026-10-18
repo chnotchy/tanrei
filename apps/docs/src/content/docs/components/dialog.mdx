@@ -262,15 +262,15 @@ By default (`width` content), the dialog is as wide as its widest part, between 
 | `medium` | 560 | a form, a list of choices |
 | `large` | 800 | content that needs room, such as a table or a preview |
 
-A fixed width is never wider than the window less 16 on each side, so a large dialog in a 640 window is 608 wide. On a compact window (narrower than 600), every width is placed as the default is: at the bottom, as wide as the window less its margins. A change of `width` while the dialog is open is drawn at once. A product changes the three widths for every dialog in its layer (`width.small`, `width.medium`, `width.large`).
+A fixed width is never wider than the window less 16 on each side, so a large dialog in a 640 window is 608 wide. On a compact window (narrower than 600), every width is placed as the default is: a sheet at the bottom, as wide as the window up to 640. A change of `width` while the dialog is open is drawn at once. A product changes the three widths for every dialog in its layer (`width.small`, `width.medium`, `width.large`).
 
 ### On a compact window
 
-When the window is narrower than 600, the dialog sits at the bottom of the window's safe area instead of in the centre: 16 from the bottom and side edges (or above the on-screen keyboard), as wide as the window less those margins up to 560, with all four corners rounded. Only width counts, so a phone in landscape is not compact and its dialog is centred.
+When the window is narrower than 600, the dialog takes the bottom sheet's appearance instead of standing in the centre. This is Tanrei's rule for every dialog and every popover in a compact window. The dialog sits at the window's bottom edge (or on the on-screen keyboard), as wide as the window up to `comp.bottom-sheet.container.max-width` (640), in the bottom sheet's color and elevation, with the bottom sheet's top corners and square bottom corners. Its color reaches under the bottom system inset, and its parts keep the dialog's own padding and text styles. Only width counts, so a phone in landscape is not compact and its dialog is centred.
 
-It is still a dialog there, not a bottom sheet. It has no drag handle, does not follow a drag and does not close on a swipe. Its role, focus, inertness and dismissal are those of any dialog. When the window crosses 600 while the dialog is open, it moves to the other placement at once, without motion, and focus stays where it is.
+It looks like a bottom sheet there, but it is still a dialog. It has no drag handle, does not follow a drag and does not close on a swipe, because it has one height and its exits are its actions, Escape, back and the scrim. Its role, focus, inertness, scrim and dismissal are those of any dialog. When the window crosses 600 while the dialog is open, it moves to the other placement at once, without motion, and focus stays where it is.
 
-A system that keeps dialogs centred everywhere sets the compact width to 0. The `m3-like` and `cupertino` presets do, as both originals centre their dialogs. They also keep their originals' text actions.
+A system that keeps dialogs centred everywhere sets the compact width to 0. The `m3-like` and `cupertino` presets do, as both originals centre their dialogs. They also keep their originals' text actions. To keep one dialog centred in every window, set its `compactPresentation` to `own` (`compact-presentation="own"` on the web).
 
 ### Opening, focus and closing
 
@@ -283,7 +283,7 @@ A dialog is a modal overlay. It moves focus in, keeps it in, and returns it when
 - **Focus back.** When it closes, focus returns to the element that had it when the dialog opened. The content behind it is restored as it was.
 - **Stacking.** A dialog opened from a dialog stacks above it with its own scrim and makes the first one inert too. Escape dismisses only the topmost, and closing it returns focus to the element inside the first dialog that had it.
 - **Announcement.** The dialog is announced as a dialog, named by its headline and described by its supporting text. With `alert`, it is an alert dialog, and assistive technology reads the headline and the supporting text as soon as it opens.
-- **Motion.** The scrim fades in. A centred container fades in while growing from slightly smaller than its size. A container at the bottom of a compact window fades in while rising 32 into place, without growing, and sinks by 32 as it fades out. Where motion is reduced it fades without growing or moving; on Android, whose setting removes every animation, it appears at once.
+- **Motion.** The scrim fades in. A centred container fades in while growing from slightly smaller than its size. In a compact window the container slides up from below the bottom edge with the bottom sheet's motion, without growing, and slides back down as it closes. Where motion is reduced it fades without growing or moving; on Android, whose setting removes every animation, it appears at once.
 
 How each platform presents it: a native `<dialog>` opened with `showModal()` on the web, `.fullScreenCover` with a clear background on SwiftUI for iOS (on macOS, which has no full-screen cover, an overlay on the view the modifier is attached to), a `Dialog` window on Compose, a modal route on Flutter, and a transparent `Modal` on React Native. Each switches off its own dim and transition, so every platform draws the same scrim and motion from the tokens.
 

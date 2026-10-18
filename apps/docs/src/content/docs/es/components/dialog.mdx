@@ -2,7 +2,7 @@
 title: Diálogo
 description: Detiene a la persona para una decisión o unos pocos datos sin los que la tarea no puede continuar, en una superficie que atenúa y bloquea todo lo que hay detrás hasta que se responde o se descarta.
 translationOf: components/dialog.mdx
-sourceHash: 0b78df28088e3b0e0169efe05949a3bf381ca977
+sourceHash: bc47c127116b9c873d7b5f5f434b23cc3a4272b0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -264,15 +264,15 @@ De forma predeterminada (`width` content), el diálogo es tan ancho como su part
 | `medium` | 560 | un formulario, una lista de opciones |
 | `large` | 800 | contenido que necesita espacio, como una tabla o una vista previa |
 
-Un ancho fijo nunca supera la ventana menos 16 a cada lado, así que un diálogo large en una ventana de 640 mide 608. En una ventana compacta (más estrecha que 600), todos los anchos se colocan como el predeterminado: abajo, tan anchos como la ventana menos sus márgenes. Un cambio de `width` con el diálogo abierto se dibuja al instante. Un producto cambia los tres anchos de todos sus diálogos en su capa (`width.small`, `width.medium`, `width.large`).
+Un ancho fijo nunca supera la ventana menos 16 a cada lado, así que un diálogo large en una ventana de 640 mide 608. En una ventana compacta (más estrecha que 600), todos los anchos se colocan como el predeterminado: una hoja abajo, tan ancha como la ventana hasta 640. Un cambio de `width` con el diálogo abierto se dibuja al instante. Un producto cambia los tres anchos de todos sus diálogos en su capa (`width.small`, `width.medium`, `width.large`).
 
 ### En una ventana compacta
 
-Cuando la ventana mide menos de 600 de ancho, el diálogo se sitúa en la parte inferior del área segura de la ventana en lugar de en el centro: a 16 de los bordes inferior y laterales (o por encima del teclado en pantalla), tan ancho como la ventana menos esos márgenes hasta un máximo de 560, con las cuatro esquinas redondeadas. Solo cuenta el ancho, de modo que un teléfono en horizontal no es compacto y su diálogo aparece centrado.
+Cuando la ventana mide menos de 600 de ancho, el diálogo toma el aspecto de la hoja inferior en lugar de situarse en el centro. Es la regla de Tanrei para todos los diálogos y todos los popovers en una ventana compacta. El diálogo se apoya en el borde inferior de la ventana (o sobre el teclado en pantalla), tan ancho como la ventana hasta `comp.bottom-sheet.container.max-width` (640), con el color y la elevación de la hoja inferior, sus esquinas superiores redondeadas y las inferiores rectas. Su color llega por debajo del margen inferior del sistema, y sus partes conservan el relleno y los estilos de texto del propio diálogo. Solo cuenta el ancho, de modo que un teléfono en horizontal no es compacto y su diálogo aparece centrado.
 
-Ahí sigue siendo un diálogo, no una hoja inferior. No tiene tirador de arrastre, no sigue un arrastre y no se cierra al deslizar. Su rol, su foco, lo que deja inerte y su descarte son los de cualquier diálogo. Cuando la ventana cruza los 600 mientras el diálogo está abierto, pasa a la otra posición de inmediato, sin movimiento, y el foco se queda donde está.
+Ahí parece una hoja inferior, pero sigue siendo un diálogo. Tiene una sola altura y sus salidas son sus acciones, Escape, la acción de retroceso y el velo, así que no tiene tirador de arrastre, no sigue un arrastre y no se cierra al deslizar. Su rol, su foco, lo que deja inerte, su velo y su descarte son los de cualquier diálogo. Cuando la ventana cruza los 600 mientras el diálogo está abierto, pasa a la otra posición de inmediato, sin movimiento, y el foco se queda donde está.
 
-Un sistema que mantiene los diálogos centrados en todas partes define el ancho compacto como 0. Los preajustes `m3-like` y `cupertino` lo hacen, ya que los dos originales centran sus diálogos. También conservan las acciones de texto de sus originales.
+Un sistema que mantiene los diálogos centrados en todas partes define el ancho compacto como 0. Los preajustes `m3-like` y `cupertino` lo hacen, ya que los dos originales centran sus diálogos. También conservan las acciones de texto de sus originales. Para mantener un diálogo centrado en cualquier ventana, pon su `compactPresentation` en `own` (`compact-presentation="own"` en la web).
 
 ### Apertura, foco y cierre
 
@@ -285,7 +285,7 @@ Un diálogo es una superposición modal. Lleva el foco a su interior, lo mantien
 - **Devolución del foco.** Cuando se cierra, el foco vuelve al elemento que lo tenía cuando se abrió el diálogo. El contenido que hay detrás se restaura tal como estaba.
 - **Apilamiento.** Un diálogo abierto desde otro diálogo se apila encima de él con su propio velo y vuelve inerte también al primero. Escape descarta solo el que está más arriba, y al cerrarlo el foco vuelve al elemento del primer diálogo que lo tenía.
 - **Anuncio.** El diálogo se anuncia como un diálogo, con su titular como nombre y su texto de apoyo como descripción. Con `alert` es un diálogo de alerta, y la tecnología de apoyo lee el titular y el texto de apoyo en cuanto se abre.
-- **Movimiento.** El velo aparece con un fundido. Un contenedor centrado aparece con un fundido mientras crece desde un tamaño algo menor que el suyo. Un contenedor situado en la parte inferior de una ventana compacta aparece con un fundido mientras sube 32 hasta su sitio, sin crecer, y baja 32 mientras se desvanece. Donde el movimiento está reducido, se funde sin crecer ni moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece de inmediato.
+- **Movimiento.** El velo aparece con un fundido. Un contenedor centrado aparece con un fundido mientras crece desde un tamaño algo menor que el suyo. En una ventana compacta, el contenedor sube desde debajo del borde inferior con el movimiento de la hoja inferior, sin crecer, y vuelve a bajar al cerrarse. Donde el movimiento está reducido, se funde sin crecer ni moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece de inmediato.
 
 Cómo lo presenta cada plataforma: un `<dialog>` nativo abierto con `showModal()` en la web, `.fullScreenCover` con fondo transparente en SwiftUI para iOS (en macOS, que no tiene cubierta a pantalla completa, una superposición sobre la vista a la que se aplica el modificador), una ventana `Dialog` en Compose, una ruta modal en Flutter y un `Modal` transparente en React Native. Cada una desactiva su propia atenuación y su propia transición, de modo que todas las plataformas dibujan el mismo velo y el mismo movimiento a partir de los tokens.
 
