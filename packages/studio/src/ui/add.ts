@@ -57,21 +57,23 @@ export function extensionsPanel(ctx: Ctx) {
   const rows = entries.map(([id, declaration]: [string, Json]) => {
     const isAxis = 'from' in declaration;
     const [, , component, axis, value] = id.split('.');
-    const warnings = h('ul', { class: 'ts-warnings ts-warnings-inline' });
-    const refresh = () => warnings.replaceChildren(...warningsFor(ctx.view(), isAxis ? `.${value}` : id).map((warning) => h('li', {}, isolated(warning))));
-    refresh();
-    ctx.onUpdate(refresh);
-    const save = (patch: Json) => {
-      const result = studio.setDeclaration(ctx.layer(), id, { ...ctx.layer().vocabulary[id], ...patch }) as Json;
-      if (!result.problem) ctx.commit(result.layer);
+    const details = fold({ label: h('code', { text: short(id, NS) }), supporting: isAxis ? rich((at) => t.add.fromSource(at(ltr(`${declaration.from}${declaration.scale && typeof declaration.scale === 'number' ? ` × ${declaration.scale}` : ''}`)))) : ltr(declaration.$type), attrs: { 'data-extension': id } });
+    // What a declaration holds — its rationale, its members or its token's editor — is written when its fold first opens.
+    const fill = () => {
+      const warnings = h('ul', { class: 'ts-warnings ts-warnings-inline' });
+      const refresh = () => warnings.replaceChildren(...warningsFor(ctx.view(), isAxis ? `.${value}` : id).map((warning) => h('li', {}, isolated(warning))));
+      refresh();
+      ctx.onUpdate(refresh);
+      const save = (patch: Json) => {
+        const result = studio.setDeclaration(ctx.layer(), id, { ...ctx.layer().vocabulary[id], ...patch }) as Json;
+        if (!result.problem) ctx.commit(result.layer);
+      };
+      const rationale = textField({ label: t.add.rationale.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), value: ctx.layer().vocabulary?.[id]?.rationale ?? declaration.rationale, attrs: { requirement: 'required', 'error-text': t.add.rationaleShort, 'data-extension-rationale': true }, oninput: (value) => ((rationale.error = value.trim().length < MIN_REASON), save({ rationale: value })) });
+      const scale = isAxis && axis === 'size' && typeof (declaration.scale ?? 1) === 'number' ? numberWidget(ctx, { label: t.add.scale, labelHidden: false, value: ctx.layer().vocabulary?.[id]?.scale ?? declaration.scale ?? 1, min: 0.25, max: 4, step: 0.05, unit: '×', onchange: () => scale!.get() && save({ scale: scale!.get() }) }) : null;
+      const body = isAxis ? membersTable(ctx, ctx.view(), membersOf(ctx.view(), NS, component, axis, value), { editable: true }) : tokenEditor(ctx, id, { compact: true });
+      details.append(h('div', { class: 'ts-stack' }, rationale, scale ? scale.el : null, isAxis && axis === 'variant' ? h('p', { class: 'ts-help', text: t.add.variantStates }) : null, body, warnings, h('div', { class: 'ts-row-actions' }, linkButton(t.add.remove, () => ctx.commit(studio.removeExtension(ctx.layer(), id), { rebuild: true }), { 'aria-label': t.labelled(t.add.remove, id) }))));
     };
-    const rationale = textField({ label: t.add.rationale.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), value: declaration.rationale, attrs: { requirement: 'required', 'error-text': t.add.rationaleShort, 'data-extension-rationale': true }, oninput: (value) => ((rationale.error = value.trim().length < MIN_REASON), save({ rationale: value })) });
-    const scale = isAxis && axis === 'size' && typeof (declaration.scale ?? 1) === 'number' ? numberWidget(ctx, { label: t.add.scale, labelHidden: false, value: declaration.scale ?? 1, min: 0.25, max: 4, step: 0.05, unit: '×', onchange: () => scale!.get() && save({ scale: scale!.get() }) }) : null;
-    const body = isAxis ? membersTable(ctx, ctx.view(), membersOf(ctx.view(), NS, component, axis, value), { editable: true }) : tokenEditor(ctx, id, { compact: true });
-    const details = fold(
-      { label: h('code', { text: short(id, NS) }), supporting: isAxis ? rich((at) => t.add.fromSource(at(ltr(`${declaration.from}${declaration.scale && typeof declaration.scale === 'number' ? ` × ${declaration.scale}` : ''}`)))) : ltr(declaration.$type), attrs: { 'data-extension': id } },
-      h('div', { class: 'ts-stack' }, rationale, scale ? scale.el : null, isAxis && axis === 'variant' ? h('p', { class: 'ts-help', text: t.add.variantStates }) : null, body, warnings, h('div', { class: 'ts-row-actions' }, linkButton(t.add.remove, () => ctx.commit(studio.removeExtension(ctx.layer(), id), { rebuild: true }), { 'aria-label': t.labelled(t.add.remove, id) }))),
-    );
+    details.addEventListener('toggle', () => details.open && details.children.length === 1 && fill());
     return details;
   });
   return panel(ctx, { title: t.add.yours, code: 'vocabulary', help: t.add.yoursHelp, key: 'extensions' }, folds({}, rows));

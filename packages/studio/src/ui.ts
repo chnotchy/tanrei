@@ -172,7 +172,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   function drawAccessibility() {
     const pairs = h('div', { class: 'ts-pairs', 'data-pairs': true });
     const total = h('bdi', { 'data-warnings-count': true });
-    const warnings = scrollingList(t.a11y.all, { 'data-warnings': true });
+    // The build's warnings are listed in a fold, written when it first opens; their count is said on it all along.
+    let warnings: HTMLUListElement | undefined;
+    const listWarnings = () => last && warnings?.replaceChildren(...(last.warnings.length ? last.warnings.map((warning: string) => h('li', {}, isolated(warning))) : [h('li', { text: t.a11y.none })]));
     const notices = h('ul', { class: 'ts-warnings' });
     const refresh = () => {
       if (!last) return;
@@ -192,12 +194,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       const count = last.warnings.length;
       total.textContent = String(count);
       // What the build says is the build's sentence: a run of its own direction inside the list.
-      warnings.replaceChildren(...(count ? last.warnings.map((warning: string) => h('li', {}, isolated(warning))) : [h('li', { text: t.a11y.none })]));
+      listWarnings();
       notices.replaceChildren(...last.notices.map((notice: string) => h('li', {}, isolated(notice))));
     };
     refresh();
     ctx.onUpdate(refresh);
-    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } }, warnings)), notices));
+    const all = fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } });
+    all.addEventListener('toggle', () => all.open && !warnings && (all.append((warnings = scrollingList(t.a11y.all, { 'data-warnings': true }))), listWarnings()));
+    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all), notices));
   }
 
   // ── export / save ─────────────────────────────────────────────────────────────────────────────
@@ -244,17 +248,20 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.rootId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
     // The layer to import: JSON, in a text field that holds code, which says itself what does not parse.
-    const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
-    const importFailed = (message: string) => ((importArea.errorText = message), (importArea.error = Boolean(message)));
-    const importApply = button(t.import.apply, () => {
-      try {
-        importLayer(importArea.value);
-        importFailed('');
-        ctx.announce(t.import.done);
-      } catch (problem) {
-        importFailed((problem as Error).message);
-      }
-    }, { 'data-import-apply': true });
+    const importForm = () => {
+      const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
+      const importFailed = (message: string) => ((importArea.errorText = message), (importArea.error = Boolean(message)));
+      const importApply = button(t.import.apply, () => {
+        try {
+          importLayer(importArea.value);
+          importFailed('');
+          ctx.announce(t.import.done);
+        } catch (problem) {
+          importFailed((problem as Error).message);
+        }
+      }, { 'data-import-apply': true });
+      return [h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply)];
+    };
 
     const refresh = () => {
       if (document.activeElement !== id) id.value = layer.id ?? '';
@@ -273,6 +280,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     refresh();
     ctx.onUpdate(refresh);
 
+    // The import is written when its fold first opens.
+    const importFold = fold({ label: t.import.title, attrs: { class: 'ts-import' } });
+    importFold.addEventListener('toggle', () => importFold.open && importFold.children.length === 1 && importFold.append(...importForm()));
     exportHost.replaceChildren(
       panel(
         ctx,
@@ -290,7 +300,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
           ),
           compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
         ),
-        compact ? null : folds({}, fold({ label: t.import.title, attrs: { class: 'ts-import' } }, h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply))),
+        compact ? null : folds({}, importFold),
       ),
     );
   }
