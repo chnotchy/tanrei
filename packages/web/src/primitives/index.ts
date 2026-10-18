@@ -25,6 +25,8 @@
 //   missing-value — missingValueMessage(): the browser's message of a required control left empty, else the element's own words
 //   availability — AvailabilityController: a component or variant the active system leaves out, reported
 //   arc         — arcStyles: a ring of SVG circles (center, radius, stroke, circumference), ring-turn and pulse
+//   range-track — rangeTrackStyles(), renderRangeBar(), renderRangeRing(), rangeOf(), rangeAxes(): a value on a track as a
+//                 bar or a ring, from a component's own tokens (the progress indicator's determinate form, the meter)
 //   description — FORWARDED_DESCRIPTION: the host's aria-description, rendered on the native element (FORWARDED_INVALID: its aria-invalid)
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
 //   host-aria   — `hostAria()`: semantics a non-interactive component carries on its host (divider, progress…)
@@ -151,6 +153,7 @@ export { PressController, type PressOptions, type PressedBy, pressHold } from '.
 export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } from './ripple.js';
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
+export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
 export { FORWARDED_DESCRIPTION, FORWARDED_INVALID } from './description.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
