@@ -14,6 +14,24 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `dragged-disabled` | <img src="../../packages/web/snapshots/drop-zone/dragged-disabled.png" alt="web dragged-disabled" width="160"> |
 | `dragged-rtl` | <img src="../../packages/web/snapshots/drop-zone/dragged-rtl.png" alt="web dragged-rtl" width="160"> |
 
+## Handle
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/handle/default.png" alt="web default" width="160"> |
+| `revealed` | <img src="../../packages/web/snapshots/handle/revealed.png" alt="web revealed" width="160"> |
+| `horizontal` | <img src="../../packages/web/snapshots/handle/horizontal.png" alt="web horizontal" width="160"> |
+| `both-bottom-end` | <img src="../../packages/web/snapshots/handle/both-bottom-end.png" alt="web both-bottom-end" width="160"> |
+| `both-bottom-start` | <img src="../../packages/web/snapshots/handle/both-bottom-start.png" alt="web both-bottom-start" width="160"> |
+| `both-top-end` | <img src="../../packages/web/snapshots/handle/both-top-end.png" alt="web both-top-end" width="160"> |
+| `both-top-start` | <img src="../../packages/web/snapshots/handle/both-top-start.png" alt="web both-top-start" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/handle/small.png" alt="web small" width="160"> |
+| `small-horizontal` | <img src="../../packages/web/snapshots/handle/small-horizontal.png" alt="web small-horizontal" width="160"> |
+| `small-both` | <img src="../../packages/web/snapshots/handle/small-both.png" alt="web small-both" width="160"> |
+| `button-expanded` | <img src="../../packages/web/snapshots/handle/button-expanded.png" alt="web button-expanded" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/handle/disabled.png" alt="web disabled" width="160"> |
+| `rtl-both` | <img src="../../packages/web/snapshots/handle/rtl-both.png" alt="web rtl-both" width="160"> |
+
 ## List row
 
 | Fixture | Web Components |
