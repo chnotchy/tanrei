@@ -1097,12 +1097,13 @@ const STAGING: Record<string, Staging> = {
   // a box of the product's — a tile with a fill, padded and with small corners, in the body text style, as a product's
   // card or file item would be — so that the arrangement, the gap and the dividers show; an action, a link or an option
   // holds its text alone, which the item pads and colors itself (LST-8). A test's own item that holds markup holds it
-  // as written.
+  // as written. An item that holds a List row (its own `items`) holds the row alone, and the row holds nothing more.
   list: {
     css: () => `.stage > tanrei-list { inline-size: 360px; }
       .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
     itemContent: (item) => {
       const content = item.content ?? '';
+      if (item.kind !== 'list-item' || item.items?.length) return content;
       if (content.includes('<')) return content;
       const actionable = !!item.props.interactive || !!item.props.href || item.props.value !== undefined;
       return actionable ? content : `<span class="fixture-tile">${content}</span>`;
