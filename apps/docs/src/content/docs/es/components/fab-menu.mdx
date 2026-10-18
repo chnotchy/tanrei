@@ -2,7 +2,7 @@
 title: Menú FAB
 description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
 translationOf: components/fab-menu.mdx
-sourceHash: 9c402a1709ffea056dc0b43a178bdbfc5e12765d
+sourceHash: d4df8427392f1a019c3bdc1d60857479999b600b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,9 +15,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[Un componente de la capa m3-like]
-El menú FAB vive en la capa `m3-like`: solo lo tienen los sistemas que descienden de ella —`m3-like` y `m3-expressive-like`— y sus tokens están solo en sus hojas de estilo. `@tanrei/web` no lo registra; lo registran las entradas de esos sistemas (`@tanrei/web/m3-like`, `@tanrei/web/m3-expressive-like`). El sistema Tanrei predeterminado y cupertino no lo tienen, porque ninguno dibuja un botón de acción flotante: usa un [botón de acción principal](/es/components/main-action-button/) que abra una [hoja inferior](/es/components/bottom-sheet/) de acciones. Si se usa con uno de ellos, lo avisa en desarrollo. Un producto sobre otro sistema que lo quiera lo incluye desde la capa en su propia capa —`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`—, importa su propio módulo, `@tanrei/web/components/fab-menu`, y lo dibuja con sus propios tokens. Las demostraciones de esta página se dibujan con `m3-like`.
-:::
 
 <DemoFrame label="Cerrado y abierto" system="m3-like">
   {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
