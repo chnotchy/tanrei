@@ -33,7 +33,7 @@ motion.unit 50ms. Color seeds are palette declarations, not dials. Every value i
 - **fixed** — a literal with a stated reason, exempt from the dials.   - **alias** — a reference that can be re-pointed.
 
 ## A design system is a layer
-\`<id>.system.json\`: \`id\`, \`extends\` (every chain ends at the root \`tanrei\`), \`vocabulary\`, \`palettes\`, \`tokens\`, \`rules\`.
+\`<id>.system.json\`: \`id\`, \`extends\` (every chain ends at the root \`core\`; the default system \`tanrei\` extends it), \`vocabulary\`, \`palettes\`, \`tokens\`, \`rules\`.
 **Values first.** Operations under \`tokens\`, keyed by an existing token id — prefer the earliest that does the job:
 1. set a dial        \`"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "…" }\`
 2. scale             \`{ "scale": 2 }\` — N × the inherited rule or alias, still following its dial
@@ -63,10 +63,10 @@ available as $1, $2…. An explicit \`tokens\` entry beats a pattern; fewer wild
 
 ## Accessibility
 The ruler never changes, for core and extensions alike: text 4.5:1 (7:1 in high contrast), non-text and focus 3:1, and a
-control's height must hold its content. These are constants in code. In the root system a violation fails the build; in
+control's height must hold its content. These are constants in code. In the default system a violation fails the build; in
 a product layer it is a warning — printed, written to a11y-report.json, stamped into every generated file. An imitation
 preset is held to fidelity to its original, not to Tanrei's accessibility criteria, in every contrast scheme: its
-contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the root.
+contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the default system.
 
 ## Workflow for a product
 search_tokens → explain_token (\`howToChange\`, \`howToExtend\`) → propose_extension if a word is missing → edit the layer →

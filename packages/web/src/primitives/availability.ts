@@ -5,6 +5,8 @@ import { debugBuild, report } from './report.js';
 export const UNAVAILABLE = '--tanrei-unavailable';
 /** What the active system uses instead: `<entry>=<replacement>[,<replacement>…]`, space-separated, in one string. */
 export const UNAVAILABLE_REPLACEMENT = '--tanrei-unavailable-replacement';
+/** What lives in a layer the active system does not extend: `<component>=<layer>`, space-separated, in one string. */
+export const UNAVAILABLE_LAYER = '--tanrei-unavailable-layer';
 /** The active system's id, in one string. */
 export const SYSTEM = '--tanrei-system';
 
@@ -24,6 +26,25 @@ export function parseReplacements(value: string): Map<string, string[]> {
     if (at > 0 && uses.length) replacements.set(pair.slice(0, at), uses);
   }
   return replacements;
+}
+
+/** Component → the layer it lives in, for the components the active system does not have. */
+export function parseOutside(value: string): Map<string, string> {
+  const outside = new Map<string, string>();
+  for (const pair of words(value)) {
+    const at = pair.indexOf('=');
+    if (at > 0 && at < pair.length - 1) outside.set(pair.slice(0, at), pair.slice(at + 1));
+  }
+  return outside;
+}
+
+/**
+ * The report's text for a component used under a system that does not have it: it lives in a layer the system does
+ * not extend, so the system's stylesheet holds none of its tokens.
+ */
+export function outsideMessage(component: string, layer: string, system: string | null): string {
+  const under = system ? `the design system "${system}"` : 'the active design system';
+  return `${component} lives in the layer "${layer}", which ${under} does not extend: its stylesheet has none of the component's tokens. Use a system that extends "${layer}", or include the component from it in a layer of your own`;
 }
 
 /** The entry that leaves this component, or this variant of it, out — the component whole first — or null. */
@@ -81,9 +102,10 @@ function readDueOnceDrawn() {
 }
 
 /**
- * Availability as a Lit controller: when the host connects, and when its `variant` changes, the list the
- * active system's stylesheet declares is read from the cascade, and a component or variant it leaves out is reported
- * once per element in debug builds. Nothing else changes: what is left out still renders and works.
+ * Availability as a Lit controller: when the host connects, and when its `variant` changes, the lists the
+ * active system's stylesheet declares are read from the cascade, and a component or variant it leaves out — or a
+ * component that lives in a layer the system does not extend — is reported once per element in debug builds. Nothing
+ * else changes: what is left out still renders and works.
  */
 export class AvailabilityController implements ReactiveController {
   private checked: string | undefined | null = null;
@@ -124,6 +146,11 @@ export class AvailabilityController implements ReactiveController {
   read() {
     if (!this.host.isConnected) return;
     const style = getComputedStyle(this.host);
+    const layer = parseOutside(style.getPropertyValue(UNAVAILABLE_LAYER)).get(this.component);
+    if (layer) {
+      report(this.host, 'availability', outsideMessage(this.component, layer, unquote(style.getPropertyValue(SYSTEM)) || scopeSystem(this.host)));
+      return;
+    }
     const entry = unavailableEntry(parseUnavailable(style.getPropertyValue(UNAVAILABLE)), this.component, this.variant());
     if (!entry) return;
     const system = unquote(style.getPropertyValue(SYSTEM)) || scopeSystem(this.host);

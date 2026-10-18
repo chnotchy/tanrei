@@ -15,7 +15,7 @@ const json = (file) => JSON.parse(fs.readFileSync(path.join(repo, file), 'utf8')
 
 test('every family a shipped system names has a package in the table, or a stated reason to have none', async () => {
   const systems = await shippedFamilies();
-  assert.deepEqual(Object.keys(systems).sort(), fs.readdirSync(path.join(repo, 'tokens/systems')).map((f) => f.replace('.system.json', '')).sort());
+  assert.deepEqual(Object.keys(systems).sort(), fs.readdirSync(path.join(repo, 'tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => f.replace('.system.json', '')).filter((id) => json(`tokens/systems/${id}.system.json`).extends).sort(), 'every system but the root, which has no output of its own');
   assert.ok(systems['m3-like'].includes('Roboto') && systems['m3-like'].includes('Material Symbols Outlined'), 'the premise: a preset names its own faces');
   for (const [system, families] of Object.entries(systems)) for (const family of families) assert.ok(family in FONT_PACKAGES || family in PLATFORM_FAMILIES, `${system}: "${family}"`);
   for (const family of Object.keys(PLATFORM_FAMILIES)) assert.ok(!(family in FONT_PACKAGES), `${family} is in both tables`);

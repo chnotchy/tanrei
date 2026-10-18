@@ -10,7 +10,7 @@
 import { SystemError } from './errors.js';
 import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, walkTokens } from './rules.js';
 import { expandStateVocabulary, isColorRule } from './states.js';
-import { collectVocabulary, materializeVocabulary } from './vocabulary.js';
+import { collectVocabulary, isHeldDocument, materializeVocabulary } from './vocabulary.js';
 
 /** The vocabulary's namespace when a caller does not pass one. Tools that have tanrei.config.json pass `CONFIG.namespace`. */
 export const DEFAULT_NAMESPACE = 'tanrei';
@@ -23,13 +23,19 @@ export { SystemError };
 /**
  * Merge a chain of layers, root first. Later layers win; `scale` composes with an inherited `scale`.
  * @param {object[]} layers
- * @param {{ namespace?: string }} [options] the vocabulary's namespace (tanrei.config.json); it travels on the merged
- *   system, so everything that takes the system afterwards uses the same one.
+ * @param {{ namespace?: string, lend?: (id: string) => object | undefined }} [options] the vocabulary's namespace
+ *   (tanrei.config.json), which travels on the merged system, so everything that takes the system afterwards uses the
+ *   same one; and `lend`, a layer by id — the layer that holds a component one of `layers` includes from it.
  */
-export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE } = {}) {
+export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE, lend } = {}) {
   const SYS_COLOR = `${namespace}.sys.color.`;
-  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace }), notices: [] };
+  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace, lend }), notices: [] };
   for (const layer of layers) {
+    // The rules that value a component's own states come with its vocabulary, at the layer that brings it — the one
+    // that holds it, or the one that includes it — and before that layer's own rules, which win a tie.
+    for (const decl of Object.values(merged.vocabulary)) {
+      if (decl.kind === 'component' && (decl.includedBy ?? decl.declaredBy) === layer.id) merged.rules.push(...clone(decl.rules));
+    }
     // A declared color role is valued by the palette engine, which reads operations: its inline definition becomes one.
     for (const [id, decl] of Object.entries(merged.vocabulary)) {
       if (decl.declaredBy === layer.id && decl.kind === 'token' && id.startsWith(SYS_COLOR)) merged.tokens[id] = { ...clone(decl.definition), layer: layer.id };
@@ -105,11 +111,14 @@ const stateIdsOf = (documents) => new Set(expandStateVocabulary(Object.entries(d
  * word. So such a line is a problem, and the message says where the default system's value is set. A declaration
  * under "vocabulary" that is not a color role parts them the same way, and is a problem the same way.
  * @param {Record<string, object>} sources relative file name → DTCG document (the vocabulary with its defaults)
- * @param {object} layer the root layer, as authored
- * @param {{ namespace?: string, sourceDir?: string }} [options] `sourceDir` is what the file names are relative to, for the message
+ * The same holds for every layer the default system is made of — the root and the default system's own layer — so a
+ * caller passes each of them, and `role` names the layer in the message.
+ * @param {object} layer the root layer (or the default system's own layer), as authored
+ * @param {{ namespace?: string, sourceDir?: string, role?: string }} [options] `sourceDir` is what the file names are relative to, for the message; `role` is what the message calls the layer
  * @returns {string[]} one problem per line that cannot be taken: the lines under "tokens" in the layer's order, then its declarations
  */
-export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPACE, sourceDir = 'tokens/' } = {}) {
+export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPACE, sourceDir = 'tokens/', role = 'the root layer' } = {}) {
+  const Role = role[0].toUpperCase() + role.slice(1);
   const index = new Map();
   for (const [file, doc] of Object.entries(sources)) for (const entry of walkTokens(doc)) index.set(entry.id, { ...entry, file });
   const stateIds = stateIdsOf(sources);
@@ -120,7 +129,7 @@ export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPAC
     if (!entry || generatedFrom(id, op, entry.type, { namespace, stateIds })) continue;
     const names = entry.token.$extensions?.[ENUM]?.values;
     const written = names && Number.isInteger(entry.token.$value) ? `"${names[entry.token.$value]}"` : JSON.stringify(entry.token.$value);
-    problems.push(`${id}: the root layer "${layer.id}" cannot set this token. The default system's value of it is the one written in ${sourceDir}${entry.file} (${written}): change it there. The root layer sets what is generated from it — color roles, per-state component tokens, and component colors valued by a color rule; a line for any other token would reach every system that extends "${layer.id}" and never the default system itself.`);
+    problems.push(`${id}: ${role} "${layer.id}" cannot set this token. The default system's value of it is the one written in ${sourceDir}${entry.file} (${written}): change it there. ${Role} sets what is generated from it — color roles, per-state component tokens, and component colors valued by a color rule; a line for any other token would reach every system that extends "${layer.id}" and never the default system itself.`);
   }
   // The other door: a declaration under
   // "vocabulary" is materialised into the documents of a system built from a layer chain, and the default system is
@@ -133,7 +142,13 @@ export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPAC
     const parent = segments.slice(0, cloned && segments[1] !== 'sys' ? -2 : -1);
     const home = Object.keys(sources).find((file) => groupOf(sources[file], parent));
     const where = home ? `${sourceDir}${home}` : `a document under ${sourceDir}`;
-    problems.push(`${id}: the root layer "${layer.id}" cannot declare this token under "vocabulary". The default system's vocabulary is the documents under ${sourceDir} as they are written: a new core token is written in ${where}, with its one-product rationale. An extension belongs to a layer that extends "${layer.id}"; declared here it would reach every such system and never the default system itself. Only a color role is the root layer's to declare — it is valued into the generated documents.`);
+    problems.push(`${id}: ${role} "${layer.id}" cannot declare this token under "vocabulary". The default system's vocabulary is the documents under ${sourceDir} as they are written: a new core token is written in ${where}, with its one-product rationale. An extension belongs to a layer that extends "${layer.id}"; declared here it would reach every such system and never the default system itself. Only a color role is ${role}'s to declare — it is valued into the generated documents.`);
+  }
+  // The third: a component included from the layer that holds it brings that component's vocabulary, which the
+  // default system's documents do not have.
+  for (const include of layer.components?.include ?? []) {
+    if (typeof include !== 'object' || include === null) continue;
+    problems.push(`${layer.id}.system.json components.include: ${role} "${layer.id}" cannot include "${include.name}" from "${include.from}". The default system's vocabulary is the documents under ${sourceDir} as they are written, and a component that lives in a layer is not among them: a system that wants it extends "${include.from}", or includes it in a layer of its own.`);
   }
   return problems;
 }
@@ -156,6 +171,8 @@ export function resolveNumericTokens(sources, system) {
   const work = { ...system, tokens: clone(system.tokens) };
   // Extensions become ordinary tokens here, before anything indexes the documents.
   system.notices = materializeVocabulary(docs, work);
+  // The documents the layers hold are no part of the system as such: the ones it has are its component documents now.
+  for (const name of Object.keys(docs)) if (isHeldDocument(name)) delete docs[name];
   const index = new Map();
   for (const doc of Object.values(docs)) for (const entry of walkTokens(doc)) index.set(entry.id, entry);
   const stateIds = stateIdsOf(docs);

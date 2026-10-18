@@ -6,7 +6,7 @@ import { REPO_ROOT } from '../src/model.js';
 import { generateSchemeFiles, loadSystem, sourceFiles } from '../src/scheme.js';
 
 const sources = sourceFiles(REPO_ROOT);
-const root = loadSystem(REPO_ROOT);
+const root = loadSystem(REPO_ROOT, 'core');
 const build = (...layers) => {
   const system = mergeLayers([root, ...layers]);
   const files = generateSchemeFiles(system, REPO_ROOT, resolveNumericTokens(sources, system));
