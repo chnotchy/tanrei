@@ -703,22 +703,31 @@ test.describe('layout', () => {
 });
 
 test.describe('compact window', () => {
-  test('DLG-17: narrower than compact.window-width it sits at the bottom, the margin from the bottom and the sides, as wide as the window less them; still a modal dialog; crossing the width moves it at once, focus kept; 0 disables it', async ({ page }) => {
-    await mount(page, [closed('compact')], COMPACT);
-    const [margin, maxW, windowWidth] = await Promise.all(['container-margin', 'container-max-width', 'compact-window-width'].map((n) => resolveToken(page, T(n))));
+  const B = (name: string) => `--tanrei-comp-bottom-sheet-${name}`;
+  test('DLG-17: narrower than compact.window-width it takes the bottom sheet’s appearance — at the bottom edge, as wide as the window up to its greatest width, its color, elevation and top corners, square at the bottom — and stays a modal dialog; crossing the width moves it at once, focus kept; own and 0 keep it centred; an unknown value is a sheet, and reported', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [closed('compact'), f('own', { compactPresentation: 'own' })], COMPACT);
+    const windowWidth = await resolveToken(page, T('compact-window-width'));
     expect(COMPACT.width).toBeLessThan(windowWidth);
     expect(WIDE.width).toBeGreaterThanOrEqual(windowWidth);
     await open(page, 'compact');
     const d = dialog(page, 'compact');
+    const [maxW, radius, padding] = await Promise.all([resolveToken(page, B('container-max-width')), resolveToken(page, B('container-shape')), resolveToken(page, T('container-padding'))]);
     let b = await bounds(d);
-    expect(b.x).toBeCloseTo(margin, 0);
-    expect(b.width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
-    expect(COMPACT.height - (b.y + b.height)).toBeCloseTo(margin, 0);
-    // All four corners the container's; still a modal dialog, dismissed as one, with no handle.
-    const radius = await resolveToken(page, T('container-shape'));
-    for (const corner of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(radius);
+    expect(b.x).toBeCloseTo(0, 0);
+    expect(b.width).toBeCloseTo(Math.min(maxW, COMPACT.width), 0);
+    expect(b.y + b.height).toBeCloseTo(COMPACT.height, 0);
+    for (const corner of ['top-left', 'top-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBeCloseTo(radius, 1);
+    for (const corner of ['bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(0);
+    expect(await css(d, 'background-color')).toBe(await resolveColor(page, B('container-color')));
+    expect(await css(d, 'box-shadow')).toBe(await resolveShadow(page, B('container-elevation')));
+    // Its parts keep the dialog's padding and its scrim is the dialog's own.
+    expect(Number.parseFloat(await css(d, 'padding-inline-start'))).toBeCloseTo(padding, 1);
+    expect(await css(d, 'background-color', '::backdrop')).toBe(await resolveColor(page, T('scrim-color')));
+    // Still a modal dialog, dismissed as one, with no handle.
     expect(await d.evaluate((el) => el.matches(':modal'))).toBe(true);
     await expect(page.getByRole('dialog', { name: 'Discard draft?' })).toHaveCount(1);
+    await expect(host(page, 'compact').locator('.handle')).toHaveCount(0);
     // Crossing the width while open: centred at once, focus where it was.
     await tab(page);
     expect(await focused(page)).toBe('Cancel');
@@ -730,10 +739,28 @@ test.describe('compact window', () => {
     expect(await d.evaluate((el) => el.getAnimations().length)).toBe(0);
     expect(await focused(page)).toBe('Cancel');
     await page.setViewportSize(COMPACT);
-    await expect.poll(async () => Math.round(COMPACT.height - ((await bounds(d)).y + (await bounds(d)).height))).toBe(Math.round(margin));
+    await expect.poll(async () => Math.round((await bounds(d)).y + (await bounds(d)).height)).toBe(COMPACT.height);
+    expect(await d.evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await focused(page)).toBe('Cancel');
     // Escape still dismisses it.
     await page.keyboard.press('Escape');
     await expect.poll(() => isOpen(page, 'compact')).toBe(false);
+    // own: centred in the compact window, the dialog's own color and corners.
+    await open(page, 'own');
+    const o = dialog(page, 'own');
+    b = await bounds(o);
+    expect(b.y + b.height / 2).toBeCloseTo(COMPACT.height / 2, 0);
+    expect(await css(o, 'background-color')).toBe(await resolveColor(page, T('container-color')));
+    // …and a change of compact-presentation while open is drawn at once.
+    await host(page, 'own').evaluate((el: any) => (el.compactPresentation = 'sheet'));
+    await expect.poll(async () => Math.round((await bounds(o)).y + (await bounds(o)).height)).toBe(COMPACT.height);
+    await close(page, 'own');
+    // An unknown value: a sheet, and reported.
+    await host(page, 'own').evaluate((el: any) => (el.compactPresentation = 'centred'));
+    await open(page, 'own');
+    expect(Math.round((await bounds(o)).y + (await bounds(o)).height)).toBe(COMPACT.height);
+    expect(seen.some((r) => r.text.includes('DLG-17') && r.text.includes('"centred"'))).toBe(true);
+    await close(page, 'own');
     // 0: no window is compact — centred in the same window.
     await override(page, { [T('compact-window-width')]: '0px' });
     await open(page, 'compact');
@@ -741,13 +768,12 @@ test.describe('compact window', () => {
     expect(b.y + b.height / 2).toBeCloseTo(COMPACT.height / 2, 0);
   });
 
-  test('DLG-18: at the bottom it fades in while rising by enter-offset, without growing, and sinks by it while fading out; only fades where motion is reduced', async ({ page }) => {
+  test('DLG-18: as a sheet it slides up from below the bottom edge over the bottom sheet’s enter motion, without growing, and down over its exit motion, the scrim fading; only fades where motion is reduced', async ({ page }) => {
     await mount(page, [closed('compact')], COMPACT);
     // The motions at 40 s, each ended by hand: what is read 'on its way' is read some answers after the change that
-    // begins it, and at 2 s a runner that takes half a second an answer read a dialog that had arrived. The durations
-    // are read from the transitions after the override, so the binding to the tokens is still what is proved.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
-    const offset = await resolveToken(page, T('motion-enter-offset'));
+    // begins it. The durations are read from the transitions after the override, so the binding to the tokens is
+    // still what is proved.
+    await override(page, { [B('motion-enter-duration')]: '40s', [B('motion-exit-duration')]: '40s' });
     await page.locator('#open-compact').focus();
     await host(page, 'compact').evaluate(async (el: any) => {
       el.open = true;
@@ -756,11 +782,12 @@ test.describe('compact window', () => {
     expect(await focused(page)).toBe('dialog');
     const d = dialog(page, 'compact');
     const running = await d.evaluate((el) => el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })));
-    expect(running).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'translate', duration: 40_000 }]));
+    expect(running).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
     expect(running.map((r) => r.property)).not.toContain('scale');
-    const moving = Number.parseFloat((await css(d, 'translate')).split(' ')[1] ?? '0');
+    expect(running.map((r) => r.property)).not.toContain('opacity');
+    const [moving, height] = await d.evaluate((el) => [Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0'), el.getBoundingClientRect().height]);
     expect(moving).toBeGreaterThan(0);
-    expect(moving).toBeLessThanOrEqual(offset + 0.5);
+    expect(moving).toBeLessThanOrEqual(height + 0.5);
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
     // (Closed and read in one step: nothing of the test stands between the close and what moves at it.)
     const leaving = await host(page, 'compact').evaluate(async (el: any) => {
@@ -769,26 +796,25 @@ test.describe('compact window', () => {
       return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
     });
     // A closed dialog stays in the top layer for its exit only where the engine can transition `overlay`. Where it
-    // cannot (Firefox) it is gone at once and nothing is left to move,
-    // so what is read there is what the exit is declared to be — the same properties, time and distance.
+    // cannot (Firefox) it is gone at once and nothing is left to move, so what is read there is what the exit is
+    // declared to be — the same properties and time.
     if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) {
-      expect(leaving).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'translate', duration: 40_000 }]));
+      expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
       expect(leaving.map((l) => l.property)).not.toContain('scale');
     } else {
       expect(leaving).toEqual([]);
       expect(await css(d, 'display')).toBe('none');
-      const rest = await d.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), sunk: Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0') }));
-      expect(rest.opacity).toBe(0);
-      expect(rest.sunk).toBeCloseTo(offset, 1);
     }
     const out = await d.evaluate((el) => {
       const style = getComputedStyle(el);
       return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000, scale: style.scale };
     });
-    expect(out.properties).toEqual(expect.arrayContaining(['opacity', 'translate', 'display', 'overlay']));
+    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
     expect(out.duration).toBe(40_000);
     expect(out.scale).toBe('none');
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Out of view: its own height below its place.
+    expect(await css(d, 'translate')).toBe('0px 100%');
     await expect(page.locator('#open-compact')).toBeFocused();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [closed('compact')], COMPACT);
@@ -1014,12 +1040,13 @@ test.describe('close button and width', () => {
     await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
     await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(small, 0);
     expect(await focused(page)).toBe('dialog');
-    // A compact window: as wide as the window less the margins, as content is.
+    // A compact window: a sheet as wide as the window, whatever width names (DLG-17).
+    const sheetWidth = Math.min(await resolveToken(page, '--tanrei-comp-bottom-sheet-container-max-width'), COMPACT.width);
     await page.setViewportSize(COMPACT);
     await host(page, 'd').evaluate((el: any) => (el.width = 'large'));
-    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(sheetWidth, 0);
     await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
-    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(sheetWidth, 0);
     await close(page, 'd');
     // Content (the default) is sized by its parts, between min-width and max-width.
     await page.setViewportSize(WIDE);
