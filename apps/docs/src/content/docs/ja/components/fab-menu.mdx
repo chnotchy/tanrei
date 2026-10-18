@@ -2,7 +2,7 @@
 title: FAB メニュー
 description: 縮めたメインアクションボタンとして描くトグルから、関連するアクションの短いリストを開きます。リストが出ている間、トグルはそのリストを閉じるボタンになります。
 translationOf: components/fab-menu.mdx
-sourceHash: 9c402a1709ffea056dc0b43a178bdbfc5e12765d
+sourceHash: c0758189c0eef0167c0850043d5633746594d621
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -75,7 +75,8 @@ FAB メニューは `m3-like` レイヤーにあります。これを持つの�
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { FabMenu, FabMenuItem } from '@tanrei/react';
+    // FAB メニューは m3-like レイヤーにあります。それを持つシステム（m3-like、m3-expressive-like）のエントリーと /all にあります。
+    import { FabMenu, FabMenuItem } from '@tanrei/react/m3-like';
 
     <FabMenu
       className="primary-action"

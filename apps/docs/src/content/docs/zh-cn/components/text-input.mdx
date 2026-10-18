@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: dc309afa21d548b5273dfcda626d60558fe8e988
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="筛选令牌" placeholder="筛选令牌"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />

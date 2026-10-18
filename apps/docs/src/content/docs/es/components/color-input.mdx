@@ -2,7 +2,7 @@
 title: Entrada de color
 description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ En la web es `<tanrei-color-input>`. Las demás plataformas todavía no la han i
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="Primario, tono 40" value={tone} picker pickerLabel="Elegir el color de Primario, tono 40"
       onChange={(event) => setTone(event.currentTarget.value)} />

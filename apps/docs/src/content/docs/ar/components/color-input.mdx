@@ -2,7 +2,7 @@
 title: حقل إدخال اللون
 description: الصندوق الذي يعيّن فيه الناس لونًا واحدًا، فيه عيّنة منه، والقيمة نصًّا يقرؤونه ويكتبونه ويلصقونه، وزر يطلب منتقيًا، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لصف أو عمود يسمّي اللون سلفًا، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="الأساسي، الدرجة 40" value={tone} picker pickerLabel="اختيار لون الأساسي، الدرجة 40"
       onChange={(event) => setTone(event.currentTarget.value)} />

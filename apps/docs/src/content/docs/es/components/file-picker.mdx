@@ -2,7 +2,7 @@
 title: Selector de archivos
 description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ Pon un botón en el slot `trigger` y escucha `select`.
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="Archivo de capa" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="Un archivo JSON"

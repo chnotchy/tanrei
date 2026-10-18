@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="プライマリ、トーン 40" value={tone} picker pickerLabel="プライマリ、トーン 40 の色を選択"
       onChange={(event) => setTone(event.currentTarget.value)} />

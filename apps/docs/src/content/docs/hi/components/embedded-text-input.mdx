@@ -2,7 +2,7 @@
 title: एम्बेडेड टेक्स्ट इनपुट
 description: सिर्फ़ टाइप करने की जगह, उस बॉक्स के लिए जिसे कोई और बनाता है। टेक्स्ट, प्लेसहोल्डर, कैरेट और चयन, एक पंक्ति में या ऐसी पंक्तियों में जो मोशन के साथ बढ़ती और घटती हैं। यह न कंटेनर बनाता है, न किनारा, न लेबल, न फ़ोकस इंडिकेटर। जो इसे अपने भीतर रखता है, वही बॉक्स बनाता है और फ़ोकस दिखाता है।
 translationOf: components/embedded-text-input.mdx
-sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+sourceHash: a68b106d5c58124e7e4b193db3f5dae554579383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { EmbeddedTextInput } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { EmbeddedTextInput } from '@tanrei/react/advanced';
 
     <div className="capsule">
       <EmbeddedTextInput label="संदेश" placeholder="संदेश लिखें" multiline maxRows={6}

@@ -22,7 +22,7 @@
       },
       "react": {
         "name": "Accordion",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "plain",
@@ -42,7 +42,7 @@
       },
       "react": {
         "name": "AppBar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -58,7 +58,7 @@
       },
       "react": {
         "name": "AppShell",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -74,7 +74,7 @@
       },
       "react": {
         "name": "Avatar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -90,7 +90,7 @@
       },
       "react": {
         "name": "Badge",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -106,7 +106,7 @@
       },
       "react": {
         "name": "BottomSheet",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "standard",
@@ -126,7 +126,7 @@
       },
       "react": {
         "name": "Breadcrumbs",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -142,7 +142,7 @@
       },
       "react": {
         "name": "Button",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -165,7 +165,7 @@
       },
       "react": {
         "name": "ButtonGroup",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "standard",
@@ -185,7 +185,7 @@
       },
       "react": {
         "name": "ButtonWithMenu",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -207,7 +207,7 @@
       },
       "react": {
         "name": "Calendar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -223,7 +223,7 @@
       },
       "react": {
         "name": "Callout",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "tonal",
@@ -243,7 +243,7 @@
       },
       "react": {
         "name": "Card",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "elevated",
@@ -264,7 +264,7 @@
       },
       "react": {
         "name": "Carousel",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -280,7 +280,7 @@
       },
       "react": {
         "name": "ChatComposer",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -296,7 +296,7 @@
       },
       "react": {
         "name": "Checkbox",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -312,7 +312,7 @@
       },
       "react": {
         "name": "CheckboxGroup",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -328,7 +328,7 @@
       },
       "react": {
         "name": "Chip",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "outlined",
@@ -348,7 +348,7 @@
       },
       "react": {
         "name": "ChipField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -369,7 +369,7 @@
       },
       "react": {
         "name": "CodeBlock",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -389,7 +389,7 @@
       },
       "react": {
         "name": "ColorField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -410,7 +410,7 @@
       },
       "react": {
         "name": "ColorInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked",
@@ -431,7 +431,7 @@
       },
       "react": {
         "name": "Combobox",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked",
@@ -452,7 +452,7 @@
       },
       "react": {
         "name": "ComboboxField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -473,7 +473,7 @@
       },
       "react": {
         "name": "CopyButton",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -496,7 +496,7 @@
       },
       "react": {
         "name": "DateTimePicker",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -512,7 +512,7 @@
       },
       "react": {
         "name": "DescriptionList",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -528,7 +528,7 @@
       },
       "react": {
         "name": "Dialog",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -544,7 +544,7 @@
       },
       "react": {
         "name": "Divider",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -560,7 +560,7 @@
       },
       "react": {
         "name": "DropZone",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -576,7 +576,7 @@
       },
       "react": {
         "name": "EmbeddedTextInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -592,7 +592,7 @@
       },
       "react": {
         "name": "EmptyState",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -608,7 +608,7 @@
       },
       "react": {
         "name": "FabMenu",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -629,7 +629,7 @@
       },
       "react": {
         "name": "Field",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -645,7 +645,7 @@
       },
       "react": {
         "name": "FieldGroup",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -661,7 +661,7 @@
       },
       "react": {
         "name": "Figure",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "outlined",
@@ -682,7 +682,7 @@
       },
       "react": {
         "name": "FileItem",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -698,7 +698,7 @@
       },
       "react": {
         "name": "FilePicker",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -714,7 +714,7 @@
       },
       "react": {
         "name": "FileUpload",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -730,7 +730,7 @@
       },
       "react": {
         "name": "ImagePreview",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -762,7 +762,7 @@
       },
       "react": {
         "name": "KeyboardShortcut",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "keycap",
@@ -797,7 +797,7 @@
       },
       "react": {
         "name": "LinkCard",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "outlined",
@@ -817,7 +817,7 @@
       },
       "react": {
         "name": "List",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -833,7 +833,7 @@
       },
       "react": {
         "name": "ListRow",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -849,7 +849,7 @@
       },
       "react": {
         "name": "LoadingIndicator",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -865,7 +865,7 @@
       },
       "react": {
         "name": "MainActionButton",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "filled",
@@ -886,7 +886,7 @@
       },
       "react": {
         "name": "Menu",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -902,7 +902,7 @@
       },
       "react": {
         "name": "Menubar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -918,7 +918,7 @@
       },
       "react": {
         "name": "ModalLayer",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -934,7 +934,7 @@
       },
       "react": {
         "name": "NavigationBar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "tonal"
@@ -953,7 +953,7 @@
       },
       "react": {
         "name": "NavigationDrawer",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "standard",
@@ -973,7 +973,7 @@
       },
       "react": {
         "name": "NumberField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -994,7 +994,7 @@
       },
       "react": {
         "name": "NumberInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked",
@@ -1015,7 +1015,7 @@
       },
       "react": {
         "name": "OneTimeCodeField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1031,7 +1031,7 @@
       },
       "react": {
         "name": "OneTimeCodeInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       }
     },
     {
@@ -1047,7 +1047,7 @@
       },
       "react": {
         "name": "PageHeader",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1063,7 +1063,7 @@
       },
       "react": {
         "name": "Pagination",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "numbered",
@@ -1083,7 +1083,7 @@
       },
       "react": {
         "name": "Popover",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1110,7 +1110,7 @@
       },
       "react": {
         "name": "ProgressIndicator",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "linear",
@@ -1141,7 +1141,7 @@
       },
       "react": {
         "name": "RadioButton",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1157,7 +1157,7 @@
       },
       "react": {
         "name": "RadioGroup",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1173,7 +1173,7 @@
       },
       "react": {
         "name": "Search",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1189,7 +1189,7 @@
       },
       "react": {
         "name": "SegmentedButton",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1205,7 +1205,7 @@
       },
       "react": {
         "name": "Select",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -1226,7 +1226,7 @@
       },
       "react": {
         "name": "SelectField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -1247,7 +1247,7 @@
       },
       "react": {
         "name": "SideSheet",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "standard",
@@ -1267,7 +1267,7 @@
       },
       "react": {
         "name": "Skeleton",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1283,7 +1283,7 @@
       },
       "react": {
         "name": "Slider",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1299,7 +1299,7 @@
       },
       "react": {
         "name": "SliderField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1315,7 +1315,7 @@
       },
       "react": {
         "name": "Snackbar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1331,7 +1331,7 @@
       },
       "react": {
         "name": "Stepper",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1358,7 +1358,7 @@
       },
       "react": {
         "name": "Swatch",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1374,7 +1374,7 @@
       },
       "react": {
         "name": "Switch",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1390,7 +1390,7 @@
       },
       "react": {
         "name": "TabView",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "primary",
@@ -1411,7 +1411,7 @@
       },
       "react": {
         "name": "Table",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1427,7 +1427,7 @@
       },
       "react": {
         "name": "TableOfContents",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1443,7 +1443,7 @@
       },
       "react": {
         "name": "Tabs",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "primary",
@@ -1463,7 +1463,7 @@
       },
       "react": {
         "name": "Tag",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "tonal",
@@ -1484,7 +1484,7 @@
       },
       "react": {
         "name": "TagGroup",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     },
     {
@@ -1500,7 +1500,7 @@
       },
       "react": {
         "name": "TextField",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "stacked",
@@ -1521,7 +1521,7 @@
       },
       "react": {
         "name": "TextInput",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/advanced"
       },
       "variants": [
         "stacked",
@@ -1553,7 +1553,7 @@
       },
       "react": {
         "name": "Toolbar",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "docked",
@@ -1573,7 +1573,7 @@
       },
       "react": {
         "name": "Tooltip",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
         "plain",
@@ -1593,7 +1593,7 @@
       },
       "react": {
         "name": "TreeView",
-        "import": "@tanrei/react"
+        "import": "@tanrei/react/m3-expressive-like"
       }
     }
   ],

@@ -1,5 +1,7 @@
 // Type tests: what a typed React project must be able to write against the wrappers, and what it must not. Compiled by
-// `pnpm --filter @tanrei/react test` (never run): an expected error that stops being one fails the compile.
+// `pnpm --filter @tanrei/react test` (never run): an expected error that stops being one fails the compile. The
+// package is imported by its own name, as a product imports it: the types are the built ones (`pnpm build` first),
+// through the entries of package.json `exports`.
 import { useRef } from 'react';
 import type { TanreiButton, TanreiFilePicker, TanreiFilePickerJudgement, TanreiFileUpload, TanreiFileUploadRefused, TanreiSelect, TanreiSnackbarHost } from '@tanrei/web';
 import {
@@ -8,17 +10,13 @@ import {
   ButtonGroup,
   Checkbox,
   ColorField,
-  Combobox,
   Dialog,
   FileItem,
-  FilePicker,
   FileUpload,
   List,
   ListItem,
   MenuItem,
   NumberField,
-  NumberInput,
-  OneTimeCodeInput,
   RadioButton,
   RadioGroup,
   Search,
@@ -36,9 +34,47 @@ import {
   TextField,
   missingWords,
   setWords,
-} from '../src/index.ts';
+} from '@tanrei/react';
+// The building blocks are an entry of their own; the rest of the default system is the main entry.
+import { Combobox, FilePicker, NumberInput, OneTimeCodeInput, TextInput } from '@tanrei/react/advanced';
+import * as all from '@tanrei/react/all';
+// @ts-expect-error the FAB menu lives in the m3-like layer, which the default system does not descend from
+import { FabMenu as NoFabMenu } from '@tanrei/react';
+// @ts-expect-error the default system leaves the segmented button out
+import { SegmentedButton as NoSegmentedButton } from '@tanrei/react';
+// @ts-expect-error a building block is not in the main entry
+import { TextInput as NoTextInput } from '@tanrei/react';
+import { FabMenu, FabMenuItem, SegmentedButton, TextField as M3TextField } from '@tanrei/react/m3-like';
+import { SegmentedButton as CupertinoSegmentedButton } from '@tanrei/react/cupertino';
+// @ts-expect-error cupertino has the segmented button and not the FAB menu
+import { FabMenu as NoCupertinoFabMenu } from '@tanrei/react/cupertino';
+import { FabMenu as ExpressiveFabMenu } from '@tanrei/react/m3-expressive-like';
 
 declare function use(...values: unknown[]): void;
+use(NoFabMenu, NoSegmentedButton, NoTextInput, NoCupertinoFabMenu);
+
+// Each entry is one system's components (packages/react/scripts/entries.js, from the components manifests): what the
+// system leaves out is not there, and a variant value it leaves out is not a value of the prop there. The values are
+// the same component's: another system's entry, `/advanced` and `/all` take every value.
+export const systems = (
+  <>
+    <TextField label="Name" variant="stacked" />
+    {/* @ts-expect-error the default system leaves the outlined field out */}
+    <TextField label="Name" variant="outlined" />
+    {/* @ts-expect-error and the filled one */}
+    <Select label="Size" variant="filled" />
+    <M3TextField label="Name" variant="outlined" />
+    <TextInput variant="filled" />
+    <all.TextField label="Name" variant="outlined" />
+    <FabMenu label="Create" variant="tonal">
+      <FabMenuItem label="Note" />
+    </FabMenu>
+    <ExpressiveFabMenu label="Create" />
+    <all.FabMenu label="Create" />
+    <SegmentedButton label="View" />
+    <CupertinoSegmentedButton label="View" />
+  </>
+);
 
 // The action marks (BGR-13, BGR-14) are attributes the placing component reads, typed as props of Button.
 const marks: ButtonMarks = { confirming: true, dismissive: false };

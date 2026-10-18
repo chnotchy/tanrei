@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: dc309afa21d548b5273dfcda626d60558fe8e988
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="تصفية الرموز" placeholder="تصفية الرموز"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />

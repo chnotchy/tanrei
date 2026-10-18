@@ -79,7 +79,9 @@ Put one button in the `trigger` slot and listen to `select`.
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="Layer file" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="One JSON file"

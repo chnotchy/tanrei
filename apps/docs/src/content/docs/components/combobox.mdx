@@ -85,7 +85,8 @@ On the web it is `<tanrei-combobox>` with `<tanrei-option>` children, the elemen
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="Assignee, release notes" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">Aiko Tanaka</Option>

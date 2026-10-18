@@ -71,7 +71,8 @@ On the web it is `<tanrei-color-input>`. The other platforms have not implemente
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="Primary, tone 40" value={tone} picker pickerLabel="Choose the color of Primary, tone 40"
       onChange={(event) => setTone(event.currentTarget.value)} />

@@ -68,7 +68,9 @@ On the web it is `<tanrei-one-time-code-input>`. The other platforms have not im
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="Verification code" error={wrong}
       supportingText="Enter the 6-digit code we sent to your phone."

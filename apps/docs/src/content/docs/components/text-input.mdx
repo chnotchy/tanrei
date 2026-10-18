@@ -74,7 +74,8 @@ On the web it is `<tanrei-text-input>`. The other platforms have not implemented
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="Filter tokens" placeholder="Filter tokens"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />

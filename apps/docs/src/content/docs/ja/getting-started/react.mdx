@@ -2,7 +2,7 @@
 title: React
 description: Tanrei の Web Components から生成した、型付きの React コンポーネント。
 translationOf: getting-started/react.mdx
-sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+sourceHash: cf6d91c24ebc112a73f9026f155b2ad7d17c63ff
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -62,9 +62,28 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 プロパティの名前は、要素の属性と同じです（`variant`、`size`、`disabled`）。イベントは、通常の React のハンドラーです。
 
+## デザインシステムごとのエントリー
+
+このパッケージには、Tanrei が出荷するデザインシステムごとにエントリーがあります。エディターが候補に出し、型チェックが通すのは、あなたのシステムにあるものだけです。
+
+| エントリー | エクスポートするもの |
+|---|---|
+| `@tanrei/react` | 既定のシステム Tanrei のコンポーネント。m3-like レイヤーにある FAB メニューと、Tanrei が持たないセグメントボタンはここにありません。Tanrei が持たないバリアントも、プロパティの値になりません。`<TextField variant="outlined">` は型チェックを通りません |
+| `@tanrei/react/m3-like`、`@tanrei/react/m3-expressive-like`、`@tanrei/react/cupertino` | そのプリセットのコンポーネントと、そのバリアント |
+| `@tanrei/react/advanced` | 上級者向けのコンポーネント、つまりほかのコンポーネントの部品です。`TextInput`、`ModalLayer`、`Combobox` など。プロダクトでは、ふつうはそれから作られたコンポーネント（`TextField`、`Dialog`、`ComboboxField`）を書きます |
+| `@tanrei/react/all` | どのシステムにあるかを問わず、すべてのコンポーネント。独自のデザインシステムで使うときと、デザインシステムを作るときのためのものです |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+コンポーネントはどのエントリーでも同じものなので、バンドラーが残すのは、インポートしたものだけです。どのエントリーも `setWords`、`missingWords` と `TanreiEvent` 型をエクスポートします。エントリーは、各システムのコンポーネント一覧（`@tanrei/web/systems/<id>.components.json`）から生成されます。この一覧には、各コンポーネントのエントリー（`react.import`）が書かれています。`tanrei build` が書く独自のシステムの一覧では、それは `@tanrei/react/all` です。
+
 ## サーバーレンダリング
 
-コンポーネントは、サーバーではカスタム要素のタグをレンダリングし、ブラウザーでアップグレードされます。サーバーとクライアントが分かれているフレームワークでは、`@tanrei/react` をクライアントコンポーネントからインポートして、要素の定義がブラウザーで登録されるようにしてください。
+コンポーネントは、サーバーではカスタム要素のタグをレンダリングし、ブラウザーでアップグレードされます。サーバーとクライアントが分かれているフレームワークでは、使うエントリーをクライアントコンポーネントからインポートして、要素の定義がブラウザーで登録されるようにしてください。
 
 <Callout>
   テーマ、コントラスト、トークン、フォントは、[Web のガイド](/ja/getting-started/web/)に書かれているとおりに動作します。React のパッケージが独自に加えるものはありません。

@@ -2,7 +2,7 @@
 title: منتقي الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي الملفات الخاص بالمنصة، من زر، وحيث يتسع المكان من موضع يمكن أيضًا سحب الملفات إليه، ويقول القيود بالكلمات قبل الاختيار، ويحكم على ما اختير، ويسلّم منتجك الملفات التي قبلها والملفات التي رفضها. وهو لا يحتفظ بشيء، ولا يسرد شيئًا، ولا يشارك في أي نموذج.
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="ملف الطبقة" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="ملف JSON واحد"

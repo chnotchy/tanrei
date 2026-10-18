@@ -2,7 +2,7 @@
 title: Entrada de código de un solo uso
 description: Recibe un código corto enviado a la persona (un código de inicio de sesión o de verificación) como un único valor de texto dibujado en celdas separadas, de modo que se ven su longitud y lo que aún falta, y la plataforma puede rellenarlo en un solo paso.
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -70,7 +70,9 @@ En la web es `<tanrei-one-time-code-input>`. Las demás plataformas todavía no 
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="Código de verificación" error={wrong}
       supportingText="Introduce el código de 6 dígitos que enviamos a tu teléfono."
