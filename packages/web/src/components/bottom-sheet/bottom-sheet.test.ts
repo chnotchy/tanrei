@@ -1048,14 +1048,28 @@ test.describe('the header and the close button', () => {
     expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
   });
 
-  test('BSH-29: under m3-like, m3-expressive-like and cupertino the close button is a bare glyph (text) at the system’s own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+  test('BSH-29: under m3-like and m3-expressive-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
+    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
       await mount(page, [fixtureOf('modal-header')], { system });
       const id = 'modal-header';
       await expect(close(page, id), system).toHaveAttribute('size', 'small');
-      await expect.poll(() => paint(page, id), system).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+      await expect.poll(() => paint(page, id), system).toBe(await resolveColor(page, `--tanrei-comp-button-${variant}-container-color`));
       expect((await bounds(close(page, id).locator('button'))).height, system).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-small'), 1);
     }
+  });
+
+  test('BSH-22, BSH-28: the header is no landmark — a standard sheet with a headline is one region, named by its label where it has one and by its headline otherwise; every fixture on one page has landmarks of distinct names', async ({ page }) => {
+    await mount(page, [fixtureOf('standard-header')]);
+    const regions = page.getByRole('region');
+    await expect(regions).toHaveCount(1);
+    await expect(page.getByRole('region', { name: 'Cafés and bakeries nearby', exact: true })).toHaveCount(1);
+    await expect(page.getByRole('banner')).toHaveCount(0);
+    await mount(page, [fx('s', { variant: 'standard', label: '', headline: 'Nearby places' })]);
+    await expect(page.getByRole('region', { name: 'Nearby places', exact: true })).toHaveCount(1);
+    // All the fixtures at once, as the presets' accessibility check mounts them: no two landmarks share a role and name.
+    await mount(page, spec.fixtures);
+    const results = await new AxeBuilder({ page }).include('main').withRules(['landmark-unique']).analyze();
+    expect(results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`)).toEqual([]);
   });
 
   test('BSH-30: a sheet with no handle, no close button and dismissible true still renders and is reported; a close button or closedby none takes the report away', async ({ page }) => {
