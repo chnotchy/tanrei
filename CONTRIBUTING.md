@@ -190,11 +190,12 @@ gh workflow run record-baselines.yml --ref <branch> \
   -f platforms=web \
   -f reason="<what changed and why>" \
   -f filter=button-group,toolbar     # optional: spec names; empty records every baseline
+  # -f start_ci=true                 # optional: start a three-engine CI run on the branch afterwards
 ```
 
 It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_REASON` set to the reason, and commits only the changed files under the baseline directories above to the branch — one commit per platform, `test(<platform>): record baselines — <reason>`. It refuses the default branch. While native CI is paused its default is the web alone. Then:
 
-1. **CI starts by itself** on the branch (a `workflow_dispatch` run whose checks attach to the branch's new head commit). The pull request's own runs queued by the bot's push wait for approval; do not approve them, they would run the same CI a second time.
+1. **CI does not start by itself.** A branch's three-engine run comes with the merge train it joins: up to about eight pull requests whose Chromium runs are green are merged on one `train/<n>` branch, CI runs there once in all three engines, and each pull request then merges on its own. A run per recording (about 38 jobs) would fill the account's runners for everyone. Set `start_ci=true` to start one on the branch anyway. The pull request's own runs queued by the bot's push wait for approval; do not approve them.
 2. **Look at every image** in the commits (the pull request's file view shows them) — a baseline is evidence.
 3. Repeat the reason in the changeset.
 
