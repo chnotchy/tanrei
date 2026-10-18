@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: ad2d0318557d3bed35aa338b380bd0579d547fdc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -86,7 +86,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 フィールドでカラー入力欄を囲むと、カラーフィールドを自分で書いたものになります。入力欄の `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、`invalidText`、ピッカーは入力欄に指定します。
 
 ```html
-<tanrei-field label="ブランドカラー" requirement="required" required-text="必須"
+<tanrei-field label="ブランドカラー" required required-text="必須"
   supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
@@ -95,7 +95,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 ```
 
 <DemoFrame label="フィールドの中のカラー入力欄。見た目はカラーフィールドと同じです" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" requirement="required" required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" required required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
     <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>

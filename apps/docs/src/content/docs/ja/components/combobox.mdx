@@ -2,7 +2,7 @@
 title: コンボボックス
 description: 入力して 1 つの値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: 0036a2e2d6adcc27e14238bed33c7142cb819547
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 フィールドでコンボボックスを囲むと、コンボボックスフィールドを自分で書いたものになります。コンボボックスの `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、オプション、入力に関するすべてはコンボボックスに指定します。
 
 ```html
-<tanrei-field label="都市" requirement="required" required-text="必須"
+<tanrei-field label="都市" required required-text="必須"
   supporting-text="注文のお届け先です。">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">京都</tanrei-option>
@@ -114,7 +114,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 ```
 
 <DemoFrame label="フィールドの中のコンボボックス。見た目はコンボボックスフィールドと同じです" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" requirement="required" required-text="必須" supporting-text="注文のお届け先です。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" required required-text="必須" supporting-text="注文のお届け先です。">
     <tanrei-combobox value="tokyo" empty-text="一致する項目はありません">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">東京</tanrei-option>
@@ -212,7 +212,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子�
 - プレースホルダーをラベルの代わりにしない。入力を始めた途端に消え、名前にもなりません。
 - フィールドの中のコンボボックスに `label`、`error`、`disabled` を指定しない。フィールドに指定すれば、ラベルと補足も一緒に変わります。
 - コンボボックスフィールドをフィールドの中に入れない。すでにフィールドです。フィールドが囲むコントロールは、コンボボックスです。
-- コンボボックスに `supporting-text`、`error-text`、`requirement` を書かない。これらはフィールドのもので、コンボボックスはどれも描きません。
+- コンボボックスに `supporting-text`、`error-text`、`required`、`optional` を書かない。これらはフィールドのもので、コンボボックスはどれも描きません。
 
 ## アクセシビリティ
 

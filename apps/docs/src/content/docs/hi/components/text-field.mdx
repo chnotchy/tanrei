@@ -2,7 +2,7 @@
 title: टेक्स्ट फ़ील्ड
 description: लोगों को टेक्स्ट दर्ज और संपादित करने देता है — एक पंक्ति में, या कई पंक्तियों में जो टेक्स्ट के साथ बढ़ती हैं या हाथ से छोटी-बड़ी की जाती हैं — या लोकेल के रूप में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय, या ठीक वैसे ही रखा गया कोड जैसा वह लिखा गया है, ऐसे लेबल के साथ जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, और वैकल्पिक आइकन, प्रीफ़िक्स और सफ़िक्स, सहायक टेक्स्ट, अक्षरों की गिनती और पिकर बटन के साथ।
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[संशोधित स्पेक, जो अभी हर प्लैटफ़ॉर्म पर नहीं है]
-यह पेज टेक्स्ट फ़ील्ड को वैसा बताता है जैसा स्पेक में वह अभी है: एक `stacked` वेरिएंट, जो डिफ़ॉल्ट है और जिसका लेबल फ़ील्ड के ऊपर रहता है; `filled` और `outlined`, जो सिर्फ़ Material और cupertino प्रीसेट के लिए रखे गए हैं; 40, 48 और 56 की ऊँचाइयाँ; तारीख़ और समय के टाइप, पिकर बटन के साथ; कई पंक्तियों वाला फ़ील्ड, जो अपने टेक्स्ट के साथ बढ़ता है या ग्रिप से छोटा-बड़ा किया जाता है (`resize`); सेगमेंट में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय; और `requirement`, जो फ़ील्ड को ज़रूरी या वैकल्पिक के रूप में चिह्नित करता है और `required` फ़्लैग की जगह लेता है। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। फ़ील्ड कोड भी रख सकता है (`type="code"`, और उसकी पंक्तियों के लिए `wrap`): वेब ने इसे बना लिया है, और किसी दूसरे प्लैटफ़ॉर्म ने अभी नहीं। टेक्स्ट फ़ील्ड टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है, जैसा यह पेज बताता है: वेब ने यह भी बना लिया है, और वहाँ `required` ऐट्रिब्यूट अब नहीं है। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जो डिफ़ॉल्ट रूप से outlined है और 36 और 40 की ऊँचाई पर है, जिसका `required` फ़्लैग कोई निशान नहीं बनाता, और जिसमें न `stacked` वेरिएंट है, न तारीख़ या समय के टाइप, न पिकर बटन और न resize के मोड। उनके उदाहरण वही संशोधन दिखाते हैं।
+यह पेज टेक्स्ट फ़ील्ड को वैसा बताता है जैसा स्पेक में वह अभी है: एक `stacked` वेरिएंट, जो डिफ़ॉल्ट है और जिसका लेबल फ़ील्ड के ऊपर रहता है; `filled` और `outlined`, जो सिर्फ़ Material और cupertino प्रीसेट के लिए रखे गए हैं; 40, 48 और 56 की ऊँचाइयाँ; तारीख़ और समय के टाइप, पिकर बटन के साथ; कई पंक्तियों वाला फ़ील्ड, जो अपने टेक्स्ट के साथ बढ़ता है या ग्रिप से छोटा-बड़ा किया जाता है (`resize`); सेगमेंट में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय; और `required` व `optional`, जो फ़ील्ड को ज़रूरी या वैकल्पिक के रूप में चिह्नित करते हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। फ़ील्ड कोड भी रख सकता है (`type="code"`, और उसकी पंक्तियों के लिए `wrap`): वेब ने इसे बना लिया है, और किसी दूसरे प्लैटफ़ॉर्म ने अभी नहीं। टेक्स्ट फ़ील्ड टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है, जैसा यह पेज बताता है: वेब ने यह भी बना लिया है, और वहाँ `required` ऐट्रिब्यूट अब नहीं है। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जो डिफ़ॉल्ट रूप से outlined है और 36 और 40 की ऊँचाई पर है, जिसका `required` फ़्लैग कोई निशान नहीं बनाता, और जिसमें न `stacked` वेरिएंट है, न तारीख़ या समय के टाइप, न पिकर बटन और न resize के मोड। उनके उदाहरण वही संशोधन दिखाते हैं।
 :::
 
 <DemoFrame label="Stacked, जो डिफ़ॉल्ट है: एक ज़रूरी फ़ील्ड, और अपने पिकर बटन के साथ एक तारीख़" column>
-  <tanrei-text-field label="ईमेल" type="email" requirement="required" required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।"></tanrei-text-field>
+  <tanrei-text-field label="ईमेल" type="email" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।"></tanrei-text-field>
   <tanrei-text-field label="शुरू होने की तारीख़" type="date" locale="hi-IN" value="2026-09-27" picker picker-label="शुरू होने की तारीख़ चुनें" segment-empty-text="ख़ाली"></tanrei-text-field>
 </DemoFrame>
 
@@ -36,9 +36,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="ईमेल" type="email" autocomplete="email" requirement="required" required-text="ज़रूरी"
+      <tanrei-text-field name="email" label="ईमेल" type="email" autocomplete="email" required required-text="ज़रूरी"
         supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।"></tanrei-text-field>
-      <tanrei-text-field name="company" label="कंपनी" requirement="optional" optional-text="वैकल्पिक"></tanrei-text-field>
+      <tanrei-text-field name="company" label="कंपनी" optional optional-text="वैकल्पिक"></tanrei-text-field>
       <!-- 3 से 8 पंक्तियों तक अपने टेक्स्ट के साथ बढ़ता है, फिर स्क्रॉल होता है। -->
       <tanrei-text-field name="message" label="संदेश" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- ग्रिप से, हाथ से छोटा-बड़ा किया जाता है। -->
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="ज़रूरी"
       error={submitted && !isValid(email)}
       errorText="पूरा ईमेल पता दर्ज करें।"
@@ -205,14 +205,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 वही फ़ील्ड, उसके दोनों सदस्यों से हाथ से लिखा जाए, तो वैसा ही दिखता है, और सहायक तकनीक के लिए वही टेक्स्ट बॉक्स होता है, उसी नाम, विवरण और स्टेट के साथ:
 
 ```html
-<tanrei-field label="ईमेल" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="ईमेल" required required-text="ज़रूरी"
   supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक टेक्स्ट इनपुट है" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" requirement="required" required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -256,9 +256,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="ज़रूरी और वैकल्पिक: टैग, और तारांकन" plain column>
-  <tanrei-text-field label="ईमेल" type="email" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
-  <tanrei-text-field label="कंपनी" requirement="optional" optional-text="वैकल्पिक"></tanrei-text-field>
-  <tanrei-text-field label="ईमेल" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="ईमेल" type="email" required required-text="ज़रूरी"></tanrei-text-field>
+  <tanrei-text-field label="कंपनी" optional optional-text="वैकल्पिक"></tanrei-text-field>
+  <tanrei-text-field label="ईमेल" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="कई पंक्तियाँ: टेक्स्ट के साथ बढ़ने वाला, ग्रिप से छोटा-बड़ा होने वाला (नीचे की ओर, और दोनों दिशाओं में), और स्थिर" plain column>
@@ -296,7 +296,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | पहलू | फ़ील्ड से | टेक्स्ट इनपुट से |
 | --- | --- | --- |
-| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | बाक़ी सभी: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, पंक्तियाँ और resize, `wrap`, `maxLength`, `counter`, प्रीफ़िक्स और सफ़िक्स, `autocomplete`, और तारीख़ या समय की हर चीज़ |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | बाक़ी सभी: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, पंक्तियाँ और resize, `wrap`, `maxLength`, `counter`, प्रीफ़िक्स और सफ़िक्स, `autocomplete`, और तारीख़ या समय की हर चीज़ |
 | इवेंट | — | `input`, `change`, `action`, `pickerRequest`, `entryError` |
 | स्लॉट | `label-icon` | `leading-icon`, `trailing-icon` |
 | टोकन | `comp.field.*` | बॉक्स के लिए `comp.input-box.*`, जिन्हें हर इनपुट बॉक्स पढ़ता है; `comp.text-input.*` उसके लिए जो सिर्फ़ टेक्स्ट इनपुट बनाता है |
@@ -318,12 +318,12 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 - एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-text-input>` है, और कुछ नहीं। एलिमेंट को इंपोर्ट करने से दोनों डिफ़ाइन हो जाते हैं।
 - एलिमेंट एक ब्लॉक है जो अपनी जगह को पूरा भरता है, ब्राउज़र के अपने टेक्स्ट इनपुट जितना चौड़ा इनलाइन बॉक्स नहीं।
-- एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, मान सबमिट करता है (अक्षम रहते कुछ नहीं), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, नेविगेशन पर बहाल होता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और वह ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते। एक पंक्ति वाले फ़ील्ड में Enter एलिमेंट के फ़ॉर्म के डिफ़ॉल्ट बटन को दबाती है; इसे रोकने के लिए `action` को रद्द करें।
+- एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, मान सबमिट करता है (अक्षम रहते कुछ नहीं), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, नेविगेशन पर बहाल होता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `required` सेट है और वह ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते। एक पंक्ति वाले फ़ील्ड में Enter एलिमेंट के फ़ॉर्म के डिफ़ॉल्ट बटन को दबाती है; इसे रोकने के लिए `action` को रद्द करें।
 - `input`, `change`, `action`, `pickerrequest` और `entryerror` टेक्स्ट इनपुट के अपने इवेंट हैं। उनका टार्गेट यही एलिमेंट है, और हर लिसनर में `event.target.value` नया मान होता है। detail के टाइप इनपुट के हैं: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` और `TanreiTextInputEntryErrorDetail`।
 - भाग: `field` और `text-input` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`। `label` और `requirement-label` वे हैं जो दिखाए जाते हैं, उन्हें जो भी सदस्य बनाए; `field-label`, `text-input-label`, `field-requirement-label` और `text-input-requirement-label` सिर्फ़ किसी एक सदस्य के भाग के नाम हैं।
 - एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता और उसका कोई रोल नहीं है: `focus()` इनपुट पर जाता है। लेबल की पंक्ति, बॉक्स या फ़्लोट होते लेबल पर दबाने से फ़ोकस इनपुट पर जाता है। सहायता, त्रुटि टेक्स्ट, गिनती या किसी पंक्ति और बॉक्स के बीच की ख़ाली जगह पर दबाने से कुछ नहीं होता।
 - उसे `label` से नाम दें, और जहाँ लेबल नहीं दिखाना है वहाँ साथ में `label-hidden` दें। उसे `aria-label` से कभी नाम न दें, जो यहाँ किसी चीज़ को नाम नहीं देता।
-- ऐट्रिब्यूट सदस्यों के अपने हैं: kebab-case में, जैसे `supporting-text`, `error-text`, `min-rows` और `no-wrap`, सिवाय `readonly`, `maxlength`, `autocomplete`, `min` और `max` के। `required` ऐट्रिब्यूट नहीं है: `requirement="required"` लिखें।
+- ऐट्रिब्यूट सदस्यों के अपने हैं: kebab-case में, जैसे `supporting-text`, `error-text`, `min-rows` और `no-wrap`, सिवाय `readonly`, `maxlength`, `autocomplete`, `min` और `max` के। `required` ऐट्रिब्यूट नहीं है: `required` लिखें।
 - एलिमेंट के डिफ़ाइन होने से पहले उसका कोई साइज़ नहीं होता। ऊँचाई के लिए जगह रखें।
 
 ## दिशानिर्देश
@@ -354,7 +354,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ### ज़रूरी और वैकल्पिक
 
-`requirement` बताता है कि फ़ॉर्म किसी फ़ील्ड से क्या माँगता है: `none` (डिफ़ॉल्ट), `required` या `optional`। यह तीन मानों वाली एक ही सेटिंग है, क्योंकि कोई फ़ील्ड एक साथ दोनों नहीं होता।
+`required` और `optional` बताते हैं कि फ़ॉर्म किसी फ़ील्ड से क्या माँगता है: `required` कि उसे भरना ज़रूरी है, `optional` कि उसे ख़ाली छोड़ा जा सकता है। कोई फ़ील्ड एक साथ दोनों नहीं होता: दोनों सेट हों तो वह ज़रूरी है।
 
 - **ज़रूरी** सहायक तकनीक को फ़ील्ड ज़रूरी के रूप में देता है और लेबल के बग़ल में ज़रूरी का निशान बनाता है।
 - **वैकल्पिक** वैकल्पिक का टैग बनाता है और उसका टेक्स्ट फ़ील्ड के विवरण में जोड़ता है।
@@ -365,7 +365,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 फ़ॉर्म में दोनों में से उसे चिह्नित करें जो कम हों: जहाँ ज़्यादातर फ़ील्ड ज़रूरी हैं, वहाँ वैकल्पिक फ़ील्ड चिह्नित करें, और जहाँ ज़्यादातर वैकल्पिक हैं, वहाँ ज़रूरी। अगर आप तारांकन इस्तेमाल करते हैं — और filled या outlined फ़ील्ड ज़रूरी फ़ील्ड के लिए हमेशा करता है — तो फ़ॉर्म में, उसके ऊपरी हिस्से के पास, एक बार बताएँ कि उसका क्या मतलब है ("* ज़रूरी"): तारांकन एक परिपाटी है, शब्द नहीं, और हर कोई उसे नहीं जानता।
 
-`requirement` पिछले संशोधन के `required` फ़्लैग की जगह लेता है। वेब पर अब न `required` ऐट्रिब्यूट है, न प्रॉपर्टी: `requirement="required"` लिखें। जो फ़ील्ड पहले ज़रूरी था, वह अब एक निशान भी दिखाता है: जहाँ आपको निशान नहीं चाहिए, वहाँ `requiredMark` को `none` सेट करें।
+ज़रूरी फ़ील्ड एक निशान दिखाता है: जहाँ आपको निशान नहीं चाहिए, वहाँ `requiredMark` को `none` सेट करें।
 
 ### सहायता और त्रुटि का टेक्स्ट
 
@@ -459,7 +459,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - जो स्थिर टेक्स्ट मान का हिस्सा नहीं है, उसे `prefixText` और `suffixText` में रखें: मुद्रा का चिह्न, इकाई।
 - मिटाने या पासवर्ड दिखाने की क्रिया को अंतिम स्लॉट में अपने, सिर्फ़ आइकन वाले Button के रूप में रखें, उसके अपने नाम के साथ। पिकर बटन अकेली क्रिया है जो फ़ील्ड में पहले से बनी है, और वह आपके बटन के बाद आता है।
 - जो टेक्स्ट कई पंक्तियों तक जा सकता है, उसके लिए `multiline` इस्तेमाल करें। डिफ़ॉल्ट रूप से यह `minRows` से `maxRows` तक बढ़ता है, फिर स्क्रॉल होता है।
-- जिन फ़ील्ड को फ़ॉर्म माँगता है, उन पर `requirement` सेट करें, और फ़ॉर्म सबमिट होने पर फिर भी `errorText` में बताएँ कि क्या कमी है।
+- जिन फ़ील्ड को फ़ॉर्म माँगता है, उन पर `required` सेट करें, और फ़ॉर्म सबमिट होने पर फिर भी `errorText` में बताएँ कि क्या कमी है।
 - जिस मान को मशीन पढ़ती है, जैसे पैटर्न, कुंजी या कॉन्फ़िगरेशन का टुकड़ा, उसके लिए `type="code"` इस्तेमाल करें, और लेबल और `supportingText` में बताएँ कि वह क्या होना चाहिए।
 
 ### न करें
@@ -469,7 +469,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - एक फ़ॉर्म में वेरिएंट न मिलाएँ।
 - टेक्स्ट फ़ील्ड को फ़ील्ड के भीतर न रखें। वह पहले से एक फ़ील्ड है; डीबग बिल्ड इसकी रिपोर्ट करता है। फ़ील्ड जिस कंट्रोल को फ़्रेम देता है, वह टेक्स्ट इनपुट है।
 - तारीख़ के लिए `text` फ़ील्ड और अपनी पार्सिंग इस्तेमाल न करें। `date` इस्तेमाल करें, ताकि लोकेल का क्रम, सेगमेंट की कुंजियाँ और एंट्री की त्रुटि उसके साथ मिलें।
-- `requirement` सेट करने के साथ-साथ लेबल में "(ज़रूरी)" भी न लिखें। निशान यह पहले ही कहता है, और स्क्रीन रीडर इसे दो बार सुनाएगा।
+- `required` सेट करने के साथ-साथ लेबल में "(ज़रूरी)" भी न लिखें। निशान यह पहले ही कहता है, और स्क्रीन रीडर इसे दो बार सुनाएगा।
 - हाथ से छोटे-बड़े किए जाने वाले फ़ील्ड को लंबा टेक्स्ट देखने का अकेला तरीक़ा न बनने दें। उसे इतने `minRows` दें कि वह खुलते ही काम का हो।
 - किसी फ़ील्ड को सिर्फ़ ऐसा मान दिखाने के लिए अक्षम न करें जो बदल नहीं सकता। `readOnly` इस्तेमाल करें, ताकि लोग फिर भी उस पर फ़ोकस ला सकें, उसे चुन सकें और कॉपी कर सकें।
 - टेक्स्ट फ़ील्ड पर बाहर से, `::part(input)` या अपने किसी स्टाइल से, कोड का टाइपफ़ेस न लगाएँ, और एलिमेंट में `dir` या `spellcheck` न जोड़ें। `type="code"` इस्तेमाल करें: सिर्फ़ टाइपफ़ेस बदलने से ऐसा फ़ील्ड बनता है जो सही दिखता है, पर टाइप किए गए टेक्स्ट को फिर भी सुधारता रहता है।
@@ -528,7 +528,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - ऐसा लेबल लिखें जो मान का नाम बताए, और उसे छिपाने पर भी बनाए रखें।
 - ऐसा त्रुटि टेक्स्ट लिखें जो बताए कि मान को कैसे ठीक किया जाए, और `error` ख़ुद सेट करें। SwiftUI और React Native पर वही टेक्स्ट त्रुटि के सुनाई देने का अकेला तरीक़ा है। तारीख़ या समय के फ़ील्ड के लिए `invalidText` और `unavailableText` भी लिखें, और `segmentEmptyText` दें: इसके बिना ख़ाली सेगमेंट बिना किसी मान के पढ़ा जाता है।
 - पिकर बटन को उसका `pickerLabel` अपने प्रॉडक्ट की भाषा में दें, और पिकर को `pickerRequest` से खोलें।
-- `requirement` सेट करें, और `requiredText` और `optionalText` दें: फ़ील्ड पर, या `setWords({ requiredText, optionalText })` से पूरे प्रॉडक्ट के लिए एक बार, जैसे `resizeLabel` और `segmentEmptyText` भी दिए जा सकते हैं। वेब पर Tanrei अपना कोई शब्द साथ नहीं देता; छूटे हुए शब्द की डेवलपमेंट में रिपोर्ट होती है। देखें [प्रॉडक्ट के शब्द](/hi/foundations/words/)। जब तक SwiftUI, Compose, Flutter और React Native बराबरी पर नहीं आते, उनके फ़ील्ड कोई निशान नहीं बनाते, और SwiftUI और React Native ज़रूरी स्टेट को पढ़कर नहीं सुनाते: वहाँ लेबल में "ज़रूरी" कहें।
+- `required` या `optional` सेट करें, और `requiredText` और `optionalText` दें: फ़ील्ड पर, या `setWords({ requiredText, optionalText })` से पूरे प्रॉडक्ट के लिए एक बार, जैसे `resizeLabel` और `segmentEmptyText` भी दिए जा सकते हैं। वेब पर Tanrei अपना कोई शब्द साथ नहीं देता; छूटे हुए शब्द की डेवलपमेंट में रिपोर्ट होती है। देखें [प्रॉडक्ट के शब्द](/hi/foundations/words/)। जब तक SwiftUI, Compose, Flutter और React Native बराबरी पर नहीं आते, उनके फ़ील्ड कोई निशान नहीं बनाते, और SwiftUI और React Native ज़रूरी स्टेट को पढ़कर नहीं सुनाते: वहाँ लेबल में "ज़रूरी" कहें।
 - साइज़ बदलने की ग्रिप को `resizeLabel` से नाम दें। इसके बिना ग्रिप दिखती है और काम करती है, पर उसका कोई नाम नहीं होता।
 - इकाई या मुद्रा को मान में नहीं, `prefixText` या `suffixText` में रखें, ताकि वह मान के साथ पढ़ी जाए और टाइप न करनी पड़े।
 - कोड फ़ील्ड के लिए `label` और `supportingText` में बताएँ कि कोड क्या होना चाहिए ("वेबहुक की बॉडी", "JSON"), और `errorText` में बताएँ कि उसमें क्या ग़लत है: फ़ील्ड को भाषा का पता नहीं होता।

@@ -2,7 +2,7 @@
 title: ラジオグループ
 description: すべて見えている少数の選択肢からちょうど 1 つを答える質問を尋ねます。選ばれた値を持つラジオボタンの集まりに、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを与えます。
 translationOf: components/radio-group.mdx
-sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
+sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="radio-group" />
 
 <DemoFrame label="名前、説明、必須の印を持つラジオボタンの集まり" column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" required required-text="必須" value="standard">
     <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
@@ -36,7 +36,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-radio-group label="配送方法" name="delivery" value="standard" requirement="required" required-text="必須"
+    <tanrei-radio-group label="配送方法" name="delivery" value="standard" required required-text="必須"
                         supporting-text="発送されるまで変更できます。">
       <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
       <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
@@ -76,7 +76,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 ```html
 <tanrei-field-group kind="radio-group" label="配送方法"
                     supporting-text="発送されるまで変更できます。"
-                    requirement="required" required-text="必須">
+                    required required-text="必須">
   <tanrei-radio-button name="delivery" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="pickup" label="店舗受け取り"></tanrei-radio-button>
@@ -84,7 +84,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 ```
 
 <DemoFrame label="同じ集まりを自分で書いたもの。kind が radio-group のフィールドグループの中に、同じ名前のラジオボタンがあります" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" supporting-text="発送されるまで変更できます。" required required-text="必須">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="店舗受け取り"></tanrei-radio-button>
@@ -108,12 +108,12 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 ## 仕様
 
 <DemoFrame label="未回答でエラーになった必須の集まり、受け付けられなかった回答、横並び、選択肢の 1 つが無効な集まり" plain column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" requirement="required" required-text="必須" error error-text="配送方法を選んでください。">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" required required-text="必須" error error-text="配送方法を選んでください。">
     <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須" value="express" error error-text="この住所にはお急ぎ便を届けられません。ほかの方法を選んでください。">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" required required-text="必須" value="express" error error-text="この住所にはお急ぎ便を届けられません。ほかの方法を選んでください。">
     <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
@@ -123,7 +123,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
     <tanrei-radio-button value="m" label="中"></tanrei-radio-button>
     <tanrei-radio-button value="l" label="大"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" requirement="optional" optional-text="任意" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" optional optional-text="任意" value="standard">
     <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="お急ぎ便（翌日）" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
@@ -154,7 +154,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 ### Web での描き方の違い
 
 - 要素のシャドウルートにあるのは `<tanrei-field-group kind="radio-group">` で、その中にスロットがあります。ラジオボタンは利用者側の子要素のままです。要素をインポートすると、2 つの構成要素も定義されます。
-- 要素はフォームに関連付けられます。`name` と `form` を受け取り、`value` を `name` で送信します。選ばれているラジオボタンを 1 つだけ無効にしている間も送信します。ラジオボタンは、どんな `name` を持っていても何も送信しません。リセットすると `value` 属性に戻り、無効な `<fieldset>` に従い、`requirement` が `required` で `value` が空の間は、値がないことを報告します。メッセージは、未回答のラジオボタンの集まりに対するブラウザー自身の言葉です。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、`value` を `name` で送信します。選ばれているラジオボタンを 1 つだけ無効にしている間も送信します。ラジオボタンは、どんな `name` を持っていても何も送信しません。リセットすると `value` 属性に戻り、無効な `<fieldset>` に従い、`required` が設定されていて `value` が空の間は、値がないことを報告します。メッセージは、未回答のラジオボタンの集まりに対するブラウザー自身の言葉です。
 - `change` は CustomEvent で、`detail.value` は新しい値です。その前に `input` が発生します。グループの中のラジオボタンに付けたリスナーには、どちらも届きません。
 - パーツ: `field-group` が枠で、そのパーツは 1 つ下の階層と同じ名前です。`label`、`requirement-label`、`supporting-text`、`error-text` です。利用者側のラジオボタンは、ほかの場所と同じく `tanrei-radio-button::part(…)` でスタイルを変えます。
 - 要素そのものはフォーカスを受け取りません。`focus()` はフォーカスが止まる位置にあるラジオボタンに移り、ページの `<label for>` もフォーカスをそこに移します。
@@ -219,7 +219,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 ### コンポーネントが担うこと
 
 - ラジオボタンを含む 1 つのラジオグループになり、描かれていても `labelHidden` で隠されていても `label` を名前とします。
-- `requirement` が `required` の間は必須の状態、`error` が true の間は invalid の状態、`disabled` が true の間は無効の状態を伝え、並びの向きも伝えます。
+- `required` が設定されている間は必須の状態、`error` が true の間は invalid の状態、`disabled` が true の間は無効の状態を伝え、並びの向きも伝えます。
 - グループの説明は、`supportingText`、`error` が true の間の `errorText`、任意である間の `optionalText` の順です。`requiredText` は含みません。必須の状態がそれを伝えるからです。
 - 各ラジオボタンは、集まりの中での位置と集まりの大きさを伝えます。無効な選択肢も数に含みます。
 - フォーカス順の中でフォーカスが止まる位置は 1 つです。選ばれているラジオボタンか、なければ最初の有効なラジオボタンです。Tab はそこからグループに入り、グループを出ます。矢印キーはグループの中を動き、無効な選択肢を飛ばし、両端で折り返します。右から左のレイアウトでは、左矢印と右矢印が入れ替わります。

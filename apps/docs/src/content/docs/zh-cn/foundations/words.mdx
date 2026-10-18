@@ -2,7 +2,7 @@
 title: 文字
 description: Tanrei 不自带任何文字。组件绘制或朗读的每一个标签、名称和消息，都是你的产品的——写在组件上，或者为整个产品只给一次。
 translationOf: foundations/words.mdx
-sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+sourceHash: 7f4c676206d1e892145fdf2bc56bea5f1a35bd75
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
@@ -45,13 +45,13 @@ setWords({
 组件上的属性总是优先于产品的文字：
 
 <DemoFrame label="写在组件自身上的文字：其中一个字段的说法不同" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" required required-text="开具发票需要"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
-<tanrei-text-field label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+<tanrei-text-field label="邮箱" required required-text="必填"></tanrei-text-field>
+<tanrei-text-field label="公司" required required-text="开具发票需要"></tanrei-text-field>
 ```
 
 ## 不止一种语言

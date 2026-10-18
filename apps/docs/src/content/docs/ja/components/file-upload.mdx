@@ -2,7 +2,7 @@
 title: ファイルアップロード
 description: ファイルピッカーでファイルを選ばせ、選ばれたファイルをファイル項目として見せます。縦に並ぶ行にも、タイルの並びにもなります。フォームに置くだけで、選ばれたファイルを保持し、コードなしで送信します。ファイルを自分で送るプロダクトは、ファイル項目を自分で渡します。自身では何もアップロードしません。
 translationOf: components/file-upload.mdx
-sourceHash: d118c016f2b1b562c21b9560e97474dadf543146
+sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -282,7 +282,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 
 | 観点 | ファイルピッカーから | ファイル項目から | ファイルアップロード自身 |
 | --- | --- | --- | --- |
-| プロパティ | `layout`、`multiple`、`accept`、`maxSize`、`constraintsText`、`dropText`、`disabled`、`error`、`required`、`requirement` | `itemForm`、`itemPreview`、`itemFit`、`itemNameHidden`、`itemWidth`、`itemHeight`（項目の `form`、`preview`、`fit`、`nameHidden`、`width`、`height`）、`removeLabel`、`retryLabel` | `rows`、`maxFiles`、`label`、`emptyText`、`typeErrorText`、`sizeErrorText`、`countErrorText`、`announcement` |
+| プロパティ | `layout`、`multiple`、`accept`、`maxSize`、`constraintsText`、`dropText`、`disabled`、`error`、`required` | `itemForm`、`itemPreview`、`itemFit`、`itemNameHidden`、`itemWidth`、`itemHeight`（項目の `form`、`preview`、`fit`、`nameHidden`、`width`、`height`）、`removeLabel`、`retryLabel` | `rows`、`maxFiles`、`label`、`emptyText`、`typeErrorText`、`sizeErrorText`、`countErrorText`、`announcement` |
 | イベント | — | 利用者側が渡したファイル項目の `click`、`remove`、`retry` | `select`、`reject`、`change` |
 | スロット | `trigger`、`icon` | — | 既定のスロット。`rows="given"` のときの、利用者側のファイル項目です |
 | トークン | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`、`comp.list.gap.small` |
@@ -402,7 +402,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 フォームがラベル、補足テキスト、エラー、必須の印を見せる場合は、ファイルアップロードを[フィールド](/ja/components/field/)の中に置きます。フィールドがそれらを描き、ファイルアップロードに渡します。
 
 ```html
-<tanrei-field label="添付ファイル" requirement="required" required-text="必須"
+<tanrei-field label="添付ファイル" required required-text="必須"
               error error-text="10 MB 以下の PDF を選んでください。">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF、10 MB まで" remove-label="{name} を取り除く">

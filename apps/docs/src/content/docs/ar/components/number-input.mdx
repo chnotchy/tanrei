@@ -2,7 +2,7 @@
 title: حقل إدخال العدد
 description: صندوق العدد، يُكتب فيه بالصورة التي تكتبه بها الإعدادات المحلية أو يُغيَّر خطوةً خطوةً بمفتاح أو بزر، ويبقى ضمن حدوده، ووحدته بجانبه، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لعدد تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: 4440835d63a624e721991a89ddf53f1aab154dfc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -99,7 +99,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بحقل إدخال العدد هو حقل عدد مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` والحدود والوحدة على حقل الإدخال.
 
 ```html
-<tanrei-field label="الكمية" requirement="required" required-text="مطلوب"
+<tanrei-field label="الكمية" required required-text="مطلوب"
   supporting-text="حتى 99 في الطلب الواحد.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="أدخِل رقمًا."
     increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="حقل فيه حقل إدخال العدد: الصورة نفسها التي لحقل العدد" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" requirement="required" required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" required required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
     <tanrei-number-input min="1" max="99" invalid-text="أدخِل رقمًا." locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>

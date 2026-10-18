@@ -2,7 +2,7 @@
 title: कलर इनपुट
 description: वह बॉक्स जिसमें लोग एक रंग तय करते हैं — उसका नमूना, टेक्स्ट के रूप में मान जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, और एक बटन जो पिकर माँगता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस पंक्ति या कॉलम के लिए जो रंग का नाम पहले से देता है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: ad2d0318557d3bed35aa338b380bd0579d547fdc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -86,7 +86,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 कलर इनपुट के चारों ओर का फ़ील्ड, हाथ से पूरा लिखा गया कलर फ़ील्ड है। इनपुट का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर बताया जाता है; `name`, `value`, `invalidText` और पिकर इनपुट पर।
 
 ```html
-<tanrei-field label="ब्रैंड का रंग" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="ब्रैंड का रंग" required required-text="ज़रूरी"
   supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।"
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="एक फ़ील्ड जिसके भीतर कलर इनपुट है: वही तस्वीर जो कलर फ़ील्ड की है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" requirement="required" required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" required required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
     <tanrei-color-input value="#0f766e" invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।" picker picker-label="रंग चुनें"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>

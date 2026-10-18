@@ -2,7 +2,7 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 222e3da773560b3e6266645a13820fe9856c0687
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 包住下拉选择框的字段，就是展开写出来的下拉选择字段。下拉选择框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填与否写在字段上；`name`、`value`、选项以及与选择有关的一切写在下拉选择框上。
 
 ```html
-<tanrei-field label="国家/地区" requirement="required" required-text="必填"
+<tanrei-field label="国家/地区" required required-text="必填"
   supporting-text="发票将寄往该国家/地区。">
   <tanrei-select name="country" placeholder="请选择国家/地区">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着下拉选择框的字段：画面与下拉选择字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" supporting-text="发票将寄往该国家/地区。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" supporting-text="发票将寄往该国家/地区。">
     <tanrei-select placeholder="请选择国家/地区">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">肯尼亚</tanrei-option>
@@ -203,7 +203,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `change` 是一个 composed 并且冒泡的事件。`toggle` 是 composed 的，但不冒泡：在下拉选择框上能监听到，在包住它的下拉选择字段上也能监听到，而 `<details>` 这样的祖先元素绝不会收到。
 - 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
 - 浮动标签（`filled`、`outlined`）位于容器内部，所以按下它会打开列表。
-- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
+- `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
 - 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
 - 在元素定义之前，它的选项是页面上的普通文本。请隐藏 `tanrei-select:not(:defined) > *`，并预留高度。
 - Web 没有自己的返回手势，所以 `toggle` 绝不会带有原因 `back`。

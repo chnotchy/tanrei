@@ -2,7 +2,7 @@
 title: 埋め込みテキスト入力欄
 description: ほかのものが描くボックスのための、入力部分だけのコンポーネントです。テキスト、プレースホルダー、キャレット、選択範囲を、1 行か、動きを伴って伸び縮みする複数行で描きます。コンテナも、縁も、ラベルも、フォーカスの表示も描きません。ボックスを描き、フォーカスを示すのは、これを持つ側です。
 translationOf: components/embedded-text-input.mdx
-sourceHash: 13b2ce4a51701cb3cf5cb71342680f533fde65e1
+sourceHash: 76d1b9f628ee2e742794edf21831a03058de05ec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -175,7 +175,7 @@ Web では `<tanrei-embedded-text-input>` です。ほかのプラットフォ�
 ### コンポーネントが担うこと
 
 - テキストボックスです。`multiline` が true の間は複数行のテキストボックスです。名前は `label`、説明は `description` です。
-- 無効な値、必須、読み取り専用、無効の各状態は、それぞれの名前のプロパティから支援技術に伝わります。フィールドと同じ言い方の `requirement="required"` も、`required` と同じく必須にします。
+- 無効な値、必須、読み取り専用、無効の各状態は、それぞれの名前のプロパティから支援技術に伝わります。フィールドと同じ言い方の `required` も、`required` と同じく必須にします。
 - プレースホルダーが名前になることはありません。
 - Tab キーで止まる位置は 1 つです。Tab で文字が入ることはなく、Escape はホルダーに任せます。
 - インプットメソッドの Enter で `action` が発行されることはありません。

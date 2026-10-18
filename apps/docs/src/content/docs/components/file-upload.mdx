@@ -280,7 +280,7 @@ Go one level down when you need an arrangement the file upload does not offer:
 
 | Aspect | From the file picker | From the file item | The file upload's own |
 | --- | --- | --- | --- |
-| Properties | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required`, `requirement` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (the item's `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| Properties | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (the item's `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | Events | — | `click`, `remove`, `retry`, of the file items you give | `select`, `reject`, `change` |
 | Slots | `trigger`, `icon` | — | The default slot: your file items, with `rows="given"` |
 | Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |
@@ -400,7 +400,7 @@ With `rows="given"` each row is a [file item](/components/file-item/) you write,
 Put the file upload in a [field](/components/field/) when the form shows a label, help, an error or a required mark. The field draws them and gives them to the file upload.
 
 ```html
-<tanrei-field label="Attachment" requirement="required" required-text="Required"
+<tanrei-field label="Attachment" required required-text="Required"
               error error-text="Choose a PDF of 10 MB or less.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF, up to 10 MB" remove-label="Remove {name}">

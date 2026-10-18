@@ -2,7 +2,7 @@
 title: Campo
 description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
 translationOf: components/field.mdx
-sourceHash: 2c4ddc96d2f533aabd317c8fc363dd6dd4224c43
+sourceHash: 5a45cc15161f684b118e0019d17767c016d638a9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,8 +16,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field" />
 
 <DemoFrame label="Un control deslizante y un interruptor, cada uno con el nombre, la ayuda y la marca que le da un campo" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" supporting-text="Se aplica a las alertas y al contenido multimedia."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" requirement="optional" optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch selected></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" supporting-text="Se aplica a las alertas y al contenido multimedia."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" optional optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch selected></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, el texto de error ocupa el lugar de la ayuda, de modo que un formulario en error no es más alto que en reposo; un sistema de diseño puede, en cambio, conservar la ayuda y añadir el texto de error debajo de ella.
@@ -31,12 +31,12 @@ En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han impleme
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." requirement="optional" optional-text="Opcional">
+    <tanrei-field label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." optional optional-text="Opcional">
       <tanrei-slider name="volume" value="40"></tanrei-slider>
     </tanrei-field>
 
     <!-- El producto valida; el campo muestra el motivo y marca el control como no válido. -->
-    <tanrei-field label="Volumen" requirement="required" required-text="Obligatorio" error error-text="Elige un nivel superior a 0.">
+    <tanrei-field label="Volumen" required required-text="Obligatorio" error error-text="Elige un nivel superior a 0.">
       <tanrei-slider name="volume" value="0"></tanrei-slider>
     </tanrei-field>
 
@@ -69,10 +69,10 @@ En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han impleme
 ## Especificaciones
 
 <DemoFrame label="Las tres marcas de obligatoriedad, un error, un campo deshabilitado y un glifo en la etiqueta" plain column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="optional" optional-text="Opcional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" error error-text="Elige un nivel superior a 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" optional optional-text="Opcional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" error error-text="Elige un nivel superior a 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
@@ -84,7 +84,7 @@ En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han impleme
 
 <DemoFrame label="Una entrada de texto en un campo: con ayuda y un recuento, y en error" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Nombre visible" supporting-text="Se muestra junto a tus comentarios." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" error error-text="Introduce una dirección de correo completa."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" error error-text="Introduce una dirección de correo completa."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
 </DemoFrame>
 
 ### Alrededor de una entrada de texto
@@ -134,7 +134,7 @@ La regla práctica: si el control tiene una propiedad `supportingText`, no neces
 
 ### Obligatorio y opcional
 
-`requirement` es `none`, `required` u `optional`: un solo ajuste, porque un control nunca es las dos cosas. `required`, el nombre que le da HTML, es lo mismo que `requirement="required"` y gana sobre cualquier otro valor: `<tanrei-field label="Correo" required>`. En React, `required` es una prop, como en un `<input>`.
+`required` y `optional` dicen qué pide el formulario del control. `required`, el nombre que le da HTML, expone el control como obligatorio y dibuja la marca de obligatorio: `<tanrei-field label="Correo" required>`. `optional` dibuja el tag de opcional. Un control nunca es las dos cosas: con ambos es obligatorio, y una compilación de desarrollo avisa de que `optional` se ignora. En React son props, como `required` en un `<input>`.
 
 - `required` expone el control como obligatorio y dibuja la marca de obligatorio junto a la etiqueta.
 - `optional` dibuja un tag discreto y añade su texto a la descripción del control.
@@ -180,7 +180,7 @@ Deshabilita un control enmarcado en el campo, no en el control, para que la etiq
 
 - La etiqueta es el nombre accesible del control, tanto si se dibuja como si se oculta con `labelHidden`. Un control que tiene un nombre propio lo conserva.
 - La descripción del control es lo que muestra la fila de apoyo —la ayuda o, mientras el campo está en error, el texto de error en su lugar (con `append`, la ayuda y después el texto de error)— y después `optionalText` mientras el control es opcional. Van detrás de la descripción que el control ya tenga.
-- El control se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required` y como deshabilitado mientras `disabled` es true. Un control cuyo rol no tiene estado obligatorio, como un control deslizante, dice en su lugar `requiredText` en su descripción.
+- El control se expone como no válido mientras `error` es true, como obligatorio mientras `required` está activado y como deshabilitado mientras `disabled` es true. Un control cuyo rol no tiene estado obligatorio, como un control deslizante, dice en su lugar `requiredText` en su descripción.
 - Un control que tiene un estado de error propio, como una casilla de verificación o un botón de opción, se dibuja en ese estado.
 - Un error que aparece, o cuyas palabras cambian, mientras el foco está dentro del campo se anuncia una vez, de forma cortés: solo el texto de error, sin repetir la ayuda. El foco nunca se mueve por un error.
 - Una pulsación en la etiqueta lleva el foco al control y no lo acciona.

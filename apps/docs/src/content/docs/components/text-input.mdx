@@ -87,14 +87,14 @@ On the web it is `<tanrei-text-input>`. The other platforms have not implemented
 A field around a text input is a text field written out. Leave the input's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value` and everything about typing on the input.
 
 ```html
-<tanrei-field label="Email" requirement="required" required-text="Required"
+<tanrei-field label="Email" required required-text="Required"
   supporting-text="We only use it to sign you in.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="A field with a text input in it: the same picture as a text field" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required" supporting-text="We only use it to sign you in.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

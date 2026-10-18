@@ -2,7 +2,7 @@
 title: "颜色字段"
 description: "让用户把一种颜色作为表单的一个字段来设置——一个可以阅读、键入和粘贴的文本值，文本旁边的颜色样本，以及一个用来唤出选择器的按钮——外观和尺寸与文本字段相同。"
 translationOf: components/color-field.mdx
-sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
+sourceHash: 981991b1662953f8c4505095fbd273de151ef4ba
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```html
     <form>
       <tanrei-color-field name="brand" label="品牌色" value="#0f766e"
-        requirement="required" required-text="必填"
+        required required-text="必填"
         supporting-text="六位十六进制数字，例如 #0f766e。"
         invalid-text="请输入六位十六进制数字，例如 #0f766e。"
         picker picker-label="选择颜色"></tanrei-color-field>
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个文本框，名称、描述和状态都相同：
 
 ```html
-<tanrei-field label="品牌色" requirement="required" required-text="必填"
+<tanrei-field label="品牌色" required required-text="必填"
   supporting-text="六位十六进制数字，例如 #0f766e。">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="请输入六位十六进制数字，例如 #0f766e。"
@@ -89,7 +89,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="手写出来的同一个字段：里面放着一个颜色输入框的字段" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" requirement="required" required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" required required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
     <tanrei-color-input value="#0f766e" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="空的颜色字段、白色、黑色、大号的、禁用的——以及只有方框的颜色输入框，放在为它的颜色命名的一行里" plain column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="强调色" requirement="optional" optional-text="选填"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="强调色" optional optional-text="选填"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="页面背景" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="文本" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" size="large" picker picker-label="选择颜色"></tanrei-color-field>
@@ -120,7 +120,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 部件 | 它是什么 |
 | --- | --- |
 | 标签 | 位于容器上方（`stacked`），这时由字段绘制；或者浮在容器里面（`filled`、`outlined`），这时由颜色输入框绘制。它就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的 |
-| 必填和选填标记 | 位于标签之后：`requirement="required"` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签 |
+| 必填和选填标记 | 位于标签之后：`required` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签 |
 | 色块 | 位于容器起始处的值的样本：一个小方块，用的正是值的颜色，外面有一圈细线。为空时，只有这圈细线。它不是控件 |
 | 输入框 | 以文本形式呈现的值。只有一行，放不下时滚动 |
 | 选择器按钮 | 设置 `picker` 时：末尾的一个纯图标 text 按钮，由 `pickerLabel` 命名 |
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 各个成员提供什么
 
-- **来自字段**：属性 `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText` 和 `optionalText`；插槽 `label-icon`；令牌 `comp.field.*`。
+- **来自字段**：属性 `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText` 和 `optionalText`；插槽 `label-icon`；令牌 `comp.field.*`。
 - **来自颜色输入框**：属性 `variant`、`size`、`value`、`invalidText`、`picker` 和 `pickerLabel`；事件 `input`、`change`、`pickerRequest` 和 `entryError`；令牌方面，方框用 `comp.input-box.*`（每一种输入方框都读取它），色块用 `comp.color-input.*`。
 
 颜色输入框有自己的 `label`、`labelHidden`、`error` 和 `disabled`。颜色字段设置的不是它们：颜色字段的 `label` 是字段的 `label`，它为输入框命名，在 filled 或 outlined 的字段里，浮在方框中的也是它。
@@ -178,7 +178,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### Web 上绘制方式的不同之处
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-color-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
-- 颜色字段是与表单关联的元素。它接受 `name`，并提交 `value`：颜色，或者空字符串。重置时回到 `value` 属性（attribute）的值；在 `requirement="required"` 且 `value` 为空时报告缺少值，在输入错误持续期间报告输入有误。它的两个成员不向表单添加任何条目。
+- 颜色字段是与表单关联的元素。它接受 `name`，并提交 `value`：颜色，或者空字符串。重置时回到 `value` 属性（attribute）的值；在 `required` 且 `value` 为空时报告缺少值，在输入错误持续期间报告输入有误。它的两个成员不向表单添加任何条目。
 - `value` 始终是颜色输入框的值：设为 `0F766E` 的值读回来是 `#0f766e`，不是颜色的值读回来是空字符串。
 - `input` 和 `change` 是普通事件：从元素上读取 `value`。`pickerrequest` 和 `entryerror` 是 CustomEvent，前者带有 `detail.value`，后者带有 `detail.text` 和 `detail.message`。它们是颜色输入框自己的事件，以这个元素为目标。`detail.message` 是 `invalidText`，你没有提供时为空——字段在它的位置显示 `errorText` 时也是如此。
 - 部件：`field` 和 `color-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`swatch`、`input`、`picker-button`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`color-input-label`、`field-requirement-label` 和 `color-input-requirement-label` 指的是某一个成员的。
@@ -214,7 +214,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 避免
 
 - 不要只靠色块来说明颜色。值是文本；分辨不出两个样本的用户，读到的是两个不同的值。
-- 不要把空的 `value` 本身当作错误。`requirement` 从不做校验。
+- 不要把空的 `value` 本身当作错误。`required` 从不做校验。
 - 不要在用户键入时设置 `aria-invalid` 或 `error`。请等到 `change` 或 `entryerror`。
 - 不要把颜色字段放进字段。它已经是一个字段；字段框住的控件是[颜色输入框](/zh-cn/components/color-input/)。
 
@@ -226,7 +226,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 输入框是一个文本框。它的名称是 `label`，无论是画出来的还是隐藏的；它的值是它显示的文本。
 - 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
-- `error` 为 true 或输入错误持续期间，它暴露为无效；`requirement` 为 `required` 时，暴露为必填。
+- `error` 为 true 或输入错误持续期间，它暴露为无效；设置了 `required` 时，暴露为必填。
 - 字段获得焦点期间出现的错误，会以礼貌（polite）的方式朗读一次。它绝不会把焦点夺走。
 - 色块是装饰性的，并且对辅助技术隐藏：说明颜色的是值的文本。
 - 选择器按钮是一个独立的按钮，由 `pickerLabel` 命名，暴露为会打开一个对话框。它是输入框之后的一个焦点停靠点。交给字段本身的焦点，总是落到输入框上。

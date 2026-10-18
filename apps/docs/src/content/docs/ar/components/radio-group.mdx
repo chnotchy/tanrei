@@ -2,7 +2,7 @@
 title: مجموعة أزرار الاختيار
 description: "تطرح سؤالًا واحدًا له جواب واحد بالضبط من بين خيارات قليلة معروضة كلها دفعة واحدة: مجموعة من أزرار الاختيار تحمل القيمة المختارة، تحت تسمية تستطيع أن تقول إن الجواب مطلوب أو اختياري، مع وصف وخطأ واحد للمجموعة."
 translationOf: components/radio-group.mdx
-sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
+sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="radio-group" />
 
 <DemoFrame label="مجموعة من أزرار الاختيار لها اسم ووصف ووسم المطلوب" column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." requirement="required" required-text="مطلوب" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." required required-text="مطلوب" value="standard">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-radio-group label="التوصيل" name="delivery" value="standard" requirement="required" required-text="مطلوب"
+    <tanrei-radio-group label="التوصيل" name="delivery" value="standard" required required-text="مطلوب"
                         supporting-text="يمكنك تغييره إلى أن يُشحن الطلب.">
       <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
       <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
@@ -76,7 +76,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```html
 <tanrei-field-group kind="radio-group" label="التوصيل"
                     supporting-text="يمكنك تغييره إلى أن يُشحن الطلب."
-                    requirement="required" required-text="مطلوب">
+                    required required-text="مطلوب">
   <tanrei-radio-button name="delivery" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول نوعها radio-group، بداخلها أزرار اختيار لها اسم واحد" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." requirement="required" required-text="مطلوب">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." required required-text="مطلوب">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
@@ -108,12 +108,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="مجموعة مطلوبة بلا جواب في حالة خطأ، وجواب مرفوض، وترتيب في صف، ومجموعة فيها خيار معطَّل" plain column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" requirement="required" required-text="مطلوب" error error-text="اختر طريقة وصول الطلب إليك.">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" required required-text="مطلوب" error error-text="اختر طريقة وصول الطلب إليك.">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." requirement="required" required-text="مطلوب" value="express" error error-text="التوصيل السريع لا يصل إلى هذا العنوان. اختر طريقة أخرى.">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." required required-text="مطلوب" value="express" error error-text="التوصيل السريع لا يصل إلى هذا العنوان. اختر طريقة أخرى.">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
@@ -123,7 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="m" label="متوسط"></tanrei-radio-button>
     <tanrei-radio-button value="l" label="كبير"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" requirement="optional" optional-text="اختياري" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" optional optional-text="اختياري" value="standard">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يرسمه الويب بطريقة مختلفة
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field-group kind="radio-group">` حول منفذ. وأزرار الاختيار تبقى عناصرك الفرعية أنت. واستيراد العنصر يعرّف العضوين كليهما.
-- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل `value` تحت الاسم `name`، حتى حين يكون زر الاختيار المحدَّد زرًّا عطّلته أنت بمفرده. وأزرار الاختيار فيه لا ترسل شيئًا، أيًّا كان `name` الذي تحمله. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` و `value` فارغة، بكلمات المتصفح نفسه لمجموعة أزرار اختيار بلا جواب.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل `value` تحت الاسم `name`، حتى حين يكون زر الاختيار المحدَّد زرًّا عطّلته أنت بمفرده. وأزرار الاختيار فيه لا ترسل شيئًا، أيًّا كان `name` الذي تحمله. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة و `value` فارغة، بكلمات المتصفح نفسه لمجموعة أزرار اختيار بلا جواب.
 - الحدث `change` هو CustomEvent قيمته الجديدة في `detail.value`؛ ويصدر الحدث `input` قبله. والمستمع الموضوع على زر اختيار داخل المجموعة لا يسمع أيًّا منهما.
 - الأجزاء: `field-group` هو الإطار، ولأجزائه هنا الأسماء نفسها التي لها في المستوى الأدنى: `label`، `requirement-label`، `supporting-text`، `error-text`. وأزرار الاختيار التي من عندك تُنسَّق كما تُنسَّق في أي مكان، بالمحدِّد `tanrei-radio-button::part(…)`.
 - العنصر نفسه غير قابل للتركيز. فالدالة `focus()` تذهب إلى زر الاختيار الذي هو موضع التوقف، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليه.
@@ -219,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يتكفل به المكوّن
 
 - مجموعة أزرار اختيار واحدة (radio group) تحتوي أزرار الاختيار التي لها، وتسمّيها الخاصية `label`، سواء رُسمت أم أُخفيت بالخاصية `labelHidden`.
-- حالة المطلوب ما دامت `requirement` بالقيمة `required`، وحالة عدم الصلاحية ما دامت `error` بالقيمة true، وحالة التعطيل ما دامت `disabled` بالقيمة true، واتجاهها.
+- حالة المطلوب ما دامت `required` معيَّنة، وحالة عدم الصلاحية ما دامت `error` بالقيمة true، وحالة التعطيل ما دامت `disabled` بالقيمة true، واتجاهها.
 - وصف المجموعة هو `supportingText`، ثم `errorText` ما دامت `error` بالقيمة true، ثم `optionalText` ما دامت المجموعة اختيارية. وليس `requiredText` جزءًا منه: فحالة المطلوب تقوله.
 - كل زر اختيار يقول موضعه في المجموعة وحجم المجموعة، والخيارات المعطَّلة محسوبة فيهما.
 - موضع توقف واحد في ترتيب التركيز: زر الاختيار المحدَّد، أو أول زر مفعَّل. المفتاح Tab يدخل المجموعة من هناك ويغادرها؛ ومفاتيح الأسهم تنتقل داخلها، وتتخطى الخيار المعطَّل، وتلتفّ عند الطرفين. وفي تخطيط من اليمين إلى اليسار يتبادل مفتاحا السهم لليسار والسهم لليمين.

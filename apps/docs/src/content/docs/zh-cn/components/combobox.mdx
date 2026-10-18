@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: 0036a2e2d6adcc27e14238bed33c7142cb819547
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用字段包住一个组合框，就是把组合框字段拆开来写。组合框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value`、选项以及与键入有关的一切写在组合框上。
 
 ```html
-<tanrei-field label="城市" requirement="required" required-text="必填"
+<tanrei-field label="城市" required required-text="必填"
   supporting-text="订单将寄往该城市。">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">京都</tanrei-option>
@@ -114,7 +114,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着一个组合框的字段：画面与组合框字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
     <tanrei-combobox value="tokyo" empty-text="无匹配项">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">东京</tanrei-option>
@@ -212,7 +212,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 不要把占位符当作标签。一有人键入它就消失，而且它绝不是名称。
 - 不要在字段里的组合框上设置 `label`、`error` 或 `disabled`。把它们写在字段上，标签和帮助文本才会随之变化。
 - 不要把组合框字段放进字段。它本身已经是字段；字段框住的控件是组合框。
-- 不要在组合框上写 `supporting-text`、`error-text` 或 `requirement`。它们是字段的，组合框一样都不绘制。
+- 不要在组合框上写 `supporting-text`、`error-text`、`required` 或 `optional`。它们是字段的，组合框一样都不绘制。
 
 ## 无障碍
 

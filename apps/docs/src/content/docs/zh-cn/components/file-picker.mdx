@@ -2,7 +2,7 @@
 title: "文件选择器"
 description: "让用户通过平台自己的选择器来选择文件：可以从一个按钮打开，在位置足够的地方还可以把文件拖到一块区域上。它在选择之前用文字说明限制，对选中的内容作出判定，再把它接受的文件和它拒绝的文件交给你的产品。它什么都不保留，什么都不列出，也不参与表单。"
 translationOf: components/file-picker.mdx
-sourceHash: de095054fad6a0c2deea908e38234f4b999c891f
+sourceHash: 4f3f6da463b5d8396152d5b2742a5a3b15760e48
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -169,7 +169,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 表单要显示标签、帮助文本、错误或必填标记时，把文件选择器放进[字段](/zh-cn/components/field/)。字段绘制它们，并把它们交给文件选择器，文件选择器的触发器随即由它们命名和描述。
 
 ```html
-<tanrei-field label="附件" requirement="required" required-text="必填"
+<tanrei-field label="附件" required required-text="必填"
               error error-text="请选择不超过 10 MB 的 PDF。">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="PDF，不超过 10 MB" selection-text="未选择文件">
@@ -178,7 +178,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 </tanrei-field>
 ```
 
-文件选择器不提交任何东西。它没有 `name`，也没有值，`required` 只是告知辅助技术。是否缺少文件，要由保留文件的组件来说：你的代码，或者[文件上传](/zh-cn/components/file-upload/)，后者是一个表单控件。`requirement="required"`（字段的说法）与 `required` 相同。
+文件选择器不提交任何东西。它没有 `name`，也没有值，`required` 只是告知辅助技术。是否缺少文件，要由保留文件的组件来说：你的代码，或者[文件上传](/zh-cn/components/file-upload/)，后者是一个表单控件。`required`（字段的说法）与 `required` 相同。
 
 ### 从右到左
 

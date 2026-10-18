@@ -2,7 +2,7 @@
 title: Grupo de botones de opción
 description: Hace una pregunta que tiene exactamente una respuesta entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de botones de opción que guarda el valor elegido, bajo una etiqueta que puede decir si la respuesta es obligatoria u opcional, con una descripción y un único error para el conjunto.
 translationOf: components/radio-group.mdx
-sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
+sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="radio-group" />
 
 <DemoFrame label="Un conjunto de botones de opción con un nombre, una descripción y una marca de obligatoriedad" column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." required required-text="Obligatorio" value="standard">
     <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
@@ -36,7 +36,7 @@ En la web es `<tanrei-radio-group>`. Las demás plataformas todavía no lo han i
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-radio-group label="Entrega" name="delivery" value="standard" requirement="required" required-text="Obligatorio"
+    <tanrei-radio-group label="Entrega" name="delivery" value="standard" required required-text="Obligatorio"
                         supporting-text="Puedes cambiarla hasta que se envíe el pedido.">
       <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
       <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
@@ -76,7 +76,7 @@ El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el 
 ```html
 <tanrei-field-group kind="radio-group" label="Entrega"
                     supporting-text="Puedes cambiarla hasta que se envíe el pedido."
-                    requirement="required" required-text="Obligatorio">
+                    required required-text="Obligatorio">
   <tanrei-radio-button name="delivery" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="pickup" label="Recogida en tienda"></tanrei-radio-button>
@@ -84,7 +84,7 @@ El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el 
 ```
 
 <DemoFrame label="El mismo conjunto escrito a mano: un grupo de campos cuyo tipo es radio-group, con botones de opción de un mismo nombre dentro" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." required required-text="Obligatorio">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="Recogida en tienda"></tanrei-radio-button>
@@ -108,12 +108,12 @@ Escribe a mano el grupo de campos y los botones de opción donde el conjunto con
 ## Especificaciones
 
 <DemoFrame label="Un conjunto obligatorio sin responder y en error, una respuesta rechazada, una fila y un conjunto con una opción deshabilitada" plain column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" requirement="required" required-text="Obligatorio" error error-text="Elige cómo quieres recibir el pedido.">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" required required-text="Obligatorio" error error-text="Elige cómo quieres recibir el pedido.">
     <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio" value="express" error error-text="La entrega exprés no llega a esta dirección. Elige otra forma de entrega.">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." required required-text="Obligatorio" value="express" error error-text="La entrega exprés no llega a esta dirección. Elige otra forma de entrega.">
     <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
@@ -123,7 +123,7 @@ Escribe a mano el grupo de campos y los botones de opción donde el conjunto con
     <tanrei-radio-button value="m" label="Mediano"></tanrei-radio-button>
     <tanrei-radio-button value="l" label="Grande"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" requirement="optional" optional-text="Opcional" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" optional optional-text="Opcional" value="standard">
     <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Exprés, al día siguiente" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
@@ -154,7 +154,7 @@ Un sistema de diseño da estilo al marco una sola vez, para todos los grupos de 
 ### Qué dibuja la web de otra manera
 
 - El shadow root del elemento contiene un `<tanrei-field-group kind="radio-group">` alrededor de un slot. Los botones de opción siguen siendo tus propios hijos. Importar el elemento define los dos miembros.
-- El elemento está asociado a formularios. Recibe `name` y `form`, y envía `value` con el nombre `name`, también mientras el botón de opción seleccionado es uno que has deshabilitado por separado. Sus botones de opción no envían nada, lleven el `name` que lleven. Se restablece al valor de su atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y `value` está vacío, con las palabras propias del navegador para un conjunto de botones de opción sin responder.
+- El elemento está asociado a formularios. Recibe `name` y `form`, y envía `value` con el nombre `name`, también mientras el botón de opción seleccionado es uno que has deshabilitado por separado. Sus botones de opción no envían nada, lleven el `name` que lleven. Se restablece al valor de su atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y `value` está vacío, con las palabras propias del navegador para un conjunto de botones de opción sin responder.
 - `change` es un CustomEvent cuyo `detail.value` es el nuevo valor; antes de él se emite `input`. Un listener en un botón de opción dentro del grupo no oye ninguno de los dos.
 - Partes: `field-group` es el marco, y sus partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `requirement-label`, `supporting-text`, `error-text`. A tus propios botones de opción se les da estilo como en cualquier otro lugar, con `tanrei-radio-button::part(…)`.
 - El elemento no puede recibir el foco por sí mismo. `focus()` va al botón de opción que es la parada, y un `<label for>` propio de la página lleva el foco allí.
@@ -219,7 +219,7 @@ Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable
 ### De qué se encarga el componente
 
 - Un solo grupo de botones de opción que contiene sus botones de opción y recibe su nombre de `label`, tanto si se dibuja como si se oculta con `labelHidden`.
-- El estado obligatorio mientras `requirement` es `required`, el estado no válido mientras `error` es true, el estado deshabilitado mientras `disabled` es true, y su orientación.
+- El estado obligatorio mientras `required` está activado, el estado no válido mientras `error` es true, el estado deshabilitado mientras `disabled` es true, y su orientación.
 - La descripción del grupo es `supportingText`, después `errorText` mientras `error` es true y después `optionalText` mientras es opcional. `requiredText` no forma parte de ella: lo dice el estado obligatorio.
 - Cada botón de opción dice su posición en el conjunto y el tamaño del conjunto, contando las opciones deshabilitadas.
 - Una sola parada en el orden del foco: el botón de opción seleccionado o, si no hay ninguno, el primero habilitado. Tab entra en el grupo por ahí y sale de él; las teclas de flecha se mueven dentro del grupo, se saltan una opción deshabilitada y dan la vuelta en los dos extremos. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.

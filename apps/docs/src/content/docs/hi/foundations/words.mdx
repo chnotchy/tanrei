@@ -2,7 +2,7 @@
 title: शब्द
 description: Tanrei अपना कोई शब्द साथ नहीं देता। कंपोनेंट जो भी लेबल, नाम और संदेश दिखाता या कहता है, वह आपके प्रॉडक्ट का है, जो कंपोनेंट पर दिया जाता है, या पूरे प्रॉडक्ट के लिए एक बार।
 translationOf: foundations/words.mdx
-sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+sourceHash: 7f4c676206d1e892145fdf2bc56bea5f1a35bd75
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
@@ -45,13 +45,13 @@ setWords({
 किसी एक कंपोनेंट पर लिखा ऐट्रिब्यूट आपके प्रॉडक्ट के शब्दों पर हमेशा जीतता है:
 
 <DemoFrame label="ख़ुद कंपोनेंट पर लिखा शब्द: एक फ़ील्ड इसे अलग ढंग से कहता है" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="कंपनी" requirement="required" required-text="इनवॉइस के लिए ज़रूरी"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="कंपनी" required required-text="इनवॉइस के लिए ज़रूरी"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="ईमेल" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
-<tanrei-text-field label="कंपनी" requirement="required" required-text="इनवॉइस के लिए ज़रूरी"></tanrei-text-field>
+<tanrei-text-field label="ईमेल" required required-text="ज़रूरी"></tanrei-text-field>
+<tanrei-text-field label="कंपनी" required required-text="इनवॉइस के लिए ज़रूरी"></tanrei-text-field>
 ```
 
 ## एक से ज़्यादा भाषाएँ

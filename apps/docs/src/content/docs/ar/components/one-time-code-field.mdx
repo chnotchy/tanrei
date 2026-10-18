@@ -2,7 +2,7 @@
 title: حقل الرمز لمرة واحدة
 description: يطلب رمزًا قصيرًا أُرسل إلى الشخص في حقل واحد كامل، فيه الخانات تحت تسمية ومعها سطر مساعدة والكلمات التي تقول إن الرمز خاطئ، وكلها مترابطة عند التقنيات المساعدة، ويشارك في النموذج بوصفه عنصر تحكم واحدًا.
 translationOf: components/one-time-code-field.mdx
-sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-one-time-code-field name="code" label="رمز التحقق"
         supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك."
         error-text="الرمز غير صحيح. تحقق من الرسالة وحاول مرة أخرى."
-        requirement="required" required-text="مطلوب"
+        required required-text="مطلوب"
         group-size="3"></tanrei-one-time-code-field>
     </form>
 
@@ -105,8 +105,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="مطلوب بكلمة المنتج، واختياري، ومعطَّل، ورمز محجوب من أربع خانات" plain column>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" requirement="required" required-text="مطلوب" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3"></tanrei-one-time-code-field>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الرمز الاحتياطي" requirement="optional" optional-text="اختياري" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" required required-text="مطلوب" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الرمز الاحتياطي" optional optional-text="اختياري" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" disabled supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الرقم السري الوارد في الخطاب" length="4" mask value="4821"></tanrei-one-time-code-field>
 </DemoFrame>
@@ -115,7 +115,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من الحقل | من حقل إدخال الرمز لمرة واحدة |
 | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `value`، `length`، `type`، `groupSize`، `mask`، `readOnly` |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `value`، `length`، `type`، `groupSize`، `mask`، `readOnly` |
 | الأحداث | — | `input`، `change`، `complete`، `action` |
 | المنافذ (slots) | `label-icon` | — |
 | رموز التصميم | `comp.field.*` | `comp.one-time-code-input.*` |
@@ -138,7 +138,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يرسمه الويب بطريقة مختلفة
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-one-time-code-input>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
-- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل الرمز وحده، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في الخانات يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل الرمز وحده، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في الخانات يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
 - الأحداث `input` و `change` و `complete` و `action` هي أحداث حقل إدخال الرمز لمرة واحدة، من النوع CustomEvent ومعها `detail.value`. وهدفها هو العنصر، و `event.target.value` هي الرمز في كل مستمع.
 - الأجزاء: `field` و `one-time-code-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label`، `label-icon`، `requirement-label`، `supporting-text`؛ `input`، `cell`، `character`، `caret`، `separator`.
 - العنصر نفسه غير قابل للتركيز: فالدالة `focus()` تذهب إلى الخانات، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليها. وخاصية HTML `autofocus` على العنصر تنقل التركيز إلى الخانات حين يُرسم أول مرة، إلا إذا كان التركيز على شيء آخر.
@@ -172,7 +172,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يتكفل به المكوّن
 
 - هو مربع نص واحد، هو مربع حقل إدخال الرمز لمرة واحدة. اسمه `label`، مرسومةً كانت أو غير مرسومة؛ ووصفه النص المساعد أو نص الخطأ المعروض، ومعه نص الاختياري ما دام الحقل اختياريًّا.
-- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`، وعلى أنه معطَّل ما دامت `disabled` بالقيمة true، وعلى أنه للقراءة فقط ما دامت `readOnly` بالقيمة true، وعلى أنه حقل كلمة مرور ما دامت `mask` بالقيمة true.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `required` معيَّنة، وعلى أنه معطَّل ما دامت `disabled` بالقيمة true، وعلى أنه للقراءة فقط ما دامت `readOnly` بالقيمة true، وعلى أنه حقل كلمة مرور ما دامت `mask` بالقيمة true.
 - الاسم والوصف والحالات مربوطة به تمامًا كما يربطها الحقل بأي عنصر تحكم يؤطّره. والحقل المكتوب باليد، في المستوى الأدنى، هو مربع النص نفسه.
 - التسمية المرسومة، وعلامة المطلوب أو الاختياري، والخانات، ومؤشر الكتابة (caret)، وعلامات المجموعات لا تُعرَض للتقنيات المساعدة مرة ثانية.
 - هو موضع توقف واحد للمفتاح Tab. والضغط على التسمية ينقل التركيز إلى الخانات ولا يشغّل شيئًا؛ والضغط على المساعدة لا يفعل شيئًا.
@@ -186,5 +186,5 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - أعطِ `label` دائمًا، بالكلمات التي يستخدمها الشخص للرمز.
 - قل بالكلمات ما المنتظر: كم حرفًا، وإلى أين أُرسل الرمز. فالخانات لا تُظهر الطول إلا لمن يراها.
-- قل إن الرمز خاطئ أو منتهي الصلاحية أو مطلوب بالخصائص `errorText` و `supportingText` و `requirement`. واللون ليس الدليل الوحيد أبدًا.
+- قل إن الرمز خاطئ أو منتهي الصلاحية أو مطلوب بالخصائص `errorText` و `supportingText` و `required`. واللون ليس الدليل الوحيد أبدًا.
 - حيث يكون وقت إدخال الرمز محدودًا، قل ذلك، وأتِح للشخص أن يطلب وقتًا إضافيًّا أو رمزًا جديدًا.

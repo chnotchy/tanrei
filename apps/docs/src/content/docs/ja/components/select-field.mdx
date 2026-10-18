@@ -2,7 +2,7 @@
 title: セレクトフィールド
 description: 決まったリストの中から 1 つの値を、完成した 1 つのフォームのフィールドとして選べるようにします。必須または任意であることを伝えられるラベル、選ばれているオプションを表示してオプションのリストを開くトリガー、下に置く補足またはエラーの 1 行から成り、支援技術に対して 1 つにまとめられ、フォームには 1 つのコントロールとして加わります。
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: 6a6f082facd8df680cd2fcc9423d36abeb1057a6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="select-field" />
 
 <DemoFrame label="必須のセレクトフィールドと、グループに分けてフィールドを表すグリフを置いたもの" column>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" requirement="required" required-text="必須" placeholder="国を選択" supporting-text="請求書の宛先になります。">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" placeholder="国を選択" supporting-text="請求書の宛先になります。">
     <tanrei-option value="ca">カナダ</tanrei-option>
     <tanrei-option value="fr">フランス</tanrei-option>
     <tanrei-option value="jp">日本</tanrei-option>
@@ -46,7 +46,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-select-field name="country" label="国" value="jp" requirement="required" required-text="必須"
+      <tanrei-select-field name="country" label="国" value="jp" required required-text="必須"
         supporting-text="請求書の宛先になります。">
         <tanrei-option value="ca">カナダ</tanrei-option>
         <tanrei-option value="jp">日本</tanrei-option>
@@ -82,7 +82,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
     ```tsx
     import { Option, SelectField } from '@tanrei/react';
 
-    <SelectField label="国" value={country} requirement="required" requiredText="必須" onChange={(event) => setCountry(event.currentTarget.value)}>
+    <SelectField label="国" value={country} required requiredText="必須" onChange={(event) => setCountry(event.currentTarget.value)}>
       <Option value="ca">カナダ</Option>
       <Option value="jp">日本</Option>
     </SelectField>
@@ -95,7 +95,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても同じコントロールになります。
 
 ```html
-<tanrei-field label="国" requirement="required" required-text="必須"
+<tanrei-field label="国" required required-text="必須"
   supporting-text="請求書の宛先になります。">
   <tanrei-select name="country" placeholder="国を選択">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -105,7 +105,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 ```
 
 <DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にセレクトがあります" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" requirement="required" required-text="必須" supporting-text="請求書の宛先になります。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" supporting-text="請求書の宛先になります。">
     <tanrei-select placeholder="国を選択">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">ケニア</tanrei-option>
@@ -132,7 +132,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
     <tanrei-option value="team" supporting-text="プロジェクト無制限、ロールの共有">チーム</tanrei-option>
     <tanrei-option value="enterprise" supporting-text="シングルサインオンと監査ログ" disabled>エンタープライズ</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="地域" requirement="optional" optional-text="任意" placeholder="指定なし">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="地域" optional optional-text="任意" placeholder="指定なし">
     <tanrei-option value="emea">ヨーロッパ、中東、アフリカ</tanrei-option><tanrei-option value="apac">アジア太平洋</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" value="ke" error error-text="この国にはまだ発送できません。別の国を選んでください。">
@@ -150,7 +150,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="国" value="jp" supporting-text="請求書の宛先になります。">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国" requirement="required" required-text="必須">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国" required required-text="必須">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select-field>
 </DemoFrame>
@@ -159,7 +159,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 
 | 観点 | フィールドから | セレクトから |
 | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation` |
 | イベント | — | `change`、`toggle` |
 | スロット | `label-icon` | `leading-icon` と、オプション |
 | トークン | `comp.field.*` | ボックスは `comp.input-box.*`（すべての入力ボックスが読みます）。リストは `comp.select.*` |
@@ -185,7 +185,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 
 - 要素のシャドウルートにあるのは、`<tanrei-select>` を入れた `<tanrei-field>` だけです。要素をインポートすると、2 つとも定義されます。
 - オプションは、`<tanrei-select-field>` の子のままです。移動も複製もされません。スロットを通して中のセレクトに届き、変わるたびにセレクトが読み直します。`replaceChildren()` で入れ替えても、セレクトのときと同じように動きます。
-- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値だけを送信します（無効の間は何も送信せず、読み取り専用の間は送信します）。リセットすると `value` 属性の値に戻り、無効な `<fieldset>` に従い、`requirement` が `required` で値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値だけを送信します（無効の間は何も送信せず、読み取り専用の間は送信します）。リセットすると `value` 属性の値に戻り、無効な `<fieldset>` に従い、`required` が設定されていて値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。
 - `change` は、composed でバブルする、セレクトのイベントです。`toggle` は、`detail.open` と `detail.reason` を持つ、セレクトの CustomEvent です。composed ですがバブルしないので、この要素では受け取れますが、`<details>` のような祖先には届きません。イベントのターゲットはこの要素で、どのリスナーでも `event.target.value` と `event.target.open` は新しい値です。
 - パーツ: `field` と `select` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text` と、`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider` です。`label` と `requirement-label` は、2 つのうち描かれているほう（フィールドの行か、セレクトの浮き上がるラベル）を指します。`field-label`、`select-label`、`field-requirement-label`、`select-requirement-label` は、どちらか一方だけを指します。
 - 要素そのものはフォーカスを受け取りません。`focus()` はトリガーに移り、ページの `<label for>` もフォーカスをトリガーに移します。ラベルの行を押すと、トリガーにフォーカスが移るだけで、何も開きません。トリガーを押すとリストが開き、補足を押しても何も起こりません。
@@ -219,7 +219,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 ### コンポーネントが担うこと
 
 - 1 つの、編集できないコンボボックスです。これはセレクトのものです。名前は `label` で、描かれていてもいなくても変わりません。説明は、表示している補足テキストまたはエラーテキストで、フィールドが任意の間は任意であることを伝えるテキストも加わります。
-- `error` が true の間は invalid であることを、`requirement` が `required` の間は必須であることを、`disabled` が true の間は無効であることを、`readOnly` が true の間は読み取り専用であることを、リストが開いている間は展開されていることを伝えます。
+- `error` が true の間は invalid であることを、`required` が設定されている間は必須であることを、`disabled` が true の間は無効であることを、`readOnly` が true の間は読み取り専用であることを、リストが開いている間は展開されていることを伝えます。
 - 名前、説明、状態は、フィールドが囲んだコントロールに結び付けるのとまったく同じ方法で結び付けられます。1 つ下の階層で自分で書いたフィールドも、同じコントロールになります。
 - 描かれたラベル、必須・任意の印、グリフが、もう一度伝わることはありません。
 - Tab キーで止まる位置は 1 つです。ラベルを押すとトリガーにフォーカスが移り、何も開きません。補足を押しても何も起こりません。
