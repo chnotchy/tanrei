@@ -1696,6 +1696,20 @@
       "react": {
         "name": "Swatch"
       }
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-handle",
+        "module": "@tanrei/web/components/handle"
+      },
+      "react": {
+        "name": "Handle"
+      }
     }
   ]
 }

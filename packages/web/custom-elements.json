@@ -20462,6 +20462,413 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/handle/handle.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium']"
+          },
+          "default": "['small', 'medium']",
+          "description": "The values every design system has. A layer may add more; those get their styles on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES_OF_RESIZE",
+          "type": {
+            "text": "['vertical', 'horizontal', 'both']"
+          },
+          "default": "['vertical', 'horizontal', 'both']",
+          "description": "The axes and the corners the component defines (HDL-20: anything else is drawn as the first)."
+        },
+        {
+          "kind": "variable",
+          "name": "CORNERS",
+          "type": {
+            "text": "['bottom-end', 'bottom-start', 'top-end', 'top-start']"
+          },
+          "default": "['bottom-end', 'bottom-start', 'top-end', 'top-start']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[{ name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-length-${value}` }]",
+          "description": "HDL-20: a size a layer added gets its block on demand; one the active system lacks is drawn as medium and reported."
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES_OF_RESIZE",
+          "declaration": {
+            "name": "AXES_OF_RESIZE",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CORNERS",
+          "declaration": {
+            "name": "CORNERS",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/handle/handle.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/handle/handle.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text\nfield's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that\nbows toward its corner.\n\nContract: specs/handle.spec.json. It never sizes anything itself: it tells its owner how far it was dragged\n(`resizestart`, `resize`, `resizeend`), which step a key asked for (`step`) and that it was pressed without a drag\n(`activate`); the owner keeps the size and gives it back as `value`, which assistive technology reads. With a `value`\nit is a focusable separator (the window splitter pattern); without one, a button, with `expanded` where the owner has\ntwo sizes. Every visual value comes from `--tanrei-comp-handle-*` tokens.\n\nOut of sight until it is used (HDL-23): drawn while a mouse is over it, while it has keyboard focus and while a press\nor a drag holds it, and always on a touch screen (HDL-25) or with `revealed`. It is one Tab stop all the same.\n\nA press takes no focus and selects nothing, so a field keeps its caret while its handle is dragged. The drag follows\nthe pointer anywhere (pointer capture); an owner that holds an iframe sets `pointer-events: none` on it between\n`resizestart` and `resizeend`, or the iframe takes the pointer as it passes over it. The events bubble within the\ntree the handle stands in and do not leave a shadow root: an element that puts a handle in its own shadow root hears\nthem on the handle and says what it means in its own events.\n\nAssistive technology's increment and decrement (HDL-10) reach a web page as the arrow keys, which HDL-9 answers.",
+          "name": "TanreiHandle",
+          "cssParts": [
+            {
+              "description": "The box the line is drawn in, which carries the states and the focus ring: a `role=\"separator\"` element with a value, a `<button>` without one.",
+              "name": "container"
+            },
+            {
+              "description": "The drawn line: the capsule, or the arc's SVG (hidden from assistive technology).",
+              "name": "line"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "axis",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleAxis"
+              },
+              "default": "'vertical'",
+              "description": "Which size it changes: `vertical` a height (the line lies across it), `horizontal` a width (the line stands upright), `both` a height and a width at a corner (an arc).",
+              "attribute": "axis",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "corner",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleCorner"
+              },
+              "default": "'bottom-end'",
+              "description": "The corner an arc bows toward while `axis` is both, in logical terms. Ignored for one axis.",
+              "attribute": "corner",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiHandleSize"
+              },
+              "default": "'medium'",
+              "description": "`medium` for a sheet, a pane or a frame; `small` for a text field's corner. The hit area meets the minimum target at both.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The size it stands for, as its owner counts it (lines, pixels, a percentage), told to assistive technology. Null makes it a button with no value.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The least value, told to assistive technology with `value`.",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The greatest value, told to assistive technology with `value`.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value in your words (\"6 lines\", `value-text`), read in place of the number. Empty reads the number.",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "privacy": "public",
+              "type": {
+                "text": "boolean | null"
+              },
+              "default": "null",
+              "description": "While `value` is null: whether what it switches is at its larger size (`aria-expanded`). Null tells no such state; the attribute takes `true` and `false`.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name, saying what it resizes (\"Resize message\"), in your words. Never drawn. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws it as unavailable; it takes no input and no focus.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "revealed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
+              "attribute": "revealed",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "activate",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows."
+            },
+            {
+              "name": "resizeend",
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeEndDetail>"
+              },
+              "description": "The drag ended, once: released, or cancelled by the platform (`detail.cancelled`)."
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeStartDetail>"
+              },
+              "description": "A drag began: a press on the handle moved past the touch slop.",
+              "name": "resizestart"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleResizeDetail>"
+              },
+              "description": "The drag moved: `detail.inline` and `detail.block`, the distance from the press.",
+              "name": "resize"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiHandleStepDetail>"
+              },
+              "description": "A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.",
+              "name": "step"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "axis",
+              "type": {
+                "text": "TanreiHandleAxis"
+              },
+              "default": "'vertical'",
+              "description": "Which size it changes: `vertical` a height (the line lies across it), `horizontal` a width (the line stands upright), `both` a height and a width at a corner (an arc).",
+              "fieldName": "axis"
+            },
+            {
+              "name": "corner",
+              "type": {
+                "text": "TanreiHandleCorner"
+              },
+              "default": "'bottom-end'",
+              "description": "The corner an arc bows toward while `axis` is both, in logical terms. Ignored for one axis.",
+              "fieldName": "corner"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiHandleSize"
+              },
+              "default": "'medium'",
+              "description": "`medium` for a sheet, a pane or a frame; `small` for a text field's corner. The hit area meets the minimum target at both.",
+              "fieldName": "size"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The size it stands for, as its owner counts it (lines, pixels, a percentage), told to assistive technology. Null makes it a button with no value.",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The least value, told to assistive technology with `value`.",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The greatest value, told to assistive technology with `value`.",
+              "fieldName": "max"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value in your words (\"6 lines\", `value-text`), read in place of the number. Empty reads the number.",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean | null"
+              },
+              "default": "null",
+              "description": "While `value` is null: whether what it switches is at its larger size (`aria-expanded`). Null tells no such state; the attribute takes `true` and `false`.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name, saying what it resizes (\"Resize message\"), in your words. Never drawn. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws it as unavailable; it takes no input and no focus.",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "revealed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the line at rest, where it would otherwise be out of sight until it is used (a sheet's grip).",
+              "fieldName": "revealed"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-handle",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiHandle",
+          "declaration": {
+            "name": "TanreiHandle",
+            "module": "src/components/handle/handle.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-handle",
+          "declaration": {
+            "name": "TanreiHandle",
+            "module": "src/components/handle/handle.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/image-preview/image-preview.styles.ts",
       "declarations": [
         {

@@ -40766,6 +40766,295 @@
           }
         }
       },
+      "handle": {
+        "standard": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.6824,
+                    0.6627,
+                    0.7059
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#aea9b4"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.handle.standard.container.color}",
+                    "with": "{tanrei.comp.handle.standard.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.handle.standard.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.6824,
+                    0.6627,
+                    0.7059
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#aea9b4"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.handle.standard.container.color}",
+                    "with": "{tanrei.comp.handle.standard.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.handle.standard.line.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.handle.standard.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.6824,
+                    0.6627,
+                    0.7059
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#aea9b4"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.handle.standard.container.color}",
+                    "with": "{tanrei.comp.handle.standard.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.handle.standard.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.handle.standard.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9608,
+                    0.9373,
+                    0.9686
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#f5eff7"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9608,
+                    0.9373,
+                    0.9686
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#f5eff7"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hovered": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+              },
+              "dev.tanrei.state": "hovered",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          }
+        },
+        "focused": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+              },
+              "dev.tanrei.state": "focused",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          }
+        },
+        "pressed": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+              },
+              "dev.tanrei.state": "pressed",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          }
+        },
+        "disabled": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text."
+              },
+              "dev.tanrei.state": "disabled",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          }
+        }
+      },
       "carousel": {
         "item": {
           "hovered": {

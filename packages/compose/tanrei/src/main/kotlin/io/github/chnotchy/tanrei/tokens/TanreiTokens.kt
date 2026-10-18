@@ -4966,6 +4966,171 @@ public data class TanreiFileUploadTokens(
     }
 }
 
+/**
+ * A size of handle: the key of one entry of [TanreiHandleSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiHandleSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiHandleSize = TanreiHandleSize("small")
+        public val Medium: TanreiHandleSize = TanreiHandleSize("medium")
+    }
+}
+
+/** The tokens of one size of handle. */
+@Immutable
+public data class TanreiHandleSizeTokens(
+    public val containerLength: Dp,
+    public val containerBreadth: Dp,
+    public val lineLength: Dp,
+    public val lineThickness: Dp,
+    public val lineActiveLength: Dp,
+    public val lineActiveThickness: Dp,
+    public val arcRadius: Dp,
+)
+
+/**
+ * Every size of handle: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiHandleSizes(
+    public val small: TanreiHandleSizeTokens,
+    public val medium: TanreiHandleSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiHandleSize, TanreiHandleSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiHandleSize> get() = linkedSetOf(TanreiHandleSize.Small, TanreiHandleSize.Medium) + extra.keys
+
+    public operator fun contains(key: TanreiHandleSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiHandleSize): TanreiHandleSizeTokens? = when (key) {
+        TanreiHandleSize.Small -> small
+        TanreiHandleSize.Medium -> medium
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiHandleSize): TanreiHandleSizeTokens = find(key) ?: medium
+}
+
+/**
+ * A condition of handle: the key of one entry of [TanreiHandleConditions]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Standard].
+ */
+@JvmInline
+public value class TanreiHandleCondition(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Standard: TanreiHandleCondition = TanreiHandleCondition("standard")
+    }
+}
+
+/** What one condition of handle draws in one interaction state. */
+@Immutable
+public data class TanreiHandleConditionStateTokens(
+    public val containerColor: TanreiPaint,
+    public val lineColor: TanreiPaint,
+    public val stateLayerColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(containerColor.roles())
+        addAll(lineColor.roles())
+        addAll(stateLayerColor.roles())
+    }
+}
+
+/** One condition of handle: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiHandleConditionTokens(
+    public val enabled: TanreiHandleConditionStateTokens,
+    public val hovered: TanreiHandleConditionStateTokens,
+    public val focused: TanreiHandleConditionStateTokens,
+    public val pressed: TanreiHandleConditionStateTokens,
+    public val disabled: TanreiHandleConditionStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiHandleConditionStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> hovered
+        TanreiInteractionState.Focused -> focused
+        TanreiInteractionState.Pressed -> pressed
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
+}
+
+/**
+ * Every condition of handle: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiHandleConditions(
+    public val standard: TanreiHandleConditionTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiHandleCondition, TanreiHandleConditionTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiHandleCondition> get() = linkedSetOf(TanreiHandleCondition.Standard) + extra.keys
+
+    public operator fun contains(key: TanreiHandleCondition): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiHandleCondition): TanreiHandleConditionTokens? = when (key) {
+        TanreiHandleCondition.Standard -> standard
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [standard]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiHandleCondition): TanreiHandleConditionTokens = find(key) ?: standard
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(standard.referencedRoles())
+        extra.values.forEach { addAll(it.referencedRoles()) }
+    }
+}
+
+/** What every variant of handle shares in one interaction state. */
+@Immutable
+public data class TanreiHandleStateTokens(
+    public val opacity: Float,
+)
+
+/** `comp.handle`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `conditions[condition]`). */
+@Immutable
+public data class TanreiHandleTokens(
+    public val containerShape: Dp,
+    public val inset: Dp,
+    public val motionFeedbackDuration: Int,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
+    public val hovered: TanreiHandleStateTokens,
+    public val focused: TanreiHandleStateTokens,
+    public val pressed: TanreiHandleStateTokens,
+    public val disabled: TanreiHandleStateTokens,
+    public val sizes: TanreiHandleSizes,
+    public val conditions: TanreiHandleConditions,
+) {
+    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
+    public fun opacity(state: TanreiInteractionState): Float = when (state) {
+        TanreiInteractionState.Enabled -> 1f
+        TanreiInteractionState.Hovered -> hovered.opacity
+        TanreiInteractionState.Focused -> focused.opacity
+        TanreiInteractionState.Pressed -> pressed.opacity
+        TanreiInteractionState.Disabled -> disabled.opacity
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(conditions.referencedRoles())
+    }
+}
+
 /** `comp.image-preview`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiImagePreviewTokens(
@@ -11185,6 +11350,7 @@ public data class TanreiSystem(
     public val fileItem: TanreiFileItemTokens,
     public val filePicker: TanreiFilePickerTokens,
     public val fileUpload: TanreiFileUploadTokens,
+    public val handle: TanreiHandleTokens,
     public val imagePreview: TanreiImagePreviewTokens,
     public val inlineCode: TanreiInlineCodeTokens,
     public val inputBox: TanreiInputBoxTokens,
@@ -11271,6 +11437,7 @@ public data class TanreiSystem(
         addAll(fileItem.referencedRoles())
         addAll(filePicker.referencedRoles())
         addAll(fileUpload.referencedRoles())
+        addAll(handle.referencedRoles())
         addAll(imagePreview.referencedRoles())
         addAll(inlineCode.referencedRoles())
         addAll(inputBox.referencedRoles())

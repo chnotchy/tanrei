@@ -42510,6 +42510,430 @@
           }
         }
       },
+      "handle": {
+        "arc": {
+          "radius": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "container": {
+          "breadth": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            }
+          },
+          "length": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corners of the handle's box: a pill across a line, a circle around an arc."
+          }
+        },
+        "disabled": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "focused": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "hovered": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "inset": {
+          "$type": "dimension",
+          "$value": {
+            "value": 4,
+            "unit": "px"
+          },
+          "$description": "How far the middle of an arc's stroke stays in from each of its corner's two edges."
+        },
+        "line": {
+          "active-length": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            }
+          },
+          "active-thickness": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            }
+          },
+          "length": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
+          },
+          "thickness": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "motion": {
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the line takes to grow, thicken, darken and appear, and the box's state layer to change."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "pressed": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The handle's box at rest: nothing is drawn; its states draw the state layer."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.1059,
+                    0.1255
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1d1b20"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2863,
+                    0.2706,
+                    0.3098
+                  ],
+                  "hex": "#49454f",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "line": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4745,
+                  0.4549,
+                  0.4941
+                ],
+                "hex": "#79747e",
+                "alpha": 1
+              },
+              "$description": "The line is how a sighted person finds a control, so it takes the functional boundary role (3:1 on every surface), not the decorative hairline."
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#79747e"
+                }
+              }
+            },
+            "line": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2863,
+                    0.2706,
+                    0.3098
+                  ],
+                  "hex": "#49454f",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4745,
+                    0.4549,
+                    0.4941
+                  ],
+                  "hex": "#79747e",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4745,
+                  0.4549,
+                  0.4941
+                ],
+                "hex": "#79747e",
+                "alpha": 1
+              }
+            }
+          }
+        }
+      },
       "image-preview": {
         "bar": {
           "button": {

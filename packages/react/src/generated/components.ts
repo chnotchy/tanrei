@@ -43,6 +43,7 @@ export { Figure } from './wrappers/figure.js';
 export { FileItem } from './wrappers/file-item.js';
 export { FilePicker } from './wrappers/file-picker.js';
 export { FileUpload, type FileUploadMarks } from './wrappers/file-upload.js';
+export { Handle } from './wrappers/handle.js';
 export { ImagePreview } from './wrappers/image-preview.js';
 export { ImagePreviewItem } from './wrappers/image-preview-item.js';
 export { KeyboardShortcut } from './wrappers/keyboard-shortcut.js';

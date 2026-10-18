@@ -7199,6 +7199,73 @@ export const tanrei = {
       },
     },
     fileUpload: { listGap: 16 },
+    handle: {
+      containerShape: 9999,
+      disabledOpacity: 1,
+      focusedOpacity: 1,
+      hoveredOpacity: 1,
+      inset: 4,
+      motionFeedbackDuration: 450,
+      motionStateDuration: 150,
+      motionStateEasing: [0.2, 0, 0, 1],
+      pressedOpacity: 1,
+      sizes: {
+        small: { containerLength: 20, containerBreadth: 16, lineLength: 12, lineThickness: 3, lineActiveLength: 16, lineActiveThickness: 4, arcRadius: 8 },
+        medium: { containerLength: 48, containerBreadth: 24, lineLength: 32, lineThickness: 4, lineActiveLength: 40, lineActiveThickness: 6, arcRadius: 16 },
+      },
+      conditions: {
+        standard: {
+          enabled: {
+            containerColor: { kind: "none" },
+            lineColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.08,
+            },
+            lineColor: { kind: "role", role: "onSurfaceVariant" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.1,
+            },
+            lineColor: { kind: "role", role: "outline" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "outline" },
+              amount: 0.1,
+            },
+            lineColor: { kind: "role", role: "onSurfaceVariant" },
+            stateLayerColor: { kind: "role", role: "outline" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            lineColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+      },
+    },
     imagePreview: {
       barButtonVariant: 1,
       barContainerColor: { kind: "role", role: "surface" },

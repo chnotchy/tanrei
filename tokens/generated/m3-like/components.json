@@ -717,6 +717,22 @@
       }
     },
     {
+      "name": "handle",
+      "title": "Handle",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-handle",
+        "import": "@tanrei/web/m3-like",
+        "module": "@tanrei/web/components/handle"
+      },
+      "react": {
+        "name": "Handle",
+        "import": "@tanrei/react/m3-like"
+      }
+    },
+    {
       "name": "image-preview",
       "title": "Image preview",
       "level": "feature",

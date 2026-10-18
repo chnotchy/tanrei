@@ -44,6 +44,7 @@ export { FieldGroup } from '../../generated/wrappers/field-group.js';
 export { Figure } from '../../generated/wrappers/figure.js';
 export { FileItem } from '../../generated/wrappers/file-item.js';
 export { FileUpload, type FileUploadMarks } from '../../generated/wrappers/file-upload.js';
+export { Handle } from '../../generated/wrappers/handle.js';
 export { ImagePreview } from '../../generated/wrappers/image-preview.js';
 export { ImagePreviewItem } from '../../generated/wrappers/image-preview-item.js';
 export { KeyboardShortcut } from '../../generated/wrappers/keyboard-shortcut.js';
