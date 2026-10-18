@@ -130,6 +130,50 @@ To take control, set attributes:
   Both attributes work on `<html>` or on any subtree. The generated stylesheet declares the whole token set on `:root, [data-tanrei-contrast]`, so a `data-tanrei-contrast` on a nested element re-resolves the component tokens inside it against that contrast level, not only the system colors.
 </Callout>
 
+### Keep a person's choice of theme
+
+If people choose a theme in your product, store the choice and put it on `<html>` before the page is first drawn: set by a script that runs later, the page shows the system's theme for a frame first. `@tanrei/web/theme-script` does both. `themeScript()` is a small script to inline in `<head>`, before the stylesheets, and `saveTheme()` stores a choice and draws it at once.
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light', 'dark', or 'system' to follow the operating system again
+loadTheme();       // what is stored: 'light', 'dark' or 'system'
+```
+
+In Next.js (App Router), inline it in the root layout. `suppressHydrationWarning` is there because the script changes an attribute of `<html>` before React hydrates it.
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+In Astro, inline it in the layout:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## Tokens in your own CSS
 
 Every token is a custom property named after its path: `tanrei.sys.color.primary` becomes `--tanrei-sys-color-primary`.
@@ -142,6 +186,8 @@ Every token is a custom property named after its path: `tanrei.sys.color.primary
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+To set a token from script, use `setTokens()` from `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` on the root, or with `{ on: element }` for one part of the page. One token set alone on the root with `style.setProperty()` makes Safari restyle the whole page for seconds; `setTokens()` writes it so that it does not.
 
 ## Text styles
 

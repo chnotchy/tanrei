@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: d1e9ec01d253afa6bea58125af2b81a99e5d01a6
+sourceHash: d7a902eae657f6f6948c5db7f205778e61104046
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -132,6 +132,50 @@ npm install @tanrei/web
   تعمل الخاصيتان كلتاهما على `<html>` أو على أي شجرة فرعية. تعلن ورقة الأنماط المولَّدة مجموعة الرموز كاملة على `:root, [data-tanrei-contrast]`، ولذلك فإن وضع `data-tanrei-contrast` على عنصر داخلي يعيد حساب رموز المكوّنات داخله وفق مستوى التباين ذاك، لا ألوان النظام وحدها.
 </Callout>
 
+### احتفظ بالسمة التي يختارها الشخص
+
+إن كان الناس يختارون سمة في منتجك، فاحفظ اختيارهم وضعه على `<html>` قبل أن تُرسم الصفحة أول مرة: فإن وضعه سكربت يعمل بعد ذلك، عرضت الصفحة سمة النظام لإطار واحد أولًا. والوحدة `@tanrei/web/theme-script` تفعل الأمرين. الدالة `themeScript()` سكربت صغير يُكتب مضمَّنًا في `<head>` قبل أوراق الأنماط، والدالة `saveTheme()` تحفظ الاختيار وترسمه في الحال.
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light' أو 'dark'، أو 'system' للعودة إلى اتباع نظام التشغيل
+loadTheme();       // المحفوظ: 'light' أو 'dark' أو 'system'
+```
+
+في Next.js (App Router)، اكتبه مضمَّنًا في التخطيط الجذري. والخاصية `suppressHydrationWarning` موجودة لأن السكربت يغيّر سمة من سمات `<html>` قبل أن يرطّبه React.
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+وفي Astro، اكتبه مضمَّنًا في التخطيط:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## الرموز في CSS الخاص بك
 
 كل رمز خاصية مخصصة تحمل اسم مساره: `tanrei.sys.color.primary` يصبح `--tanrei-sys-color-primary`.
@@ -144,6 +188,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+لتضبط رمزًا من سكربت، استخدم `setTokens()` من `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` على الجذر، أو مع `{ on: element }` لجزء من الصفحة. فضبط رمز واحد وحده على الجذر بالدالة `style.setProperty()` يجعل Safari يعيد حساب أنماط الصفحة كلها لثوانٍ؛ أما `setTokens()` فتكتبه بطريقة لا يحدث معها ذلك.
 
 ## أنماط النص
 
