@@ -14475,6 +14475,15 @@
               }
             }
           }
+        },
+        "tone": {
+          "container": {
+            "opacity": {
+              "$type": "number",
+              "$value": 0.16,
+              "$description": "The opacity of the tone's color that a toned Button's container is drawn in (BTN-45), where its variant draws a container at rest; an outlined Button's edge takes the same. The quiet selection's layer: a layer of a content color that stays at rest, twice the hover layer, so that hover, focus and press laid over it at the system's state-layer opacities stand apart from it by the same step on any surface."
+            }
+          }
         }
       },
       "calendar": {
@@ -33023,13 +33032,6 @@
             "$description": "The Button variant the dialog gives an action whose variant the product did not set (DLG-20). An action whose variant is set keeps it. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
-        "close-button": {
-          "variant": {
-            "$type": "number",
-            "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button at the header's end (DLG-25). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
-          }
-        },
         "compact": {
           "window-width": {
             "$type": "dimension",
@@ -33187,7 +33189,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline), and between the headline and the close button at the header's end."
+            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline)."
           }
         },
         "headline": {
@@ -63694,7 +63696,7 @@
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only small Button (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {

@@ -2,7 +2,7 @@
 title: اللوحة المنبثقة
 description: تعرض محتوى يقرؤه الشخص ويعمل فيه على سطح صغير يُفتح بجانب عنصر التحكم الذي ضغطه ويبقى معه، من دون تعتيم بقية الصفحة أو حجبها.
 translationOf: components/popover.mdx
-sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
+sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -144,7 +144,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | الإجراءات | أزرار Tanrei في المنفذ `actions`، يُعلَّم كل منها بالخاصية `confirming` أو `dismissive` حيث يكون كذلك. توضع كما تضعها مجموعة الأزرار، وتتراصّ عموديًّا حين لا تعود تسمية تتّسع |
 | السهم | مثلث اختياري يشير إلى عنصر الارتكاز. الخاصية `arrow` تفعّله للوحة منبثقة واحدة، والرمز `comp.popover.arrow.visible` يفعّله لنظام تصميم كامل |
 
-الإجراء الذي بلا `variant` يأخذ قيمة `comp.popover.actions.variant` (وهي tonal في النظام الافتراضي). وزر الإغلاق زر صغير بأيقونة فقط، طرازه قيمة `comp.popover.close-button.variant`.
+الإجراء الذي بلا `variant` يأخذ قيمة `comp.popover.actions.variant` (وهي tonal في النظام الافتراضي). وزر الإغلاق زر صغير بأيقونة فقط، طرازه قيمة `comp.popover.close-button.variant`: وهو tonal في النظام الافتراضي، مثل كل أزرار الإغلاق في Tanrei، كي يُقرأ عنصرَ تحكم فوق أي محتوى. ويحتفظ الإعدادان المسبقان m3-like وcupertino بالرمز وحده بلا خلفية (text).
 
 ### الحركة
 

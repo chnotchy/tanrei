@@ -1267,6 +1267,7 @@
     --tanrei-comp-button-tonal-unselected-label-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-button-tonal-unselected-outline-color: rgb(0 0 0 / 0);
     --tanrei-comp-button-tonal-unselected-state-layer-color: var(--tanrei-comp-button-tonal-unselected-label-color);
+    --tanrei-comp-button-tone-container-opacity: var(--tanrei-sys-state-selected-state-layer-opacity);
     --tanrei-comp-calendar-adjacent-container-color: rgb(0 0 0 / 0);
     --tanrei-comp-calendar-adjacent-disabled-container-color: var(--tanrei-comp-calendar-adjacent-container-color);
     --tanrei-comp-calendar-adjacent-disabled-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
@@ -2873,7 +2874,6 @@
     --tanrei-comp-dialog-actions-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-dialog-actions-margin-block-start: var(--tanrei-sys-space-space300);
     --tanrei-comp-dialog-actions-variant: tonal;
-    --tanrei-comp-dialog-close-button-variant: text;
     --tanrei-comp-dialog-compact-window-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 150), 0.25px);
     --tanrei-comp-dialog-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-dialog-container-elevation: var(--tanrei-sys-elevation-level3);
@@ -5581,7 +5581,7 @@
     --tanrei-comp-popover-arrow-inset: var(--tanrei-sys-space-space100);
     --tanrei-comp-popover-arrow-visible: off;
     --tanrei-comp-popover-arrow-width: var(--tanrei-sys-space-space150);
-    --tanrei-comp-popover-close-button-variant: text;
+    --tanrei-comp-popover-close-button-variant: tonal;
     --tanrei-comp-popover-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-popover-container-elevation: var(--tanrei-sys-elevation-level2);
     --tanrei-comp-popover-container-elevation-inset-ring: var(--tanrei-sys-elevation-level2-inset-ring);

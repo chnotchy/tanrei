@@ -1247,6 +1247,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
       small: TanreiButtonSizeTokens(
         containerHeight: 32.0,
@@ -3693,7 +3694,6 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     actionsGap: 16.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 1.0,
-    closeButtonVariant: 4.0,
     compactWindowWidth: 600.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,
@@ -6627,7 +6627,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     arrowInset: 8.0,
     arrowVisible: 0.0,
     arrowWidth: 12.0,
-    closeButtonVariant: 4.0,
+    closeButtonVariant: 1.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel2,
     containerGap: 12.0,

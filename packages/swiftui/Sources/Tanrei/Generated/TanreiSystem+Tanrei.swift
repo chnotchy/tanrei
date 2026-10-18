@@ -1103,6 +1103,7 @@ private let tanreiButtonTokens = TanreiButtonTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
       containerHeight: 32,
@@ -3563,7 +3564,6 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   actionsGap: 16,
   actionsMarginBlockStart: 24,
   actionsVariant: 1,
-  closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,
@@ -6811,7 +6811,7 @@ private let tanreiPopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
-  closeButtonVariant: 4,
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level2,
   containerGap: 12,

@@ -2,7 +2,7 @@
 title: Popover
 description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página.
 translationOf: components/popover.mdx
-sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
+sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -144,7 +144,7 @@ Pon `inset` en false (`no-inset` en la web) para un contenido que trae su propio
 | Acciones | Botones de Tanrei en el slot `actions`, cada uno marcado como `confirming` o `dismissive` donde lo sea. Se colocan como los coloca un grupo de botones, y se apilan cuando una etiqueta ya no cabe |
 | Flecha | Un triángulo opcional que apunta al ancla. `arrow` la activa para un solo popover; `comp.popover.arrow.visible` la activa para todo un sistema de diseño |
 
-Una acción sin `variant` toma `comp.popover.actions.variant` (tonal en el sistema predeterminado). El botón de cierre es un botón small de solo icono con la variante que indica `comp.popover.close-button.variant`.
+Una acción sin `variant` toma `comp.popover.actions.variant` (tonal en el sistema predeterminado). El botón de cierre es un botón small de solo icono con la variante que indica `comp.popover.close-button.variant`: tonal en el sistema predeterminado, como todos los botones de cierre de Tanrei, para que se lea como un control sobre cualquier contenido. Los presets m3-like y cupertino conservan su glifo sin fondo (text).
 
 ### Movimiento
 

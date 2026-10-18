@@ -3023,6 +3023,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var toneContainerOpacity: Double
   public var sizes: TanreiButtonSizes
   public var variants: TanreiButtonVariants
   /// Values of the hovered state shared by every variant.
@@ -3041,6 +3042,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    toneContainerOpacity: Double,
     sizes: TanreiButtonSizes,
     variants: TanreiButtonVariants,
     hovered: TanreiButtonStateTokens,
@@ -3054,6 +3056,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.toneContainerOpacity = toneContainerOpacity
     self.sizes = sizes
     self.variants = variants
     self.hovered = hovered
@@ -6241,7 +6244,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsMarginBlockStart: CGFloat
   public var actionsVariant: Double
-  public var closeButtonVariant: Double
   public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -6280,7 +6282,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     actionsGap: CGFloat,
     actionsMarginBlockStart: CGFloat,
     actionsVariant: Double,
-    closeButtonVariant: Double,
     compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -6318,7 +6319,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.actionsGap = actionsGap
     self.actionsMarginBlockStart = actionsMarginBlockStart
     self.actionsVariant = actionsVariant
-    self.closeButtonVariant = closeButtonVariant
     self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
     self.containerElevation = containerElevation
