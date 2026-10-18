@@ -15165,6 +15165,15 @@
               }
             }
           }
+        },
+        "tone": {
+          "container": {
+            "opacity": {
+              "$type": "number",
+              "$value": 0.16,
+              "$description": "The opacity of the tone's color that a toned Button's container is drawn in (BTN-45), where its variant draws a container at rest; an outlined Button's edge takes the same. The quiet selection's layer: a layer of a content color that stays at rest, twice the hover layer, so that hover, focus and press laid over it at the system's state-layer opacities stand apart from it by the same step on any surface."
+            }
+          }
         }
       },
       "calendar": {

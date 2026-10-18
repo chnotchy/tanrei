@@ -1277,6 +1277,7 @@ private object TonePerStateSystemSource {
             motionFeedbackDuration = 450,
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            toneContainerOpacity = 0.16f,
             hovered = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             focused = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             pressed = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),

@@ -1052,6 +1052,7 @@
     "tanrei.comp.button.tonal.unselected.label.color": "color",
     "tanrei.comp.button.tonal.unselected.outline.color": "color",
     "tanrei.comp.button.tonal.unselected.state-layer.color": "color",
+    "tanrei.comp.button.tone.container.opacity": "number",
     "tanrei.comp.calendar.adjacent.container.color": "color",
     "tanrei.comp.calendar.adjacent.disabled.container.color": "color",
     "tanrei.comp.calendar.adjacent.disabled.label.color": "color",
