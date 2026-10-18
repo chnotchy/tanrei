@@ -2,7 +2,7 @@
 title: Grupo de campos
 description: Da nombre a un conjunto de controles que responden a una misma pregunta (casillas de verificación, interruptores o campos que van juntos), con una etiqueta que puede decir si el conjunto es obligatorio u opcional, una descripción y un único error para el conjunto, y dispone los controles en una columna o en una fila.
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: b258914bfd6128acae152250c6b73eafb12b1a28
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -128,7 +128,7 @@ Un conjunto es alto y se lee desde arriba, así que dos cosas no están donde es
 - La descripción va debajo de la etiqueta, antes de los controles, y se queda mientras el grupo está en error. «Elige todas las opciones que correspondan» debe leerse antes que las opciones, y es lo que la persona vuelve a necesitar cuando la respuesta se rechaza.
 - El texto de error es una fila propia, debajo del último control.
 
-La etiqueta, el tag de obligatoriedad y el asterisco son los del campo.
+La etiqueta, el tag de obligatoriedad y el asterisco son los del campo. También lo es lo que dice la obligatoriedad: `requirement`, o `required`, el nombre de HTML para `requirement="required"`, que gana sobre cualquier otro valor.
 
 ### Disposición
 

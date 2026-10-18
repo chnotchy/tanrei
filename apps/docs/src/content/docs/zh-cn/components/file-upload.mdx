@@ -2,7 +2,7 @@
 title: "文件上传"
 description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: d118c016f2b1b562c21b9560e97474dadf543146
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -282,7 +282,7 @@ upload.clear();
 
 | 方面 | 来自文件选择器 | 来自文件项 | 文件上传自己的 |
 | --- | --- | --- | --- |
-| 属性 | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight`（对应文件项的 `form`, `preview`, `fit`, `nameHidden`, `width`, `height`）, `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| 属性 | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required`, `requirement` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight`（对应文件项的 `form`, `preview`, `fit`, `nameHidden`, `width`, `height`）, `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | 事件 | — | 你给出的文件项的 `click`, `remove`, `retry` | `select`, `reject`, `change` |
 | 插槽 | `trigger`, `icon` | — | 默认插槽：`rows="given"` 时放你的文件项 |
 | 令牌 | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |

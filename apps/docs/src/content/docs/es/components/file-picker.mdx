@@ -2,7 +2,7 @@
 title: Selector de archivos
 description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: de095054fad6a0c2deea908e38234f4b999c891f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -178,7 +178,7 @@ Pon el selector de archivos en un [campo](/es/components/field/) cuando el formu
 </tanrei-field>
 ```
 
-Un selector de archivos no envía nada. No tiene `name` ni valor, y `required` solo informa a la tecnología de apoyo. Decir si falta un archivo le corresponde al componente que conserva los archivos: tu código, o un [control de subida de archivos](/es/components/file-upload/), que sí es un control de formulario.
+Un selector de archivos no envía nada. No tiene `name` ni valor, y `required` solo informa a la tecnología de apoyo. Decir si falta un archivo le corresponde al componente que conserva los archivos: tu código, o un [control de subida de archivos](/es/components/file-upload/), que sí es un control de formulario. `requirement="required"`, como lo dice un campo, es lo mismo que `required`.
 
 ### De derecha a izquierda
 

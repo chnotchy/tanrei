@@ -2,7 +2,7 @@
 title: "嵌入式文本输入框"
 description: "只有键入的部分，用于由别的东西来绘制的方框。文本、占位符、插入点和选区，排成一行，或者排成带着动效增减的若干行。它不绘制容器、边缘、标签和焦点指示。方框由容纳它的东西来绘制，焦点也由那个东西来显示。"
 translationOf: components/embedded-text-input.mdx
-sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+sourceHash: 13b2ce4a51701cb3cf5cb71342680f533fde65e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -175,7 +175,7 @@ import Callout from '../../../../components/Callout.astro';
 ### 组件负责的部分
 
 - 它是一个文本框，`multiline` 为 true 时是多行文本框。它的名称是 `label`，它的描述是 `description`。
-- 它根据同名的属性暴露为无效、必填、只读和禁用。
+- 它根据同名的属性暴露为无效、必填、只读和禁用。`requirement="required"`（字段的说法）也会像 `required` 一样使它必填。
 - 占位符绝不是名称。
 - 对 Tab 键来说，它只是一个停靠点。Tab 绝不插入字符，Escape 留给宿主。
 - 输入法的 Enter 绝不触发 `action`。

@@ -2,7 +2,7 @@
 title: Entrada de texto incrustada
 description: Solo la escritura, para una caja que dibuja otra cosa. Texto, un marcador de posición, el cursor de texto y la selección, en una línea o en líneas que crecen y se reducen con un movimiento. No dibuja contenedor, borde, etiqueta ni indicación de foco. Lo que la contiene dibuja la caja y muestra el foco.
 translationOf: components/embedded-text-input.mdx
-sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+sourceHash: 13b2ce4a51701cb3cf5cb71342680f533fde65e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -175,7 +175,7 @@ El Enter de un método de entrada elige un candidato o confirma el texto. Nunca 
 ### De qué se encarga el componente
 
 - Es un cuadro de texto, de varias líneas mientras `multiline` es true. Su nombre es `label` y su descripción es `description`.
-- Se expone como no válida, obligatoria, de solo lectura y deshabilitada a partir de las propiedades de esos nombres.
+- Se expone como no válida, obligatoria, de solo lectura y deshabilitada a partir de las propiedades de esos nombres. `requirement="required"`, como lo dice un campo, lo hace obligatorio igual que `required`.
 - El marcador de posición nunca es el nombre.
 - Es una sola parada para la tecla Tab. Tab nunca inserta un carácter, y Escape se deja al soporte.
 - El Enter de un método de entrada nunca emite `action`.

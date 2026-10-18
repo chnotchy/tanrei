@@ -2,7 +2,7 @@
 title: "字段组"
 description: "为回答同一个问题的一组控件——复选框、开关，或者相互关联的字段——命名：一个可以说明这一组必填或选填的标签、一段描述，以及针对整组的一条错误；并把这些控件排成一列或一行。"
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: b258914bfd6128acae152250c6b73eafb12b1a28
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -128,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 描述位于标签下方、控件之前，并且在字段组处于错误状态时仍然保留。“可多选”必须在选项之前读到，回答被拒绝时，用户需要再看一遍的也正是它。
 - 错误文本单独占一行，位于最后一个控件下方。
 
-标签、必填和选填小标签，以及星号，都与字段的相同。
+标签、必填和选填小标签，以及星号，都与字段的相同。说明是否必填的属性也一样：`requirement`，或者 HTML 的名字 `required`，它等同于 `requirement="required"`，并且优先于其他任何值。
 
 ### 布局
 

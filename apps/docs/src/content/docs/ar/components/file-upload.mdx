@@ -2,7 +2,7 @@
 title: رفع الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: d118c016f2b1b562c21b9560e97474dadf543146
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -282,7 +282,7 @@ upload.clear();
 
 | الجانب | من منتقي الملفات | من عنصر الملف | لمكوّن رفع الملفات نفسه |
 | --- | --- | --- | --- |
-| الخصائص | `layout`، `multiple`، `accept`، `maxSize`، `constraintsText`، `dropText`، `disabled`، `error`، `required` | `itemForm`، `itemPreview`، `itemFit`، `itemNameHidden`، `itemWidth`، `itemHeight` (وهي في العنصر `form`، `preview`، `fit`، `nameHidden`، `width`، `height`)، `removeLabel`، `retryLabel` | `rows`، `maxFiles`، `label`، `emptyText`، `typeErrorText`، `sizeErrorText`، `countErrorText`، `announcement` |
+| الخصائص | `layout`، `multiple`، `accept`، `maxSize`، `constraintsText`، `dropText`، `disabled`، `error`، `required`، `requirement` | `itemForm`، `itemPreview`، `itemFit`، `itemNameHidden`، `itemWidth`، `itemHeight` (وهي في العنصر `form`، `preview`، `fit`، `nameHidden`، `width`، `height`)، `removeLabel`، `retryLabel` | `rows`، `maxFiles`، `label`، `emptyText`، `typeErrorText`، `sizeErrorText`، `countErrorText`، `announcement` |
 | الأحداث | — | الأحداث `click`، `remove`، `retry` في عناصر الملفات التي تعطيها | `select`، `reject`، `change` |
 | المنافذ | `trigger`، `icon` | — | المنفذ الافتراضي: عناصر ملفاتك، مع `rows="given"` |
 | الرموز | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`، `comp.list.gap.small` |

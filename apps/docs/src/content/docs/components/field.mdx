@@ -132,7 +132,7 @@ The rule of thumb: if the control has a `supportingText` prop, it needs no field
 
 ### Required and optional
 
-`requirement` is `none`, `required` or `optional`: one setting, because a control is never both.
+`requirement` is `none`, `required` or `optional`: one setting, because a control is never both. `required`, the name HTML gives it, is the same as `requirement="required"`, and wins over any other value: `<tanrei-field label="Email" required>`. In React, `required` is a prop as on an `<input>`.
 
 - `required` exposes the control as required and draws the required mark beside the label.
 - `optional` draws a quiet tag and adds its text to the control's description.

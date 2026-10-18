@@ -2,7 +2,7 @@
 title: Campo
 description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 2c4ddc96d2f533aabd317c8fc363dd6dd4224c43
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -134,7 +134,7 @@ La regla práctica: si el control tiene una propiedad `supportingText`, no neces
 
 ### Obligatorio y opcional
 
-`requirement` es `none`, `required` u `optional`: un solo ajuste, porque un control nunca es las dos cosas.
+`requirement` es `none`, `required` u `optional`: un solo ajuste, porque un control nunca es las dos cosas. `required`, el nombre que le da HTML, es lo mismo que `requirement="required"` y gana sobre cualquier otro valor: `<tanrei-field label="Correo" required>`. En React, `required` es una prop, como en un `<input>`.
 
 - `required` expone el control como obligatorio y dibuja la marca de obligatorio junto a la etiqueta.
 - `optional` dibuja un tag discreto y añade su texto a la descripción del control.

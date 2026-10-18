@@ -2,7 +2,7 @@
 title: フィールド
 description: フォームのどのフィールドにもあるもの、つまり必須か任意かを示せるラベル、補足の 1 行、値が受け付けられなかった理由を 1 つのコントロールに添え、支援技術に向けてそれぞれをコントロールと結び付けます。フィールドは枠であり、コントロールではありません。
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 2c4ddc96d2f533aabd317c8fc363dd6dd4224c43
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -134,7 +134,7 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 ### 必須と任意
 
-`requirement` は `none`、`required`、`optional` のいずれかです。コントロールが必須と任意の両方になることはないので、設定は 1 つです。
+`requirement` は `none`、`required`、`optional` のいずれかです。コントロールが必須と任意の両方になることはないので、設定は 1 つです。`required`（HTML での名前）は `requirement="required"` と同じで、ほかのどの値よりも優先します。`<tanrei-field label="メール" required>` のように書けます。React でも、`<input>` と同じく `required` を props に書けます。
 
 - `required` は、コントロールが必須であることを支援技術に伝え、ラベルの横に必須の印を描きます。
 - `optional` は、控えめなタグを描き、そのテキストをコントロールの説明に加えます。

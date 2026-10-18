@@ -173,7 +173,7 @@ An input method's Enter chooses a candidate or commits the text. It never emits 
 ### What the component handles
 
 - It is a text box, a multi-line one while `multiline` is true. Its name is `label` and its description is `description`.
-- It is exposed as invalid, required, read-only and disabled from the props of those names.
+- It is exposed as invalid, required, read-only and disabled from the props of those names. `requirement="required"`, a field's word for it, makes it required as `required` does.
 - The placeholder is never the name.
 - It is one stop for the Tab key. Tab never inserts a character, and Escape is left to the holder.
 - An input method's Enter never emits `action`.

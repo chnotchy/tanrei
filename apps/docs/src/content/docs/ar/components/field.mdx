@@ -2,7 +2,7 @@
 title: الحقل
 description: "يؤطّر عنصر تحكم واحدًا بما يعطيه النموذج لكل حقل: تسمية تستطيع أن تقول إن عنصر التحكم مطلوب أو اختياري، وسطر مساعدة، وسبب رفض القيمة، وكلٌّ منها مربوط بعنصر التحكم للتقنيات المساعدة. وهو إطار، لا عنصر تحكم أبدًا."
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 2c4ddc96d2f533aabd317c8fc363dd6dd4224c43
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -134,7 +134,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### مطلوب واختياري
 
-الخاصية `requirement` قيمتها `none` أو `required` أو `optional`: إعداد واحد، لأن عنصر التحكم لا يكون الاثنين معًا أبدًا.
+الخاصية `requirement` قيمتها `none` أو `required` أو `optional`: إعداد واحد، لأن عنصر التحكم لا يكون الاثنين معًا أبدًا. والخاصية `required`، وهي الاسم الذي تعطيه HTML لها، تساوي `requirement="required"` وتغلب أي قيمة أخرى: `<tanrei-field label="البريد" required>`. وفي React تكون `required` خاصية (prop) كما على `<input>`.
 
 - القيمة `required` تعرض عنصر التحكم على أنه مطلوب وترسم علامة المطلوب بجانب التسمية.
 - القيمة `optional` ترسم وسمًا هادئًا وتضيف نصه إلى وصف عنصر التحكم.
