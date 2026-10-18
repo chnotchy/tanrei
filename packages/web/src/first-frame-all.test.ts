@@ -16,7 +16,7 @@
 //   move: settling leaves it alone. An overlay that does not enter yet, where MOT-4 says it should, is drawn at rest and
 //   passes as any fixture; it joins this list when it plays its entrance.
 // - `BY_DESIGN`: a fixture whose spec says it changes after it is drawn (an autoplay that advances, a picture that
-//   failed). Not run, each with the rule.
+//   failed, a file item's picture that takes its glyph's place once it has loaded). Not run, each with the rule.
 // - `ARRIVES`: what is not the element's to draw on time, left out of the comparison: a picture drawn when the browser
 //   has decoded it, a code block's colors in the tasks after its code (COD-28).
 // - `KNOWN`: a fixture whose first frame is not its rest, a defect not fixed yet, with what it shows. Each is expected
@@ -66,6 +66,8 @@ const BY_DESIGN: { spec: string; pick: Pick; rule: string }[] = [
   { spec: 'carousel', pick: (f) => f.props.autoplay === true, rule: 'CRL-32: it advances by itself' },
   { spec: 'link-card', pick: (f) => f.id === 'image-failed', rule: 'LKC-13: a picture that cannot be loaded leaves a card without one' },
   { spec: 'image-preview', pick: (f) => f.id === 'error', rule: 'IMP-31: the error is drawn when the source has failed to load' },
+  // A picture's load event comes after the first frame in some engines and before it in others (a picture the page has).
+  ...['file-item', 'file-upload', 'chat-composer'].map((spec) => ({ spec, pick: (f: Fixture) => JSON.stringify(f).includes('"previewSrc"'), rule: 'FIT-6: a file item draws its glyph until its picture has loaded, then the picture in its place' })),
 ];
 
 /** What is not the element's to draw on time: `(key, property)` of `expectFirstFrameAtRest`'s `ignore`. */
@@ -74,8 +76,6 @@ const ARRIVES: ((key: string, property: string, spec: Spec) => boolean)[] = [
   (key) => /(^|[/>])img(#[^:/>]*)?:\d+(::[a-z-]+)?$/.test(key),
   // COD-28: a code block draws its code at once, plain, and its colors and weights in a task after it.
   (key, _property, spec) => spec.name === 'code-block' && /\/pre:\d+\/code:\d+\//.test(key),
-  // FIT-6: a file item's glyph stands in its picture's place until the picture has loaded, and then gives way to it.
-  (key, property) => property === 'visibility' && /tanrei-file-item:\d+>/.test(key),
 ];
 
 /** Fixtures whose first frame is not their rest, by `<spec>/<fixture>`, with what they show: a defect, not fixed yet. Only shrinks. */
