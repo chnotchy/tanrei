@@ -1,9 +1,10 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphMirrorController, OpenAxesController, report } from '../../primitives/index.js';
 import type { TanreiTagSizeRegistry, TanreiTagVariantRegistry } from '../../registry.js';
 import { AXES, STATUSES, styles } from './tag.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (tonal, outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagVariant = keyof TanreiTagVariantRegistry;
@@ -43,7 +44,7 @@ const isStatus = (status: string): status is (typeof STATUSES)[number] => (STATU
  * @csspart dot - The dot (hidden from assistive technology).
  * @csspart label - The label text.
  */
-export class TanreiTag extends LitElement {
+export class TanreiTag extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tag');
   static override styles = styles;
 

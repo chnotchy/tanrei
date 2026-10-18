@@ -745,8 +745,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-accordion",
           "customElement": true
@@ -1370,6 +1370,30 @@
                 }
               ],
               "description": "APB-5, APB-7, APB-12: the title (a heading) and the subtitle read after it; `hidden` keeps a copy out of the tree."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -1474,8 +1498,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-app-bar",
           "customElement": true
@@ -2234,8 +2258,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-app-shell",
           "customElement": true
@@ -2626,6 +2650,30 @@
               "privacy": "private",
               "readonly": true,
               "description": "AVT-4: the picture cannot be loaded. The fallback stays, the picture's element goes, and nothing asks again."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -2712,8 +2760,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-avatar",
           "customElement": true
@@ -2952,6 +3000,30 @@
                 }
               ],
               "description": "AVT-17, AVT-18: the overflow box's text — a plus sign and the number not drawn, in the locale's digits without grouping; above 99, 99 and a plus sign, at every size."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -3011,8 +3083,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-avatar-group",
           "customElement": true
@@ -3254,6 +3326,30 @@
                 }
               ],
               "description": "BDG-8: puts `description` on `anchor` (null: gives the anchor back its own)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -3286,8 +3382,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-badge",
           "customElement": true
@@ -4027,6 +4123,30 @@
               "kind": "method",
               "name": "body",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -4120,8 +4240,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-bottom-sheet",
           "customElement": true
@@ -4750,6 +4870,30 @@
               "privacy": "private",
               "readonly": true,
               "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointerout', this.onPointerOut], ['dragstart', this.releasePress], ['keydown', this.onLevelKeyDown], ['keyup', this.onLevelKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ]"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -4791,8 +4935,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-breadcrumbs",
           "customElement": true
@@ -5061,6 +5205,30 @@
               "kind": "method",
               "name": "checkFit",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -5111,8 +5279,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button-group",
           "customElement": true
@@ -5841,6 +6009,30 @@
               "name": "startTurn",
               "privacy": "private",
               "description": "SPB-13, SPB-21: the open form's change — the chevron's turn or cross-fade, over comp.button-with-menu.motion.open-duration\n(0 where motion is reduced) — and for as long, the trailing half's corners move with it. It ends when the\ntransitions this update started have finished, not on a timer; a turn replaced by the next ends nothing."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -5956,8 +6148,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button-with-menu",
           "customElement": true
@@ -6693,6 +6885,30 @@
               "name": "reportName",
               "privacy": "private",
               "description": "BTN-16: a name beside a drawn label must contain the drawn text, so that a person who says the word they see is\nheard. The report is all the button does about it: `label` stays the whole name."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -6912,8 +7128,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button",
           "customElement": true
@@ -8388,6 +8604,30 @@
                 }
               },
               "description": "CAL-5: the arrows follow the axis — up and down, or back and forward. The names never change with the direction:\narrow_back and arrow_forward are flagged by the icon set, so each Button's icon helper mirrors its glyph in\nright-to-left (BTN-19), and previous still points to the start edge."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -8573,8 +8813,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-calendar",
           "customElement": true
@@ -9156,6 +9396,30 @@
               "kind": "method",
               "name": "watchContent",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -9248,8 +9512,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-callout",
           "customElement": true
@@ -9590,6 +9854,30 @@
               "name": "inspectContent",
               "privacy": "private",
               "description": "CRD-15: an interactive card's or a link card's content holds nothing interactive; a debug build names what it found, on every slot change."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -9691,8 +9979,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-card",
           "customElement": true
@@ -10574,6 +10862,30 @@
               "name": "inspectContent",
               "privacy": "private",
               "description": "CRL-20: an item's content holds nothing interactive; a debug build names what it found, on every slot change."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -10594,8 +10906,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-carousel-item",
           "customElement": true
@@ -11988,6 +12300,30 @@
                 }
               ],
               "description": "CRL-20, CRL-24: what a debug build reports, each once per value."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -12173,8 +12509,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-carousel",
           "customElement": true
@@ -14070,6 +14406,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -15162,6 +15522,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -15691,6 +16075,30 @@
               "kind": "method",
               "name": "onChange",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -15800,8 +16208,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-checkbox",
           "customElement": true
@@ -17071,6 +17479,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -17919,6 +18351,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -18070,8 +18526,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-chip",
           "customElement": true
@@ -19273,6 +19729,30 @@
               "name": "onBodyFocus",
               "privacy": "private",
               "description": "COD-7: where style queries are missing, the focus style is read when focus arrives."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -19501,8 +19981,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-code-block",
           "customElement": true
@@ -20298,6 +20778,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -21482,6 +21986,30 @@
               "name": "reports",
               "privacy": "private",
               "description": "What a debug build tells the developer; the color input still renders."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -21622,8 +22150,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-color-input",
           "customElement": true
@@ -22884,6 +23412,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -24757,6 +25309,30 @@
               "name": "renderStatus",
               "privacy": "private",
               "description": "CMB-32, CMB-33: the status row, after the last option. Its two live regions exist from the moment the list opens —\nthe polite one holds statusText, or the empty text, while idle; the assertive one statusText while the source\nfailed; while loading both are empty, so nothing is announced, and the loading indicator, named by statusText,\nstands in the text's place."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -24996,8 +25572,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-combobox",
           "customElement": true
@@ -25373,6 +25949,30 @@
                 }
               ],
               "description": "CPY-19: while labelWidth is fit, the label's box is as wide as the text it shows. A change of form, or of the words\nshown, eases the width over the resize motion (the box's own transition, none where motion is reduced); the first\nwidth, and one a new face gives, are taken at once (`animate` false)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -25475,8 +26075,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-copy-button",
           "customElement": true
@@ -28218,6 +28818,30 @@
                 }
               },
               "description": "DTM-34: Cancel and OK, placed as a full-width Button group places a dismissive and a confirming item."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -28617,8 +29241,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-date-time-picker",
           "customElement": true
@@ -28954,8 +29578,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-description-list",
           "customElement": true
@@ -29544,6 +30168,30 @@
               "name": "onScroll",
               "privacy": "private",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -29646,8 +30294,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-dialog",
           "customElement": true
@@ -30047,6 +30695,30 @@
               "name": "layWave",
               "privacy": "private",
               "description": "DIV-12, DIV-13: the wave's path, in the host's CSS px, laid out along the logical start (CSS mirrors it in RTL,\nDIV-4). Circular arcs of half the fitted wavelength each, alternating sides of the midline and meeting on it; the\nfirst rises toward the top (horizontal) or the left (vertical). A round cap lies inside the length: the arcs are laid\nout over the drawn stretch less half the thickness at each end."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -30151,8 +30823,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-divider",
           "customElement": true
@@ -30626,6 +31298,30 @@
                 }
               ],
               "description": "DRZ-20: a value that sets no limit, and an entry of accept that says no kind, are reported."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -30731,8 +31427,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-drop-zone",
           "customElement": true
@@ -31486,6 +32182,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -31659,8 +32379,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-embedded-text-input",
           "customElement": true
@@ -32108,6 +32828,30 @@
               "privacy": "private",
               "description": "EMP-4: the level of the heading the title is exposed as: `level`, or 2 where it is not a whole number from 1 to 6.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -32158,8 +32902,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-empty-state",
           "customElement": true
@@ -32381,6 +33125,30 @@
               "name": "onFocusOut",
               "privacy": "private",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -32410,8 +33178,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-fab-menu-item",
           "customElement": true
@@ -32845,6 +33613,30 @@
               "name": "startTurn",
               "privacy": "private",
               "description": "FBM-19: the turn lasts the glyph's cross-fade — the open or close motion, started with the toggle's colors and\ncorners, none where motion is reduced — and ends when that cross-fade finishes on the timeline it runs on. A timer\nwould not: on a loaded page it can fire before the transitions' last frames, and ending the turn then takes the\ncorners out of the transition mid-way, so they would jump."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -32920,8 +33712,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-fab-menu",
           "customElement": true
@@ -33353,6 +34145,30 @@
                 }
               ],
               "description": "What a debug build tells the developer; the group still renders."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -33475,8 +34291,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-field-group",
           "customElement": true
@@ -33993,6 +34809,30 @@
                 }
               ],
               "description": "What a debug build tells the developer; the field still renders."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -34106,8 +34946,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-field",
           "customElement": true
@@ -34611,8 +35451,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-figure",
           "customElement": true
@@ -35564,6 +36404,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -35841,8 +36705,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-file-item",
           "customElement": true
@@ -36547,6 +37411,30 @@
                   "default": "false"
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -36676,8 +37564,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-file-picker",
           "customElement": true
@@ -38214,6 +39102,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -38755,6 +39667,30 @@
               "description": "The picture's own height in pixels; see `width`.",
               "attribute": "height",
               "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -38814,8 +39750,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-image-preview-item",
           "customElement": true
@@ -40222,6 +41158,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -40390,8 +41350,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-image-preview",
           "customElement": true
@@ -40669,6 +41629,30 @@
               },
               "description": "KBS-12: the shortcut in the form `aria-keyshortcuts` takes — each chord's modifiers then its key joined by +, mod as\nMeta under the apple convention and Control under the standard one, the chords separated by spaces (`Meta+Shift+K`;\n`Control+K Control+C`) — or null without keys. Read-only: a component that hosts the shortcut (a menu item) sets it on\nits own element. The shortcut itself sets no `aria-keyshortcuts`: it only shows keys.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -40728,8 +41712,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-keyboard-shortcut",
           "customElement": true
@@ -41489,8 +42473,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-link-card",
           "customElement": true
@@ -41907,6 +42891,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -41984,8 +42992,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list-row",
           "customElement": true
@@ -42463,6 +43471,30 @@
                 }
               ],
               "description": "LST-33: a move was chosen."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -42555,8 +43587,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list-item",
           "customElement": true
@@ -43645,6 +44677,30 @@
               "name": "observeItems",
               "privacy": "private",
               "description": "LST-41: every item's box is watched while the list is reorderable — where each is laid out is read when one changes."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -43828,8 +44884,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list",
           "customElement": true
@@ -44141,6 +45197,30 @@
               "kind": "method",
               "name": "cancelEntrance",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -44200,8 +45280,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-loading-indicator",
           "customElement": true
@@ -44518,6 +45598,30 @@
               "name": "startResize",
               "privacy": "private",
               "description": "MAB-14: the resize runs over the label box's transition (comp.main-action-button.motion.resize-duration, 0 where\nmotion is reduced); for that long the label keeps one line."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -44592,8 +45696,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-main-action-button",
           "customElement": true
@@ -45127,6 +46231,30 @@
               "kind": "method",
               "name": "renderRow",
               "privacy": "protected"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -45177,10 +46305,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -45725,6 +46852,30 @@
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
                 "module": "src/components/menu/menu.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -46495,6 +47646,30 @@
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
                 "module": "src/components/menu/menu.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -47277,6 +48452,30 @@
                 "name": "TanreiMenuRowBase",
                 "module": "src/components/menu/menu.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -48014,6 +49213,30 @@
               "inheritedFrom": {
                 "name": "TanreiMenuRowBase",
                 "module": "src/components/menu/menu.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -48776,6 +49999,30 @@
                 "name": "TanreiMenuRowBase",
                 "module": "src/components/menu/menu.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -48929,6 +50176,30 @@
               },
               "default": "{ nested: false }",
               "description": "Whether this group sits in another (MNU-29)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -48970,8 +50241,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menu-group",
           "customElement": true
@@ -50097,6 +51368,30 @@
               "name": "hide",
               "privacy": "private",
               "description": "MNU-1, MNU-4, MNU-49: focus back to the anchor if it was inside; every submenu closed with it; fading out, then out of the top layer."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -50181,8 +51476,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menu",
           "customElement": true
@@ -50632,6 +51927,30 @@
               "privacy": "private",
               "readonly": true,
               "description": "MBR-22: folded, the menu's submenu item was opened or closed by the person — the same `open`, the same `toggle`."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -50673,8 +51992,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar-menu",
           "customElement": true
@@ -51005,6 +52324,30 @@
                 }
               ],
               "description": "What a debug build is told of a bar item the element survives (MBR-38, MBR-39, MBR-44, MBR-45); the link primitive says the rest."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -51042,8 +52385,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar-item",
           "customElement": true
@@ -51703,6 +53046,30 @@
                 }
               ],
               "description": "The copy of a title the fold is measured from: the same boxes, drawn by the same rules, never shown."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -51735,8 +53102,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar",
           "customElement": true
@@ -52016,6 +53383,30 @@
                 }
               ],
               "description": "MDL-2, MDL-5, MDL-7: out of the top layer (fading), the page given back, focus back where it was."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -52066,8 +53457,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-modal-layer",
           "customElement": true
@@ -52551,6 +53942,30 @@
               "inheritedFrom": {
                 "name": "NavigationDestination",
                 "module": "src/primitives/destination.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -53111,6 +54526,30 @@
               "name": "returnIndicator",
               "privacy": "private",
               "description": "NVB-28, NVB-29: the indicator goes back to the selected destination from where it is, over the selection motion."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -53168,8 +54607,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-bar",
           "customElement": true
@@ -54304,6 +55743,30 @@
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -55476,6 +56939,30 @@
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -55699,6 +57186,30 @@
                 "text": "boolean"
               },
               "default": "false"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -55731,8 +57242,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-drawer-section",
           "customElement": true
@@ -57026,6 +58537,30 @@
               "kind": "method",
               "name": "body",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -57274,8 +58809,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-drawer",
           "customElement": true
@@ -58309,6 +59844,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -59939,6 +61498,30 @@
                 }
               ],
               "description": "What a debug build tells the developer; the number input still renders."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -60196,8 +61779,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-number-input",
           "customElement": true
@@ -61369,6 +62952,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -62830,6 +64437,30 @@
               "privacy": "private",
               "description": "What the cells draw: the value, or — while an input method composes — the value as it would be if the composing\ntext were committed now, with the cells that text fills marked (OTC-6). The value itself does not change.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -62962,8 +64593,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-one-time-code-input",
           "customElement": true
@@ -63062,6 +64693,30 @@
               "description": "Prevents the option from being chosen. It stays reachable with the arrow keys.",
               "attribute": "disabled",
               "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -63112,8 +64767,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-option",
           "customElement": true
@@ -63140,6 +64795,30 @@
               "description": "A short heading drawn above the group's options, which also names the group; empty draws none and leaves the group unnamed.",
               "attribute": "label",
               "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -63154,8 +64833,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-option-group",
           "customElement": true
@@ -63499,8 +65178,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-page-header",
           "customElement": true
@@ -64268,6 +65947,30 @@
                 }
               ],
               "description": "PGN-11: the copy of a form, measured: the same boxes in the same classes, with nothing to press or to read."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -64417,8 +66120,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-pagination",
           "customElement": true
@@ -65187,6 +66890,30 @@
                 }
               ],
               "description": "What a debug build reports (POP-4, POP-13, POP-29, POP-37, POP-38)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -65345,8 +67072,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-popover",
           "customElement": true
@@ -65662,6 +67389,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -65739,8 +67490,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-progress-indicator",
           "customElement": true
@@ -66226,6 +67977,30 @@
               "kind": "method",
               "name": "onChange",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -66317,8 +68092,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-radio-button",
           "customElement": true
@@ -66957,6 +68732,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -67243,6 +69042,30 @@
               "default": "''",
               "description": "The name of a glyph of the system's icon set at the row's start (history, folder); empty draws none (`leading-icon`). A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout.",
               "attribute": "leading-icon"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -67284,8 +69107,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-search-suggestion",
           "customElement": true
@@ -67466,6 +69289,30 @@
                 }
               ],
               "description": "SRC-42, SRC-43, SRC-45, SRC-50: the row — an anchor to `href`, or a button — named by the headline and described by\nthe excerpt and, for a new context, `targetLabel`. `slot` is where the product's own excerpt (child content) goes;\nnull draws the `excerpt` runs."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -67552,10 +69399,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -67792,6 +69638,30 @@
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
                 "module": "src/components/search/search.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -68169,6 +70039,30 @@
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
                 "module": "src/components/search/search.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -69530,6 +71424,30 @@
                 }
               ],
               "description": "SRC-35, SRC-36: what stands in the bar's place while bar is button or icon — one button that opens a modal view.\nAs a button: the bar's container at the trigger's height, holding the search glyph, the placeholder (or the label)\nand the hint. As an icon: an icon-only text Button showing the search glyph, from the Button's own tokens, and no\ndrawn hint (its keys are still exposed)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -69707,8 +71625,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-search",
           "customElement": true
@@ -70093,6 +72011,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -70143,8 +72085,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-segment",
           "customElement": true
@@ -70405,6 +72347,30 @@
               "name": "sync",
               "privacy": "private",
               "description": "Tells every segment what it is now — selected, the Tab stop, its position (SEG-12, SEG-18, SEG-19, SEG-20) — and\nreports what a debug build should (SEG-12, SEG-22)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -70464,8 +72430,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-segmented-button",
           "customElement": true
@@ -71364,6 +73330,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -72599,6 +74589,30 @@
                 }
               ],
               "description": "What a debug build tells the developer; the select still renders."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -72744,8 +74758,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-select",
           "customElement": true
@@ -73431,6 +75445,30 @@
               "kind": "method",
               "name": "body",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -73499,8 +75537,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-side-sheet",
           "customElement": true
@@ -73934,8 +75972,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-skeleton",
           "customElement": true
@@ -74860,6 +76898,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -76209,6 +78271,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -76390,8 +78476,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-slider",
           "customElement": true
@@ -76980,6 +79066,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -77107,8 +79217,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-snackbar",
           "customElement": true
@@ -77310,11 +79420,35 @@
               "privacy": "private",
               "readonly": true,
               "description": "SNK-1, SNK-12: the snackbar closed; its request resolves, it fades out, then the next shows."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-snackbar-host",
           "customElement": true
@@ -77615,6 +79749,30 @@
               "kind": "method",
               "name": "content",
               "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -77665,8 +79823,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-stepper-step",
           "customElement": true
@@ -78044,6 +80202,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -78121,8 +80303,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-stepper",
           "customElement": true
@@ -78380,6 +80562,30 @@
               "privacy": "private",
               "description": "SWC-7, SWC-8: whether the text is drawn beside the sample.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -78448,8 +80654,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-swatch",
           "customElement": true
@@ -79036,6 +81242,30 @@
                 }
               ],
               "description": "SWT-19: the switch stays pressed for as long as a drag lasts, wherever the captured pointer goes."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -79136,8 +81366,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-switch",
           "customElement": true
@@ -79932,6 +82162,30 @@
               "name": "endDrag",
               "privacy": "private",
               "description": "Drops a drag in progress: its panels back at rest, the indicator on the selected tab."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -80045,8 +82299,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab-view",
           "customElement": true
@@ -80854,6 +83108,30 @@
               "name": "readDensity",
               "privacy": "private",
               "description": "TOC-39: a density the core does not have was added by a design system — its rules are added to the root — or is unknown to the active one, which a debug build says."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -80945,8 +83223,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-table-of-contents",
           "customElement": true
@@ -82328,8 +84606,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-table",
           "customElement": true
@@ -82816,6 +85094,30 @@
               "privacy": "private",
               "description": "TAB-19: the label is drawn unless it is hidden and there is an icon to draw instead.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -82866,8 +85168,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab",
           "customElement": true
@@ -82950,6 +85252,30 @@
               },
               "default": "false",
               "description": "TBV-10: a panel of a `<tanrei-tab-view>` draws its focus ring inside the view's edge, following its corners."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -83000,8 +85326,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab-panel",
           "customElement": true
@@ -84357,6 +86683,30 @@
                 }
               ],
               "description": "TAB-5, TAB-34: the enabled tab of this row that a press at the event's point belongs to though it missed the row: the\npoint is in line with the tab — or beyond the track's end beside an end tab that ends there, by no more than that\ntab lacks to the target's width — and no further above the row's top edge or below its bottom edge than half of\nwhat the row lacks to the minimum target (sys.target.touch for touch and a pen, and where the input cannot be told on a\ndevice whose pointer is coarse; sys.target.pointer for a mouse), and the tab is not covered where the point is\nnearest to it. Null for a row as tall as the target."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -84452,8 +86802,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tabs",
           "customElement": true
@@ -84833,6 +87183,30 @@
                 }
               ],
               "description": "Focus on the first of `candidates` that takes it. A chip takes it on its own control — its button or its link,\nthe first thing in it that can be focused — and never on its remove action, which comes after it and is not a Tab\nstop (CHP-18)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -84856,8 +87230,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tag-group",
           "customElement": true
@@ -85161,6 +87535,30 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -85229,8 +87627,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tag",
           "customElement": true
@@ -86320,6 +88718,30 @@
               "inheritedFrom": {
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
               }
             }
           ],
@@ -89779,6 +92201,30 @@
               "name": "renderGrip",
               "privacy": "private",
               "description": "TXI-39, TXI-41: the resize grip — a focusable separator whose value is the lines the input shows (`showLines()` writes it)."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -90133,8 +92579,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-text-input",
           "customElement": true
@@ -90523,6 +92969,30 @@
               "name": "checkContent",
               "privacy": "private",
               "description": "TBR-12: a toolbar with no item, or with content that is not an icon button or a Button, still lays it out, and says so."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -90555,8 +93025,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-toolbar",
           "customElement": true
@@ -91430,6 +93900,30 @@
               "name": "sync",
               "privacy": "private",
               "description": "TIP-14, TIP-27: what the anchor carries for assistive technology. The shortcut is its `aria-keyshortcuts`, on the\nelement that takes focus; where the anchor states one itself, the text KBS-10 gives — the label, else that notation — ends its description\ninstead."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "events": [
@@ -91570,8 +94064,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tooltip",
           "customElement": true
@@ -93506,8 +96000,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tree-view",
           "customElement": true
@@ -93736,13 +96230,36 @@
               "name": "focusWhenReady",
               "privacy": "private",
               "description": "The control has rendered what takes focus only after its own first update."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -94152,6 +96669,30 @@
                 "name": "ComposedElement",
                 "module": "src/primitives/composed.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -94451,6 +96992,30 @@
               "name": "content",
               "privacy": "protected",
               "description": "What the cell holds: the item container with the icon (and its badge), the label, the press-hold carrier."
+            },
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "TanreiElement",
+                "module": "src/primitives/element.ts"
+              }
             }
           ],
           "attributes": [
@@ -94563,10 +97128,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         }
       ],
       "exports": [
@@ -94576,6 +97140,71 @@
           "declaration": {
             "name": "NavigationDestination",
             "module": "src/primitives/destination.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/primitives/element.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles.",
+          "name": "TanreiElement",
+          "members": [
+            {
+              "kind": "method",
+              "name": "finalizeStyles",
+              "privacy": "protected",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "CSSResultOrNative[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "styles",
+                  "optional": true,
+                  "type": {
+                    "text": "CSSResultGroup"
+                  }
+                }
+              ]
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`).",
+          "name": "TanreiLightElement",
+          "superclass": {
+            "name": "ReactiveElement",
+            "package": "lit"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiElement",
+          "declaration": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiLightElement",
+          "declaration": {
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           }
         }
       ]

@@ -17,6 +17,7 @@ import {
 import { PROGRESS, styles } from './switch.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -54,7 +55,7 @@ export interface TanreiSwitchChangeDetail {
  * @fires input - The user switched it; `selected` is already the new value.
  * @fires {CustomEvent<TanreiSwitchChangeDetail>} change - The user switched it; `detail.selected` (and the element's `selected`) is the new value.
  */
-export class TanreiSwitch extends LitElement {
+export class TanreiSwitch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'switch');
   static override styles = [styles, hiddenHost];
 

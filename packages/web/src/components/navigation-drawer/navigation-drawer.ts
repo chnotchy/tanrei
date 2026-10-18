@@ -36,6 +36,7 @@ import { TanreiDivider } from '../divider/divider.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import '../loading-indicator/loading-indicator.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -173,7 +174,7 @@ const REST: DrawerCellContext = {
  * row while expanded and the row cut after its icon while collapsed, the short label where collapsedLabels draws one, the
  * tooltip that names a collapsed cell without one, and the states, press and focus (NVD-4…10, NVD-31…35, NVD-56).
  */
-abstract class DrawerCell extends LitElement {
+abstract class DrawerCell extends TanreiElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {
@@ -1316,7 +1317,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
  * @slot - `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children.
  * @csspart heading - The heading row.
  */
-export class TanreiNavigationDrawerSection extends LitElement {
+export class TanreiNavigationDrawerSection extends TanreiElement {
   static override styles = sectionStyles;
 
   static override properties: PropertyDeclarations = {
@@ -1482,7 +1483,7 @@ interface Snapshot {
  * @fires {CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>} expandedchange - The user asked a collapsible drawer for its other form (its menu button, or a group's cell while collapsed): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
  * @fires {CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>} presentationchange - A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
  */
-export class TanreiNavigationDrawer extends LitElement {
+export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
   static override styles = drawerStyles;
 
@@ -2816,8 +2817,8 @@ export class TanreiNavigationDrawer extends LitElement {
       return html`<dialog
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
-        style=${styleMap(this.collapses ? this.place : {})}
         data-tanrei-appear
+        style=${styleMap(this.collapses ? this.place : {})}
         aria-label=${label}
         tabindex="-1"
         data-tanrei-shape

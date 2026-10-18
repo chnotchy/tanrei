@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { wordPlaces } from '../../generated/words.js';
 import {
@@ -16,6 +16,7 @@ import { ambientLocale } from '../../primitives/locale-date.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { WordsController } from '../../primitives/words.js';
 import { AXES, styles } from './pagination.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** numbered: the page numbers, drawn compact where they do not fit; compact: the controls and the sentence alone. */
 export type TanreiPaginationVariant = 'numbered' | 'compact';
@@ -107,7 +108,7 @@ export function pageItems(page: number, count: number, siblings: number, boundar
  * @csspart count - The compact form's sentence.
  * @fires {CustomEvent<TanreiPaginationChangeDetail>} change - The person asked for another page: `detail.page`. Fired before the page changes and before a link is followed; cancelable — `preventDefault()` keeps the page and opens nothing.
  */
-export class TanreiPagination extends LitElement {
+export class TanreiPagination extends TanreiElement {
   static override styles = styles;
 
   static override properties: PropertyDeclarations = {

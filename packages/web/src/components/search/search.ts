@@ -46,6 +46,7 @@ import { groupStyles, rowStyles, styles, suggestionStyles } from './search.style
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -96,7 +97,7 @@ export interface TanreiSearchSelectDetail {
  *
  * @tag tanrei-search-suggestion
  */
-export class TanreiSearchSuggestion extends LitElement {
+export class TanreiSearchSuggestion extends TanreiElement {
   static override styles = suggestionStyles;
 
   static override properties: PropertyDeclarations = {
@@ -167,7 +168,7 @@ const contentNodes = (host: Element): (Element | Text)[] =>
  * suggestion's row, drawn by the element because the row is its own `<a>` — and the excerpt with its marks. It holds no
  * listener of its own: the search it is in answers its press, its keys and its activation.
  */
-export abstract class TanreiSearchRow extends LitElement {
+export abstract class TanreiSearchRow extends TanreiElement {
   static override properties: PropertyDeclarations = {
     value: { type: String },
     headline: { type: String },
@@ -542,7 +543,7 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  * @fires {CustomEvent<TanreiSearchSelectDetail>} select - The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
  * @fires {CustomEvent<TanreiSearchToggleDetail>} toggle - The search opened or closed its view: `detail.expanded` (and the element's `expanded`) is the new value, and `detail.reason` says why it closed (`escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out`, `shortcut`), or `null` when it opened.
  */
-export class TanreiSearch extends LitElement {
+export class TanreiSearch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'search');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -1865,8 +1866,8 @@ export class TanreiSearch extends LitElement {
       <dialog
         part="dialog"
         class=${hung ? 'full hung' : 'full'}
-        ?data-tanrei-shape=${hung}
         data-tanrei-appear
+        ?data-tanrei-shape=${hung}
         tabindex="-1"
         aria-label=${ifDefined(this.label || undefined)}
         @cancel=${this.onNativeCancel}

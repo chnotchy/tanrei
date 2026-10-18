@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
   type ConventionReader,
@@ -17,6 +17,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiKeyboardShortcutSizeRegistry, TanreiKeyboardShortcutVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './keyboard-shortcut.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How the keys are drawn: in caps, or as a line of text. A design system may add values. */
 export type TanreiKeyboardShortcutVariant = keyof TanreiKeyboardShortcutVariantRegistry;
@@ -187,7 +188,7 @@ function writeChord(chord: string, convention: KeyboardConvention): { drawn: Dra
  * @cssprop --tanrei-comp-keyboard-shortcut-container-color - A cap's fill.
  * @cssprop --tanrei-comp-keyboard-shortcut-outline-color - A cap's edge.
  */
-export class TanreiKeyboardShortcut extends LitElement implements ConventionReader {
+export class TanreiKeyboardShortcut extends TanreiElement implements ConventionReader {
   private readonly availability = new AvailabilityController(this, 'keyboard-shortcut');
   private readonly axes = new OpenAxesController(this, { component: 'keyboard-shortcut', behavior: 'KBS-6', axes: AXES });
   static override styles = styles;

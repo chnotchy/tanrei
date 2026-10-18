@@ -5,6 +5,7 @@ import { AvailabilityController, LinkController, OpenAxesController, PressContro
 import type { TanreiCardVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './card.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (elevated, filled, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCardVariant = keyof TanreiCardVariantRegistry;
@@ -37,7 +38,7 @@ export type TanreiCardVariant = keyof TanreiCardVariantRegistry;
  * @csspart outline - The outlined variant's edge, drawn above the content.
  * @fires click - An interactive card or a link card was activated by pointer, touch, keyboard or assistive technology. A link card fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  */
-export class TanreiCard extends LitElement {
+export class TanreiCard extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'card');
   static override styles = [styles, hiddenHost];
 

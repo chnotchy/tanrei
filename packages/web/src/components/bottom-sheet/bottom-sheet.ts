@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -20,6 +20,7 @@ import {
   WordsController,
 } from '../../primitives/index.js';
 import { styles } from './bottom-sheet.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Standard sits over the lower part of its parent while the content above stays usable; modal dims and blocks the rest of the window. */
 export type TanreiBottomSheetVariant = 'standard' | 'modal';
@@ -112,7 +113,7 @@ interface Drawn {
  * @fires {CustomEvent<TanreiBottomSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `drag`, `scrim`, `escape` or `back`. Set `open` to false. Only while `closedby` is not `none`.
  * @fires {CustomEvent<TanreiBottomSheetDetentChangeDetail>} detentchange - The person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent`.
  */
-export class TanreiBottomSheet extends LitElement {
+export class TanreiBottomSheet extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'bottom-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -744,8 +745,8 @@ export class TanreiBottomSheet extends LitElement {
       return html`${area}<dialog
           part="container"
           class=${classes}
-          data-detent=${this.resting}
           data-tanrei-appear
+          data-detent=${this.resting}
           aria-label=${label}
           tabindex="-1"
           data-tanrei-shape

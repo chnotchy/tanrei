@@ -12,6 +12,7 @@ import { rippleStyles } from './ripple.js';
 import { report } from './report.js';
 import { markConditionChange, conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
+import { TanreiElement } from './element.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -521,7 +522,7 @@ let ids = 0;
  * cell's layout in the region) and nothing else. The region tells it whether it is selected, its position and whether
  * its label is drawn; it fires `DESTINATION_UPDATE` when a prop the region reads changes.
  */
-export class NavigationDestination extends LitElement implements Destination {
+export class NavigationDestination extends TanreiElement implements Destination {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {

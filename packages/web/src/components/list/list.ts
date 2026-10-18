@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { html, literal } from 'lit/static-html.js';
 import { wordPlaces } from '../../generated/words.js';
@@ -35,6 +35,7 @@ import '../button/button.js';
 import type { TanreiButton } from '../button/button.js';
 import '../menu/menu.js';
 import { itemStyles, listStyles } from './list.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
 const CHECK_GLYPH = 'check';
@@ -166,7 +167,7 @@ const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(pre
  * @csspart divider - The hairline between the item and the one before it, while the list has dividers.
  * @fires click - An interactive item or a link item was activated by pointer, touch, keyboard or assistive technology. A link item fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  */
-export class TanreiListItem extends LitElement {
+export class TanreiListItem extends TanreiElement {
   static override styles = [itemStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -741,7 +742,7 @@ interface Press {
  * @fires {CustomEvent<TanreiListChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change, which the list already holds.
  * @fires {CustomEvent<TanreiListMoveDetail>} move - The user asked for an item to stand in another place — by the move menu, the keyboard or a drag: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
  */
-export class TanreiList extends LitElement {
+export class TanreiList extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'list');
   static override styles = [listStyles, hiddenHost];
 

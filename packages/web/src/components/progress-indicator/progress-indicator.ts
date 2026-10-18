@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing, svg } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -15,6 +15,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiProgressIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, VARIANTS, styles } from './progress-indicator.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiProgressIndicatorVariant = 'linear' | 'circular';
@@ -43,7 +44,7 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  * @csspart indicator - The part done, or the moving segment or arc.
  * @csspart stop-indicator - The dot at the end of a determinate bar's track (drawn under either separation when its size token is above 0, and not at max).
  */
-export class TanreiProgressIndicator extends LitElement {
+export class TanreiProgressIndicator extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'progress-indicator');
   static override styles = styles;
 

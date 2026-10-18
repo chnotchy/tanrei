@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldSays, type FieldState, GlyphMirrorController, SystemWatchController, WordsController, compChoice, composedContains, namesItself, report } from '../../primitives/index.js';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../primitives/field-frame.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { PREFIX, styles } from './field.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** FLD-21: a run of the value text that is isolated already (a first-strong isolate: one of a range's two values) has its own direction and gives the whole text none. */
 const ISOLATED = /\u2068[^\u2069]*\u2069/g;
@@ -109,7 +110,7 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * @csspart error-text - The error text: in the help's place, directly below the control, or below the help where the design system keeps both (`--tanrei-comp-field-error-text-placement: append`); there only while the field is in error and has words for it.
  * @csspart counter - The count the field is given (`count-text`), at the end of the supporting row's first line.
  */
-export class TanreiField extends LitElement {
+export class TanreiField extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'field');
   static override styles = styles;
 

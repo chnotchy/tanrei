@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
@@ -15,6 +15,7 @@ import {
   watchEscape,
 } from '../../primitives/index.js';
 import { styles } from './modal-layer.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim ask to close) or `none` (nothing does). */
 export type TanreiModalLayerClosedBy = 'any' | 'none' | 'closerequest';
@@ -49,7 +50,7 @@ export interface TanreiModalLayerCloseDetail {
  * @csspart container - The box the content is in (the native `<dialog>`; its `::backdrop` is the scrim). Place or size it here.
  * @fires {CustomEvent<TanreiModalLayerCloseDetail>} close - The layer asks to be closed: `detail.reason` is `escape`, `back` or `scrim`. Set `open` to false. Only while `closedby` is not `none`.
  */
-export class TanreiModalLayer extends LitElement {
+export class TanreiModalLayer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'modal-layer');
   static override styles = [styles, hiddenHost];
 
@@ -206,8 +207,8 @@ export class TanreiModalLayer extends LitElement {
     // MDL-10: the container is a modal dialog named by the label; the scrim is not exposed.
     return html`<dialog
       part="container"
-      aria-label=${this.label || nothing}
       data-tanrei-appear
+      aria-label=${this.label || nothing}
       tabindex="-1"
       @keydown=${this.onKeyDown}
       @cancel=${this.onNativeCancel}

@@ -38,6 +38,7 @@ import {
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import { groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
 export type TanreiMenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
@@ -315,7 +316,7 @@ function blocksTemplate(blocks: readonly Element[]) {
  * nothing to assistive technology. The menu moves focus among the rows of a surface, tells each its position, the
  * surface's size and which columns the surface reserves, and answers its activation.
  */
-export abstract class TanreiMenuRowBase extends LitElement {
+export abstract class TanreiMenuRowBase extends TanreiElement {
   static override styles: CSSResultGroup = [itemStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -1243,7 +1244,7 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
  * @csspart title - The heading above the items.
  * @fires {CustomEvent<TanreiMenuGroupChangeDetail>} change - A radio item of the group was chosen: `detail.value` (and the element's `value`) is the new value.
  */
-export class TanreiMenuGroup extends LitElement {
+export class TanreiMenuGroup extends TanreiElement {
   static override styles = [groupStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -1356,7 +1357,7 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * @fires {CustomEvent<TanreiMenuContextRequestDetail>} contextrequest - With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  * @fires {CustomEvent<TanreiMenuCloseDetail>} close - The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export class TanreiMenu extends LitElement {
+export class TanreiMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'menu');
   /** MNU-35, MNU-38: where a browser has no style queries, the choices are read when the menu renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);

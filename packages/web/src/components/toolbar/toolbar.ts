@@ -1,7 +1,8 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GROUP_AVAILABILITY, GROUP_ITEM, GROUP_PLACE, type GroupItem, type GroupPlace, KeptLengths, OpenAxesController, type PlacingGroup, RovingKeys, hostAria, isDisabledControl, report } from '../../primitives/index.js';
 import { AXES, styles } from './toolbar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * Where the toolbar sits: across the bottom edge (`docked`) or over the content (`floating`), plus any variant a design
@@ -47,7 +48,7 @@ const hundredths = (value: number) => Math.round(value * 100) / 100;
  * @csspart container - The surface: the variant's fill, elevation, corners and edge, holding the items (it scrolls them
  * along its axis when they do not fit).
  */
-export class TanreiToolbar extends LitElement implements PlacingGroup {
+export class TanreiToolbar extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'toolbar');
   static override styles = styles;
 

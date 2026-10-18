@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -20,6 +20,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiCalloutSizeRegistry, TanreiCalloutVariantRegistry } from '../../registry.js';
 import { AXES, STATUSES, styles } from './callout.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (tonal, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCalloutVariant = keyof TanreiCalloutVariantRegistry;
@@ -88,7 +89,7 @@ let titles = 0;
  * @csspart close - The close button.
  * @fires dismiss - The person closed the callout with its close button. Fired once, after `open` became false; never when the product sets `open`.
  */
-export class TanreiCallout extends LitElement implements PlacingGroup {
+export class TanreiCallout extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'callout');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
