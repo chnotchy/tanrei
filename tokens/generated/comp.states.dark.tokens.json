@@ -33242,11 +33242,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2,
-                      0.2,
-                      0.2
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#333333"
+                    "alpha": 0.2272,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -33356,11 +33357,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2157,
-                      0.2157,
-                      0.2157
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#373737"
+                    "alpha": 0.244,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -33470,11 +33472,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2157,
-                      0.2157,
-                      0.2157
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#373737"
+                    "alpha": 0.244,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -33755,6 +33758,33 @@
                       "of": "{tanrei.sys.color.on-surface}",
                       "amount": "{tanrei.sys.state.disabled-content-opacity}"
                     }
+                  }
+                }
+              }
+            }
+          },
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8863,
+                    0.8863,
+                    0.8863
+                  ],
+                  "alpha": 0.16,
+                  "hex": "#e2e2e2"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                  },
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -34301,11 +34331,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2,
-                      0.2,
-                      0.2
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#333333"
+                    "alpha": 0.2272,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -34415,11 +34446,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2157,
-                      0.2157,
-                      0.2157
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#373737"
+                    "alpha": 0.244,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -34529,11 +34561,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2157,
-                      0.2157,
-                      0.2157
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#373737"
+                    "alpha": 0.244,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -46487,11 +46520,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2,
-                      0.2,
-                      0.2
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#333333"
+                    "alpha": 0.2272,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -46527,11 +46561,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2157,
-                      0.2157,
-                      0.2157
+                      0.8863,
+                      0.8863,
+                      0.8863
                     ],
-                    "hex": "#373737"
+                    "alpha": 0.244,
+                    "hex": "#e2e2e2"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -46556,6 +46591,31 @@
                       "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
                     },
                     "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8863,
+                    0.8863,
+                    0.8863
+                  ],
+                  "alpha": 0.16,
+                  "hex": "#e2e2e2"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product presents facts that have two dimensions — a price list, a comparison of plans, a list of settings with their types and defaults, a status of several things on several platforms, a list of several hundred identifiers with their values — and wants every one of them drawn as the same table: the same header, the same line between rows, the same space in a cell, loose where a person reads a few rows and tight where a person scans hundreds. Some of its tables are records a person works with: put in another order by a column, chosen several at a time, fetched a part at a time, and sometimes empty."
+                  },
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.comp.table.row.selected.state-layer.color}",
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -51125,11 +51185,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2,
-                    0.2,
-                    0.2
+                    0.8863,
+                    0.8863,
+                    0.8863
                   ],
-                  "hex": "#333333"
+                  "alpha": 0.2272,
+                  "hex": "#e2e2e2"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -51225,11 +51286,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2157,
-                    0.2157,
-                    0.2157
+                    0.8863,
+                    0.8863,
+                    0.8863
                   ],
-                  "hex": "#373737"
+                  "alpha": 0.244,
+                  "hex": "#e2e2e2"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -51325,11 +51387,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2157,
-                    0.2157,
-                    0.2157
+                    0.8863,
+                    0.8863,
+                    0.8863
                   ],
-                  "hex": "#373737"
+                  "alpha": 0.244,
+                  "hex": "#e2e2e2"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -51500,6 +51563,31 @@
                     "rationale": "One product shows things that hold other things, to any depth, as rows that open and close: the folders and files of a project, the tiers, groups and tokens of a design system, the categories of a catalogue, the parts of a document. Some of these trees are only read and opened; in others one row is chosen, or several; some are a few rows in a page of text and some are hundreds of rows in a tool; some rows carry a glyph, a note after their name or a short value at their end, some are unavailable, and some fetch what they hold when they are first opened."
                   },
                   "dev.tanrei.state": "disabled"
+                }
+              }
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8863,
+                  0.8863,
+                  0.8863
+                ],
+                "alpha": 0.16,
+                "hex": "#e2e2e2"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product shows things that hold other things, to any depth, as rows that open and close: the folders and files of a project, the tiers, groups and tokens of a design system, the categories of a catalogue, the parts of a document. Some of these trees are only read and opened; in others one row is chosen, or several; some are a few rows in a page of text and some are hundreds of rows in a tool; some rows carry a glyph, a note after their name or a short value at their end, some are unavailable, and some fetch what they hold when they are first opened."
+                },
+                "dev.tanrei.derive": {
+                  "fn": "alpha",
+                  "of": "{tanrei.comp.tree-view.selected.state-layer.color}",
+                  "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                 }
               }
             }

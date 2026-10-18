@@ -6066,7 +6066,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
       ),
       selected: TanreiNavigationDrawerConditionTokens(
         enabled: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          itemContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6076,7 +6076,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6086,7 +6086,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6096,7 +6096,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6106,7 +6106,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          itemContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemLabelColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
@@ -6170,7 +6170,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
       ),
       collapsedSelected: TanreiNavigationDrawerConditionTokens(
         enabled: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          itemContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6180,7 +6180,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         hovered: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6190,7 +6190,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         focused: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6200,7 +6200,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         pressed: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          itemContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           itemLabelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -6210,7 +6210,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           itemStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         disabled: TanreiNavigationDrawerConditionStateTokens(
-          itemContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          itemContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           itemIconIndicatorColor: TanreiPaint.none(),
           itemIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           itemLabelColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
@@ -8394,10 +8394,10 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     rowGap: 4.0,
-    rowSelectedContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
-    rowSelectedHoveredContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
+    rowSelectedContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
+    rowSelectedHoveredContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
     rowSelectedHoveredTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
-    rowSelectedPressedContainerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+    rowSelectedPressedContainerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
     rowSelectedPressedTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
     rowSelectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
     rowSelectedTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -9290,7 +9290,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
       ),
       selected: TanreiTreeViewConditionTokens(
         enabled: TanreiTreeViewConditionStateTokens(
-          containerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          containerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           supportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           trailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -9299,7 +9299,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         hovered: TanreiTreeViewConditionStateTokens(
-          containerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
           labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           supportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           trailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -9308,7 +9308,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         focused: TanreiTreeViewConditionStateTokens(
-          containerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           supportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           trailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -9317,7 +9317,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         pressed: TanreiTreeViewConditionStateTokens(
-          containerColor: TanreiPaint.mix(TanreiPaint.role(TanreiColorRole.secondaryContainer), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
           labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           supportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           trailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
@@ -9326,7 +9326,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
           stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
         ),
         disabled: TanreiTreeViewConditionStateTokens(
-          containerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+          containerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           supportingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
           trailingTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),

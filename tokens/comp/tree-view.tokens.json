@@ -62,7 +62,7 @@
               "The chevron stands at the start of a row and is the only mark of open and closed; a leaf keeps the chevron's room empty, so that names of one level begin on one line.",
               "An item is chosen by its value. An item without a value cannot be chosen: a press on its row opens or closes it. The chevron always opens and closes and never chooses.",
               "selection none is the read-only tree: a figure of a file system in a page of text, a structure to look through. Its leaves answer nothing; its parents still open and close.",
-              "The selected fill is the quiet selection (secondary-container), the same in a list and in a drawer. Never use the primary fill or the accent for it: primary is the one chosen now among actions, and the accent is the keyboard focus ring alone.",
+              "The selected fill is the quiet selection, the same in a list, a drawer and a table: in the default system a layer of the row's content color. Never use the primary fill or the accent for it: primary is the one chosen now among actions, and the accent is the keyboard focus ring alone.",
               "A row holds no control: no link, button or field. A word such as a tag or a count is the trailing slot or the trailing text.",
               "The tree shows what it is given. Filtering, sorting, searching and fetching are the product's: it gives the tree the items that match and opens the parents that hold them.",
               "compact is for a tool used with a pointer and for a small tree inside text. Touch always gets rows of the touch target.",
@@ -345,7 +345,7 @@
             "color": {
               "$type": "color",
               "$value": "{tanrei.sys.color.secondary-container}",
-              "$description": "The quiet selection: the fill of a selected list item and of a selected destination in a navigation drawer."
+              "$description": "The fill of a selected item's row, under the item's content (TRV-15). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets."
             }
           },
           "label": {

@@ -59266,12 +59266,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.1725,
-                      0.1725,
-                      0.1725
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#2c2c2c",
-                    "alpha": 1
+                    "alpha": 0.16,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -59390,12 +59390,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2549,
-                      0.2549,
-                      0.2549
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#414141",
-                    "alpha": 1
+                    "alpha": 0.244,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -59514,12 +59514,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2392,
-                      0.2392,
-                      0.2392
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#3d3d3d",
-                    "alpha": 1
+                    "alpha": 0.2272,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -59637,12 +59637,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.1725,
-                    0.1725,
-                    0.1725
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#2c2c2c",
-                  "alpha": 1
+                  "alpha": 0.16,
+                  "hex": "#ffffff"
                 },
                 "$description": "The active indicator of a collapsed drawer: the selected row with its label gone, in the expanded row's color."
               }
@@ -59765,12 +59765,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2549,
-                      0.2549,
-                      0.2549
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#414141",
-                    "alpha": 1
+                    "alpha": 0.244,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -61366,12 +61366,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.1725,
-                      0.1725,
-                      0.1725
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#2c2c2c",
-                    "alpha": 1
+                    "alpha": 0.16,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -61490,12 +61490,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2549,
-                      0.2549,
-                      0.2549
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#414141",
-                    "alpha": 1
+                    "alpha": 0.244,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -61614,12 +61614,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2392,
-                      0.2392,
-                      0.2392
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#3d3d3d",
-                    "alpha": 1
+                    "alpha": 0.2272,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -61737,14 +61737,14 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.1725,
-                    0.1725,
-                    0.1725
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#2c2c2c",
-                  "alpha": 1
+                  "alpha": 0.16,
+                  "hex": "#ffffff"
                 },
-                "$description": "The active indicator: the selected row, in both forms."
+                "$description": "The active indicator: the selected row, in both forms. The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the destination's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered destination. A design system that sets this token draws what it sets."
               }
             },
             "icon-indicator": {
@@ -61862,12 +61862,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2549,
-                      0.2549,
-                      0.2549
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#414141",
-                    "alpha": 1
+                    "alpha": 0.244,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -84519,14 +84519,14 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.1725,
-                    0.1725,
-                    0.1725
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#2c2c2c",
-                  "alpha": 1
+                  "alpha": 0.16,
+                  "hex": "#ffffff"
                 },
-                "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color."
+                "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color. The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets."
               }
             },
             "hovered": {
@@ -84536,12 +84536,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2392,
-                      0.2392,
-                      0.2392
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#3d3d3d",
-                    "alpha": 1
+                    "alpha": 0.2272,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -84568,12 +84568,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.2549,
-                      0.2549,
-                      0.2549
+                      1,
+                      1,
+                      1
                     ],
-                    "hex": "#414141",
-                    "alpha": 1
+                    "alpha": 0.244,
+                    "hex": "#ffffff"
                   }
                 }
               },
@@ -93691,14 +93691,14 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.1725,
-                  0.1725,
-                  0.1725
+                  1,
+                  1,
+                  1
                 ],
-                "hex": "#2c2c2c",
-                "alpha": 1
+                "alpha": 0.16,
+                "hex": "#ffffff"
               },
-              "$description": "The quiet selection: the fill of a selected list item and of a selected destination in a navigation drawer."
+              "$description": "The fill of a selected item's row, under the item's content (TRV-15). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets."
             }
           },
           "disabled": {
@@ -93723,12 +93723,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.1725,
-                    0.1725,
-                    0.1725
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#2c2c2c",
-                  "alpha": 1
+                  "alpha": 0.16,
+                  "hex": "#ffffff"
                 }
               }
             },
@@ -93830,12 +93830,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2549,
-                    0.2549,
-                    0.2549
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#414141",
-                  "alpha": 1
+                  "alpha": 0.244,
+                  "hex": "#ffffff"
                 }
               }
             },
@@ -93937,12 +93937,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2392,
-                    0.2392,
-                    0.2392
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#3d3d3d",
-                  "alpha": 1
+                  "alpha": 0.2272,
+                  "hex": "#ffffff"
                 }
               }
             },
@@ -94074,12 +94074,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.2549,
-                    0.2549,
-                    0.2549
+                    1,
+                    1,
+                    1
                   ],
-                  "hex": "#414141",
-                  "alpha": 1
+                  "alpha": 0.244,
+                  "hex": "#ffffff"
                 }
               }
             },
