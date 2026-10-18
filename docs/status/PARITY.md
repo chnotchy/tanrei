@@ -14,6 +14,52 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `dragged-disabled` | <img src="../../packages/web/snapshots/drop-zone/dragged-disabled.png" alt="web dragged-disabled" width="160"> |
 | `dragged-rtl` | <img src="../../packages/web/snapshots/drop-zone/dragged-rtl.png" alt="web dragged-rtl" width="160"> |
 
+## List row
+
+| Fixture | Web Components |
+| --- | --- |
+| `one-line` | <img src="../../packages/web/snapshots/list-row/one-line.png" alt="web one-line" width="160"> |
+| `two-line` | <img src="../../packages/web/snapshots/list-row/two-line.png" alt="web two-line" width="160"> |
+| `three-line` | <img src="../../packages/web/snapshots/list-row/three-line.png" alt="web three-line" width="160"> |
+| `supporting-two-lines` | <img src="../../packages/web/snapshots/list-row/supporting-two-lines.png" alt="web supporting-two-lines" width="160"> |
+| `leading-icon` | <img src="../../packages/web/snapshots/list-row/leading-icon.png" alt="web leading-icon" width="160"> |
+| `leading-picture` | <img src="../../packages/web/snapshots/list-row/leading-picture.png" alt="web leading-picture" width="160"> |
+| `trailing-text` | <img src="../../packages/web/snapshots/list-row/trailing-text.png" alt="web trailing-text" width="160"> |
+| `trailing-icon` | <img src="../../packages/web/snapshots/list-row/trailing-icon.png" alt="web trailing-icon" width="160"> |
+| `trailing-control` | <img src="../../packages/web/snapshots/list-row/trailing-control.png" alt="web trailing-control" width="160"> |
+| `all-parts` | <img src="../../packages/web/snapshots/list-row/all-parts.png" alt="web all-parts" width="160"> |
+| `long-text` | <img src="../../packages/web/snapshots/list-row/long-text.png" alt="web long-text" width="160"> |
+| `compact` | <img src="../../packages/web/snapshots/list-row/compact.png" alt="web compact" width="160"> |
+| `compact-one-line` | <img src="../../packages/web/snapshots/list-row/compact-one-line.png" alt="web compact-one-line" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/list-row/rtl.png" alt="web rtl" width="160"> |
+
+## List
+
+| Fixture | Web Components |
+| --- | --- |
+| `column` | <img src="../../packages/web/snapshots/list/column.png" alt="web column" width="160"> |
+| `column-gap` | <img src="../../packages/web/snapshots/list/column-gap.png" alt="web column-gap" width="160"> |
+| `dividers` | <img src="../../packages/web/snapshots/list/dividers.png" alt="web dividers" width="160"> |
+| `line` | <img src="../../packages/web/snapshots/list/line.png" alt="web line" width="160"> |
+| `line-dividers` | <img src="../../packages/web/snapshots/list/line-dividers.png" alt="web line-dividers" width="160"> |
+| `wrap` | <img src="../../packages/web/snapshots/list/wrap.png" alt="web wrap" width="160"> |
+| `wrap-rtl` | <img src="../../packages/web/snapshots/list/wrap-rtl.png" alt="web wrap-rtl" width="160"> |
+| `interactive` | <img src="../../packages/web/snapshots/list/interactive.png" alt="web interactive" width="160"> |
+| `links` | <img src="../../packages/web/snapshots/list/links.png" alt="web links" width="160"> |
+| `links-rtl` | <img src="../../packages/web/snapshots/list/links-rtl.png" alt="web links-rtl" width="160"> |
+| `single-selected` | <img src="../../packages/web/snapshots/list/single-selected.png" alt="web single-selected" width="160"> |
+| `multiple-selected` | <img src="../../packages/web/snapshots/list/multiple-selected.png" alt="web multiple-selected" width="160"> |
+| `selected-disabled` | <img src="../../packages/web/snapshots/list/selected-disabled.png" alt="web selected-disabled" width="160"> |
+| `line-single-selected` | <img src="../../packages/web/snapshots/list/line-single-selected.png" alt="web line-single-selected" width="160"> |
+| `reorderable` | <img src="../../packages/web/snapshots/list/reorderable.png" alt="web reorderable" width="160"> |
+| `reorderable-rtl` | <img src="../../packages/web/snapshots/list/reorderable-rtl.png" alt="web reorderable-rtl" width="160"> |
+| `reorderable-gap` | <img src="../../packages/web/snapshots/list/reorderable-gap.png" alt="web reorderable-gap" width="160"> |
+| `reorderable-single-item` | <img src="../../packages/web/snapshots/list/reorderable-single-item.png" alt="web reorderable-single-item" width="160"> |
+| `reorderable-wrap` | <img src="../../packages/web/snapshots/list/reorderable-wrap.png" alt="web reorderable-wrap" width="160"> |
+| `icon-space-auto` | <img src="../../packages/web/snapshots/list/icon-space-auto.png" alt="web icon-space-auto" width="160"> |
+| `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
+| `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
+
 ## Modal layer
 
 | Fixture | Web Components |

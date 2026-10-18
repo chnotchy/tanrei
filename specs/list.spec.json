@@ -1378,7 +1378,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-list",
       "props": {
         "orientation": "orientation",
