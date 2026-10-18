@@ -46,7 +46,7 @@ export interface TanreiChipFieldRejectDetail {
 }
 
 /** CHF-1: the props that are the Field's, given to it unchanged. `disabled`, `error` and `errorText` are the Field's too, each joined with what the chip field holds (W2, W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CHF-1: the props that are the Text input's, given to it unchanged. `type`, `placeholder` and `inputValue` are its too (CHF-26, CHF-17, CHF-3). */
 const INPUT = ['variant', 'size', 'readOnly', 'autocomplete'] as const;
 
@@ -208,6 +208,7 @@ export class TanreiChipField extends ComposedElement {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -312,6 +313,9 @@ export class TanreiChipField extends ComposedElement {
 
   /** @from tanrei-field.requirement */
   requirement: TanreiFieldRequirement = 'none';
+
+  /** @from tanrei-field.required */
+  required = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -488,7 +492,7 @@ export class TanreiChipField extends ComposedElement {
       for (const entry of this.list) data.append(this.name, entry);
       this.internals.setFormValue(data, JSON.stringify(this.list));
     }
-    if (this.requirement === 'required' && this.list.length === 0 && !this.inert_) {
+    if ((this.required || this.requirement === 'required') && this.list.length === 0 && !this.inert_) {
       const message = missingValueMessage('text', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
       const anchor = this.native;
       if (anchor) this.internals.setValidity({ valueMissing: true }, message, anchor);

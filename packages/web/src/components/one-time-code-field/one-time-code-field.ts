@@ -7,7 +7,7 @@ import { TanreiOneTimeCodeInput, type TanreiOneTimeCodeInputDetail, type TanreiO
 export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiOneTimeCodeInputDetail, TanreiOneTimeCodeInputType };
 
 /** OTF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** OTF-2: the props that are the One-time-code input's. Its own `label`, `error` and `disabled` are never set. */
 const INPUT = ['value', 'length', 'type', 'groupSize', 'mask', 'readOnly'] as const;
 
@@ -75,6 +75,7 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -106,6 +107,9 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
 
   /** @from tanrei-field.requirement */
   requirement: TanreiFieldRequirement = 'none';
+
+  /** @from tanrei-field.required */
+  required = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

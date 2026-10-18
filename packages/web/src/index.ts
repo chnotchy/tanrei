@@ -219,6 +219,7 @@ export {
   type TanreiFilePickerRefused,
   type TanreiFilePickerRejectDetail,
   type TanreiFilePickerRejectReason,
+  type TanreiFilePickerRequirement,
   type TanreiFilePickerSelectDetail,
 } from './components/file-picker/file-picker.js';
 export {
@@ -413,6 +414,7 @@ export {
   TanreiEmbeddedTextInput,
   type TanreiEmbeddedTextInputActionDetail,
   type TanreiEmbeddedTextInputEnterKey,
+  type TanreiEmbeddedTextInputRequirement,
   type TanreiEmbeddedTextInputRowsChangeDetail,
   type TanreiEmbeddedTextInputType,
 } from './components/embedded-text-input/embedded-text-input.js';

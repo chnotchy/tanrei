@@ -14643,6 +14643,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -15259,6 +15271,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26)."
             },
             {
               "name": "required-mark",
@@ -16144,6 +16165,18 @@
               "attribute": "requirement",
               "reflects": true,
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "kind": "field",
@@ -17268,6 +17301,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -19705,6 +19747,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -20401,6 +20455,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -22155,6 +22218,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -22987,6 +23062,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -30967,6 +31051,28 @@
             },
             {
               "kind": "field",
+              "name": "requirement",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiEmbeddedTextInputRequirement"
+              },
+              "default": "'none'",
+              "description": "What the form asks of the input, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the input draws no mark (ETI-29). An unknown value behaves as `none` and is reported in a debug build.",
+              "attribute": "requirement",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "isRequired",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "ETI-29: required by its own prop, or by `requirement`.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "disabled",
               "privacy": "public",
               "type": {
@@ -31620,6 +31726,15 @@
               "default": "false",
               "description": "Exposes the input as required and, in a form of its own, reports a missing value. It draws nothing and validates nothing else.",
               "fieldName": "required"
+            },
+            {
+              "name": "requirement",
+              "type": {
+                "text": "TanreiEmbeddedTextInputRequirement"
+              },
+              "default": "'none'",
+              "description": "What the form asks of the input, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the input draws no mark (ETI-29). An unknown value behaves as `none` and is reported in a debug build.",
+              "fieldName": "requirement"
             },
             {
               "name": "disabled",
@@ -33164,6 +33279,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26).",
+              "attribute": "required",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -33420,6 +33547,15 @@
               "fieldName": "requirement"
             },
             {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26).",
+              "fieldName": "required"
+            },
+            {
               "name": "required-mark",
               "type": {
                 "text": "TanreiFieldGroupRequiredMark"
@@ -33544,7 +33680,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Frames one control with what a form gives every field: a label above it that can say the control is required or\noptional, a line of help, and the reason a value was refused, each tied to the control for assistive technology. It\nis a frame, never a control.\n\nContract: specs/field.spec.json. `<tanrei-field label=\"Volume\"><tanrei-slider></tanrei-slider></tanrei-field>`: the\ncontrol is the one element in the default slot. It stays in the product's light DOM, so it keeps its place in a\n`<form>`, its `name` and `value`, its events and its styles; the field is not form-associated, holds no value and\nemits no event. Every visual value is a `--tanrei-comp-field-*` token.\n\nThe label names the control; the help describes it, with the error text after it while the field is in error and\n`optional-text` after that while the control is optional. They are given as values, because an id cannot be referenced across a shadow root: a Tanrei\ncontrol asks for them (the composed `tanrei-field-connect` event; `src/primitives/field.ts`) and writes them on the\nelement that carries its semantics, its own `label` winning; any other element receives `aria-label` (only where it\nhas no name of its own), `aria-description`, `aria-invalid`, `aria-required` and, where it has the property,\n`disabled`. The field takes back exactly what it gave when the element leaves the slot.\n\n`requirement=\"required\"` exposes the control as required and draws the required mark beside the label — a small\nfilled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement=\"optional\"` draws the\noptional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While\nthe field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design\nsystem whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below\nit. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while\nfocus is inside the field is announced once, politely — the error text alone, never the help again.\n\nA press on the label moves focus to the control and never operates it; a press on the help, the error or the count\ndoes nothing. A control that names itself (a checkbox with its own label) takes a field with an empty `label`, which\nthen adds help and an error only. A control that is a field already — a composed field such as\n`<tanrei-text-field>`, which is this element around `<tanrei-text-input>`, or anything with a `supportingText` of its\nown — needs no field.\n\nA control may say of itself what only it knows, through the same connection (`src/primitives/field.ts`): that it\ndraws the label itself, floating in its own box — the field then draws no label row and gives the control the name,\nwhether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the\nsupporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is\nthen in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a\ncombobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).\n`count-text` is a count about the control's value as it is to\nbe drawn (\"12/40\"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive\ntechnology, which hears the count from the control (FLD-27). `value-text` is the control's present value in words\n(\"40 %\"), at the end of the label row, for a control whose value cannot be read from the control itself (a slider):\nthe field draws it, never reads or formats a value, and keeps it from assistive technology, which hears the value\nfrom the control (FLD-29, FLD-30).",
+          "description": "Frames one control with what a form gives every field: a label above it that can say the control is required or\noptional, a line of help, and the reason a value was refused, each tied to the control for assistive technology. It\nis a frame, never a control.\n\nContract: specs/field.spec.json. `<tanrei-field label=\"Volume\"><tanrei-slider></tanrei-slider></tanrei-field>`: the\ncontrol is the one element in the default slot. It stays in the product's light DOM, so it keeps its place in a\n`<form>`, its `name` and `value`, its events and its styles; the field is not form-associated, holds no value and\nemits no event. Every visual value is a `--tanrei-comp-field-*` token.\n\nThe label names the control; the help describes it, with the error text after it while the field is in error and\n`optional-text` after that while the control is optional. They are given as values, because an id cannot be referenced across a shadow root: a Tanrei\ncontrol asks for them (the composed `tanrei-field-connect` event; `src/primitives/field.ts`) and writes them on the\nelement that carries its semantics, its own `label` winning; any other element receives `aria-label` (only where it\nhas no name of its own), `aria-description`, `aria-invalid`, `aria-required` and, where it has the property,\n`disabled`. The field takes back exactly what it gave when the element leaves the slot.\n\n`requirement=\"required\"` exposes the control as required and draws the required mark beside the label — a small\nfilled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement=\"optional\"` draws the\noptional tag. `required`, HTML's name for it, is the same as `requirement=\"required\"` and wins over any other value. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While\nthe field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design\nsystem whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below\nit. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while\nfocus is inside the field is announced once, politely — the error text alone, never the help again.\n\nA press on the label moves focus to the control and never operates it; a press on the help, the error or the count\ndoes nothing. A control that names itself (a checkbox with its own label) takes a field with an empty `label`, which\nthen adds help and an error only. A control that is a field already — a composed field such as\n`<tanrei-text-field>`, which is this element around `<tanrei-text-input>`, or anything with a `supportingText` of its\nown — needs no field.\n\nA control may say of itself what only it knows, through the same connection (`src/primitives/field.ts`): that it\ndraws the label itself, floating in its own box — the field then draws no label row and gives the control the name,\nwhether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the\nsupporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is\nthen in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a\ncombobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).\n`count-text` is a count about the control's value as it is to\nbe drawn (\"12/40\"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive\ntechnology, which hears the count from the control (FLD-27). `value-text` is the control's present value in words\n(\"40 %\"), at the end of the label row, for a control whose value cannot be read from the control itself (a slider):\nthe field draws it, never reads or formats a value, and keeps it from assistive technology, which hears the value\nfrom the control (FLD-29, FLD-30).",
           "name": "TanreiField",
           "cssParts": [
             {
@@ -33673,6 +33809,18 @@
               "default": "'none'",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
               "attribute": "requirement",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32).",
+              "attribute": "required",
               "reflects": true
             },
             {
@@ -34058,6 +34206,15 @@
               "default": "'none'",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates.",
               "fieldName": "requirement"
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32).",
+              "fieldName": "required"
             },
             {
               "name": "required-mark",
@@ -36091,6 +36248,18 @@
             },
             {
               "kind": "field",
+              "name": "requirement",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiFilePickerRequirement"
+              },
+              "default": "'none'",
+              "description": "What the form asks of the file picker, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the file picker draws no mark (FPK-32). An unknown value behaves as `none` and is reported in a debug build.",
+              "attribute": "requirement",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "drag",
               "privacy": "protected",
               "type": {
@@ -36673,6 +36842,15 @@
               "default": "false",
               "description": "Exposes the trigger as required; a button has no such state, so it is said by a Field's required text in the trigger's description. Draws nothing and validates nothing.",
               "fieldName": "required"
+            },
+            {
+              "name": "requirement",
+              "type": {
+                "text": "TanreiFilePickerRequirement"
+              },
+              "default": "'none'",
+              "description": "What the form asks of the file picker, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the file picker draws no mark (FPK-32). An unknown value behaves as `none` and is reported in a debug build.",
+              "fieldName": "requirement"
             }
           ],
           "superclass": {
@@ -37193,6 +37371,18 @@
               "attribute": "required",
               "reflects": true,
               "description": "Exposes the trigger as required; a button has no such state, so it is said by a Field's required text in the trigger's description. Draws nothing and validates nothing."
+            },
+            {
+              "kind": "field",
+              "name": "requirement",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiFilePickerRequirement"
+              },
+              "default": "'none'",
+              "attribute": "requirement",
+              "reflects": true,
+              "description": "What the form asks of the file picker, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the file picker draws no mark (FPK-32). An unknown value behaves as `none` and is reported in a debug build."
             },
             {
               "kind": "field",
@@ -38532,6 +38722,15 @@
               "default": "false",
               "fieldName": "required",
               "description": "Exposes the trigger as required; a button has no such state, so it is said by a Field's required text in the trigger's description. Draws nothing and validates nothing."
+            },
+            {
+              "name": "requirement",
+              "type": {
+                "text": "TanreiFilePickerRequirement"
+              },
+              "default": "'none'",
+              "fieldName": "requirement",
+              "description": "What the form asks of the file picker, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the file picker draws no mark (FPK-32). An unknown value behaves as `none` and is reported in a debug build."
             },
             {
               "name": "name",
@@ -57562,6 +57761,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -58412,6 +58623,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -60782,6 +61002,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -61472,6 +61704,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -66503,6 +66744,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -67063,6 +67316,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the set required, whatever `requirement` names (FGR-26)."
             },
             {
               "name": "required-mark",
@@ -70736,6 +70998,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -71460,6 +71734,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -74126,6 +74409,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -74949,6 +75244,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",
@@ -85469,6 +85773,18 @@
             },
             {
               "kind": "field",
+              "name": "required",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "required",
+              "reflects": true,
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
+            },
+            {
+              "kind": "field",
               "name": "requiredMark",
               "privacy": "public",
               "type": {
@@ -86430,6 +86746,15 @@
               "default": "'none'",
               "fieldName": "requirement",
               "description": "What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "required",
+              "description": "HTML's name for `requirement=\"required\"`: true makes the control required, whatever `requirement` names (FLD-32)."
             },
             {
               "name": "required-mark",

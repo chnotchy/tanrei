@@ -41,7 +41,7 @@ export type FrameRequiredMark = (typeof REQUIRED_MARKS)[number];
  */
 export const SYSTEM_MARKS = ['tag', 'asterisk', 'none'] as const;
 
-/** The frame's props, as every component that draws it has them (the same ten names, types and defaults). */
+/** The frame's props, as every component that draws it has them (the same eleven names, types and defaults). */
 export interface FrameProps {
   label: string;
   labelHidden: boolean;
@@ -49,10 +49,15 @@ export interface FrameProps {
   errorText: string;
   error: boolean;
   requirement: string;
+  /** HTML's name for requirement required (FLD-32, FGR-26): true wins over whatever requirement names. */
+  required: boolean;
   requiredMark: string;
   requiredText: string;
   optionalText: string;
 }
+
+/** What says the requirement: `requirement`, and `required`, which wins where it is true (FLD-32, FGR-26). */
+type Asked = Pick<FrameProps, 'requirement'> & Partial<Pick<FrameProps, 'required'>>;
 
 /**
  * FLD-24 and its copies: the frame's props with its two words read — the instance's prop, else the product's words
@@ -66,15 +71,16 @@ export function frameWithWords(props: FrameProps, words: WordsController): Frame
     errorText: props.errorText,
     error: props.error,
     requirement: props.requirement,
+    required: props.required,
     requiredMark: props.requiredMark,
     requiredText: words.get('requiredText', props.requiredText),
     optionalText: words.get('optionalText', props.optionalText),
   };
 }
 
-/** FLD-4, FLD-22: the requirement, an unknown value behaving as none. */
-export const frameRequirement = (props: Pick<FrameProps, 'requirement'>): FrameRequirement =>
-  (REQUIREMENTS as readonly string[]).includes(props.requirement) ? (props.requirement as FrameRequirement) : 'none';
+/** FLD-4, FLD-22, FLD-32: the requirement — required while `required` is true, else `requirement`, an unknown value behaving as none. */
+export const frameRequirement = (props: Asked): FrameRequirement =>
+  props.required === true ? 'required' : (REQUIREMENTS as readonly string[]).includes(props.requirement) ? (props.requirement as FrameRequirement) : 'none';
 
 /** FLD-2: the label row is drawn. */
 export const frameLabelled = (props: Pick<FrameProps, 'label' | 'labelHidden'>): boolean => !!props.label && !props.labelHidden;
@@ -83,7 +89,7 @@ export const frameLabelled = (props: Pick<FrameProps, 'label' | 'labelHidden'>):
  * FLD-6, FLD-22: the required mark this frame draws — `auto` leaves it to the styles, which read the design system's
  * choice; `none` while the control is not required or the label is not drawn. An unknown value behaves as auto.
  */
-export function frameMark(props: Pick<FrameProps, 'label' | 'labelHidden' | 'requirement' | 'requiredMark'>): FrameRequiredMark {
+export function frameMark(props: Asked & Pick<FrameProps, 'label' | 'labelHidden' | 'requiredMark'>): FrameRequiredMark {
   if (frameRequirement(props) !== 'required' || !frameLabelled(props)) return 'none';
   return (REQUIRED_MARKS as readonly string[]).includes(props.requiredMark) ? (props.requiredMark as FrameRequiredMark) : 'auto';
 }
@@ -92,7 +98,7 @@ export function frameMark(props: Pick<FrameProps, 'label' | 'labelHidden' | 'req
 export const frameErrorText = (props: Pick<FrameProps, 'errorText' | 'error'>): string => (props.error ? props.errorText : '');
 
 /** FLD-4, FLD-11: the optional text that joins the description (assistive technology has no state for it). */
-export const frameOptionalText = (props: Pick<FrameProps, 'requirement' | 'optionalText'>): string => (frameRequirement(props) === 'optional' ? props.optionalText : '');
+export const frameOptionalText = (props: Asked & Pick<FrameProps, 'optionalText'>): string => (frameRequirement(props) === 'optional' ? props.optionalText : '');
 
 /**
  * The debug reports every frame makes about its own props (FLD-22, FLD-24 and their copies): an unknown requirement or
@@ -133,7 +139,7 @@ export function reportFrame(
   if (asked === 'optional' && !props.optionalText) words.missing('optionalText', { id: ids.words, effect: `no optional ${tag} is drawn and nothing is added to the description` });
 }
 
-export interface FrameLabelRow extends Pick<FrameProps, 'label' | 'labelHidden' | 'requirement' | 'requiredMark' | 'requiredText' | 'optionalText'> {
+export interface FrameLabelRow extends Asked, Pick<FrameProps, 'label' | 'labelHidden' | 'requiredMark' | 'requiredText' | 'optionalText'> {
   /** The label glyph's box and slot, for a frame that has one (`frameLabelIcon()`); nothing for one that has none (a group). */
   glyph?: TemplateResult | typeof nothing;
   /** The glyph's slot holds something: the row keeps the glyph's room (`data-label-icon`). */

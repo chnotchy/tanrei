@@ -25,7 +25,7 @@ export type {
 };
 
 /** NUM-47: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** NUM-47: the nineteen props that are the number input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
   'variant',
@@ -146,6 +146,7 @@ export class TanreiNumberField extends ComposedControl<number | null> {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -190,6 +191,9 @@ export class TanreiNumberField extends ComposedControl<number | null> {
 
   /** @from tanrei-field.requirement */
   requirement: TanreiFieldRequirement = 'none';
+
+  /** @from tanrei-field.required */
+  required = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

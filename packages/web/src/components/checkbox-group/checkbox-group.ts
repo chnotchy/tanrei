@@ -18,7 +18,7 @@ export interface TanreiCheckboxGroupChangeDetail {
 }
 
 /** CKG-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with a disabled fieldset's (W6). */
-const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
+const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
 
 /** W4: the field group's documented parts, under its own names (`::part(label)` is the set's label, as one level down). */
 const GROUP_PARTS = exported(TanreiFieldGroup);
@@ -104,6 +104,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -157,6 +158,9 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
 
   /** @from tanrei-field-group.requirement */
   requirement: TanreiFieldGroupRequirement = 'none';
+
+  /** @from tanrei-field-group.required */
+  required = false;
 
   /** @from tanrei-field-group.requiredMark */
   requiredMark: TanreiFieldGroupRequiredMark = 'auto';
@@ -445,7 +449,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
       for (const entry of value) entries.append(this.name, entry);
     }
     this.internals.setFormValue(entries, JSON.stringify(value));
-    if (!off && this.requirement === 'required' && !value.length) {
+    if (!off && (this.required || this.requirement === 'required') && !value.length) {
       // The product's words: a browser has a sentence for one unchecked box and none for a set. The
       // last resort is the required mark itself, a mark and not a word, so that the flag is never refused.
       const message = [this.errorText, this.words.get('requiredText', this.requiredText), this.label].find((text) => text.trim() !== '') ?? '*';

@@ -10,7 +10,7 @@ import { TanreiSlider, type TanreiSliderChangeDetail, type TanreiSliderSize, typ
 export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
 
 /** SLF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'required', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * SLF-2: the props that are the Slider's, and the product's function for a value's words (SLD-18). `endLabel` is the
  * Slider's `label` and is given in the template. The Slider's own `disabled` and `orientation` are never set.
@@ -119,6 +119,7 @@ export class TanreiSliderField extends ComposedControl<number> {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -160,6 +161,9 @@ export class TanreiSliderField extends ComposedControl<number> {
 
   /** @from tanrei-field.requirement */
   requirement: TanreiFieldRequirement = 'none';
+
+  /** @from tanrei-field.required */
+  required = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

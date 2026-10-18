@@ -93,6 +93,7 @@ export class TanreiFieldGroup extends LitElement {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -121,6 +122,9 @@ export class TanreiFieldGroup extends LitElement {
 
   /** What the form asks of the set: `required` draws the required mark and says so in the group's description; `optional` draws the optional tag; `none` says and draws nothing. It never validates. */
   requirement: TanreiFieldGroupRequirement = 'none';
+
+  /** HTML's name for `requirement="required"`: true makes the set required, whatever `requirement` names (FGR-26). */
+  required = false;
 
   /** How this set shows that it is required (`required-mark`): `tag`, `asterisk` or `none`; `auto` takes the design system's answer (`--tanrei-comp-field-group-requirement-mark`, which follows `--tanrei-sys-behavior-requirement-mark`). */
   requiredMark: TanreiFieldGroupRequiredMark = 'auto';

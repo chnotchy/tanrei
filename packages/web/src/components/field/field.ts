@@ -73,7 +73,7 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  *
  * `requirement="required"` exposes the control as required and draws the required mark beside the label — a small
  * filled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement="optional"` draws the
- * optional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While
+ * optional tag. `required`, HTML's name for it, is the same as `requirement="required"` and wins over any other value. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While
  * the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design
  * system whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below
  * it. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while
@@ -129,6 +129,7 @@ export class TanreiField extends LitElement {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -159,6 +160,9 @@ export class TanreiField extends LitElement {
 
   /** What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates. */
   requirement: TanreiFieldRequirement = 'none';
+
+  /** HTML's name for `requirement="required"`: true makes the control required, whatever `requirement` names (FLD-32). */
+  required = false;
 
   /** How this control shows that it is required (`required-mark`): `tag` is a small filled tag with `requiredText`, `asterisk` is "*" after the label, `none` draws nothing and keeps the semantics; `auto` takes the design system's answer (`--tanrei-comp-field-requirement-mark`, which follows `--tanrei-sys-behavior-requirement-mark`). */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -264,7 +268,7 @@ export class TanreiField extends LitElement {
    */
   private givenMark(said: FieldSays): 'asterisk' | 'none' {
     if (!said.drawsLabel) return 'none';
-    const mark = frameMark({ label: this.label, labelHidden: this.labelHidden, requirement: this.requirement, requiredMark: this.requiredMark });
+    const mark = frameMark({ label: this.label, labelHidden: this.labelHidden, requirement: this.requirement, required: this.required, requiredMark: this.requiredMark });
     const named = mark === 'auto' ? compChoice(this, `${PREFIX}-requirement-mark`, SYSTEM_MARKS) : mark;
     return named === 'none' ? 'none' : 'asterisk';
   }
@@ -429,6 +433,7 @@ export class TanreiField extends LitElement {
           // FLD-25: no label row, glyph or tag where the control draws the label itself.
           labelHidden: this.labelHidden || !!said.drawsLabel,
           requirement: this.requirement,
+          required: this.required,
           requiredMark: this.requiredMark,
           requiredText: framed.requiredText,
           optionalText: framed.optionalText,

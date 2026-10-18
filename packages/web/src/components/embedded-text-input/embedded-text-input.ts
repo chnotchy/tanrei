@@ -16,6 +16,9 @@ import { CompositionEnd } from '../../primitives/composition-end.js';
 export type TanreiEmbeddedTextInputType = 'text' | 'search' | 'email' | 'url' | 'tel';
 /** What Enter does on a hardware keyboard in a multi-line input (ETI-6). */
 export type TanreiEmbeddedTextInputEnterKey = 'line-break' | 'action';
+/** What the form asks of the input, in a Field's words (ETI-29): `required` behaves as `required` true. */
+export type TanreiEmbeddedTextInputRequirement = 'none' | 'required' | 'optional';
+const REQUIREMENTS: readonly string[] = ['none', 'required', 'optional'];
 
 /** `action`: the value when the person asked for the action of whatever holds the input. */
 export interface TanreiEmbeddedTextInputActionDetail {
@@ -140,6 +143,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
     enterKey: { type: String, attribute: 'enter-key' },
     error: { type: Boolean, reflect: true },
     required: { type: Boolean, reflect: true },
+    requirement: { type: String, reflect: true },
     disabled: { type: Boolean, reflect: true },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     autocomplete: { type: String },
@@ -196,6 +200,14 @@ export class TanreiEmbeddedTextInput extends LitElement {
 
   /** Exposes the input as required and, in a form of its own, reports a missing value. It draws nothing and validates nothing else. */
   required = false;
+
+  /** What the form asks of the input, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the input draws no mark (ETI-29). An unknown value behaves as `none` and is reported in a debug build. */
+  requirement: TanreiEmbeddedTextInputRequirement = 'none';
+
+  /** ETI-29: required by its own prop, or by `requirement`. */
+  private get isRequired(): boolean {
+    return this.required || this.requirement === 'required';
+  }
 
   /** Not focusable and not editable; the text and the placeholder read as disabled content. The disabled look of the box is its holder's. */
   disabled = false;
@@ -425,7 +437,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
     const value = this.value;
     this.says.value(this.inert_ ? null : value, value);
     const input = this.input;
-    if (!this.required || value || this.inert_ || this.readOnly) this.says.validity();
+    if (!this.isRequired || value || this.inert_ || this.readOnly) this.says.validity();
     else this.says.validity({ valueMissing: true }, missingValueMessage('text', { errorText: '', requiredText: '', label: this.label }), input ?? undefined);
   }
 
@@ -622,6 +634,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
+    if (changed.has('requirement') && !REQUIREMENTS.includes(this.requirement)) report(this, 'ETI-29', `requirement "${this.requirement}" is not none, required or optional; it behaves as "none"`);
     const input = this.input;
     const replaced = input !== this.native_;
     // ETI-4: never written into a composition; a value set meanwhile waits for its end.
@@ -698,7 +711,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
           aria-label=${label || nothing}
           aria-description=${description || nothing}
           aria-invalid=${this.error ? 'true' : nothing}
-          aria-required=${this.required ? 'true' : nothing}
+          aria-required=${this.isRequired ? 'true' : nothing}
           aria-readonly=${this.readOnly ? 'true' : nothing}
           autocomplete=${this.autocomplete || nothing}
           @input=${this.onInput}
@@ -721,7 +734,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
           aria-label=${label || nothing}
           aria-description=${description || nothing}
           aria-invalid=${this.error ? 'true' : nothing}
-          aria-required=${this.required ? 'true' : nothing}
+          aria-required=${this.isRequired ? 'true' : nothing}
           aria-readonly=${this.readOnly ? 'true' : nothing}
           autocomplete=${this.autocomplete || nothing}
           @input=${this.onInput}

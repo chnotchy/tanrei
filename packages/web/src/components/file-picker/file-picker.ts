@@ -23,6 +23,9 @@ import { PREFIX, styles } from './file-picker.styles.js';
 
 /** How choosing is offered: the trigger alone (`button`), or a bounded place around it that also takes a drop (`drop-area`). */
 export type TanreiFilePickerLayout = 'button' | 'drop-area';
+/** What the form asks of the file picker, in a Field's words (FPK-32): `required` behaves as `required` true. */
+export type TanreiFilePickerRequirement = 'none' | 'required' | 'optional';
+const REQUIREMENTS: readonly string[] = ['none', 'required', 'optional'];
 /** Why a file was refused — a name for the product's code, never words: its kind, its size, or how many there were. */
 export type TanreiFilePickerRejectReason = FileRejectReason;
 /** A file that was refused, with the reason: what `reject` carries and `judge()` answers with. */
@@ -108,6 +111,7 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
     disabled: { type: Boolean, reflect: true },
     error: { type: Boolean, reflect: true },
     required: { type: Boolean, reflect: true },
+    requirement: { type: String, reflect: true },
     drag: { state: true },
   };
 
@@ -146,6 +150,9 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
 
   /** Exposes the trigger as required; a button has no such state, so it is said by a Field's required text in the trigger's description. Draws nothing and validates nothing. */
   required = false;
+
+  /** What the form asks of the file picker, in a Field's words: `required` behaves as `required` true; `optional` and `none` change nothing, because the file picker draws no mark (FPK-32). An unknown value behaves as `none` and is reported in a debug build. */
+  requirement: TanreiFilePickerRequirement = 'none';
 
   /** FPK-13: what is dragged over the area can be taken (receiving), cannot (refusing), or nothing is. */
   protected drag: '' | 'receiving' | 'refusing' = '';
@@ -215,7 +222,7 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
   }
 
   private get isRequired(): boolean {
-    return this.required || this.field.required;
+    return this.required || this.requirement === 'required' || this.field.required;
   }
 
   /** The elements in the trigger slot — through a slot that passes them on, too. */
@@ -494,6 +501,7 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
   }
 
   protected override updated(changed: PropertyValues<this>) {
+    if (changed.has('requirement') && !REQUIREMENTS.includes(this.requirement)) report(this, 'FPK-32', `requirement "${this.requirement}" is not none, required or optional; it behaves as "none"`);
     // FPK-4: without style queries, the name the cascade gives outline.style now is written for the styles to match.
     const area = this.renderRoot.querySelector<HTMLElement>('.area');
     if (area) {
