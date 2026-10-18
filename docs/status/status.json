@@ -718,6 +718,7 @@
       "category": "actions",
       "level": "base",
       "listing": "default",
+      "layer": "m3-like",
       "builtFrom": [],
       "uses": [],
       "hasSpec": true,
@@ -1869,13 +1870,14 @@
   },
   "unavailable": {
     "cupertino": {
-      "components": [
-        "fab-menu"
-      ],
+      "components": [],
       "variants": {
         "navigation-bar": [
           "filled"
         ]
+      },
+      "outside": {
+        "fab-menu": "m3-like"
       }
     },
     "m3-expressive-like": {
@@ -1887,7 +1889,8 @@
         "tabs": [
           "tonal"
         ]
-      }
+      },
+      "outside": {}
     },
     "m3-like": {
       "components": [],
@@ -1898,12 +1901,12 @@
         "tabs": [
           "tonal"
         ]
-      }
+      },
+      "outside": {}
     },
     "tanrei": {
       "components": [
-        "segmented-button",
-        "fab-menu"
+        "segmented-button"
       ],
       "variants": {
         "text-input": [
@@ -1926,6 +1929,9 @@
           "filled",
           "outlined"
         ]
+      },
+      "outside": {
+        "fab-menu": "m3-like"
       }
     }
   }

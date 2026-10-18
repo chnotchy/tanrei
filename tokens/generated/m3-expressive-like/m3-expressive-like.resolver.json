@@ -145,9 +145,6 @@
           "$ref": "comp/button-with-menu.tokens.json"
         },
         {
-          "$ref": "comp/fab-menu.tokens.json"
-        },
-        {
           "$ref": "comp/toolbar.tokens.json"
         },
         {
@@ -296,6 +293,9 @@
         },
         {
           "$ref": "comp/chat-composer.tokens.json"
+        },
+        {
+          "$ref": "comp/fab-menu.tokens.json"
         }
       ]
     }
