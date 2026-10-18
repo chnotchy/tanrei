@@ -378,6 +378,88 @@ test.describe('appearStyles and AppearController', () => {
     expect(unfolded.frames[0]!.probe).toEqual({ centre: '0 0', anchored: '1 0' });
   });
 
+  test('enter(true) and exit(true) are made at once: no transition runs, and exit(true) resolves in the task that asks for it', async ({ page }) => {
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear></div>');
+    await painted(page);
+    const host = page.locator('#a');
+    // Open and closed at once, each read in the task that asks: whole, then where it starts.
+    // The open state written as a component writes it, and the controller told at once: whole, then where it starts —
+    // each read in the task that asks, before anything has resolved.
+    const seen = await host.evaluate(async (el: HTMLElement & { appear: { enter(at: boolean): void; exit(at: boolean): Promise<boolean> } }) => {
+      const surface = el.shadowRoot!.querySelector('.surface')!;
+      const motion = el.shadowRoot!.querySelector('.motion')!;
+      surface.classList.add('open');
+      el.appear.enter(true);
+      const opened = [getComputedStyle(motion).opacity, getComputedStyle(motion).scale];
+      surface.classList.remove('open');
+      const leaving = el.appear.exit(true);
+      const closed = [getComputedStyle(motion).opacity, getComputedStyle(motion).scale];
+      return { opened, closed, settled: await leaving };
+    });
+    expect(seen).toEqual({ opened: ['1', 'none'], closed: ['0', '0.96'], settled: true });
+    await frames(page);
+    expect((await runs(host)).filter((run) => run.startsWith('motion:'))).toEqual([]);
+  });
+
+  test('drawAtOnce(): a surface placed on another side after its style was read starts its entrance from that side, not from the one its style gave it before', async ({ page }) => {
+    await open(page, '<div id="stage"><x-anchored id="a"></x-anchored></div>');
+    await painted(page);
+    const stage = page.locator('#stage');
+    const host = page.locator('#a');
+    // Read for its size below its anchor (as a placement reads it), then placed above it, then opened: in one task.
+    const place = (drawn: boolean) =>
+      host.evaluate((el: HTMLElement & { open: boolean; appear: { drawAtOnce(): void } }, draw) => {
+        const surface = el.shadowRoot!.querySelector('.surface') as HTMLElement;
+        void getComputedStyle(el.shadowRoot!.querySelector('.motion')!).translate;
+        surface.dataset.side = 'top';
+        if (draw) el.appear.drawAtOnce();
+        el.open = true;
+      }, drawn);
+    const placed = await sampleFrames(stage, () => place(true), { probe: surfaceProbe });
+    expect(placed.frames[0]!.probe).toMatchObject({ opacity: 0, ty: 8 });
+    expectNoFlicker(placed);
+    // Without it, the entrance starts from the side it was read on: moving across its anchor (the old code's frame).
+    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = false));
+    await finishAll(host);
+    await host.evaluate((el: HTMLElement) => ((el.shadowRoot!.querySelector('.surface') as HTMLElement).dataset.side = 'bottom'));
+    // (Closed, it moves to the start of its new side: that too is played to its end.)
+    await frames(page);
+    await finishAll(host);
+    await frames(page);
+    const unplaced = await sampleFrames(stage, () => place(false), { probe: surfaceProbe });
+    expect(Number(unplaced.frames[0]!.probe.ty)).toBeLessThan(0);
+  });
+
+  test('keep(): a surface taken out of the top layer and put back while it leaves goes on from the value shown when it is opened again, not from its start', async ({ page }) => {
+    await open(page, '<div id="stage"><x-appear id="a" open></x-appear></div>');
+    await painted(page);
+    const stage = page.locator('#stage');
+    const host = page.locator('#a');
+    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = false));
+    await holdAt(host, 0.5);
+    const shown = Number(await host.locator('.motion').evaluate((el) => getComputedStyle(el).opacity));
+    expect(shown).toBeGreaterThan(0.2);
+    expect(shown).toBeLessThan(0.98);
+    // Out of the layout and back (as `hidePopover()` and `showPopover()` take a popover out and put it back), then opened.
+    const back = await sampleFrames(
+      stage,
+      () =>
+        host.evaluate((el: HTMLElement & { open: boolean; appear: { keep(during: () => void): void } }) => {
+          const surface = el.shadowRoot!.querySelector('.surface') as HTMLElement;
+          el.appear.keep(() => {
+            surface.style.display = 'none';
+            void surface.offsetWidth;
+            surface.style.display = '';
+          });
+          el.open = true;
+        }),
+      { probe: surfaceProbe },
+    );
+    expect(Number(back.frames[0]!.probe.opacity), 'the entrance starts from the opacity shown').toBeCloseTo(shown, 1);
+    expect(back.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    expectNoFlicker(back);
+  });
+
   test('MOT-6: under reduced motion an appearance is a cross-fade over role.reduced, with no scale and no distance', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await open(page, '<div id="stage"></div>');
