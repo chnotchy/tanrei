@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 7eed0ff688ffca9e673ee75345968947bb563997
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -108,6 +108,48 @@ npm install @tanrei/web
   दोनों ऐट्रिब्यूट `<html>` पर या किसी भी सबट्री पर काम करते हैं। जनरेट की गई स्टाइलशीट पूरा टोकन सेट `:root, [data-tanrei-contrast]` पर घोषित करती है, इसलिए किसी नेस्टेड एलिमेंट पर लगा `data-tanrei-contrast` उसके भीतर सिर्फ़ सिस्टम के रंग ही नहीं, कंपोनेंट टोकन भी उसी कंट्रास्ट स्तर के हिसाब से दोबारा रिज़ॉल्व करता है।
 </Callout>
 
+### किसी व्यक्ति की चुनी हुई थीम बनाए रखें
+
+अगर आपके प्रॉडक्ट में लोग थीम चुन सकते हैं, तो उनकी पसंद सहेजें और पेज के पहली बार बनने से पहले उसे `<html>` पर लगाएँ: बाद में चलने वाली स्क्रिप्ट से लगाने पर पेज पहले एक फ़्रेम के लिए सिस्टम की थीम दिखाता है। `@tanrei/web/theme-script` दोनों काम करता है। `themeScript()` एक छोटी स्क्रिप्ट है जिसे `<head>` में, स्टाइलशीट से पहले, इनलाइन लिखा जाता है, और `saveTheme()` पसंद सहेजता है और उसे तुरंत लागू करता है।
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light', 'dark', या फिर से ऑपरेटिंग सिस्टम के हिसाब से चलने के लिए 'system'
+loadTheme();       // जो सहेजा गया है: 'light', 'dark' या 'system'
+```
+
+Next.js (App Router) में इसे रूट लेआउट में इनलाइन लिखें। `suppressHydrationWarning` इसलिए है कि React के हाइड्रेट करने से पहले स्क्रिप्ट `<html>` का एक ऐट्रिब्यूट बदल देती है।
+
+```tsx title="app/layout.tsx"
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Astro में इसे लेआउट में इनलाइन लिखें:
+
+```html title="src/layouts/Layout.astro"
+---
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## अपनी CSS में टोकन
 
 हर टोकन एक कस्टम प्रॉपर्टी है, जिसका नाम उसके पाथ से बनता है: `tanrei.sys.color.primary` का नाम `--tanrei-sys-color-primary` बन जाता है।
@@ -120,6 +162,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+स्क्रिप्ट से टोकन सेट करने के लिए `@tanrei/web` का `setTokens()` इस्तेमाल करें: रूट पर `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`, या पेज के किसी एक हिस्से के लिए `{ on: element }` के साथ। रूट पर `style.setProperty()` से अकेला एक टोकन सेट करने पर Safari कई सेकंड तक पूरे पेज की स्टाइल फिर से निकालता है; `setTokens()` उसे इस तरह लिखता है कि ऐसा न हो।
 
 ## टेक्स्ट स्टाइल
 

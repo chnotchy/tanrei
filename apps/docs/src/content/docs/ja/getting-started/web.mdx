@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: 7eed0ff688ffca9e673ee75345968947bb563997
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -108,6 +108,48 @@ npm install @tanrei/web
   どちらの属性も、`<html>` にも任意のサブツリーにも使えます。生成されるスタイルシートは、トークン一式を `:root, [data-tanrei-contrast]` に宣言しています。そのため、入れ子の要素に `data-tanrei-contrast` を付けると、システムの色だけでなく、その中のコンポーネントトークンも、そのコントラストレベルで解決し直されます。
 </Callout>
 
+### 選んだテーマを保つ
+
+プロダクトでテーマを選べるなら、選んだものを保存し、ページが最初に描かれる前に `<html>` に付けます。あとから動くスクリプトで付けると、ページは最初の 1 フレームだけシステムのテーマで表示されます。`@tanrei/web/theme-script` はその両方をします。`themeScript()` は `<head>` のスタイルシートより前にインラインで書く小さなスクリプトで、`saveTheme()` は選んだテーマを保存してすぐに描きます。
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light'、'dark'、または OS に従い直す 'system'
+loadTheme();       // 保存されているもの: 'light'、'dark'、'system'
+```
+
+Next.js（App Router）では、ルートのレイアウトにインラインで書きます。`suppressHydrationWarning` を付けるのは、React がハイドレートする前にスクリプトが `<html>` の属性を変えるからです。
+
+```tsx title="app/layout.tsx"
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Astro では、レイアウトにインラインで書きます。
+
+```html title="src/layouts/Layout.astro"
+---
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## 自分の CSS でトークンを使う
 
 すべてのトークンは、パスにちなんだ名前のカスタムプロパティです。`tanrei.sys.color.primary` は `--tanrei-sys-color-primary` になります。
@@ -120,6 +162,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+スクリプトからトークンを設定するには、`@tanrei/web` の `setTokens()` を使います。ルートなら `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`、ページの一部なら `{ on: element }` を付けます。ルートにトークンを 1 つだけ `style.setProperty()` で設定すると、Safari はページ全体のスタイルを数秒かけて計算し直します。`setTokens()` は、そうならないように書き込みます。
 
 ## テキストスタイル
 
