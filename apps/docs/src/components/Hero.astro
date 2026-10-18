@@ -112,7 +112,9 @@ const specimenTitle = `${figureId(Astro)}-title`;
     .hero {
       /* The copy's share leaves the three actions one line: a text Button keeps the padding of its size. */
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      align-items: center;
+      /* The copy stands at the top of its row, not at the middle of the specimen beside it: its place does not hang on
+         the specimen's height, which changes when its Buttons are defined. */
+      align-items: start;
       column-gap: 4rem;
     }
     .platforms,
@@ -132,7 +134,9 @@ const specimenTitle = `${figureId(Astro)}-title`;
     font: var(--tanrei-comp-button-label-typescale-large-font);
     letter-spacing: var(--tanrei-comp-button-label-typescale-large-letter-spacing);
   }
-  .action > a {
+  /* Until then the plain link is the action. Once the Button is defined it draws the label in its own color, over its
+     own fill: nothing here colors the anchor then (lib/link-fallback.ts takes it away in that same task). */
+  .action:not(:defined) > a {
     color: var(--tanrei-sys-color-on-surface);
   }
 
@@ -154,10 +158,25 @@ const specimenTitle = `${figureId(Astro)}-title`;
     gap: 0 var(--tanrei-comp-figure-header-gap);
   }
   .specimen-stage {
+    --_specimen-gap: 0.75rem;
+    /* Until its Buttons are defined the stage holds them hidden, as text, in fewer rows than they take once drawn. It is
+       given the rows they will take, so that nothing beside or under it moves when they are drawn. Measured with every
+       element defined, the same in all six languages (the specimen's labels are not translated): 13 rows in the second
+       column, at every width that column has (from 60rem up its width no longer changes); 7 to 14 rows in one column,
+       more as it narrows — there it is given the fewest, which leaves no room empty at any width. */
+    --_specimen-rows: 7;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    min-block-size: 9rem;
+    gap: var(--_specimen-gap);
+    min-block-size: calc(
+      var(--_specimen-rows) * var(--tanrei-comp-button-container-height-medium) + (var(--_specimen-rows) - 1) * var(--_specimen-gap) +
+        2 * var(--tanrei-comp-figure-stage-padding-block) + var(--tanrei-comp-figure-divider-thickness)
+    );
+  }
+  @media (min-width: 60rem) {
+    .specimen-stage {
+      --_specimen-rows: 13;
+    }
   }
   .specimen-stage :global(:not(:defined)) {
     visibility: hidden;

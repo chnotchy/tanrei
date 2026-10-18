@@ -5,7 +5,7 @@
 /* The Studio needs the room a two-pane tool needs; the docs page turns its table of contents off.
    (:root twice: the docs theme sets the width on :root[data-theme], and this sheet may load before it.)
    The root says it with an attribute the Studio writes while it is mounted (`mountStudio`, ui.ts) — not with
-   `:has(.ts)`: this sheet is in the bundle of every page of a site that hosts the Studio on one, and a `:has()` on
+   `:has(.ts)`: this sheet may be on every page of a site that hosts the Studio on one, and a `:has()` on
    the root makes every element of every such page one whose changes the root must be asked about again
    (test/studio-css.test.js holds it). */
 :root:root[data-ts-mounted] {

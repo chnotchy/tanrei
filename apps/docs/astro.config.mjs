@@ -100,6 +100,7 @@ export default defineConfig({
             'getting-started/flutter',
             'getting-started/react-native',
             'getting-started/your-design-system',
+            'getting-started/ai-agents',
           ],
         },
         {

@@ -1,0 +1,137 @@
+---
+title: AI एजेंट के साथ Tanrei का इस्तेमाल
+description: Tanrei का MCP सर्वर जोड़ें, कोडिंग एजेंट को AGENTS.md में अपने प्रॉडक्ट के UI के नियम दें, और उसे डिफ़ॉल्ट सिस्टम के कंपोनेंट और मानों तक रखें।
+translationOf: getting-started/ai-agents.mdx
+sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
+---
+
+import Callout from '../../../../components/Callout.astro';
+import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
+
+आपके प्रॉडक्ट का इंटरफ़ेस लिखने वाले कोडिंग एजेंट को वही चाहिए जो आपकी टीम के किसी व्यक्ति को चाहिए: कौन-से कंपोनेंट हैं, हर कंपोनेंट क्या लेता है, और हर मान कहाँ से आता है। Tanrei ये तीनों चीज़ें अपने पैकेजों के साथ आने वाली फ़ाइल में और एक MCP सर्वर में रखता है, ताकि एजेंट अंदाज़ा लगाने के बजाय उन्हें देख सके। यह पेज बताता है कि इन्हें कैसे जोड़ें, और आपको नियमों की एक फ़ाइल देता है जिसे आप अपनी रिपॉज़िटरी में कॉपी कर सकते हैं।
+
+## पैकेजों में एजेंट क्या पढ़ सकता है
+
+- **कंपोनेंट।** `@tanrei/web` के साथ एक Custom Elements Manifest आता है, `custom-elements.json`: हर एलिमेंट, उसके ऐट्रिब्यूट, प्रॉपर्टी, इवेंट, स्लॉट और CSS पार्ट के साथ, और हर एक का विवरण। `@tanrei/react` के साथ इन्हीं कंपोनेंट के टाइप आते हैं, इसलिए जो प्रॉपर्टी मौजूद नहीं है, वह टाइप जाँच में फ़ेल होती है।
+- **मान।** हर टोकन `@tanrei/web/tokens.css` में एक कस्टम प्रॉपर्टी है, जिसका नाम उसके पाथ से बनता है: `tanrei.sys.color.primary` का मतलब `--tanrei-sys-color-primary` है। अगर आपके प्रॉडक्ट की अपनी लेयर है, तो `tanrei build` का `tokens` आउटपुट एक DTCG बंडल है, जिसके हर ग्रुप में `$extensions["dev.tanrei.llm"]` में एजेंट के लिए इस्तेमाल के निर्देश होते हैं ([आपका अपना डिज़ाइन सिस्टम](/hi/getting-started/your-design-system/))।
+- **क्या ग़लत हुआ।** ग़लत तरीक़े से इस्तेमाल किया गया कंपोनेंट फिर भी दिखता है, और डेवलपमेंट बिल्ड में कंसोल पर `[tanrei]` से शुरू होने वाली एक चेतावनी लिखता है, जो एलिमेंट, समस्या और टूटे हुए नियम का नाम बताती है: ऐसा बटन जिसमें न लेबल है न आइकन, ऐसा शब्द जो आपके प्रॉडक्ट ने नहीं दिया, ऐसा कंपोनेंट जिसे सिस्टम शामिल नहीं करता। प्रोडक्शन बिल्ड (`NODE_ENV=production`) कुछ नहीं लिखता।
+
+## MCP सर्वर जोड़ें
+
+`@tanrei/mcp` Tanrei के टोकन और डिज़ाइन सिस्टम की लेयर के लिए एक [Model Context Protocol](https://modelcontextprotocol.io) सर्वर है। एजेंट इससे पूछता है कि कौन-से टोकन हैं, किसी सिस्टम में कोई टोकन किस मान पर पहुँचता है और क्यों, कोई लेयर क्या बदल सकती है और कैसे, और लेयर का कोई संपादन लिखने से पहले वह सही है या नहीं। हर टूल सिर्फ़ पढ़ता है: आपकी लेयर फ़ाइल एजेंट ख़ुद बदलता है, और सर्वर उस संपादन को उसी बिल्ड से जाँचता है जो `tanrei build` चलाता है। कंपोनेंट के बारे में यह जवाब नहीं देता; कंपोनेंट का कॉन्ट्रैक्ट ऊपर वाला मैनिफ़ेस्ट है।
+
+<Callout type="caution" title="प्री-रिलीज़">
+  Tanrei के पैकेज npm के टैग `next` के तहत प्री-रिलीज़ के रूप में प्रकाशित हैं, इसलिए `@tanrei/mcp@next` इंस्टॉल करें। इसे `@tanrei/web`, `@tanrei/cli` और बाक़ी लाइब्रेरी के ही वर्शन पर रखें: ये सब एक ही शब्दावली साझा करते हैं।
+</Callout>
+
+Claude Code में, अपनी रिपॉज़िटरी में यह चलाएँ:
+
+```sh
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+```
+
+`--scope project` सर्वर को रिपॉज़िटरी के रूट पर `.mcp.json` में लिखता है। उस फ़ाइल को कमिट करें, तो रिपॉज़िटरी में काम करने वाले हर व्यक्ति के पास वही सर्वर होगा।
+
+Cursor (`.cursor/mcp.json`), Claude Desktop और ज़्यादातर दूसरे क्लाइंट वही सर्वर JSON से, stdio के ज़रिए पढ़ते हैं:
+
+```json
+{
+  "mcpServers": {
+    "tanrei": {
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+VS Code `.vscode/mcp.json` पढ़ता है, जिसमें सर्वर `servers` के नीचे रहते हैं और अपना ट्रांसपोर्ट बताते हैं:
+
+```json
+{
+  "servers": {
+    "tanrei": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@tanrei/mcp@next"]
+    }
+  }
+}
+```
+
+सर्वर को Node.js 20 या उसके बाद का वर्शन चाहिए। रिलेटिव `layerFile` को वह अपनी वर्किंग डायरेक्टरी से खोजता है, जो आम तौर पर रिपॉज़िटरी का रूट होती है।
+
+### सर्वर किन सवालों के जवाब देता है
+
+इसके टूल, और हर टूल किसका जवाब देता है:
+
+- `list_systems`: Tanrei के साथ आने वाले सिस्टम, और आपकी लेयर फ़ाइल देने पर आपके प्रॉडक्ट की लेयर की कड़ी: हर लेयर ने शब्दावली में क्या जोड़ा और उसकी सुलभता की जाँच के नतीजे
+- `search_tokens`: id के किसी हिस्से या glob से मिले टोकन, हर एक के टाइप, प्रकार और विवरण के साथ
+- `resolve`: किसी सिस्टम और स्कीम में कोई टोकन किस मान पर पहुँचता है: किन एलियास और नियमों से होकर, किस लेयर ने उसे तय किया, और उसकी CSS कस्टम प्रॉपर्टी
+- `explain_token`: टोकन क्यों है, कौन-से टोकन उसके पीछे चलते हैं, लेयर उसके लिए कौन-से बदलाव लिख सकती है, और उसके बगल में शब्दावली कैसे जोड़ें, हर एक लेयर के एक टुकड़े के रूप में
+- `diff_systems`: वे टोकन जिनके मान दो सिस्टमों में अलग हैं
+- `validate_layer`: लेयर की सारी समस्याएँ एक साथ, हर एक के हल के साथ; फिर असली बिल्ड और उसकी चेतावनियाँ। यह कुछ नहीं लिखता
+- `propose_extension`: नया स्टेप, साइज़, वेरिएंट या आपका अपना टोकन, लेयर के एक टुकड़े के रूप में, एक आज़माइशी बिल्ड से जाँचा हुआ, उन मानों के साथ जो वह बनाता है
+- `mimicry_gaps`: दूसरे डिज़ाइन सिस्टमों की वे ख़ूबियाँ जिन्हें अभी कोई टोकन नहीं दिखा सकता
+
+इसके रिसोर्स, और हर रिसोर्स में क्या है:
+
+- `tanrei://philosophy`: शब्दावली के पीछे के विचार और लेयर के नियम, एक पेज में
+- `tanrei://schema/system`: लेयर फ़ाइल का JSON Schema
+- `tanrei://systems/<id>`: साथ आने वाले हर सिस्टम की लेयर फ़ाइल, जैसी लिखी गई है
+
+जुड़ते ही सर्वर एजेंट को उसके नियम भी देता है: मान लेयर के ज़रिए बदलें, शब्दावली सिर्फ़ `vocabulary` के नीचे और तर्क के साथ जोड़ें, हर पिन किए गए मान का कारण दें, सुलभता की किसी सीमा को कभी न बदलें, और जनरेट की गई फ़ाइल को कभी न बदलें। ये दोनों सूचियाँ सर्वर की अपनी हैं: एक जाँच इस पेज को हर भाषा में सर्वर के टूल और रिसोर्स से मिलाकर रखती है, इसलिए सर्वर में जो टूल जुड़ता है, वह यहाँ भी साथ ही जुड़ता है।
+
+## आपकी रिपॉज़िटरी के लिए नियमों की फ़ाइल
+
+कई कोडिंग एजेंट रिपॉज़िटरी के रूट पर `AGENTS.md` पढ़ते हैं। Cursor पढ़ता है। Claude Code इसे तब पढ़ता है जब रिपॉज़िटरी में `CLAUDE.md` न हो; अगर हो, तो उसमें `@AGENTS.md` वाली एक लाइन जोड़ें, और Claude Code दोनों पढ़ेगा। यह हिस्सा अपनी `AGENTS.md` में कॉपी करें:
+
+```text title="AGENTS.md" wrap
+## UI
+
+This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
+
+- Write UI with Tanrei's components. Before you build a control, a menu, a dialog, a list or a navigation element by hand, look for the component that does it: node_modules/@tanrei/web/custom-elements.json lists every element with its attributes, properties, events, slots and parts, and https://tanrei.chnotchy.com/components/ has a page for each.
+- Use a component through what its manifest lists. Do not restyle it from outside and do not copy its markup. A look the components do not have is a change to the design system, not to one screen: ask before you make it.
+- Take every color, radius, spacing, text style, elevation, motion and opacity from a token: var(--tanrei-sys-…) in CSS, for example --tanrei-sys-color-primary, --tanrei-sys-space-space200, --tanrei-sys-shape-corner-medium, --tanrei-sys-typescale-body-font. Never write a color, a length, a duration or a font for these yourself.
+- Stay on the default system. Do not set data-tanrei-system, and do not import @tanrei/web/systems/*.css. Do not use a component, or a variant of one, that the system leaves out: its page says "Not shipped in tanrei", and in a development build it warns.
+- A console message that starts with [tanrei] in a development build is a bug. Fix what it names before you finish.
+- Give the product's words once, with setWords() from @tanrei/web: Tanrei ships none.
+- Keep every @tanrei/* package on the same version.
+```
+
+नियम अंग्रेज़ी में हैं, उसी भाषा में जिसमें कोड के नाम हैं; अगर आपकी टीम अपने नियम किसी और भाषा में लिखती है, तो इनका अनुवाद कर लें। अगर आपके प्रॉडक्ट की अपनी लेयर है, तो "Stay on the default system" वाले नियम की जगह ये दो नियम रखें, अपनी लेयर के नाम और फ़ाइल के साथ:
+
+```text title="AGENTS.md" wrap
+- Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
+- Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
+```
+
+Cursor `.cursor/rules/*.mdc` से प्रोजेक्ट के नियम भी पढ़ता है; अगर आप अपने नियम वहीं रखते हैं, तो `alwaysApply: true` वाले किसी नियम में यही टेक्स्ट रखा जा सकता है।
+
+## एजेंट को डिफ़ॉल्ट सिस्टम के कंपोनेंट तक रखें
+
+डिफ़ॉल्ट सिस्टम, `tanrei`, कुछ कंपोनेंट और वेरिएंट शामिल नहीं करता, जिन्हें साथ आने वाले दूसरे सिस्टम रखते हैं। `tanrei` के तहत भी वे दिखते हैं और काम करते हैं, इसलिए एजेंट को उनकी ओर जाने से ऊपर का नियम और नीचे दिए संकेत रोकते हैं। आज डिफ़ॉल्ट सिस्टम इन्हें शामिल नहीं करता:
+
+<LeftOutOfDefault />
+
+एजेंट को, और उसके काम की समीक्षा करने वाले व्यक्ति को, ये बताते हैं कि उसने इनमें से किसी का इस्तेमाल किया:
+
+- हर कंपोनेंट का पेज अपने अवलोकन में बताता है कि कौन-से सिस्टम उसे शामिल नहीं करते, या उसके कौन-से वेरिएंट छोड़ देते हैं।
+- डेवलपमेंट बिल्ड में, सक्रिय सिस्टम जिस एलिमेंट को शामिल नहीं करता, वह कंसोल पर एक बार चेतावनी देता है: जुड़ते समय, और जब उसका `variant` बदलता है।
+- आपके प्रॉडक्ट के अपने ब्राउज़र टेस्ट यह रेखा थाम सकते हैं: `[tanrei]` की कोई भी चेतावनी आए, तो पेज को फ़ेल करें। Playwright के साथ:
+
+  ```ts
+  import { expect, test } from '@playwright/test';
+
+  test('the home page draws no Tanrei warning', async ({ page }) => {
+    const warnings: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().startsWith('[tanrei]')) warnings.push(message.text());
+    });
+    await page.goto('/');
+    expect(warnings).toEqual([]);
+  });
+  ```
+
+  इसे डेवलपमेंट बिल्ड पर चलाएँ: प्रोडक्शन बिल्ड कोई चेतावनी नहीं लिखता।
