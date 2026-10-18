@@ -21,7 +21,6 @@
       "replacedBy": "Material Symbols Rounded (weight 300, FILL 0 unselected / 1 selected)",
       "allow": [
         ".changeset/",
-        "packages/tools/test/",
         "CHANGELOG.md"
       ]
     },
@@ -32,13 +31,8 @@
       "replacedBy": "typescale.display",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -48,13 +42,8 @@
       "replacedBy": "typescale.heading-1",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -64,13 +53,8 @@
       "replacedBy": "typescale.heading-2",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -80,13 +64,8 @@
       "replacedBy": "typescale.heading-3",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -96,13 +75,8 @@
       "replacedBy": "typescale.heading-4",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -112,13 +86,8 @@
       "replacedBy": "typescale.heading-5",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -128,13 +97,8 @@
       "replacedBy": "typescale.heading-6",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -144,13 +108,8 @@
       "replacedBy": "typescale.body",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -160,13 +119,8 @@
       "replacedBy": "typescale.label",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -176,13 +130,8 @@
       "replacedBy": "typescale.label-small",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "tokens/fidelity/"
       ]
     },
     {
@@ -192,13 +141,7 @@
       "replacedBy": "typescale.code",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -208,13 +151,7 @@
       "replacedBy": "typescale.emphasis.<family> + the platform's `emphasized` modifier",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -224,13 +161,9 @@
       "replacedBy": "sys.shape.corner-smoothing (0–1)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
         "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "design/figma/renames.json"
       ]
     },
     {
@@ -240,13 +173,7 @@
       "replacedBy": "on-primary (a recolored button is a variant)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -256,13 +183,7 @@
       "replacedBy": "primary-container",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tokens-build/test/pipeline.test.js",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/governance/mimicry-gaps.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -288,15 +209,10 @@
       "replacedBy": "comp.main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
-        "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/main-action-button.mdx",
         "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
         "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
@@ -312,15 +228,10 @@
       "replacedBy": "comp.main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
-        "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/main-action-button.mdx",
         "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
         "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
@@ -337,21 +248,7 @@
       "replacedBy": "--tanrei-comp-main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -361,21 +258,7 @@
       "replacedBy": "--tanrei-comp-main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -386,21 +269,8 @@
       "replacedBy": "tanrei-main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
         "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
         "packages/tools/src/scans.js"
       ]
     },
@@ -411,21 +281,7 @@
       "replacedBy": "tanrei-main-action-button",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -435,21 +291,8 @@
       "replacedBy": "TanreiMainActionButton",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/swiftui/"
       ]
     },
     {
@@ -459,21 +302,7 @@
       "replacedBy": "TanreiMainActionButton",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
-        "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -483,21 +312,11 @@
       "replacedBy": "TanreiMainActionButtonSize",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -507,21 +326,11 @@
       "replacedBy": "TanreiMainActionButtonVariant",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -531,21 +340,11 @@
       "replacedBy": "TanreiMainActionButtonSize",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -555,21 +354,11 @@
       "replacedBy": "TanreiMainActionButtonVariant",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -579,21 +368,8 @@
       "replacedBy": "MainActionButton (React)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -603,21 +379,8 @@
       "replacedBy": "MainActionButton (React)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -627,23 +390,10 @@
       "replacedBy": "TanreiMainActionButton",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/web/",
-        "packages/react/",
         "packages/swiftui/",
         "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/flutter/"
       ]
     },
     {
@@ -653,23 +403,10 @@
       "replacedBy": "TanreiMainActionButton",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/web/",
-        "packages/react/",
         "packages/swiftui/",
         "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+        "packages/flutter/"
       ]
     },
     {
@@ -679,25 +416,15 @@
       "replacedBy": "MainActionButton (React Native); Material 3's own name stays in the M3 mapping and the fidelity maps",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/web/",
-        "packages/react/",
-        "packages/swiftui/",
-        "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/main-action-button.mdx",
         "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
         "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
         "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
         "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
-        "tokens/fidelity/",
-        "docs/governance/mimicry-gaps.json"
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
       ]
     },
     {
@@ -707,25 +434,14 @@
       "replacedBy": "MainActionButton (React Native); Material 3's own name stays in the M3 mapping and the fidelity maps",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/web/",
-        "packages/react/",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/main-action-button.mdx",
         "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
         "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
         "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
         "apps/docs/src/content/docs/es/components/main-action-button.mdx",
-        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
-        "tokens/fidelity/",
-        "docs/governance/mimicry-gaps.json"
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
       ]
     },
     {
@@ -737,12 +453,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
         "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "docs/status/",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
@@ -757,17 +468,9 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -778,17 +481,8 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/compose/"
       ]
     },
     {
@@ -799,17 +493,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -820,17 +504,9 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/react-native/"
       ]
     },
     {
@@ -841,17 +517,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -862,7 +528,6 @@
       "replacedBy": "Button with an icon and no label",
       "allow": [
         ".changeset/",
-        "docs/status/",
         "CHANGELOG.md",
         "packages/tools/test/",
         "packages/swiftui/",
@@ -878,13 +543,10 @@
       "replacedBy": "Button with an icon and no label",
       "allow": [
         ".changeset/",
-        "docs/status/",
         "CHANGELOG.md",
-        "packages/tools/test/",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
         "apps/docs/src/content/docs/components/app-bar.mdx",
         "apps/docs/src/content/docs/ja/components/app-bar.mdx",
         "apps/docs/src/content/docs/zh-cn/components/app-bar.mdx",
@@ -909,12 +571,6 @@
         "apps/docs/src/content/docs/hi/components/menu.mdx",
         "apps/docs/src/content/docs/es/components/menu.mdx",
         "apps/docs/src/content/docs/ar/components/menu.mdx",
-        "apps/docs/src/content/docs/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/ja/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/hi/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/es/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/ar/components/navigation-rail.mdx",
         "apps/docs/src/content/docs/components/toolbar.mdx",
         "apps/docs/src/content/docs/ja/components/toolbar.mdx",
         "apps/docs/src/content/docs/zh-cn/components/toolbar.mdx",
@@ -936,10 +592,7 @@
       "replacedBy": "Button with an icon and no label",
       "allow": [
         ".changeset/",
-        "docs/status/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
@@ -961,12 +614,6 @@
         "apps/docs/src/content/docs/hi/components/button-group.mdx",
         "apps/docs/src/content/docs/es/components/button-group.mdx",
         "apps/docs/src/content/docs/ar/components/button-group.mdx",
-        "apps/docs/src/content/docs/components/date-picker.mdx",
-        "apps/docs/src/content/docs/ja/components/date-picker.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/date-picker.mdx",
-        "apps/docs/src/content/docs/hi/components/date-picker.mdx",
-        "apps/docs/src/content/docs/es/components/date-picker.mdx",
-        "apps/docs/src/content/docs/ar/components/date-picker.mdx",
         "apps/docs/src/content/docs/components/divider.mdx",
         "apps/docs/src/content/docs/ja/components/divider.mdx",
         "apps/docs/src/content/docs/zh-cn/components/divider.mdx",
@@ -979,12 +626,6 @@
         "apps/docs/src/content/docs/hi/components/menu.mdx",
         "apps/docs/src/content/docs/es/components/menu.mdx",
         "apps/docs/src/content/docs/ar/components/menu.mdx",
-        "apps/docs/src/content/docs/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/ja/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/hi/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/es/components/navigation-rail.mdx",
-        "apps/docs/src/content/docs/ar/components/navigation-rail.mdx",
         "apps/docs/src/content/docs/components/toolbar.mdx",
         "apps/docs/src/content/docs/ja/components/toolbar.mdx",
         "apps/docs/src/content/docs/zh-cn/components/toolbar.mdx",
@@ -1006,13 +647,8 @@
       "replacedBy": "Button with an icon and no label",
       "allow": [
         ".changeset/",
-        "docs/status/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/"
+        "packages/flutter/"
       ]
     },
     {
@@ -1024,18 +660,11 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "design/figma/README.md",
-        "packages/web/src/generated/"
+        "design/figma/README.md"
       ]
     },
     {
@@ -1047,18 +676,12 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
         "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "design/figma/README.md",
-        "packages/web/src/generated/"
+        "design/figma/README.md"
       ]
     },
     {
@@ -1069,17 +692,9 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -1090,17 +705,9 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -1111,17 +718,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/swiftui/"
       ]
     },
     {
@@ -1132,17 +729,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/swiftui/"
       ]
     },
     {
@@ -1153,17 +740,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -1174,17 +751,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/flutter/"
       ]
     },
     {
@@ -1195,17 +762,8 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
         "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/react-native/"
       ]
     },
     {
@@ -1216,17 +774,7 @@
       "allow": [
         ".changeset/",
         "CHANGELOG.md",
-        "packages/tools/test/",
-        "packages/tokens-build/test/",
-        "docs/status/",
-        "docs/governance/mimicry-gaps.json",
-        "tokens/fidelity/",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/react-native/"
       ]
     },
     {
@@ -1238,15 +786,12 @@
       "replacedBy": "button-with-menu (also comp.button-with-menu, --tanrei-comp-button-with-menu, tanrei-button-with-menu); Material 3's own two-word name, \"split button\", stays sayable in the M3 mapping and the fidelity maps",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
         "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
@@ -1262,15 +807,10 @@
       "replacedBy": "TanreiButtonWithMenu",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
@@ -1286,21 +826,11 @@
       "replacedBy": "TanreiButtonWithMenuSize",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -1310,15 +840,11 @@
       "replacedBy": "TanreiButtonWithMenuVariant",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
@@ -1334,21 +860,11 @@
       "replacedBy": "TanreiButtonWithMenuTokens (generated)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -1358,15 +874,8 @@
       "replacedBy": "ButtonWithMenu (React, React Native); Material's Compose names (SplitButtonLayout, SplitButtonDefaults) have no word break and are not matched",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
         "packages/react-native/",
-        "Package.swift",
         "apps/docs/src/content/docs/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
         "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
@@ -1382,21 +891,8 @@
       "replacedBy": "button_with_menu (Flutter)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
-        "packages/swiftui/",
-        "packages/compose/",
-        "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+        "packages/flutter/"
       ]
     },
     {
@@ -1406,21 +902,11 @@
       "replacedBy": "buttonWithMenu (generated accessors)",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "packages/tools/test/",
         "CHANGELOG.md",
-        "design/figma/renames.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "Package.swift",
-        "apps/docs/src/content/docs/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
-        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+        "packages/react-native/"
       ]
     },
     {
@@ -1430,9 +916,7 @@
       "replacedBy": "comp.code-block.syntax.color.comment",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1442,9 +926,7 @@
       "replacedBy": "comp.code-block.syntax.color.keyword",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1454,9 +936,7 @@
       "replacedBy": "comp.code-block.syntax.color.string and comp.code-block.syntax.color.constant",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1466,9 +946,7 @@
       "replacedBy": "comp.code-block.syntax.color.function, comp.code-block.syntax.color.type, comp.code-block.syntax.color.tag and comp.code-block.syntax.color.property",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1478,9 +956,7 @@
       "replacedBy": "comp.code-block.syntax.color.punctuation",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1490,9 +966,7 @@
       "replacedBy": "comp.code-block.syntax.emphasis.keyword",
       "allow": [
         ".changeset/",
-        "packages/tokens-build/test/oracle/",
-        "CHANGELOG.md",
-        "design/figma/renames.json"
+        "CHANGELOG.md"
       ]
     },
     {
@@ -1502,7 +976,6 @@
       "replacedBy": "measurements in tokens/generated/<preset>/a11y-report.json (criteria: \"not-applied\"), kept as information",
       "allow": [
         ".changeset/",
-        "packages/tools/test/",
         "CHANGELOG.md"
       ]
     },
@@ -1557,8 +1030,6 @@
       "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
       "replacedBy": "tanrei-file-item",
       "allow": [
-        "specs/file-item.spec.json",
-        "specs/file-upload.spec.json",
         ".changeset/",
         "CHANGELOG.md"
       ]
@@ -1569,8 +1040,6 @@
       "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
       "replacedBy": "TanreiFileItem",
       "allow": [
-        "specs/file-item.spec.json",
-        "specs/file-upload.spec.json",
         ".changeset/",
         "CHANGELOG.md"
       ]
@@ -1581,8 +1050,6 @@
       "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
       "replacedBy": "FileItem (React and React Native); TanreiFileItem (SwiftUI, Compose, Flutter)",
       "allow": [
-        "specs/file-item.spec.json",
-        "specs/file-upload.spec.json",
         ".changeset/",
         "CHANGELOG.md"
       ]
@@ -1593,8 +1060,6 @@
       "reason": "the custom properties of a file upload's row moved with their token ids to the File item's group",
       "replacedBy": "--tanrei-comp-file-item-* (with `standard` as the form `row`)",
       "allow": [
-        "specs/file-item.spec.json",
-        "specs/file-upload.spec.json",
         ".changeset/",
         "CHANGELOG.md"
       ]
