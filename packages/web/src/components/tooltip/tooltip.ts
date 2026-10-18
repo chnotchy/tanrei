@@ -910,7 +910,7 @@ export class TanreiTooltip extends LitElement {
         @mousedown=${this.swallow}
         @pointerup=${this.swallow}
       >
-        <div class="motion">
+        <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
           <div part="container" class=${keys.length ? 'bubble keyed' : 'bubble'} data-tanrei-shape>
             ${title ? html`<span part="title" class="title">${title}</span>` : nothing}

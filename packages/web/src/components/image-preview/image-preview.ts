@@ -1556,6 +1556,7 @@ export class TanreiImagePreview extends LitElement {
       part="container"
       class=${classMap({ container: true, 'controls-hidden': this.controlsHidden, captioned: !!caption })}
       aria-label=${this.label.trim() ? this.label : nothing}
+      data-tanrei-appear
       tabindex="-1"
       @keydown=${this.onKeyDown}
       @cancel=${this.onNativeCancel}
@@ -1566,7 +1567,7 @@ export class TanreiImagePreview extends LitElement {
       @pointermove=${this.onPointerMove}
     >
       <div class="surface"></div>
-      <div class="pages" @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
+      <div class="pages" data-tanrei-appear @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
         ${repeat(
           three,
           (at) => this.images[at].element,

@@ -207,6 +207,7 @@ export class TanreiModalLayer extends LitElement {
     return html`<dialog
       part="container"
       aria-label=${this.label || nothing}
+      data-tanrei-appear
       tabindex="-1"
       @keydown=${this.onKeyDown}
       @cancel=${this.onNativeCancel}

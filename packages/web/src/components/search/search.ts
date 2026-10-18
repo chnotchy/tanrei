@@ -1866,6 +1866,7 @@ export class TanreiSearch extends LitElement {
         part="dialog"
         class=${hung ? 'full hung' : 'full'}
         ?data-tanrei-shape=${hung}
+        data-tanrei-appear
         tabindex="-1"
         aria-label=${ifDefined(this.label || undefined)}
         @cancel=${this.onNativeCancel}

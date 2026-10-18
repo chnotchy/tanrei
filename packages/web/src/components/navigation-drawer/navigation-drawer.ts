@@ -2817,6 +2817,7 @@ export class TanreiNavigationDrawer extends LitElement {
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
         style=${styleMap(this.collapses ? this.place : {})}
+        data-tanrei-appear
         aria-label=${label}
         tabindex="-1"
         data-tanrei-shape

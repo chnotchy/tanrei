@@ -633,6 +633,7 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
         part="container"
         class="sheet"
         aria-label=${label}
+        data-tanrei-appear
         tabindex="-1"
         data-tanrei-shape
         @keydown=${this.onKeyDown}

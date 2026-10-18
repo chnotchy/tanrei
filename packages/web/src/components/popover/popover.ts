@@ -659,7 +659,7 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     // POP-19: a value the popover does not define moves focus in (POP-37).
     return html`
       <div class="surface" popover=${this.inline ? nothing : 'manual'} role="none">
-        <div class="motion">
+        <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
           <div
             part="container"

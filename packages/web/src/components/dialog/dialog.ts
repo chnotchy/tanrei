@@ -541,6 +541,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
         part="container"
         class="container"
         role=${this.alert ? 'alertdialog' : 'dialog'}
+        data-tanrei-appear
         aria-labelledby=${headline ? 'headline' : nothing}
         aria-describedby=${supporting ? 'supporting' : nothing}
         tabindex="-1"

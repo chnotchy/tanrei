@@ -745,6 +745,7 @@ export class TanreiBottomSheet extends LitElement {
           part="container"
           class=${classes}
           data-detent=${this.resting}
+          data-tanrei-appear
           aria-label=${label}
           tabindex="-1"
           data-tanrei-shape

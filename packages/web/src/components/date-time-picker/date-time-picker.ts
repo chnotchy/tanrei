@@ -2912,6 +2912,7 @@ export class TanreiDateTimePicker extends LitElement {
         part="container"
         class=${classes}
         aria-label=${ifDefined(label || undefined)}
+        data-tanrei-appear
         tabindex="-1"
         data-tanrei-shape
         @keydown=${this.onSurfaceKeyDown}
