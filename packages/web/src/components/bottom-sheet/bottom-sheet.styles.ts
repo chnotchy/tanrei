@@ -1,5 +1,7 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { dividerVisibilityHost, focusRing, pressHold, rippleStyles, stateRules, whenScroll } from '../../primitives/index.js';
+import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/bottom-sheet.tokens.json). Both forms read the same container tokens: the
@@ -314,6 +316,66 @@ export const styles = css`
     display: none;
   }
 
+  /* BSH-28: the header — below the handle's row (or at the top without one), a row at least header.height high: the
+     headline from container.padding after the start edge and, while closable, the close button ending
+     header.padding-inline-end before the end edge, header.gap after the headline, both centred in the row; it grows with
+     a headline that wraps, stays while the content scrolls, and a drag on it is the sheet's. */
+  .header {
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: ${t('header-gap')};
+    min-block-size: ${t('header-height')};
+    padding-inline: ${t('container-padding')};
+    touch-action: none;
+  }
+  .header.closable {
+    padding-inline-end: ${t('header-padding-inline-end')};
+  }
+  .headline {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 0;
+    font: ${t('headline-typescale-font')};
+    letter-spacing: ${t('headline-typescale-letter-spacing')};
+    color: ${t('headline-color')};
+    overflow-wrap: break-word;
+  }
+  /* The headline's letter-spacing follows its script, as every title's does (src/styles/script-tracking.ts); it is its
+     own run, in the direction of its first strong character, its lines aligned to the layout's start edge. */
+  ${unsafeCSS(scriptTracking('.headline', T('headline-typescale-letter-spacing'), { shadow: true }))}
+  ${productText('.headline', { align: 'start' })}
+  /* BSH-29: the icon-only Button, placed and never restyled (its variant is given through the Button's channel). */
+  .close {
+    flex: none;
+    margin-inline-start: auto;
+  }
+  /* BSH-28: the divider below the header, a divider.width hairline in divider.color across the sheet's full width (over
+     the content's top edge). always: whenever the header is drawn; scroll: only while the content is scrolled from its
+     top. Shown and hidden at once. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
+  .divider {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: 0;
+    block-size: ${t('divider-width')};
+    background: ${t('divider-color')};
+    pointer-events: none;
+  }
+  ${whenScroll(
+    '.header',
+    (header) => `
+  ${header} .divider {
+    visibility: hidden;
+  }
+  ${header}.scrolled .divider {
+    visibility: visible;
+  }`,
+  )}
+
   /* BSH-8, BSH-10: the content, below the handle's row — inset by container.padding from the start, end and bottom (and
      the top, without a handle) unless flush; clipped to the container's shape; in the body role; scrolling inside the
      container when it is taller than the room the sheet gives it. */
@@ -352,8 +414,12 @@ export const styles = css`
   .content.inset {
     padding: 0 ${t('container-padding')} ${t('container-padding')};
   }
-  .sheet:not(.has-handle) .content.inset {
+  .sheet:not(.has-handle):not(.has-header) .content.inset {
     padding-block-start: ${t('container-padding')};
+  }
+  /* Below a header the content's top corners meet the header, not the container's. */
+  .sheet.has-header :is(.content, .focus) {
+    --tanrei-corner-radius: 0px;
   }
   /* BSH-10: a drag on the content is the sheet's until the sheet is at its full height, then the content's to scroll —
      up at once; down once it is at its top (read by script at each scroll). */
@@ -393,6 +459,9 @@ export const styles = css`
     .grip {
       forced-color-adjust: none;
       background-color: CanvasText;
+    }
+    .divider {
+      background: CanvasText;
     }
   }
 `;

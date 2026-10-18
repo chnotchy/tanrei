@@ -1317,6 +1317,7 @@ public data class TanreiBottomSheetStateTokens(
 /** `comp.bottom-sheet`. Members are flat tokens, then per-state tokens, then one holder per axis (`controls[control]`). */
 @Immutable
 public data class TanreiBottomSheetTokens(
+    public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerMarginBlockStart: Dp,
@@ -1325,6 +1326,9 @@ public data class TanreiBottomSheetTokens(
     public val containerPartialFraction: Float,
     public val containerShape: Dp,
     public val contentColor: TanreiPaint,
+    public val dividerColor: TanreiPaint,
+    public val dividerVisibility: Float,
+    public val dividerWidth: Dp,
     public val handleContainerHeight: Dp,
     public val handleContainerShape: Dp,
     public val handleContainerWidth: Dp,
@@ -1332,6 +1336,11 @@ public data class TanreiBottomSheetTokens(
     public val handleGripShape: Dp,
     public val handleGripWidth: Dp,
     public val handleMarginBlock: Dp,
+    public val headerGap: Dp,
+    public val headerHeight: Dp,
+    public val headerPaddingInlineEnd: Dp,
+    public val headlineColor: TanreiPaint,
+    public val headlineTypescale: TanreiTextStyle,
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
     public val motionExitDuration: Int,
@@ -1359,6 +1368,8 @@ public data class TanreiBottomSheetTokens(
         addAll(containerColor.roles())
         containerElevation.forEach { add(it.role) }
         addAll(contentColor.roles())
+        addAll(dividerColor.roles())
+        addAll(headlineColor.roles())
         addAll(scrimColor.roles())
         addAll(controls.referencedRoles())
     }

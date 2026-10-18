@@ -6149,7 +6149,7 @@ scrolls instead, with no divider. Everything is logical, so RTL mirrors. Parts: 
 
 Supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower part of
 its parent while the content above stays usable (a layout region), or `modal`, a modal step over a scrim
-(`specs/bottom-sheet.spec.json`, BSH-1…26).
+(`specs/bottom-sheet.spec.json`, BSH-1…30).
 
 ```html
 <tanrei-button id="share">Share</tanrei-button>
@@ -6160,7 +6160,7 @@ its parent while the content above stays usable (a layout region), or `modal`, a
 <script type="module">
   const sheet = document.querySelector('tanrei-bottom-sheet');
   document.querySelector('#share').addEventListener('click', () => (sheet.open = true));
-  sheet.addEventListener('close', () => (sheet.open = false)); // e.detail.reason: drag, scrim, escape or back
+  sheet.addEventListener('close', () => (sheet.open = false)); // e.detail.reason: close, drag, scrim, escape or back
 </script>
 ```
 
@@ -6173,14 +6173,18 @@ its parent while the content above stays usable (a layout region), or `modal`, a
 | `handle` | boolean | `true` | draws the drag handle; its attribute is the inverse, `no-handle` |
 | `handleLabel` / `handle-label` | string | `""` | the handle's accessible name while it is a button (an empty one is reported, BSH-11) |
 | `inset` | boolean | `true` | insets the content by `container.padding`; its attribute is the inverse, `flush` |
-| `label` | string | `""` | names the modal dialog or the standard sheet's region (an empty one is reported, BSH-22) |
+| `label` | string | `""` | names the modal dialog or the standard sheet's region; where it is empty the headline does (with neither, it is reported, BSH-22) |
+| `headline` | string | `""` | drawn in the header, an `<h2>` (BSH-28) |
+| `closable` | boolean | `false` | draws the close button at the end of the header (BSH-29); reflected |
+| `closeLabel` / `close-label` | string | `""` | the close button's accessible name (an empty one is reported while `closable`) |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the divider below the header is drawn; `auto` takes `comp.bottom-sheet.divider.visibility` (an unknown value is `auto`, reported); reflected |
 
 Slot: default (the content: it gets `content.color` as its color, and plain text the body role; it is laid out as you
 lay it out). Mark the element that should take focus when the sheet opens with `autofocus`.
 
 | Event | When |
 |---|---|
-| `close` | the sheet asks to be closed: `detail.reason` is `drag` (a release below half its lowest height, or a downward fling from it), `scrim`, `escape` or `back` (a close request without a key: Android's back). Only while `closedby` is not `none`; a standard sheet asks only by a drag. Not bubbling. The sheet never closes itself: set `open` to false, or leave it open and it settles back (BSH-20) |
+| `close` | the sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), `drag` (a release below half its lowest height, or a downward fling from it), `scrim`, `escape` or `back` (a close request without a key: Android's back). Only while `closedby` is not `none`; a standard sheet asks only by a drag. Not bubbling. The sheet never closes itself: set `open` to false, or leave it open and it settles back (BSH-20) |
 | `detentchange` | the person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent` |
 
 **Modal (BSH-1…3, BSH-5, BSH-23).** A native `<dialog>` in the shadow root opened with `showModal()`: the top layer,
@@ -6203,7 +6207,17 @@ inert, Tab leaves it without closing it, Escape is ignored. Opening it moves foc
 with focus inside gives focus back; mounted open, it leaves focus where it is. Closed, it slides down out of view and is
 inert (then `visibility: hidden`); a drag below its lowest height asks to close.
 
-**Heights and the drag (BSH-6, BSH-9…11, BSH-20, BSH-21).** The sheet is as tall as its handle's row and its content, up
+**The header (BSH-28…30).** While `headline` is not empty or `closable`, a row at least `header.height` high below the
+handle's row (or at the top without one): the headline (`headline.typescale`, `headline.color`, an `<h2>`, wrapping) from
+`container.padding`, and the close button — an icon-only `<tanrei-button>` of the small size showing the `close` glyph,
+given `close-button.variant` through the Button's channel (`giveVariant()`, at every update) and otherwise never
+restyled — `header.gap` after it and `header.padding-inline-end` from the end edge; then a `divider.width` hairline in
+`divider.color` across the full width, always or only while the content is scrolled from its top (`divider-visibility`,
+the shared style query of `src/primitives/divider-visibility.ts`). The header is outside the scrolling content, counts
+in the sheet's heights, and a drag on it is the sheet's. The close button fires `close` with `close` in either form and
+whatever `closedby` says. A sheet with no handle, no close button and `closedby` other than `none` is reported (BSH-30).
+
+**Heights and the drag (BSH-6, BSH-9…11, BSH-20, BSH-21).** The sheet is as tall as its handle's row, its header and its content, up
 to `container.partial-fraction` of the area (partial) or the area less `container.margin-block-start` (full). The area is
 the window below `env(safe-area-inset-top)` (modal) or the parent (standard), ending at the on-screen keyboard
 (`visualViewport`: the part of the layout viewport below the visual viewport). Content taller than that scrolls inside the

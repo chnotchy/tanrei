@@ -680,6 +680,7 @@ private let tanreiBadgeTokens = TanreiBadgeTokens(
 )
 
 private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: tanreiElevation.level2,
   containerMarginBlockStart: 48,
@@ -688,6 +689,9 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 12,
   contentColor: .role(.onSurface),
+  dividerColor: .role(.outlineVariant),
+  dividerVisibility: 0,
+  dividerWidth: 1,
   handleContainerHeight: 24,
   handleContainerShape: 9999,
   handleContainerWidth: 48,
@@ -695,6 +699,11 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
+  headerGap: 8,
+  headerHeight: 64,
+  headerPaddingInlineEnd: 12,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: tanreiTypescale.heading5,
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionExitDuration: 200,

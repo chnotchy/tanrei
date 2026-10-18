@@ -773,6 +773,7 @@ private let m3ExpressiveLikeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: m3ExpressiveLikeElevation.level1,
   containerMarginBlockStart: 48,
@@ -781,6 +782,9 @@ private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 28,
   contentColor: .role(.onSurface),
+  dividerColor: .role(.outlineVariant),
+  dividerVisibility: 1,
+  dividerWidth: 1,
   handleContainerHeight: 24,
   handleContainerShape: 9999,
   handleContainerWidth: 48,
@@ -788,6 +792,11 @@ private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
   handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
+  headerGap: 8,
+  headerHeight: 64,
+  headerPaddingInlineEnd: 12,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: m3ExpressiveLikeTypescale.heading5,
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionExitDuration: 200,

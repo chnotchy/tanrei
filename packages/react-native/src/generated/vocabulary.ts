@@ -722,6 +722,7 @@ export type TanreiBottomSheetControls = { readonly [Key in TanreiCoreBottomSheet
  * `<state><Part>`), then one holder per axis (`controls`), keyed by the axis value.
  */
 export interface TanreiBottomSheetTokens {
+  readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerMarginBlockStart: number;
@@ -730,6 +731,9 @@ export interface TanreiBottomSheetTokens {
   readonly containerPartialFraction: number;
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
+  readonly dividerColor: TanreiPaint;
+  readonly dividerVisibility: number;
+  readonly dividerWidth: number;
   readonly focusedOpacity: number;
   readonly handleContainerHeight: number;
   readonly handleContainerShape: number;
@@ -738,6 +742,11 @@ export interface TanreiBottomSheetTokens {
   readonly handleGripShape: number;
   readonly handleGripWidth: number;
   readonly handleMarginBlock: number;
+  readonly headerGap: number;
+  readonly headerHeight: number;
+  readonly headerPaddingInlineEnd: number;
+  readonly headlineColor: TanreiPaint;
+  readonly headlineTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;

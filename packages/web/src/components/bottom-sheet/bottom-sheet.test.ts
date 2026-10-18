@@ -1,4 +1,4 @@
-// <tanrei-bottom-sheet>, driven by specs/bottom-sheet.spec.json: every behaviour id (BSH-1…26) is cited by a test title,
+// <tanrei-bottom-sheet>, driven by specs/bottom-sheet.spec.json: every behaviour id (BSH-1…30) is cited by a test title,
 // every fixture has a baseline, and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
@@ -320,7 +320,13 @@ test.describe('drawing', () => {
     await mount(page, [fx('s', { label: '' })]);
     await expect(sheet(page)).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('BSH-22')).length).toBe(1);
-    expect(seen.join('\n')).toMatch(/label is empty, so the modal dialog has no accessible name/);
+    expect(seen.join('\n')).toMatch(/label and headline are empty, so the modal dialog has no accessible name/);
+    // A headline names it where label is empty, and then nothing is reported.
+    seen.length = 0;
+    await mount(page, [fx('s', { label: '', headline: 'Share photo' })]);
+    await expect(page.getByRole('dialog', { name: 'Share photo' })).toHaveCount(1);
+    await settled(page);
+    expect(seen.filter((w) => w.includes('BSH-22'))).toEqual([]);
   });
 
   test('BSH-25: a variant or detent the sheet does not define renders with the default and is reported', async ({ page }) => {
@@ -939,17 +945,158 @@ test.describe('forms, focus and dismissal', () => {
   });
 });
 
+test.describe('the header and the close button', () => {
+  const header = (page: P, id = 's') => host(page, id).locator('.header');
+  const close = (page: P, id = 's') => host(page, id).locator('tanrei-button.close');
+  const paint = (page: P, id = 's') => close(page, id).locator('button').evaluate((el) => getComputedStyle(el).backgroundColor);
+  const divider = (page: P, id = 's') => header(page, id).locator('.divider');
+
+  test('BSH-28: with a headline or closable, a header below the handle’s row at least header.height high — the headline from container.padding in its role and color, a heading that names the sheet where label is empty; the close button header.padding-inline-end from the end edge and header.gap after the headline, both centred; a divider below it; it does not scroll with the content and the sheet is as tall as its rows and content; none without either', async ({ page }) => {
+    await mount(page, [fixtureOf('modal-header')]);
+    const id = 'modal-header';
+    const [s, row, h, title, button] = await Promise.all([bounds(sheet(page, id)), bounds(host(page, id).locator('.row')), bounds(header(page, id)), bounds(host(page, id).locator('.headline')), bounds(close(page, id))]);
+    expect(await px(page, T('header-height'))).toBe(64);
+    expect(h.height).toBeCloseTo(await px(page, T('header-height')), 1);
+    expect(h.y).toBeCloseTo(row.y + row.height, 1);
+    expect(title.x - s.x).toBeCloseTo(await px(page, T('container-padding')), 1);
+    expect(s.x + s.width - (button.x + button.width)).toBeCloseTo(await px(page, T('header-padding-inline-end')), 1);
+    expect(button.x - (title.x + title.width)).toBeGreaterThanOrEqual((await px(page, T('header-gap'))) - 0.5);
+    for (const box of [title, button]) expect(box.y + box.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
+    expect(await css(host(page, id).locator('.headline'), 'font-size')).toBe(`${await px(page, T('headline-typescale-font-size'))}px`);
+    expect(await css(host(page, id).locator('.headline'), 'color')).toBe(await resolveColor(page, T('headline-color')));
+    await expect(page.getByRole('heading', { name: 'Save photo', level: 2 })).toHaveCount(1);
+    // No label: the headline names the dialog.
+    await expect(page.getByRole('dialog', { name: 'Save photo' })).toHaveCount(1);
+    // The divider below it, under always (the default system's).
+    expect(await token(page, T('divider-visibility'))).toBe('always');
+    const line = await bounds(divider(page, id));
+    expect([line.y, line.width, line.height]).toEqual([h.y + h.height, s.width, await px(page, T('divider-width'))]);
+    expect(await css(divider(page, id), 'background-color')).toBe(await resolveColor(page, T('divider-color')));
+    await expect(divider(page, id)).toHaveCSS('visibility', 'visible');
+    await expect(divider(page, id)).toHaveAttribute('aria-hidden', 'true');
+    // As tall as the handle's row, the header and the content: a short content does not scroll.
+    expect(await content(page, id).evaluate((el) => el.scrollHeight <= el.clientHeight + 0.5)).toBe(true);
+    expect(s.height).toBeCloseTo(row.height + h.height + (await bounds(content(page, id))).height + Number.parseFloat(await css(sheet(page, id), 'padding-bottom')), 0);
+    // The header stays while the content scrolls; under scroll the divider shows only once the content is scrolled.
+    await mount(page, [fx('s', { headline: 'Terms of service', detent: 'full', dividerVisibility: 'scroll' }, LONG)]);
+    const before = await bounds(header(page));
+    await expect(divider(page)).toHaveCSS('visibility', 'hidden');
+    await content(page).evaluate((el) => el.scrollBy(0, 120));
+    await expect(divider(page)).toHaveCSS('visibility', 'visible');
+    expect((await bounds(header(page))).y).toBe(before.y);
+    // Without a headline and without closable: no header, no divider.
+    await mount(page, [fixtureOf('modal')]);
+    await expect(header(page, 'modal')).toHaveCount(0);
+    await expect(host(page, 'modal').locator('.divider')).toHaveCount(0);
+  });
+
+  test('BSH-28: the header is drawn at the top of a sheet without a handle, and a drag on it moves the sheet; a divider-visibility the sheet does not define is drawn as auto and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fixtureOf('no-handle-header')]);
+    const id = 'no-handle-header';
+    expect((await bounds(header(page, id))).y).toBeCloseTo((await bounds(sheet(page, id))).y, 1);
+    await mount(page, [fx('s', { headline: 'Terms of service', closable: true, closeLabel: 'Close' }, LONG)]);
+    await wire(page);
+    const h = await bounds(header(page));
+    const start = await top(page);
+    await drag(page, { x: h.x + 24, y: h.y + h.height / 2 }, -280);
+    await still(page);
+    expect(await top(page)).toBeLessThan(start - 60);
+    expect(await log(page)).toEqual(['detent:full:full']);
+    await mount(page, [fx('s', { headline: 'Filters', dividerVisibility: 'sometimes' })]);
+    await expect(divider(page)).toHaveCSS('visibility', 'visible');
+    await expect.poll(() => seen.filter((w) => w.includes('BSH-28')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/divider-visibility "sometimes" is not a value of the bottom sheet/);
+  });
+
+  test('BSH-29: while closable, an icon-only small Button (32 × 32) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant and whatever dismissible says; an empty close-label still draws it and is reported', async ({ page }) => {
+    const seen = warnings(page);
+    for (const props of [{}, { variant: 'standard' }, { dismissible: false }] as Fixture['props'][]) {
+      const name = JSON.stringify(props);
+      await mount(page, [fx('s', { headline: 'Share photo', closable: true, closeLabel: 'Close sharing', ...props })]);
+      await wire(page);
+      expect(await token(page, T('close-button-variant'))).toBe('tonal');
+      await page.mouse.move(0, 0);
+      await expect(close(page), name).not.toHaveAttribute('variant');
+      await expect(close(page), name).toHaveAttribute('size', 'small');
+      expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
+      await expect.poll(() => paint(page), name).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+      const box = await bounds(close(page).locator('button'));
+      expect([box.width, box.height], name).toEqual([32, 32]);
+      await expect(host(page).getByRole('button', { name: 'Close sharing' }), name).toHaveCount(1);
+      await close(page).locator('button').click();
+      expect(await log(page), name).toEqual(['close:close']);
+      await close(page).locator('button').focus();
+      await page.keyboard.press('Enter');
+      await page.keyboard.press('Space');
+      expect(await log(page), name).toEqual(['close:close', 'close:close', 'close:close']);
+      // Controlled: it stays open until the product closes it.
+      await expect(host(page), name).toHaveAttribute('open', '');
+    }
+    // A system's choice reaches it through the same channel, at the next update.
+    await mount(page, [fx('s', { headline: 'Share photo', closable: true, closeLabel: 'Close sharing' })]);
+    await override(page, { [T('close-button-variant')]: 'text' });
+    await host(page).evaluate((el) => {
+      (el as HTMLElement & { headline: string }).headline = 'Share the photo';
+    });
+    await page.mouse.move(0, 0);
+    await expect.poll(() => paint(page)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    expect(seen.filter((w) => w.includes('BSH-29'))).toEqual([]);
+    await mount(page, [fx('s', { headline: 'Share photo', closable: true, closeLabel: '' })]);
+    await expect(close(page)).toBeVisible();
+    await expect.poll(() => seen.filter((w) => w.includes('BSH-29')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
+  });
+
+  test('BSH-29: under m3-like and m3-expressive-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
+    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
+      await mount(page, [fixtureOf('modal-header')], { system });
+      const id = 'modal-header';
+      await expect(close(page, id), system).toHaveAttribute('size', 'small');
+      await expect.poll(() => paint(page, id), system).toBe(await resolveColor(page, `--tanrei-comp-button-${variant}-container-color`));
+      expect((await bounds(close(page, id).locator('button'))).height, system).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-small'), 1);
+    }
+  });
+
+  test('BSH-22, BSH-28: the header is no landmark — a standard sheet with a headline is one region, named by its label where it has one and by its headline otherwise; every fixture on one page has landmarks of distinct names', async ({ page }) => {
+    await mount(page, [fixtureOf('standard-header')]);
+    const regions = page.getByRole('region');
+    await expect(regions).toHaveCount(1);
+    await expect(page.getByRole('region', { name: 'Cafés and bakeries nearby', exact: true })).toHaveCount(1);
+    await expect(page.getByRole('banner')).toHaveCount(0);
+    await mount(page, [fx('s', { variant: 'standard', label: '', headline: 'Nearby places' })]);
+    await expect(page.getByRole('region', { name: 'Nearby places', exact: true })).toHaveCount(1);
+    // All the fixtures at once, as the presets' accessibility check mounts them: no two landmarks share a role and name.
+    await mount(page, spec.fixtures);
+    const results = await new AxeBuilder({ page }).include('main').withRules(['landmark-unique']).analyze();
+    expect(results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`)).toEqual([]);
+  });
+
+  test('BSH-30: a sheet with no handle, no close button and dismissible true still renders and is reported; a close button or closedby none takes the report away', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fixtureOf('no-handle')]);
+    await expect(sheet(page, 'no-handle')).toBeVisible();
+    await expect.poll(() => seen.filter((w) => w.includes('BSH-30')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/no drag handle and no close button, so it shows no way out a person can see/);
+    seen.length = 0;
+    await mount(page, [fixtureOf('no-handle-header'), fx('s', { handle: false, dismissible: false })]);
+    await settled(page);
+    expect(seen.filter((w) => w.includes('BSH-30'))).toEqual([]);
+  });
+});
+
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, every fixture', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  // One test per theme: eight fixtures in two themes in one test outgrow a test's time on a loaded machine.
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}, every fixture`, async ({ page }) => {
       for (const f of spec.fixtures) {
         await mount(page, [f], { theme });
         await page.waitForTimeout(300);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 });
 
 test.describe('fixtures', () => {

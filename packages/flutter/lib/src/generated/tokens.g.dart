@@ -3236,6 +3236,7 @@ class TanreiBottomSheetStateTokens {
 @immutable
 class TanreiBottomSheetTokens {
   const TanreiBottomSheetTokens({
+    required this.closeButtonVariant,
     required this.containerColor,
     required this.containerElevation,
     required this.containerMarginBlockStart,
@@ -3244,6 +3245,9 @@ class TanreiBottomSheetTokens {
     required this.containerPartialFraction,
     required this.containerShape,
     required this.contentColor,
+    required this.dividerColor,
+    required this.dividerVisibility,
+    required this.dividerWidth,
     required this.handleContainerHeight,
     required this.handleContainerShape,
     required this.handleContainerWidth,
@@ -3251,6 +3255,11 @@ class TanreiBottomSheetTokens {
     required this.handleGripShape,
     required this.handleGripWidth,
     required this.handleMarginBlock,
+    required this.headerGap,
+    required this.headerHeight,
+    required this.headerPaddingInlineEnd,
+    required this.headlineColor,
+    required this.headlineTypescale,
     required this.motionEnterDuration,
     required this.motionEnterEasing,
     required this.motionExitDuration,
@@ -3266,6 +3275,8 @@ class TanreiBottomSheetTokens {
     required this.pressed,
   });
 
+  /// `comp.bottom-sheet.close-button-variant`
+  final double closeButtonVariant;
   /// `comp.bottom-sheet.container-color`
   final TanreiPaint containerColor;
   /// `comp.bottom-sheet.container-elevation`
@@ -3282,6 +3293,12 @@ class TanreiBottomSheetTokens {
   final double containerShape;
   /// `comp.bottom-sheet.content-color`
   final TanreiPaint contentColor;
+  /// `comp.bottom-sheet.divider-color`
+  final TanreiPaint dividerColor;
+  /// `comp.bottom-sheet.divider-visibility`
+  final double dividerVisibility;
+  /// `comp.bottom-sheet.divider-width`
+  final double dividerWidth;
   /// `comp.bottom-sheet.handle-container-height`
   final double handleContainerHeight;
   /// `comp.bottom-sheet.handle-container-shape`
@@ -3296,6 +3313,16 @@ class TanreiBottomSheetTokens {
   final double handleGripWidth;
   /// `comp.bottom-sheet.handle-margin-block`
   final double handleMarginBlock;
+  /// `comp.bottom-sheet.header-gap`
+  final double headerGap;
+  /// `comp.bottom-sheet.header-height`
+  final double headerHeight;
+  /// `comp.bottom-sheet.header-padding-inline-end`
+  final double headerPaddingInlineEnd;
+  /// `comp.bottom-sheet.headline-color`
+  final TanreiPaint headlineColor;
+  /// `comp.bottom-sheet.headline-typescale`
+  final TanreiTextStyle headlineTypescale;
   /// `comp.bottom-sheet.motion-enter-duration`
   final int motionEnterDuration;
   /// `comp.bottom-sheet.motion-enter-easing`
@@ -3325,6 +3352,7 @@ class TanreiBottomSheetTokens {
 
   /// A copy with the given tokens replaced.
   TanreiBottomSheetTokens copyWith({
+    double? closeButtonVariant,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
     double? containerMarginBlockStart,
@@ -3333,6 +3361,9 @@ class TanreiBottomSheetTokens {
     double? containerPartialFraction,
     double? containerShape,
     TanreiPaint? contentColor,
+    TanreiPaint? dividerColor,
+    double? dividerVisibility,
+    double? dividerWidth,
     double? handleContainerHeight,
     double? handleContainerShape,
     double? handleContainerWidth,
@@ -3340,6 +3371,11 @@ class TanreiBottomSheetTokens {
     double? handleGripShape,
     double? handleGripWidth,
     double? handleMarginBlock,
+    double? headerGap,
+    double? headerHeight,
+    double? headerPaddingInlineEnd,
+    TanreiPaint? headlineColor,
+    TanreiTextStyle? headlineTypescale,
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
     int? motionExitDuration,
@@ -3354,6 +3390,7 @@ class TanreiBottomSheetTokens {
     TanreiBottomSheetStateTokens? focused,
     TanreiBottomSheetStateTokens? pressed,
   }) => TanreiBottomSheetTokens(
+        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
         containerMarginBlockStart: containerMarginBlockStart ?? this.containerMarginBlockStart,
@@ -3362,6 +3399,9 @@ class TanreiBottomSheetTokens {
         containerPartialFraction: containerPartialFraction ?? this.containerPartialFraction,
         containerShape: containerShape ?? this.containerShape,
         contentColor: contentColor ?? this.contentColor,
+        dividerColor: dividerColor ?? this.dividerColor,
+        dividerVisibility: dividerVisibility ?? this.dividerVisibility,
+        dividerWidth: dividerWidth ?? this.dividerWidth,
         handleContainerHeight: handleContainerHeight ?? this.handleContainerHeight,
         handleContainerShape: handleContainerShape ?? this.handleContainerShape,
         handleContainerWidth: handleContainerWidth ?? this.handleContainerWidth,
@@ -3369,6 +3409,11 @@ class TanreiBottomSheetTokens {
         handleGripShape: handleGripShape ?? this.handleGripShape,
         handleGripWidth: handleGripWidth ?? this.handleGripWidth,
         handleMarginBlock: handleMarginBlock ?? this.handleMarginBlock,
+        headerGap: headerGap ?? this.headerGap,
+        headerHeight: headerHeight ?? this.headerHeight,
+        headerPaddingInlineEnd: headerPaddingInlineEnd ?? this.headerPaddingInlineEnd,
+        headlineColor: headlineColor ?? this.headlineColor,
+        headlineTypescale: headlineTypescale ?? this.headlineTypescale,
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,

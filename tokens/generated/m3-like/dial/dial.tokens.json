@@ -6221,6 +6221,10 @@
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "Material's bottom sheet has 28dp top corners, corner.extra-large here."
             },
+            "tanrei.comp.bottom-sheet.close-button.variant": {
+              "$value": 4,
+              "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.bottom-sheet.container.elevation": {
               "$value": "{tanrei.sys.elevation.level1}",
               "reason": "Material's bottom sheet rests at level1, which here is a real shadow; the default system rests it at level2 only because its level1 is a ring."
