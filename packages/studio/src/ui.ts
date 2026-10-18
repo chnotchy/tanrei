@@ -241,7 +241,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       URL.revokeObjectURL(url);
       ctx.announce(t.export.downloaded(`${layer.id}.system.json`));
     }, { 'data-download': true });
-    const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.rootId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
+    const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
     // The layer to import: JSON, in a text field that holds code, which says itself what does not parse.
     const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
@@ -456,7 +456,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     compute();
     if (latest.model) last = latest;
     // A layer that cannot be computed at all still needs controls to fix it: fall back to its base.
-    if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.rootId }) as Json;
+    if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.defaultId }) as Json;
     root.dataset.level = level;
     drawLevels();
     const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];

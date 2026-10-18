@@ -31,7 +31,10 @@ const valuesOf = (model) => JSON.stringify([Object.values(model.tokens).map((t) 
 /** Every word the model was given: the reasons, rationales and descriptions it copied in. */
 const wordsOf = (model) => JSON.stringify(Object.values(model.tokens).map((t) => [t.id, t.derive?.fixed, t.derive?.pinned?.reason, t.description, t.rationale, t.vocabulary?.rationale]));
 
-for (const id of Object.keys(shipped).filter((id) => shipped[id].extends)) {
+/** Words a layer says that its model holds: a pin's reason, a rule's, a declaration, a palette's description. (The default system is a layer over the core that says its name and description alone.) */
+const holdsWords = (layer) => [...Object.values(layer.tokens ?? {}), ...(layer.rules ?? [])].some((op) => op && typeof op === 'object' && 'reason' in op) || Object.keys(layer.vocabulary ?? {}).length > 0 || Object.values(layer.palettes ?? {}).some((declaration) => declaration && 'description' in declaration);
+
+for (const id of Object.keys(shipped).filter((id) => shipped[id].extends && holdsWords(shipped[id]))) {
   test(`${id}: its words said otherwise, the layer computes the same sheet, values and checks — and is not computed again until its words are asked for`, () => {
     const layer = shipped[id];
     const other = reworded(layer);

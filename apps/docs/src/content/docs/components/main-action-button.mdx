@@ -90,6 +90,7 @@ The main action button replaces the floating action button and the extended FAB.
 - Material 3's FAB, small FAB and large FAB are a collapsed main action button at the medium, small and large sizes. Its extended FAB is the extended form.
 - Compose's `expanded` (on `ExtendedFloatingActionButton`) and Flutter's `isExtended` (on `FloatingActionButton.extended`) are `extended`.
 - Material 3's primary, secondary, tertiary and surface FAB colors map onto the `filled`, `tonal` and `surface` variants and the values a preset adds. The m3-like preset draws Material's rounded-square corners and 56 / 96 heights through this component's tokens.
+- In Material's terms the main action button is the FAB. Material's FAB menu is the [FAB menu](/components/fab-menu/), a component of the m3-like layer: the systems that descend from it have it.
 
 ## Specs
 
@@ -125,7 +126,7 @@ Use a main action button for the action that most people come to the screen to t
 
 - For an action that belongs to a form, a dialog or one item in the content, use a [button](/components/button/) where that content is.
 - For several actions on the current screen or selection, use a [toolbar](/components/toolbar/).
-- When the main action comes in a few related forms (a new document, a folder or an upload), let the main action button open a [bottom sheet](/components/bottom-sheet/) that lists them. The [FAB menu](/components/fab-menu/) does that job in the presets that ship it; the default system does not.
+- When the main action comes in a few related forms (a new document, a folder or an upload), let the main action button open a [bottom sheet](/components/bottom-sheet/) that lists them. The [FAB menu](/components/fab-menu/) does that job in the systems of the m3-like layer, where it lives; the default system does not have it.
 - It performs an action and takes no destination. A control that only takes people somewhere else is a link: a [button](/components/button/) with `href`.
 
 ### Extended or collapsed

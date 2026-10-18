@@ -2,7 +2,7 @@
 title: Botón de acción principal
 description: Realiza la acción más importante de una pantalla desde un contenedor elevado que flota sobre el contenido, con su nombre escrito o contraído hasta dejar solo su icono.
 translationOf: components/main-action-button.mdx
-sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
+sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -92,6 +92,7 @@ El botón de acción principal sustituye al botón de acción flotante y al FAB 
 - El FAB, el FAB pequeño y el FAB grande de Material 3 son un botón de acción principal contraído en los tamaños medium, small y large. Su FAB extendido es la forma extendida.
 - El `expanded` de Compose (en `ExtendedFloatingActionButton`) y el `isExtended` de Flutter (en `FloatingActionButton.extended`) son `extended`.
 - Los colores primary, secondary, tertiary y surface del FAB de Material 3 se corresponden con las variantes `filled`, `tonal` y `surface` y con los valores que añade un preajuste. El preajuste m3-like dibuja las esquinas de cuadrado redondeado y las alturas 56 / 96 de Material mediante los tokens de este componente.
+- En los términos de Material, el botón de acción principal es el FAB. El menú FAB de Material es el [menú FAB](/es/components/fab-menu/), un componente de la capa m3-like: lo tienen los sistemas que descienden de ella.
 
 ## Especificaciones
 
@@ -127,7 +128,7 @@ Usa un botón de acción principal para la acción por la que la mayoría de las
 
 - Para una acción que pertenece a un formulario, a un diálogo o a un elemento del contenido, usa un [botón](/es/components/button/) donde esté ese contenido.
 - Para varias acciones sobre la pantalla o la selección actual, usa una [barra de herramientas](/es/components/toolbar/).
-- Cuando la acción principal tiene unas pocas formas relacionadas (un documento nuevo, una carpeta o una subida), haz que el botón de acción principal abra una [hoja inferior](/es/components/bottom-sheet/) que las enumere. El [menú FAB](/es/components/fab-menu/) cumple esa función en los preajustes que lo incluyen; el sistema predeterminado no lo incluye.
+- Cuando la acción principal tiene unas pocas formas relacionadas (un documento nuevo, una carpeta o una subida), haz que el botón de acción principal abra una [hoja inferior](/es/components/bottom-sheet/) que las enumere. El [menú FAB](/es/components/fab-menu/) cumple esa función en los sistemas de la capa m3-like, donde vive; el sistema predeterminado no lo tiene.
 - Realiza una acción y no admite destino. Un control que solo lleva a las personas a otro lugar es un enlace: un [botón](/es/components/button/) con `href`.
 
 ### Extendido o contraído
