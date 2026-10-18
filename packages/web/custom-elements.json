@@ -64493,7 +64493,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` /* POP-27: closed, it takes no room in the layout — the element has no box of its own, and its surface is in the top layer while it is shown. */ :host { display: contents; /* POP-10: the system's choice (its NAME, as the cascade gives it here)… */ ${unsafeCSS(ARROW_PROPERTY)}: ${t('arrow-visible')}; } /* …unless the popover says so itself: the attribute (true), or =\"false\". */ :host([arrow]) { ${unsafeCSS(ARROW_PROPERTY)}: on; } :host([arrow='false' i]) { ${unsafeCSS(ARROW_PROPERTY)}: off; } /* POP-1, POP-5, POP-26, POP-27: the placed box and its motion. */ ${anchoredSurfaceStyles({ surface: '.surface', motion: '.motion', offset: T('offset'), margin: T('window-margin'), arrow: { width: T('arrow-width'), height: T('arrow-height'), inset: T('arrow-inset') }, open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') }, close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') }, })} /* POP-6, POP-7, POP-8: the container — its color, its elevation and its corners (eased by the smoothing); as wide as its widest part between its least and greatest width, never wider than the window allows (it narrows below the least width where the window asks); as tall as its parts, up to its greatest height and the room its side leaves. It answers no pointer and no press itself. POP-14: the content color, handed down as the inherited color. */ .container { box-sizing: border-box; position: relative; display: flex; flex-direction: column; /* --_actions-row: the width of the actions in one row at their own widths, as the script measured it (POP-7). */ min-inline-size: min(max(${t('container-min-width')}, var(--_actions-row, 0px)), ${t('container-max-width')}, ${unsafeCSS(MAX_INLINE)}); max-inline-size: min(${t('container-max-width')}, ${unsafeCSS(MAX_INLINE)}); max-block-size: min(${t('container-max-height')}, ${unsafeCSS(MAX_BLOCK)}); background: ${t('container-color')}; box-shadow: ${t('container-elevation')}; color: ${t('content-color')}; text-align: start; outline: none; ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } /* POP-7, width anchor: as wide as the anchor, at least the least width, the greatest width not applying. */ :host([width='anchor']) .container { inline-size: var(--_anchored-anchor-inline, auto); min-inline-size: min(${t('container-min-width')}, ${unsafeCSS(MAX_INLINE)}); max-inline-size: ${unsafeCSS(MAX_INLINE)}; } /* POP-19: the container takes focus when the popover opens; its indicator shows only for the keyboard. */ ${focusRing((focus) => `.container${focus}`)} ${quietFocus('.container')} /* POP-6: the header, the content and the actions are clipped to the container's shape. (A box of its own, so that the container's focus indicator, drawn outside it, is not.) */ .clip { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-block-size: 0; overflow: hidden; outline: none; ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } /* POP-8: where the header and the actions alone leave no room for the content, everything scrolls together. */ .clip.crowded { overflow-y: auto; overscroll-behavior: contain; } .clip.crowded > *, .clip.crowded .content { flex: none; } .clip.crowded .content { overflow: visible; } /* POP-9, POP-11: the header — one row inside the container's paddings: the headline, taking the width the close button leaves, and the close button at the row's end, header.gap after the headline, both on the row's first line. It grows with a headline that wraps and stays in place while the content scrolls. */ .header { box-sizing: border-box; position: relative; display: flex; flex: none; align-items: flex-start; gap: ${t('header-gap')}; padding-block-start: ${t('container-padding-block')}; padding-inline: ${t('container-padding-inline')}; /* The row's first line is the headline's: the close button is centred on a line of this height. */ font: ${t('headline-typescale-font')}; } /* A header with nothing below it ends the container. */ .header.last { padding-block-end: ${t('container-padding-block')}; } /* POP-12: the headline, wrapping rather than truncating. */ .headline { flex: 1 1 auto; min-inline-size: 0; margin: 0; font: ${t('headline-typescale-font')}; letter-spacing: ${t('headline-typescale-letter-spacing')}; color: ${t('headline-color')}; overflow-wrap: break-word; } /* POP-12: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */ ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))} /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */ .header.closable .headline { padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2)); } /* POP-35: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps its order in a right-to-left popover; its lines are still aligned to the layout's start edge (src/styles/product-text.ts). */ ${productText('.headline', { align: 'start' })} /* POP-13: the icon-only Button, placed and never restyled (its variant is given through the Button's own channel). */ .close-box { display: flex; flex: none; align-items: center; min-block-size: 1lh; margin-inline-start: auto; } /* POP-9, POP-14: the content — inset by the container's paddings, container.gap below the header (or the block padding below the top edge without one), the block padding above the bottom edge without actions; plain text in the body role; scrolling between the header and the actions (POP-8). */ .middle { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-block-size: 0; } .content { box-sizing: border-box; position: relative; flex: 1 1 auto; min-block-size: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding-block-start: ${t('container-gap')}; padding-inline: ${t('container-padding-inline')}; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); overflow-wrap: break-word; outline: none; ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))} } .content.top { padding-block-start: ${t('container-padding-block')}; } .content.bottom { padding-block-end: ${t('container-padding-block')}; } .middle.empty { display: none; } /* POP-9, inset false: the content reaches the container's start and end edges, and its top and bottom edges where no header or no action stands there; the header and the actions keep their insets. */ :host([no-inset]) .content { padding-inline: 0; } :host([no-inset]) .content.top { padding-block-start: 0; } :host([no-inset]) .content.bottom { padding-block-end: 0; } .inner { display: flow-root; } /* A content that scrolls is a Tab stop (POP-8); its keyboard focus is drawn inside it, which the container clips — by a box over it that does not scroll with what it holds (a box of the scrolling part's own would move away with it): over the content, square; over everything where everything scrolls together, of the container's shape. */ .focus { position: absolute; inset: 0; ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))} pointer-events: none; } .focus.whole { ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })} ${focusRing((focus) => `.clip.crowded${focus} ~ .focus`, { inside: true })} /* POP-8: the dividers, divider.width hairlines in divider.color across the container, below the header and above the actions while the content scrolls. They take no room, so they show and hide at once and move nothing. POP-38, always: both for as long as the content scrolls, at its top included. */ ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)} .divider { position: absolute; inset-inline: 0; block-size: ${t('divider-width')}; background: ${t('divider-color')}; visibility: hidden; pointer-events: none; } .divider.below-header { inset-block-start: 100%; } .divider.above-actions { inset-block-end: 100%; } .clip[data-scrolls] .divider { visibility: visible; } /* POP-38, scroll: below the header while the content is scrolled away from its top, above the actions while more of it lies below. */ ${whenScroll( '.clip', (clip) => ` ${clip}[data-scrolls] .divider { visibility: hidden; } ${clip}[data-scrolled] .divider.below-header, ${clip}[data-more] .divider.above-actions { visibility: visible; }`, )} /* POP-9, POP-15: the actions — actions.margin-block-start below the content (or the header), the container's paddings at the sides and below, actions.gap apart: fill, a full-width Button group, the actions sharing the row equally or each as wide as the column; the order is the slots' (dismissive, unflagged, confirming in a row; confirming on top of a column), so focus and reading follow it; a row starts at the right in right-to-left (BGR-8). */ .footer { position: relative; flex: none; } .footer[hidden] { display: none; } ${actionBoxStyles('.actions', `${PREFIX}-actions-gap`)} .actions { box-sizing: border-box; padding: ${t('actions-margin-block-start')} ${t('container-padding-inline')} ${t('container-padding-block')}; } /* POP-15, end (a system choice): at their own widths, the row aligned to the end edge; a column as wide as its widest action, aligned to the end. */ ${whenChosen( `${PREFIX}-actions-arrangement`, '.container', 'arrangement', 'end', (container) => ` ${container} .actions { justify-content: flex-end; } ${container} .actions ::slotted(*) { flex: none; } ${container} .actions.stacked { inline-size: max-content; max-inline-size: 100%; margin-inline-start: auto; }`, )} /* POP-10: the arrow — a triangle on the container's edge that faces the anchor, in the container's color, its tip where the placement says. The elevation is drawn round the container and the arrow as one shape. */ ${arrowStyles({ surface: '.surface', box: '.container', width: T('arrow-width'), height: T('arrow-height'), fill: T('container-color'), elevation: T('container-elevation') })} /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */ .shade { scroll-margin-block-start: ${t('container-min-width')}; } /* POP-6: corner smoothing on the container (data-tanrei-shape). */ ${shape} /* POP-32: forced colors remove the shadow and may give the container the page's color: an edge sys.border.hairline wide in the text color round the container, continued round the arrow as one outline; the headline and plain text take the text color. */ @media (forced-colors: active) { .container { border: var(--tanrei-sys-border-hairline) solid CanvasText; color: CanvasText; } .headline { color: CanvasText; } .divider { background: CanvasText; } .motion { filter: none !important; } } ${arrowOutlineStyles({ surface: '.surface', edge: 'calc(var(--tanrei-sys-border-hairline) * 1.5)' })} `"
+          "default": "css` /* POP-27: closed, it takes no room in the layout — the element has no box of its own, and its surface is in the top layer while it is shown. */ :host { display: contents; /* POP-10: the system's choice (its NAME, as the cascade gives it here)… */ ${unsafeCSS(ARROW_PROPERTY)}: ${t('arrow-visible')}; } /* …unless the popover says so itself: the attribute (true), or =\"false\". */ :host([arrow]) { ${unsafeCSS(ARROW_PROPERTY)}: on; } :host([arrow='false' i]) { ${unsafeCSS(ARROW_PROPERTY)}: off; } /* POP-1, POP-5, POP-26, POP-27: the placed box and its motion. */ ${anchoredSurfaceStyles({ surface: '.surface', motion: '.motion', offset: T('offset'), margin: T('window-margin'), arrow: { width: T('arrow-width'), height: T('arrow-height'), inset: T('arrow-inset') }, open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') }, close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') }, })} /* POP-6, POP-7, POP-8: the container — its color, its elevation and its corners (eased by the smoothing); as wide as its widest part between its least and greatest width, never wider than the window allows (it narrows below the least width where the window asks); as tall as its parts, up to its greatest height and the room its side leaves. It answers no pointer and no press itself. POP-14: the content color, handed down as the inherited color. */ .container { box-sizing: border-box; position: relative; display: flex; flex-direction: column; /* --_actions-row: the width of the actions in one row at their own widths, as the script measured it (POP-7). */ min-inline-size: min(max(${t('container-min-width')}, var(--_actions-row, 0px)), ${t('container-max-width')}, ${unsafeCSS(MAX_INLINE)}); max-inline-size: min(${t('container-max-width')}, ${unsafeCSS(MAX_INLINE)}); max-block-size: min(${t('container-max-height')}, ${unsafeCSS(MAX_BLOCK)}); background: ${t('container-color')}; box-shadow: ${t('container-elevation')}; color: ${t('content-color')}; text-align: start; outline: none; ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } /* POP-7, width anchor: as wide as the anchor, at least the least width, the greatest width not applying. */ :host([width='anchor']) .container { inline-size: var(--_anchored-anchor-inline, auto); min-inline-size: min(${t('container-min-width')}, ${unsafeCSS(MAX_INLINE)}); max-inline-size: ${unsafeCSS(MAX_INLINE)}; } /* POP-19: the container takes focus when the popover opens; its indicator shows only for the keyboard. */ ${focusRing((focus) => `.container${focus}`)} ${quietFocus('.container')} /* POP-6: the header, the content and the actions are clipped to the container's shape. (A box of its own, so that the container's focus indicator, drawn outside it, is not.) */ .clip { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-block-size: 0; overflow: hidden; outline: none; ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } /* POP-8: where the header and the actions alone leave no room for the content, everything scrolls together. */ .clip.crowded { overflow-y: auto; overscroll-behavior: contain; } .clip.crowded > *, .clip.crowded .content { flex: none; } .clip.crowded .content { overflow: visible; } /* POP-9, POP-11: the header — one row inside the container's paddings: the headline, taking the width the close button leaves, and the close button at the row's end, header.gap after the headline, both on the row's first line. It grows with a headline that wraps and stays in place while the content scrolls. */ .header { box-sizing: border-box; position: relative; display: flex; flex: none; align-items: flex-start; gap: ${t('header-gap')}; padding-block-start: ${t('container-padding-block')}; padding-inline: ${t('container-padding-inline')}; /* The row's first line is the headline's: the close button is centred on a line of this height. */ font: ${t('headline-typescale-font')}; } /* A header with nothing below it ends the container. */ .header.last { padding-block-end: ${t('container-padding-block')}; } /* POP-12: the headline, wrapping rather than truncating. */ .headline { flex: 1 1 auto; min-inline-size: 0; margin: 0; font: ${t('headline-typescale-font')}; letter-spacing: ${t('headline-typescale-letter-spacing')}; color: ${t('headline-color')}; overflow-wrap: break-word; } /* POP-12: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */ ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))} /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */ .header.closable .headline { padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2)); } /* POP-35: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps its order in a right-to-left popover; its lines are still aligned to the layout's start edge (src/styles/product-text.ts). */ ${productText('.headline', { align: 'start' })} /* POP-13: the icon-only Button, placed and never restyled (its variant is given through the Button's own channel). */ .close-box { display: flex; flex: none; align-items: center; min-block-size: 1lh; margin-inline-start: auto; } /* POP-9, POP-14: the content — inset by the container's paddings, container.gap below the header (or the block padding below the top edge without one), the block padding above the bottom edge without actions; plain text in the body role; scrolling between the header and the actions (POP-8). */ .middle { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-block-size: 0; } .content { box-sizing: border-box; position: relative; flex: 1 1 auto; min-block-size: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding-block-start: ${t('container-gap')}; padding-inline: ${t('container-padding-inline')}; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); overflow-wrap: break-word; outline: none; ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))} } .content.top { padding-block-start: ${t('container-padding-block')}; } .content.bottom { padding-block-end: ${t('container-padding-block')}; } .middle.empty { display: none; } /* POP-9, inset false: the content reaches the container's start and end edges, and its top and bottom edges where no header or no action stands there; the header and the actions keep their insets. */ :host([no-inset]) .content { padding-inline: 0; } :host([no-inset]) .content.top { padding-block-start: 0; } :host([no-inset]) .content.bottom { padding-block-end: 0; } .inner { display: flow-root; } /* A content that scrolls is a Tab stop (POP-8); its keyboard focus is drawn inside it, which the container clips — by a box over it that does not scroll with what it holds (a box of the scrolling part's own would move away with it): over the content, square; over everything where everything scrolls together, of the container's shape. */ .focus { position: absolute; inset: 0; ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))} pointer-events: none; } .focus.whole { ${unsafeCSS(cornerRadius('--tanrei-comp-popover-container-shape'))} } ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })} ${focusRing((focus) => `.clip.crowded${focus} ~ .focus`, { inside: true })} /* POP-8: the dividers, divider.width hairlines in divider.color across the container, below the header and above the actions while the content scrolls. They take no room, so they show and hide at once and move nothing. POP-38, always: both for as long as the content scrolls, at its top included. */ ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)} .divider { position: absolute; inset-inline: 0; block-size: ${t('divider-width')}; background: ${t('divider-color')}; visibility: hidden; pointer-events: none; } .divider.below-header { inset-block-start: 100%; } .divider.above-actions { inset-block-end: 100%; } .clip[data-scrolls] .divider { visibility: visible; } /* POP-38, scroll: below the header while the content is scrolled away from its top, above the actions while more of it lies below. */ ${whenScroll( '.clip', (clip) => ` ${clip}[data-scrolls] .divider { visibility: hidden; } ${clip}[data-scrolled] .divider.below-header, ${clip}[data-more] .divider.above-actions { visibility: visible; }`, )} /* POP-9, POP-15: the actions — actions.margin-block-start below the content (or the header), the container's paddings at the sides and below, actions.gap apart: fill, a full-width Button group, the actions sharing the row equally or each as wide as the column; the order is the slots' (dismissive, unflagged, confirming in a row; confirming on top of a column), so focus and reading follow it; a row starts at the right in right-to-left (BGR-8). */ .footer { position: relative; flex: none; } .footer[hidden] { display: none; } ${actionBoxStyles('.actions', `${PREFIX}-actions-gap`)} .actions { box-sizing: border-box; padding: ${t('actions-margin-block-start')} ${t('container-padding-inline')} ${t('container-padding-block')}; } /* POP-15, end (a system choice): at their own widths, the row aligned to the end edge; a column as wide as its widest action, aligned to the end. */ ${whenChosen( `${PREFIX}-actions-arrangement`, '.container', 'arrangement', 'end', (container) => ` ${container} .actions { justify-content: flex-end; } ${container} .actions ::slotted(*) { flex: none; } ${container} .actions.stacked { inline-size: max-content; max-inline-size: 100%; margin-inline-start: auto; }`, )} /* POP-10: the arrow — a triangle on the container's edge that faces the anchor, in the container's color, its tip where the placement says. The elevation is drawn round the container and the arrow as one shape. */ ${arrowStyles({ surface: '.surface', box: '.container', width: T('arrow-width'), height: T('arrow-height'), fill: T('container-color'), elevation: T('container-elevation') })} /* POP-39: the resolved compact.window-width, which the script matches the window against. */ ${compactProbeStyles('.probe', `${PREFIX}-compact-window-width`)} /* POP-39, POP-40, POP-41: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the keyboard), as wide as the window up to the bottom sheet's greatest width, its color, elevation and top corners, square at the bottom — over the bottom sheet's scrim, sliding up and down with its motion (src/primitives/ compact-sheet.ts). Its parts keep their own tokens and layout; none of the browser's dialog box. (The host's selector outweighs the anchored container's width rules, which a sheet ignores.) */ :host dialog.container.sheet { border: 0; padding: 0; overflow: visible; color: ${t('content-color')}; } ${sheetLookStyles({ sheet: ':host dialog.container.sheet' })} :host dialog.container.sheet:not([open]) { display: none; } :host dialog.container.sheet[open] { display: flex; } :host dialog.container.sheet.instant, :host dialog.container.sheet.instant::backdrop { transition: none; } .container.sheet .clip, .container.sheet .focus.whole { ${unsafeCSS(cornerRadius('--tanrei-comp-bottom-sheet-container-shape'))} border-end-start-radius: 0; border-end-end-radius: 0; } /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */ .shade { scroll-margin-block-start: ${t('container-min-width')}; } /* POP-6: corner smoothing on the container (data-tanrei-shape). */ ${shape} /* POP-32: forced colors remove the shadow and may give the container the page's color: an edge sys.border.hairline wide in the text color round the container, continued round the arrow as one outline; the headline and plain text take the text color. */ @media (forced-colors: active) { .container { border: var(--tanrei-sys-border-hairline) solid CanvasText; color: CanvasText; } .headline { color: CanvasText; } .divider { background: CanvasText; } .motion { filter: none !important; } } ${arrowOutlineStyles({ surface: '.surface', edge: 'calc(var(--tanrei-sys-border-hairline) * 1.5)' })} `"
         }
       ],
       "exports": [
@@ -64545,11 +64545,11 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays\nwith it, without dimming or blocking the rest of the page.\n\nContract: specs/popover.spec.json. The product owns the control: `anchor` is the id of the element the popover stands\nbeside, in the popover's own tree (`anchorElement` for an element an id cannot reach), and that element is also the\nopener — the one that carries `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls` and takes focus back —\nunless `opener` / `openerElement` names another (a field that anchors the surface, with a button inside it that\nopens it). The product sets `open` when the opener is pressed, and to false when the popover fires `close`: the\npopover never opens or closes by itself, on hover, on focus or after a time.\n\nThe drawn popover is a `popover=\"manual\"` element in the shadow root, in the top layer (above an open modal\n`<dialog>` the element stands in), holding a `role=\"dialog\"` container that is not modal: no scrim, no focus trap,\nnothing behind it inert. It is placed against the anchor by script — the side and the alignment `placement` names,\n`offset` away and moved along the side by `crossOffset`; flipped to the opposite side, limited to the room where\nneither side has enough (its content then scrolls between the header and the actions), shifted along the side and,\nin a window smaller than its least size, moved back over the anchor — and follows the anchor while open. When\nnothing of the anchor can be seen it fires `close` with the reason `anchor-hidden`.\n\nFocus: opening moves focus to the slotted element marked `autofocus`, else to the container (`initialFocus=\"anchor\"`\nleaves it where it is). The popover stands in the focus order directly after its opener wherever it is in the\ndocument: Tab on the opener enters it, Shift+Tab from its first element returns to the opener, Tab from its last\nelement moves on to what follows the opener. Escape, a press outside, focus leaving, the close button and the\nanchor going out of sight each fire `close` once, with the reason; an action never does. An overlay opened from an\nelement inside it (a menu, a tooltip, another popover, a dialog) is its own: a press or focus in it is not outside,\nEscape closes it first, and it closes with the popover. Closing returns focus to the opener if it was inside.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive` where it is one,\nplaced as a Button group places them; a Button without a `variant` attribute takes the popover's\n(`comp.popover.actions.variant`). `arrow` draws a triangle that points at the anchor, one shape with the container\n(unset, the system's `comp.popover.arrow.visible` decides).\n\nContent taller than the room scrolls between the header and the actions, with a divider below the header and one above\nthe actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only\nwhile content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).\n\nEvery visual value comes from `--tanrei-comp-popover-*` tokens.",
+          "description": "Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays\nwith it, without dimming or blocking the rest of the page.\n\nContract: specs/popover.spec.json. The product owns the control: `anchor` is the id of the element the popover stands\nbeside, in the popover's own tree (`anchorElement` for an element an id cannot reach), and that element is also the\nopener — the one that carries `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls` and takes focus back —\nunless `opener` / `openerElement` names another (a field that anchors the surface, with a button inside it that\nopens it). The product sets `open` when the opener is pressed, and to false when the popover fires `close`: the\npopover never opens or closes by itself, on hover, on focus or after a time.\n\nThe drawn popover is a `popover=\"manual\"` element in the shadow root, in the top layer (above an open modal\n`<dialog>` the element stands in), holding a `role=\"dialog\"` container that is not modal: no scrim, no focus trap,\nnothing behind it inert. It is placed against the anchor by script — the side and the alignment `placement` names,\n`offset` away and moved along the side by `crossOffset`; flipped to the opposite side, limited to the room where\nneither side has enough (its content then scrolls between the header and the actions), shifted along the side and,\nin a window smaller than its least size, moved back over the anchor — and follows the anchor while open. When\nnothing of the anchor can be seen it fires `close` with the reason `anchor-hidden`.\n\nFocus: opening moves focus to the slotted element marked `autofocus`, else to the container (`initialFocus=\"anchor\"`\nleaves it where it is). The popover stands in the focus order directly after its opener wherever it is in the\ndocument: Tab on the opener enters it, Shift+Tab from its first element returns to the opener, Tab from its last\nelement moves on to what follows the opener. Escape, a press outside, focus leaving, the close button and the\nanchor going out of sight each fire `close` once, with the reason; an action never does. An overlay opened from an\nelement inside it (a menu, a tooltip, another popover, a dialog) is its own: a press or focus in it is not outside,\nEscape closes it first, and it closes with the popover. Closing returns focus to the opener if it was inside.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive` where it is one,\nplaced as a Button group places them; a Button without a `variant` attribute takes the popover's\n(`comp.popover.actions.variant`). `arrow` draws a triangle that points at the anchor, one shape with the container\n(unset, the system's `comp.popover.arrow.visible` decides).\n\nContent taller than the room scrolls between the header and the actions, with a divider below the header and one above\nthe actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only\nwhile content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).\n\nIn a window narrower than `comp.popover.compact.window-width` (600 in the default system) it takes the bottom\nsheet's appearance instead (POP-39 to POP-42): a native `<dialog>` opened with `showModal()`, docked to the window's\nbottom edge in the bottom sheet's color, elevation and top corners, sliding up over the bottom sheet's scrim — a modal\ndialog, with everything behind it inert and focus kept in; Escape, a press on the scrim and the close button fire\n`close`. `compact-presentation=\"own\"` keeps it beside its anchor in every window, as `initial-focus=\"anchor\"` always\ndoes. Crossing the width while open changes the presentation at once, focus kept.\n\nEvery visual value comes from `--tanrei-comp-popover-*` tokens, and as a sheet from `--tanrei-comp-bottom-sheet-*`.",
           "name": "TanreiPopover",
           "cssParts": [
             {
-              "description": "The raised surface: its color, corners and elevation. It is the dialog.",
+              "description": "The raised surface: its color, corners and elevation. It is the dialog (a native `<dialog>` while it is a sheet).",
               "name": "container"
             },
             {
@@ -64688,6 +64688,18 @@
             },
             {
               "kind": "field",
+              "name": "compactPresentation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiPopoverCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.popover.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, as a modal dialog; `own` beside its anchor, as in every other\nwindow. `initial-focus=\"anchor\"` always keeps it beside its anchor. Anything else is `sheet` (POP-43). The attribute\nis `compact-presentation`; reflected.",
+              "attribute": "compact-presentation",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inset",
               "privacy": "public",
               "type": {
@@ -64819,6 +64831,64 @@
               "description": "For tests: draws the open container in place — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal and moves no focus.",
               "attribute": "inline",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "sheet",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "POP-39: whether it is drawn as a sheet — decided when it opens and when the window crosses the width, kept while it closes."
+            },
+            {
+              "kind": "field",
+              "name": "presentedAs",
+              "type": {
+                "text": "'anchored' | 'sheet' | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "How it is presented now: beside its anchor, as a sheet, or not at all."
+            },
+            {
+              "kind": "field",
+              "name": "heldFocus",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "POP-42: the element in it that had focus before it was drawn in the other presentation."
+            },
+            {
+              "kind": "field",
+              "name": "compact",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CompactWindow(() => this.requestUpdate())",
+              "description": "POP-39: the window, matched against the resolved `compact.window-width`."
+            },
+            {
+              "kind": "field",
+              "name": "pressedScrim",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "POP-40: a press that started on the scrim."
+            },
+            {
+              "kind": "field",
+              "name": "heldScroll",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0",
+              "description": "POP-42: how far the content was scrolled before it was drawn in the other presentation."
             },
             {
               "kind": "field",
@@ -65176,6 +65246,107 @@
             },
             {
               "kind": "method",
+              "name": "wantsSheet",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "POP-39, POP-43: whether it is drawn as a sheet now, were it open: a compact window, unless it keeps its own presentation."
+            },
+            {
+              "kind": "field",
+              "name": "sheetDialog",
+              "type": {
+                "text": "HTMLDialogElement | null"
+              },
+              "privacy": "private",
+              "description": "The dialog of the sheet form, while it is drawn.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "focusIn",
+              "privacy": "private",
+              "description": "POP-19, POP-40: focus in — to the slotted element marked `autofocus`, else to the container."
+            },
+            {
+              "kind": "method",
+              "name": "presentSheet",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "instant",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "POP-39, POP-40, POP-41: as a sheet — a modal `<dialog>` in the top layer over the bottom sheet's scrim, the page inert\nand held from scrolling — sliding up, or at once (`instant`, POP-42)."
+            },
+            {
+              "kind": "method",
+              "name": "releaseSheet",
+              "privacy": "private",
+              "description": "POP-40: the modal layer, the page's scroll and the keyboard are given back (the sheet left the page or closed)."
+            },
+            {
+              "kind": "method",
+              "name": "withdrawSheet",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "slide",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "POP-41: out of the top layer, sliding down (or at once)."
+            },
+            {
+              "kind": "method",
+              "name": "switchPresentation",
+              "privacy": "private",
+              "description": "POP-42: the window crossed the width, or a prop changed the presentation, while it is open — the other one at once,\nwith no motion and no event; the element that had focus in it has it again, and focus outside it (on the opener) is\nmoved into a sheet, whose opener is inert."
+            },
+            {
+              "kind": "field",
+              "name": "onViewport",
+              "privacy": "private",
+              "readonly": true,
+              "description": "POP-39: above the on-screen keyboard (the part of the layout viewport the visual viewport no longer covers)."
+            },
+            {
+              "kind": "field",
+              "name": "onSheetKeyDown",
+              "privacy": "private",
+              "readonly": true,
+              "description": "POP-40, POP-23: Escape asks once (unless something inside took it), and Tab stays inside."
+            },
+            {
+              "kind": "field",
+              "name": "onSheetCancel",
+              "privacy": "private",
+              "readonly": true,
+              "description": "POP-40: the platform's back (a close request without a key) arrives as the native cancel; the browser never closes it."
+            },
+            {
+              "kind": "field",
+              "name": "onSheetPointerDown",
+              "privacy": "private",
+              "readonly": true,
+              "description": "POP-40: a press that starts and ends on the scrim asks to close, with the reason outside."
+            },
+            {
+              "kind": "field",
+              "name": "onSheetClick",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
               "name": "reportProps",
               "privacy": "private",
               "parameters": [
@@ -65195,7 +65366,7 @@
               "type": {
                 "text": "CustomEvent<TanreiPopoverCloseDetail>"
               },
-              "description": "The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false."
+              "description": "The popover asks to be closed: `detail.reason` is `escape`, `outside` (as a sheet, a press on its scrim), `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false."
             }
           ],
           "attributes": [
@@ -65252,6 +65423,15 @@
               "default": "'content'",
               "description": "`content`: as wide as its content, between its least and greatest width. `anchor`: as wide as the anchor. Anything else is `content` (POP-37). Reflected.",
               "fieldName": "width"
+            },
+            {
+              "name": "compact-presentation",
+              "type": {
+                "text": "TanreiPopoverCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.popover.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, as a modal dialog; `own` beside its anchor, as in every other\nwindow. `initial-focus=\"anchor\"` always keeps it beside its anchor. Anything else is `sheet` (POP-43). The attribute\nis `compact-presentation`; reflected.",
+              "fieldName": "compactPresentation"
             },
             {
               "name": "no-inset",
