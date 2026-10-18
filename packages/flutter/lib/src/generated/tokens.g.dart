@@ -1495,19 +1495,27 @@ class TanreiEasing {
   const TanreiEasing({
     required this.emphasizedAccelerate,
     required this.emphasizedDecelerate,
+    required this.enter,
+    required this.exit,
     required this.linear,
+    required this.spatial,
     required this.standard,
     required this.standardAccelerate,
     required this.standardDecelerate,
+    required this.state,
     this.extra = const <String, TanreiCubicBezier>{},
   });
 
   final TanreiCubicBezier emphasizedAccelerate;
   final TanreiCubicBezier emphasizedDecelerate;
+  final TanreiCubicBezier enter;
+  final TanreiCubicBezier exit;
   final TanreiCubicBezier linear;
+  final TanreiCubicBezier spatial;
   final TanreiCubicBezier standard;
   final TanreiCubicBezier standardAccelerate;
   final TanreiCubicBezier standardDecelerate;
+  final TanreiCubicBezier state;
 
   /// What a design system added to the core vocabulary, by token key.
   final Map<String, TanreiCubicBezier> extra;
@@ -1517,18 +1525,26 @@ class TanreiEasing {
   TanreiEasing copyWith({
     TanreiCubicBezier? emphasizedAccelerate,
     TanreiCubicBezier? emphasizedDecelerate,
+    TanreiCubicBezier? enter,
+    TanreiCubicBezier? exit,
     TanreiCubicBezier? linear,
+    TanreiCubicBezier? spatial,
     TanreiCubicBezier? standard,
     TanreiCubicBezier? standardAccelerate,
     TanreiCubicBezier? standardDecelerate,
+    TanreiCubicBezier? state,
     Map<String, TanreiCubicBezier>? extra,
   }) => TanreiEasing(
         emphasizedAccelerate: emphasizedAccelerate ?? this.emphasizedAccelerate,
         emphasizedDecelerate: emphasizedDecelerate ?? this.emphasizedDecelerate,
+        enter: enter ?? this.enter,
+        exit: exit ?? this.exit,
         linear: linear ?? this.linear,
+        spatial: spatial ?? this.spatial,
         standard: standard ?? this.standard,
         standardAccelerate: standardAccelerate ?? this.standardAccelerate,
         standardDecelerate: standardDecelerate ?? this.standardDecelerate,
+        state: state ?? this.state,
         extra: extra == null ? this.extra : <String, TanreiCubicBezier>{...this.extra, ...extra},
       );
 
@@ -1537,10 +1553,14 @@ class TanreiEasing {
   TanreiCubicBezier? operator [](String key) => switch (key) {
         'emphasized-accelerate' => emphasizedAccelerate,
         'emphasized-decelerate' => emphasizedDecelerate,
+        'enter' => enter,
+        'exit' => exit,
         'linear' => linear,
+        'spatial' => spatial,
         'standard' => standard,
         'standard-accelerate' => standardAccelerate,
         'standard-decelerate' => standardDecelerate,
+        'state' => state,
         _ => extra[key],
       };
 }
@@ -1616,6 +1636,15 @@ enum TanreiFocusStyle {
   glow,
 }
 
+/// `sys.behavior.appearance`: a choice of kind. The first value is the default.
+enum TanreiAppearance {
+  fadeScale,
+  fade,
+  fadeSlide,
+  blurSlide,
+  unfold,
+}
+
 /// `sys.behavior.divider-visibility`: a choice of kind. The first value is the default.
 enum TanreiDividerVisibility {
   always,
@@ -1649,6 +1678,7 @@ class TanreiBehavior {
   const TanreiBehavior({
     required this.pressedFeedback,
     required this.focusStyle,
+    required this.appearance,
     required this.dividerVisibility,
     required this.linkUnderline,
     required this.requirementMark,
@@ -1659,6 +1689,8 @@ class TanreiBehavior {
   final TanreiPressedFeedback pressedFeedback;
   /// `sys.behavior.focus-style`
   final TanreiFocusStyle focusStyle;
+  /// `sys.behavior.appearance`
+  final TanreiAppearance appearance;
   /// `sys.behavior.divider-visibility`
   final TanreiDividerVisibility dividerVisibility;
   /// `sys.behavior.link-underline`
@@ -1672,6 +1704,7 @@ class TanreiBehavior {
   TanreiBehavior copyWith({
     TanreiPressedFeedback? pressedFeedback,
     TanreiFocusStyle? focusStyle,
+    TanreiAppearance? appearance,
     TanreiDividerVisibility? dividerVisibility,
     TanreiLinkUnderline? linkUnderline,
     TanreiRequirementMark? requirementMark,
@@ -1679,6 +1712,7 @@ class TanreiBehavior {
   }) => TanreiBehavior(
         pressedFeedback: pressedFeedback ?? this.pressedFeedback,
         focusStyle: focusStyle ?? this.focusStyle,
+        appearance: appearance ?? this.appearance,
         dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         linkUnderline: linkUnderline ?? this.linkUnderline,
         requirementMark: requirementMark ?? this.requirementMark,

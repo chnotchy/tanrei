@@ -6,6 +6,7 @@
 //   { "$value": <literal>, "reason": "…" }   pin a fixed value (exempt from dials); typography may pin single fields
 //   { "$value": "{other.token}" }            re-point the alias
 //   { "derive": <rule> }                     replace the rule
+//   (a value that follows a choice of kind — a `pick` rule — follows the choice the chain makes; a `$value` pins it)
 //   { "scale": n }                           n × whatever was inherited, without restating it (still dial-driven)
 import { SystemError } from './errors.js';
 import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, walkTokens } from './rules.js';
@@ -275,7 +276,8 @@ export function resolveNumericTokens(sources, system) {
       state.set(id, 'done');
     }
     const v = isRef(token.$value) ? resolve(refId(token.$value), [...trail, id]) : token.$value;
-    return typeof v === 'number' ? { value: v } : v;
+    // A choice of kind answers with its names too, for a value that follows it (`pick`).
+    return typeof v === 'number' ? { value: v, names: token.$extensions?.[ENUM]?.values } : v;
   };
   for (const id of index.keys()) resolve(id);
   // Touch ruleDependencies so unknown references inside unused fields still surface.

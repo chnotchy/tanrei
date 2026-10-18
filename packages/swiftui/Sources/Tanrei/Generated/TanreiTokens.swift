@@ -727,28 +727,40 @@ public struct TanreiDuration: Sendable, Equatable {
 public struct TanreiEasing: Sendable, Equatable {
   public var emphasizedAccelerate: TanreiCubicBezier
   public var emphasizedDecelerate: TanreiCubicBezier
+  public var enter: TanreiCubicBezier
+  public var exit: TanreiCubicBezier
   public var linear: TanreiCubicBezier
+  public var spatial: TanreiCubicBezier
   public var standard: TanreiCubicBezier
   public var standardAccelerate: TanreiCubicBezier
   public var standardDecelerate: TanreiCubicBezier
+  public var state: TanreiCubicBezier
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [String: TanreiCubicBezier]
 
   public init(
     emphasizedAccelerate: TanreiCubicBezier,
     emphasizedDecelerate: TanreiCubicBezier,
+    enter: TanreiCubicBezier,
+    exit: TanreiCubicBezier,
     linear: TanreiCubicBezier,
+    spatial: TanreiCubicBezier,
     standard: TanreiCubicBezier,
     standardAccelerate: TanreiCubicBezier,
     standardDecelerate: TanreiCubicBezier,
+    state: TanreiCubicBezier,
     extra: [String: TanreiCubicBezier] = [:]
   ) {
     self.emphasizedAccelerate = emphasizedAccelerate
     self.emphasizedDecelerate = emphasizedDecelerate
+    self.enter = enter
+    self.exit = exit
     self.linear = linear
+    self.spatial = spatial
     self.standard = standard
     self.standardAccelerate = standardAccelerate
     self.standardDecelerate = standardDecelerate
+    self.state = state
     self.extra = extra
   }
 
@@ -757,10 +769,14 @@ public struct TanreiEasing: Sendable, Equatable {
     switch key {
     case "emphasized-accelerate": return emphasizedAccelerate
     case "emphasized-decelerate": return emphasizedDecelerate
+    case "enter": return enter
+    case "exit": return exit
     case "linear": return linear
+    case "spatial": return spatial
     case "standard": return standard
     case "standard-accelerate": return standardAccelerate
     case "standard-decelerate": return standardDecelerate
+    case "state": return state
     default: return extra[key]
     }
   }
@@ -971,6 +987,16 @@ public struct TanreiTypefaces: Sendable, Equatable {
   }
 }
 
+/// The choice `tanrei.sys.behavior.appearance`.
+/// A design system chooses among these; it cannot add one. The first is the default.
+public enum TanreiAppearance: String, Sendable, Hashable, CaseIterable {
+  case fadeScale = "fade-scale"
+  case fade
+  case fadeSlide = "fade-slide"
+  case blurSlide = "blur-slide"
+  case unfold
+}
+
 /// The choice `tanrei.sys.behavior.divider-visibility`.
 /// A design system chooses among these; it cannot add one. The first is the default.
 public enum TanreiDividerVisibility: String, Sendable, Hashable, CaseIterable {
@@ -1019,6 +1045,8 @@ public enum TanreiSeparation: String, Sendable, Hashable, CaseIterable {
 
 /// Choices of kind: what a design system does, where the other tokens say how much.
 public struct TanreiBehavior: Sendable, Equatable {
+  /// `tanrei.sys.behavior.appearance`
+  public var appearance: TanreiAppearance
   /// `tanrei.sys.behavior.divider-visibility`
   public var dividerVisibility: TanreiDividerVisibility
   /// `tanrei.sys.behavior.focus-style`
@@ -1033,6 +1061,7 @@ public struct TanreiBehavior: Sendable, Equatable {
   public var separation: TanreiSeparation
 
   public init(
+    appearance: TanreiAppearance,
     dividerVisibility: TanreiDividerVisibility,
     focusStyle: TanreiFocusStyle,
     linkUnderline: TanreiLinkUnderline,
@@ -1040,6 +1069,7 @@ public struct TanreiBehavior: Sendable, Equatable {
     requirementMark: TanreiRequirementMark,
     separation: TanreiSeparation
   ) {
+    self.appearance = appearance
     self.dividerVisibility = dividerVisibility
     self.focusStyle = focusStyle
     self.linkUnderline = linkUnderline
