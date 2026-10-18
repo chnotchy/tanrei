@@ -3,8 +3,9 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { SCHEMES, createPaletteEngine, mergeLayers, resolveNumericTokens } from '@tanrei/token-engine';
+import { SCHEMES, createPaletteEngine, heldDocumentPath, mergeLayers, resolveNumericTokens } from '@tanrei/token-engine';
 import { CONFIG } from './config.js';
+import { DEFAULT_SYSTEM, layerChain } from './layers.js';
 import { Hct, TonalPalette } from './mcu.js';
 import { assertSystemId } from './pure.js';
 
@@ -21,6 +22,9 @@ export function loadSystem(repoRoot, id = NAMESPACE) {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, systemPath(id)), 'utf8'));
 }
 
+/** The default system's layers, root first, merged: what tokens/generated/ is generated from. */
+export const loadDefaultSystem = (repoRoot) => mergeLayers(layerChain(DEFAULT_SYSTEM, (id) => loadSystem(repoRoot, id)), { namespace: NAMESPACE });
+
 /** Generated color documents for one system. Returns `{ fileName: dtcgDocument }`. */
 export function colorVocabulary(repoRoot) {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, 'tokens/sys/color.vocabulary.json'), 'utf8'));
@@ -32,7 +36,7 @@ export function colorVocabulary(repoRoot) {
  */
 export function generateSchemeFiles(system, repoRoot, documents) {
   const merged = system.chain ? system : mergeLayers([system], { namespace: NAMESPACE });
-  const docs = documents ?? resolveNumericTokens(sourceFiles(repoRoot), merged);
+  const docs = documents ?? resolveNumericTokens({ ...sourceFiles(repoRoot), ...heldDocuments(repoRoot, merged) }, merged);
   return engine.generateColorFiles(merged, { sourcePath: systemPath(merged.id), vocabulary: colorVocabulary(repoRoot), documents: docs });
 }
 
@@ -55,6 +59,21 @@ function sourcePaths(repoRoot) {
 export function sourceFiles(repoRoot) {
   const { dir, refs } = sourcePaths(repoRoot);
   return Object.fromEntries(refs.map((ref) => [ref, JSON.parse(fs.readFileSync(path.join(dir, ref), 'utf8'))]));
+}
+
+/**
+ * The documents of components that live in a layer (`tokens/systems/<layer>/comp/<component>.tokens.json`), keyed
+ * by their path relative to tokens/ as the engine looks them up. With a merged system: the ones it has — declared by a
+ * layer of its chain or included from the layer that holds them; without: every one on disk.
+ */
+export function heldDocuments(repoRoot, system) {
+  const relative = system
+    ? Object.values(system.vocabulary ?? {}).filter((decl) => decl.kind === 'component').map((decl) => heldDocumentPath(decl.declaredBy, decl.component))
+    : fs.readdirSync(path.join(repoRoot, 'tokens/systems'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).flatMap((entry) => {
+        const dir = path.join(repoRoot, 'tokens/systems', entry.name, 'comp');
+        return fs.existsSync(dir) ? fs.readdirSync(dir).filter((file) => file.endsWith('.tokens.json')).map((file) => `systems/${entry.name}/comp/${file}`) : [];
+      });
+  return Object.fromEntries(relative.map((name) => [name, JSON.parse(fs.readFileSync(path.join(repoRoot, 'tokens', name), 'utf8'))]));
 }
 
 /**
