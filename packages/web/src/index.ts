@@ -7,6 +7,9 @@ export { observeLinks, setExternalLabel, setSiteOrigins } from './link.js';
 // The product's words: Tanrei ships none. `setWords()` gives them once for every component that reads them,
 // `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
 export { type TanreiWords, type WordKey, missingWords, setWords, wordKeys, wordReaders } from './words.js';
+// Tokens set from script, on the root or on any element, at the cost of a stylesheet's change in every engine (WebKit's
+// plain write of one custom property restyles the page for seconds): `setTokens({ '--tanrei-…': value }, { on })`.
+export { type SetTokensOptions, setTokens } from './set-tokens.js';
 // The steps and the previous and next links of the page — `class="tanrei-steps"` lists and `class="tanrei-previous-next-links"` landmarks
 // (steps.css, previous-next-links.css): loading the components also adds the debug reports of the first and, for the second, what
 // a stylesheet cannot (`@tanrei/web/steps` and `@tanrei/web/previous-next-links` are the same scripts alone).
