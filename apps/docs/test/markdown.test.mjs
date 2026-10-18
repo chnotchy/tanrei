@@ -227,9 +227,9 @@ describe('a fenced block', () => {
     assert.doesNotMatch(html, /data-line-prompt/);
   });
 
-  test('a title, or a label of its own, is the name: none is made from the heading', async () => {
-    const html = await site.md(`## Usage\n\n${fence('ts title="sizes.ts"', '1')}\n${fence('ts label="The sizes"', '2')}\n${fence('ts', '3')}`);
-    assert.deepEqual(elements(html, 'tanrei-code-block').map((block) => [block.get('title'), block.get('label')]), [['sizes.ts', undefined], [undefined, 'The sizes'], [undefined, 'Usage: TypeScript']]);
+  test('a headline, or a label of its own, is the name: none is made from the heading', async () => {
+    const html = await site.md(`## Usage\n\n${fence('ts headline="sizes.ts"', '1')}\n${fence('ts label="The sizes"', '2')}\n${fence('ts', '3')}`);
+    assert.deepEqual(elements(html, 'tanrei-code-block').map((block) => [block.get('headline'), block.get('label')]), [['sizes.ts', undefined], [undefined, 'The sizes'], [undefined, 'Usage: TypeScript']]);
   });
 
   test('blocks that would share a name are numbered, by heading and language', async () => {
@@ -258,9 +258,9 @@ describe('a fenced block', () => {
 
   test('fenceAttributes reads names and quoted values, and says what it cannot read', () => {
     assert.deepEqual(fenceAttributes(''), {});
-    assert.deepEqual(fenceAttributes('title="a b.ts"  line-numbers highlighted-lines="3, 7-9" prompt=""'), { title: 'a b.ts', 'line-numbers': true, 'highlighted-lines': '3, 7-9', prompt: '' });
-    assert.equal(fenceAttributes('title="x" ins={2}'), '"ins" is not an attribute a fence may give its code block');
-    assert.equal(fenceAttributes("title='x'"), `"='x'" is not written as attributes (name or name="value")`);
+    assert.deepEqual(fenceAttributes('headline="a b.ts"  line-numbers highlighted-lines="3, 7-9" prompt=""'), { headline: 'a b.ts', 'line-numbers': true, 'highlighted-lines': '3, 7-9', prompt: '' });
+    assert.equal(fenceAttributes('headline="x" ins={2}'), '"ins" is not an attribute a fence may give its code block');
+    assert.equal(fenceAttributes("headline='x'"), `"='x'" is not written as attributes (name or name="value")`);
   });
 
   test('a block written by hand in .mdx is left as written', async () => {
