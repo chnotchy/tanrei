@@ -7679,6 +7679,7 @@ public data class TanreiPopoverTokens(
     public val arrowVisible: Float,
     public val arrowWidth: Dp,
     public val closeButtonVariant: Float,
+    public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerGap: Dp,

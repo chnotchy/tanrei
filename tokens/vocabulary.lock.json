@@ -4571,6 +4571,7 @@
     "tanrei.comp.popover.arrow.visible": "number",
     "tanrei.comp.popover.arrow.width": "dimension",
     "tanrei.comp.popover.close-button.variant": "number",
+    "tanrei.comp.popover.compact.window-width": "dimension",
     "tanrei.comp.popover.container.color": "color",
     "tanrei.comp.popover.container.elevation": "shadow",
     "tanrei.comp.popover.container.gap": "dimension",

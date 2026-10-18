@@ -6790,6 +6790,7 @@ private let cupertinoPopoverTokens = TanreiPopoverTokens(
   arrowVisible: 0,
   arrowWidth: 12,
   closeButtonVariant: 4,
+  compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: cupertinoElevation.level2,
   containerGap: 12,

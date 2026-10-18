@@ -63697,6 +63697,16 @@
             "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
+        "compact": {
+          "window-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 600,
+              "unit": "px"
+            },
+            "$description": "A window narrower than this is compact: the popover takes the bottom sheet's appearance at the window's bottom edge instead of standing beside its anchor (POP-39). 0 keeps every popover beside its anchor in every window."
+          }
+        },
         "container": {
           "color": {
             "$type": "color",

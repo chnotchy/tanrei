@@ -12253,6 +12253,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
   public var arrowVisible: Double
   public var arrowWidth: CGFloat
   public var closeButtonVariant: Double
+  public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
   public var containerGap: CGFloat
@@ -12286,6 +12287,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     arrowVisible: Double,
     arrowWidth: CGFloat,
     closeButtonVariant: Double,
+    compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
     containerGap: CGFloat,
@@ -12318,6 +12320,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     self.arrowVisible = arrowVisible
     self.arrowWidth = arrowWidth
     self.closeButtonVariant = closeButtonVariant
+    self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
     self.containerElevation = containerElevation
     self.containerGap = containerGap

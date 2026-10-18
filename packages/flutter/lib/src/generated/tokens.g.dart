@@ -17754,6 +17754,7 @@ class TanreiPopoverTokens {
     required this.arrowVisible,
     required this.arrowWidth,
     required this.closeButtonVariant,
+    required this.compactWindowWidth,
     required this.containerColor,
     required this.containerElevation,
     required this.containerGap,
@@ -17796,6 +17797,8 @@ class TanreiPopoverTokens {
   final double arrowWidth;
   /// `comp.popover.close-button-variant`
   final double closeButtonVariant;
+  /// `comp.popover.compact-window-width`
+  final double compactWindowWidth;
   /// `comp.popover.container-color`
   final TanreiPaint containerColor;
   /// `comp.popover.container-elevation`
@@ -17852,6 +17855,7 @@ class TanreiPopoverTokens {
     double? arrowVisible,
     double? arrowWidth,
     double? closeButtonVariant,
+    double? compactWindowWidth,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
     double? containerGap,
@@ -17884,6 +17888,7 @@ class TanreiPopoverTokens {
         arrowVisible: arrowVisible ?? this.arrowVisible,
         arrowWidth: arrowWidth ?? this.arrowWidth,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
+        compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
         containerGap: containerGap ?? this.containerGap,
