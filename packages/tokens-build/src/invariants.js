@@ -489,6 +489,26 @@ export function checkInvariants(model) {
     }
   }
 
+  // Concentric corners. An inner corner annotated `dev.tanrei.concentric` — a row's shape inside a surface's, a
+  // control's inside its container's — is the outer corner less the inset between them, and never below zero:
+  // larger, its fill bulges past the outer curve where the two meet; smaller, the gap between them is not even. A
+  // pill (a corner set by its height) is not annotated. Held in the default system: a preset keeps its original's
+  // corners, and says so in its own layer.
+  if (model.system === CONFIG.namespace) {
+    const px = (id) => model.tokens[id]?.value?.value;
+    for (const token of Object.values(model.tokens)) {
+      if (!token.concentric) continue;
+      const [outerId, insetId] = [token.concentric.outer, token.concentric.inset].map((ref) => (typeof ref === 'string' ? ref.replace(/^\{|\}$/g, '') : undefined));
+      const [inner, outer, inset] = [token.value?.value, px(outerId), px(insetId)];
+      if (typeof inner !== 'number' || typeof outer !== 'number' || typeof inset !== 'number') {
+        failures.push(`${short(token.id)}: dev.tanrei.concentric names ${JSON.stringify(token.concentric)}, which must be two dimension tokens, { "outer": "{id}", "inset": "{id}" }`);
+        continue;
+      }
+      const expected = Math.max(0, outer - inset);
+      if (inner !== expected) failures.push(`${short(token.id)}: ${inner}px, but an inner corner is its outer corner less the inset, never below zero — max(0, ${short(outerId)} ${outer}px − ${short(insetId)} ${inset}px) = ${expected}px; derive it with { "fn": "sub", "of": "{${outerId}}", "by": "{${insetId}}" }`);
+    }
+  }
+
   // A link that is not underlined at rest (WCAG 1.4.1, failure F73, technique G183). A component whose
   // underline choice is `hover` or `never` — its own token, or the system's choice it follows — leaves
   // color alone to tell a link from the text beside it, so its link color is held 3:1 apart from that text's color in

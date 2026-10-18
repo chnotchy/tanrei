@@ -159,6 +159,8 @@ function simplified(token, tokenPath) {
     state: token.$extensions?.['dev.tanrei.state'],
     // Set on a choice of kind: { values: [...] }; the value is an index into it.
     enum: token.$extensions?.['dev.tanrei.enum'],
+    // Set on an inner corner: { outer: "{id}", inset: "{id}" }, the corner it stands in and how far inside it.
+    concentric: token.$extensions?.['dev.tanrei.concentric'],
   };
 }
 
