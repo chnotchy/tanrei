@@ -20,6 +20,8 @@ export interface StatusComponent {
   level: string;
   /** Whether a list shows it by default: one of the names of `listings`. */
   listing: string;
+  /** The design system layer it lives in, where that is not the root: it is listed in that layer's group. */
+  layer?: string;
   /** The components it is built from, by name; empty where it is built from none. */
   builtFrom: string[];
   hasSpec: boolean;
@@ -37,6 +39,8 @@ export interface Spec {
   level: string;
   /** Whether a list shows it by default: one of the names of `listings`. */
   listing: string;
+  /** The design system layer it lives in, where that is not the root: only the systems that descend from it have it. */
+  layer?: string;
   /** The components it is built from, by name. Left out where it is built from none. */
   builtFrom?: string[];
   anatomy: { id: string; description: string; optional?: boolean }[];
@@ -106,8 +110,11 @@ export const platforms: PlatformId[] = statusData.platforms;
 export const statuses: Status[] = statusData.statuses;
 export const statusComponents = statusData.components as StatusComponent[];
 export const statusTotals = statusData.totals as Record<PlatformId, Record<Status, number>>;
-/** What each design system does not ship: system id → components and `variant` values. */
-export const unavailable = (statusData.unavailable ?? {}) as Record<string, { components: string[]; variants: Record<string, string[]> }>;
+/**
+ * What each design system does not ship: system id → the components and `variant` values it leaves out, and (`outside`)
+ * the components that live in a layer it does not extend, with that layer.
+ */
+export const unavailable = (statusData.unavailable ?? {}) as Record<string, { components: string[]; variants: Record<string, string[]>; outside?: Record<string, string> }>;
 export const inventory = inventoryData.components as { name: string; title: string; category: string; level: string }[];
 /**
  * Which name is which level, as the tools write it into the status file: a single part with

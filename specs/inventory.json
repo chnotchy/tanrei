@@ -251,7 +251,8 @@
       "title": "FAB menu",
       "category": "actions",
       "level": "base",
-      "listing": "default"
+      "listing": "default",
+      "layer": "m3-like"
     },
     {
       "name": "toolbar",

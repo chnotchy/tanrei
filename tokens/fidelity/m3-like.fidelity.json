@@ -174,5 +174,8 @@
       "covered-by": "with-icon-{state}-icon-color"
     }
   ],
-  "unmapped": []
+  "unmapped": [],
+  "evidence": {
+    "tanrei.comp.fab-menu": "androidx.FabMenuBaselineTokens"
+  }
 }

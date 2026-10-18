@@ -15,7 +15,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, assertSystemId, buildBundle, layerChain, listSystems, validateLayerFile } from './bundle.js';
+import { ROOT_SYSTEM, assertSystemId, buildBundle, heldComponents, layerChain, listSystems, outsideComponents, validateLayerFile } from './bundle.js';
 import { checkInvariants } from './invariants.js';
 import { REPO_ROOT, buildModelFromBundle, invariantModel, lintValues } from './model.js';
 import { readBundle } from './reader.js';
@@ -109,6 +109,14 @@ export function validateSystem(input) {
   const problems = [];
   if (chain.at(-1).id !== id) problems.push(`${id}${LAYER_SUFFIX}: "id" must equal the file name`);
   chain.forEach((layer, i) => problems.push(...validateLayerFile(REPO_ROOT, layer, fileIds[i])));
+  // A component that lives in a layer the chain does not extend is taken from that layer by name and layer; named
+  // alone, `include` only brings back what an ancestor left out, and would bring nothing.
+  const outside = outsideComponents(chain, heldComponents(listSystems(REPO_ROOT), (shipped) => loadSystem(REPO_ROOT, shipped)));
+  chain.forEach((layer, i) => {
+    for (const name of (layer.components?.include ?? []).filter((include) => typeof include === 'string' && outside[include])) {
+      problems.push(`${fileIds[i] ?? layer.id}${LAYER_SUFFIX} components.include: "${name}" lives in the layer "${outside[name]}", which this system does not extend — include it from there: { "name": "${name}", "from": "${outside[name]}" }`);
+    }
+  });
   return [...new Set(problems)];
 }
 

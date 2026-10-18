@@ -1,14 +1,16 @@
 # Contributing to Tanrei
 
-Thank you for helping. Tanrei is one design system on five platforms, so the rules are about keeping those five honest with each other. [`AGENTS.md`](AGENTS.md) is the short version and applies to people as much as to AI agents; this page is the long one. How the pieces fit: [`docs/architecture/overview.md`](docs/architecture/overview.md). Who decides what: [`docs/governance/GOVERNANCE.md`](docs/governance/GOVERNANCE.md).
+Tanrei is one design system on five platforms, so the rules are about keeping those five honest with each other. [`AGENTS.md`](AGENTS.md) is the short version and applies to people as much as to AI agents; this page is the long one. How the pieces fit: [`docs/architecture/overview.md`](docs/architecture/overview.md). Who decides what: [`docs/governance/GOVERNANCE.md`](docs/governance/GOVERNANCE.md).
 
-## Issues and pull requests
+## Outside contributions are not accepted
 
-- **Issues are welcome**: a bug, a question, a proposal for a component or a token. [Open one](https://github.com/chnotchy/tanrei/issues) and say what you saw or what it is for.
-- **Pull requests are not accepted for now.** The maintainers make the changes, by the process on this page; when that changes, this page will say so.
+Every change to Tanrei is made by its maintainers. Pull requests from outside are not accepted, and neither are proposals for new components or tokens. The reason is the supply chain: Tanrei is code that runs inside other people's products, every change from outside is a way for code its maintainers did not write to reach them, and the current security climate makes that a risk the project does not take. What Tanrei covers, and how it changes, is the maintainers' decision.
+
+- **Issues are for bug reports and questions.** [Open one](https://github.com/chnotchy/tanrei/issues) and say what you saw, where, and what you expected.
+- **A pull request is closed unmerged**, whatever it contains.
 - **Security problems** go privately, as [`SECURITY.md`](SECURITY.md) describes, never into an issue.
 
-The rest of this page is how a change is made in this repository, whoever makes it.
+The rest of this page is how the maintainers make a change in this repository. It is public so that what each check guards, and why, can be read by anyone who uses Tanrei.
 
 ## Setup
 
@@ -40,7 +42,7 @@ The same steps apply to people and to AI agents. The checks named here are the o
 
 - Visual value changes → `tokens/` (colors: the palette declarations and role rules in `tokens/systems/<id>.system.json`).
 - Anything about a component's surface or behaviour → `specs/<name>.spec.json`.
-- A new component, or a breaking change to an existing one, is the maintainers' decision: open an issue that says what it is for before you write it. A non-breaking addition to an existing spec needs no issue first.
+- A new component, or a breaking change to an existing one, is the maintainers' decision, made before the spec changes. A non-breaking addition to an existing spec needs no decision first.
 
 Write behaviour as EARS sentences with stable ids (`BTN-7`). Tests cite those ids, so the requirement and its proof stay linked.
 
@@ -88,13 +90,13 @@ TANREI_HARSH=1 pnpm --filter @tanrei/web test:ci-like src/components/<name> --pr
 
 ### 5. Record it
 
-`pnpm changeset` — one version for all platforms. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
+`pnpm changeset` — one version for all platforms. During the 0.x prereleases backward compatibility is not kept: a change may break anything, with no deprecation period first, and its changeset says what broke and what to use instead. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
 
 ## Adding a component
 
 The shared conventions every component follows are in [`docs/architecture/overview.md`](docs/architecture/overview.md#component-conventions). The `add-component` skill in `.claude/skills/` walks an agent through the same steps.
 
-1. **Inventory.** The name must exist in `specs/inventory.json`. Changing the inventory, like adding a component, starts with an issue.
+1. **Inventory.** The name must exist in `specs/inventory.json`. Changing the inventory, like adding a component, is the maintainers' decision, made before the spec is written.
 2. **Tokens.** Write `tokens/comp/<name>.tokens.json` (aliases only; container heights may be literals) and add it to the `comp` set in `tokens/tanrei.resolver.json`. Conditions that recolor every state (selected, error, …) are `dev.tanrei.states.variants`. A part whose disabled or pressed look differs from the fallback rules gets its own rule in every shipped system (`tokens/systems/*.system.json`).
 3. **Spec.** `specs/<name>.spec.json`, every platform `planned`. Behaviour in EARS form with a stable id prefix (`CHK-1`…); a pressable component copies BTN-8, BTN-9 and BTN-10 for its own name. Fixtures cover each variant, each size and each non-default condition. Every prop and event is mapped for every platform in its idiom.
    - **Repeated items** (tabs, list and menu items, destinations) are item kinds under `items`, each with its own `props` (no `axis`), `slots` and `events`; a group kind that holds items says `"container": true`. Fixtures list their items in order (`items: [{ "kind", "props", "content" }]`, never a text grammar in `content`), selection stays the component's prop (by the item's `value`, else by index), and every platform maps every kind under `platforms.<p>.items.<kind>` (`name`, `props`, `events`) — the parity check looks for those names in the implementation file.
@@ -135,6 +137,8 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 
 The docs site is deployed by its own workflow (`.github/workflows/deploy-docs.yml`, outside ci.yml so that a release never deploys it): a pull request gets a preview and a push to `main` deploys production, when the Docs row's paths change. `gh workflow run deploy-docs.yml --ref main` deploys by hand — for a site that is behind, or after a change outside those paths.
 
+Known vulnerabilities in the locked dependencies are checked by their own workflow (`.github/workflows/osv-scanner.yml`, OSV-Scanner). A pull request that changes `pnpm-lock.yaml` is scanned on its base and on its head, and fails only on a vulnerability it brings in; a draft is held, as in CI. Every Monday (and on `gh workflow run osv-scanner.yml --ref main`) `main` is scanned whole: that run does not fail, and its findings go to the repository's Security tab (Code scanning), where what is already locked is dealt with.
+
 Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
 
 ### Native CI is paused
@@ -144,7 +148,7 @@ The jobs of the four native platforms are **paused** until each platform catches
 - **The switch** is one file, [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json): the names of the paused platforms. CI's changes job reads it, and so do the root `pnpm build`, `pnpm test` and `pnpm check` (`scripts/run-unpaused.mjs`), so a fresh clone checks what CI checks. Every run that pauses something says so in a notice.
 - **A green run says nothing about a paused platform.** Whoever changes a native's code runs that platform's suite on their own machine and says what it showed.
 - **A paused platform's status is not raised and nothing of it is published** (`release.yml` refuses).
-- **It ends per platform**, in the commit that brings the platform up to the current specs: that commit takes the platform's name out of `paused-platforms.json`.
+- **It ends per platform**, in the commit that brings the platform up to the current specs: that commit takes the platform's name out of `paused-platforms.json`, and the platform's rules out of `renovate.json` (see [Dependency updates](#dependency-updates)).
 
 ### A draft is held
 
@@ -196,6 +200,21 @@ It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_
 
 To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/README.md`; Flutter and Compose — a Linux machine or VM with the versions above.
 
+### Dependency updates
+
+Renovate (the GitHub App) opens the dependency updates, as `renovate.json` says:
+
+- **Once a week, grouped**: on Monday (Asia/Tokyo), one pull request for the npm packages' minor and patch updates (pnpm catalog entries and the `packageManager` field included), one for the fonts, and one for the GitHub Actions, which stay pinned to a commit SHA with the version in a comment.
+- **Three days after a release**: Renovate raises a version only once it has been on the registry for three days, the age `minimumReleaseAge` in `pnpm-workspace.yaml` requires of every install (the lockfile Renovate writes included). A fix for a known vulnerability (from GitHub's Dependabot alerts) skips Renovate's schedule and wait, but not pnpm's: a fix younger than three days goes in `minimumReleaseAgeExclude` as `name@version`, on its branch.
+- **Approved on the Dependency Dashboard** (an issue Renovate keeps open) before Renovate opens anything: a major update; Playwright, because its browsers draw the baselines — its npm packages and the image in `ci.yml` and `record-baselines.yml` move in one pull request, and the baselines are re-recorded on it; and `@terrazzo/parser`, whose patch in `patches/` has to be made again for a new version.
+- **Left alone**: the paused native platforms (Gradle, SwiftPM and pub, React Native's npm packages, and the actions, JDK and Flutter versions only their CI jobs use), since no CI job would test the update; and the runner images, which move only on purpose (see [What runs when](#what-runs-when)).
+
+**An update opens as a draft**, so it is held like any draft ([A draft is held](#a-draft-is-held)): neither CI nor the docs preview deploy runs on it, so nothing installs the lockfile Renovate wrote in a job that holds the Cloudflare token until someone has read it. To take one in:
+
+1. Read what it changes (Renovate's description links each package's release notes).
+2. If it changes a released package's manifest, push a changeset to its branch (`pnpm changeset`, or `pnpm changeset --empty`): the Changeset job requires one. Once anyone else pushes to a Renovate branch, Renovate stops updating it until it is asked to rebase (the checkbox in the pull request's description).
+3. Mark it **ready for review**: the full run starts, and the docs preview deploys.
+
 ## What blocks you, by design
 
 | You tried to… | Blocked by |
@@ -214,4 +233,4 @@ To record locally the same way, in a separate clone (the container installs Linu
 - All prose is original. Write your own text, and copy no text or assets from anywhere.
 - Conventional Commits; one changeset per user-visible change.
 
-By contributing you agree that your contribution is licensed under Apache-2.0.
+Tanrei is licensed under Apache-2.0 ([`LICENSE`](LICENSE)).
