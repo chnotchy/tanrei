@@ -48,13 +48,14 @@ export const webEntryOf = (system) => (system === DEFAULT_SYSTEM ? WEB : `${WEB}
 /**
  * The module of each platform's package that registers `component` (a catalog entry) for a product of system `system`:
  * the one place an entry's contents are decided.
- * @param {string | null} registeredBy the shipped system, nearest the product, that ships the component; null where
- *   none does (a component the product brings back or includes from another layer)
- * @param {string} system the product's system
- * @param {Set<string>} shipped the ids of the shipped systems: each has its own entry on every platform
+ * @param {object} component a catalog entry
+ * @param {{ registeredBy: string | null, system: string, shipped: Set<string> }} where `registeredBy` is the shipped
+ *   system, nearest the product, that ships the component (null where none does: a component the product brings back
+ *   or includes from another layer); `system` is the product's system; `shipped` the shipped systems' ids, each of
+ *   which has its own React entry
  * @returns {{ web: string, react: string }}
  */
-export function importOf(component, registeredBy, system, shipped) {
+export function importOf(component, { registeredBy, system, shipped }) {
   return {
     web: registeredBy ? webEntryOf(registeredBy) : component.web?.module,
     react: component.listing === 'advanced' ? REACT_ADVANCED : shipped.has(system) ? reactEntryOf(system) : REACT_ALL,
@@ -120,7 +121,7 @@ export function componentsManifest(chain, catalog, held, shipped) {
   for (const component of [...catalog.components].sort((a, b) => a.name.localeCompare(b.name))) {
     if (left.has(component.name) || outside[component.name]) continue;
     const entry = { name: component.name, title: component.title, level: component.level, listing: component.listing, layer: component.layer };
-    const imports = importOf(component, registeredBy(component.name), system.id, ids);
+    const imports = importOf(component, { registeredBy: registeredBy(component.name), system: system.id, shipped: ids });
     if (component.web) entry.web = component.web.tag ? { tag: component.web.tag, import: imports.web, module: component.web.module } : { class: component.web.class, import: component.web.stylesheet };
     if (component.react) entry.react = { name: component.react.name, import: imports.react };
     if (component.variant) {

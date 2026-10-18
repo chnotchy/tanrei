@@ -212,6 +212,7 @@ test('explain, systems, init, help', () => {
   assert.match(run(['systems']).stdout, /cupertino[\s\S]*m3-like[\s\S]*tanrei/);
   const help = run(['--help']).stdout;
   assert.match(help, /tanrei build/);
+  assert.match(help, /tanrei audit <file\|dir\|glob…> \[--system <id\|layer file>\]/);
   // The help names every system this version ships, the default first, and each of them is one `init` takes
   // (the list was a literal and fell behind tokens/systems/).
   // The root layer `core` is in tokens/systems/ for every chain to start from; it has no output of its own and is not offered.
@@ -324,6 +325,12 @@ test('the packaged CLI (bundle + its own copy of the vocabulary) produces the sa
   const glyphs = (stdout) => stdout.match(/glyphs the components may draw[^\n]*\n\s+([a-z0-9_,]+)\n/)?.[1];
   assert.ok(glyphs(result.stdout));
   assert.equal(glyphs(result.stdout), glyphs(fromSource.run(['build']).stdout));
+  // audit works out every system's manifest from the vocabulary it carries: the same findings, packaged or not.
+  for (const { dir } of [fromSource, packaged]) fs.writeFileSync(path.join(dir, 'page.html'), '<tanrei-fab-menu></tanrei-fab-menu>\n<tanrei-text-field variant="outlined"></tanrei-text-field>\n');
+  const audited = packaged.run(['audit', 'page.html', '--format', 'json'], { TANREI_CLI_FROM_SOURCE: '' });
+  assert.equal(audited.status, 1, audited.stderr);
+  assert.deepEqual(JSON.parse(audited.stdout).findings.map((f) => [f.line, f.column, f.component]), [[1, 2, 'fab-menu'], [2, 20, 'text-field']]);
+  assert.equal(audited.stdout, fromSource.run(['audit', 'page.html', '--format', 'json']).stdout);
 });
 
 test('build prints the glyph names the components may draw and the axes the system draws icons at, for a product to cut its icon font down to', () => {
