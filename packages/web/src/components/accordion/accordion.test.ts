@@ -918,10 +918,14 @@ test.describe('opening and closing', () => {
     const before = await attributes();
     await watchToggles(page);
     const isOpen = (id: string) => page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => el.open);
-    /** Opens an item again and forgets its toggle. */
+    /**
+     * Opens an item again and forgets its toggle, once its box is at rest: it is opened while it closes, which turns
+     * its height back, and that motion is listed nowhere (`boxAtRest`); the boxes read after it aim the presses.
+     */
     const reopen = async (id: string) => {
       await page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => (el.open = true));
       await settled(page);
+      await boxAtRest(page.locator(`#${id}`));
       await toggles(page);
     };
     /** Nothing closed: a task for the deferred decision, then the toggles. */
