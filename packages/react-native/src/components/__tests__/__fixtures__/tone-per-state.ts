@@ -10488,7 +10488,11 @@ export const tonePerState = {
         },
         selected: {
           enabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
+            itemContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             itemIconIndicatorColor: { kind: "none" },
             itemIconColor: { kind: "role", role: "onSecondaryContainer" },
             itemLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -10500,7 +10504,11 @@ export const tonePerState = {
           hovered: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.08,
             },
@@ -10515,7 +10523,11 @@ export const tonePerState = {
           focused: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -10530,7 +10542,11 @@ export const tonePerState = {
           pressed: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -10543,7 +10559,11 @@ export const tonePerState = {
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
+            itemContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             itemIconIndicatorColor: { kind: "none" },
             itemIconColor: {
               kind: "alpha",
@@ -10670,7 +10690,11 @@ export const tonePerState = {
         },
         collapsedSelected: {
           enabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
+            itemContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             itemIconIndicatorColor: { kind: "none" },
             itemIconColor: { kind: "role", role: "onSecondaryContainer" },
             itemLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -10682,7 +10706,11 @@ export const tonePerState = {
           hovered: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.08,
             },
@@ -10697,7 +10725,11 @@ export const tonePerState = {
           focused: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -10712,7 +10744,11 @@ export const tonePerState = {
           pressed: {
             itemContainerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -10725,7 +10761,11 @@ export const tonePerState = {
             itemStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
-            itemContainerColor: { kind: "role", role: "secondaryContainer" },
+            itemContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             itemIconIndicatorColor: { kind: "none" },
             itemIconColor: {
               kind: "alpha",
@@ -15432,17 +15472,29 @@ export const tonePerState = {
       motionStateEasing: [0.2, 0, 0, 1],
       pressedOpacity: 1,
       rowGap: 4,
-      rowSelectedContainerColor: { kind: "role", role: "secondaryContainer" },
+      rowSelectedContainerColor: {
+        kind: "alpha",
+        of: { kind: "role", role: "onSecondaryContainer" },
+        amount: 0.16,
+      },
       rowSelectedHoveredContainerColor: {
         kind: "mix",
-        base: { kind: "role", role: "secondaryContainer" },
+        base: {
+          kind: "alpha",
+          of: { kind: "role", role: "onSecondaryContainer" },
+          amount: 0.16,
+        },
         with: { kind: "role", role: "onSecondaryContainer" },
         amount: 0.08,
       },
       rowSelectedHoveredTextColor: { kind: "role", role: "onSecondaryContainer" },
       rowSelectedPressedContainerColor: {
         kind: "mix",
-        base: { kind: "role", role: "secondaryContainer" },
+        base: {
+          kind: "alpha",
+          of: { kind: "role", role: "onSecondaryContainer" },
+          amount: 0.16,
+        },
         with: { kind: "role", role: "onSecondaryContainer" },
         amount: 0.1,
       },
@@ -16746,7 +16798,11 @@ export const tonePerState = {
         },
         selected: {
           enabled: {
-            containerColor: { kind: "role", role: "secondaryContainer" },
+            containerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             labelColor: { kind: "role", role: "onSecondaryContainer" },
             supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -16757,7 +16813,11 @@ export const tonePerState = {
           hovered: {
             containerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.08,
             },
@@ -16771,7 +16831,11 @@ export const tonePerState = {
           focused: {
             containerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -16785,7 +16849,11 @@ export const tonePerState = {
           pressed: {
             containerColor: {
               kind: "mix",
-              base: { kind: "role", role: "secondaryContainer" },
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
               with: { kind: "role", role: "onSecondaryContainer" },
               amount: 0.1,
             },
@@ -16797,7 +16865,11 @@ export const tonePerState = {
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
-            containerColor: { kind: "role", role: "secondaryContainer" },
+            containerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             labelColor: { kind: "role", role: "onSecondaryContainer" },
             supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
             trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
