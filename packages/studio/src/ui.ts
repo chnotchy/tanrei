@@ -5,8 +5,8 @@ import { ID_PATTERN, LEVELS, stringifyLayer } from './core.js';
 import { createSourceDraft } from './draft.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
-import { essentialsLevel, groupsLevel } from './ui/levels';
+import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, drawnNear, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
+import { essentialsLevel, groupsLevel, groupsPanels } from './ui/levels';
 import { createPreview } from './ui/preview';
 import { sourceLevel } from './ui/source';
 import { type TreeState, tokensLevel } from './ui/tokens';
@@ -169,7 +169,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
 
   // ── accessibility ─────────────────────────────────────────────────────────────────────────────
-  function drawAccessibility() {
+  /** The contrast pairs and the build's warnings: a panel of every level but Essentials. */
+  function accessibilityPanel() {
+    if (level === 'essentials') return null;
     const pairs = h('div', { class: 'ts-pairs', 'data-pairs': true });
     const total = h('bdi', { 'data-warnings-count': true });
     // The build's warnings are listed in a fold, written when it first opens; their count is said on it all along.
@@ -201,11 +203,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     ctx.onUpdate(refresh);
     const all = fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } });
     all.addEventListener('toggle', () => all.open && !warnings && (all.append((warnings = scrollingList(t.a11y.all, { 'data-warnings': true }))), listWarnings()));
-    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all), notices));
+    return panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all), notices);
   }
 
   // ── export / save ─────────────────────────────────────────────────────────────────────────────
-  function drawExport() {
+  function exportPanel() {
     const compact = level === 'essentials';
     const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'data-id': true }, oninput: (value) => {
       const result = studio.setMeta(layer, { id: value.trim() }) as Json;
@@ -283,25 +285,23 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     // The import is written when its fold first opens.
     const importFold = fold({ label: t.import.title, attrs: { class: 'ts-import' } });
     importFold.addEventListener('toggle', () => importFold.open && importFold.children.length === 1 && importFold.append(...importForm()));
-    exportHost.replaceChildren(
-      panel(
-        ctx,
-        { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
+    return panel(
+      ctx,
+      { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
+      h(
+        'div',
+        { class: `ts-export-grid${compact || level === 'source' ? ' ts-export-compact' : ''}` },
         h(
           'div',
-          { class: `ts-export-grid${compact || level === 'source' ? ' ts-export-compact' : ''}` },
-          h(
-            'div',
-            { class: 'ts-export-side' },
-            h('div', { class: compact ? 'ts-grid-2' : 'ts-stack' }, id, compact ? null : name),
-            checks,
-            h('div', { class: 'ts-actions' }, copy, download, reset),
-            compact || adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
-          ),
-          compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
+          { class: 'ts-export-side' },
+          h('div', { class: compact ? 'ts-grid-2' : 'ts-stack' }, id, compact ? null : name),
+          checks,
+          h('div', { class: 'ts-actions' }, copy, download, reset),
+          compact || adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
         ),
-        compact ? null : folds({}, importFold),
+        compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
       ),
+      compact ? null : folds({}, importFold),
     );
   }
 
@@ -461,18 +461,39 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     remember();
   }
 
+  /** The panels still to be drawn after a switch to Groups (ui/dom.ts `drawnNear`); while there are any, the root says `data-drawing`. */
+  let drawing: ReturnType<typeof drawnNear> | undefined;
   function build() {
+    drawing?.stop();
+    drawing = undefined;
+    root.removeAttribute('data-drawing');
     refreshers = [];
     compute();
     if (latest.model) last = latest;
     // A layer that cannot be computed at all still needs controls to fix it: fall back to its base.
     if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.rootId }) as Json;
+    const switched = root.dataset.level !== level;
     root.dataset.level = level;
     drawLevels();
-    const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];
-    controls.replaceChildren(...(draw(ctx).filter(Boolean) as HTMLElement[]));
-    drawAccessibility();
-    drawExport();
+    // Groups holds some three thousand elements, and a window shows a few hundred of them: a switch to it draws what the
+    // window shows before the first paint and the rest as it comes near. Drawn again where the person is (an edit that
+    // changes which controls exist), or opened at one of its panels, it is drawn whole at once, so that what is looked
+    // at stays where it is.
+    if (switched && level === 'groups' && !focus?.panel) {
+      const now = (drawing = drawnNear([...groupsPanels(ctx), accessibilityPanel, exportPanel]));
+      const holders = [...now.holders];
+      const [exported, accessibility] = [holders.pop()!, holders.pop()!];
+      controls.replaceChildren(...holders);
+      a11y.replaceChildren(accessibility);
+      exportHost.replaceChildren(exported);
+      root.setAttribute('data-drawing', '');
+      now.done.then(() => drawing === now && root.removeAttribute('data-drawing'));
+    } else {
+      const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];
+      controls.replaceChildren(...(draw(ctx).filter(Boolean) as HTMLElement[]));
+      a11y.replaceChildren(accessibilityPanel() ?? '');
+      exportHost.replaceChildren(exportPanel());
+    }
     drawFile();
     update();
   }
@@ -529,6 +550,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     save: () => saveNow(),
     destroy: () => {
       stopWatching();
+      drawing?.stop();
       window.clearTimeout(timer);
       cancelAnimationFrame(frame);
       window.clearTimeout(resting);
