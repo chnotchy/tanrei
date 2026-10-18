@@ -348,6 +348,64 @@ test.describe('layout', () => {
     expect(a.x).toBe(b.x);
   });
 
+  test('SRC-52: iconSpace — auto keeps the leading icon column, empty, in every row of the view while any suggestion or result has an icon, and none while none has; always in every row; never only in a row that has an icon; the suggestions and the results are decided together; decided again when an icon changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    const result = (value: string, headline: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'result', props: { value, headline, href: `#${value}`, ...props } });
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spaced,
+        { id: 'plain', props: { label: 'Search', expanded: true }, items: [suggestion('a'), suggestion('b')] },
+        { id: 'plain-always', props: { label: 'Search', expanded: true, iconSpace: 'always' }, items: [suggestion('a'), suggestion('b')] },
+        { id: 'mixed', props: { label: 'Search', expanded: true }, items: [suggestion('a', 'a', { leadingIcon: 'history' }), result('r', 'A result')] },
+        { id: 'mixed-never', props: { label: 'Search', expanded: true, iconSpace: 'never' }, items: [suggestion('a', 'a', { leadingIcon: 'history' }), result('r', 'A result')] },
+        { id: 'odd', props: { label: 'Search', expanded: true, iconSpace: 'sometimes' } as Fixture['props'], items: [suggestion('a', 'a', { leadingIcon: 'history' }), suggestion('b')] },
+      ],
+    });
+    const pad = await resolveToken(page, T('suggestion-container-padding-inline'));
+    const size = await resolveToken(page, T('suggestion-leading-icon-size'));
+    const gap = await resolveToken(page, T('suggestion-container-gap'));
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where a suggestion's headline starts, from its row's start edge. */
+    const at = async (id: string, n: number) => (await bounds(row(page, id, n).locator('.headline'))).x - (await bounds(row(page, id, n))).x;
+    /** Where the first result's headline starts, from its row's start edge. */
+    const resultAt = async (id: string) => {
+      const r = host(page, id).locator('tanrei-search-result').first().locator('.row');
+      return (await bounds(r.locator('.headline'))).x - (await bounds(r)).x;
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto and always: Invoices, which has no icon, starts its headline where the history rows start theirs.
+    for (const id of ['icon-space-auto', 'icon-space-always']) for (const n of [0, 1, 2]) expect(await at(id, n), `${id} ${n}`).toBeCloseTo(kept, 0);
+    await expect(row(page, 'icon-space-auto', 2).locator('.option-icon.empty[aria-hidden="true"]')).toHaveCount(1);
+    // never: Invoices starts at the row's padding; the others after their icon.
+    expect(await at('icon-space-never', 2)).toBeCloseTo(none, 0);
+    expect(await at('icon-space-never', 0)).toBeCloseTo(kept, 0);
+    await expect(row(page, 'icon-space-never', 2).locator('.option-icon')).toHaveCount(0);
+    // The view as a whole: no icon anywhere keeps no column (auto), and every row keeps it (always).
+    for (const n of [0, 1]) {
+      expect(await at('plain', n)).toBeCloseTo(none, 0);
+      expect(await at('plain-always', n)).toBeCloseTo(kept, 0);
+    }
+    // A result keeps the column of the suggestions' icon while auto, and none of its own while never.
+    expect(await resultAt('mixed')).toBeCloseTo(await at('mixed', 0), 0);
+    expect(await resultAt('mixed-never')).toBeCloseTo(none, 0);
+    // An unknown value is auto, reported.
+    expect(await at('odd', 1)).toBeCloseTo(kept, 0);
+    await expect.poll(() => seen.some((w) => w.includes('(SRC-52)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to a row of a view without icons, then taken away; iconSpace changed while shown.
+    await host(page, 'plain').evaluate((el) => el.querySelector('tanrei-search-suggestion')!.setAttribute('leading-icon', 'history'));
+    await expect.poll(() => at('plain', 1)).toBeCloseTo(kept, 0);
+    await host(page, 'plain').evaluate((el) => el.querySelector('tanrei-search-suggestion')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('plain', 1)).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 2)).toBeCloseTo(none, 0);
+    await host(page, 'mixed-never').evaluate((el) => el.setAttribute('icon-space', 'auto'));
+    await expect.poll(() => resultAt('mixed-never')).toBeCloseTo(kept, 0);
+  });
+
   test('SRC-7: the docked fixture draws the bar 16 from the stage’s top and sides and the view in place under it, offset away, as wide as the bar, on its color, elevation and corners, its content inset by the padding', async ({ page }) => {
     const stage = await bounds(page.locator('[data-fixture="docked"]'));
     expect([stage.width, stage.height]).toEqual([360, 320]);
