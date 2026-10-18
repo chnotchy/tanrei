@@ -208,6 +208,14 @@
             },
             {
               "kind": "field",
+              "name": "following",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Map<HTMLDetailsElement, number>()",
+              "description": "ACC-13: the items whose height is followed frame by frame to its end, as no clock of theirs runs (`follow`)."
+            },
+            {
+              "kind": "field",
               "name": "contentPress",
               "type": {
                 "text": "{ id: number; x: number; y: number; details: HTMLDetailsElement; moved: boolean } | null"
@@ -694,6 +702,20 @@
               "name": "onMotionEnd",
               "privacy": "private",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "follow",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "details",
+                  "type": {
+                    "text": "HTMLDetailsElement"
+                  }
+                }
+              ],
+              "description": "ACC-13, where the element moves the height: an item turned back on the way goes on from where it is — and when it\nis turned before the middle of its motion, the browser cancels its clock instead of turning it back too. The clock\nis a custom property no browser interpolates: in its first half its value is still the one it is going from, which\nis the value the item turns back to, and a transition whose value is already the new one is cancelled (CSS\nTransitions, \"starting of transitions\"). The height's own transition, a length, turns back and goes on. Its end is\ntold to the page by no event, and the item's height at its end need not be what was measured (a margin of the\ncontent may reach past a box of `auto` height, and not past one of a set height), so the item is read once a frame\nuntil it has stood still for two: a moving height changes in every frame. Then the motion is over. A change that ends the height at once\n(reduced motion, a removal, an ancestor that stops being drawn) ends this as soon."
             },
             {
               "kind": "field",
