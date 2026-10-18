@@ -152,6 +152,12 @@ export const pickerWindow = (fixture: Fixture) => (fixture.props.layout === 'hor
 export const dialogWindow = (id: string) => (id.startsWith('compact') ? { width: 360, height: 640 } : { width: 640, height: 640 });
 
 /**
+ * The window a popover's `compact-` fixture is drawn alone in (POP-39's verify): 360 × 640, which is compact under the
+ * default system. Every other popover fixture is drawn in place on its 480 × 480 stage.
+ */
+export const popoverWindow = { width: 360, height: 640 } as const;
+
+/**
  * The window a navigation drawer fixture is drawn in when it is drawn alone: 480 × 640, and for the three responsive
  * fixtures the width NVD-53's verify names — `responsive-wide` 1280, `responsive-medium` 800, `responsive-narrow` 400 —
  * because a responsive drawer is what the window's width makes it. (A fixture cannot state its window.)
@@ -1912,15 +1918,19 @@ const STAGING: Record<string, Staging> = {
   // A popover's stage is 480 × 480 with its anchor at the centre: a medium outlined Button labelled "Storage" (240 wide
   // for `width-anchor`), named by the popover's `anchor` (the spec's web note). The popover is open against it, drawn in
   // place (`inline`): the stage is its positioned ancestor and stands for the window. A fixture that names an `anchor`
-  // of its own (a test's) is the real overlay, in the top layer. `inset: false` is the `no-inset` attribute; `arrow` is
-  // true, false or unset, and its false is `="false"`. Its action items are `tanrei-button` children in the `actions` slot.
+  // of its own (a test's) is the real overlay, in the top layer, and so is a `compact-` one, drawn alone in a 360 × 640
+  // window (`popoverWindow`) on a stage that fills it: a compact window is the window's width (POP-39), which a stage
+  // cannot stand for. `inset: false` is the `no-inset` attribute; `arrow` is true, false or unset, and its false is
+  // `="false"`; `compactPresentation` is `compact-presentation`. Its action items are `tanrei-button` children in the
+  // `actions` slot.
   popover: {
     css: () => `.stage:has(> tanrei-popover) { box-sizing: border-box; position: relative; inline-size: 480px; block-size: 480px; padding: 0; display: grid; place-items: center; }
+      .stage[data-fixture^='compact']:has(> tanrei-popover) { inline-size: 360px; block-size: 640px; }
       [data-fixture='width-anchor'] > tanrei-button { display: grid; inline-size: 240px; }`,
     props: ({ inset, arrow, anchor, ...props }, f) => ({
       ...props,
       anchor: anchor ?? `popover-anchor-${f.id}`,
-      ...(anchor ? {} : { inline: true }),
+      ...(anchor || f.id.startsWith('compact') ? {} : { inline: true }),
       ...(inset === false ? { noInset: true } : {}),
       ...(arrow === undefined ? {} : { arrow: arrow === false ? 'false' : arrow }),
     }),

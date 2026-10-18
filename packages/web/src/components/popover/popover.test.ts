@@ -1,17 +1,20 @@
-// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…38) is cited by a test title, every
+// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…43) is cited by a test title, every
 // fixture has a baseline, and every color, length and time is read back from the tokens. The fixtures are drawn in
 // place (`inline`), each on its 480 × 480 stage; what a fixture cannot hold — the top layer, the window's edges, focus,
 // dismissal, nesting — is tested on the real overlay, mounted by the tests as a product would write it: its own opener,
 // `open` set from the opener's press, and set to false from `close`.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 
 const spec = loadSpec('popover');
+/** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
+const IN_PLACE = spec.fixtures.filter((f) => !f.id.startsWith('compact'));
+const COMPACT_FIXTURES = spec.fixtures.filter((f) => f.id.startsWith('compact'));
 type P = Page;
 const TAG = 'tanrei-popover';
 const T = (name: string) => `--tanrei-comp-popover-${name}`;
@@ -499,7 +502,8 @@ test.describe('placement', () => {
     expect(await surface(page).evaluate((el) => el.hasAttribute('data-held'))).toBe(false);
 
     // A window smaller than its least size (its header and its actions): moved back over the anchor, inside the margin.
-    await mount(page, `${anchorAt(100, 60)}${popover('headline="Empty the trash?" arrow', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 400, height: 160 });
+    // (A compact window: the popover keeps its own presentation, POP-43.)
+    await mount(page, `${anchorAt(100, 60)}${popover('headline="Empty the trash?" arrow compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 400, height: 160 });
     await open(page);
     const held = await rect(surface(page));
     expect(await surface(page).evaluate((el) => [el.hasAttribute('data-held'), el.hasAttribute('data-arrow')])).toEqual([true, false]);
@@ -585,7 +589,8 @@ test.describe('placement', () => {
 
 test.describe('size and layout', () => {
   test('POP-7: sized by its content the container is as wide as its widest part between its least and greatest width, wrapping beyond; sized by its anchor it is as wide as the anchor and follows it, at least the least width; it is never wider than the window less the margins', async ({ page }) => {
-    await mount(page, `${anchorAt(100, 100, { width: 240 })}${popover('label="Storage"', 'Ok.')}`, { width: 900, height: 600 });
+    // It narrows with the window below the compact width too: there it keeps its own presentation (POP-43).
+    await mount(page, `${anchorAt(100, 100, { width: 240 })}${popover('label="Storage" compact-presentation="own"', 'Ok.')}`, { width: 900, height: 600 });
     const [min, max, margin] = [await resolveToken(page, T('container-min-width')), await resolveToken(page, T('container-max-width')), await resolveToken(page, T('window-margin'))];
     const width = async () => (await rect(container(page))).width;
     await open(page);
@@ -688,7 +693,7 @@ test.describe('size and layout', () => {
     expect(await part(page, '.divider.below-header').count()).toBe(0);
 
     // Large text in a short window: the header and the actions alone leave no room, so all of it scrolls together.
-    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
+    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close" compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await open(page);
     await expect.poll(() => part(page, '.clip').evaluate((el) => el.classList.contains('crowded'))).toBe(true);
@@ -768,7 +773,7 @@ test.describe('size and layout', () => {
     expect(await innerStrokeAtEdges(page, content), 'the content, scrolled to its end').toEqual({ top: true, bottom: true });
 
     // Everything scrolls together: the box is the container's.
-    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
+    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close" compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await open(page);
     const all = part(page, '.clip');
@@ -1817,8 +1822,8 @@ test.describe('text size, windows and modes', () => {
 
   test('POP-30: an action whose one-line label is wider than the popover’s inner width, at 320 wide with text at 200 %, wraps its label and lies whole inside the container — nothing of it is clipped — while actions that fit are, to a hundredth of a pixel, what they are without the popover’s word', async ({ page }) => {
     const LABEL = 'Move everything to the archive';
-    await mount(page, `${anchorAt(110, 60)}${popover('headline="Archive the project?"', `Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button id="long" slot="actions" confirming>${LABEL}</tanrei-button>`)}
-      ${anchorAt(110, 60).replace('id="a"', 'id="a2"')}${popover('headline="Archive?"', 'Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button slot="actions" confirming>Archive</tanrei-button>', 'q').replace('anchor="a"', 'anchor="a2"')}`, { width: 320, height: 900 });
+    await mount(page, `${anchorAt(110, 60)}${popover('headline="Archive the project?" compact-presentation="own"', `Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button id="long" slot="actions" confirming>${LABEL}</tanrei-button>`)}
+      ${anchorAt(110, 60).replace('id="a"', 'id="a2"')}${popover('headline="Archive?" compact-presentation="own"', 'Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button slot="actions" confirming>Archive</tanrei-button>', 'q').replace('anchor="a"', 'anchor="a2"')}`, { width: 320, height: 900 });
     await page.addStyleTag({ content: 'html { font-size: 200%; }' });
     await open(page);
     await settle(page);
@@ -1875,10 +1880,10 @@ test.describe('text size, windows and modes', () => {
     expect(await rect(container(page, 'q'))).toEqual(whole);
   });
 
-  test('POP-31: in a window 320 wide the fixture actions is 304 wide and every part of it can be reached; it stays an anchored dialog that is not modal at every size — no sheet, no scrim, no focus trap', async ({ page }) => {
+  test('POP-43: with compact-presentation own, in a window 320 wide the fixture actions is 304 wide and every part of it can be reached; it stays an anchored dialog that is not modal at every size — no sheet, no scrim, no focus trap', async ({ page }) => {
     const actions = spec.fixtures.find((f) => f.id === 'actions')!;
     const items = actions.items!.map((item) => `<tanrei-button slot="actions" ${Object.keys(item.props).join(' ')}>${item.content}</tanrei-button>`).join('');
-    await mount(page, `${anchorAt(110, 60)}${popover(`headline="${String(actions.props.headline)}" closable close-label="${String(actions.props.closeLabel)}"`, `${actions.content}${items}`)}`, { width: 320, height: 568 });
+    await mount(page, `${anchorAt(110, 60)}${popover(`headline="${String(actions.props.headline)}" closable close-label="${String(actions.props.closeLabel)}" compact-presentation="own"`, `${actions.content}${items}`)}`, { width: 320, height: 568 });
     const margin = await resolveToken(page, T('window-margin'));
     await page.locator('#a').focus();
     await open(page);
@@ -2047,10 +2052,219 @@ test.describe('text size, windows and modes', () => {
   });
 });
 
+test.describe('compact window', () => {
+  // A compact window under the default system: narrower than comp.popover.compact.window-width (600).
+  const COMPACT = popoverWindow;
+  const WIDE = { width: 800, height: 600 };
+  const B = (name: string) => `--tanrei-comp-bottom-sheet-${name}`;
+  const sheet = (page: P, id = 'p') => page.locator(`${TAG}#${id} > dialog.sheet`);
+  const isSheet = (page: P, id = 'p') => host(page, id).evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet')?.matches('[open]:modal'));
+  const isAnchored = (page: P, id = 'p') => host(page, id).evaluate((el) => !!el.shadowRoot!.querySelector('.surface')?.matches(':popover-open'));
+  /** Opens by the opener's press, as a product does, and waits for the sheet's motion to end. */
+  async function openSheet(page: P, id = 'p') {
+    await page.locator('#a').click();
+    await expect.poll(() => isSheet(page, id)).toBe(true);
+    await settle(page);
+    await motionEnded(sheet(page, id));
+  }
+  const page320 = (attributes = '', content = `The 12 files in it will be deleted.<button id="in" type="button">Details</button>${ACTIONS}`) =>
+    `<div style="padding: 120px 40px 0"><button id="a" type="button">Storage</button> <button id="behind" type="button">Behind</button></div>${popover(`headline="Empty the trash?" ${attributes}`, content)}`;
+
+  test('POP-39: narrower than compact.window-width it takes the bottom sheet’s appearance — at the bottom edge, as wide as the window up to its greatest width, its color, elevation and top corners, square at the bottom, no arrow, placement and width ignored; never taller than the window less the top margin; 0 keeps it beside its anchor', async ({ page }) => {
+    await mount(page, page320('placement="top" width="anchor" arrow'), COMPACT);
+    expect(COMPACT.width).toBeLessThan(await resolveToken(page, T('compact-window-width')));
+    await openSheet(page);
+    const d = sheet(page);
+    const [maxWidth, radius] = [await resolveToken(page, B('container-max-width')), await resolveToken(page, B('container-shape'))];
+    const box = await rect(d);
+    expect(box.x).toBeCloseTo(0, 1);
+    expect(box.width).toBeCloseTo(Math.min(COMPACT.width, maxWidth), 1);
+    expect(bottom(box)).toBeCloseTo(COMPACT.height, 1);
+    for (const corner of ['top-left', 'top-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBeCloseTo(radius, 1);
+    for (const corner of ['bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(0);
+    expect(await css(d, 'background-color')).toBe(await resolveColor(page, B('container-color')));
+    expect(await css(d, 'box-shadow')).toBe(await resolveShadow(page, B('container-elevation')));
+    // No arrow, no anchored surface: the sheet is the one container.
+    await expect(host(page).locator('.arrow')).toHaveCount(0);
+    expect(await isAnchored(page)).toBe(false);
+    // Its parts keep their own tokens: the headline's color is the popover's.
+    expect(await css(part(page, '.headline'), 'color')).toBe(await resolveColor(page, T('headline-color')));
+    // Never taller than the window less the top margin: a long content scrolls between the header and the actions.
+    await host(page).evaluate((el, text) => el.insertAdjacentText('afterbegin', text), LONG);
+    const top = await resolveToken(page, B('container-margin-block-start'));
+    await expect.poll(async () => (await rect(d)).y).toBeCloseTo(top, 0);
+    expect(bottom(await rect(d))).toBeCloseTo(COMPACT.height, 1);
+    expect(await part(page, '.content').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await set(page, { open: false });
+    await expect.poll(() => isSheet(page)).toBe(false);
+    // 0: no window is compact — beside its anchor in the same window.
+    await rootTokens(page, { [T('compact-window-width')]: '0px' });
+    await set(page, { open: true });
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+  });
+
+  test('POP-40: as a sheet it is a modal dialog over the bottom sheet’s scrim — everything behind it inert, the page held from scrolling, focus in and kept in; Escape, a press on the scrim and the close button ask to close with escape, outside and close; focus goes back to the opener', async ({ page }) => {
+    await mount(page, page320('closable close-label="Close"'), COMPACT);
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div style="block-size: 3000px"></div>'));
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isSheet(page)).toBe(true);
+    await settle(page);
+    const d = sheet(page);
+    expect(await d.evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-modal'), el.getAttribute('aria-label')])).toEqual(['dialog', 'true', 'Empty the trash?']);
+    await expect(page.getByRole('dialog', { name: 'Empty the trash?' })).toHaveCount(1);
+    expect(await d.evaluate((el) => getComputedStyle(el, '::backdrop').backgroundColor)).toBe(await resolveColor(page, B('scrim-color')));
+    // The whole window is the scrim, the popover's own.
+    expect(await page.evaluate(() => document.elementFromPoint(2, 2)?.localName)).toBe(TAG);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
+    // Focus is in it (the container), and stays in: what is behind cannot take it, and Tab wraps.
+    expect(await active(page)).toBe('dialog.container.sheet');
+    await page.locator('#behind').evaluate((el) => (el as HTMLElement).focus());
+    expect(await active(page)).toBe('dialog.container.sheet');
+    await tab(page);
+    expect(await activeButton(page)).toBe('Close');
+    await tab(page);
+    expect(await active(page)).toBe('#in');
+    await tab(page);
+    await tab(page);
+    expect(await activeButton(page)).toBe('Empty');
+    await tab(page);
+    expect(await activeButton(page)).toBe('Close');
+    await page.keyboard.press('Shift+Tab');
+    expect(await activeButton(page)).toBe('Empty');
+    // The opener still says it opens a dialog, and that it is open.
+    expect(await page.locator('#a').evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded')])).toEqual(['dialog', 'true']);
+    // Escape: close with escape, focus back on the opener, the page given back.
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isSheet(page)).toBe(false);
+    expect(await log(page)).toEqual(['p:escape']);
+    await expect(page.locator('#a')).toBeFocused();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('visible');
+    // A press on the scrim: outside.
+    await openSheet(page);
+    await page.mouse.click(COMPACT.width / 2, 20);
+    await expect.poll(() => isSheet(page)).toBe(false);
+    // The close button: close.
+    await openSheet(page);
+    await host(page).locator('tanrei-button.close').click();
+    await expect.poll(() => isSheet(page)).toBe(false);
+    expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
+    // An action does not close it (POP-17).
+    await openSheet(page);
+    await host(page).locator('tanrei-button[slot="actions"]', { hasText: 'Empty' }).click();
+    expect(await isSheet(page)).toBe(true);
+    expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
+  });
+
+  test('POP-41: as a sheet it slides up from below the bottom edge over the bottom sheet’s enter motion and down over its exit motion, the scrim fading with it; it only fades where motion is reduced', async ({ page }) => {
+    await mount(page, page320(), { ...COMPACT, reducedMotion: false });
+    // The motions at 40 s, so that what is read is read on the way; the durations are read from the transitions.
+    await rootTokens(page, { [B('motion-enter-duration')]: '40s', [B('motion-exit-duration')]: '40s' });
+    await set(page, { open: true });
+    await expect.poll(() => isSheet(page)).toBe(true);
+    const d = sheet(page);
+    const running = await d.evaluate((el) => el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })));
+    expect(running).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    expect(running.map((r) => r.property)).not.toContain('scale');
+    expect(running.map((r) => r.property)).not.toContain('opacity');
+    // On its way up: below its place, by no more than its own height.
+    const [moving, height] = await d.evaluate((el) => [new DOMMatrix(getComputedStyle(el).transform === 'none' ? undefined : getComputedStyle(el).transform).m42 || Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0'), el.getBoundingClientRect().height]);
+    expect(moving).toBeGreaterThan(0);
+    expect(moving).toBeLessThanOrEqual(height + 0.5);
+    await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Closing slides it down (where the engine keeps a closed dialog in the top layer for its exit), the scrim fading.
+    const leaving = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      el.open = false;
+      await el.updateComplete;
+      return (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
+    });
+    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    else expect(leaving).toEqual([]);
+    const out = await d.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000 };
+    });
+    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
+    expect(out.duration).toBe(40_000);
+    await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Reduced: it fades in place.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reduced = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      el.open = true;
+      await el.updateComplete;
+      return (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
+    });
+    expect(reduced).toContain('opacity');
+    expect(reduced).not.toContain('translate');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  test('POP-42: crossing compact.window-width while open changes the presentation at once — no motion, no close — keeping the element that has focus; focus on the opener moves into the sheet', async ({ page }) => {
+    await mount(page, page320(), WIDE);
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await settle(page);
+    await page.locator('#in').focus();
+    await page.setViewportSize(COMPACT);
+    await expect.poll(() => isSheet(page)).toBe(true);
+    expect(await sheet(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    await expect(page.locator('#in')).toBeFocused();
+    await page.setViewportSize(WIDE);
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+    expect(await surface(page).locator('> .motion').evaluate((el) => el.getAnimations().length)).toBe(0);
+    await expect(page.locator('#in')).toBeFocused();
+    expect(await log(page)).toEqual([]);
+    // Focus on the opener (Shift+Tab from the popover's first element leaves it open): the sheet takes it in.
+    await page.locator('#in').focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.locator('#a')).toBeFocused();
+    expect(await isOpen(page)).toBe(true);
+    await page.setViewportSize(COMPACT);
+    await expect.poll(() => isSheet(page)).toBe(true);
+    expect(await active(page)).toBe('dialog.container.sheet');
+    expect(await log(page)).toEqual([]);
+  });
+
+  test('POP-43: compact-presentation own, or initial-focus anchor, keeps it beside its anchor and not modal in a compact window; an unknown value is a sheet, and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, `${page320('compact-presentation="own"')}`, COMPACT);
+    await page.locator('#a').click();
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+    expect(await container(page).evaluate((el) => el.getAttribute('aria-modal'))).toBe(null);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('visible');
+    await page.locator('#a').click();
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await mount(page, `${page320('initial-focus="anchor"')}`, COMPACT);
+    await page.locator('#a').click();
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(page.locator('#a')).toBeFocused();
+    await page.locator('#a').click();
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await mount(page, `${page320('compact-presentation="beside"')}`, COMPACT);
+    await openSheet(page);
+    expect(seen.some((text) => text.includes('POP-43') && text.includes('"beside"'))).toBe(true);
+  });
+
+  test('no axe violations as a sheet, in light and dark', async ({ page }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      await page.setViewportSize(COMPACT);
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: [spec.fixtures.find((f) => f.id === 'compact')!] });
+      await expect.poll(() => fixtureHost(page, 'compact').evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet[open]'))).toBe(true);
+      await settle(page);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+    }
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark, in place and in the top layer, open and closed', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: IN_PLACE });
       await settle(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
@@ -2071,15 +2285,16 @@ test.describe('accessibility', () => {
 
 test.describe('fixtures', () => {
   test.beforeEach(async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
+    await mountFixtures(page, spec, { icons: true, fixtures: IN_PLACE });
     await settle(page);
   });
 
   test('every fixture is mounted open on its 480 × 480 stage against a medium outlined Button at its centre, drawn in place, with the parts and the name its props give it', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(32);
+    expect(spec.fixtures.length).toBe(34);
+    expect(COMPACT_FIXTURES.map((f) => f.id)).toEqual(['compact', 'compact-own']);
     const gap = await resolveToken(page, T('offset'));
     const arrowHeight = await resolveToken(page, T('arrow-height'));
-    for (const f of spec.fixtures) {
+    for (const f of IN_PLACE) {
       const [frame, anchor] = [await rect(stage(page, f.id)), await rect(stage(page, f.id).locator('> tanrei-button'))];
       expect([frame.width, frame.height], f.id).toEqual([480, 480]);
       expect(Math.abs(centerX(anchor) - centerX(frame)) < 1 && Math.abs(centerY(anchor) - centerY(frame)) < 1, f.id).toBe(true);
@@ -2116,9 +2331,25 @@ test.describe('fixtures', () => {
     expect(placed.x - anchor.x).toBeGreaterThan(20);
   });
 
-  for (const f of spec.fixtures) {
+  for (const f of IN_PLACE) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+    });
+  }
+});
+
+test.describe('compact fixtures', () => {
+  // Each alone in its 360 × 640 window, the real overlay opened at mount; the baseline is the window, because a sheet
+  // and its scrim are in the top layer (POP-39, POP-43).
+  for (const f of COMPACT_FIXTURES) {
+    test(`snapshot: ${f.id}`, async ({ page }) => {
+      await page.setViewportSize(popoverWindow);
+      await mountFixtures(page, spec, { icons: true, fixtures: [f] });
+      const own = fixtureHost(page, f.id);
+      await expect.poll(() => own.evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet[open], .surface:popover-open'))).toBe(true);
+      await settle(page);
+      await motionEnded(own.locator('dialog.sheet, .surface > .motion').first());
+      await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
     });
   }
 });
