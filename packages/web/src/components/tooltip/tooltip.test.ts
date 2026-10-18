@@ -1052,7 +1052,7 @@ test.describe('drawing', () => {
     expect(await css(title, 'font-size')).toBe(`${await resolveToken(page, T('rich-title-typescale-font-size'))}px`);
     expect(await css(text, 'color')).toBe(await resolveColor(page, T('rich-supporting-text-color')));
     expect((await bounds(text)).y - ((await bounds(title)).y + (await bounds(title)).height)).toBeCloseTo(await resolveToken(page, T('rich-container-gap')), 0);
-    await set(page, 'r', { title: '' });
+    await set(page, 'r', { headline: '' });
     await expect(s.locator('.title')).toHaveCount(0);
     await set(page, 'r', { text: 'A longer explanation that runs well past the widest a rich tooltip may be, so that it wraps.' });
     await expect.poll(async () => (await bounds(s)).width).toBeCloseTo(await resolveToken(page, T('rich-container-max-width')), 0);
@@ -1142,7 +1142,7 @@ test.describe('drawing', () => {
     await expect(button(page, 'empty')).not.toHaveAttribute('aria-description');
     await expect.poll(() => seen.filter((w) => w.includes('TIP-16')).length).toBe(2);
     expect(seen.join('\n')).toMatch(/text is empty, so the tooltip never opens/);
-    expect(seen.join('\n')).toMatch(/a plain tooltip ignores its title "Heading"/);
+    expect(seen.join('\n')).toMatch(/a plain tooltip ignores its headline "Heading"/);
   });
 
   test('TIP-25: an arrow is drawn while arrow is true, or null with the system’s choice on, and not otherwise; it is the arrow’s width at its base and its height tall on the edge that faces the anchor, in the container’s color, and the container stands its height farther away', async ({ page }) => {
@@ -1483,13 +1483,20 @@ test.describe('drawing', () => {
     expect(await page.evaluate(() => (window as any).pressed)).toBe(0);
   });
 
-  test('web: the title attribute is read and removed, so the browser draws no tooltip of its own', async ({ page }) => {
-    await mount(page, [f('r', { variant: 'rich', title: 'Storage' }, 'info')]);
+  test('web: the rich title is the headline attribute and property; a title attribute is the browser’s own — it stays on the element and draws nothing', async ({ page }) => {
+    await mount(page, [f('r', { variant: 'rich', title: 'Storage', text: 'Trash still counts toward storage.', open: true }, 'info')]);
+    // The spec's title is the attribute headline.
+    await expect(tip(page, 'r')).toHaveAttribute('headline', 'Storage');
     await expect(tip(page, 'r')).not.toHaveAttribute('title');
-    expect(await tip(page, 'r').evaluate((el: any) => el.title)).toBe('Storage');
-    await tip(page, 'r').evaluate((el) => el.setAttribute('title', 'Quota'));
-    await expect(tip(page, 'r')).not.toHaveAttribute('title');
-    expect(await tip(page, 'r').evaluate((el: any) => el.title)).toBe('Quota');
+    await expect(tip(page, 'r').locator('.title')).toHaveText('Storage');
+    // A title attribute is not read: it is the platform's, kept as written, and the rich title stays the headline.
+    await tip(page, 'r').evaluate(async (el: any) => {
+      el.setAttribute('title', 'Quota');
+      await el.updateComplete;
+    });
+    await expect(tip(page, 'r')).toHaveAttribute('title', 'Quota');
+    expect(await tip(page, 'r').evaluate((el: any) => el.headline)).toBe('Storage');
+    await expect(tip(page, 'r').locator('.title')).toHaveText('Storage');
   });
 });
 
