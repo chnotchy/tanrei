@@ -22,7 +22,7 @@ build reads and records nothing.
 **The report names what the system uses instead.** Every system's stylesheet now declares
 `--tanrei-unavailable-replacement`, written from the `insteadUse` of its components manifest (the default system's:
 `segmented-button=tabs,radio-button,button-group`); a product's sheet from `tanrei build` declares it too, with its own
-`components.omit` entries. A component that lives in another layer names its replacement as soon as its manifest entry
+`components.omit` entries, and Theme Studio's preview declares the same. A component that lives in another layer names its replacement as soon as its manifest entry
 carries one.
 
 **A use is reported under the component the product wrote.** `<tanrei-text-field variant="outlined">` under the default
