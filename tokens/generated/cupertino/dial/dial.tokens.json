@@ -4317,6 +4317,14 @@
             "tanrei.comp.menu.surface.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}"
             },
+            "tanrei.comp.menu.container.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an item's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on a suggestion's highlight, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.menu.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "Apple's menu items are set in Body (17pt), which is body-large here."
@@ -5740,6 +5748,10 @@
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.shape."
             },
+            "tanrei.comp.select.option.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an option's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.select.option.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.label.typescale: Apple's menu items are set in Body (17pt), which is body-large here."
@@ -5855,6 +5867,10 @@
             "tanrei.comp.combobox.list.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.surface.shape."
+            },
+            "tanrei.comp.combobox.option.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an option's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
             },
             "tanrei.comp.combobox.option.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",

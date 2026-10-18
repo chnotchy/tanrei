@@ -14,21 +14,26 @@ const read = (file: string) => fs.readFileSync(path.join(repo, file), 'utf8');
 
 /**
  * What a system's sheet says of its comp shape tokens: for each, the step of `sys.shape.corner` its alias chain ends
- * at (through other comp tokens: a state's shape aliases its component's) and the emitter's `-pill` mark. Read from the
- * sheet itself, so that no test here names a component as "the one that is not a pill": which components are pills is
- * the tokens' to say, and has changed before (the default system's Button became one).
+ * at (through other comp tokens: a state's shape aliases its component's), or — for a corner inside another, derived
+ * by `sub` (the outer corner less the inset, never below zero, written `max(0px, calc(var(<outer>) - var(<inset>)))`)
+ * — the outer corner it is derived from; and the emitter's `-pill` mark. Read from the sheet itself, so that no test
+ * here names a component as "the one that is not a pill": which components are pills is the tokens' to say, and has
+ * changed before (the default system's Button became one).
  */
 function shapeTokens(sheet: string) {
   const values = new Map([...sheet.matchAll(/(--tanrei-comp-[a-z0-9-]+-shape): var\((--tanrei-[a-z0-9-]+)\);/g)].map((m) => [m[1], m[2]] as const));
+  const subs = new Map([...sheet.matchAll(/(--tanrei-comp-[a-z0-9-]+-shape): max\(0px, calc\(var\((--tanrei-comp-[a-z0-9-]+-shape)\) - var\(--tanrei-[a-z0-9-]+\)\)\);/g)].map((m) => [m[1], m[2]] as const));
   const marks = new Map([...sheet.matchAll(/(--tanrei-comp-[a-z0-9-]+-shape)-pill: ([01]);/g)].map((m) => [m[1], Number(m[2])] as const));
-  const step = (name: string): string | null => {
+  const end = (name: string): { step: string | null; inside: string | null } => {
     for (let at: string | undefined = name, hops = 0; at && hops < 8; at = values.get(at), hops += 1) {
       const corner = /^--tanrei-sys-shape-corner-(.+)$/.exec(at);
-      if (corner) return corner[1];
+      if (corner) return { step: corner[1], inside: null };
+      const outer = subs.get(at);
+      if (outer) return { step: null, inside: outer };
     }
-    return null;
+    return { step: null, inside: null };
   };
-  return [...marks].map(([name, pill]) => ({ name, pill, step: step(name) }));
+  return [...marks].map(([name, pill]) => ({ name, pill, ...end(name) }));
 }
 
 /** A step of the corner scale that some comp shape token of the default system takes and that is not the pill: found, not named. */
@@ -93,8 +98,16 @@ test('the emitter marks every comp shape token by whether its alias chain reache
   for (const file of ['dist/tokens.css', 'dist/systems/m3-like.css', 'dist/systems/m3-expressive-like.css', 'dist/systems/cupertino.css']) {
     const tokens = shapeTokens(read(`packages/web/${file}`));
     expect(tokens.length, file).toBeGreaterThan(0);
+    const byName = new Map(tokens.map((token) => [token.name, token]));
     for (const token of tokens) {
-      expect(token.step, `${file} ${token.name} ends at a step of the corner scale`).not.toBeNull();
+      if (token.inside) {
+        // A corner inside another (`sub`): never the full step, and its outer corner is a shape token of the sheet
+        // that ends at a step of the scale, marked as every other.
+        expect(token.pill, `${file} ${token.name} (inside ${token.inside})`).toBe(0);
+        expect(byName.get(token.inside)?.step ?? null, `${file} ${token.name}: its outer corner ${token.inside} ends at a step of the corner scale`).not.toBeNull();
+        continue;
+      }
+      expect(token.step, `${file} ${token.name} ends at a step of the corner scale, or is a corner inside another`).not.toBeNull();
       expect(token.pill, `${file} ${token.name} (${token.step})`).toBe(token.step === 'full' ? 1 : 0);
     }
   }

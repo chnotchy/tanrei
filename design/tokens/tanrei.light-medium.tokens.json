@@ -30298,10 +30298,10 @@
           "shape": {
             "$type": "dimension",
             "$value": {
-              "value": 6,
+              "value": 4,
               "unit": "px"
             },
-            "$description": "The corners of a row's highlight and of its state layer."
+            "$description": "The corners of a row's highlight and of its state layer: the list's corner less the inset the rows stand at, so that the two curves keep one distance."
           },
           "supporting-text": {
             "typescale": {
@@ -51221,10 +51221,10 @@
           "shape": {
             "$type": "dimension",
             "$value": {
-              "value": 6,
+              "value": 4,
               "unit": "px"
             },
-            "$description": "The corners of an item's row, which the state layer fills."
+            "$description": "The corners of an item's row, which the state layer fills: the sheet's corner less the inset the rows stand at, so that the two curves keep one distance."
           }
         },
         "control": {
@@ -52839,7 +52839,7 @@
             "shape": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -53647,7 +53647,7 @@
             "shape": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -53718,7 +53718,7 @@
             "shape": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -53852,7 +53852,7 @@
             "shape": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               }
             }
@@ -69503,10 +69503,10 @@
             "shape": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
               },
-              "$description": "The corners of a suggestion's highlight, inset in the view by its padding."
+              "$description": "The corners of a suggestion's highlight, inset in the view by its padding: the view's corner less that inset, so that the two curves keep one distance."
             }
           },
           "headline": {
@@ -72114,10 +72114,10 @@
           "shape": {
             "$type": "dimension",
             "$value": {
-              "value": 6,
+              "value": 4,
               "unit": "px"
             },
-            "$description": "The corners of an option's row."
+            "$description": "The corners of an option's row: the list's corner less the inset the rows stand at, so that the two curves keep one distance."
           },
           "supporting-text": {
             "typescale": {
