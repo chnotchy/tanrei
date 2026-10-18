@@ -60,6 +60,7 @@ export { MenuRadioItem } from './wrappers/menu-radio-item.js';
 export { Menubar } from './wrappers/menubar.js';
 export { MenubarItem } from './wrappers/menubar-item.js';
 export { MenubarMenu } from './wrappers/menubar-menu.js';
+export { Meter } from './wrappers/meter.js';
 export { ModalLayer } from './wrappers/modal-layer.js';
 export { NavigationBar } from './wrappers/navigation-bar.js';
 export { NavigationBarItem } from './wrappers/navigation-bar-item.js';

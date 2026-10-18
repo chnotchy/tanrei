@@ -1,7 +1,5 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing, svg } from 'lit';
-import { classMap } from 'lit/directives/class-map.js';
+import { LitElement, type PropertyDeclarations, type PropertyValues } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { styleMap } from 'lit/directives/style-map.js';
 import {
   AvailabilityController,
   OpenAxesController,
@@ -10,6 +8,10 @@ import {
   SystemWatchController,
   VisibilityController,
   hostAria,
+  rangeClasses,
+  rangeOf,
+  renderRangeBar,
+  renderRangeRing,
   report,
   syncSeparation,
 } from '../../primitives/index.js';
@@ -103,10 +105,7 @@ export class TanreiProgressIndicator extends LitElement {
 
   /** PRG-11: the range and value as drawn and exposed — clamped, and 0 in 0…1 when max is not greater than min. */
   private get range(): { min: number; max: number; now: number; fraction: number } {
-    const [min, max] = [Number(this.min ?? 0), Number(this.max ?? 1)];
-    if (!(max > min)) return { min: 0, max: 1, now: 0, fraction: 0 };
-    const now = Math.min(max, Math.max(min, this.value as number));
-    return { min, max, now, fraction: (now - min) / (max - min) };
+    return rangeOf(this.value as number, this.min, this.max);
   }
 
   private get circular() {
@@ -152,45 +151,13 @@ export class TanreiProgressIndicator extends LitElement {
   protected override render(): unknown {
     const determinate = this.determinate;
     const fraction = determinate ? this.range.fraction : 0;
-    const classes = {
-      determinate,
-      indeterminate: !determinate,
-      // PRG-5: the gap is left only while the value lies strictly between min and max (and the separation is gap).
-      between: determinate && fraction > 0 && fraction < 1,
-      empty: determinate && fraction === 0,
-      full: determinate && fraction === 1,
-      paused: !this.visibility.visible,
-    };
-    const inputs = styleMap({ '--_f': String(fraction) });
+    // PRG-5: the gap is left only while the value lies strictly between min and max (and the separation is gap).
+    const classes = { ...rangeClasses(fraction, determinate), indeterminate: !determinate, paused: !this.visibility.visible };
     // PRG-6: switching between determinate and indeterminate takes effect at once — a new drawing, with nothing to
     // transition from. Within one mode the same elements stay, so a value change transitions.
     const mode = `${this.circular ? 'circular' : 'linear'}-${determinate ? 'determinate' : 'indeterminate'}`;
-    return keyed(mode, this.circular ? this.renderRing(classes, inputs) : this.renderBar(classes, inputs, determinate));
-  }
-
-  private renderBar(classes: Record<string, boolean>, inputs: ReturnType<typeof styleMap>, determinate: boolean): TemplateResult {
-    return html`
-      <div class=${classMap({ bar: true, ...classes })} style=${inputs} data-tanrei-shape>
-        <div part="track" class="track under" data-tanrei-shape></div>
-        <div part="track" class="track after" data-tanrei-shape></div>
-        <div part="indicator" class="indicator" data-tanrei-shape></div>
-        ${determinate ? html`<div part="stop-indicator" class="stop"></div>` : nothing}
-      </div>
-    `;
-  }
-
-  private renderRing(classes: Record<string, boolean>, inputs: ReturnType<typeof styleMap>): TemplateResult {
-    // PRG-17: the track is drawn twice — whole, under the indicator (divider), and after the gap (gap) — and the styles
-    // show one, so that a change of separation shows the other form at once, with nothing to move from.
-    const circles = svg`<circle part="track" class="track under"></circle><circle part="track" class="track after"></circle><circle part="indicator" class="indicator"></circle>`;
-    return html`
-      <div class=${classMap({ ring: true, ...classes })} style=${inputs}>
-        <div class="spin">
-          <svg aria-hidden="true" focusable="false">${circles}</svg>
-          <div class="caps"><svg aria-hidden="true" focusable="false">${circles}</svg></div>
-        </div>
-      </div>
-    `;
+    // The drawing is the meter's too (src/primitives/range-track.ts); a bar draws the stop indicator while determinate.
+    return keyed(mode, this.circular ? renderRangeRing(classes, fraction) : renderRangeBar(classes, fraction, determinate));
   }
 }
 

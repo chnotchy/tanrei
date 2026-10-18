@@ -216,6 +216,28 @@
       }
     },
     {
+      "name": "meter",
+      "title": "Meter",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-meter",
+        "module": "@tanrei/web/components/meter"
+      },
+      "react": {
+        "name": "Meter"
+      },
+      "variant": {
+        "values": [
+          "linear",
+          "circular"
+        ],
+        "default": "linear",
+        "source": "meter"
+      }
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "level": "base",

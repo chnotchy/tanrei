@@ -55398,6 +55398,235 @@
           }
         }
       },
+      "meter": {
+        "circular": {
+          "size": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            }
+          },
+          "thickness": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "error": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  0.702,
+                  0.6824
+                ],
+                "hex": "#ffb3ae",
+                "alpha": 1
+              },
+              "$description": "The indicator of a meter whose status is error: the status's own color, as the tag's error mark."
+            }
+          }
+        },
+        "indicator": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9529,
+                0.9529,
+                0.9529
+              ],
+              "hex": "#f3f3f3",
+              "alpha": 1
+            },
+            "$description": "The indicator of a meter whose status is default: the progress indicator's indicator color by default."
+          }
+        },
+        "info": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.6902,
+                  0.7765,
+                  1
+                ],
+                "hex": "#b0c6ff",
+                "alpha": 1
+              },
+              "$description": "The indicator of a meter whose status is info: the status's own color, as the tag's info mark."
+            }
+          }
+        },
+        "linear": {
+          "thickness": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            }
+          }
+        },
+        "motion": {
+          "value-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the indicator's end takes to move to a new value, and its color to change to a new status's."
+          },
+          "value-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "stop-indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "The diameter of the dot a bar draws at the track's end, in the indicator color of its status, to mark where the range ends; never drawn larger than the bar is thick, and not drawn while the indicator covers it at max. 0 draws none."
+          }
+        },
+        "success": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4706,
+                  0.8627,
+                  0.5255
+                ],
+                "hex": "#78dc86",
+                "alpha": 1
+              },
+              "$description": "The indicator of a meter whose status is success: the status's own color, as the tag's success mark."
+            }
+          }
+        },
+        "track": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.1333,
+                0.1333,
+                0.1333
+              ],
+              "hex": "#222222",
+              "alpha": 1
+            },
+            "$description": "The whole range, from min to max: the progress indicator's track by default."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "Under gap: empty space, measured along the track, between the end of the indicator and the rest of the track. Not drawn under divider."
+          },
+          "separation": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "How the indicator is told from the rest of its track. divider: the indicator is drawn on the track with no space between them. gap: track.gap of empty space is left between them. Follows the progress indicator's choice, and so the system's; an instance's separation prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corner radius of the bar's ends and of the indicator's ends, clamped to half the thickness. The ring's caps are round unless this is sys.shape.corner.none."
+          }
+        },
+        "warning": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  0.7216,
+                  0.4275
+                ],
+                "hex": "#ffb86d",
+                "alpha": 1
+              },
+              "$description": "The indicator of a meter whose status is warning: the status's own color, as the tag's warning mark."
+            }
+          }
+        }
+      },
       "modal-layer": {
         "motion": {
           "enter-duration": {

@@ -58,6 +58,7 @@ export { MenuRadioItem } from '../../generated/wrappers/menu-radio-item.js';
 export { Menubar } from '../../generated/wrappers/menubar.js';
 export { MenubarItem } from '../../generated/wrappers/menubar-item.js';
 export { MenubarMenu } from '../../generated/wrappers/menubar-menu.js';
+export { Meter } from '../../generated/wrappers/meter.js';
 export { NavigationBarItem } from '../../generated/wrappers/navigation-bar-item.js';
 export { NavigationDrawer } from '../../generated/wrappers/navigation-drawer.js';
 export { NavigationDrawerGroup } from '../../generated/wrappers/navigation-drawer-group.js';

@@ -6526,6 +6526,85 @@ public data class TanreiMenubarTokens(
     }
 }
 
+/**
+ * A size of meter: the key of one entry of [TanreiMeterSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiMeterSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiMeterSize = TanreiMeterSize("small")
+        public val Medium: TanreiMeterSize = TanreiMeterSize("medium")
+        public val Large: TanreiMeterSize = TanreiMeterSize("large")
+    }
+}
+
+/** The tokens of one size of meter. */
+@Immutable
+public data class TanreiMeterSizeTokens(
+    public val linearThickness: Dp,
+    public val circularSize: Dp,
+    public val circularThickness: Dp,
+)
+
+/**
+ * Every size of meter: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiMeterSizes(
+    public val small: TanreiMeterSizeTokens,
+    public val medium: TanreiMeterSizeTokens,
+    public val large: TanreiMeterSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiMeterSize, TanreiMeterSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiMeterSize> get() = linkedSetOf(TanreiMeterSize.Small, TanreiMeterSize.Medium, TanreiMeterSize.Large) + extra.keys
+
+    public operator fun contains(key: TanreiMeterSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiMeterSize): TanreiMeterSizeTokens? = when (key) {
+        TanreiMeterSize.Small -> small
+        TanreiMeterSize.Medium -> medium
+        TanreiMeterSize.Large -> large
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiMeterSize): TanreiMeterSizeTokens = find(key) ?: medium
+}
+
+/** `comp.meter`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`). */
+@Immutable
+public data class TanreiMeterTokens(
+    public val errorIndicatorColor: TanreiPaint,
+    public val indicatorColor: TanreiPaint,
+    public val infoIndicatorColor: TanreiPaint,
+    public val motionValueDuration: Int,
+    public val motionValueEasing: TanreiCubicBezier,
+    public val stopIndicatorSize: Dp,
+    public val successIndicatorColor: TanreiPaint,
+    public val trackColor: TanreiPaint,
+    public val trackGap: Dp,
+    public val trackSeparation: Float,
+    public val trackShape: Dp,
+    public val warningIndicatorColor: TanreiPaint,
+    public val sizes: TanreiMeterSizes,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(errorIndicatorColor.roles())
+        addAll(indicatorColor.roles())
+        addAll(infoIndicatorColor.roles())
+        addAll(successIndicatorColor.roles())
+        addAll(trackColor.roles())
+        addAll(warningIndicatorColor.roles())
+    }
+}
+
 /** `comp.modal-layer`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiModalLayerTokens(
@@ -11118,6 +11197,7 @@ public data class TanreiSystem(
     public val mainActionButton: TanreiMainActionButtonTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
+    public val meter: TanreiMeterTokens,
     public val modalLayer: TanreiModalLayerTokens,
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
@@ -11203,6 +11283,7 @@ public data class TanreiSystem(
         addAll(mainActionButton.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
+        addAll(meter.referencedRoles())
         addAll(modalLayer.referencedRoles())
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())

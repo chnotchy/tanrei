@@ -206,6 +206,7 @@ As common nouns: page titles, headings, running text.
 | Main action button | メインアクションボタン | 主操作按钮 |
 | Menu | メニュー | 菜单 |
 | Menubar | メニューバー | 菜单栏 |
+| Meter (a level in a known range; a task under way is the Progress indicator) | メーター | 计量条 |
 | Navigation bar | ナビゲーションバー | 导航栏 |
 | Navigation drawer | ナビゲーションドロワー | 导航抽屉 |
 | Number field | 数値フィールド | 数字字段 |
@@ -429,6 +430,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Main action button | Botón de acción principal | मुख्य ऐक्शन बटन | زر الإجراء الرئيسي |
 | Menu | Menú | मेन्यू | قائمة الخيارات |
 | Menubar | Barra de menús | मेन्यू बार | شريط القوائم |
+| Meter | Medidor | मीटर | العدّاد |
 | Navigation bar | Barra de navegación | नेविगेशन बार | شريط التنقل |
 | Navigation drawer | Panel de navegación | नेविगेशन ड्रॉअर | درج التنقل |
 | Number field | Campo numérico | नंबर फ़ील्ड | حقل العدد |
