@@ -2,7 +2,7 @@
 title: Tanrei 是如何构建的
 description: 两个唯一可信来源、规格先行的工作流，以及让五个平台、文档和状态矩阵保持一致的漂移检查。
 translationOf: project/how-tanrei-is-built.mdx
-sourceHash: 3547dbe4350a1a06ebf6d102e3f0b187fd2b011e
+sourceHash: 84670c51e764e9115a091fe0fba8e6fa168dc5fb
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -38,7 +38,7 @@ THE button SHALL emit click exactly once.
 
 <Steps>
 
-1. **提议。** 编写或修改规格，必要时也修改令牌。新组件和破坏性变更从一个 issue 开始，由维护者决定。
+1. **提议。** 编写或修改规格，必要时也修改令牌。新组件和破坏性变更由维护者在修改规格之前决定。
 2. **校验。** `pnpm validate` 检查 schema、对令牌做 lint，并针对每个主题和对比度级别验证对比度不变式。
 3. **生成。** `pnpm generate` 重新构建令牌输出、脚手架和状态矩阵。
 4. **实现。** 在规格列出的每个平台上实现，并附带单元测试、快照测试和无障碍测试。
