@@ -2,8 +2,12 @@
   "$schema": "../schema/system.schema.json",
   "id": "cupertino",
   "name": "Cupertino (Apple HIG-inspired)",
-  "extends": "tanrei",
-  "unavailable": {"components": ["fab-menu"], "variants": {"navigation-bar": ["filled"]}},
+  "extends": "core",
+  "components": {
+    "variants": {
+      "navigation-bar": {"omit": ["filled"]}
+    }
+  },
   "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",
   "attribution": {
     "inspiredBy": "Apple Human Interface Guidelines",
@@ -358,11 +362,6 @@
     "tanrei.comp.button-with-menu.tonal.label.color": {"$value": "{tanrei.sys.color.primary}"},
     "tanrei.comp.button-with-menu.elevated.label.color": {"$value": "{tanrei.sys.color.primary}"},
     "tanrei.comp.button-with-menu.outlined.label.color": {"$value": "{tanrei.sys.color.primary}"},
-    "tanrei.comp.fab-menu.container.shape.small": {"$value": "{tanrei.sys.shape.corner.full}"},
-    "tanrei.comp.fab-menu.container.shape.medium": {"$value": "{tanrei.sys.shape.corner.full}"},
-    "tanrei.comp.fab-menu.container.shape.large": {"$value": "{tanrei.sys.shape.corner.full}"},
-    "tanrei.comp.fab-menu.item.shape": {"$value": "{tanrei.sys.shape.corner.full}"},
-    "tanrei.comp.fab-menu.item.label.typescale": {"$value": "{tanrei.sys.typescale.body-large}", "reason": "Apple's Body (17pt) for a menu of actions."},
     "tanrei.comp.toolbar.container.color.docked": {"$value": "{tanrei.sys.color.surface-container-low}", "reason": "UIToolbar's bar background, set apart from the page with its hairline top edge."},
     "tanrei.comp.toolbar.container.size.docked": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "UIToolbar is 44pt tall."},
     "tanrei.comp.toolbar.container.color.floating": {"$value": "{tanrei.sys.color.surface-container-lowest}"},
@@ -435,7 +434,6 @@
     "tanrei.comp.main-action-button.container.gap.medium": {"$value": "{tanrei.sys.space.space100}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.main-action-button.container.gap.large": {"$value": "{tanrei.sys.space.space150}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
     "tanrei.comp.main-action-button.icon.size.small": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."},
-    "tanrei.comp.fab-menu.icon.size.large": {"$value": "{tanrei.sys.icon.medium}", "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.button.icon.size-without-label.medium": {"$value": "{tanrei.sys.icon.small}", "reason": "The glyph this preset draws in Button's icon-only form, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.button.icon.size-without-label.small": {"$value": "{tanrei.sys.icon.extra-small}", "reason": "The glyph this preset draws in Button's icon-only form, smaller than the default system's; moving it is a fidelity decision for this preset."},
     "tanrei.comp.list.mark.size": {"$value": "{tanrei.sys.icon.small}", "reason": "This preset's own size for the list's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."},
@@ -637,8 +635,6 @@
     {"match": "tanrei.comp.main-action-button.*.hovered.container.elevation", "$value": "{tanrei.comp.main-action-button.$1.container.elevation}", "reason": "Apple platforms have no hover lift."},
     {"match": "tanrei.comp.chip.elevated.hovered.container.elevation", "$value": "{tanrei.comp.chip.elevated.container.elevation}", "reason": "No hover on Apple platforms."},
     {"match": "tanrei.comp.chip.elevated.hovered.selected.container.elevation", "$value": "{tanrei.comp.chip.elevated.selected.container.elevation}", "reason": "No hover on Apple platforms."},
-    {"match": "tanrei.comp.fab-menu.*.hovered.container.elevation", "$value": "{tanrei.comp.fab-menu.$1.container.elevation}", "reason": "Apple platforms have no hover lift."},
-    {"match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation", "$value": "{tanrei.comp.fab-menu.$1.open.container.elevation}", "reason": "Apple platforms have no hover lift."},
     {"match": "tanrei.comp.search.*.focused.outline.color", "$value": "{tanrei.comp.search.$1.outline.color}", "reason": "An iOS search field shows focus by its caret and the keyboard, not by an edge."}
   ]
 }

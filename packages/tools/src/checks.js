@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { availabilityOf, layerChain } from '../../tokens-build/src/bundle.js';
+import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, heldComponents, layerChain, outsideComponents } from '../../tokens-build/src/layers.js';
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { forwards, fromProblems, resolveAll, resolveFrom, twinProblems } from './from.js';
 import { levelProblems, listingProblems } from './levels.js';
@@ -11,19 +11,28 @@ const IMPLEMENTED = new Set(['alpha', 'beta', 'stable', 'deprecated']);
 /** An implementation that exists but has not caught up with the current spec. */
 const LAGGING = 'lagging';
 
+/** Every token id of a DTCG document, added to `into`. */
+function tokenIds(doc, into = new Set()) {
+  const walk = (node, trail) => {
+    if ('$value' in node) return void into.add(trail.join('.'));
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$') && child && typeof child === 'object') walk(child, [...trail, key]);
+  };
+  walk(doc, []);
+  return into;
+}
+
 /** Every token id of the hand-authored vocabulary (tokens/, the files the default resolver names), read once. */
 let ids = null;
 function vocabularyIds() {
   if (ids) return ids;
   ids = new Set();
-  const walk = (node, trail) => {
-    if ('$value' in node) return void ids.add(trail.join('.'));
-    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$') && child && typeof child === 'object') walk(child, [...trail, key]);
-  };
   const resolver = JSON.parse(read(`tokens/${CONFIG.namespace}.resolver.json`));
-  for (const set of Object.values(resolver.sets)) for (const { $ref } of set.sources) if (!$ref.startsWith('generated/')) walk(JSON.parse(read(`tokens/${$ref}`)), []);
+  for (const set of Object.values(resolver.sets)) for (const { $ref } of set.sources) if (!$ref.startsWith('generated/')) tokenIds(JSON.parse(read(`tokens/${$ref}`)), ids);
   return ids;
 }
+
+/** Where a component's token document is: in the core (`tokens/comp/`), or next to the layer it lives in. */
+export const componentTokenFile = (spec) => (spec.layer && spec.layer !== ROOT_SYSTEM ? `tokens/systems/${spec.layer}/comp/${spec.tokens.split('.')[1]}.tokens.json` : `tokens/comp/${spec.tokens.split('.')[1]}.tokens.json`);
 
 /**
  * The token ids a spec's behaviour prose names (`sys.motion.duration.press-hold`, `comp.button.container.shape`, …)
@@ -187,9 +196,11 @@ export function specProblems(file, written, { validate = compileSpecSchema(), vo
   const spec = forwards(written) ? resolveFrom(written, others()) : written;
   if (`specs/${spec.name}.spec.json` !== file) problems.push(`${file}: "name" must equal the file name`);
 
-  const tokenFile = `tokens/comp/${spec.tokens.split('.')[1]}.tokens.json`;
+  const tokenFile = componentTokenFile(spec);
   if (!exists(tokenFile)) problems.push(`${file}: tokens "${spec.tokens}" has no ${tokenFile}`);
-  for (const { id, name } of unknownTokenIdsInProse(spec, vocabulary)) problems.push(`${file}: ${id} names "${name}", which is not a token of the vocabulary (tokens/)`);
+  // A component that lives in a layer reads the core's tokens and its own, which that layer holds.
+  const own = tokenFile.startsWith('tokens/systems/') && exists(tokenFile) ? tokenIds(JSON.parse(read(tokenFile)), new Set(vocabulary)) : vocabulary;
+  for (const { id, name } of unknownTokenIdsInProse(spec, own)) problems.push(`${file}: ${id} names "${name}", which is not a token of the vocabulary (tokens/)`);
 
   const propNames = spec.props.map((p) => p.name);
   problems.push(...enumDefaultProblems(file, spec.props, 'prop'));
@@ -375,12 +386,15 @@ export function implementationProblems(spec, mapping, source, { where, impl }) {
  */
 export function checkParity() {
   const problems = [];
+  // A component that lives in a layer keeps its tokens next to that layer.
+  const layerOf = new Map(JSON.parse(read('specs/inventory.json')).components.map((row) => [row.name, row.layer]));
   for (const { file, spec } of loadResolvedSpecs()) {
     // An axis-bound prop and the token axis it selects must list the same core values, and the same default.
     // (A forwarded prop is read as its member's, so a composed component's axis-bound prop is held to the same axis.)
     for (const prop of spec.props.filter((p) => p.axis)) {
       const [ns, tier, component, axis] = prop.axis.split('.');
-      const source = `tokens/${tier}/${component}.tokens.json`;
+      const layer = tier === 'comp' ? layerOf.get(component) : undefined;
+      const source = layer && layer !== ROOT_SYSTEM ? `tokens/systems/${layer}/${tier}/${component}.tokens.json` : `tokens/${tier}/${component}.tokens.json`;
       const group = exists(source) ? JSON.parse(read(source))[ns]?.[tier]?.[component] : undefined;
       const declared = group?.$extensions?.['dev.tanrei.axes']?.[axis];
       if (!declared) { problems.push(`${file}: prop "${prop.name}" names the axis ${prop.axis}, which ${source} does not declare`); continue; }
@@ -441,40 +455,72 @@ export function checkParity() {
   return problems;
 }
 
-/** Every design system's id, from tokens/systems/. */
+/** Every design system layer's id, from tokens/systems/ — the root among them. */
 export function systemIds() {
   const dir = path.join(REPO_ROOT, 'tokens/systems');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.system.json')).map((f) => f.slice(0, -'.system.json'.length)).sort();
 }
 
-/** What each design system does not ship, after inheritance: system id → { components, variants }. */
+const readLayer = (id) => JSON.parse(read(`tokens/systems/${id}.system.json`));
+
+/**
+ * What each shipped design system does not ship, after inheritance: system id → { components, variants, outside }.
+ * `outside` names the components that live in a layer the system does not extend, with that layer. The root layer
+ * leaves nothing out and has no output of its own, so it has no line.
+ */
 export function systemAvailability() {
-  const readLayer = (id) => JSON.parse(read(`tokens/systems/${id}.system.json`));
-  return Object.fromEntries(systemIds().map((id) => [id, availabilityOf(layerChain(id, readLayer))]));
+  const held = heldComponents(systemIds(), readLayer);
+  return Object.fromEntries(systemIds().filter((id) => id !== ROOT_SYSTEM).map((id) => [id, { ...availabilityOf(layerChain(id, readLayer)), outside: outsideComponents(layerChain(id, readLayer), held) }]));
 }
 
 /**
- * A system's `unavailable` names components of the inventory and values of their `variant` prop, and leaves at least
- * one variant: a component a system ships is always drawable in it.
+ * Where a component lives, held across the specs, the inventory and the layers. A component lives in the layer every
+ * system that ships it descends from: the root (`core`, a spec that names no `layer`) or a layer that declares the
+ * component's whole vocabulary under `vocabulary`. So: the spec and its inventory row name the same layer; a layer the
+ * spec names exists and declares the component, with its document next to it; one layer at most declares it; and a
+ * component that lives in a layer has no document in the core — its tokens are that layer's alone.
  */
-export function validateAvailability() {
+export function layerProblems(specs = loadSpecs(), rows = JSON.parse(read('specs/inventory.json')).components, layers = systemIds(), readOne = readLayer) {
   const problems = [];
-  const inventory = new Set(JSON.parse(read('specs/inventory.json')).components.map((c) => c.name));
-  const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
-  for (const id of systemIds()) {
-    const own = JSON.parse(read(`tokens/systems/${id}.system.json`)).unavailable;
-    if (!own) continue;
-    const where = `tokens/systems/${id}.system.json unavailable`;
-    for (const name of own.components ?? []) if (!inventory.has(name)) problems.push(`${where}: "${name}" is not in specs/inventory.json`);
-    for (const [name, values] of Object.entries(own.variants ?? {})) {
-      const variant = specs.get(name)?.props.find((p) => p.name === 'variant');
-      if (!variant) { problems.push(`${where}.variants: "${name}" has no spec with a variant prop`); continue; }
-      for (const value of values) if (!variant.values.includes(value)) problems.push(`${where}.variants.${name}: "${value}" is not a variant of ${name}`);
-      if (variant.values.every((v) => values.includes(v))) problems.push(`${where}.variants.${name}: every variant is unavailable — list the component instead`);
-      if (values.includes(variant.default)) problems.push(`${where}.variants.${name}: the default variant "${variant.default}" cannot be unavailable`);
+  const prefix = `${CONFIG.namespace}.comp.`;
+  const declared = new Map();
+  for (const id of layers) {
+    for (const [key, entry] of Object.entries(readOne(id).vocabulary ?? {})) {
+      if (!key.startsWith(prefix) || !entry || typeof entry !== 'object' || !('document' in entry)) continue;
+      const name = key.slice(prefix.length);
+      if (declared.has(name)) problems.push(`tokens/systems/${id}.system.json: "${key}" is declared by "${declared.get(name)}" too — a component lives in one layer`);
+      else declared.set(name, id);
     }
   }
+  const where = (layer) => layer ?? ROOT_SYSTEM;
+  const byName = new Map(specs.map(({ file, spec }) => [spec.name, { file, spec }]));
+  for (const row of rows) {
+    const entry = byName.get(row.name);
+    if (entry && where(entry.spec.layer) !== where(row.layer)) problems.push(`${entry.file}: layer is "${where(entry.spec.layer)}", but specs/inventory.json says "${where(row.layer)}"`);
+    const layer = where(entry?.spec.layer ?? row.layer);
+    const file = `specs/${row.name}.spec.json`;
+    if (layer !== ROOT_SYSTEM && !layers.includes(layer)) { problems.push(`${file}: layer "${layer}" is not a design system layer of tokens/systems/`); continue; }
+    if (layer === ROOT_SYSTEM && declared.has(row.name)) problems.push(`tokens/systems/${declared.get(row.name)}.system.json: declares the vocabulary of "${row.name}", whose spec and inventory row say it lives in "${ROOT_SYSTEM}" — say "layer": "${declared.get(row.name)}" there`);
+    if (layer === ROOT_SYSTEM) continue;
+    if (declared.get(row.name) !== layer) problems.push(`${file}: lives in "${layer}", but tokens/systems/${layer}.system.json declares no "${prefix}${row.name}" under "vocabulary" with its document`);
+    if (exists(`tokens/comp/${row.name}.tokens.json`)) problems.push(`tokens/comp/${row.name}.tokens.json: "${row.name}" lives in "${layer}"; its tokens are that layer's alone (tokens/systems/${layer}/comp/${row.name}.tokens.json), not the core's`);
+    if (entry && !exists(componentTokenFile(entry.spec))) problems.push(`${file}: lives in "${layer}", and tokens/systems/${layer}/comp/${row.name}.tokens.json does not exist`);
+  }
   return problems;
+}
+
+/**
+ * What each layer says about its components holds, judged against what its parent ships: it names components of the
+ * inventory and values of their `variant` prop; it leaves out only what its parent ships and brings back only what an
+ * ancestor left out; what it names instead of a component is a component the system ships; and the default variant —
+ * so at least one — stays: a component a system ships is always drawable in it.
+ */
+export function validateAvailability() {
+  const inventory = new Set(JSON.parse(read('specs/inventory.json')).components.map((c) => c.name));
+  const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
+  const variantsOf = (name) => specs.get(name)?.props.find((p) => p.name === 'variant');
+  const held = heldComponents(systemIds(), readLayer);
+  return systemIds().flatMap((id) => componentChoiceProblems(layerChain(id, readLayer), { inventory, variantsOf, held }).map((problem) => `tokens/systems/${problem}`));
 }
 
 /**

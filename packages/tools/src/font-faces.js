@@ -184,9 +184,9 @@ export function registeredFamilies(from = process.cwd()) {
  */
 export async function shippedFamilies() {
   const build = (file) => import(pathToFileURL(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../tokens-build/src', file)).href);
-  const [{ listSystems }, { fontReport }, { buildIR }, { REPO_ROOT }, { resolveSystem }] = await Promise.all(['bundle.js', 'fonts.js', 'ir.js', 'model.js', 'resolve.js'].map(build));
+  const [{ shippedSystems }, { fontReport }, { buildIR }, { REPO_ROOT }, { resolveSystem }] = await Promise.all(['bundle.js', 'fonts.js', 'ir.js', 'model.js', 'resolve.js'].map(build));
   const out = {};
-  for (const system of listSystems(REPO_ROOT)) out[system] = fontReport(buildIR(await (await resolveSystem({ system })).model())).families;
+  for (const system of shippedSystems(REPO_ROOT)) out[system] = fontReport(buildIR(await (await resolveSystem({ system })).model())).families;
   return out;
 }
 

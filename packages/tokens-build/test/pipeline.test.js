@@ -10,9 +10,9 @@ import { emitTs } from '../src/emit/ts.js';
 import { checkInvariants, contrast } from '../src/invariants.js';
 import { buildIR } from '../src/ir.js';
 import { REPO_ROOT, TOKENS_DIR, buildModel } from '../src/model.js';
-import { SCHEMES, generateSchemeFiles, loadSystem } from '../src/scheme.js';
+import { SCHEMES, generateSchemeFiles, loadDefaultSystem } from '../src/scheme.js';
 
-const system = loadSystem(REPO_ROOT);
+const system = loadDefaultSystem(REPO_ROOT);
 const model = await buildModel();
 // A model a test may break: every entry (a token, a role of a scheme, a component color of a scheme) is a copy of its
 // own, so setting or deleting a field of one entry — all these tests do — touches nothing else. The values the entries
@@ -295,7 +295,8 @@ test('the syntax colors are read from the axis, and the default system tones sev
   // (In the default system the two syntax roles that keep a role's color are the quiet ones; a property is toned.)
   for (const role of ['comment', 'punctuation']) assert.equal(model.tokens[id(`syntax.color.${role}`)].alias, 'tanrei.sys.color.on-surface-variant', role);
   // The seven chromatic roles: a tone of a syntax palette per scheme, never a status color, the link or the focus ring.
-  const system = JSON.parse(fs.readFileSync(path.join(TOKENS_DIR, 'systems/tanrei.system.json'), 'utf8'));
+  // The default system's colors are valued by the root layer it extends.
+  const system = JSON.parse(fs.readFileSync(path.join(TOKENS_DIR, 'systems/core.system.json'), 'utf8'));
   const PALETTE = { keyword: 'syntax-keyword', constant: 'syntax-constant', tag: 'syntax-tag', string: 'syntax-string', function: 'syntax-function', property: 'syntax-function', type: 'syntax-type' };
   for (const [role, palette] of Object.entries(PALETTE)) {
     const rule = system.tokens[id(`syntax.color.${role}`)];
