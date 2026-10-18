@@ -8087,6 +8087,266 @@ public struct TanreiFileUploadTokens: Sendable, Equatable {
   }
 }
 
+/// A value of handle's `size` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiHandleSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiHandleSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let small = TanreiHandleSize(rawValue: "small")
+  public static let medium = TanreiHandleSize(rawValue: "medium")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiHandleSize] = [.small, .medium]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiHandleSize.medium
+}
+
+/// Everything of handle that depends on its size.
+public struct TanreiHandleSizeTokens: Sendable, Equatable {
+  public var containerLength: CGFloat
+  public var containerBreadth: CGFloat
+  public var lineLength: CGFloat
+  public var lineThickness: CGFloat
+  public var lineActiveLength: CGFloat
+  public var lineActiveThickness: CGFloat
+  public var arcRadius: CGFloat
+
+  public init(
+    containerLength: CGFloat,
+    containerBreadth: CGFloat,
+    lineLength: CGFloat,
+    lineThickness: CGFloat,
+    lineActiveLength: CGFloat,
+    lineActiveThickness: CGFloat,
+    arcRadius: CGFloat
+  ) {
+    self.containerLength = containerLength
+    self.containerBreadth = containerBreadth
+    self.lineLength = lineLength
+    self.lineThickness = lineThickness
+    self.lineActiveLength = lineActiveLength
+    self.lineActiveThickness = lineActiveThickness
+    self.arcRadius = arcRadius
+  }
+}
+
+/// The sizes of handle: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiHandleSizes: Sendable, Equatable {
+  public var small: TanreiHandleSizeTokens
+  public var medium: TanreiHandleSizeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiHandleSize: TanreiHandleSizeTokens]
+
+  public init(
+    small: TanreiHandleSizeTokens,
+    medium: TanreiHandleSizeTokens,
+    extra: [TanreiHandleSize: TanreiHandleSizeTokens] = [:]
+  ) {
+    self.small = small
+    self.medium = medium
+    self.extra = extra
+  }
+
+  /// The tokens of one handle size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiHandleSize) -> TanreiHandleSizeTokens? {
+    switch key {
+    case .small: return small
+    case .medium: return medium
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a handle size this design system does not have reads the tokens of `medium`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiHandleSize) -> TanreiHandleSizeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no handle size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
+  }
+
+  /// Every handle size of this design system: the core ones, then what it added.
+  public var keys: [TanreiHandleSize] { TanreiHandleSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// A value of handle's `condition` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiHandleCondition(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiHandleCondition: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let standard = TanreiHandleCondition(rawValue: "standard")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiHandleCondition] = [.standard]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiHandleCondition.standard
+}
+
+/// How one condition of handle is drawn in one state.
+public struct TanreiHandleConditionStateTokens: Sendable, Equatable {
+  public var containerColor: TanreiPaint
+  public var lineColor: TanreiPaint
+  public var stateLayerColor: TanreiPaint
+
+  public init(
+    containerColor: TanreiPaint,
+    lineColor: TanreiPaint,
+    stateLayerColor: TanreiPaint
+  ) {
+    self.containerColor = containerColor
+    self.lineColor = lineColor
+    self.stateLayerColor = stateLayerColor
+  }
+}
+
+/// One condition of handle: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiHandleConditionTokens: Sendable, Equatable {
+  public var enabled: TanreiHandleConditionStateTokens
+  public var hovered: TanreiHandleConditionStateTokens
+  public var focused: TanreiHandleConditionStateTokens
+  public var pressed: TanreiHandleConditionStateTokens
+  public var disabled: TanreiHandleConditionStateTokens
+
+  public init(
+    enabled: TanreiHandleConditionStateTokens,
+    hovered: TanreiHandleConditionStateTokens,
+    focused: TanreiHandleConditionStateTokens,
+    pressed: TanreiHandleConditionStateTokens,
+    disabled: TanreiHandleConditionStateTokens
+  ) {
+    self.enabled = enabled
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The tokens of this condition of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  public subscript(state state: TanreiInteraction) -> TanreiHandleConditionStateTokens {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
+/// The conditions of handle: named fields for the core values, `extra` for what a design system added.
+/// Read one with `conditions[key]`.
+public struct TanreiHandleConditions: Sendable, Equatable {
+  public var standard: TanreiHandleConditionTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiHandleCondition: TanreiHandleConditionTokens]
+
+  public init(
+    standard: TanreiHandleConditionTokens,
+    extra: [TanreiHandleCondition: TanreiHandleConditionTokens] = [:]
+  ) {
+    self.standard = standard
+    self.extra = extra
+  }
+
+  /// The tokens of one handle condition, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiHandleCondition) -> TanreiHandleConditionTokens? {
+    switch key {
+    case .standard: return standard
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a handle condition this design system does not have reads the tokens of `standard`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiHandleCondition) -> TanreiHandleConditionTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no handle condition \"\(key.rawValue)\"; using \"standard\"")
+    return standard
+  }
+
+  /// Every handle condition of this design system: the core ones, then what it added.
+  public var keys: [TanreiHandleCondition] { TanreiHandleCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Values of handle that depend on the state but not on the variant.
+public struct TanreiHandleStateTokens: Sendable, Equatable {
+  public var opacity: Double
+
+  public init(
+    opacity: Double
+  ) {
+    self.opacity = opacity
+  }
+}
+
+/// Component tokens of handle (comp.handle).
+public struct TanreiHandleTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+  public var inset: CGFloat
+  public var motionFeedbackDuration: Double
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
+  public var sizes: TanreiHandleSizes
+  public var conditions: TanreiHandleConditions
+  /// Values of the hovered state shared by every variant.
+  public var hovered: TanreiHandleStateTokens
+  /// Values of the focused state shared by every variant.
+  public var focused: TanreiHandleStateTokens
+  /// Values of the pressed state shared by every variant.
+  public var pressed: TanreiHandleStateTokens
+  /// Values of the disabled state shared by every variant.
+  public var disabled: TanreiHandleStateTokens
+
+  public init(
+    containerShape: CGFloat,
+    inset: CGFloat,
+    motionFeedbackDuration: Double,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
+    sizes: TanreiHandleSizes,
+    conditions: TanreiHandleConditions,
+    hovered: TanreiHandleStateTokens,
+    focused: TanreiHandleStateTokens,
+    pressed: TanreiHandleStateTokens,
+    disabled: TanreiHandleStateTokens
+  ) {
+    self.containerShape = containerShape
+    self.inset = inset
+    self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
+    self.sizes = sizes
+    self.conditions = conditions
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `enabled`, which handle has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiHandleStateTokens? {
+    switch state {
+    case .enabled: return nil
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
 /// Component tokens of image-preview (comp.image-preview).
 public struct TanreiImagePreviewTokens: Sendable, Equatable {
   public var barButtonVariant: Double
@@ -18332,6 +18592,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _fileUpload.value }
     set { _fileUpload.value = newValue }
   }
+  public var handle: TanreiHandleTokens {
+    get { _handle.value }
+    set { _handle.value = newValue }
+  }
   public var imagePreview: TanreiImagePreviewTokens {
     get { _imagePreview.value }
     set { _imagePreview.value = newValue }
@@ -18555,6 +18819,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _fileItem: TanreiBox<TanreiFileItemTokens>
   private var _filePicker: TanreiBox<TanreiFilePickerTokens>
   private var _fileUpload: TanreiBox<TanreiFileUploadTokens>
+  private var _handle: TanreiBox<TanreiHandleTokens>
   private var _imagePreview: TanreiBox<TanreiImagePreviewTokens>
   private var _inlineCode: TanreiBox<TanreiInlineCodeTokens>
   private var _inputBox: TanreiBox<TanreiInputBoxTokens>
@@ -18652,6 +18917,7 @@ public struct TanreiSystem: Sendable, Equatable {
     fileItem: TanreiFileItemTokens,
     filePicker: TanreiFilePickerTokens,
     fileUpload: TanreiFileUploadTokens,
+    handle: TanreiHandleTokens,
     imagePreview: TanreiImagePreviewTokens,
     inlineCode: TanreiInlineCodeTokens,
     inputBox: TanreiInputBoxTokens,
@@ -18748,6 +19014,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._fileItem = TanreiBox(fileItem)
     self._filePicker = TanreiBox(filePicker)
     self._fileUpload = TanreiBox(fileUpload)
+    self._handle = TanreiBox(handle)
     self._imagePreview = TanreiBox(imagePreview)
     self._inlineCode = TanreiBox(inlineCode)
     self._inputBox = TanreiBox(inputBox)

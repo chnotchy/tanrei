@@ -631,6 +631,13 @@
       "category": "communication",
       "level": "base",
       "listing": "default"
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }

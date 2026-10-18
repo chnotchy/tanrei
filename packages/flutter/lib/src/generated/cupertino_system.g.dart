@@ -4429,6 +4429,74 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   fileUpload: TanreiFileUploadTokens(
     listGap: 16.0,
   ),
+  handle: TanreiHandleTokens(
+    containerShape: 9999.0,
+    inset: 4.0,
+    motionFeedbackDuration: 450,
+    motionStateDuration: 150,
+    motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    sizes: TanreiHandleSizes(
+      small: TanreiHandleSizeTokens(
+        containerLength: 20.0,
+        containerBreadth: 16.0,
+        lineLength: 12.0,
+        lineThickness: 3.0,
+        lineActiveLength: 16.0,
+        lineActiveThickness: 4.0,
+        arcRadius: 8.0,
+      ),
+      medium: TanreiHandleSizeTokens(
+        containerLength: 48.0,
+        containerBreadth: 24.0,
+        lineLength: 32.0,
+        lineThickness: 4.0,
+        lineActiveLength: 40.0,
+        lineActiveThickness: 6.0,
+        arcRadius: 16.0,
+      ),
+    ),
+    conditions: TanreiHandleConditions(
+      standard: TanreiHandleConditionTokens(
+        enabled: TanreiHandleConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          lineColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        hovered: TanreiHandleConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          lineColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        focused: TanreiHandleConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          lineColor: TanreiPaint.role(TanreiColorRole.outline),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        pressed: TanreiHandleConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          lineColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
+        ),
+        disabled: TanreiHandleConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          lineColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+        ),
+      ),
+    ),
+    hovered: TanreiHandleStateTokens(
+      opacity: 1.0,
+    ),
+    focused: TanreiHandleStateTokens(
+      opacity: 1.0,
+    ),
+    pressed: TanreiHandleStateTokens(
+      opacity: 0.7,
+    ),
+    disabled: TanreiHandleStateTokens(
+      opacity: 1.0,
+    ),
+  ),
   imagePreview: TanreiImagePreviewTokens(
     barButtonVariant: 4.0,
     barContainerColor: TanreiPaint.role(TanreiColorRole.surface),

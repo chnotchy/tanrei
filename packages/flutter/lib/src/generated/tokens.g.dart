@@ -11877,6 +11877,350 @@ class TanreiFileUploadTokens {
       );
 }
 
+/// The key of a size of handle (`comp.handle`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiHandleSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiHandleSize(String name) {
+  static const small = TanreiHandleSize('small');
+  static const medium = TanreiHandleSize('medium');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiHandleSize> core = <TanreiHandleSize>[small, medium];
+}
+
+/// The tokens of one handle size.
+@immutable
+class TanreiHandleSizeTokens {
+  const TanreiHandleSizeTokens({
+    required this.containerLength,
+    required this.containerBreadth,
+    required this.lineLength,
+    required this.lineThickness,
+    required this.lineActiveLength,
+    required this.lineActiveThickness,
+    required this.arcRadius,
+  });
+
+  /// `comp.handle.container-length.<size>`
+  final double containerLength;
+  /// `comp.handle.container-breadth.<size>`
+  final double containerBreadth;
+  /// `comp.handle.line-length.<size>`
+  final double lineLength;
+  /// `comp.handle.line-thickness.<size>`
+  final double lineThickness;
+  /// `comp.handle.line-active-length.<size>`
+  final double lineActiveLength;
+  /// `comp.handle.line-active-thickness.<size>`
+  final double lineActiveThickness;
+  /// `comp.handle.arc-radius.<size>`
+  final double arcRadius;
+
+  /// A copy with the given tokens replaced.
+  TanreiHandleSizeTokens copyWith({
+    double? containerLength,
+    double? containerBreadth,
+    double? lineLength,
+    double? lineThickness,
+    double? lineActiveLength,
+    double? lineActiveThickness,
+    double? arcRadius,
+  }) => TanreiHandleSizeTokens(
+        containerLength: containerLength ?? this.containerLength,
+        containerBreadth: containerBreadth ?? this.containerBreadth,
+        lineLength: lineLength ?? this.lineLength,
+        lineThickness: lineThickness ?? this.lineThickness,
+        lineActiveLength: lineActiveLength ?? this.lineActiveLength,
+        lineActiveThickness: lineActiveThickness ?? this.lineActiveThickness,
+        arcRadius: arcRadius ?? this.arcRadius,
+      );
+}
+
+/// Every size of handle: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiHandleSizes {
+  const TanreiHandleSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiHandleSize, TanreiHandleSizeTokens>{},
+  });
+
+  /// `comp.handle` size `small`
+  final TanreiHandleSizeTokens small;
+  /// `comp.handle` size `medium`
+  final TanreiHandleSizeTokens medium;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiHandleSize, TanreiHandleSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiHandleSizes copyWith({
+    TanreiHandleSizeTokens? small,
+    TanreiHandleSizeTokens? medium,
+    Map<TanreiHandleSize, TanreiHandleSizeTokens>? extra,
+  }) => TanreiHandleSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiHandleSize, TanreiHandleSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiHandleSizeTokens operator [](TanreiHandleSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiHandleSize size) => TanreiHandleSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiHandleSize> get keys => <TanreiHandleSize>[...TanreiHandleSize.core, ...extra.keys];
+
+  TanreiHandleSizeTokens _fallback(TanreiHandleSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('handle size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
+/// The key of a condition of handle (`comp.handle`, axis `condition`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiHandleCondition('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [standard].
+extension type const TanreiHandleCondition(String name) {
+  static const standard = TanreiHandleCondition('standard');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiHandleCondition> core = <TanreiHandleCondition>[standard];
+}
+
+/// What one condition of handle looks like in one interaction state.
+@immutable
+class TanreiHandleConditionStateTokens {
+  const TanreiHandleConditionStateTokens({
+    required this.containerColor,
+    required this.lineColor,
+    required this.stateLayerColor,
+  });
+
+  /// `comp.handle.<condition>.<state>.container-color`
+  final TanreiPaint containerColor;
+  /// `comp.handle.<condition>.<state>.line-color`
+  final TanreiPaint lineColor;
+  /// `comp.handle.<condition>.<state>.state-layer-color`
+  final TanreiPaint stateLayerColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiHandleConditionStateTokens copyWith({
+    TanreiPaint? containerColor,
+    TanreiPaint? lineColor,
+    TanreiPaint? stateLayerColor,
+  }) => TanreiHandleConditionStateTokens(
+        containerColor: containerColor ?? this.containerColor,
+        lineColor: lineColor ?? this.lineColor,
+        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
+      );
+}
+
+/// The per-state tokens of one handle condition. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiHandleConditionTokens {
+  const TanreiHandleConditionTokens({
+    required this.enabled,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  final TanreiHandleConditionStateTokens enabled;
+  final TanreiHandleConditionStateTokens hovered;
+  final TanreiHandleConditionStateTokens focused;
+  final TanreiHandleConditionStateTokens pressed;
+  final TanreiHandleConditionStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiHandleConditionTokens copyWith({
+    TanreiHandleConditionStateTokens? enabled,
+    TanreiHandleConditionStateTokens? hovered,
+    TanreiHandleConditionStateTokens? focused,
+    TanreiHandleConditionStateTokens? pressed,
+    TanreiHandleConditionStateTokens? disabled,
+  }) => TanreiHandleConditionTokens(
+        enabled: enabled ?? this.enabled,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiHandleConditionStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
+/// Every condition of handle: the core values by name, the values a design system added in [extra].
+/// Look one up with `conditions[key]`; the lookup is total.
+@immutable
+class TanreiHandleConditions {
+  const TanreiHandleConditions({
+    required this.standard,
+    this.extra = const <TanreiHandleCondition, TanreiHandleConditionTokens>{},
+  });
+
+  /// `comp.handle` condition `standard`
+  final TanreiHandleConditionTokens standard;
+
+  /// The conditions a design system added to the core vocabulary.
+  final Map<TanreiHandleCondition, TanreiHandleConditionTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiHandleConditions copyWith({
+    TanreiHandleConditionTokens? standard,
+    Map<TanreiHandleCondition, TanreiHandleConditionTokens>? extra,
+  }) => TanreiHandleConditions(
+        standard: standard ?? this.standard,
+        extra: extra == null ? this.extra : <TanreiHandleCondition, TanreiHandleConditionTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [condition].
+  ///
+  /// A condition this design system does not have resolves to [standard], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiHandleConditionTokens operator [](TanreiHandleCondition condition) => switch (condition.name) {
+        'standard' => standard,
+        _ => extra[condition] ?? _fallback(condition),
+      };
+
+  /// Whether this design system has [condition].
+  bool has(TanreiHandleCondition condition) => TanreiHandleCondition.core.contains(condition) || extra.containsKey(condition);
+
+  /// Every condition this design system has: the core values, then the added ones.
+  List<TanreiHandleCondition> get keys => <TanreiHandleCondition>[...TanreiHandleCondition.core, ...extra.keys];
+
+  TanreiHandleConditionTokens _fallback(TanreiHandleCondition condition) {
+    assert(() {
+      debugTanreiReportUnknownValue('handle condition', condition.name, 'standard');
+      return true;
+    }());
+    return standard;
+  }
+}
+
+/// The tokens of handle that vary by interaction state but not by variant.
+@immutable
+class TanreiHandleStateTokens {
+  const TanreiHandleStateTokens({
+    required this.opacity,
+  });
+
+  /// `comp.handle.<state>.opacity`
+  final double opacity;
+
+  /// A copy with the given tokens replaced.
+  TanreiHandleStateTokens copyWith({
+    double? opacity,
+  }) => TanreiHandleStateTokens(
+        opacity: opacity ?? this.opacity,
+      );
+}
+
+/// `comp.handle.*`
+@immutable
+class TanreiHandleTokens {
+  const TanreiHandleTokens({
+    required this.containerShape,
+    required this.inset,
+    required this.motionFeedbackDuration,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
+    required this.sizes,
+    required this.conditions,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  /// `comp.handle.container-shape`
+  final double containerShape;
+  /// `comp.handle.inset`
+  final double inset;
+  /// `comp.handle.motion-feedback-duration`
+  final int motionFeedbackDuration;
+  /// `comp.handle.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.handle.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiHandleSizes sizes;
+  /// The `condition` axis: `conditions[condition]`.
+  final TanreiHandleConditions conditions;
+  /// `comp.handle.hovered.*`
+  final TanreiHandleStateTokens hovered;
+  /// `comp.handle.focused.*`
+  final TanreiHandleStateTokens focused;
+  /// `comp.handle.pressed.*`
+  final TanreiHandleStateTokens pressed;
+  /// `comp.handle.disabled.*`
+  final TanreiHandleStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiHandleTokens copyWith({
+    double? containerShape,
+    double? inset,
+    int? motionFeedbackDuration,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
+    TanreiHandleSizes? sizes,
+    TanreiHandleConditions? conditions,
+    TanreiHandleStateTokens? hovered,
+    TanreiHandleStateTokens? focused,
+    TanreiHandleStateTokens? pressed,
+    TanreiHandleStateTokens? disabled,
+  }) => TanreiHandleTokens(
+        containerShape: containerShape ?? this.containerShape,
+        inset: inset ?? this.inset,
+        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        sizes: sizes ?? this.sizes,
+        conditions: conditions ?? this.conditions,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
+  /// resting tokens of this class apply).
+  TanreiHandleStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => null,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
 /// `comp.image-preview.*`
 @immutable
 class TanreiImagePreviewTokens {
@@ -26285,6 +26629,7 @@ class TanreiSystem {
     required this.fileItem,
     required this.filePicker,
     required this.fileUpload,
+    required this.handle,
     required this.imagePreview,
     required this.inlineCode,
     required this.inputBox,
@@ -26384,6 +26729,7 @@ class TanreiSystem {
   final TanreiFileItemTokens fileItem;
   final TanreiFilePickerTokens filePicker;
   final TanreiFileUploadTokens fileUpload;
+  final TanreiHandleTokens handle;
   final TanreiImagePreviewTokens imagePreview;
   final TanreiInlineCodeTokens inlineCode;
   final TanreiInputBoxTokens inputBox;
@@ -26482,6 +26828,7 @@ class TanreiSystem {
     TanreiFileItemTokens? fileItem,
     TanreiFilePickerTokens? filePicker,
     TanreiFileUploadTokens? fileUpload,
+    TanreiHandleTokens? handle,
     TanreiImagePreviewTokens? imagePreview,
     TanreiInlineCodeTokens? inlineCode,
     TanreiInputBoxTokens? inputBox,
@@ -26578,6 +26925,7 @@ class TanreiSystem {
         fileItem: fileItem ?? this.fileItem,
         filePicker: filePicker ?? this.filePicker,
         fileUpload: fileUpload ?? this.fileUpload,
+        handle: handle ?? this.handle,
         imagePreview: imagePreview ?? this.imagePreview,
         inlineCode: inlineCode ?? this.inlineCode,
         inputBox: inputBox ?? this.inputBox,

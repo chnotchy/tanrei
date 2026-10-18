@@ -157,6 +157,9 @@
           "$ref": "comp/bottom-sheet.tokens.json"
         },
         {
+          "$ref": "comp/handle.tokens.json"
+        },
+        {
           "$ref": "comp/side-sheet.tokens.json"
         },
         {

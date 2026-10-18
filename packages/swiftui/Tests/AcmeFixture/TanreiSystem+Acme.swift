@@ -4484,6 +4484,75 @@ private let acmeFileUploadTokens = TanreiFileUploadTokens(
   listGap: 16
 )
 
+private let acmeHandleTokens = TanreiHandleTokens(
+  containerShape: 9999,
+  inset: 4,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiHandleSizes(
+    small: TanreiHandleSizeTokens(
+      containerLength: 20,
+      containerBreadth: 16,
+      lineLength: 12,
+      lineThickness: 3,
+      lineActiveLength: 16,
+      lineActiveThickness: 4,
+      arcRadius: 8
+    ),
+    medium: TanreiHandleSizeTokens(
+      containerLength: 48,
+      containerBreadth: 24,
+      lineLength: 32,
+      lineThickness: 4,
+      lineActiveLength: 40,
+      lineActiveThickness: 6,
+      arcRadius: 16
+    )
+  ),
+  conditions: TanreiHandleConditions(
+    standard: TanreiHandleConditionTokens(
+      enabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.06),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.12),
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.2),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  focused: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  pressed: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  disabled: TanreiHandleStateTokens(
+    opacity: 1
+  )
+)
+
 private let acmeImagePreviewTokens = TanreiImagePreviewTokens(
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
@@ -10160,6 +10229,7 @@ extension TanreiSystem {
     fileItem: acmeFileItemTokens,
     filePicker: acmeFilePickerTokens,
     fileUpload: acmeFileUploadTokens,
+    handle: acmeHandleTokens,
     imagePreview: acmeImagePreviewTokens,
     inlineCode: acmeInlineCodeTokens,
     inputBox: acmeInputBoxTokens,
