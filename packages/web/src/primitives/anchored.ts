@@ -1,7 +1,8 @@
 import { type CSSResult, type ReactiveController, type ReactiveControllerHost, unsafeCSS } from 'lit';
-import { type ShadowLayer, shadowLayers } from './arrow.js';
+import { type ShadowLayer, shadeOn, shadowLayers } from './arrow.js';
 import { FollowController } from './follow.js';
 import { deepActive } from './modal.js';
+import { AppearController, type AppearTiming, appearStyles } from './motion.js';
 import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type AnchoredSide, ANCHORED_PLACEMENTS, type NamedSide, anchorGone, placeAnchored, usableLength } from './placement.js';
 import { keyboardCover } from './sheet.js';
 
@@ -17,13 +18,16 @@ import { keyboardCover } from './sheet.js';
 //   following    FollowController: placed again when the anchor moves, by events, frame by frame only while it moves
 //   the anchor   gone (removed, hidden, scrolled out of sight): the component is told, once
 //   the arrow    where it points, and the elevation drawn round the surface and its arrow as one shape
-//   motion       fading in and growing from the edge that faces the anchor, fading out, each turned round from where
-//                the other had got to; closed or closing it takes no pointer and no focus
+//   motion       the one appearance (src/primitives/motion.ts, role anchored): from `sys.motion.appear.*`, grown from
+//                the middle of the edge that faces the anchor (from its own centre where `appear.origin` says so, or
+//                where it covers its anchor), and back the same way, each turned round from where the other had got
+//                to; closed or closing it takes no pointer and no focus
 //
 // The markup, in the component's shadow root (the class names are the component's; it names them to both halves):
 //
-//   <div class="surface" popover="manual">    the placed box: unpainted, never transformed, so its box is the surface at rest
-//     <div class="motion">                    what fades and grows
+//   <div class="surface" popover="manual">    the placed box: unpainted, never transformed, so its box is the surface at
+//                                             rest; the arrow's elevation filter is set on it (src/primitives/arrow.ts)
+//     <div class="motion">                    what fades and grows (AppearController)
 //       <span class="arrow">                  (src/primitives/arrow.ts)
 //       <div class="box">                     the painted box
 //     </div>
@@ -89,20 +93,22 @@ export interface AnchoredStyleOptions {
   margin: string;
   /** The arrow's base, height and inset; left out by a surface that never draws one. */
   arrow?: { width: string; height: string; inset: string };
-  /** The motion's durations and easings. */
-  open: { duration: string; easing: string };
-  close: { duration: string; easing: string };
+  /** The entrance's and the exit's durations and curves: the component's tokens, which alias the anchored role's. */
+  enter: AppearTiming;
+  exit: AppearTiming;
+  /** Where it starts from, where the component has tokens of its own for it (`appearStyles()`'s `appear`). */
+  appear?: string;
 }
 
 /**
  * The placed box and its motion. The box is a popover in the top layer with none of the browser's popover defaults,
  * placed by script; it paints nothing. The placement reads its lengths through real properties of the box (a custom
  * property holds an expression): the offset, the window margin, the arrow's measures and the window's safe-area insets.
- * Closed, what is inside is clear and has no size along the line to the anchor; open, it is whole. Opening fades it in
- * and grows it from the edge that faces the anchor (the script sets the point it grows from); closing fades it out
- * where it is; where motion is reduced both happen at once.
+ * What is inside it appears as every surface does (`appearStyles()`, role anchored, from its anchor): closed it stands
+ * where `sys.motion.appear.*` start it, open it is whole, and it moves between the two over `enter` and `exit` — a
+ * cross-fade over `sys.motion.role.reduced` where motion is reduced.
  */
-export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, open, close }: AnchoredStyleOptions): CSSResult {
+export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, enter, exit, appear }: AnchoredStyleOptions): CSSResult {
   return unsafeCSS(`
   ${surface} {
     box-sizing: border-box;
@@ -142,28 +148,11 @@ export function anchoredSurfaceStyles({ surface, motion, offset, margin, arrow, 
   ${surface}:not(.open) {
     pointer-events: none;
   }
+  /* What the arrow is placed against. */
   ${motion} {
     position: relative;
-    opacity: 0;
-    transform: scaleY(0);
-    transition: opacity ${close.duration} ${close.easing};
   }
-  ${surface}:is([data-side='left'], [data-side='right']) ${motion} {
-    transform: scaleX(0);
-  }
-  ${surface}.open ${motion} {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity ${open.duration} ${open.easing},
-      transform ${open.duration} ${open.easing};
-  }
-  @media (prefers-reduced-motion: reduce) {
-    ${motion},
-    ${surface}.open ${motion} {
-      transition: none;
-    }
-  }
+  ${appearStyles({ motion, open: `${surface}.open`, role: 'anchored', origin: 'anchor', enter, exit, appear })}
 `);
 }
 
@@ -203,9 +192,9 @@ export class AnchoredSurfaceController implements ReactiveController {
   private cover = 0;
   /** The width it was last arranged for. */
   private arranged = Number.NaN;
-  /** Which closing motion is running; an earlier one that ends late changes nothing. */
-  private run = 0;
   private readonly following: FollowController;
+  /** Its appearance: opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear: AppearController;
 
   constructor(
     private readonly host: Host,
@@ -217,6 +206,7 @@ export class AnchoredSurfaceController implements ReactiveController {
       sized: () => [options.surface()],
       check: this.check,
     });
+    this.appear = new AppearController(host, { motion: options.motion });
   }
 
   hostDisconnected() {
@@ -378,11 +368,9 @@ export class AnchoredSurfaceController implements ReactiveController {
     // it is kept in, or a positioned box of a shadow tree it is slotted through (a Field's frame around a control).
     surface.style.top = `${at.top + (inline ? frame.shift.y : frame.y)}px`;
     surface.style.left = `${at.left + (inline ? frame.shift.x : frame.x)}px`;
+    // POP-26: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
     surface.toggleAttribute('data-held', at.held);
-    // POP-26: it grows from the point of its edge where an arrow points or would point; over the anchor, from its middle.
-    const edge = { top: `${at.point}px 100%`, bottom: `${at.point}px 0`, left: `100% ${at.point}px`, right: `0 ${at.point}px` };
-    motion.style.transformOrigin = at.held ? '' : edge[at.side];
     // POP-10: the arrow on the edge that faces the anchor, and the elevation round the surface and the arrow together.
     if (at.arrow) {
       surface.style.setProperty('--_arrow-at', `${at.point}px`);
@@ -394,8 +382,7 @@ export class AnchoredSurfaceController implements ReactiveController {
       }
       surface.dataset.arrow = this.layers.length ? 'shaded' : 'flat';
     } else delete surface.dataset.arrow;
-    // The filter is named from the element's own style, so that the name is looked up in this shadow root.
-    motion.style.filter = surface.dataset.arrow === 'shaded' ? 'url(#shade)' : '';
+    shadeOn(surface);
     this.options.placed?.(at);
     // POP-36: the keyboard came up over it: what has focus inside is scrolled into the room left.
     if (frame.cover > 0 && frame.cover !== this.cover) {
@@ -408,8 +395,8 @@ export class AnchoredSurfaceController implements ReactiveController {
   }
 
   /**
-   * POP-1, POP-26, POP-27: into the top layer — the newest in it, so above a dialog opened since — placed, and fading in
-   * while it grows from the anchor's side: from where it had got to if it was still closing. Returns whether it is shown
+   * POP-1, POP-26, POP-27: into the top layer — the newest in it, so above a dialog opened since — placed, and
+   * appearing from the anchor's side: from where it had got to if it was still closing. Returns whether it is shown
    * (no surface, no anchor in the page: it is not).
    */
   show(): boolean {
@@ -418,15 +405,16 @@ export class AnchoredSurfaceController implements ReactiveController {
     if (!surface || !motion || !this.host.isConnected || !this.options.anchor()?.isConnected) return false;
     const inline = this.inline;
     const leaving = !this.shown && !inline && surface.matches(':popover-open');
-    this.run++;
-    // POP-27: where the closing motion has got to, before the surface is taken out and put back.
-    const reached = leaving ? getComputedStyle(motion) : null;
-    const from = reached ? { opacity: reached.opacity, transform: motion.style.transform || 'none' } : null;
     surface.inert = false;
     surface.classList.toggle('inline', inline);
     if (!inline) {
-      if (surface.matches(':popover-open')) surface.hidePopover();
-      surface.showPopover();
+      // POP-27: still closing, it is put back where its exit has got to.
+      if (surface.matches(':popover-open'))
+        this.appear.keep(() => {
+          surface.hidePopover();
+          surface.showPopover();
+        });
+      else surface.showPopover();
     }
     this.shown = true;
     this.wasGone = false;
@@ -438,24 +426,18 @@ export class AnchoredSurfaceController implements ReactiveController {
       return false;
     }
     this.following.start();
-    // The first frame, without a transition: closed (the start of the opening motion) or where it had got to; drawn in
-    // place it is whole at once.
-    motion.style.transition = 'none';
-    if (from) Object.assign(motion.style, from);
-    else motion.style.transform = '';
-    if (inline) surface.classList.add('open');
-    void motion.offsetWidth;
-    // …and from there to open, over the opening motion.
-    motion.style.transition = '';
-    motion.style.opacity = '';
-    motion.style.transform = '';
+    // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a
+    // surface still closing goes on from where it is.
+    if (!leaving) this.appear.drawAtOnce();
     surface.classList.add('open');
+    // Drawn in place, it is whole at once.
+    this.appear.enter(inline);
     return true;
   }
 
   /**
-   * POP-1, POP-26, POP-27: fading out from the opacity and the size it has reached, then out of the top layer — or at
-   * once (`fade` false). Closing, it already takes no pointer and no focus.
+   * POP-1, POP-26, POP-27: leaving the way it came, from the opacity and the size it has reached, then out of the top
+   * layer — or at once (`fade` false). Closing, it already takes no pointer and no focus.
    */
   hide(fade = true) {
     const surface = this.options.surface();
@@ -471,32 +453,27 @@ export class AnchoredSurfaceController implements ReactiveController {
       if (this.shown) return;
       this.side = null;
       this.at = null;
-      motion.style.transform = '';
       surface.classList.remove('inline', 'open');
       if (surface.hasAttribute('popover') && surface.matches(':popover-open')) surface.hidePopover();
       surface.inert = false;
     };
     if (!this.shown) {
       // Already closing: told to go at once, it goes.
-      if (!fade) finish();
+      if (!fade) {
+        void this.appear.exit(true);
+        finish();
+      }
       return;
     }
     this.shown = false;
-    const run = ++this.run;
     surface.inert = true;
+    surface.classList.remove('open');
     if (!fade || surface.classList.contains('inline')) {
-      motion.style.transition = 'none';
-      surface.classList.remove('open');
+      void this.appear.exit(true);
       finish();
-      void motion.offsetWidth;
-      motion.style.transition = '';
       return;
     }
-    // The size it has reached stays (a closing surface only fades); the opacity goes on from where it is.
-    motion.style.transform = getComputedStyle(motion).transform;
-    surface.classList.remove('open');
-    const running = motion.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(() => run === this.run && finish());
+    // Out of the top layer once its exit has played; told to open again before that, it stays.
+    void this.appear.exit().then((left) => left && finish());
   }
 }

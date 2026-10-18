@@ -379,8 +379,8 @@ ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-s
     motion: '.motion',
     offset: T('list-offset'),
     margin: T('list-viewport-margin'),
-    open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
-    close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
   /* The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape; ${

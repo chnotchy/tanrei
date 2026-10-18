@@ -253,6 +253,9 @@ export interface AppearControllerOptions {
   motion: () => HTMLElement | null;
 }
 
+/** What an appearance moves, as a transition starts from it: read before the surface is put back, written after. */
+const SHOWN = ['opacity', 'scale', 'translate', 'filter'] as const;
+
 /**
  * Opens and closes one surface drawn with `appearStyles()`. The component changes its own open state (what `open`
  * names) and tells the controller, in the same update or the same task: `enter()` as it opens, `exit()` as it closes.
@@ -265,11 +268,25 @@ export interface AppearControllerOptions {
  * - `exit()` resolves when the exit's transitions have finished — true — or with false as soon as the surface is told
  *   to open again; no timer is set, and an exit whose transitions are replaced while it runs (the side it leaves
  *   toward changed) resolves when the ones replacing them finish. Take the surface out of the top layer then.
+ * - At once, asked for (`enter(true)`, `exit(true)`: a surface drawn in place for a fixture, one taken away with its
+ *   host): no motion, in the same task where no update is pending.
+ *
+ * Two things a surface placed by script needs (an anchored one, src/primitives/anchored.ts), because its style is
+ * read — and so its transitions started — before it is open:
+ *
+ * - `drawAtOnce()`: a surface whose start depends on where it was placed (the side it starts toward) is drawn there
+ *   at once, after it is placed and before it is opened, so that its entrance starts from that place and not from the
+ *   one its style gave it before it was placed (a frame read for its size).
+ * - `keep(during)`: a surface still leaving that is taken out of the top layer and put back (to be the newest in it)
+ *   goes on from the value shown, not from its start: an element out of the top layer is not drawn, and one drawn
+ *   again has no value to go on from.
  */
 export class AppearController implements ReactiveController {
   private run = 0;
   private opened = false;
   private waiting = false;
+  /** The entrance asked for is made at once. */
+  private instant = false;
   private quiet: HTMLElement | null = null;
 
   constructor(
@@ -306,10 +323,14 @@ export class AppearController implements ReactiveController {
     }
   }
 
-  /** The surface opens: in the update under way (or now, where none is), after its open state is written. */
-  enter(): void {
+  /**
+   * The surface opens: in the update under way (or now, where none is), after its open state is written. `instant`:
+   * whole at once, with no entrance.
+   */
+  enter(instant = false): void {
     this.run++;
     this.opened = true;
+    this.instant = instant;
     if (this.host.isUpdatePending) this.waiting = true;
     else this.arrive();
   }
@@ -318,14 +339,50 @@ export class AppearController implements ReactiveController {
     const motion = this.options.motion();
     if (!motion || !this.opened) return;
     motion.setAttribute(APPEARING, '');
-    if (!documentPainted() || !motion.isConnected) atOnce(motion);
+    if (this.instant || !documentPainted() || !motion.isConnected) atOnce(motion);
+  }
+
+  /**
+   * Draws the motion element in the state its style gives it now, with no transition into it (one that had begun is
+   * finished at its end): a surface placed before it opens starts from where it was placed.
+   */
+  drawAtOnce(): void {
+    const motion = this.options.motion();
+    if (motion?.isConnected) atOnce(motion);
+  }
+
+  /**
+   * Runs `during` — which takes the surface out of the top layer and puts it back, or anything else that draws it
+   * anew — and draws the motion element with the values it showed before, with no transition into them: the motion
+   * the component starts next (its entrance, turned round) goes on from there (MOT-2). Returns what `during` returns.
+   */
+  keep<T>(during: () => T): T {
+    const motion = this.options.motion();
+    if (!motion?.isConnected) return during();
+    const style = getComputedStyle(motion);
+    const shown = SHOWN.map((property) => [property, style.getPropertyValue(property)] as const);
+    const result = during();
+    const own = SHOWN.map((property) => [property, motion.style.getPropertyValue(property), motion.style.getPropertyPriority(property)] as const);
+    const value = motion.style.getPropertyValue('transition-property');
+    const priority = motion.style.getPropertyPriority('transition-property');
+    motion.style.setProperty('transition-property', 'none', 'important');
+    for (const [property, shownValue] of shown) motion.style.setProperty(property, shownValue, 'important');
+    void getComputedStyle(motion).opacity;
+    for (const [property, ownValue, ownPriority] of own) {
+      if (ownValue) motion.style.setProperty(property, ownValue, ownPriority);
+      else motion.style.removeProperty(property);
+    }
+    if (value) motion.style.setProperty('transition-property', value, priority);
+    else motion.style.removeProperty('transition-property');
+    return result;
   }
 
   /**
    * The surface closes: resolves with true once its exit has played (at once where there is none: reduced to nothing,
-   * not drawn, before the first paint), or with false when it was told to open before that.
+   * not drawn, before the first paint, or `instant` — made in this task where no update is pending), or with false
+   * when it was told to open before that.
    */
-  async exit(): Promise<boolean> {
+  async exit(instant = false): Promise<boolean> {
     const run = ++this.run;
     this.opened = false;
     this.waiting = false;
@@ -334,7 +391,7 @@ export class AppearController implements ReactiveController {
       if (run !== this.run) return false;
       const motion = this.options.motion();
       if (!motion?.isConnected) return true;
-      if (!documentPainted()) {
+      if (instant || !documentPainted()) {
         atOnce(motion);
         return true;
       }
