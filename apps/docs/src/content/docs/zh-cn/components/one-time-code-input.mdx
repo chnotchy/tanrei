@@ -2,7 +2,7 @@
 title: "一次性验证码输入框"
 description: "接收发送给用户的简短验证码——用于登录或核实身份——它是一个文本值，画成一个个独立的格子，让人看得出验证码有多长、还缺多少，平台也能一步把它填好。"
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -70,7 +70,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="验证码" error={wrong}
       supportingText="请输入发送到手机的 6 位验证码。"

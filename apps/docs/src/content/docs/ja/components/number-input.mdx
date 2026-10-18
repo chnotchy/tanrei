@@ -2,7 +2,7 @@
 title: 数値入力欄
 description: 数値のボックスです。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にある数値や、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: 2790f391198caf794180332adcdc03fd67075c81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="倍率" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />

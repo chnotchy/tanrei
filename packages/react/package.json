@@ -5,7 +5,14 @@
   "license": "Apache-2.0",
   "type": "module",
   "repository": { "type": "git", "url": "https://github.com/chnotchy/tanrei.git", "directory": "packages/react" },
-  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "exports": {
+    ".": { "types": "./dist/entries/generated/index.d.ts", "default": "./dist/entries/generated/index.js" },
+    "./advanced": { "types": "./dist/entries/generated/advanced.d.ts", "default": "./dist/entries/generated/advanced.js" },
+    "./all": { "types": "./dist/entries/generated/all.d.ts", "default": "./dist/entries/generated/all.js" },
+    "./cupertino": { "types": "./dist/entries/generated/cupertino.d.ts", "default": "./dist/entries/generated/cupertino.js" },
+    "./m3-expressive-like": { "types": "./dist/entries/generated/m3-expressive-like.d.ts", "default": "./dist/entries/generated/m3-expressive-like.js" },
+    "./m3-like": { "types": "./dist/entries/generated/m3-like.d.ts", "default": "./dist/entries/generated/m3-like.js" }
+  },
   "sideEffects": false,
   "files": ["dist", "README.md", "NOTICE"],
   "scripts": {

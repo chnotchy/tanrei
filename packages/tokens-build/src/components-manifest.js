@@ -13,9 +13,12 @@
 // A component's `import` is the module a product imports to have it registered in this system: on the web, the entry
 // of the shipped system that ships it — `@tanrei/web` for the default system's components, `@tanrei/web/<id>`
 // for another system's — and, for a component no system the product is built on ships (one the product brings back
-// or includes from another layer), its own module; in React, the package's one entry. That is decided in one place,
-// `importOf`, so that an entry that changes what it registers changes every manifest with it. `module` is the
-// component's own module: it registers the component, and the components it is drawn with, in any system.
+// or includes from another layer), its own module; in React, the entry of the system — the package's main entry for
+// the default system, `@tanrei/react/<id>` for another shipped system, `@tanrei/react/all` for a product's — and
+// `@tanrei/react/advanced` for a component listed as advanced, in every system. That is decided in one place,
+// `importOf`, so that an entry that changes what it registers changes every manifest with it; the React package's
+// entries are generated from what the manifests say (packages/react/scripts/entries.js). `module` is the component's
+// own module: it registers the component, and the components it is drawn with, in any system.
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG } from './config.js';
@@ -29,6 +32,13 @@ export const manifestFile = (id) => `tokens/generated/${id}/components.json`;
 const WEB = `${CONFIG.packages.npmScope}/web`;
 const REACT = `${CONFIG.packages.npmScope}/react`;
 
+/** The React entry of a component listed as advanced, in every system, and the entry of every wrapper. */
+export const REACT_ADVANCED = `${REACT}/advanced`;
+export const REACT_ALL = `${REACT}/all`;
+
+/** The React entry that holds the components of shipped system `id`: the package's main entry for the default system. */
+export const reactEntryOf = (id) => (id === DEFAULT_SYSTEM ? REACT : `${REACT}/${id}`);
+
 /**
  * The web package's entry that registers a shipped system's components: `@tanrei/web` the default system's, and
  * `@tanrei/web/<id>` another's (packages/web/scripts/build.js writes those from the systems' manifests).
@@ -36,16 +46,18 @@ const REACT = `${CONFIG.packages.npmScope}/react`;
 export const webEntryOf = (system) => (system === DEFAULT_SYSTEM ? WEB : `${WEB}/${system}`);
 
 /**
- * The module of each platform's package that registers `component` (a catalog entry) for a product: the one place an
- * entry's contents are decided.
- * @param {string | null} system the shipped system, nearest the product, that ships the component; null where none
- *   does (a component the product brings back or includes from another layer)
+ * The module of each platform's package that registers `component` (a catalog entry) for a product of system `system`:
+ * the one place an entry's contents are decided.
+ * @param {string | null} registeredBy the shipped system, nearest the product, that ships the component; null where
+ *   none does (a component the product brings back or includes from another layer)
+ * @param {string} system the product's system
+ * @param {Set<string>} shipped the ids of the shipped systems: each has its own entry on every platform
  * @returns {{ web: string, react: string }}
  */
-export function importOf(component, system) {
+export function importOf(component, registeredBy, system, shipped) {
   return {
-    web: system ? webEntryOf(system) : component.web?.module,
-    react: REACT,
+    web: registeredBy ? webEntryOf(registeredBy) : component.web?.module,
+    react: component.listing === 'advanced' ? REACT_ADVANCED : shipped.has(system) ? reactEntryOf(system) : REACT_ALL,
   };
 }
 
@@ -108,7 +120,7 @@ export function componentsManifest(chain, catalog, held, shipped) {
   for (const component of [...catalog.components].sort((a, b) => a.name.localeCompare(b.name))) {
     if (left.has(component.name) || outside[component.name]) continue;
     const entry = { name: component.name, title: component.title, level: component.level, listing: component.listing, layer: component.layer };
-    const imports = importOf(component, registeredBy(component.name));
+    const imports = importOf(component, registeredBy(component.name), system.id, ids);
     if (component.web) entry.web = component.web.tag ? { tag: component.web.tag, import: imports.web, module: component.web.module } : { class: component.web.class, import: component.web.stylesheet };
     if (component.react) entry.react = { name: component.react.name, import: imports.react };
     if (component.variant) {

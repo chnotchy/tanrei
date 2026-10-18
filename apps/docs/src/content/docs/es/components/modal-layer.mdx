@@ -2,7 +2,7 @@
 title: Capa modal
 description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Escape, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
 translationOf: components/modal-layer.mdx
-sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ La capa no dibuja nada propio salvo el velo. Tu contenido conserva su propio col
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="Comandos" onClose={() => setOpen(false)}>
       <CommandPalette />

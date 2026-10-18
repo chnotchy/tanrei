@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: 377f17266b0d329557930b3dcc11d9c2fd104dfa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="负责人，发布说明" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">田中爱子</Option>

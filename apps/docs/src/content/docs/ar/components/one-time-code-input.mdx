@@ -2,7 +2,7 @@
 title: حقل إدخال الرمز لمرة واحدة
 description: يأخذ رمزًا قصيرًا أُرسل إلى الشخص، كرمز تسجيل الدخول أو رمز التحقق، قيمةً نصية واحدة مرسومة في خانات منفصلة، فيُرى طوله وما بقي منه ناقصًا، وتستطيع المنصة أن تملأه في خطوة واحدة.
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -70,7 +70,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="رمز التحقق" error={wrong}
       supportingText="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك."

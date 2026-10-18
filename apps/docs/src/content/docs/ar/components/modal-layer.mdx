@@ -2,7 +2,7 @@
 title: الطبقة النمطية
 description: الطبقة التي تحت كل سطح نمطي. تعتّم النافذة خلف ما تعرضه، وتجعل كل ما هناك خاملًا، وتنقل التركيز إلى الداخل وتُبقيه فيه ثم تعيده، وتطلب الإغلاق بالمفتاح Escape أو بالرجوع في المنصة أو بالضغط على الحجاب. غيّر مظهرها مرة واحدة فتتبعها كل الأسطح النمطية.
 translationOf: components/modal-layer.mdx
-sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="الأوامر" onClose={() => setOpen(false)}>
       <CommandPalette />

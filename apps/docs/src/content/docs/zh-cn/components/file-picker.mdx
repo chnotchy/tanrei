@@ -2,7 +2,7 @@
 title: "文件选择器"
 description: "让用户通过平台自己的选择器来选择文件：可以从一个按钮打开，在位置足够的地方还可以把文件拖到一块区域上。它在选择之前用文字说明限制，对选中的内容作出判定，再把它接受的文件和它拒绝的文件交给你的产品。它什么都不保留，什么都不列出，也不参与表单。"
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="图层文件" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="一个 JSON 文件"

@@ -74,7 +74,8 @@ The layer draws nothing of its own but the dim. Your content keeps its own color
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="Commands" onClose={() => setOpen(false)}>
       <CommandPalette />

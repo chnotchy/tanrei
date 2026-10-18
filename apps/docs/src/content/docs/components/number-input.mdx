@@ -80,7 +80,8 @@ On the web it is `<tanrei-number-input>`. The other platforms have not implement
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="Scale" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />

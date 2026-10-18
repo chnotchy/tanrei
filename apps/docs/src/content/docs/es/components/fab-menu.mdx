@@ -2,7 +2,7 @@
 title: Menú FAB
 description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
 translationOf: components/fab-menu.mdx
-sourceHash: 9c402a1709ffea056dc0b43a178bdbfc5e12765d
+sourceHash: c0758189c0eef0167c0850043d5633746594d621
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -75,7 +75,8 @@ El conmutador se dibuja como un [botón de acción principal](/es/components/mai
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { FabMenu, FabMenuItem } from '@tanrei/react';
+    // El menú FAB vive en la capa m3-like: está en las entradas de los sistemas que lo tienen (m3-like, m3-expressive-like) y en /all.
+    import { FabMenu, FabMenuItem } from '@tanrei/react/m3-like';
 
     <FabMenu
       className="primary-action"

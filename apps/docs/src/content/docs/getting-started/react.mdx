@@ -60,9 +60,28 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
 
+## One entry per design system
+
+The package has an entry for each design system Tanrei ships, so that your editor offers, and the type check accepts, only what your system has:
+
+| Entry | What it exports |
+|---|---|
+| `@tanrei/react` | The components of the default system, Tanrei. The FAB menu, which lives in the m3-like layer, and the segmented button, which Tanrei leaves out, are not in it, and a variant Tanrei leaves out is not a value of the prop: `<TextField variant="outlined">` does not type-check |
+| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | The components of that preset, with its variants |
+| `@tanrei/react/advanced` | The advanced components, the building blocks of others: `TextInput`, `ModalLayer`, `Combobox` and the rest. A product usually writes the component built from one — `TextField`, `Dialog`, `ComboboxField` |
+| `@tanrei/react/all` | Every component, whichever system has it: for a design system of your own, and for building one |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+A component is the same in every entry, so a bundler still keeps only what you import. Every entry also exports `setWords`, `missingWords` and the `TanreiEvent` type. The entries are generated from each system's components manifest, `@tanrei/web/systems/<id>.components.json`, which names the entry of each component (`react.import`); the manifest of your own system, which `tanrei build` writes, names `@tanrei/react/all`.
+
 ## Server rendering
 
-The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import `@tanrei/react` from a client component so the element definitions are registered in the browser.
+The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import the entry you use from a client component so the element definitions are registered in the browser.
 
 <Callout>
   Theme, contrast, tokens and fonts work exactly as described in the [Web guide](/getting-started/web/); the React package adds nothing of its own on top.

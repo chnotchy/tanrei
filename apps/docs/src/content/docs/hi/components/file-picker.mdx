@@ -2,7 +2,7 @@
 title: फ़ाइल पिकर
 description: लोगों को प्लैटफ़ॉर्म के अपने पिकर से फ़ाइलें चुनने देता है, एक बटन से और, जहाँ जगह हो, ऐसी जगह से जिस पर फ़ाइलें ड्रैग करके भी छोड़ी जा सकती हैं। वह चुनाव से पहले सीमाएँ शब्दों में बताता है, जो चुना गया उसे परखता है, और आपके प्रॉडक्ट को वे फ़ाइलें सौंपता है जो उसने स्वीकार कीं और वे जो उसने अस्वीकार कीं। वह कुछ नहीं रखता, कोई लिस्ट नहीं दिखाता और किसी फ़ॉर्म का हिस्सा नहीं बनता।
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="लेयर फ़ाइल" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="एक JSON फ़ाइल"
