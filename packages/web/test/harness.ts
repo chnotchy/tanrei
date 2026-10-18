@@ -1142,9 +1142,12 @@ const STAGING: Record<string, Staging> = {
   // A test's own fixture that names an `anchor` is the real overlay instead: a button with that id is drawn before it.
   // A snackbar is drawn in place, outside a host (SNK-19), on a 400 px wide stage (the spec's web note); room below for
   // its elevation's shadow. `expanded-scrolls` is on a 400 × 240 stage, whose height stands for the host's area (SNK-25).
+  // `top-end` and `top-end-rtl` are on a stage 720 wide, wider than a compact window, whose width stands for the host's
+  // area (SNK-35): the bar stands at its end; `top-end-compact` keeps the 400 one, across which it stands.
   snackbar: {
     css: () => `.stage:has(> tanrei-snackbar) { box-sizing: border-box; inline-size: 400px; padding-block-end: 32px; }
-      .stage[data-fixture='expanded-scrolls'] { block-size: 240px; }`,
+      .stage[data-fixture='expanded-scrolls'] { block-size: 240px; }
+      .stage:is([data-fixture='top-end'], [data-fixture='top-end-rtl']) { inline-size: 720px; }`,
   },
   // A calendar is drawn at its natural size, centred on a 400 × 440 stage of the surface color (CAL-1's verify).
   calendar: {
