@@ -56,7 +56,7 @@ private object CupertinoSystemSource {
             ),
             motion = motion(),
             elevation = elevation,
-            behavior = TanreiBehavior(dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Dim, requirementMark = TanreiRequirementMark.None, separation = TanreiSeparation.Divider),
+            behavior = TanreiBehavior(appearance = TanreiAppearance.FadeScale, dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Dim, requirementMark = TanreiRequirementMark.None, separation = TanreiSeparation.Divider),
             accordion = accordion(typescale, elevation),
             appBar = appBar(typescale, elevation),
             appShell = appShell(typescale, elevation),
@@ -600,10 +600,14 @@ private object CupertinoSystemSource {
         easing = TanreiEasing(
             emphasizedAccelerate = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             emphasizedDecelerate = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            enter = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            exit = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             linear = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 1f, y2 = 1f),
+            spatial = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             standard = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             standardAccelerate = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             standardDecelerate = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 0f, y2 = 1f),
+            state = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
         ),
         expressiveSpring = TanreiSprings(
             scheme = "expressive",

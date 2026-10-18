@@ -3,9 +3,14 @@
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
 //   em     { by: n }                                  → this token's fontSize × by   (typography.letterSpacing only)
+//   pick   { by: "{id}", values: { <name>: v, … } }   → the value named by the choice of kind `by` names now; `v` is
+//                                                       a literal of this token's type or "{id}" (one entry per name)
 //   fixed  { fixed: "reason" }                        → keep the literal; dials do not move it
 // The color half — tone, alpha, mix, contrast-pick — lives in palette.js (color roles) and states.js (per-state
-// component tokens); together they are the eight functions, and the language has no others.
+// component tokens); together they are the nine functions, and the language has no others. `pick` is the one table
+// in it: a token whose value is set by a choice of kind (`sys.behavior.appearance` sets how far a surface that appears
+// is scaled), so that a layer that makes the choice gets the values that go with it, and a layer that pins one of
+// those values keeps its pin.
 // Rounding happens here, once. Emitters format; they never round.
 export const DERIVE = 'dev.tanrei.derive';
 export const VOCABULARY = 'dev.tanrei.vocabulary';
@@ -29,14 +34,16 @@ const refId = (v) => v.slice(1, -1);
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
-  return [rule.of, rule.base, rule.exp, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : [])].filter(isRef).map(refId);
+  // numeric: of, base, exp · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
+  return [rule.of, rule.base, rule.exp, rule.by, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
 
 /**
  * Evaluate one numeric rule.
  * @param {object} rule
- * @param {(id: string) => {value: number, unit?: string}} lookup resolved value of another token
+ * @param {(id: string) => {value: number, unit?: string, names?: string[]}} lookup resolved value of another token;
+ *   for a choice of kind, `value` is its index and `names` its list (`dev.tanrei.enum.values`)
  * @param {{ type: string, fontSize?: number }} ctx
  */
 export function evaluateNumeric(rule, lookup, ctx) {
@@ -59,6 +66,19 @@ export function evaluateNumeric(rule, lookup, ctx) {
     case 'em':
       if (ctx.fontSize === undefined) throw new Error('"em" is only valid for typography.letterSpacing');
       return { value: roundTo(ctx.fontSize * rule.by, ROUND.tracking), unit: 'px' };
+    case 'pick': {
+      if (!isRef(rule.by)) throw new Error('"pick" needs "by": the choice of kind it follows, as "{id}"');
+      const choice = lookup(refId(rule.by));
+      const names = choice.names;
+      if (!Array.isArray(names)) throw new Error(`"pick" follows ${rule.by}, which is not a choice of kind (it has no ${ENUM}.values)`);
+      const values = rule.values ?? {};
+      const missing = names.filter((name) => !(name in values));
+      const unknown = Object.keys(values).filter((name) => !names.includes(name));
+      if (missing.length || unknown.length) throw new Error(`"pick" must give one value for each name of ${rule.by} (${names.join(', ')})${missing.length ? `; it gives none for ${missing.join(', ')}` : ''}${unknown.length ? `; ${unknown.join(', ')} is not one of them` : ''}`);
+      const chosen = values[names[choice.value]];
+      if (isRef(chosen)) return lookup(refId(chosen));
+      return typeof chosen === 'number' ? { value: chosen } : { ...chosen };
+    }
     default:
       throw new Error(`unknown rule function "${rule.fn}"`);
   }
@@ -119,7 +139,7 @@ export function checkSources(documents) {
     if (!target) throw new Error(`references unknown token {${id}}`);
     const v = target.token.$value;
     if (isRef(v)) return lookup(refId(v));
-    return typeof v === 'number' ? { value: v } : v;
+    return typeof v === 'number' ? { value: v, names: target.token.$extensions?.[ENUM]?.values } : v;
   };
   const problems = [];
   for (const { id, token, type, rationale } of tokens.values()) {

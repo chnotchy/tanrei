@@ -10036,6 +10036,7 @@ extension TanreiSystem {
       opticalSizeMax: 48
     ),
     behavior: TanreiBehavior(
+      appearance: .unfold,
       dividerVisibility: .scroll,
       focusStyle: .ring,
       linkUnderline: .always,
@@ -10067,10 +10068,14 @@ extension TanreiSystem {
       easing: TanreiEasing(
         emphasizedAccelerate: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        enter: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        exit: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         linear: TanreiCubicBezier(0, 0, 1, 1),
+        spatial: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
         standard: TanreiCubicBezier(0.2, 0, 0, 1),
         standardAccelerate: TanreiCubicBezier(0.3, 0, 1, 1),
-        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1)
+        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1),
+        state: TanreiCubicBezier(0.2, 0, 0, 1)
       ),
       spring: TanreiSprings(
         expressive: TanreiSpringSet(

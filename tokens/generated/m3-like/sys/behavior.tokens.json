@@ -19,7 +19,8 @@
               "link-underline is read through a component token (comp.link.underline.visibility, comp.breadcrumbs.underline.visibility), which aliases it: set the sys token to change every text link at once, a component token to set one component apart, and the underline prop to set one link or one trail apart.",
               "Set link-underline to hover or never only in a system whose link color stands 3:1 apart from its text color in every scheme; the build checks it. Where the link color is the text color, or near it, the underline is the only thing that says \"link\".",
               "requirement-mark is read through a component token (comp.field.requirement.mark, comp.field-group.requirement.mark), which aliases it: set the sys token to change every form at once, a component token to mark single fields and sets of controls differently, and the requiredMark prop to set one field or one set apart. Under asterisk say once, near the top of a form, what the asterisk means; only tag says it in words.",
-              "divider-visibility is read through a component token (comp.app-bar.outline.visibility, comp.dialog.divider.visibility, comp.popover.divider.visibility, comp.side-sheet.divider.visibility), which aliases it: set the sys token to change every fixed edge at once, a component token to set one component apart, and the component's dividerVisibility prop to set one instance apart. It concerns only the lines that part a region that stays in place from content that scrolls; a line that says there is more to scroll to (a table's sides, a pinned row's edge) follows the scroll under every choice."
+              "divider-visibility is read through a component token (comp.app-bar.outline.visibility, comp.dialog.divider.visibility, comp.popover.divider.visibility, comp.side-sheet.divider.visibility), which aliases it: set the sys token to change every fixed edge at once, a component token to set one component apart, and the component's dividerVisibility prop to set one instance apart. It concerns only the lines that part a region that stays in place from content that scrolls; a line that says there is more to scroll to (a table's sides, a pinned row's edge) follows the scroll under every choice.",
+              "appearance sets sys.motion.appear.* — the opacity, scale, distance and blur a surface starts from as it appears. A component reads those values, and the choice's name only to tell unfold, which scales along the one axis that leaves the anchor, from the others, which scale on both axes. A layer that pins one of the values keeps it whatever the choice."
             ]
           }
         },
@@ -130,6 +131,28 @@
             },
             "dev.tanrei.derive": {
               "fixed": "Material's top app bar lies flat until content scrolls under it, and its dialogs show the dividers above and below their scrolling content only while content lies beyond them (Material Web's dialog)."
+            }
+          }
+        },
+        "appearance": {
+          "$value": 4,
+          "$description": "How a surface appears and leaves: a menu, a select's or a combobox's list, a popover, a tooltip, a dialog, a snackbar. fade-scale: it fades in and grows from 0.96 of its size toward its origin. fade: it only fades in. fade-slide: it fades in and travels a short way into place (sys.space.space100). blur-slide: it fades in, travels the same way and comes into focus from a 4 px blur. unfold: it fades in and unfolds from its anchored edge, scaled from 0 along the axis that leaves the anchor. The choice sets sys.motion.appear.*; a layer that pins one of those keeps it whatever the choice. A surface that leaves runs its appearance back. A sheet slides in from its edge under every choice.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product makes its surfaces appear in one manner: a quiet business tool that only fades, a product whose menus and dialogs grow a little into place, one whose surfaces travel or come into focus, one whose menus unfold from the control that opened them. The manner is a kind, not an amount — a surface that unfolds from its edge is not one that grows a little from its centre — and without one choice it is restated in every surface and drifts between a menu and a dialog.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.enum": {
+              "values": [
+                "fade-scale",
+                "fade",
+                "fade-slide",
+                "blur-slide",
+                "unfold"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "Material's menus, selects and docked pickers unfold from the edge that faces what opened them, scaled from nothing along that one axis as they fade in."
             }
           }
         }

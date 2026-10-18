@@ -645,16 +645,20 @@ export const cupertino = {
     opticalSizeMin: 20,
     opticalSizeMax: 48,
   },
-  behavior: { dividerVisibility: "scroll", focusStyle: "ring", linkUnderline: "always", pressedFeedback: "dim", requirementMark: "none", separation: "divider" },
+  behavior: { appearance: "fade-scale", dividerVisibility: "scroll", focusStyle: "ring", linkUnderline: "always", pressedFeedback: "dim", requirementMark: "none", separation: "divider" },
   motion: {
     duration: { extraLong1: 700, extraLong2: 800, extraLong3: 900, extraLong4: 1000, long1: 450, long2: 500, long3: 550, long4: 600, medium1: 250, medium2: 300, medium3: 350, medium4: 400, pressHold: 100, short1: 50, short2: 100, short3: 150, short4: 200, stagger: 100 },
     easing: {
       emphasizedAccelerate: [0.3, 0, 0.8, 0.15],
       emphasizedDecelerate: [0.05, 0.7, 0.1, 1],
+      enter: [0.2, 0, 0, 1],
+      exit: [0.3, 0, 1, 1],
       linear: [0, 0, 1, 1],
+      spatial: [0.2, 0, 0, 1],
       standard: [0.2, 0, 0, 1],
       standardAccelerate: [0.3, 0, 1, 1],
       standardDecelerate: [0, 0, 0, 1],
+      state: [0.2, 0, 0, 1],
     },
     spring: {
       expressive: {
