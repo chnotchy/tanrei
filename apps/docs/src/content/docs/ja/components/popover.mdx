@@ -2,7 +2,7 @@
 title: ポップオーバー
 description: 押したコントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールに付いて動き、ページのほかの部分を暗くしたり、ふさいだりしません。
 translationOf: components/popover.mdx
-sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
+sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -144,7 +144,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 | アクション | `actions` スロットに入れる Tanrei のボタン。確定のアクションには `confirming`、取り消しのアクションには `dismissive` を付けます。ボタングループと同じ並べ方で配置し、ラベルが収まらなくなると縦に積みます |
 | 矢印 | アンカーを指す三角形。任意です。`arrow` は 1 つのポップオーバーに、`comp.popover.arrow.visible` はデザインシステム全体に矢印を付けます |
 
-`variant` のないアクションは、`comp.popover.actions.variant`（既定のシステムでは Tonal）になります。閉じるボタンは、アイコンだけの小さいボタンで、バリアントは `comp.popover.close-button.variant` です。
+`variant` のないアクションは、`comp.popover.actions.variant`（既定のシステムでは Tonal）になります。閉じるボタンは、アイコンだけの小さいボタンで、バリアントは `comp.popover.close-button.variant` です。既定のシステムでは、Tanrei のほかの閉じるボタンと同じく Tonal で、どんなコンテンツの上でもコントロールとして読めます。m3-like と cupertino のプリセットは、グリフだけの見た目（Text）のままです。
 
 ### モーション
 

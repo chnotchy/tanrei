@@ -2,7 +2,7 @@
 title: "弹出框"
 description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它。"
 translationOf: components/popover.mdx
-sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
+sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -144,7 +144,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 | 操作 | `actions` 插槽里的 Tanrei 按钮；属于确认或取消性质的，各自标为 `confirming` 或 `dismissive`。它们按按钮组的方式摆放，标签放不下时叠成一列 |
 | 箭头 | 一个可选的三角形，指向锚点。`arrow` 为单个弹出框打开它；`comp.popover.arrow.visible` 为整个设计系统打开它 |
 
-没有 `variant` 的操作采用 `comp.popover.actions.variant`（在默认系统中是 tonal）。关闭按钮是一个纯图标的 small 按钮，变体取自 `comp.popover.close-button.variant`。
+没有 `variant` 的操作采用 `comp.popover.actions.variant`（在默认系统中是 tonal）。关闭按钮是一个纯图标的 small 按钮，变体取自 `comp.popover.close-button.variant`：在默认系统中是 tonal，与 Tanrei 的每个关闭按钮一样，在任何内容上都能被看作一个控件。m3-like 和 cupertino 预设保留各自不带底色的字形（text）。
 
 ### 动效
 

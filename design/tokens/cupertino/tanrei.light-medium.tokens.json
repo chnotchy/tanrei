@@ -63696,7 +63696,7 @@
           "variant": {
             "$type": "number",
             "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only small Button (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {

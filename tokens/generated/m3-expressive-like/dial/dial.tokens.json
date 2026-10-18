@@ -6270,6 +6270,10 @@
               "$value": 4,
               "reason": "Material 3's side sheet closes with a standard icon button, which is Tanrei's text Button with an icon only (0036)."
             },
+            "tanrei.comp.popover.close-button.variant": {
+              "$value": 4,
+              "reason": "Material 3 closes a surface with a standard icon button, which is Tanrei's text Button with an icon only, as the side sheet's here. Keeps the preset's look; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.carousel.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "Material's carousel items have 28dp corners, corner.extra-large here."
