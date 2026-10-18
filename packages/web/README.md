@@ -43,6 +43,10 @@ import '@tanrei/web/systems/m3-like.css';
 <section data-tanrei-system="m3-like">…</section>
 ```
 
+What each shipped system ships is listed in `@tanrei/web/systems/<id>.components.json` (`tanrei` for the default): its
+components, each with its element or class and the module that registers it, and those it does not have, with what to
+use instead. A tool that suggests a component reads that list.
+
 ### A page that changes its tokens at run time
 
 A change of theme, contrast or system on the root styles the whole page again: every element inherits the ten thousand
