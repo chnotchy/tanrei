@@ -1,0 +1,98 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Dependency updates for the web, the docs and the tools (npm, pnpm catalogs, GitHub Actions); the paused native platforms are left alone.",
+    "CONTRIBUTING.md#dependency-updates says how an update pull request is taken in."
+  ],
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["* * * * 1"],
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "dependencyDashboard": true,
+  "draftPR": true,
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "packageRules": [
+    {
+      "description": "One pull request a week for the npm packages' minor and patch updates, pnpm catalog entries and the packageManager field included.",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm packages (minor and patch)",
+      "groupSlug": "npm-minor-patch"
+    },
+    {
+      "description": "One pull request a week for the GitHub Actions, each pinned to a commit SHA with its version in a comment.",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["action", "workflow"],
+      "matchUpdateTypes": ["minor", "patch", "digest", "pinDigest"],
+      "groupName": "GitHub Actions (minor and patch)",
+      "groupSlug": "github-actions-minor-patch"
+    },
+    {
+      "description": [
+        "Playwright waits for approval on the Dependency Dashboard: the browsers it installs draw the baselines.",
+        "The npm packages and Microsoft's image (ci.yml, record-baselines.yml) move together in one pull request, and the baselines are re-recorded in it."
+      ],
+      "matchPackageNames": ["@playwright/test", "playwright", "playwright-core", "mcr.microsoft.com/playwright"],
+      "groupName": "Playwright",
+      "groupSlug": "playwright",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Microsoft's registry gives no release time, so the image is not held for one; the npm package beside it in the Playwright group is.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["mcr.microsoft.com/playwright"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>.+)$",
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Runner images move only on purpose, in ci.yml and record-baselines.yml together, with the baselines re-recorded.",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["github-runner"],
+      "enabled": false
+    },
+    {
+      "description": "The fonts in a pull request of their own: a font can move the baselines and the docs' glyph list (pnpm generate), and should not hold the other updates back.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@fontsource/**", "@fontsource-variable/**"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "fonts (minor and patch)",
+      "groupSlug": "fonts-minor-patch"
+    },
+    {
+      "description": "@terrazzo/parser is patched (pnpm-workspace.yaml patchedDependencies): a new version needs the patch made again, so it has a pull request of its own and waits for approval on the Dependency Dashboard.",
+      "matchPackageNames": ["@terrazzo/parser"],
+      "groupName": "@terrazzo/parser",
+      "groupSlug": "terrazzo-parser",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": [
+        "The native platforms are paused (packages/tools/paused-platforms.json): no CI job would test an update to them.",
+        "Their package managers, React Native's npm packages and what only their CI jobs use stay as they are until each platform's pause ends; the commit that ends it removes the platform here."
+      ],
+      "matchManagers": ["gradle", "gradle-wrapper", "swift", "pub"],
+      "enabled": false
+    },
+    {
+      "description": "React Native is paused (see above).",
+      "matchFileNames": ["packages/react-native/**"],
+      "enabled": false
+    },
+    {
+      "description": "Used only by the paused native CI jobs (Compose, Flutter) (see above).",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["actions/setup-java", "gradle/actions", "reactivecircus/android-emulator-runner", "subosito/flutter-action", "actions/cache"],
+      "enabled": false
+    },
+    {
+      "description": "The JDK and Flutter versions the paused native CI jobs install (see above).",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["uses-with"],
+      "matchDepNames": ["java-jdk", "flutter"],
+      "enabled": false
+    }
+  ]
+}

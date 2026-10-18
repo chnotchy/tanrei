@@ -14,6 +14,10 @@
 # Toolchains are the ones CI tests: the same Node (NODE_VERSION), the same pinned Flutter, the same Gradle setup, the
 # same SHA-pinned actions as ci.yml — and every registry job waits for the whole CI workflow (`checks`, a
 # workflow_call of ci.yml on the dispatched ref), so a release never runs on a toolchain CI did not test.
+#
+# The jobs that decide or make a release read no cache and write none (`cache-mode: none`, and no action's own cache):
+# a cache written by another run is an input nobody reviewed, and these jobs hold the publishing identity and the
+# registry secrets. Their checkouts keep no git credential, except the npm job's, which pushes the release tags.
 name: Release
 
 on:
@@ -45,16 +49,19 @@ jobs:
     name: Preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 15 # install, validate and drift: about 3 minutes
+    cache-mode: none
     steps:
       - name: Released from main only
         run: |
           [ "$GITHUB_REF" = refs/heads/main ] || { echo "::error::a release is dispatched on main, not on $GITHUB_REF"; exit 1; }
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          package-manager-cache: false
       - run: pnpm install --frozen-lockfile
       # Inputs reach the shell through the environment, never spliced into the script.
       - name: Version typed by the maintainer matches the repository
@@ -85,6 +92,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20 # install, build and publish the npm packages
     environment: npm
+    cache-mode: none
     permissions:
       contents: write # the release tags
       id-token: write # npm trusted publishing (OIDC): no token secret, provenance is automatic
@@ -92,6 +100,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # the existing tags, so `changeset tag` writes only the new ones
+          persist-credentials: true # the last step pushes the release tags
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -99,7 +108,7 @@ jobs:
           # bundled with Node is not what publishes here and its version does not matter.
           node-version: ${{ env.NODE_VERSION }}
           registry-url: https://registry.npmjs.org
-          cache: pnpm
+          package-manager-cache: false
       - run: pnpm install --frozen-lockfile
       # Every workspace package whose package.json is not `private`, so a package added later is published without an
       # edit here — except a paused platform's (packages/tools/paused-platforms.json), which is left out and said so.
@@ -165,6 +174,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30 # flutter test (about 8–12 minutes in CI), then the upload
     environment: pub.dev
+    cache-mode: none
     permissions:
       contents: read
       id-token: write # pub.dev automated publishing (OIDC)
@@ -175,11 +185,12 @@ jobs:
         run: |
           case " $PAUSED " in *" flutter "*) echo "::error::Flutter is not published while its CI is paused (packages/tools/paused-platforms.json)."; exit 1 ;; esac
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: 3.32.8 # the version CI tests with and the goldens were recorded with (ci.yml)
           channel: stable
-          cache: true
       - working-directory: packages/flutter
         run: flutter pub get && flutter test && dart pub publish --force
 
@@ -189,6 +200,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40 # Gradle build, signing and the Central Portal upload
     environment: maven-central # holds the only long-lived secrets: Central Portal token + GPG key
+    cache-mode: none
     steps:
       - name: Not while this platform's CI is paused
         env:
@@ -196,11 +208,15 @@ jobs:
         run: |
           case " $PAUSED " in *" compose "*) echo "::error::Compose is not published while its CI is paused (packages/tools/paused-platforms.json)."; exit 1 ;; esac
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          cache-disabled: true # caches by default, and writes on main
       - working-directory: packages/compose
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
