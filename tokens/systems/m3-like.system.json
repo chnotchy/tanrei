@@ -2,53 +2,11 @@
   "$schema": "../schema/system.schema.json",
   "id": "m3-like",
   "name": "M3-like (Material 3-inspired)",
-  "extends": "tanrei",
+  "extends": "core",
   "components": {
-    "include": [
-      "segmented-button",
-      "fab-menu"
-    ],
     "variants": {
-      "text-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "select": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "combobox": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "number-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "color-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "navigation-bar": {
-        "omit": [
-          "filled"
-        ]
-      },
-      "tabs": {
-        "omit": [
-          "tonal"
-        ]
-      }
+      "navigation-bar": {"omit": ["filled"]},
+      "tabs": {"omit": ["tonal"]}
     }
   },
   "description": "An independent approximation of Material Design 3's baseline look, expressed purely as values over Tanrei's vocabulary: a chromatic primary, tonal surfaces, pill buttons, shadow elevation without a ring.",

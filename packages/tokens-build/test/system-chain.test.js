@@ -1,10 +1,11 @@
 // Every system descends from the root layer `core`. The default system `tanrei` extends it, and so do the presets
-// (through `tanrei`, for now); a product extends one of them. What a system ships is worked out down that chain.
+// `m3-like` and `cupertino` (`m3-expressive-like` extends `m3-like`); a product extends one of them. What a system
+// ships is worked out down that chain.
 //
 // The root was cut out of the default system's layer: `core` holds the values the default system's layer held, and
-// `tanrei` keeps only its choice of components. So no resolved value may have moved — in the default system, in a
-// preset or in a product — and the first tests below hold exactly that, for every system that ships and for the
-// example products, in every scheme.
+// `tanrei` keeps only its choice of components. The presets then moved from `tanrei` to `core`. So no resolved value
+// may have moved — in the default system, in a preset or in a product — and the first tests below hold exactly that,
+// for every system that ships and for the example products, in every scheme.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -58,11 +59,25 @@ test('the default system resolves to exactly the root’s values, in every schem
   assertSameValues(await valuesOf(layerChain(DEFAULT_SYSTEM, read)), await valuesOf(layerChain(ROOT_SYSTEM, read)), `${DEFAULT_SYSTEM} against ${ROOT_SYSTEM}`);
 });
 
-for (const id of shippedSystems(REPO_ROOT).filter((system) => system !== DEFAULT_SYSTEM)) {
-  test(`${id}: resolves to the values it has without the layers that set none, in every scheme`, async () => {
+const PRESETS = shippedSystems(REPO_ROOT).filter((system) => system !== DEFAULT_SYSTEM);
+
+test('the presets extend the root, not the default system', () => {
+  assert.deepEqual(Object.fromEntries(PRESETS.map((id) => [id, layerChain(id, read).map((layer) => layer.id)])), {
+    cupertino: [ROOT_SYSTEM, 'cupertino'],
+    'm3-expressive-like': [ROOT_SYSTEM, 'm3-like', 'm3-expressive-like'],
+    'm3-like': [ROOT_SYSTEM, 'm3-like'],
+  });
+});
+
+// Before, the default system's own layer stood between the root and each preset. It sets no value, so a preset must
+// resolve to the values it had with that layer put back in its chain.
+const withDefaultBetween = (chain) => [chain[0], read(DEFAULT_SYSTEM), ...chain.slice(1)];
+
+for (const id of PRESETS) {
+  test(`${id}: resolves to the values it had when it extended the default system, in every scheme`, async () => {
     const chain = layerChain(id, read);
-    assert.ok(chain.some((layer, i) => i > 0 && i < chain.length - 1 && setsNoValue(layer)), 'the chain passes through a layer that sets no value');
-    assertSameValues(await valuesOf(chain), await valuesOf(withoutValuelessLayers(chain)), id);
+    assert.ok(!chain.some((layer) => layer.id === DEFAULT_SYSTEM), 'the default system is not in its chain');
+    assertSameValues(await valuesOf(chain), await valuesOf(withDefaultBetween(chain)), id);
   });
 }
 
@@ -82,10 +97,11 @@ test('what each shipped system leaves out is what it left out before the root wa
     variants: Object.fromEntries(inputs.map((name) => [name, ['filled', 'outlined']])),
   });
   assert.deepEqual(availabilityOf(layerChain(ROOT_SYSTEM, read)), { components: [], variants: {} }, 'the root leaves nothing out');
-  // The presets extend the default system: they bring back what it leaves out and leave out their own.
+  // The presets extend the root: each leaves out only what it says itself.
   assert.deepEqual(availabilityOf(layerChain('m3-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
   assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
   assert.deepEqual(availabilityOf(layerChain('cupertino', read)), { components: ['fab-menu'], variants: { 'navigation-bar': ['filled'] } });
+  assert.equal(componentChoices(layerChain('cupertino', read)).components.get('fab-menu').layer, 'cupertino', 'cupertino says itself why it leaves the FAB menu out');
 });
 
 // ── what a system ships, down the chain ─────────────────────────────────────────────────────────────────────────

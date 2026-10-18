@@ -368,7 +368,7 @@ test('a layer that extends another LOCAL layer: the Studio resolves the chain th
     assert.deepEqual(studio.systems.filter((system) => system.local), [{ id: 'house', name: 'House style', description: '', local: true }]);
     assert.deepEqual(studio.fromLayer(app), app);
     const { view } = await assertPreviewIsTheBuild(app, { parents: [house] });
-    assert.deepEqual(view.chain.map((layer) => layer.id), [studio.rootId, studio.defaultId, 'm3-like', 'house', 'house-app']);
+    assert.deepEqual(view.chain.map((layer) => layer.id), [studio.rootId, 'm3-like', 'house', 'house-app']);
     assert.equal(view.valueOf(`${NS}.dial.shape.unit`).value, 2, 'the local parent’s dial');
     assert.equal(view.valueOf(`${NS}.comp.button.container.gap.medium`).value, 96, 'a step the local parent added to the vocabulary');
     assert.equal(studio.describe(view, `${NS}.dial.shape.unit`).setBy.layer, 'house');
@@ -389,7 +389,7 @@ test('a layer that extends another LOCAL layer: the Studio resolves the chain th
   studio.setParents([{ id: 'm3-like', layer: { id: 'm3-like', extends: studio.rootId } }, { id: 'broken', layer: { id: 'broken', extends: 'nowhere' } }, { id: 'Not An Id', layer: { id: 'Not An Id' } }]);
   try {
     assert.deepEqual(studio.systems.filter((system) => system.local).map((system) => system.id), ['broken']);
-    assert.deepEqual(studio.base('m3-like').chain.map((layer) => layer.id), [studio.rootId, studio.defaultId, 'm3-like']);
+    assert.deepEqual(studio.base('m3-like').chain.map((layer) => layer.id), [studio.rootId, 'm3-like']);
     assert.ok(Object.keys(studio.base('m3-like').system.tokens).length > 10, 'the shipped m3-like, not the local impostor');
     const orphan = studio.preview({ id: 'orphan', extends: 'broken' });
     assert.equal(orphan.ok, false);

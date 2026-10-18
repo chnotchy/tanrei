@@ -2,47 +2,16 @@
   "$schema": "../schema/system.schema.json",
   "id": "cupertino",
   "name": "Cupertino (Apple HIG-inspired)",
-  "extends": "tanrei",
+  "extends": "core",
   "components": {
-    "include": [
-      "segmented-button"
-    ],
-    "variants": {
-      "text-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "select": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "combobox": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "number-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "color-input": {
-        "include": [
-          "filled",
-          "outlined"
-        ]
-      },
-      "navigation-bar": {
-        "omit": [
-          "filled"
-        ]
+    "omit": {
+      "fab-menu": {
+        "reason": "Apple's platforms draw no floating action button: an app's main actions sit in its toolbar, and further actions open from a button with a menu.",
+        "insteadUse": ["toolbar", "button-with-menu"]
       }
+    },
+    "variants": {
+      "navigation-bar": {"omit": ["filled"]}
     }
   },
   "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",

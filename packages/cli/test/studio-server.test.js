@@ -312,7 +312,7 @@ test('a layer on a LOCAL layer: the parents are served read-only, validated and 
     const saved = await call('/api/layer', { method: 'PUT', headers: { 'if-match': etag }, body: { layer: stacked } });
     assert.equal(saved.status, 200, saved.text);
     const built = (await call('/api/build', { method: 'POST' })).json();
-    assert.deepEqual(built.chain.map((entry) => entry.id ?? entry), ['core', 'tanrei', 'm3-like', 'house', 'acme']);
+    assert.deepEqual(built.chain.map((entry) => entry.id ?? entry), ['core', 'm3-like', 'house', 'acme']);
     assert.deepEqual(written, ['acme']);
     // A problem in the PARENT is reported too (the whole chain is validated), and nothing is written.
     fs.writeFileSync(path.join(design, 'house.system.json'), stringifyLayer({ ...house, colours: {} }));

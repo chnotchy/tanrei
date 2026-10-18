@@ -148,7 +148,7 @@ test('a product can stack its own layers and start from a shipped preset', () =>
   fs.writeFileSync(path.join(dir, 'design/acme-base.system.json'), JSON.stringify({ id: 'acme-base', name: 'Acme base', extends: 'cupertino', tokens: {} }));
   const result = run(['build']);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /core → tanrei → cupertino → acme-base → acme-kids/);
+  assert.match(result.stdout, /core → cupertino → acme-base → acme-kids/);
   assert.match(result.stderr, /accessibility\/structure warning\(s\)/, 'a product layer on a preset is warned about what it inherits: reported, not hidden');
   assert.match(read('out/web/acme-kids.css'), /--tanrei-dial-shape-unit: 6px;/);
 });
