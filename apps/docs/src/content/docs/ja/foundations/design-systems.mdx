@@ -2,7 +2,7 @@
 title: デザインシステムとカスタマイズ
 description: 語彙は 1 つ、デザインシステムは多数。ダイヤルを回す・パレットを宣言する・トークンの参照先を差し替える — 1 コミットで全プラットフォームが追従します。
 translationOf: foundations/design-systems.mdx
-sourceHash: 4c890c31daebc5db9719d6f53c3e48ce32b794cf
+sourceHash: caf3afbc5714bcc983352574d935aeaded71f2a5
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -135,6 +135,34 @@ import '@tanrei/web/cupertino'; // cupertino が持つコンポーネント
 ```
 
 値でも種類の選択でもまだ表現できないもの（背景をぼかすマテリアル、スタイルとしての大文字ラベルなど）は、隠さずに Tanrei 側の欠陥として `docs/governance/mimicry-gaps.json` に登録しています。
+
+## システムにないコンポーネント
+
+システムは、コンポーネントを丸ごと外すことも、コンポーネントの `variant` の値を 1 つだけ外すこともできます。既定のシステムには segmented button がなく、テキストフィールドの filled と outlined もありません。レイヤはそれを `components` に、理由と代わりに使うものと一緒に書きます。
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+外したものも描画され、動きます。開発ビルドでは、それを使う要素ごとに 1 度だけコンソールに警告が出て、あなたのシステムの名前と、代わりに使うものを示します。警告が名指すのは、あなたが書いたコンポーネントです。`<tanrei-text-field variant="outlined">` は、内側に描くテキスト入力ではなく、テキストフィールドの `outlined` として報告されます。別のシステムのレイヤにあるコンポーネント（m3-like にある FAB menu など）も同じように、それがあるレイヤとともに報告されます。
+
+テストで失敗させるには、エラーとして報告させ、何が使われたかを尋ねます。
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // テストのセットアップで、何かを描画する前に
+
+test('プロダクトはシステムにあるものだけを使っている', async () => {
+  // …プロダクトの画面を描画する…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+`unavailableUses()` は、どちらのモードでも、使われたものを 1 件ずつアルファベット順に返します（`segmented-button`、`text-field:outlined`）。本番ビルドは何も確かめないので、そこではこのリストは空のままです。要素を 1 つも登録せずに同じ 2 つの関数だけを使うには、`@tanrei/web/availability` を読み込みます。
 
 ## システムの共有
 

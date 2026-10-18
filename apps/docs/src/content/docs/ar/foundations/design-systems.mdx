@@ -2,7 +2,7 @@
 title: أنظمة التصميم والتخصيص
 description: مفردات واحدة وأنظمة تصميم كثيرة. غيِّر قرص ضبط، أو أعلن لوحة ألوان، أو أعد توجيه رمز، فتتبعك كل المنصات في إيداع واحد.
 translationOf: foundations/design-systems.mdx
-sourceHash: 4c890c31daebc5db9719d6f53c3e48ce32b794cf
+sourceHash: caf3afbc5714bcc983352574d935aeaded71f2a5
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -135,6 +135,34 @@ import '@tanrei/web/cupertino'; // المكوّنات التي يملكها cupe
 ```
 
 ما لا تستطيع القيم ولا اختيارات النوع التعبير عنه بعد، كمواد الخلفية والتسميات بالأحرف الكبيرة على سبيل الأسلوب، مسرود عيبًا في Tanrei في `docs/governance/mimicry-gaps.json`، وليس مخفيًّا.
+
+## مكوّن لا يملكه نظامك
+
+يمكن للنظام أن يستبعد مكوّنًا، أو قيمة واحدة من قيم `variant` لمكوّن ما: النظام الافتراضي لا يملك زرًّا مقسَّمًا، ولا حقل نص بنمط filled أو outlined. وتذكر الطبقة ذلك تحت `components`، مع السبب وما يُستخدم بدلًا منه:
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+ما يُستبعَد يظل يُعرض ويعمل. وفي بناء التطوير، يُصدر كل عنصر يستخدمه تحذيرًا واحدًا في وحدة التحكم، يذكر نظامك وما يستخدمه بدلًا منه. ويسمّي التحذير المكوّن الذي كتبته: يُبلَّغ عن `<tanrei-text-field variant="outlined">` على أنه نمط `outlined` لحقل النص، لا على أنه حقل الإدخال الذي يرسمه في داخله. والمكوّن الذي يقيم في طبقة نظام آخر، مثل قائمة FAB في m3-like، يُبلَّغ عنه بالطريقة نفسها، مع الطبقة التي يقيم فيها.
+
+لتُفشِل اختباراتك عند ذلك، اجعله يُبلَّغ عنه خطأً، واسأل عمّا استُخدم:
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // في إعداد اختباراتك، قبل أن يُعرض أي شيء
+
+test('المنتج لا يستخدم إلا ما يملكه نظامه', async () => {
+  // …اعرض شاشات المنتج…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+تسرد `unavailableUses()` كل استخدام مرة واحدة، بالترتيب الأبجدي (`segmented-button`، `text-field:outlined`)، في أيٍّ من الوضعين. أما بناء الإنتاج فلا يتحقق من شيء، لذا تبقى القائمة فيه فارغة. ويضم `@tanrei/web/availability` الدالتين نفسيهما دون أن يسجّل أي عنصر.
 
 ## مشاركة النظام
 

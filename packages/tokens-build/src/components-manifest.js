@@ -22,7 +22,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG } from './config.js';
-import { DEFAULT_SYSTEM, componentChoices, outsideComponents } from './layers.js';
+import { DEFAULT_SYSTEM, componentChoices, omittedOf, outsideComponents } from './layers.js';
 
 /** The catalog of every component, relative to the repository (or to the vocabulary the published CLI carries). */
 export const CATALOG_FILE = 'packages/tokens-build/generated/component-catalog.json';
@@ -134,10 +134,7 @@ export function componentsManifest(chain, catalog, held, shipped) {
     components.push(entry);
   }
 
-  const omitted = [
-    ...[...left].map(([name, { layer, reason, insteadUse }]) => ({ name, title: title(name), omittedBy: layer, ...(reason ? { reason } : {}), ...(insteadUse ? { insteadUse } : {}) })),
-    ...Object.entries(outside).map(([name, layer]) => ({ name, title: title(name), providedBy: layer })),
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  const omitted = omittedOf(chain, held).map(({ name, ...entry }) => ({ name, title: title(name), ...entry }));
 
   return {
     system: system.id,

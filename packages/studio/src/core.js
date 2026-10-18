@@ -90,9 +90,9 @@ export function stringifyLayer(layer) {
  * @param {Record<string, object>} deps.layers      shipped system layers by id
  * @param {{ Hct: any, TonalPalette: any }} deps.mcu material-color-utilities, injected (it imports differently in Node and in a bundler)
  * @param {(layer: object) => string[]} [deps.validateSchema]  JSON-Schema problems of a layer
- * @param {(model: object, options: { scope: string, unavailable?: object, outside?: Record<string, string> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
+ * @param {(model: object, options: { scope: string, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
  * @param {(ids: string[], read: (id: string) => object) => Map<string, string>} deps.heldComponents   tokens-build's src/layers.js: where each component that lives in a layer lives
- * @param {(chain: object[], held: Map<string, string>) => { unavailable: object, outside: Record<string, string> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have
+ * @param {(chain: object[], held: Map<string, string>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
  * @param {(model: object) => string[]} deps.checkInvariants                      tokens-build's src/invariants.js
  * @param {(fg: object, bg: object) => number} deps.contrast                      the same module's WCAG ratio
  * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id

@@ -109,4 +109,9 @@ test('what a system does not ship is worked out down its chain, and every system
   // What lives in a layer the system does not extend is said apart, with that layer.
   const sheet = emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { unavailable: { components: [], variants: {} }, outside: { 'fab-menu': 'm3-like' } });
   assert.match(sheet, /--tanrei-unavailable-layer: "fab-menu=m3-like";/);
+  // What the system uses instead: each component with its replacements in order, and an empty list declared as such.
+  const instead = (replacements) => emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { scope: 'b', replacements });
+  assert.match(instead({ 'segmented-button': ['tabs', 'button-group'], carousel: ['list'] }), /--tanrei-unavailable-replacement: "segmented-button=tabs,button-group carousel=list";/);
+  assert.match(instead({}), /--tanrei-unavailable-replacement: "";/);
+  assert.doesNotMatch(sheet, /--tanrei-unavailable-replacement/, 'not declared where none is given');
 });

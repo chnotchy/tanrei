@@ -132,13 +132,18 @@ And in every engine, whatever is registered:
 A system may leave components, or values of a component's `variant`, out: Tanrei's default leaves out
 `<tanrei-segmented-button>`, the presets the navigation bar's `filled`. They still render and
 work under it; in a debug build (see `report()` below) each element that system leaves out warns once, when it connects
-and when its `variant` changes. The system's stylesheet carries the list as
-`--tanrei-unavailable: "<component> <component>:<variant> …"`, read from the cascade at the element, so it follows
-`data-tanrei-system` like every token. The warning names the system from `--tanrei-system: "<id>"` when the sheet
-declares it, otherwise from the nearest `data-tanrei-system`, and what the system uses instead when the sheet declares
-`--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"`. A product's sheet from `tanrei build` declares the
-same lists in its own scope, worked out from its layers, so an element under the product's `data-tanrei-system` never
-reads the default system's from `:root`.
+and when its `variant` changes (AVL-1, the shared sentences of docs/architecture/overview.md). The system's stylesheet
+carries the list as `--tanrei-unavailable: "<component> <component>:<variant> …"`, read from the cascade at the
+element, so it follows `data-tanrei-system` like every token. The warning names the system from
+`--tanrei-system: "<id>"` when the sheet declares it, otherwise from the nearest `data-tanrei-system`, and what the
+system uses instead from `--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"` (AVL-2), which the build
+writes from the `insteadUse` of the system's components manifest (`segmented-button=tabs,radio-button,button-group`
+in the default system's). A product's sheet from `tanrei build` declares the same three lists in its own scope, worked
+out from its layers, so an element under the product's `data-tanrei-system` never reads the default system's from
+`:root`. An element another component draws in its shadow root is reported under the element the product wrote, by
+its name: `<tanrei-text-field variant="outlined">` reports `variant "outlined" of text-field`, not its text input's.
+Every use is recorded (`unavailableUses()`, below), and `setAvailabilityMode('error')` reports it at error level
+(AVL-3).
 
 A component that lives in a layer is another matter: `<tanrei-fab-menu>` lives in the m3-like layer, and a system that
 does not descend from it (the default, cupertino) has none of its tokens. `@tanrei/web` does not register it; the
@@ -7516,6 +7521,25 @@ the hit areas reach `sys.target.pointer` under a fine pointer and `touch` under 
 the fixtures are drawn by the test harness (`test/harness.ts`) on a 320 × 96 stage, where an `open` fixture shows the open
 form without a menu (a fixture cannot fill the menu slot).
 
+## What the system does not have: `setAvailabilityMode()`, `unavailableUses()`
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web'; // or '@tanrei/web/availability': the two functions, no element
+
+setAvailabilityMode('error'); // in a product's test setup, before the first element connects
+// …render the screens of the product…
+expect(unavailableUses()).toEqual([]);
+```
+
+| | |
+|---|---|
+| `setAvailabilityMode(mode)` | `'warn'` (the default) or `'error'`: the level a debug build reports a use of what the active system does not have at (AVL-3). A mode that is not one is refused with a warning, and the mode stays. |
+| `unavailableUses()` | The uses since the page loaded, each once, in alphabetical order: `component` for a component the system leaves out or that lives in a layer it does not extend, `component:variant` for a `variant` value it leaves out — named as the product wrote it (`text-field:outlined`). Recorded in either mode; empty in a production build, which reads nothing. |
+| `AvailabilityMode` | `'warn' \| 'error'`. |
+
+The mode and the record are kept under a registered symbol, as the words are, so `@tanrei/web/availability` imported
+beside the bundle shares them (the test harness's `setAvailabilityMode(page, …)` and `unavailableUses(page)` do this).
+
 ## The product's words: `setWords()`
 
 **Tanrei ships no words.** No element has a default text in any language: a word a component draws or exposes is the
@@ -7594,7 +7618,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `adoptUnlessDrawn(element, sheet, mark)`, `adopt(root, sheet)` (`sheets.ts`) | the stylesheet of an element that is drawn in the document, added to the root the element stands in — once, and only where that root does not draw the element already: a page that loaded `@tanrei/web/<name>.css` is handed no second copy (a sheet added to the document has the browser style the page again), a page that did not and a product's shadow root are handed one for all their instances. The cascade is asked once for a root and a sheet, while the root's own stylesheets stay as many as they were — not once for each element, nor once for each turn, since the question is a read of computed style inside the script that connected the element — and an element inside one of its own kind is answered by the outermost of them | the sheet (one constructed sheet for the page) and `mark`: a private custom property the sheet sets on every element of the kind and no shadow style of the element sets (`test/light-dom.ts` lists each element with its sheet and its mark, for `src/primitives/sheets.test.ts`, which counts the writes, and `src/primitives/passes.test.ts`, which counts the questions and the style passes: add yours) |
 | `OpenAxesController` | sizes and variants a layer adds (one sheet per value for the page, adopted on demand, falling back to the default's tokens) and the debug report of a value the active system lacks | per axis: its core values, default, the block builder and the probe token; the behaviour id |
 | `report(host, id, message)` | a debug-build `console.warn`, once per element and problem | the behaviour id and the message |
-| `AvailabilityController` (`availability.ts`) | the debug report of a component, or a value of its `variant`, the active system leaves out, read from `--tanrei-unavailable` on connect and when `variant` changes | its spec name (`new AvailabilityController(this, 'fab-menu')`), in every component with a spec |
+| `AvailabilityController` (`availability.ts`) | the debug report and the record of a component, or a value of its `variant`, the active system does not have, read from `--tanrei-unavailable`, `--tanrei-unavailable-layer` and `--tanrei-unavailable-replacement` on connect and when `variant` changes, and made under the element the product wrote (AVL-1 to AVL-3) | its spec name (`new AvailabilityController(this, 'fab-menu')`), in every component with a spec |
 | `hostAria(host, attributes)` | semantics a non-interactive component carries on its host (divider, progress, loading), written only when they change | the attributes, `null` to remove |
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
 | `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19) | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element); hide a glyph box without `data-drawn` |
