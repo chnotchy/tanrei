@@ -28,10 +28,15 @@ const live = definedTags.has(spec.platforms.web?.name ?? '') && drawsLive(spec);
 const overWindow = new Set(live ? spec.fixtures.filter((fixture) => liveFixture(spec, fixture).presentation === 'overlay').map((fixture) => fixture.id) : []);
 const stages = document.stages.map((stage) => (overWindow.has(stage.id) ? `<template data-presented="${stage.id}">${stage.html}</template>` : stage.html)).join('\n');
 const holder = document.page ? 'div' : 'main';
+// The system the stages are drawn under (a component that lives in a layer is drawn under that layer's): its scope on the
+// page, and its opt-in stylesheet.
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const systemSheet = document.system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${document.system}.css`))?.[1] : undefined;
+if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no generated stylesheet for the system "${document.system}"`);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tanrei-system={document.system}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -51,6 +56,7 @@ const holder = document.page ? 'div' : 'main';
         if (query.get('id')) document.documentElement.dataset.alone = '';
       })();
     </script>
+    {systemSheet && <link rel="stylesheet" href={systemSheet} />}
     <Fragment set:html={`<style>${document.styles}</style>`} />
   </head>
   <body data-component={spec.name}>

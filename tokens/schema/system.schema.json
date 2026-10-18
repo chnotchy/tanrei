@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tanrei.chnotchy.com/schemas/system.schema.json",
   "title": "Tanrei design system layer",
-  "description": "A design system expressed as a layer over Tanrei's vocabulary. A layer changes values — dials, palettes, per-token rules — and adds tokens only through its `vocabulary`, additively and with a rationale. Presets extend `tanrei`; a product extends a preset.",
+  "description": "A design system expressed as a layer over Tanrei's vocabulary. A layer changes values — dials, palettes, per-token rules — and adds tokens only through its `vocabulary`, additively and with a rationale. Every system descends from the root layer `core`: the default system `tanrei` and the presets extend it, and a product extends one of them.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -26,35 +26,109 @@
     "extends": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
-      "description": "Id of the parent layer — an id, never a path. Only the root layer `tanrei` omits it."
+      "description": "Id of the parent layer — an id, never a path. Only the root layer `core` omits it."
     },
     "specVersion": {
       "type": "string",
       "description": "Version of the role table. Bump when role rules change meaningfully."
     },
-    "unavailable": {
+    "components": {
       "type": "object",
       "additionalProperties": false,
-      "description": "What this system does not ship: components, and values of a component's `variant` prop. A layer that declares `unavailable` replaces its parent's list; a layer that omits it inherits the parent's. An empty object ships everything.",
+      "description": "Which components, and which values of a component's `variant` prop, this system ships. A layer starts from what its parent ships and changes it: `omit` leaves components out, `include` brings back ones an ancestor left out or takes one that lives in another layer from that layer, `variants` does the same for the values of a component's `variant` prop. What an ancestor left out stays out unless a layer includes it again. The root layer leaves nothing out.",
       "properties": {
-        "components": {
+        "omit": {
+          "type": "object",
+          "description": "component name (specs/inventory.json) → why this system leaves it out, and what it uses instead.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "minLength": 8,
+                "description": "Why this system does not ship the component."
+              },
+              "insteadUse": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                },
+                "description": "The components this system ships for the same job, in order of preference."
+              }
+            }
+          }
+        },
+        "include": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+                "description": "A component an ancestor left out, brought back."
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "from"
+                ],
+                "description": "A component that lives in a layer this system does not extend, taken with its whole vocabulary from that layer. Its tokens are valued with this system's own: its aliases resolve against this system's tokens, and none of the holding layer's values come along.",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                  },
+                  "from": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+                    "description": "The id of the layer the component lives in."
+                  }
+                }
+              }
+            ]
           },
-          "description": "Component names from specs/inventory.json."
+          "description": "Components this system ships that its parent does not: one an ancestor left out (by its name), or one that lives in a layer this system does not extend (`{ name, from }`)."
         },
         "variants": {
           "type": "object",
-          "description": "component name → the values of its `variant` prop this system does not ship. At least one value must stay.",
+          "description": "component name → the values of its `variant` prop this system leaves out (`omit`) or brings back (`include`). The default value and at least one other stay.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
           "additionalProperties": {
-            "type": "array",
-            "uniqueItems": true,
-            "minItems": 1,
-            "items": {
-              "type": "string"
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+              "omit": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "include": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -206,29 +280,12 @@
       "type": "array",
       "description": "Pattern rules for per-state component tokens. `*` matches one id segment and is available as $1, $2… in the operation. An explicit entry in `tokens` beats a pattern; among patterns, fewer wildcards win, then the later layer.",
       "items": {
-        "type": "object",
-        "required": [
-          "match"
-        ],
-        "properties": {
-          "match": {
-            "type": "string",
-            "pattern": "^tanrei\\.comp\\.[a-z0-9.*-]+$"
-          },
-          "$value": {},
-          "reason": {
-            "type": "string"
-          },
-          "derive": {
-            "$ref": "#/$defs/rule"
-          }
-        },
-        "additionalProperties": false
+        "$ref": "#/$defs/stateRule"
       }
     },
     "vocabulary": {
       "type": "object",
-      "description": "Extensions of the vocabulary declared by this layer. `vocabulary` says that something exists; `tokens` and `rules` give it a value. Additive only: an id that core or an ancestor layer already declares cannot be declared again. Three kinds, told apart by shape: a token (`$type`) inside Tanrei's tree — a step in a series; an axis value (`from`) keyed `tanrei.comp.<component>.<axis>.<value>` — or, in a sys series whose steps are groups of tokens, a whole step cloned with `from` (a named spring set, `tanrei.sys.motion.spring.<scheme>.<name>`); a token in this layer's own namespace (`<layer id>.(sys|comp).…`).",
+      "description": "Extensions of the vocabulary declared by this layer. `vocabulary` says that something exists; `tokens` and `rules` give it a value. Additive only: an id that core or an ancestor layer already declares cannot be declared again. Four kinds, told apart by shape: a token (`$type`) inside Tanrei's tree — a step in a series; an axis value (`from`) keyed `tanrei.comp.<component>.<axis>.<value>` — or, in a sys series whose steps are groups of tokens, a whole step cloned with `from` (a named spring set, `tanrei.sys.motion.spring.<scheme>.<name>`); a token in this layer's own namespace (`<layer id>.(sys|comp).…`); and the whole vocabulary of a component that lives in this layer (`document`), keyed `tanrei.comp.<component>`.",
       "propertyNames": {
         "pattern": "^[a-z][a-z0-9-]*\\.(sys|comp)\\.[a-z0-9][a-z0-9.-]*$"
       },
@@ -239,6 +296,9 @@
           },
           {
             "$ref": "#/$defs/declaredAxisValue"
+          },
+          {
+            "$ref": "#/$defs/declaredComponent"
           }
         ]
       }
@@ -565,6 +625,57 @@
           }
         }
       ]
+    },
+    "stateRule": {
+      "type": "object",
+      "required": [
+        "match"
+      ],
+      "properties": {
+        "match": {
+          "type": "string",
+          "pattern": "^tanrei\\.comp\\.[a-z0-9.*-]+$"
+        },
+        "$value": {},
+        "reason": {
+          "type": "string"
+        },
+        "derive": {
+          "$ref": "#/$defs/rule"
+        }
+      },
+      "additionalProperties": false
+    },
+    "declaredComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document",
+        "rationale"
+      ],
+      "description": "The whole vocabulary of a component that lives in this layer: every system that ships the component descends from this layer. Its document is kept next to the layer (`tokens/systems/<layer id>/comp/<component>.tokens.json`) and holds the component's group as the core's component documents do; its tokens keep the core namespace, so the names a product, a stylesheet and the native types use do not change. Every system that descends from this layer has the component; another system has it only when one of its layers includes it from here (`components.include: [{ \"name\": \"<component>\", \"from\": \"<this layer>\" }]`), its aliases then resolving against that system's own tokens. The component's spec says `\"layer\": \"<this layer>\"`.",
+      "properties": {
+        "document": {
+          "type": "string",
+          "pattern": "^comp/[a-z][a-z0-9]*(-[a-z0-9]+)*\\.tokens\\.json$",
+          "description": "`comp/<component>.tokens.json`, relative to tokens/systems/<layer id>/."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Why the component lives in this layer and not in the core: the one-product test it passes here and fails there."
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stateRule"
+          },
+          "description": "The rules that value the component's own states, written as a layer's `rules` are, each matching only this component's tokens. They come with the vocabulary into every system that has the component, before the rules of the layer that brings it."
+        },
+        "$description": {
+          "type": "string"
+        }
+      }
     }
   }
 }

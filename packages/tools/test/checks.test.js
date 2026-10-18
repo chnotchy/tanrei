@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { checkParity, compileSpecSchema, implementationProblems, specProblems, systemAvailability, unknownTokenIdsInProse, validateAvailability, validateSpecs, wordsProblems } from '../src/checks.js';
+import { checkParity, compileSpecSchema, implementationProblems, layerProblems, specProblems, systemAvailability, unknownTokenIdsInProse, validateAvailability, validateSpecs, wordsProblems } from '../src/checks.js';
 import { CONFIG, DOCS_PAGES, OVERRIDES, PLATFORMS, exists, loadSpecs, read } from '../src/conventions.js';
 import { buildStatus, docsAddress } from '../src/status.js';
 
@@ -141,14 +141,38 @@ test('the status matrix names a docs page only where the page exists', () => {
   assert.equal(docsAddress('a-component-nobody-wrote'), null);
 });
 
-test('every system\'s unavailable list names what exists, and a layer that declares one replaces its parent\'s', () => {
+test('what every system leaves out names what exists, and a layer changes what its parent ships', () => {
   assert.deepEqual(validateAvailability(), []);
   const availability = systemAvailability();
   assert.ok(availability.tanrei.components.includes('segmented-button'));
-  // m3-like replaces the root's list with its own: every component, no filled navigation bar and no
-  // tonal tabs.
-  assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
+  assert.ok(!('core' in availability), 'the root ships no output of its own, and leaves nothing out');
+  // m3-like brings back what the default system leaves out and leaves out its own: every component, no filled
+  // navigation bar and no tonal tabs.
+  assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] }, outside: {} });
   assert.deepEqual(availability['m3-expressive-like'], availability['m3-like']);
+  // What lives in a layer a system does not extend is outside it, with that layer, not left out.
+  assert.deepEqual(availability.tanrei.outside, { 'fab-menu': 'm3-like' });
+  assert.deepEqual(availability.cupertino.outside, { 'fab-menu': 'm3-like' });
+  assert.ok(!availability.tanrei.components.includes('fab-menu'));
+});
+
+test('a component lives where its spec says: the inventory, the layer that declares its vocabulary and its document agree', () => {
+  assert.deepEqual(layerProblems(), []);
+  const specs = loadSpecs();
+  const rows = JSON.parse(read('specs/inventory.json')).components;
+  const layers = ['core', 'm3-like', 'tanrei'];
+  const holding = { vocabulary: { 'tanrei.comp.fab-menu': { document: 'comp/fab-menu.tokens.json', rationale: 'Only the Material line ships it.' } } };
+  const readOne = (id) => (id === 'm3-like' ? holding : {});
+  const lives = (spec, row, read = readOne) => layerProblems(specs.map((each) => (each.spec.name === 'fab-menu' ? { ...each, spec } : each)), rows.map((each) => (each.name === 'fab-menu' ? row : each)), layers, read).join('\n');
+  const fab = specs.find(({ spec }) => spec.name === 'fab-menu');
+  const row = rows.find((each) => each.name === 'fab-menu');
+  assert.equal(lives(fab.spec, row), '');
+  assert.match(lives(fab.spec, { ...row, layer: undefined }), /layer is "m3-like", but specs\/inventory\.json says "core"/);
+  assert.match(lives({ ...fab.spec, layer: 'nowhere' }, { ...row, layer: 'nowhere' }), /layer "nowhere" is not a design system layer/);
+  assert.match(lives(fab.spec, row, () => ({})), /declares no "tanrei\.comp\.fab-menu" under "vocabulary"/);
+  const { layer, ...core } = fab.spec;
+  assert.match(lives(core, { ...row, layer: undefined }), /declares the vocabulary of "fab-menu", whose spec and inventory row say it lives in "core"/);
+  assert.match(lives(fab.spec, row, (id) => (id === 'm3-like' || id === 'tanrei' ? holding : {})), /is declared by "m3-like" too — a component lives in one layer/);
 });
 
 test('a spec platform is lagging by its status alone: the spec names nothing else about what it owes', () => {

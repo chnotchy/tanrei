@@ -2,7 +2,7 @@
 title: メインアクションボタン
 description: 画面でいちばん大切なアクションを、コンテンツの上に浮かぶ持ち上がったコンテナで実行します。名前を書き添えた形か、アイコンだけに縮めた形で表示します。
 translationOf: components/main-action-button.mdx
-sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
+sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -92,6 +92,7 @@ Web では `<tanrei-main-action-button>`、React では `MainActionButton` で�
 - Material 3 の FAB、small FAB、large FAB は、medium、small、large のサイズで縮めたメインアクションボタンです。extended FAB は伸ばした形です。
 - Compose の `expanded`（`ExtendedFloatingActionButton`）と Flutter の `isExtended`（`FloatingActionButton.extended`）は `extended` にあたります。
 - Material 3 の primary、secondary、tertiary、surface の FAB の色は、`filled`、`tonal`、`surface` のバリアントと、プリセットが加える値に対応します。m3-like プリセットは、Material の角丸の四角と 56 / 96 の高さを、このコンポーネントのトークンで描きます。
+- Material の用語では、メインアクションボタンは FAB に当たります。Material の FAB メニューは [FAB メニュー](/ja/components/fab-menu/)で、m3-like レイヤーのコンポーネントです。そのレイヤーを継ぐシステムが持っています。
 
 ## 仕様
 
@@ -127,7 +128,7 @@ Web では `<tanrei-main-action-button>`、React では `MainActionButton` で�
 
 - フォーム、ダイアログ、コンテンツの中の特定の項目に属するアクションには、そのコンテンツのある場所に[ボタン](/ja/components/button/)を置きます。
 - いまの画面や選択に対するアクションがいくつかあるなら、[ツールバー](/ja/components/toolbar/)を使います。
-- 主なアクションに関連するいくつかの形（新しいドキュメント、フォルダー、アップロード）があるときは、メインアクションボタンから、それらを並べた[ボトムシート](/ja/components/bottom-sheet/)を開きます。[FAB メニュー](/ja/components/fab-menu/)は、これを提供するプリセットでその役目を果たしますが、既定のシステムでは提供しません。
+- 主なアクションに関連するいくつかの形（新しいドキュメント、フォルダー、アップロード）があるときは、メインアクションボタンから、それらを並べた[ボトムシート](/ja/components/bottom-sheet/)を開きます。[FAB メニュー](/ja/components/fab-menu/)は、それがある m3-like レイヤーのシステムでその役目を果たします。既定のシステムはこれを持ちません。
 - メインアクションボタンはアクションを実行するもので、移動先は持ちません。別の場所へ移動するだけのコントロールはリンクです。`href` を付けた[ボタン](/ja/components/button/)を使います。
 
 ### 伸ばすか、縮めるか

@@ -1,9 +1,11 @@
 // <tanrei-fab-menu>, driven by specs/fab-menu.spec.json: every behaviour id (FBM-1…24) is cited by a test title, every
 // fixture has a baseline, and every state, size and choice of kind is read back from the tokens — never from a number
-// written here.
+// written here. The FAB menu lives in the m3-like layer: its fixtures are drawn under m3-like (the harness draws a
+// component that lives in a layer under that layer's system), and a choice of kind another system makes is read under a
+// product on that system that includes the FAB menu from m3-like (`includingSystem`), as acme does.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionEnded } from '../../../test/motions.js';
 
@@ -114,10 +116,13 @@ function warnings(page: P) {
 }
 
 test.describe('behavior', () => {
-  // Building the acme fixture system takes longer than a test's budget on a busy machine: once per worker, up front.
+  // Building the acme fixture system, and the products that include the FAB menu, takes longer than a test's budget on a
+  // busy machine: once per worker, up front.
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
     await acmeSystemCss();
+    await includingSystem('tanrei', 'fab-menu', 'm3-like');
+    await includingSystem('cupertino', 'fab-menu', 'm3-like');
   });
 
   test('FBM-1: pointer, Enter and Space on the toggle emit toggle once with the opposite of open; Down and Up Arrow ask to open a closed menu; the product opens it', async ({ page }) => {
@@ -489,7 +494,8 @@ test.describe('behavior', () => {
   });
 
   test('FBM-13: a fixture draws its items in place above the toggle, which sits 16 in from the stage’s inline-end bottom corner', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
+    // The default system's sizes, under a product on it that includes the FAB menu: the offsets below are those.
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('tanrei', 'fab-menu', 'm3-like')) });
     const stage = await bounds(page.locator('[data-fixture="filled-open"]'));
     const square = await bounds(toggle(page, 'filled-open'));
     expect(stage.x + stage.width - (square.x + square.width)).toBe(16);
@@ -892,13 +898,17 @@ test.describe('behavior', () => {
 
 test.describe('press, feedback, corners and focus style', () => {
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
     await acmeSystemCss();
+    await includingSystem('tanrei', 'fab-menu', 'm3-like');
+    await includingSystem('cupertino', 'fab-menu', 'm3-like');
   });
 
   test('FBM-8: a press on the toggle that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
+    // The default system's choice of feedback (overlay), under a product on it that includes the FAB menu.
+    const onTanrei = await includingSystem('tanrei', 'fab-menu', 'm3-like');
     expect(await (async () => {
-      await mountFixtures(page, spec, { icons: true });
+      await mountFixtures(page, spec, { icons: true, ...onTanrei });
       return resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
     })()).toBe(100);
     const hold = 1000;
@@ -907,7 +917,7 @@ test.describe('press, feedback, corners and focus style', () => {
       ['Space', () => page.keyboard.press('Space')],
       ['click', () => toggle(page, 'menu').click()],
     ] as const) {
-      await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
+      await mountFixtures(page, spec, { icons: true, ...onTanrei, fixtures: [fixture('menu')] });
       await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
       await toggle(page, 'menu').focus();
       await toggle(page, 'menu').evaluate((el) => {
@@ -928,10 +938,11 @@ test.describe('press, feedback, corners and focus style', () => {
     }
   });
 
-  test('FBM-9: overlay (default), ripple (m3-like), dim (cupertino) and none each answer a press on the toggle and on an item; an unknown name is the first', async ({ page }) => {
+  test('FBM-9: overlay (the default system’s), ripple (m3-like), dim (cupertino’s) and none each answer a press on the toggle and on an item; an unknown name is the first', async ({ page }) => {
     const pressedAttr = (locator: Locator) => locator.getAttribute('data-pressed');
-    // overlay: the pressed tokens on the whole toggle and item at once, no layer.
-    await mountFixtures(page, spec, { icons: true });
+    // overlay: the pressed tokens on the whole toggle and item at once, no layer — the default system's choice, read
+    // under a product on it that includes the FAB menu.
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('tanrei', 'fab-menu', 'm3-like')) });
     expect(await token(page, '--tanrei-sys-behavior-pressed-feedback')).toBe('overlay');
     await toggle(page, 'filled-closed').hover();
     await page.mouse.down();
@@ -1013,7 +1024,7 @@ test.describe('press, feedback, corners and focus style', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
 
     // dim: the pressed opacity on the whole control, no layer; only the container color stays with the state under it.
-    await mountFixtures(page, spec, { icons: true, system: 'cupertino' });
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('cupertino', 'fab-menu', 'm3-like')) });
     await override(page, { [T('filled-pressed-icon-color')]: 'rgb(0, 0, 255)', [T('filled-pressed-item-label-color')]: 'rgb(0, 128, 0)' });
     const resting = await cssOf(toggle(page, 'filled-closed'), 'background-color');
     await toggle(page, 'filled-closed').hover();
@@ -1057,13 +1068,14 @@ test.describe('press, feedback, corners and focus style', () => {
   test('FBM-10 corner smoothing and focus-style: cupertino eases the toggle’s and an item’s corners, the ring concentric, a pill staying round; acme shows keyboard focus as a glow on both', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     expect(await cssOf(toggle(page, 'filled-closed'), 'corner-top-left-shape')).toMatch(/^(round|superellipse\(1\)|)$/);
-    await mountFixtures(page, spec, { icons: true, system: 'cupertino', fixtures: [fixture('menu', { inline: true, open: true }), fixture('closed', { inline: true })] });
+    // cupertino's smoothing, under a product on cupertino that includes the FAB menu from m3-like.
+    await mountFixtures(page, spec, { icons: true, ...(await includingSystem('cupertino', 'fab-menu', 'm3-like')), fixtures: [fixture('menu', { inline: true, open: true }), fixture('closed', { inline: true })] });
     const supported = await page.evaluate(() => CSS.supports('corner-shape: superellipse(log(2, 2))'));
     test.info().annotations.push({ type: 'corner-shape', description: supported ? 'eased with corner-shape' : 'not supported by this browser: circular fallback' });
-    // cupertino's toggle and items are capsules (corner.full): round whatever the smoothing.
-    expect(await token(page, T('item-shape-pill'))).toBe('1');
+    // A capsule (corner.full) stays round whatever the smoothing.
+    await override(page, { [T('item-shape')]: 'var(--tanrei-sys-shape-corner-full)', [T('item-shape-pill')]: '1' });
     if (supported) expect(await cssOf(box(page, 'menu', 'Folder'), 'corner-top-left-shape')).toMatch(/^(round|superellipse\(1\))$/);
-    // A product's cupertino with square-ish corners: eased.
+    // Square-ish corners: eased.
     await override(page, { [T('item-shape')]: '12px', [T('item-shape-pill')]: '0', [T('container-shape-medium')]: '12px', [T('container-shape-medium-pill')]: '0' });
     for (const locator of [toggle(page, 'closed'), box(page, 'menu', 'Folder')]) {
       if (supported) {

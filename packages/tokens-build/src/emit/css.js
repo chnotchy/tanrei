@@ -157,6 +157,9 @@ function insetRingCompanion(token) {
 const unavailableValue = ({ components, variants }) =>
   JSON.stringify([...components, ...Object.entries(variants).flatMap(([component, values]) => values.map((v) => `${component}:${v}`))].join(' '));
 
+/** What lives in a layer the system does not extend: `component=layer`, space-separated, in one string. */
+const outsideValue = (outside) => JSON.stringify(Object.entries(outside).map(([component, layer]) => `${component}=${layer}`).join(' '));
+
 const block = (selector, decls, indent = '') =>
   `${indent}${selector} {\n${decls.map(([n, v]) => `${indent}  ${n}: ${v};`).join('\n')}\n${indent}}`;
 
@@ -165,13 +168,15 @@ function colorValue(token) {
 }
 
 /**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> } }} [options]
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string> }} [options]
  *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
  *   systems can coexist on one page. `unavailable` = what the system does not ship, declared as one string
  *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
- *   declared even when empty, so a preset's empty list overrides the default system's inherited one.
+ *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
+ *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
+ *   system's sheet has no tokens for them, and a component used there says so.
  */
-export function emitCss(model, { scope, unavailable } = {}) {
+export function emitCss(model, { scope, unavailable, outside } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
@@ -218,7 +223,7 @@ export function emitCss(model, { scope, unavailable } = {}) {
     // Custom properties resolve their var() references where they are declared. Declaring the whole
     // set again on a contrast scope makes component tokens pick up that scope's system colors, so
     // data-${NS}-contrast works on a subtree and not only on <html>.
-    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : [])], '  '),
+    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : [])], '  '),
     block(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
     '',
     `  /* Theme follows the OS by default; force it per subtree with data-${NS}-theme. */`,
