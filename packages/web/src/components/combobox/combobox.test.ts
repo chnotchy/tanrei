@@ -8,6 +8,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -2017,7 +2019,23 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => seen.some((w) => w.includes('CMB-44') && w.includes('sometimes'))).toBe(true);
   });
 
-  test('CMB-45: the list fades in and grows from the edge that faces the container over motion.open-*, fades out over motion.close-*, and appears and disappears at once where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('CMB-45: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
+    await focusInput(page, 'one');
+    const opening = await sampleFrames(host(page, 'one'), () => page.keyboard.press('ArrowDown'), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(String(opening.frames[0]!.probe.origin)).toMatch(/ 0px$/);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const closing = await sampleFrames(host(page, 'one'), () => page.keyboard.press('Escape'), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+  });
+
+  test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are
@@ -2029,7 +2047,7 @@ test.describe('behavior: the list', () => {
     await focusInput(page, 'one');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'one').toBe(true);
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, el.style.transformOrigin.endsWith(' 0px') || el.style.transformOrigin.endsWith(' 0')])).toEqual(['opacity, transform', '40s, 40s', true]);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter, display, overlay', '40s', true]);
     expect(Number(await css(motion, 'opacity')), 'still fading in').toBeLessThan(1);
     await arrive();
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
@@ -2058,13 +2076,13 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await read(page, 'one')).open).toBe(false);
     await arrive();
     await closedList(page, 'one');
-    // Reduced motion: at once.
+    // Reduced motion: only a fade, over role.reduced — no scale, no distance.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.keyboard.press('ArrowDown');
-    expect(await css(motion, 'transition-duration')).toBe('0s');
-    expect(Number(await css(motion, 'opacity'))).toBe(1);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity, display, overlay', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
+    await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
     await page.keyboard.press('Escape');
-    expect(await part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    await expect.poll(() => part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 });
 

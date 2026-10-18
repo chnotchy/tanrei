@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { loadSpec, missingWords, mountFixtures, setWords, tab } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('combobox-field');
 type P = Page;
@@ -152,6 +153,8 @@ test.describe('behavior', () => {
     await focus(one(page, 'wide'));
     await page.keyboard.press('ArrowDown');
     await expect(rows(one(page, 'wide'))).toHaveCount(1);
+    // At rest: until its entrance ends the list is still growing toward the container's edge (CMB-45).
+    await motionEnded(combobox(one(page, 'wide')).locator('.motion'));
     const [list, container] = [await bounds(combobox(one(page, 'wide')).locator('.list')), await bounds(combobox(one(page, 'wide')).locator('.field > .container'))];
     expect(Math.abs(list.width - container.width)).toBeLessThanOrEqual(0.6);
   });
