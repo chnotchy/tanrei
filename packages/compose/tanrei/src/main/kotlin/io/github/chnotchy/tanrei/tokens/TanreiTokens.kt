@@ -3956,7 +3956,6 @@ public data class TanreiDialogTokens(
     public val iconSize: Dp,
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
-    public val motionEnterOffset: Dp,
     public val motionEnterScale: Float,
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,

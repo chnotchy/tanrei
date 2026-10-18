@@ -3563,7 +3563,6 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   iconSize: 24,
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 32,
   motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),

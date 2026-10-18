@@ -9203,7 +9203,6 @@ class TanreiDialogTokens {
     required this.iconSize,
     required this.motionEnterDuration,
     required this.motionEnterEasing,
-    required this.motionEnterOffset,
     required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
@@ -9268,8 +9267,6 @@ class TanreiDialogTokens {
   final int motionEnterDuration;
   /// `comp.dialog.motion-enter-easing`
   final TanreiCubicBezier motionEnterEasing;
-  /// `comp.dialog.motion-enter-offset`
-  final double motionEnterOffset;
   /// `comp.dialog.motion-enter-scale`
   final double motionEnterScale;
   /// `comp.dialog.motion-exit-duration`
@@ -9319,7 +9316,6 @@ class TanreiDialogTokens {
     double? iconSize,
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
-    double? motionEnterOffset,
     double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
@@ -9357,7 +9353,6 @@ class TanreiDialogTokens {
         iconSize: iconSize ?? this.iconSize,
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
-        motionEnterOffset: motionEnterOffset ?? this.motionEnterOffset,
         motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,

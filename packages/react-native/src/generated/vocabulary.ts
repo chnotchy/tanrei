@@ -1982,7 +1982,6 @@ export interface TanreiDialogTokens {
   readonly iconSize: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterOffset: number;
   readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;

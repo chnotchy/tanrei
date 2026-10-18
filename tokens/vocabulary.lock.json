@@ -2396,7 +2396,6 @@
     "tanrei.comp.dialog.icon.size": "dimension",
     "tanrei.comp.dialog.motion.enter-duration": "duration",
     "tanrei.comp.dialog.motion.enter-easing": "cubicBezier",
-    "tanrei.comp.dialog.motion.enter-offset": "dimension",
     "tanrei.comp.dialog.motion.enter-scale": "number",
     "tanrei.comp.dialog.motion.exit-duration": "duration",
     "tanrei.comp.dialog.motion.exit-easing": "cubicBezier",

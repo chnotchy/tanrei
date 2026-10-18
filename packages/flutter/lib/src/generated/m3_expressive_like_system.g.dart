@@ -3754,7 +3754,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     iconSize: 24.0,
     motionEnterDuration: 300,
     motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
-    motionEnterOffset: 32.0,
     motionEnterScale: 0.95,
     motionExitDuration: 200,
     motionExitEasing: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),

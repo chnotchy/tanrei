@@ -6233,7 +6233,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var iconSize: CGFloat
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
-  public var motionEnterOffset: CGFloat
   public var motionEnterScale: Double
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
@@ -6272,7 +6271,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     iconSize: CGFloat,
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
-    motionEnterOffset: CGFloat,
     motionEnterScale: Double,
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
@@ -6310,7 +6308,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.iconSize = iconSize
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
-    self.motionEnterOffset = motionEnterOffset
     self.motionEnterScale = motionEnterScale
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
