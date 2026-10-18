@@ -15,4 +15,5 @@ a list. A list in which all or none of the options have icons draws as before.
 
 Baselines: new fixtures `icon-space-auto`, `icon-space-always` and `icon-space-never`. The baselines of the open
 right-to-left fixtures whose second group has no icon change as intended — `select/open-rtl`, `select-field/open-rtl`
-and `field/select-open-rtl`: that group's labels now start at the row's start.
+and `field/select-open-rtl`: that group's labels now start at the row's start. The last two also lose the fill of
+the chosen option, which their old images still drew from before the chosen option lost it at standard contrast.
