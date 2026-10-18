@@ -497,7 +497,7 @@
                   }
                 }
               ],
-              "description": "ACC-13, where the browser cannot move a height to `auto` in CSS: the content's height is measured once, before the\nfirst frame, and the stylesheet moves its box between 0 and that height. An item whose `open` changes again on the\nway goes on from where it is: the pose is turned, and the transition reverses by itself. Where the stylesheet\nmoves the content alone, or the item's clock does not run (reduced motion, a duration of zero), nothing is done."
+              "description": "ACC-13, where the browser cannot move a height to `auto` in CSS: the content's height is measured once, before the\nfirst frame, and the stylesheet moves its box between 0 and that height. The box holds its content's margins\n(accordion.css), so what the item measures below its header is the box's own height, and the height it ends at is\nthe one it rests at. An item whose `open` changes again on the\nway goes on from where it is: the pose is turned, and the transition reverses by itself. Where the stylesheet\nmoves the content alone, or the item's clock does not run (reduced motion, a duration of zero), nothing is done."
             },
             {
               "kind": "method",
@@ -715,7 +715,7 @@
                   }
                 }
               ],
-              "description": "ACC-13, where the element moves the height: an item turned back on the way goes on from where it is — and when it\nis turned before the middle of its motion, the browser cancels its clock instead of turning it back too. The clock\nis a custom property no browser interpolates: in its first half its value is still the one it is going from, which\nis the value the item turns back to, and a transition whose value is already the new one is cancelled (CSS\nTransitions, \"starting of transitions\"). The height's own transition, a length, turns back and goes on. Its end is\ntold to the page by no event, and the item's height at its end need not be what was measured (a margin of the\ncontent may reach past a box of `auto` height, and not past one of a set height), so the item is read once a frame\nuntil it has stood still for two: a moving height changes in every frame. Then the motion is over. A change that ends the height at once\n(reduced motion, a removal, an ancestor that stops being drawn) ends this as soon."
+              "description": "ACC-13, where the element moves the height: an item turned back on the way goes on from where it is — and when it\nis turned before the middle of its motion, the browser cancels its clock instead of turning it back too. The clock\nis a custom property no browser interpolates: in its first half its value is still the one it is going from, which\nis the value the item turns back to, and a transition whose value is already the new one is cancelled (CSS\nTransitions, \"starting of transitions\"). The height's own transition, a length, turns back and goes on. Its end is\ntold to the page by no event, so the item is read once a frame until it has stood still for two: a moving height\nchanges in every frame. Then the motion is over. A change that ends the height at once (reduced motion, a removal,\nan ancestor that stops being drawn) ends this as soon."
             },
             {
               "kind": "field",

@@ -72,7 +72,10 @@
  *   wrapper itself is not drawn again by every engine when the answer changes).
  * - The content's box is the browser's own `::details-content`: its inset, the space under it and its height motion
  *   are set there, so nothing wraps the product's content. Open, it is not clipped: a focus ring inside it may reach
- *   past its edge. It is clipped only while its height moves.
+ *   past its edge. It is clipped only while its height moves. It is a block formatting context (`flow-root`): a
+ *   margin of the content's first or last part stays inside it. Otherwise the first part's margin reaches out above
+ *   the box at every height, 0 included, and the item is that much taller than the box: the motion then starts (and,
+ *   where the element measures the height, also ends) a margin away from where the item rests (ACC-8, ACC-13).
  * - The state rules, the focus indicator and the ripple's layer say what `stateRules()`, `focusRing()` and
  *   `rippleStyles()` (src/primitives) say for a shadow root; they are restated here for an element of the document.
  * - Pressed: with the package's script it is `data-pressed` (the shared press primitive). Without it, `:active` is
@@ -547,6 +550,8 @@
   /* ── The content (ACC-8): inset to the header's first part, nothing above it, the density's space under it ──── */
   @supports selector(::details-content) {
     :where(tanrei-accordion) > :where(details)::details-content {
+      /* ACC-8, ACC-13: the content's margins stay inside, at rest and at every height of the motion (see the header). */
+      display: flow-root;
       box-sizing: border-box;
       block-size: 0;
       padding-inline: var(--_acc-pad-inline);

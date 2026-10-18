@@ -622,7 +622,9 @@ export class TanreiAccordion extends ReactiveElement {
 
   /**
    * ACC-13, where the browser cannot move a height to `auto` in CSS: the content's height is measured once, before the
-   * first frame, and the stylesheet moves its box between 0 and that height. An item whose `open` changes again on the
+   * first frame, and the stylesheet moves its box between 0 and that height. The box holds its content's margins
+   * (accordion.css), so what the item measures below its header is the box's own height, and the height it ends at is
+   * the one it rests at. An item whose `open` changes again on the
    * way goes on from where it is: the pose is turned, and the transition reverses by itself. Where the stylesheet
    * moves the content alone, or the item's clock does not run (reduced motion, a duration of zero), nothing is done.
    */
@@ -903,10 +905,9 @@ export class TanreiAccordion extends ReactiveElement {
    * is a custom property no browser interpolates: in its first half its value is still the one it is going from, which
    * is the value the item turns back to, and a transition whose value is already the new one is cancelled (CSS
    * Transitions, "starting of transitions"). The height's own transition, a length, turns back and goes on. Its end is
-   * told to the page by no event, and the item's height at its end need not be what was measured (a margin of the
-   * content may reach past a box of `auto` height, and not past one of a set height), so the item is read once a frame
-   * until it has stood still for two: a moving height changes in every frame. Then the motion is over. A change that ends the height at once
-   * (reduced motion, a removal, an ancestor that stops being drawn) ends this as soon.
+   * told to the page by no event, so the item is read once a frame until it has stood still for two: a moving height
+   * changes in every frame. Then the motion is over. A change that ends the height at once (reduced motion, a removal,
+   * an ancestor that stops being drawn) ends this as soon.
    */
   private follow(details: HTMLDetailsElement) {
     if (this.following.has(details)) return;
