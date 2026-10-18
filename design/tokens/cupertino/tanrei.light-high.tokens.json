@@ -72683,7 +72683,7 @@
           "variant": {
             "$type": "number",
             "$value": 1,
-            "$description": "The Button variant of the close button, an icon-only medium Button (SSH-5). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            "$description": "The Button variant of the close button, an icon-only small Button (SSH-5): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
         "container": {

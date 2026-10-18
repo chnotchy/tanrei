@@ -515,7 +515,7 @@ test.describe('drawing', () => {
 });
 
 test.describe('the close button', () => {
-  test('SSH-5: while closable, an icon-only medium Button with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('SSH-5: while closable, an icon-only small Button (32 × 32) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const variant of ['standard', 'modal']) {
       await mount(page, [fx('s', { variant }, TEXT, ACTIONS)]);
@@ -526,9 +526,10 @@ test.describe('the close button', () => {
       await page.mouse.move(0, 0);
       await expect(close(page)).not.toHaveAttribute('variant');
       await expect.poll(() => paint(close(page))).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
-      await expect(close(page)).toHaveAttribute('size', 'medium');
+      await expect(close(page)).toHaveAttribute('size', 'small');
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
-      const size = await px(page, '--tanrei-comp-button-container-height-medium');
+      const size = await px(page, '--tanrei-comp-button-container-height-small');
+      expect(size).toBe(32);
       const box = await bounds(close(page).locator('button'));
       expect([box.width, box.height]).toEqual([size, size]);
       await expect(host(page).getByRole('button', { name: 'Close filters' })).toHaveCount(1);
@@ -550,10 +551,51 @@ test.describe('the close button', () => {
     // Not closable: no button.
     await mount(page, [fx('s', { closable: false })]);
     await expect(close(page)).toHaveCount(0);
+    await expect(host(page)).toHaveAttribute('not-closable', '');
     await mount(page, [fx('s', { closeLabel: '' })]);
     await expect(close(page)).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('SSH-5')).length).toBe(1);
     expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
+  });
+
+  test('SSH-5: closable defaults to true — a sheet with no closable draws the close button, in either variant; the attribute not-closable, or the property set to false, draws none; without a close-label the default sheet is reported', async ({ page }) => {
+    const seen = warnings(page);
+    for (const variant of ['standard', 'modal']) {
+      await mountFixtures(page, spec, { icons: true, fixtures: [] });
+      await page.evaluate((v) => {
+        const main = document.querySelector('main') as HTMLElement;
+        main.innerHTML = `<div style="display: flex; inline-size: 720px; block-size: 480px"><div style="flex: 1"></div><tanrei-side-sheet variant="${v}" open headline="Filters" close-label="Close filters"><tanrei-button slot="actions" confirming>Apply</tanrei-button></tanrei-side-sheet></div>`;
+      }, variant);
+      const sheet = page.locator('tanrei-side-sheet');
+      expect(await sheet.evaluate((el) => (el as HTMLElement & { closable: boolean }).closable), variant).toBe(true);
+      await expect(sheet, variant).not.toHaveAttribute('not-closable');
+      await expect(sheet.locator('tanrei-button.close'), variant).toHaveCount(1);
+      await expect(sheet.getByRole('button', { name: 'Close filters' }), variant).toHaveCount(1);
+      await sheet.evaluate((el) => {
+        (el as HTMLElement & { closable: boolean }).closable = false;
+      });
+      await expect(sheet, variant).toHaveAttribute('not-closable', '');
+      await expect(sheet.locator('tanrei-button.close'), variant).toHaveCount(0);
+      await sheet.evaluate((el) => el.removeAttribute('not-closable'));
+      await expect(sheet.locator('tanrei-button.close'), variant).toHaveCount(1);
+    }
+    expect(seen.filter((w) => w.includes('SSH-5'))).toEqual([]);
+    // The default draws it, so a sheet given no close-label is reported.
+    await mountFixtures(page, spec, { icons: true, fixtures: [] });
+    await page.evaluate(() => {
+      (document.querySelector('main') as HTMLElement).innerHTML = '<tanrei-side-sheet open headline="Filters">Text.</tanrei-side-sheet>';
+    });
+    await expect.poll(() => seen.filter((w) => w.includes('SSH-5')).length).toBe(1);
+  });
+
+  test('SSH-5: under m3-like the close button is a bare glyph (text) at m3-like’s small Button size; cupertino keeps the tonal circle at its own small size', async ({ page }) => {
+    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
+      await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'modal') });
+      const button = page.locator('[data-fixture="modal"] tanrei-side-sheet').locator('tanrei-button.close');
+      await expect(button, system).toHaveAttribute('size', 'small');
+      await expect.poll(() => paint(button), system).toBe(await resolveColor(page, `--tanrei-comp-button-${variant}-container-color`));
+      expect((await bounds(button.locator('button'))).height, system).toBeCloseTo(await px(page, '--tanrei-comp-button-container-height-small'), 1);
+    }
   });
 });
 
