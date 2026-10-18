@@ -31,6 +31,7 @@
     "./scheme": "./src/scheme.js",
     "./emit/css": "./src/emit/css.js",
     "./pure": "./src/pure.js",
-    "./config": "./src/config.js"
+    "./config": "./src/config.js",
+    "./layers": "./src/layers.js"
   }
 }
