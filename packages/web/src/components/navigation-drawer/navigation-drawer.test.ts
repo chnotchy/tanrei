@@ -24,7 +24,7 @@ const panel = (page: P, id: string) => drawer(page, id).locator('.drawer');
 const menu = (page: P, id: string) => drawer(page, id).locator('tanrei-button[slot="header-button"]').first();
 const T = (name: string) => `--tanrei-comp-navigation-drawer-${name}`;
 const d = (value: string, label: string, icon = '', props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { value, label, ...(icon ? { icon } : {}), ...props } });
-const section = (heading: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'section', props: { heading, ...props }, items });
+const section = (heading: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'section', props: { title: heading, ...props }, items });
 const grp = (label: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'group', props: { label, ...props }, items });
 /** A link destination without a value of its own: its href stands for it (NVD-59). */
 const link = (label: string, href: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { label, href, ...props } });
@@ -3380,4 +3380,17 @@ test.describe('fixtures', () => {
       await expect(page.locator(`[data-fixture="${f.id}"]`) as Locator).toHaveScreenshot([spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test('web: a section’s title is the headline attribute and property, drawn as a heading; heading names no attribute', async ({ page }) => {
+  await mount(page, [{ id: 's', props: { label: 'Menu', open: true }, items: [section('Mail', [d('inbox', 'Inbox', 'inbox')])] }]);
+  const element = page.locator('[data-fixture="s"] tanrei-navigation-drawer-section');
+  await expect(element).toHaveAttribute('headline', 'Mail');
+  await expect(element.locator('[role="heading"]')).toHaveText('Mail');
+  await element.evaluate(async (el) => {
+    el.removeAttribute('headline');
+    el.setAttribute('heading', 'Mail');
+    await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+  });
+  await expect(element.locator('[role="heading"]')).toHaveCount(0);
 });

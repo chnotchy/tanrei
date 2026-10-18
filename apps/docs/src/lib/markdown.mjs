@@ -44,9 +44,9 @@
 //      drawn plain (the build names an unknown one once, as a warning).
 //    - A fence of shell commands (`sh`, `bash`, `zsh`, `shell`) takes the prompt `$`, which is drawn and is not code.
 //    - The rest of the fence's first line is the element's own attributes, written as HTML writes them, and no other
-//      vocabulary: ```` ```ts title="sizes.ts" line-numbers start-line="96" highlighted-lines="98, 100-101" ````.
+//      vocabulary: ```` ```ts headline="sizes.ts" line-numbers start-line="96" highlighted-lines="98, 100-101" ````.
 //      The ones read are in `FENCE_ATTRIBUTES`; `copy="false"` and `prompt=""` take away what the step adds.
-//    - A block that can scroll needs a name (COD-22): its `title`, or else `label` — the nearest heading before it and
+//    - A block that can scroll needs a name (COD-22): its `headline`, or else `label` — the nearest heading before it and
 //      the language's name ("Usage: TSX"), numbered where two blocks of a page would share one.
 //    - The words of the copy button and of a marked line are the page's language's: `components/MarkdownContent.astro`
 //      writes them (`copy-label`, `highlighted-label`, …), as it does a notice's kind.
@@ -170,7 +170,7 @@ const SHELLS = new Set(['sh', 'bash', 'zsh', 'shell']);
 const PLAIN = new Set(['', 'text', 'plain', 'plaintext']);
 /** What a fence's first line may say after the language: attributes of `<tanrei-code-block>` (specs/code-block.spec.json). */
 const FENCE_ATTRIBUTES = new Set([
-  'title', 'label', 'language-label', 'variant', 'size', 'highlight', 'wrap', 'line-numbers', 'start-line', 'max-lines', 'highlighted-lines', 'added-lines', 'removed-lines',
+  'headline', 'label', 'language-label', 'variant', 'size', 'highlight', 'wrap', 'line-numbers', 'start-line', 'max-lines', 'highlighted-lines', 'added-lines', 'removed-lines',
   'highlighted-label', 'added-label', 'removed-label', 'prompt', 'copy', 'copy-label', 'copied-label', 'copy-failed-label',
 ]);
 const FENCE_ATTRIBUTE = /\s*([a-z][a-z-]*)(?:="([^"]*)")?/y;
@@ -234,7 +234,7 @@ const codeBlocks = (warn) => () => {
 
           const properties = {};
           if (language) properties.language = language;
-          if (!given.title && !given.label) {
+          if (!given.headline && !given.label) {
             const name = [heading, LANGUAGE_NAMES[language]].filter(Boolean).join(': ');
             const count = (used.get(name) ?? 0) + 1;
             used.set(name, count);

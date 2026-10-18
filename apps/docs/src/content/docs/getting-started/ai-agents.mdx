@@ -89,7 +89,7 @@ The server also gives the agent its rules when it connects: use no component the
 
 Many coding agents read `AGENTS.md` at the root of a repository. Cursor does. Claude Code reads it when the repository has no `CLAUDE.md`; when it has one, add a line `@AGENTS.md` to it, and Claude Code reads both. Copy this section into your `AGENTS.md`:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -105,7 +105,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 The rules are in English, the language of the names in the code; translate them if your team keeps its rules in another language. If your product has its own layer, replace the rule "Stay on the default system" with these two, using your layer's name and file:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```

@@ -1320,15 +1320,15 @@ export class TanreiNavigationDrawerSection extends LitElement {
   static override styles = sectionStyles;
 
   static override properties: PropertyDeclarations = {
-    heading: { type: String },
+    headline: { type: String },
     divider: { type: Boolean, reflect: true },
     headingLevel: { type: Number, attribute: 'heading-level' },
     nested: { state: true },
     collapsed: { state: true },
   };
 
-  /** The text that names the items under it, exposed as a heading. Empty draws no heading row. */
-  heading = '';
+  /** The text that names the items under it (the spec's `title`), exposed as a heading. Empty draws no heading row. */
+  headline = '';
 
   /** Draws a divider (the divider component) before the section. */
   divider = false;
@@ -1363,8 +1363,8 @@ export class TanreiNavigationDrawerSection extends LitElement {
     const level = Math.min(6, Math.max(1, Math.round(Number(this.headingLevel) || 2)));
     return html`<div class=${classMap({ section: true, collapsed: this.collapsed })}>
       ${this.divider ? html`<tanrei-divider></tanrei-divider>` : nothing}
-      ${this.heading
-        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.heading}</span></div>`
+      ${this.headline
+        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.headline}</span></div>`
         : nothing}
       <div class="items" role="list"><slot></slot></div>
     </div>`;

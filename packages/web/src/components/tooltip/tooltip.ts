@@ -120,7 +120,7 @@ export class TanreiTooltip extends LitElement {
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
     text: { type: String },
-    title: { type: String },
+    headline: { type: String },
     shortcut: { converter: chordsConverter },
     placement: { type: String, reflect: true },
     offset: { converter: numeric },
@@ -147,11 +147,8 @@ export class TanreiTooltip extends LitElement {
   /** The description. Required. */
   text = '';
 
-  /**
-   * A heading for a rich tooltip; a plain one ignores it. The attribute is read once and removed from the element, so the
-   * browser does not also draw its own `title` tooltip over the anchor.
-   */
-  override title = '';
+  /** A heading for a rich tooltip (the spec's `title`); a plain one ignores it. */
+  headline = '';
 
   /**
    * The keyboard shortcut of the anchor's command, in the keyboard shortcut's key names: one chord per string, pressed
@@ -250,7 +247,6 @@ export class TanreiTooltip extends LitElement {
   private described: { element: Element; text: string } | null = null;
   /** TIP-27: the element this tooltip put `aria-keyshortcuts` on, and what it wrote. */
   private keyed: { element: Element; keys: string } | null = null;
-  private removingTitle = false;
   private unregister: (() => void) | null = null;
 
   constructor() {
@@ -269,16 +265,6 @@ export class TanreiTooltip extends LitElement {
     // TIP-27: the keys it writes changed without it (the keyboard convention of an ancestor): the anchor's shortcut follows.
     root.addEventListener(SHORTCUT_UPDATE, () => this.sync());
     return root;
-  }
-
-  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
-    if (name === 'title' && this.removingTitle) return;
-    super.attributeChangedCallback(name, old, value);
-    if (name === 'title' && value !== null) {
-      this.removingTitle = true;
-      this.removeAttribute('title');
-      this.removingTitle = false;
-    }
   }
 
   override disconnectedCallback() {
@@ -823,7 +809,7 @@ export class TanreiTooltip extends LitElement {
   }
 
   private description(): string {
-    const title = this.variant === 'rich' ? this.title.trim() : '';
+    const title = this.variant === 'rich' ? this.headline.trim() : '';
     return [title, this.text.trim()].filter(Boolean).join(', ');
   }
 
@@ -852,8 +838,8 @@ export class TanreiTooltip extends LitElement {
   protected override updated(changed: PropertyValues<this>) {
     this.sync();
     if (changed.has('text') && !this.hasText) report(this, 'TIP-16', 'text is empty, so the tooltip never opens and describes nothing; give it text');
-    if ((changed.has('title') || changed.has('variant')) && this.variant !== 'rich' && this.title.trim()) {
-      report(this, 'TIP-16', `a plain tooltip ignores its title "${this.title}"; use variant="rich" to draw it`);
+    if ((changed.has('headline') || changed.has('variant')) && this.variant !== 'rich' && this.headline.trim()) {
+      report(this, 'TIP-16', `a plain tooltip ignores its headline "${this.headline}"; use variant="rich" to draw it`);
     }
     for (const { prop, attribute, token } of WAITS) {
       const value: unknown = this[prop];
@@ -894,7 +880,7 @@ export class TanreiTooltip extends LitElement {
 
   protected override render() {
     const rich = this.variant === 'rich';
-    const title = rich && this.title.trim() ? this.title : '';
+    const title = rich && this.headline.trim() ? this.headline : '';
     const keys = this.keys;
     // TIP-13, TIP-14: role tooltip; hidden from assistive technology while the anchor carries its text as a description.
     // TIP-15: the popover is the placed box; what moves is the wrapper inside it, which holds the container and its arrow.

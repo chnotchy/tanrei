@@ -38,7 +38,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="A title, a language label and a copy button; the code is highlighted from its language" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -60,7 +60,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -91,7 +91,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
     import '@tanrei/web/code.css';
 
     {/* The element lays the code out in lines, so let it own the code: pass the text. */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="Copy" copiedLabel="Copied" copyFailedLabel="Could not copy" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="Copy" copiedLabel="Copied" copyFailedLabel="Could not copy" />
     ```
   </TabItem>
 </Tabs>
@@ -102,11 +102,11 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 <DemoFrame label="Filled and outlined, medium and small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="Example"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="Line numbers, a highlighted line, and added and removed lines" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Highlighted" removed-lines="4" added-lines="5" removed-label="Removed" added-label="Added" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Highlighted" removed-lines="4" added-lines="5" removed-label="Removed" added-label="Added" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="A long line scrolls inside the block, or wraps" plain column>
@@ -116,7 +116,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 <DemoFrame label="A prompt, and a cap on the lines shown" plain column>
   <tanrei-code-block style="inline-size: 100%" label="Install" prompt="$" language="sh" language-label="Shell" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **Two looks.** `filled` is a quiet fill, for code on a page. `outlined` has no fill inside one hairline, for code inside a card or a panel that is already filled.
@@ -155,7 +155,7 @@ The code is drawn at once, plain. Its colors arrive a moment later, in one frame
 | empty, `text`, `plain`, `plaintext` | Plain. Nothing is reported. |
 | anything else | Plain. A debug build reports the unknown language once. |
 
-The block never guesses a language, not from the code, the `title` or the `language-label`. Short code is ambiguous, and a wrong guess colors code wrongly.
+The block never guesses a language, not from the code, the `headline` or the `language-label`. Short code is ambiguous, and a wrong guess colors code wrongly.
 
 **Turning it off.** `highlight="false"` turns the block's own highlighter off for one block. Runs you give are still drawn.
 
@@ -262,7 +262,7 @@ Some highlighters name what they find with dotted scope names from one shared vo
 
 ### Do
 
-- Give a block that can scroll a `title` or a `label`. The scrolling body is a focus stop and needs a name.
+- Give a block that can scroll a `headline` or a `label`. The scrolling body is a focus stop and needs a name.
 - Use `outlined` inside a card or a panel, and `filled` on a page and on a colored container.
 - Use a prompt for a block of commands to type. The prompt is not copied.
 - Give every block its `language`. Use `language="text"` for text that has no syntax.
@@ -280,7 +280,7 @@ Some highlighters name what they find with dotted scope names from one shared vo
 
 ### What the component handles
 
-- The code is the `code` element inside a group named by `title`, or by `label`.
+- The code is the `code` element inside a group named by `headline`, or by `label`.
 - A body that can scroll is one stop in the focus order, after the copy button, and scrolls with the arrow keys. A body that fits is not a stop, so a page of short examples adds none.
 - Line numbers, signs, bars and the prompt are hidden from assistive technology. A marked line is preceded by its label in words.
 - The page never scrolls sideways for a code block, at 320 wide and at twice the text size.
