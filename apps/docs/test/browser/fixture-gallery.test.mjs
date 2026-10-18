@@ -7,7 +7,8 @@
 // It was written after the fixtures stood in a table, where at 390 wide the drawing of 1953 of 2390 fixtures began
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
 // nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page, or
-// alone in a window drawn from the web package's own document of it.
+// alone in a window drawn from the web package's own document of it. That document is the window's only: no page
+// links to it, and the sitemap does not list it.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -156,6 +157,39 @@ describe('a fixture drawn alone is the one fixture its page draws, every element
       }
     });
   }
+});
+
+describe('a fixture document is the windows’ only: no reader is sent to it', () => {
+  const htmlFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => (entry.isDirectory() ? htmlFiles(path.join(dir, entry.name)) : entry.name.endsWith('.html') ? [path.join(dir, entry.name)] : []));
+
+  test('no page links to one', () => {
+    const linking = htmlFiles(dist)
+      .filter((file) => !file.startsWith(path.join(dist, 'fixtures') + path.sep))
+      .filter((file) => /\shref="\/fixtures\//.test(fs.readFileSync(file, 'utf8')))
+      .map((file) => path.relative(dist, file));
+    assert.deepEqual(linking, []);
+  });
+
+  test('the sitemap lists none', () => {
+    const maps = fs.readdirSync(dist).filter((name) => /^sitemap.*\.xml$/.test(name));
+    assert.ok(maps.length > 0, 'the site has a sitemap');
+    const listed = maps.flatMap((name) => [...fs.readFileSync(path.join(dist, name), 'utf8').matchAll(/<loc>([^<]*\/fixtures\/[^<]*)<\/loc>/g)].map((m) => m[1]));
+    assert.deepEqual(listed, []);
+    // The component pages are still listed.
+    assert.match(fs.readFileSync(path.join(dist, 'sitemap-0.xml'), 'utf8'), /<loc>[^<]*\/components\/button\/<\/loc>/);
+  });
+
+  test('without the id of a fixture it draws nothing', async () => {
+    const context = await browser.newContext();
+    try {
+      const page = await context.newPage();
+      await page.goto(`${origin}/fixtures/button/`, { waitUntil: 'load' });
+      assert.equal(await page.locator('.stage').count(), 0);
+      assert.equal(await page.locator('meta[name="robots"][content="noindex"]').count(), 1);
+    } finally {
+      await context.close();
+    }
+  });
 });
 
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {

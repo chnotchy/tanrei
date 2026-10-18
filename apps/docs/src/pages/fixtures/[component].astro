@@ -1,18 +1,16 @@
 ---
-// A component's fixtures on a page of their own, outside the documentation's frame, drawn from the web package's own
-// document of them — the document its tests draw every fixture in and take each baseline from (lib/fixture-documents.ts):
-// its stages, its staging rules and its step in script, with the site's own tokens, faces and components.
+// The document a window of the fixtures' gallery draws (components/fixtures/FixtureGallery.astro): one fixture of a
+// component, alone, as its baseline was taken — drawn from the web package's own document of the component's fixtures,
+// the document its tests draw every fixture in and take each baseline from (lib/fixture-documents.ts): its stages, its
+// staging rules and its step in script, with the site's own tokens, faces and components.
 //
-// `/fixtures/<component>/` draws every fixture, each named by its id, and links each one that is presented over the
-// window (a modal dialog), which would cover the others; `?id=<fixture>` draws that one fixture alone, as its
-// baseline was taken — which is what a window stage of the gallery shows (components/fixtures/FixtureGallery.astro) and
-// what its "open alone" action opens. `?theme=dark` (or `light`) sets the scheme; otherwise the page takes the site's
-// (the theme the site's picker stored) and else the system's.
-//
-// The page is not indexed by the site's search (it has no `data-pagefind-body`) and asks search engines not to index it.
+// `/fixtures/<component>/?id=<fixture>` draws that one fixture; without an `id` it draws nothing. The page is the
+// windows' and no reader's: it stands outside the documentation's frame, nothing on the site links to it, the site's
+// search does not index it (it has no `data-pagefind-body`), it asks search engines not to index it, and the sitemap
+// leaves it out (astro.config.mjs). The scheme is the one the site's picker stored, else the system's; a window sets
+// its own once it has loaded.
 import '../../styles/fixture-page.css';
-import { definedTags, specs } from '../../lib/repo';
-import { drawsLive, liveFixture } from '../../lib/fixtures';
+import { specs } from '../../lib/repo';
 import { documentedComponents, fixtureDocument } from '../../lib/fixture-documents';
 
 export function getStaticPaths() {
@@ -23,10 +21,7 @@ export function getStaticPaths() {
 
 const spec = specs[Astro.params.component as string];
 const document = fixtureDocument(spec.name)!;
-// A fixture presented over the window: on the page of every fixture it is a link to its own window.
-const live = definedTags.has(spec.platforms.web?.name ?? '') && drawsLive(spec);
-const overWindow = new Set(live ? spec.fixtures.filter((fixture) => liveFixture(spec, fixture).presentation === 'overlay').map((fixture) => fixture.id) : []);
-const stages = document.stages.map((stage) => (overWindow.has(stage.id) ? `<template data-presented="${stage.id}">${stage.html}</template>` : stage.html)).join('\n');
+const stages = document.stages.map((stage) => stage.html).join('\n');
 const holder = document.page ? 'div' : 'main';
 // The system the stages are drawn under (a component that lives in a layer is drawn under that layer's): its scope on the
 // page, and its opt-in stylesheet.
@@ -43,17 +38,13 @@ if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no 
     <meta name="robots" content="noindex" />
     <title>{spec.title} · {spec.name}</title>
     <script is:inline>
-      // The scheme, before the first paint: the address's, else the one the site's picker stored, else the system's.
+      // The scheme, before the first paint: the one the site's picker stored, else the system's.
       (() => {
-        const query = new URLSearchParams(location.search);
-        const asked = query.get('theme');
         let stored = null;
         try {
           stored = localStorage.getItem('starlight-theme');
         } catch {}
-        const theme = asked === 'dark' || asked === 'light' ? asked : stored === 'dark' || stored === 'light' ? stored : null;
-        if (theme) document.documentElement.dataset.tanreiTheme = theme;
-        if (query.get('id')) document.documentElement.dataset.alone = '';
+        if (stored === 'dark' || stored === 'light') document.documentElement.dataset.tanreiTheme = stored;
       })();
     </script>
     {systemSheet && <link rel="stylesheet" href={systemSheet} />}
@@ -62,54 +53,15 @@ if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no 
   <body data-component={spec.name}>
     <Fragment set:html={`<${holder} class="stages">${stages}</${holder}>`} />
     <script is:inline>
-      // One fixture alone: every other stage goes before any component is defined. On the page of every fixture, each
-      // one presented over the window is a link to its own.
+      // The one fixture asked for: every other stage goes before any component is defined.
       (() => {
         const asked = new URLSearchParams(location.search).get('id');
-        const holder = document.querySelector('body > .stages');
-        if (asked) {
-          for (const presented of holder.querySelectorAll('template[data-presented]')) if (presented.dataset.presented === asked) presented.replaceWith(presented.content.cloneNode(true));
-          for (const stage of holder.querySelectorAll(':scope > .stage, :scope > template')) if (stage.dataset.fixture !== asked) stage.remove();
-          return;
-        }
-        for (const presented of holder.querySelectorAll('template[data-presented]')) {
-          const link = document.createElement('a');
-          link.className = 'tanrei-link stage-link';
-          link.dataset.fixture = presented.dataset.presented;
-          link.href = `?id=${encodeURIComponent(presented.dataset.presented)}`;
-          link.textContent = presented.dataset.presented;
-          presented.replaceWith(link);
-        }
+        for (const stage of document.querySelectorAll('body > .stages > .stage')) if (stage.dataset.fixture !== asked) stage.remove();
       })();
     </script>
     {document.after && <script is:inline type="module" set:html={document.after} />}
     <script>
       import '../../lib/register-web';
     </script>
-    <style is:global>
-      /* Every fixture: the stages side by side and named, as the review gallery lays them out. */
-      html:not([data-alone]) body > .stages {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        gap: var(--tanrei-sys-space-space300);
-        padding: var(--tanrei-sys-space-space300);
-      }
-      html:not([data-alone]) body > .stages > :is(.stage, .stage-link) {
-        position: relative;
-        margin-block-start: var(--tanrei-sys-space-space300);
-        outline: var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-outline-variant);
-      }
-      html:not([data-alone]) body > .stages > .stage::before {
-        content: attr(data-fixture);
-        position: absolute;
-        inset-block-end: 100%;
-        inset-inline-start: 0;
-        font: var(--tanrei-sys-typescale-code-small-font);
-        color: var(--tanrei-sys-color-on-surface-variant);
-        white-space: nowrap;
-      }
-    </style>
   </body>
 </html>
