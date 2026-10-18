@@ -9,7 +9,7 @@
 // build's own emitter and the warnings by the build's own invariants (both injected: they live in
 // @tanrei/tokens-build), so what the Studio shows is what `tanrei build` will generate. The tests build Studio
 // layers with the real pipeline and compare whole sheets.
-import { SCHEMES, argbToColor, createPaletteEngine, dependencyIndex, evaluateNumeric, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
+import { SCHEMES, argbToColor, componentDocumentPath, createPaletteEngine, dependencyIndex, evaluateNumeric, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
 import { composeStack, inferredGeneric, parseStack } from './fonts.js';
 import { buildModel } from './model.js';
 
@@ -83,7 +83,8 @@ export function stringifyLayer(layer) {
 /**
  * @param {object} deps
  * @param {{ namespace: string, web: { cssPrefix: string, tagPrefix: string } }} deps.config   tanrei.config.json
- * @param {Record<string, object>} deps.sources     tokens/ source documents keyed by path relative to tokens/
+ * @param {Record<string, object>} deps.sources     tokens/ source documents keyed by path relative to tokens/: the ones
+ *   the default resolver names, and the documents of the components that live in a layer (`systems/<layer>/comp/…`)
  * @param {object} deps.vocabulary                  tokens/sys/color.vocabulary.json
  * @param {object} deps.resolver                    tokens/tanrei.resolver.json
  * @param {Record<string, object>} deps.layers      shipped system layers by id
@@ -104,8 +105,13 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   const DIAL = `${NS}.dial.`;
   const engine = createPaletteEngine(mcu);
   const rootId = Object.values(layers).find((layer) => !layer.extends).id;
+  // The system a new layer extends unless it says otherwise: the default one, named like the namespace.
+  const defaultId = Object.hasOwn(layers, NS) ? NS : rootId;
+  // The systems a layer is offered to extend: the default first, then the presets. The root is every chain's first
+  // layer and has no output of its own, so it is not offered.
   const shippedSystems = Object.values(layers)
-    .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+    .filter((layer) => layer.id !== rootId)
+    .sort((a, b) => Number(a.id !== NS) - Number(b.id !== NS) || a.id.localeCompare(b.id))
     .map((layer) => ({ id: layer.id, name: layer.name ?? layer.id, description: layer.description ?? '' }));
   /** Every system a layer may extend: the shipped ones, then the host's local parents. Mutated in place by `setParents`. */
   const systems = [...shippedSystems];
@@ -138,11 +144,15 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   /** Layers → documents → model → CSS and warnings: the build's pipeline, in memory. Throws what the engine throws. */
   function compute(layer) {
     const chain = chainOf(layer);
-    const system = mergeLayers(chain);
+    // `lend`: the layer that holds a component a layer of the chain includes from it.
+    const system = mergeLayers(chain, { lend: find });
     const documents = resolveNumericTokens(sources, system);
     const generated = engine.generateColorFiles(system, { sourcePath: `tokens/systems/${system.id}.system.json`, vocabulary, documents });
     const files = { ...documents, ...Object.fromEntries(Object.entries(generated).map(([name, doc]) => [`generated/${name}`, doc])) };
-    const model = buildModel(files, { id: system.id, namespace: NS, resolver });
+    // A component that lives in a layer is one more component document of the systems that have it, as in the build's bundle.
+    const held = Object.values(system.vocabulary).filter((decl) => decl.kind === 'component').map((decl) => ({ $ref: componentDocumentPath(decl.component) }));
+    const own = held.length ? { ...resolver, sets: { ...resolver.sets, comp: { ...resolver.sets.comp, sources: [...resolver.sets.comp.sources, ...held] } } } : resolver;
+    const model = buildModel(files, { id: system.id, namespace: NS, resolver: own });
     return { chain, system, files, model, warnings: checkInvariants(model), notices: system.notices ?? [] };
   }
 
@@ -176,7 +186,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     }
     return usable.get(id);
   };
-  const baseOf = (layer) => base(find(layer.extends) && computable(layer.extends) ? layer.extends : rootId);
+  const baseOf = (layer) => base(find(layer.extends) && computable(layer.extends) ? layer.extends : defaultId);
 
   /**
    * The local layers a layer may extend, as the host found them: `[{ id, layer }]`. Replaces the previous list.
@@ -399,7 +409,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
 
   // ── edits: layer → layer ─────────────────────────────────────────────────────────────────────
-  function blank(extendsId = rootId) {
+  function blank(extendsId = defaultId) {
     return { id: 'acme', extends: extendsId };
   }
 
@@ -995,7 +1005,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
 
   return {
-    namespace: NS, rootId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
+    namespace: NS, rootId, defaultId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
     cssVar, roleVar, blank, fromLayer, preview, liveProperties, base, baseOf,

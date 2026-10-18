@@ -2,7 +2,7 @@
 title: "主操作按钮"
 description: "在一个悬浮于内容之上的抬升容器上，执行屏幕中最重要的那一个操作；可以写出操作的名称，也可以收起为只有图标。"
 translationOf: components/main-action-button.mdx
-sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
+sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -92,6 +92,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - Material 3 的 FAB、small FAB 和 large FAB 分别是 medium、small 和 large 尺寸的收起的主操作按钮。它的 extended FAB 是展开形态。
 - Compose 的 `expanded`（在 `ExtendedFloatingActionButton` 上）和 Flutter 的 `isExtended`（在 `FloatingActionButton.extended` 上）就是 `extended`。
 - Material 3 的 primary、secondary、tertiary 和 surface 这几种 FAB 颜色，对应 `filled`、`tonal` 和 `surface` 变体，以及预设添加的值。m3-like 预设通过这个组件的令牌，画出 Material 的圆角方形和 56 / 96 的高度。
+- 用 Material 的说法，主操作按钮就是 FAB。Material 的 FAB 菜单就是 [FAB 菜单](/zh-cn/components/fab-menu/)，它是 m3-like 层的组件：继承这一层的系统都有它。
 
 ## 规格
 
@@ -127,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 属于某个表单、某个对话框或内容中某一项的操作，请在那些内容所在的位置使用[按钮](/zh-cn/components/button/)。
 - 针对当前屏幕或所选内容的多个操作，请使用[工具栏](/zh-cn/components/toolbar/)。
-- 当主操作有几种相关的形式时（新建文档、文件夹或上传），让主操作按钮打开一个列出它们的[底部面板](/zh-cn/components/bottom-sheet/)。在提供 [FAB 菜单](/zh-cn/components/fab-menu/)的预设中，这件事由 FAB 菜单来做；默认系统不提供它。
+- 当主操作有几种相关的形式时（新建文档、文件夹或上传），让主操作按钮打开一个列出它们的[底部面板](/zh-cn/components/bottom-sheet/)。在 [FAB 菜单](/zh-cn/components/fab-menu/)所在的 m3-like 层的系统中，这件事由 FAB 菜单来做；默认系统没有它。
 - 它执行一个操作，不接受目标地址。只把用户带到别处的控件是链接：带 `href` 的[按钮](/zh-cn/components/button/)。
 
 ### 展开还是收起

@@ -3,7 +3,7 @@
     "dev.tanrei.system": {
       "id": "cupertino",
       "chain": [
-        "tanrei",
+        "core",
         "cupertino"
       ],
       "extensions": [
@@ -32,38 +32,10 @@
       "layers": [
         {
           "$schema": "../schema/system.schema.json",
-          "id": "tanrei",
-          "name": "Tanrei",
-          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. Every other system extends this one.",
+          "id": "core",
+          "name": "Core",
+          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
           "specVersion": "tanrei-2026.2",
-          "unavailable": {
-            "components": [
-              "segmented-button",
-              "fab-menu"
-            ],
-            "variants": {
-              "text-input": [
-                "filled",
-                "outlined"
-              ],
-              "select": [
-                "filled",
-                "outlined"
-              ],
-              "combobox": [
-                "filled",
-                "outlined"
-              ],
-              "number-input": [
-                "filled",
-                "outlined"
-              ],
-              "color-input": [
-                "filled",
-                "outlined"
-              ]
-            }
-          },
           "palettes": {
             "neutral": {
               "description": "Surfaces, text and the monochrome primary. Zero chroma.",
@@ -2247,16 +2219,6 @@
               "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
             },
             {
-              "match": "tanrei.comp.fab-menu.*.hovered.container.elevation",
-              "$value": "{tanrei.sys.elevation.level4}",
-              "reason": "The FAB menu's toggle rises further under a pointer, as the main action button does."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation",
-              "$value": "{tanrei.sys.elevation.level4}",
-              "reason": "The open toggle rises under a pointer too, as the main action button does."
-            },
-            {
               "match": "tanrei.comp.slider.*.disabled.container.color",
               "$value": "{tanrei.comp.slider.$1.container.color}",
               "reason": "The round state layer is not a fill; disabled, it stays invisible."
@@ -2416,15 +2378,14 @@
           "$schema": "../schema/system.schema.json",
           "id": "cupertino",
           "name": "Cupertino (Apple HIG-inspired)",
-          "extends": "tanrei",
-          "unavailable": {
-            "components": [
-              "fab-menu"
-            ],
+          "extends": "core",
+          "components": {
             "variants": {
-              "navigation-bar": [
-                "filled"
-              ]
+              "navigation-bar": {
+                "omit": [
+                  "filled"
+                ]
+              }
             }
           },
           "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",
@@ -4793,22 +4754,6 @@
             "tanrei.comp.button-with-menu.outlined.label.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
-            "tanrei.comp.fab-menu.container.shape.small": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.container.shape.medium": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.container.shape.large": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.item.shape": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.item.label.typescale": {
-              "$value": "{tanrei.sys.typescale.body-large}",
-              "reason": "Apple's Body (17pt) for a menu of actions."
-            },
             "tanrei.comp.toolbar.container.color.docked": {
               "$value": "{tanrei.sys.color.surface-container-low}",
               "reason": "UIToolbar's bar background, set apart from the page with its hairline top edge."
@@ -5166,10 +5111,6 @@
             "tanrei.comp.main-action-button.icon.size.small": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.fab-menu.icon.size.large": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.button.icon.size-without-label.medium": {
               "$value": "{tanrei.sys.icon.small}",
@@ -6085,16 +6026,6 @@
               "match": "tanrei.comp.chip.elevated.hovered.selected.container.elevation",
               "$value": "{tanrei.comp.chip.elevated.selected.container.elevation}",
               "reason": "No hover on Apple platforms."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.container.elevation",
-              "$value": "{tanrei.comp.fab-menu.$1.container.elevation}",
-              "reason": "Apple platforms have no hover lift."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation",
-              "$value": "{tanrei.comp.fab-menu.$1.open.container.elevation}",
-              "reason": "Apple platforms have no hover lift."
             },
             {
               "match": "tanrei.comp.search.*.focused.outline.color",
