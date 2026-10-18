@@ -6,7 +6,9 @@ Tanrei on the web: the design tokens as CSS custom properties, and Web Component
 React bindings are generated from this package's custom elements manifest (`@tanrei/react`).
 
 ```js
+import '@tanrei/web/tanrei.css';   // every stylesheet below in one file, with the page's base; or one by one:
 import '@tanrei/web/tokens.css';   // the default system, on :root
+import '@tanrei/web/base.css';     // optional: the page on the surface, its text on-surface in the body face, no margin on <body>
 import '@tanrei/web';              // the elements the default system ships; or one at a time: '@tanrei/web/components/button'
 // on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, m3-expressive-like, cupertino);
 // every element of the package: '@tanrei/web/all'

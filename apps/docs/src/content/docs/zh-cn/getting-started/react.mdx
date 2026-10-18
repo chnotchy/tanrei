@@ -2,7 +2,7 @@
 title: React
 description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
 translationOf: getting-started/react.mdx
-sourceHash: b6474cec992f65a55cced26db1486d81eaebe091
+sourceHash: 6f9902925cc0646f01425a6a04db14d8ef3e627f
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,8 +42,10 @@ npm install @tanrei/react @tanrei/web
 
 ## 使用
 
+在组件渲染之前加载一次样式表：`tanrei.css` 把页面的基础样式、令牌和这个包的其他所有样式表放在一个文件里。要一个一个地加载，参见 [Web 指南](/zh-cn/getting-started/web/)。
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 

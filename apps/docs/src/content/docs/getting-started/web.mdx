@@ -43,11 +43,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. Load the tokens once, as early as possible. They are wrapped in a cascade layer (`tanrei.tokens`), so your own styles always win.
+1. Load the stylesheets once, as early as possible. They are wrapped in cascade layers (`tanrei.*`), so your own styles always win.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` is everything in one file: the base of the page, the tokens, and the stylesheets of the parts drawn without an element (the text styles, the table, the accordion and the others). To load only what you use, take the tokens, the base if you want it, and each of those stylesheets as you need it:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // the page in the system's surface, text color and body face, with no margin on the body
    ```
+
+   The base gives the page itself the surface color, your own text the on-surface color and the body face, and takes the browser's margin off the body. Without it the page keeps the browser's defaults.
 
 2. Register the components of your design system, or only the elements you use.
 
@@ -64,7 +73,7 @@ npm install @tanrei/web
    The `@tanrei/web/…` specifiers are package exports: a bundler (Vite, webpack, esbuild) resolves them. Without one, a browser cannot resolve a bare specifier in `<link>` or `<script src>`, so serve the package's `dist/` and point at the files — the stylesheets as they are, and `tanrei.bundle.js`, which carries Lit and every element:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
