@@ -49,7 +49,7 @@ npx tanrei build
 
 | Output | What you get | Use it with |
 |---|---|---|
-| `tokens` | A self-contained **DTCG 2025.10** bundle with a standard resolver, the recipe that produced it, and `a11y-report.json` | any design-token tool, Figma/Penpot importers, AI agents |
+| `tokens` | A self-contained **DTCG 2025.10** bundle with a standard resolver, the recipe that produced it, `a11y-report.json`, and `components.json` — the components the system ships, with the module that registers each, and those it does not have, with what to use instead | any design-token tool, Figma/Penpot importers, AI agents |
 | `web` | `acme.css`, scoped to `[data-tanrei-system="acme"]` | `@tanrei/web` |
 | `tailwind` | `acme.tailwind.css` — a Tailwind CSS v4 `@theme` mapped onto Tanrei's variables | Tailwind v4 |
 | `shadcn` | `acme.shadcn.css` — shadcn/ui's variables mapped onto Tanrei's roles | shadcn/ui |
