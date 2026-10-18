@@ -205,11 +205,17 @@ If people can ignore the message and nothing goes wrong, it is a snackbar. If th
 | Status glyph | `status` and `statusLabel` | Optional. A status form draws its glyph before the text; see [Status forms](#status-forms). |
 | Title | `title` (`headline` on the web) | Optional. A short heading above the message, in a heavier style of the message's size. Without it the message stands alone. |
 | Message | `message` | Required. Plain text, one or two short sentences, announced whole. With a title, it is the description, and is drawn a little quieter than the title. |
-| Action | `action` (the label) | Optional: "Undo", "View", "Retry". Drawn as a tonal button: a pill one quiet step off its bar, with its label in the bar's text color. The snackbar draws it with its own tokens, not as a Button. It moves to its own row when the text would need more than two lines beside it, counting the title's and the message's lines together, or when its label would wrap. |
-| Expand button | `expandLabel`, `expanded` | Drawn only while the title or the message is longer than three lines. `expandLabel` is its accessible name, such as "Show full message". |
-| Close button | `closable` and `closeLabel` | Optional. For a message that stays until it is closed, or one people may want gone sooner. `closeLabel` is its accessible name, in your product's language. |
+| Action | `action` (the label) | Optional: "Undo", "View", "Retry". Drawn as a tonal button: a pill one quiet step off its bar, with its label in the bar's text color. The snackbar draws it with its own tokens, not as a Button, as tall as the small Buttons beside it. It moves to its own row when the text would need more than two lines beside it, counting the title's and the message's lines together, or when its label would wrap. |
+| Expand button | `expandLabel`, `expanded` | An icon-only small Button, drawn as the close button is. Drawn only while the title or the message is longer than three lines. `expandLabel` is its accessible name, such as "Show full message". |
+| Close button | `closable` and `closeLabel` | Optional. An icon-only small Button. For a message that stays until it is closed, or one people may want gone sooner. `closeLabel` is its accessible name, in your product's language. |
 
-The action, the expand button and the close button sit beside the text's first line. The expand and close buttons are icon-only buttons with the icon set's `expand_more`, `expand_less` and `close` glyphs, round when hovered or pressed.
+The action, the expand button and the close button sit beside the text's first line, all three as tall as a small [Button](/components/button/).
+
+### The expand and close buttons
+
+The expand and close buttons are icon-only Buttons of the small size, with the icon set's `expand_more`, `expand_less` and `close` glyphs. They are tonal, as every close button in Tanrei is, and they take their color from the bar: the glyph is the color of the bar's text, on a circle of that color made translucent. So they read as controls on every form, a surface, a status's tint and an inverse bar alike, and never bring a color the bar does not already have. Their hover, focus and press are a Button's, laid over the same color, and their focus ring is the bar's own focus color.
+
+A product may draw them as a bare glyph instead. It does that once, for every snackbar, in its design system layer, by setting `comp.snackbar.close-button.variant` to the text variant; the Material and Cupertino presets do exactly that, to keep the bare glyph their originals have.
 
 ### The action
 
@@ -333,7 +339,8 @@ A snackbar is a read overlay. People take in its message, so showing it never mo
 - The expand button exposes whether the text is expanded, and keeps the same name in both states. An expanded bar whose text scrolls makes the text a focus stop, named by the title and scrolled with the arrow keys and Page Up and Page Down.
 - Escape closes the snackbar while focus is inside it. When it closes with focus inside, focus returns to where it was before.
 - A snackbar with an action does not time out by default. Timed snackbars pause while hovered, focused or expanded, lengthen to Android's accessibility timeout and, with an action, never time out while a screen reader runs.
-- The action and the close button meet the minimum target on both axes without changing their drawn size. Their focus ring shows for keyboard focus only, in a color of the snackbar's form, so that it is visible on every bar: a surface, a status's tint and an inverse bar.
+- The action meets the minimum target on both axes without changing its drawn size, and the expand and close buttons, which are Buttons, keep their own. Every focus ring shows for keyboard focus only, in a color of the snackbar's form, so that it is visible on every bar: a surface, a status's tint and an inverse bar.
+- The expand and close glyphs keep at least 3:1 against their circle in every state and form. In the default system they keep at least 8.0:1 at rest, and 6.2:1 focused or pressed.
 - The parts that are drawn softer keep their contrast against the bar in every scheme of the default system: the status glyph at least 3:1, and a message under a title at least 4.5:1, or 7:1 in the high-contrast schemes. The softening is a matter of color only; what assistive technology reads does not change, and neither does it when the snackbar is drawn inverse.
 - Larger text never hides text for good: a collapsed title or message ends with an ellipsis at three lines and the expand button shows the rest, the action moves to its own row, and an expanded bar taller than the window scrolls.
 - Before the icon font has loaded, no glyph's name is ever drawn as text: the glyph's place stays empty until the font can draw it.

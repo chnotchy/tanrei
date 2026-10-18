@@ -4486,10 +4486,9 @@ export interface TanreiSliderTokens {
  */
 export interface TanreiSnackbarControlRegistry {
   action: true;
-  close: true;
 }
 export type TanreiSnackbarControl = keyof TanreiSnackbarControlRegistry;
-export type TanreiCoreSnackbarControl = "action" | "close";
+export type TanreiCoreSnackbarControl = "action";
 
 /** What one `control` of `comp.snackbar` is drawn from in ONE interaction state. */
 export interface TanreiSnackbarControlStateTokens {
@@ -4540,6 +4539,7 @@ export type TanreiSnackbarControls = { readonly [Key in TanreiCoreSnackbarContro
  */
 export interface TanreiSnackbarTokens {
   readonly actionTonalLayerOpacity: number;
+  readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerGap: number;
@@ -4555,7 +4555,6 @@ export interface TanreiSnackbarTokens {
   readonly containerShape: number;
   readonly controlsGap: number;
   readonly controlsHeight: number;
-  readonly controlsIconSize: number;
   readonly controlsLabelTypescale: TanreiTypescaleRole;
   readonly controlsPaddingInline: number;
   readonly controlsShape: number;

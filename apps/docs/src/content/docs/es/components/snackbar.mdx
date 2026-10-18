@@ -2,7 +2,7 @@
 title: Snackbar
 description: Informa brevemente a la persona, en el borde inferior de la pantalla, de lo que la aplicación acaba de hacer, con una acción como máximo, sin tomar el foco ni interrumpir su trabajo.
 translationOf: components/snackbar.mdx
-sourceHash: f61661ae48c71d10693c9c317c171876ce5a19d1
+sourceHash: 265a3dc9b3b5975ed6c98cbbd21f375d192bc6c0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,11 +207,17 @@ Si las personas pueden ignorar el mensaje sin que nada vaya mal, es un snackbar.
 | Glifo de estado | `status` y `statusLabel` | Opcional. Una forma de estado dibuja su glifo antes del texto; consulta [Formas de estado](#formas-de-estado). |
 | Título | `title` (`headline` en la web) | Opcional. Un encabezado corto encima del mensaje, en un estilo más grueso del mismo tamaño que el mensaje. Sin él, el mensaje va solo. |
 | Mensaje | `message` | Obligatorio. Texto sin formato, una o dos frases cortas, que se anuncia entero. Con un título, es la descripción y se dibuja algo más discreto que el título. |
-| Acción | `action` (la etiqueta) | Opcional: «Deshacer», «Ver», «Reintentar». Se dibuja como un botón tonal: una cápsula a un paso discreto de su barra, con la etiqueta en el color del texto de la barra. El snackbar la dibuja con sus propios tokens, no como un Button. Pasa a su propia fila cuando el texto necesitaría más de dos líneas a su lado, contando juntas las líneas del título y las del mensaje, o cuando su etiqueta tendría que saltar de línea. |
-| Botón de expandir | `expandLabel`, `expanded` | Solo se dibuja mientras el título o el mensaje ocupan más de tres líneas. `expandLabel` es su nombre accesible, como «Mostrar el mensaje completo». |
-| Botón de cierre | `closable` y `closeLabel` | Opcional. Para un mensaje que permanece hasta que se cierra, o uno que las personas pueden querer quitar antes. `closeLabel` es su nombre accesible, en el idioma de tu producto. |
+| Acción | `action` (la etiqueta) | Opcional: «Deshacer», «Ver», «Reintentar». Se dibuja como un botón tonal: una cápsula a un paso discreto de su barra, con la etiqueta en el color del texto de la barra. El snackbar la dibuja con sus propios tokens, no como un Button, tan alta como los Button pequeños que tiene al lado. Pasa a su propia fila cuando el texto necesitaría más de dos líneas a su lado, contando juntas las líneas del título y las del mensaje, o cuando su etiqueta tendría que saltar de línea. |
+| Botón de expandir | `expandLabel`, `expanded` | Un Button pequeño de solo icono, dibujado como el botón de cierre. Solo se dibuja mientras el título o el mensaje ocupan más de tres líneas. `expandLabel` es su nombre accesible, como «Mostrar el mensaje completo». |
+| Botón de cierre | `closable` y `closeLabel` | Opcional. Un Button pequeño de solo icono. Para un mensaje que permanece hasta que se cierra, o uno que las personas pueden querer quitar antes. `closeLabel` es su nombre accesible, en el idioma de tu producto. |
 
-La acción, el botón de expandir y el botón de cierre se sitúan junto a la primera línea del texto. Los botones de expandir y de cierre son botones de solo icono con los glifos `expand_more`, `expand_less` y `close` del conjunto de iconos, redondos con el cursor encima o al pulsarlos.
+La acción, el botón de expandir y el botón de cierre se sitúan junto a la primera línea del texto, los tres tan altos como un [Button](/es/components/button/) pequeño.
+
+### Los botones de expandir y de cierre
+
+Los botones de expandir y de cierre son Button pequeños de solo icono, con los glifos `expand_more`, `expand_less` y `close` del conjunto de iconos. Son tonales, como todos los botones de cierre de Tanrei, y toman su color de la barra: el glifo tiene el color del texto de la barra, sobre un círculo de ese mismo color vuelto translúcido. Así se leen como controles en cualquier forma, ya sea una superficie, el tinte de un estado o una barra en inverso, y nunca traen un color que la barra no tenga ya. El paso del cursor, el foco y la pulsación son los de un Button, sobre ese mismo color, y su anillo de foco es el color de foco de la propia barra.
+
+Un producto puede dibujarlos como un glifo solo. Lo hace una vez, para todos los snackbars, en la capa de su sistema de diseño, dando a `comp.snackbar.close-button.variant` la variante text; los presets de Material y de Cupertino hacen exactamente eso, para conservar el glifo solo que tienen sus originales.
 
 ### La acción
 
@@ -335,7 +341,8 @@ Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, 
 - El botón de expandir expone si el texto está expandido y conserva el mismo nombre en los dos estados. Una barra expandida cuyo texto se desplaza convierte el texto en una parada del foco, que recibe su nombre del título y se desplaza con las teclas de flecha y con Re Pág y Av Pág.
 - Escape cierra el snackbar mientras el foco está dentro de él. Cuando se cierra con el foco dentro, el foco vuelve adonde estaba antes.
 - Un snackbar con una acción no agota su tiempo de forma predeterminada. Los snackbars temporizados se pausan mientras tienen el cursor encima, el foco o están expandidos, se alargan hasta el tiempo de espera de accesibilidad de Android y, con una acción, nunca agotan su tiempo mientras hay un lector de pantalla en funcionamiento.
-- La acción y el botón de cierre cumplen el objetivo mínimo en los dos ejes sin cambiar su tamaño dibujado. Su anillo de foco se muestra solo para el foco del teclado, en un color de la forma del snackbar, de modo que se ve en cualquier barra: una superficie, el tinte de un estado y una barra en inverso.
+- La acción cumple el objetivo mínimo en los dos ejes sin cambiar su tamaño dibujado, y los botones de expandir y de cierre, que son Button, conservan el suyo. Todo anillo de foco se muestra solo para el foco del teclado, en un color de la forma del snackbar, de modo que se ve en cualquier barra: una superficie, el tinte de un estado y una barra en inverso.
+- Los glifos de expandir y de cierre mantienen al menos 3:1 frente a su círculo en todos los estados y formas. En el sistema predeterminado mantienen al menos 8.0:1 en reposo, y 6.2:1 con el foco o al pulsarlos.
 - Las partes que se dibujan más suaves mantienen su contraste frente a la barra en todos los esquemas del sistema predeterminado: el glifo de estado, al menos 3:1, y un mensaje bajo un título, al menos 4.5:1, o 7:1 en los esquemas de contraste alto. La suavización es solo cuestión de color; lo que lee la tecnología de apoyo no cambia, y tampoco cuando el snackbar se dibuja en inverso.
 - Un texto más grande nunca oculta texto de forma definitiva: un título o un mensaje contraídos terminan con puntos suspensivos a las tres líneas y el botón de expandir muestra el resto, la acción pasa a su propia fila, y una barra expandida más alta que la ventana se desplaza.
 - Antes de que se haya cargado la fuente de iconos, el nombre de un glifo nunca se dibuja como texto: el lugar del glifo queda vacío hasta que la fuente puede dibujarlo.

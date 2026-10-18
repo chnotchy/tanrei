@@ -5707,7 +5707,7 @@ container when drawn in place), on `container.color` — or its form's — with 
 glyph or the text after `padding-inline-start`, `padding-block` below the text and at least as much above it (SNK-29), and `padding-inline-end` — or
 `padding-inline-end-with-controls` after the last control. A status form draws its glyph (`icon.size`, `icon.gap` before the
 text, unselected, never mirrored, `aria-hidden`), its title, message and glyph in its form's `title` / `supporting-text` /
-`icon.color`, and every control from `action-<state>-<form>-*` / `close-<state>-<form>-*`. The title is
+`icon.color`, the action from `action-<state>-<form>-*`, and gives the expand and close buttons its tone (SNK-34). The title is
 `title.typescale`, `title.gap` above the message. Collapsed, the title and the message each end with an ellipsis at
 `title.max-lines` / `supporting-text.max-lines` (`-webkit-line-clamp`, which every engine draws); the whole text stays in the
 accessibility tree. The controls come `container.gap` after the text, `controls.gap` apart, centred on the text's first line
@@ -5718,8 +5718,9 @@ inline and the text collapsed, on every resize); the expand and close buttons st
 Everything is logical, so RTL mirrors.
 
 **Expanding and scrolling (SNK-23…25).** The expand button is drawn while the title or the message is cut at its limit
-(measured as drawn, collapsed), holding `expand_more`, or `expand_less` while expanded; it is named by `expand-label` and
-carries `aria-expanded` and `aria-controls` naming the text. Activating it toggles `expanded`, fires `expandedchange` and
+(measured as drawn, collapsed), holding `expand_more`, or `expand_less` while expanded; it is named by `expand-label`, and
+the native button the Button draws carries `aria-expanded` and names the text by `ariaControlsElements` (an id cannot be
+named across the Button's shadow root). Activating it toggles `expanded`, fires `expandedchange` and
 keeps focus. The bar grows or shrinks from its previous height over `motion.expand-duration` / `-easing` (a Web Animation of
 `block-size`, what is outside clipped meanwhile; at once where motion is reduced); in a host its bottom edge stays in place,
 drawn in place its top does. Expanded, the bar is at most the height it has — the window less the margin above and below,
@@ -5727,15 +5728,25 @@ the safe area and the keyboard in a host, the height it is given in place — an
 the controls and an action on its own row. While it scrolls, the text is a tab stop (`tabindex="0"`, the inside focus ring;
 the browser scrolls it by the arrow keys, Page Up and Page Down), a `role="group"` named by the title when there is one.
 
-**Controls (SNK-2…7).** Native `<button>`s in the shadow root: the action's label (`controls.label.typescale`,
-`controls.padding-inline`, at least `controls.height`, a tonal pill on `action.container.color`), the expand and the close
-glyphs (at `controls.icon.size`, unselected) in `controls.height` squares, each on `controls.shape` corners and from its own
-tokens per state (`action-*`; the expand button reads `close-*`). Everything else is Button's: the state
-precedence, press-hold, the four `pressed-feedback` answers, ring or glow around the control, corner smoothing (the
-controls are pills, which no smoothing eases), the minimum target as `::before`. **The focus indicator (SNK-3)** is drawn on
-the bar, so the bar names its color: the outer stroke — around a control, inside the scrolling text, and the halo's outer
-color under `glow` — is the form's `focus-ring-color` (`--tanrei-comp-snackbar-focus-ring-color`, `-info-…`, `-inverse-…`,
-`-inverse-info-…`), handed to `focusRing()` as its `color`; the widths, the offset and an inner stroke stay the system's. **Glyphs (SNK-26)**: until the icon set can draw a glyph's ligature — its face loading, failed to
+**The action (SNK-2…7).** A native `<button>` in the shadow root: its label (`controls.label.typescale`,
+`controls.padding-inline`, at least `controls.height` — a small Button's height, so that it is as tall as the Buttons beside
+it — a tonal pill on `action.container.color`), on `controls.shape` corners and from its own tokens per state (`action-*`).
+Everything else is Button's: the state precedence, press-hold, the four `pressed-feedback` answers, ring or glow around the
+control, corner smoothing (the action is a pill, which no smoothing eases), the minimum target as `::before`. It is centred
+on the text's first line by its height or, under enlarged text, its label's line, whichever is taller.
+
+**The expand and close buttons (SNK-34).** `<tanrei-button size="small">` elements in the shadow root, each holding its glyph
+in a `.glyph` box in the icon slot. The snackbar gives them, through the Button's internal channel, the variant
+`--tanrei-comp-snackbar-close-button-variant` names (read with `compChoice()` at each layout, so a system switch is seen at
+the next one) and one tone, `{ color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' }`: each form's block sets
+those two properties on the bar to its own message and focus colors, so a change of form recolors the Buttons with no word
+to them. A Button draws its glyph, its circle and its states in the tone (BTN-45); everything else is its own.
+
+**The focus indicator (SNK-3)** is drawn on the bar, so the bar names its color: the outer stroke — around the action,
+inside the scrolling text, and the halo's outer color under `glow` — is the form's `focus-ring-color`
+(`--tanrei-comp-snackbar-focus-ring-color`, `-info-…`, `-inverse-…`, `-inverse-info-…`), handed to `focusRing()` as its
+`color`, and the same color is the tone's focus color, which the Buttons draw their own indicator in; the widths, the offset
+and an inner stroke stay the system's. **Glyphs (SNK-26)**: until the icon set can draw a glyph's ligature — its face loading, failed to
 load, or never registered — its box is kept and drawn empty (`GlyphDrawnController`), never as the glyph's name; the glyph
 appears once the face draws it.
 

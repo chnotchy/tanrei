@@ -6758,21 +6758,9 @@
               "$value": "{tanrei.sys.color.success-container}",
               "reason": "This preset's own action label color; the default system's takes it from the bar's text."
             },
-            "tanrei.comp.snackbar.close.inverse-info.content.color": {
-              "$value": "{tanrei.sys.color.on-info}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-warning.content.color": {
-              "$value": "{tanrei.sys.color.on-warning}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-error.content.color": {
-              "$value": "{tanrei.sys.color.on-error}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-success.content.color": {
-              "$value": "{tanrei.sys.color.on-success}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
+            "tanrei.comp.snackbar.close-button.variant": {
+              "$value": 4,
+              "reason": "Fidelity: the reference's snackbar closes with a standard icon button, which is Tanrei's text Button with an icon only, as its side sheet does; the default system's is tonal."
             },
             "tanrei.comp.snackbar.action.tonal-layer.opacity": {
               "$value": 0,
