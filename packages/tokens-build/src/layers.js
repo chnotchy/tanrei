@@ -128,6 +128,18 @@ export function availabilityOf(chain) {
 }
 
 /**
+ * What a system's stylesheet says of what the system does not have (emit/css.js `emitCss` options): the components and
+ * variant values it leaves out, and the components that live in a layer it does not extend — the same for a shipped
+ * system's sheet, a product's, and Theme Studio's preview of a product.
+ * @param {object[]} chain layers, root first
+ * @param {Map<string, string>} held `heldComponents`
+ * @returns {{ unavailable: { components: string[], variants: Record<string, string[]> }, outside: Record<string, string> }}
+ */
+export function sheetAvailability(chain, held) {
+  return { unavailable: availabilityOf(chain), outside: outsideComponents(chain, held) };
+}
+
+/**
  * Problems of what the last layer of a chain says about its components, judged against what its parent ships.
  * @param {object[]} chain layers, root first; the last one is judged
  * @param {{ inventory: Set<string>, variantsOf: (component: string) => { values: string[], default?: string } | undefined, held?: Map<string, string> }} catalog
