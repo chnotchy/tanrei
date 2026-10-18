@@ -2,7 +2,7 @@
 title: "字段组"
 description: "为回答同一个问题的一组控件——复选框、开关，或者相互关联的字段——命名：一个可以说明这一组必填或选填的标签、一段描述，以及针对整组的一条错误；并把这些控件排成一列或一行。"
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: 331cc7481f9a59e99b0f78e5b5ea8524608f8ee1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -77,7 +77,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox label="推送"></tanrei-checkbox>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="隐私" supporting-text="仅适用于此设备。" requirement="optional" optional-text="选填">
-    <tanrei-switch label="共享使用情况数据" selected></tanrei-switch>
+    <tanrei-switch label="共享使用情况数据" checked></tanrei-switch>
     <tanrei-switch label="显示我的状态"></tanrei-switch>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="城市和邮政编码" spacing="fields" orientation="horizontal">

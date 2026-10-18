@@ -90,7 +90,7 @@
       "description": "False (hug, the default) sizes each tab to its content, never truncating its label, and scrolls the tabs sideways inside the track when they do not fit; the active indicator's width then follows the selected tab's content. True (fill) divides the row's width equally among the tabs and truncates a label that does not fit its share (for two to five short labels); the active indicator's width is then the tab's, the same on every tab."
     },
     {
-      "name": "selected",
+      "name": "value",
       "type": "string",
       "default": null,
       "description": "The value of the selected tab. The tabs set it when a tab is activated, or when a drag across the row is released on another tab, and emit change; the product may also set it. null selects the first enabled tab. While the row is a member of a group (group), the group's choice selects the tab of that value wherever the row has one (TAB-36)."
@@ -140,7 +140,7 @@
           "name": "value",
           "type": "string",
           "default": "",
-          "description": "Identifies the tab: the row's selected names the selected tab by it, and change carries it. Unique within the row; required."
+          "description": "Identifies the tab: the row's value names the selected tab by it, and change carries it. Unique within the row; required."
         },
         {
           "name": "label",
@@ -172,7 +172,7 @@
   "events": [
     {
       "name": "change",
-      "description": "The user selected another tab, by activating it or by releasing a drag on it; carries its value, which selected now holds."
+      "description": "The user selected another tab, by activating it or by releasing a drag on it; carries its value, which the row's value now holds."
     }
   ],
   "states": [
@@ -186,7 +186,7 @@
   "behavior": [
     {
       "id": "TAB-1",
-      "text": "WHEN the user activates an enabled tab that is not selected by pointer, touch, Enter or Space THE tabs SHALL set selected to its value and emit change exactly once with it; WHEN the tab is already selected THE tabs SHALL emit nothing."
+      "text": "WHEN the user activates an enabled tab that is not selected by pointer, touch, Enter or Space THE tabs SHALL set value to the tab's value and emit change exactly once with it; WHEN the tab is already selected THE tabs SHALL emit nothing."
     },
     {
       "id": "TAB-2",
@@ -231,7 +231,7 @@
     },
     {
       "id": "TAB-11",
-      "text": "THE tabs SHALL render the tab whose value equals selected (or, while selected is null, the first enabled tab) from the selected parts of its variant (comp.tabs.primary.selected.label.color and the other selected. parts for primary, and so on) and every other tab from the variant's own parts; WHEN selected names no tab THE tabs SHALL render none as selected, show no panel, and in debug builds report the value; WHEN a tab's value is empty or repeats another tab's THE tabs SHALL still render it, treat the first tab with a value as the one that value selects, and in debug builds report the tab."
+      "text": "THE tabs SHALL render the tab whose value equals the row's value (or, while the row's value is null, the first enabled tab) from the selected parts of its variant (comp.tabs.primary.selected.label.color and the other selected. parts for primary, and so on) and every other tab from the variant's own parts; WHEN value names no tab THE tabs SHALL render none as selected, show no panel, and in debug builds report the value; WHEN a tab's value is empty or repeats another tab's THE tabs SHALL still render it, treat the first tab with a value as the one that value selects, and in debug builds report the tab."
     },
     {
       "id": "TAB-12",
@@ -244,7 +244,7 @@
     {
       "id": "TAB-14",
       "text": "WHILE fullWidth is false THE tabs SHALL size each tab to its content plus the padding of the row's size on each side (comp.tabs.container.padding-inline.medium for medium, comp.tabs.container.padding-inline.small for small; TAB-44), or, WHERE its active indicator is a circle (TAB-16), to that circle and no wider, in either case never narrower than its active indicator or than the minimum target (TAB-5), keep its label on one line and whole however long it is or however large the text, place the tabs so that the first tab's active indicator starts comp.tabs.track.padding in from the track's start edge and the last tab's ends the same distance before the track's end (TAB-34), and scroll them sideways inside the track when they are wider than the space the row has; WHILE fullWidth is true THE tabs SHALL divide the row's width, less comp.tabs.track.padding at each end, equally among the tabs, each at least as wide as the minimum target (the tabs scroll sideways only when the row is too narrow for that), keep each label on one line, and truncate a label wider than its tab less the padding of the row's size on each side (and, beside an icon, less the icon and comp.tabs.container.gap) at the end of the label's own direction (TAB-33), with an ellipsis. A label SHALL NOT wrap onto a second line or break within a word, and an icon SHALL NOT shrink to make room for it.",
-      "verify": "Fixtures: each renders one row of tabs 360 wide and no panel, holding the fixture's tabs in order; variant, fullWidth, selected and label apply to the row and each tab's props to that tab. In `primary-fill-truncated` and `secondary-icons-fill` some labels do not fit their share and are truncated. Under the default system a row that hugs three short labels is narrower than 360 and its track ends with its last tab; an icon-only tab and a one-character tab are as wide as the minimum target (48 with touch input, 44 with a fine pointer), not their content plus 32; under `m3-like`, whose comp.tabs.track.padding is nothing, the first tab starts at the row's edge."
+      "verify": "Fixtures: each renders one row of tabs 360 wide and no panel, holding the fixture's tabs in order; variant, fullWidth, value and label apply to the row and each tab's props to that tab. In `primary-fill-truncated` and `secondary-icons-fill` some labels do not fit their share and are truncated. Under the default system a row that hugs three short labels is narrower than 360 and its track ends with its last tab; an icon-only tab and a one-character tab are as wide as the minimum target (48 with touch input, 44 with a fine pointer), not their content plus 32; under `m3-like`, whose comp.tabs.track.padding is nothing, the first tab starts at the row's edge."
     },
     {
       "id": "TAB-15",
@@ -296,8 +296,8 @@
     },
     {
       "id": "TAB-26",
-      "text": "WHILE indicatorOffset is not 0 THE tabs SHALL draw the active indicator and the underline between the selected tab and the next enabled tab (above 0) or the previous enabled tab (below 0) in reading order, each edge at the linear interpolation between its place on the one tab and on the other by the offset's magnitude, clamped to 1, in the selected tab's colors, and SHALL follow the offset in the frame it changes, without a motion of their own; the covered label and icon SHALL follow as TAB-24 says; WHERE there is no enabled tab in the offset's direction THE tabs SHALL draw them on the selected tab. WHEN selected changes while indicatorOffset is not 0 THE tabs SHALL place them at once by the new selected tab and the offset, without the slide of TAB-17. WHILE indicatorOffset is not 0 THE tabs SHALL take no drag of their own (TAB-28): the swipe that sets it already has the indicator.",
-      "verify": "Test offsets 0.5, −0.5 and 1 (halfway, and wholly on the neighbour, a label under the indicator partly in each color), and a frame that sets selected to the next tab and the offset to −0.5 at once (the indicator does not move). The last case is the commit of TBV-4."
+      "text": "WHILE indicatorOffset is not 0 THE tabs SHALL draw the active indicator and the underline between the selected tab and the next enabled tab (above 0) or the previous enabled tab (below 0) in reading order, each edge at the linear interpolation between its place on the one tab and on the other by the offset's magnitude, clamped to 1, in the selected tab's colors, and SHALL follow the offset in the frame it changes, without a motion of their own; the covered label and icon SHALL follow as TAB-24 says; WHERE there is no enabled tab in the offset's direction THE tabs SHALL draw them on the selected tab. WHEN value changes while indicatorOffset is not 0 THE tabs SHALL place them at once by the new selected tab and the offset, without the slide of TAB-17. WHILE indicatorOffset is not 0 THE tabs SHALL take no drag of their own (TAB-28): the swipe that sets it already has the indicator.",
+      "verify": "Test offsets 0.5, −0.5 and 1 (halfway, and wholly on the neighbour, a label under the indicator partly in each color), and a frame that sets value to the next tab and the offset to −0.5 at once (the indicator does not move). The last case is the commit of TBV-4."
     },
     {
       "id": "TAB-27",
@@ -307,16 +307,16 @@
     {
       "id": "TAB-28",
       "text": "WHEN the user presses the row with touch, a pen or a mouse and drags past the platform's touch slop (8 points where the platform names none), further sideways than up or down, THE tabs SHALL take the drag: the press SHALL activate no tab when it ends (TAB-1), the tab under it SHALL leave its pressed state as it does when a press ends (TAB-8), and from then until the drag ends THE tabs SHALL draw the active indicator and the underline where the pointer is along the row — on an enabled tab while the pointer is at that tab's centre, halfway between two neighbouring enabled tabs while the pointer is where they meet (the middle of any disabled tabs between them), each edge at the linear interpolation in between, and on the first or last enabled tab while the pointer is before or beyond its centre — in the selected tab's colors. Everything that differs between the indicator on the one tab and on the other SHALL change continuously with the pointer, with no threshold: its place, its width (between the two tabs' indicators, a circle widening into a capsule and a capsule narrowing into a circle), the underline's place and width with it, and the color of each label and icon, which is its covered color exactly where the indicator covers it and its own color elsewhere, the clip of TAB-24 moving with the indicator in the same frame. THE tabs SHALL place them in the frame the pointer moves, without a motion of their own; WHEN the drag is taken with the pointer away from where they rest THE tabs SHALL bring them to the pointer's place over comp.tabs.motion.state-duration with comp.tabs.motion.state-easing instead of at once, following the pointer meanwhile. A drag that is further up or down than sideways when it passes the slop SHALL be left to vertical scrolling for its whole length, and a wheel or a trackpad SHALL only scroll. WHILE the tabs do not fit and scroll inside the track (TAB-14) THE tabs SHALL take only a drag that starts on the selected tab, SHALL leave every other sideways drag to scroll the tabs as before, and SHALL scroll the tabs to keep the active indicator in view while a drag carries it toward an end of the track.",
-      "verify": "Test under the default system and `m3-like` (whose underline follows the pointer the same way): in `primary-fill`, a touch pressed on Overview and held at the place where Overview and Activity meet draws the indicator halfway between them, Activity's label partly in each color, selected still Overview and no change emitted; in `primary-single-characters`, a drag held halfway between M and Custom draws an indicator whose width is halfway between the circle's and Custom's capsule, and no frame shows a jump as the pointer crosses the place where the tabs meet; a frame of a tap's slide (TAB-17) and a drag held at the indicator's place in that frame draw the same thing. A press on Settings dragged 12 to the side brings the indicator to the pointer over the state motion; a drag 12 down is not taken. In `primary-scrollable`, a drag that starts on Deployments scrolls the tabs and one that starts on Overview carries the indicator."
+      "verify": "Test under the default system and `m3-like` (whose underline follows the pointer the same way): in `primary-fill`, a touch pressed on Overview and held at the place where Overview and Activity meet draws the indicator halfway between them, Activity's label partly in each color, value still Overview and no change emitted; in `primary-single-characters`, a drag held halfway between M and Custom draws an indicator whose width is halfway between the circle's and Custom's capsule, and no frame shows a jump as the pointer crosses the place where the tabs meet; a frame of a tap's slide (TAB-17) and a drag held at the indicator's place in that frame draw the same thing. A press on Settings dragged 12 to the side brings the indicator to the pointer over the state motion; a drag 12 down is not taken. In `primary-scrollable`, a drag that starts on Deployments scrolls the tabs and one that starts on Overview carries the indicator."
     },
     {
       "id": "TAB-29",
-      "text": "WHEN the user releases a drag the tabs have taken THE tabs SHALL choose one enabled tab: the one the active indicator is nearer to of the two it lies between (the one after it from halfway on), or, WHEN the release is a fling along the row, the one of those two that the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE tabs SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. WHERE the chosen tab is not the selected one THE tabs SHALL set selected to its value and emit change exactly once with it, and SHALL slide and resize the active indicator and the underline from where the release left them onto that tab over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, as TAB-17 does from a tab; WHERE it is the selected tab THE tabs SHALL return them to it over the same motion and emit nothing. The place where two tabs meet decides only what a release chooses; nothing drawn changes at it. The chosen tab SHALL become the row's Tab stop (TAB-12), and the release SHALL NOT also activate the tab under the pointer.",
+      "text": "WHEN the user releases a drag the tabs have taken THE tabs SHALL choose one enabled tab: the one the active indicator is nearer to of the two it lies between (the one after it from halfway on), or, WHEN the release is a fling along the row, the one of those two that the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE tabs SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. WHERE the chosen tab is not the selected one THE tabs SHALL set value to the tab's value and emit change exactly once with it, and SHALL slide and resize the active indicator and the underline from where the release left them onto that tab over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, as TAB-17 does from a tab; WHERE it is the selected tab THE tabs SHALL return them to it over the same motion and emit nothing. The place where two tabs meet decides only what a release chooses; nothing drawn changes at it. The chosen tab SHALL become the row's Tab stop (TAB-12), and the release SHALL NOT also activate the tab under the pointer.",
       "verify": "Test: a drag from Overview released past the place where it meets Activity selects Activity and emits one change; released short of it, the indicator returns and nothing is emitted; a fling toward Activity released short of that place selects Activity, and a fling back toward Overview released past it leaves Overview selected. A drag across a disabled tab never selects it. A listener hears no click-driven second change for the tab the release happens on. A fast drag that holds still for longer than 40 milliseconds before its release is no fling, and the same drag released within 40 milliseconds of its last move is one."
     },
     {
       "id": "TAB-30",
-      "text": "WHEN a drag the tabs have taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, or the product sets selected or removes or disables a tab the indicator lies between — THE tabs SHALL return the active indicator and the underline to the selected tab (the one the product has just set, where it set one) over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing and emit nothing. WHILE a drag lasts THE tabs SHALL NOT change selected, the panel shown (their own, or a Tab view's, whose shown panel cannot change before a tab is chosen), keyboard focus, or the selected state that each tab exposes to assistive technology, whatever the indicator covers, and SHALL announce nothing: the selection is made, and announced, by the release alone (TAB-29). WHERE motion is reduced THE tabs SHALL still draw the active indicator and the underline where the pointer is, which the person's own finger moves, taking the drag without the catch-up motion of TAB-28, and SHALL put them on their tab at once when the drag is released or cancelled.",
+      "text": "WHEN a drag the tabs have taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, or the product sets value or removes or disables a tab the indicator lies between — THE tabs SHALL return the active indicator and the underline to the selected tab (the one the product has just set, where it set one) over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing and emit nothing. WHILE a drag lasts THE tabs SHALL NOT change value, the panel shown (their own, or a Tab view's, whose shown panel cannot change before a tab is chosen), keyboard focus, or the selected state that each tab exposes to assistive technology, whatever the indicator covers, and SHALL announce nothing: the selection is made, and announced, by the release alone (TAB-29). WHERE motion is reduced THE tabs SHALL still draw the active indicator and the underline where the pointer is, which the person's own finger moves, taking the drag without the catch-up motion of TAB-28, and SHALL put them on their tab at once when the drag is released or cancelled.",
       "verify": "Test: Escape during a drag returns the indicator and emits nothing; an accessibility snapshot taken mid-drag equals the one taken before the press; with motion reduced the indicator is on the chosen tab in the frame after the release."
     },
     {
@@ -345,23 +345,23 @@
     },
     {
       "id": "TAB-36",
-      "text": "WHILE group is not empty THE tabs SHALL be a member of the group of that name, together with every other row of tabs in the same document or window whose group is the same string, compared exactly, whether the product placed that row or a Tab view drew it (TBV-16); a group SHALL hold one choice, the value of a tab, or none, and SHALL hold none until TAB-37 or TAB-39 gives it one. WHILE its group holds a choice and the tabs has an enabled tab with that value THE tabs SHALL have that tab selected: it SHALL set selected to the value and emit nothing, in the first frame it is drawn, in the frame the choice changes, and in the frame it gains such a tab, has such a tab enabled, or is given the group. WHILE its group holds no choice, or the tabs has no enabled tab with the choice's value, THE tabs SHALL keep its own selected and select as TAB-11 says, SHALL report nothing, and SHALL follow the group again as soon as the choice is the value of one of its enabled tabs. WHILE group is empty THE tabs SHALL share its choice with no other row.",
-      "verify": "Fixtures `shared-choice` (Web, React, SwiftUI, Flutter; Flutter selected) and `shared-choice-lacking` (Web, React; React selected) name the same group, `fixture-platform`. Each is drawn alone for its baseline, where a row in a group that holds no choice looks as it does without a group; no fixture sets rememberAs, so that no baseline depends on what a device has stored. A test stages the two one under the other in one document and selects SwiftUI on the first: the second still shows React, its selected is `react`, and it has emitted nothing. It then selects Web on the first and sees Web selected on the second in the same frame; selects React on the second and sees React on the first; and adds a SwiftUI tab to the second while the choice is `swiftui` and sees it selected at once. A third row with another group name, and one with none, never change. The same test is run with a Tab view's own row as a member (tab-view fixtures `shared-choice` and `shared-choice-lacking`). A harness that draws several fixtures in one document gives each fixture's props before the row is first drawn, so that none of them becomes the group's choice (TAB-37)."
+      "text": "WHILE group is not empty THE tabs SHALL be a member of the group of that name, together with every other row of tabs in the same document or window whose group is the same string, compared exactly, whether the product placed that row or a Tab view drew it (TBV-16); a group SHALL hold one choice, the value of a tab, or none, and SHALL hold none until TAB-37 or TAB-39 gives it one. WHILE its group holds a choice and the tabs has an enabled tab with that value THE tabs SHALL have that tab selected: it SHALL set value to the choice and emit nothing, in the first frame it is drawn, in the frame the choice changes, and in the frame it gains such a tab, has such a tab enabled, or is given the group. WHILE its group holds no choice, or the tabs has no enabled tab with the choice's value, THE tabs SHALL keep its own value and select as TAB-11 says, SHALL report nothing, and SHALL follow the group again as soon as the choice is the value of one of its enabled tabs. WHILE group is empty THE tabs SHALL share its choice with no other row.",
+      "verify": "Fixtures `shared-choice` (Web, React, SwiftUI, Flutter; Flutter selected) and `shared-choice-lacking` (Web, React; React selected) name the same group, `fixture-platform`. Each is drawn alone for its baseline, where a row in a group that holds no choice looks as it does without a group; no fixture sets rememberAs, so that no baseline depends on what a device has stored. A test stages the two one under the other in one document and selects SwiftUI on the first: the second still shows React, its value is `react`, and it has emitted nothing. It then selects Web on the first and sees Web selected on the second in the same frame; selects React on the second and sees React on the first; and adds a SwiftUI tab to the second while the choice is `swiftui` and sees it selected at once. A third row with another group name, and one with none, never change. The same test is run with a Tab view's own row as a member (tab-view fixtures `shared-choice` and `shared-choice-lacking`). A harness that draws several fixtures in one document gives each fixture's props before the row is first drawn, so that none of them becomes the group's choice (TAB-37)."
     },
     {
       "id": "TAB-37",
-      "text": "WHEN a person selects a tab on a row that is a member of a group (TAB-1, TAB-12, TAB-29), or the product sets selected on such a row, after the row has first been drawn, to the value of one of its enabled tabs, THE tabs SHALL make that value its group's choice in the same frame, so that every member follows as TAB-36 says. THE row the person selected on SHALL emit change exactly once, as it does without a group, and every other member SHALL emit nothing, so that each choice a person makes is announced once, by the row it was made on, however many rows follow it; a selected set by the product SHALL emit nothing on any member. The selected a row has when it is first drawn SHALL NOT become the group's choice, nor SHALL a selected that names none of the row's tabs or names a disabled one; a drag across a row before its release (TAB-28) and indicatorOffset SHALL NOT be shared, and the other members wait for the selection.",
-      "verify": "Test with three members: a listener on their common ancestor hears exactly one change for a tab tapped on one of them, one for each arrow key that selects a tab, one for a drag released on another tab, and none when the product sets selected, although every member follows in each case. A drag held between two tabs of one member leaves the others as they were."
+      "text": "WHEN a person selects a tab on a row that is a member of a group (TAB-1, TAB-12, TAB-29), or the product sets value on such a row, after the row has first been drawn, to the value of one of its enabled tabs, THE tabs SHALL make that value its group's choice in the same frame, so that every member follows as TAB-36 says. THE row the person selected on SHALL emit change exactly once, as it does without a group, and every other member SHALL emit nothing, so that each choice a person makes is announced once, by the row it was made on, however many rows follow it; a value set by the product SHALL emit nothing on any member. The value a row has when it is first drawn SHALL NOT become the group's choice, nor SHALL a value that names none of the row's tabs or names a disabled one; a drag across a row before its release (TAB-28) and indicatorOffset SHALL NOT be shared, and the other members wait for the selection.",
+      "verify": "Test with three members: a listener on their common ancestor hears exactly one change for a tab tapped on one of them, one for each arrow key that selects a tab, one for a drag released on another tab, and none when the product sets value, although every member follows in each case. A drag held between two tabs of one member leaves the others as they were."
     },
     {
       "id": "TAB-38",
-      "text": "WHEN a group's choice gives a row another selected tab and that row is neither the one a person selected on nor the one the product set (TAB-37), or the choice is one restored from storage (TAB-39), THE tabs SHALL draw that tab as selected at once: the active indicator and the underline on it without the slide of TAB-17, its colors without the motion of TAB-23, the tab brought into view inside the track at once (TAB-15), and its own panel changed at once (TAB-13). THE tabs SHALL NOT move keyboard focus to that row or within it, SHALL NOT show a hovered, focused or pressed state for the change, SHALL NOT scroll anything outside its own track to bring itself into view, and SHALL announce nothing. THE row a person selected on SHALL answer the press, slide and keep keyboard focus as it does without a group, and a row whose selected the product set SHALL slide as TAB-17 says. Every member SHALL draw the new choice in the same frame: no frame SHALL show one member with the new choice and another member, which has an enabled tab of that value, with the old one. WHERE a member follows a drag of its own when the choice changes THE tabs SHALL cancel that drag as TAB-30 says for a selected the product sets.",
+      "text": "WHEN a group's choice gives a row another selected tab and that row is neither the one a person selected on nor the one the product set (TAB-37), or the choice is one restored from storage (TAB-39), THE tabs SHALL draw that tab as selected at once: the active indicator and the underline on it without the slide of TAB-17, its colors without the motion of TAB-23, the tab brought into view inside the track at once (TAB-15), and its own panel changed at once (TAB-13). THE tabs SHALL NOT move keyboard focus to that row or within it, SHALL NOT show a hovered, focused or pressed state for the change, SHALL NOT scroll anything outside its own track to bring itself into view, and SHALL announce nothing. THE row a person selected on SHALL answer the press, slide and keep keyboard focus as it does without a group, and a row whose value the product set SHALL slide as TAB-17 says. Every member SHALL draw the new choice in the same frame: no frame SHALL show one member with the new choice and another member, which has an enabled tab of that value, with the old one. WHERE a member follows a drag of its own when the choice changes THE tabs SHALL cancel that drag as TAB-30 says for a value the product sets.",
       "verify": "Test with motion not reduced: in the frame after a tab is selected on one member, the active indicator of every other member is already whole on the new tab and its label wholly in its covered color, while the indicator of the member acted on is part of the way. Keyboard focus is on the tab the person used before and after, and the document's scroll position has changed only as TAB-40 says."
     },
     {
       "id": "TAB-39",
-      "text": "WHILE rememberAs is not empty THE tabs SHALL keep the person's choice on their device: WHEN a person's selection gives the row another selected tab, made on the row itself or, through its group, on another member (TAB-37), THE tabs SHALL store that tab's value, and nothing else, under exactly the key rememberAs in the storage the platform keeps for the product on the device across pages and visits, once for each key however many members name it; a selected set by the product and a choice restored from storage SHALL be stored by no row. WHEN the row is first drawn while a value is stored under its key THE tabs SHALL restore it before that first frame: WHILE the row is a member of a group that holds no choice the stored value SHALL become the group's choice, whether or not this row has a tab with it (a group that already holds a choice keeps it), and WHILE the row has no group the row SHALL select its enabled tab with that value where it has one; no frame SHALL show the row with another tab selected, or another panel, first, and the row SHALL emit nothing. THE tabs SHALL use a stored value only to compare it with its tabs' values, and SHALL NOT draw it, announce it or run it. WHILE rememberAs is empty THE tabs SHALL neither read nor write any storage. IF the storage is missing, blocked or full, or reading or writing it fails, THEN THE tabs SHALL behave as though nothing were stored, keep the choice for as long as the document or window lasts, and raise and report nothing.",
-      "verify": "Test with a storage the test owns: a row with rememberAs `k` and no stored value draws its own selected and reads `k` once; a person's selection writes the tab's value under `k`, exactly that key and that string; a row created afterwards with `k` shows that tab in its first frame (a frame-by-frame recording never shows the first tab) and emits nothing. A stored value that names no tab, a disabled tab, or markup leaves the row as it would be with nothing stored and is drawn nowhere. With a storage that throws on every access the row works and nothing is thrown or logged. A row without rememberAs never touches the storage, in a group or out of one; setting selected from the product writes nothing."
+      "text": "WHILE rememberAs is not empty THE tabs SHALL keep the person's choice on their device: WHEN a person's selection gives the row another selected tab, made on the row itself or, through its group, on another member (TAB-37), THE tabs SHALL store that tab's value, and nothing else, under exactly the key rememberAs in the storage the platform keeps for the product on the device across pages and visits, once for each key however many members name it; a value set by the product and a choice restored from storage SHALL be stored by no row. WHEN the row is first drawn while a value is stored under its key THE tabs SHALL restore it before that first frame: WHILE the row is a member of a group that holds no choice the stored value SHALL become the group's choice, whether or not this row has a tab with it (a group that already holds a choice keeps it), and WHILE the row has no group the row SHALL select its enabled tab with that value where it has one; no frame SHALL show the row with another tab selected, or another panel, first, and the row SHALL emit nothing. THE tabs SHALL use a stored value only to compare it with its tabs' values, and SHALL NOT draw it, announce it or run it. WHILE rememberAs is empty THE tabs SHALL neither read nor write any storage. IF the storage is missing, blocked or full, or reading or writing it fails, THEN THE tabs SHALL behave as though nothing were stored, keep the choice for as long as the document or window lasts, and raise and report nothing.",
+      "verify": "Test with a storage the test owns: a row with rememberAs `k` and no stored value draws its own value and reads `k` once; a person's selection writes the tab's value under `k`, exactly that key and that string; a row created afterwards with `k` shows that tab in its first frame (a frame-by-frame recording never shows the first tab) and emits nothing. A stored value that names no tab, a disabled tab, or markup leaves the row as it would be with nothing stored and is drawn nowhere. With a storage that throws on every access the row works and nothing is thrown or logged. A row without rememberAs never touches the storage, in a group or out of one; setting value from the product writes nothing."
     },
     {
       "id": "TAB-40",
@@ -435,10 +435,10 @@
       "Tabs and the switch share one model: a thumb on a track that slides to what is chosen and follows a finger. A switch has two states, and its track, outline and handle differ between them; tabs have two or more equal choices, so their track never changes and the active indicator alone moves.",
       "The drag is never the only way (WCAG 2.5.7): every tab is selected by a single tap or click on it, and by the arrow keys. With a screen reader running, a one-finger drag belongs to the reader; tabs are then selected by the reader's activation, as before.",
       "A drag changes what is drawn, continuously (the indicator's place and width, and the labels' colors under it), and nothing that assistive technology is told: no tab is exposed as selected on the way, no panel changes, and no change is emitted for the tabs the indicator passes (TAB-30). There is no threshold in the look; the place where two tabs meet decides only what a release chooses.",
-      "Selection is the row's: selected holds the selected tab's value, and change carries the new one. A tab's disabled is its own.",
+      "Selection is the row's: value holds the selected tab's value, and change carries the new one. A tab's disabled is its own.",
       "Web: `tanrei-tab-panel` elements are matched to tabs by their `value` attribute, whether they are the row's children or a linked `tanrei-tab-view`'s, and get role tabpanel, aria-labelledby and the tab's aria-controls. SwiftUI, Compose, Flutter and React Native have no tab panel role; there the selected panel follows the row in reading order, and each README says so.",
       "Tabs switch views of one subject. Moving between destinations of an app belongs to the navigation bar or drawer.",
-      "A Tab view (`tab-view`) draws its own row of tabs from its panels by default, or is linked to a row placed elsewhere; either way it holds the panels. The link is by value: the Tab view shows the panel of `selected`, follows the tabs when a tab is selected, and sets `selected` on both and emits its own change when the user swipes it (TBV-2, TBV-4). While a swipe is in progress it sets `indicatorOffset`, which places the active indicator and the underline between two tabs (TAB-26); TAB-24 makes the covered colors follow the indicator wherever it is drawn. A drag across the row and a swipe of the view are one gesture in two places: the indicator follows the finger, the selection is made on release (from halfway, or by a fling), a cancelled gesture returns it, and nothing is announced before the release. They differ in reach: a swipe moves one panel, and the panels travel with it; a drag across the row can pass several tabs, and the panels wait for the release, then switch as for a selected tab (TBV-2). A row without a Tab view shows its own panels (TAB-13).",
+      "A Tab view (`tab-view`) draws its own row of tabs from its panels by default, or is linked to a row placed elsewhere; either way it holds the panels. The link is by value: the Tab view shows the panel of `value`, follows the tabs when a tab is selected, and sets `value` on both and emits its own change when the user swipes it (TBV-2, TBV-4). While a swipe is in progress it sets `indicatorOffset`, which places the active indicator and the underline between two tabs (TAB-26); TAB-24 makes the covered colors follow the indicator wherever it is drawn. A drag across the row and a swipe of the view are one gesture in two places: the indicator follows the finger, the selection is made on release (from halfway, or by a fling), a cancelled gesture returns it, and nothing is announced before the release. They differ in reach: a swipe moves one panel, and the panels travel with it; a drag across the row can pass several tabs, and the panels wait for the release, then switch as for a selected tab (TBV-2). A row without a Tab view shows its own panels (TAB-13).",
       "Text size never hides a label: a tab that hugs its content grows wider and the row scrolls; a tab that shares the row's width truncates its label, which stays the tab's accessible name and is shown whole where the platform can (TAB-25). A product whose labels are long, translated, written by users, or read at large text sizes keeps the default hug.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "A shared choice (group) is one decision shown in many places: a person who picks a platform, a language or a unit once should not be asked again by every sample on the page. The rows that follow change silently and at once (TAB-38): nothing is announced, focus stays on the tab the person used, and each row tells assistive technology its selected tab when the person reaches it. A change of content elsewhere on the page is not a change of context (WCAG 3.2.2), but it should not surprise: rows of one group carry the same labels for the same values (WCAG 3.2.4), and a product whose rows are far apart says near the first one that the choice applies to the whole page.",
@@ -459,7 +459,7 @@
       "id": "primary",
       "props": {
         "variant": "primary",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -490,7 +490,7 @@
       "id": "secondary",
       "props": {
         "variant": "secondary",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -522,7 +522,7 @@
       "props": {
         "variant": "primary",
         "fullWidth": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -554,7 +554,7 @@
       "props": {
         "variant": "secondary",
         "fullWidth": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -586,7 +586,7 @@
       "props": {
         "variant": "primary",
         "fullWidth": true,
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -617,7 +617,7 @@
       "id": "primary-icons",
       "props": {
         "variant": "primary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -650,7 +650,7 @@
       "id": "secondary-icons",
       "props": {
         "variant": "secondary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -684,7 +684,7 @@
       "props": {
         "variant": "secondary",
         "fullWidth": true,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -717,7 +717,7 @@
       "id": "primary-icon-only",
       "props": {
         "variant": "primary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -754,7 +754,7 @@
       "props": {
         "variant": "primary",
         "fullWidth": true,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -790,7 +790,7 @@
       "id": "primary-single-characters",
       "props": {
         "variant": "primary",
-        "selected": "m",
+        "value": "m",
         "label": "Size"
       },
       "items": [
@@ -828,7 +828,7 @@
       "id": "primary-second-selected",
       "props": {
         "variant": "primary",
-        "selected": "activity"
+        "value": "activity"
       },
       "items": [
         {
@@ -858,7 +858,7 @@
       "id": "primary-scrollable",
       "props": {
         "variant": "primary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -909,7 +909,7 @@
       "id": "secondary-scrollable",
       "props": {
         "variant": "secondary",
-        "selected": "analytics"
+        "value": "analytics"
       },
       "items": [
         {
@@ -960,7 +960,7 @@
       "id": "primary-disabled",
       "props": {
         "variant": "primary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -991,7 +991,7 @@
       "id": "secondary-disabled",
       "props": {
         "variant": "secondary",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -1022,7 +1022,7 @@
       "id": "primary-selected-disabled",
       "props": {
         "variant": "primary",
-        "selected": "billing"
+        "value": "billing"
       },
       "items": [
         {
@@ -1053,7 +1053,7 @@
       "id": "primary-two-icons",
       "props": {
         "variant": "primary",
-        "selected": "light",
+        "value": "light",
         "label": "Theme"
       },
       "items": [
@@ -1081,7 +1081,7 @@
       "id": "primary-two-icons-second-selected",
       "props": {
         "variant": "primary",
-        "selected": "dark",
+        "value": "dark",
         "label": "Theme"
       },
       "items": [
@@ -1109,7 +1109,7 @@
       "id": "secondary-two-icons",
       "props": {
         "variant": "secondary",
-        "selected": "light",
+        "value": "light",
         "label": "Theme"
       },
       "items": [
@@ -1137,7 +1137,7 @@
       "id": "shared-choice",
       "props": {
         "variant": "primary",
-        "selected": "flutter",
+        "value": "flutter",
         "label": "Platform",
         "group": "fixture-platform"
       },
@@ -1176,7 +1176,7 @@
       "id": "shared-choice-lacking",
       "props": {
         "variant": "primary",
-        "selected": "react",
+        "value": "react",
         "label": "Platform",
         "group": "fixture-platform"
       },
@@ -1201,7 +1201,7 @@
       "id": "tonal",
       "props": {
         "variant": "tonal",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1233,7 +1233,7 @@
       "props": {
         "variant": "primary",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1265,7 +1265,7 @@
       "props": {
         "variant": "secondary",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1297,7 +1297,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1329,7 +1329,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1361,7 +1361,7 @@
       "props": {
         "variant": "secondary",
         "size": "small",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1393,7 +1393,7 @@
       "props": {
         "variant": "tonal",
         "size": "small",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1426,7 +1426,7 @@
         "variant": "primary",
         "size": "small",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1459,7 +1459,7 @@
         "variant": "secondary",
         "size": "small",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1492,7 +1492,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1524,7 +1524,7 @@
       "props": {
         "variant": "tonal",
         "track": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1556,7 +1556,7 @@
       "props": {
         "variant": "tonal",
         "fullWidth": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1589,7 +1589,7 @@
         "variant": "tonal",
         "track": false,
         "fullWidth": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1622,7 +1622,7 @@
         "variant": "primary",
         "size": "small",
         "fullWidth": true,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -1656,7 +1656,7 @@
         "size": "small",
         "track": false,
         "fullWidth": true,
-        "selected": "standard",
+        "value": "standard",
         "label": "Contrast"
       },
       "items": [
@@ -1690,7 +1690,7 @@
         "size": "small",
         "track": false,
         "fullWidth": true,
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -1721,7 +1721,7 @@
       "id": "tonal-second-selected",
       "props": {
         "variant": "tonal",
-        "selected": "activity",
+        "value": "activity",
         "label": "Project"
       },
       "items": [
@@ -1753,7 +1753,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "activity",
+        "value": "activity",
         "label": "Project"
       },
       "items": [
@@ -1784,7 +1784,7 @@
       "id": "tonal-icons",
       "props": {
         "variant": "tonal",
-        "selected": "board"
+        "value": "board"
       },
       "items": [
         {
@@ -1818,7 +1818,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "board"
+        "value": "board"
       },
       "items": [
         {
@@ -1852,7 +1852,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -1886,7 +1886,7 @@
       "props": {
         "variant": "secondary",
         "size": "small",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -1921,7 +1921,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -1954,7 +1954,7 @@
       "id": "tonal-icon-only",
       "props": {
         "variant": "tonal",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -1991,7 +1991,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2028,7 +2028,7 @@
       "props": {
         "variant": "primary",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2065,7 +2065,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2103,7 +2103,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2140,7 +2140,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "m",
+        "value": "m",
         "label": "Size"
       },
       "items": [
@@ -2178,7 +2178,7 @@
       "id": "tonal-disabled",
       "props": {
         "variant": "tonal",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2209,7 +2209,7 @@
       "id": "tonal-selected-disabled",
       "props": {
         "variant": "tonal",
-        "selected": "billing"
+        "value": "billing"
       },
       "items": [
         {
@@ -2241,7 +2241,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2273,7 +2273,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "billing"
+        "value": "billing"
       },
       "items": [
         {
@@ -2305,7 +2305,7 @@
       "props": {
         "variant": "primary",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2337,7 +2337,7 @@
       "props": {
         "variant": "secondary",
         "track": false,
-        "selected": "billing"
+        "value": "billing"
       },
       "items": [
         {
@@ -2369,7 +2369,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2402,7 +2402,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "overview"
+        "value": "overview"
       },
       "items": [
         {
@@ -2433,7 +2433,7 @@
       "id": "primary-long-labels",
       "props": {
         "variant": "primary",
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2478,7 +2478,7 @@
       "id": "tonal-long-labels",
       "props": {
         "variant": "tonal",
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2524,7 +2524,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2570,7 +2570,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2617,7 +2617,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2662,7 +2662,7 @@
       "id": "primary-rtl",
       "props": {
         "variant": "primary",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2694,7 +2694,7 @@
       "id": "secondary-rtl",
       "props": {
         "variant": "secondary",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2726,7 +2726,7 @@
       "id": "tonal-rtl",
       "props": {
         "variant": "tonal",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2759,7 +2759,7 @@
       "props": {
         "variant": "tonal",
         "track": false,
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2792,7 +2792,7 @@
       "props": {
         "variant": "primary",
         "size": "small",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2826,7 +2826,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "standard",
+        "value": "standard",
         "label": "التباين"
       },
       "items": [
@@ -2860,7 +2860,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "activity"
+        "value": "activity"
       },
       "items": [
         {
@@ -2896,7 +2896,7 @@
         "variant": "tonal",
         "size": "small",
         "track": false,
-        "selected": "notifications",
+        "value": "notifications",
         "label": "Account"
       },
       "items": [
@@ -2943,7 +2943,7 @@
       "props": {
         "variant": "primary",
         "transition": "none",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -2975,7 +2975,7 @@
       "props": {
         "variant": "tonal",
         "transition": "none",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -3007,7 +3007,7 @@
       "props": {
         "variant": "primary",
         "transition": "slide",
-        "selected": "overview",
+        "value": "overview",
         "label": "Project"
       },
       "items": [
@@ -3041,7 +3041,7 @@
         "size": "small",
         "track": false,
         "transition": "none",
-        "selected": "standard",
+        "value": "standard",
         "label": "Contrast"
       },
       "items": [
@@ -3074,7 +3074,7 @@
         "variant": "tonal",
         "track": false,
         "transition": "none",
-        "selected": "web",
+        "value": "web",
         "label": "Platform"
       },
       "items": [
@@ -3125,7 +3125,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
-        "selected": "value",
+        "value": "value",
         "indicatorOffset": "indicatorOffset",
         "transition": "transition",
         "label": "label",
@@ -3148,7 +3148,7 @@
           "notes": "A child element: `<tanrei-tab value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
         }
       },
-      "notes": "`tanrei-tabs` (variant, full-width, value, label) holds `tanrei-tab` children and, after them, `tanrei-tab-panel` children matched to tabs by their `value` attribute, or is drawn by a `tanrei-tab-view` as its own row, or is named by a linked `tanrei-tab-view` (`tabs=\"<id>\"`) whose `tanrei-tab-panel` children take their place. `indicatorOffset` is a property only, with no attribute: the Tab view writes it in every frame of a drag. The row's selected is its `value`, as a `<select>`'s. It sets role tablist, tab and tabpanel, aria-selected, aria-controls and aria-labelledby, hides the panels that are not selected, and gives a panel with no focusable content tabindex 0. It sets its own `value` before firing `change`, as a native control does. The covered copy of a label and icon (TAB-24) is an `aria-hidden` layer clipped with `clip-path` to the indicator's box, animated with it; a truncated label (`text-overflow: ellipsis`) shows the whole label in a plain tooltip (TAB-25) without `aria-describedby`, since it is already the name. The track is the row's own background, and the tabs scroll inside it. A drag (TAB-28 to TAB-30) is followed with Pointer Events: `pointerdown` on the row, `setPointerCapture` once the drag is taken, `pointermove` placing the indicator, `pointerup` choosing the tab, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, and `aria-selected` is written only on the release. The in-between look needs no second mechanism: the indicator's inset and width are the same custom properties a slide transitions, written in each frame of a drag, and the covered copy's `clip-path` follows them, so a drag and a slide draw the same frames. `touch-action: pan-y` on a row that does not scroll (and on the selected tab of one that does) leaves sideways drags to the row and vertical ones to the page. A shared choice: `group` and `remember-as` are attributes with the properties `group` and `rememberAs`. A group is the `tanrei-tabs` of one document that name it, those inside shadow trees and those a `tanrei-tab-view` drew included; an iframe is another document. The members and the choice are kept by the module, in a map from the name, and never in the DOM. `remember-as` is a key of the origin's `localStorage`, read synchronously before the row's first render and at most once for each key, every access inside `try`, so a browser that blocks storage or throws on it costs nothing but the memory; a key is the product's to namespace, since `localStorage` is shared by everything on the origin. A member that follows is written (`value`, `aria-selected`, its panels' `hidden`) with its slide and its color transition off for that frame. For TAB-40 the row acted on reads its `getBoundingClientRect().top` before the group is written and once more after, and moves `scrollTop` of its nearest scrolling ancestor (the document's scrolling element where none is nearer) by the difference with `behavior: 'instant'`; a browser that anchors scrolling itself has by then moved some or all of the way, and the row corrects only what is left, so the two never add up. `change` bubbles, so one listener on the document hears each choice once and reads the group from `event.target.group`. The first frame of TAB-39 is the first the element draws: before `tanrei-tabs` is defined the element draws nothing of its own, and a product that shows server-rendered rows before then guards that as it guards any element not yet defined. The value `tonal` of `variant`; `size` is an attribute and a property (`small`, `medium`); both axes are open registries (`TanreiTabsVariantRegistry`, `TanreiTabsSizeRegistry` in `registry.ts`, in the Button's form), and each size's five tokens are read through the same private custom properties, set by a block per size as a variant's are. A small row's tab keeps its 32-high box and carries the hit area of TAB-5 as an inset pseudo-element that reaches above and below it, under any interactive content it overlaps; the row itself is not made taller. `track` is a property that is true, false or null: the attribute is absent for null, present for true and `=\"false\"` for false, as the tooltip's `arrow` is; null reads `--tanrei-comp-tabs-track-visible` from the cascade by a style query, as a separation is read, and off sets the track's fill to none and nothing else. `transition` is an attribute and a property (`auto`, `slide`, `none`); auto reads `--tanrei-comp-tabs-motion-transition`, in the stylesheet by a style query and once in the script for the scroll and the settle after a drag; under none the indicator's and the cover's transitions and the selected look's color transition are off, `scrollIntoView` uses `behavior: 'instant'`, and the drag is taken as it is under `prefers-reduced-motion`. The tonal indicator is one element with a translucent background, so its slide and resize never overlap two drawings of it (TAB-50). A row without panels (TAB-42) writes no `aria-controls` and is what the element already is when it has no `tanrei-tab-panel`."
+      "notes": "`tanrei-tabs` (variant, full-width, value, label) holds `tanrei-tab` children and, after them, `tanrei-tab-panel` children matched to tabs by their `value` attribute, or is drawn by a `tanrei-tab-view` as its own row, or is named by a linked `tanrei-tab-view` (`tabs=\"<id>\"`) whose `tanrei-tab-panel` children take their place. `indicatorOffset` is a property only, with no attribute: the Tab view writes it in every frame of a drag. `value` names the selected tab, as a `<select>`'s does. It sets role tablist, tab and tabpanel, aria-selected, aria-controls and aria-labelledby, hides the panels that are not selected, and gives a panel with no focusable content tabindex 0. It sets its own `value` before firing `change`, as a native control does. The covered copy of a label and icon (TAB-24) is an `aria-hidden` layer clipped with `clip-path` to the indicator's box, animated with it; a truncated label (`text-overflow: ellipsis`) shows the whole label in a plain tooltip (TAB-25) without `aria-describedby`, since it is already the name. The track is the row's own background, and the tabs scroll inside it. A drag (TAB-28 to TAB-30) is followed with Pointer Events: `pointerdown` on the row, `setPointerCapture` once the drag is taken, `pointermove` placing the indicator, `pointerup` choosing the tab, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, and `aria-selected` is written only on the release. The in-between look needs no second mechanism: the indicator's inset and width are the same custom properties a slide transitions, written in each frame of a drag, and the covered copy's `clip-path` follows them, so a drag and a slide draw the same frames. `touch-action: pan-y` on a row that does not scroll (and on the selected tab of one that does) leaves sideways drags to the row and vertical ones to the page. A shared choice: `group` and `remember-as` are attributes with the properties `group` and `rememberAs`. A group is the `tanrei-tabs` of one document that name it, those inside shadow trees and those a `tanrei-tab-view` drew included; an iframe is another document. The members and the choice are kept by the module, in a map from the name, and never in the DOM. `remember-as` is a key of the origin's `localStorage`, read synchronously before the row's first render and at most once for each key, every access inside `try`, so a browser that blocks storage or throws on it costs nothing but the memory; a key is the product's to namespace, since `localStorage` is shared by everything on the origin. A member that follows is written (`value`, `aria-selected`, its panels' `hidden`) with its slide and its color transition off for that frame. For TAB-40 the row acted on reads its `getBoundingClientRect().top` before the group is written and once more after, and moves `scrollTop` of its nearest scrolling ancestor (the document's scrolling element where none is nearer) by the difference with `behavior: 'instant'`; a browser that anchors scrolling itself has by then moved some or all of the way, and the row corrects only what is left, so the two never add up. `change` bubbles, so one listener on the document hears each choice once and reads the group from `event.target.group`. The first frame of TAB-39 is the first the element draws: before `tanrei-tabs` is defined the element draws nothing of its own, and a product that shows server-rendered rows before then guards that as it guards any element not yet defined. The value `tonal` of `variant`; `size` is an attribute and a property (`small`, `medium`); both axes are open registries (`TanreiTabsVariantRegistry`, `TanreiTabsSizeRegistry` in `registry.ts`, in the Button's form), and each size's five tokens are read through the same private custom properties, set by a block per size as a variant's are. A small row's tab keeps its 32-high box and carries the hit area of TAB-5 as an inset pseudo-element that reaches above and below it, under any interactive content it overlaps; the row itself is not made taller. `track` is a property that is true, false or null: the attribute is absent for null, present for true and `=\"false\"` for false, as the tooltip's `arrow` is; null reads `--tanrei-comp-tabs-track-visible` from the cascade by a style query, as a separation is read, and off sets the track's fill to none and nothing else. `transition` is an attribute and a property (`auto`, `slide`, `none`); auto reads `--tanrei-comp-tabs-motion-transition`, in the stylesheet by a style query and once in the script for the scroll and the settle after a drag; under none the indicator's and the cover's transitions and the selected look's color transition are off, `scrollIntoView` uses `behavior: 'instant'`, and the drag is taken as it is under `prefers-reduced-motion`. The tonal indicator is one element with a translucent background, so its slide and resize never overlap two drawings of it (TAB-50). A row without panels (TAB-42) writes no `aria-controls` and is what the element already is when it has no `tanrei-tab-panel`."
     },
     "swiftui": {
       "status": "lagging",
@@ -3158,7 +3158,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
-        "selected": "selection",
+        "value": "selection",
         "indicatorOffset": "link",
         "transition": "transition",
         "label": "label",
@@ -3181,7 +3181,7 @@
           "notes": "`TanreiTab(_ title:, icon:) { panel }.tag(value)` in the row's view builder, as `TabView`'s tagged tabs; `.labelStyle(.iconOnly)` is labelHidden; `disabled` follows `.disabled(_:)`."
         }
       },
-      "notes": "`TanreiTabs(selection: Binding<V>, variant:, fullWidth:) { TanreiTab … }`: each tab carries its panel, and only the selected one is shown. The binding holds the selected tab's tag; writing it is change. `label` sets the row's `accessibilityLabel`. A truncated label (`.lineLimit(1)`, `.truncationMode(.tail)`) is shown whole by the large-content viewer and by `.help` on macOS (TAB-25). SwiftUI's `TabView` is an app's tab bar (a navigation bar), not this component. Until it catches up it ships `scrollable:` instead of `fullWidth:`, a line indicator and wrapping fixed labels. `link` is the shared `TanreiTabLink` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `DragGesture(minimumDistance:)` on the row, `simultaneousGesture` with the tabs' taps, its `onChanged` placing the indicator and its `onEnded` reading `predictedEndTranslation` for the fling; the binding is written only in `onEnded`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same `Binding` show the same choice, which is the group (TAB-36), and SwiftUI redraws them in one frame. The product keeps a row that lacks a value on a binding of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by backing the binding with `@AppStorage` (or `@SceneStorage`), which is restored before the first frame. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` does not hold a row in place when content above it changes height. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `variant: .tonal`; `size: TanreiTabsSize` (`.small`, `.medium`); `track: Bool?` (nil reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`.auto`, `.slide`, `.none`; `.auto` reads the generated choice), under `.none` the selection is set without `withAnimation` and the `DragGesture` stays. The hit area of a small row is `.contentShape` on a frame of the minimum target."
+      "notes": "`TanreiTabs(selection: Binding<V>, variant:, fullWidth:) { TanreiTab … }`: each tab carries its panel, and only the selected one is shown. The binding holds the selected tab's tag; writing it is change. `label` sets the row's `accessibilityLabel`. A truncated label (`.lineLimit(1)`, `.truncationMode(.tail)`) is shown whole by the large-content viewer and by `.help` on macOS (TAB-25). SwiftUI's `TabView` is an app's tab bar (a navigation bar), not this component. Until it catches up it ships `scrollable:` instead of `fullWidth:`, a line indicator and wrapping fixed labels. `link` is the shared `TanreiTabLink` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `DragGesture(minimumDistance:)` on the row, `simultaneousGesture` with the tabs' taps, its `onChanged` placing the indicator and its `onEnded` reading `predictedEndTranslation` for the fling; the binding is written only in `onEnded`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same `Binding` show the same choice, which is the group (TAB-36), and SwiftUI redraws them in one frame. The product keeps a row that lacks a value on a binding of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by backing the binding with `@AppStorage` (or `@SceneStorage`), which is restored before the first frame. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a value the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` does not hold a row in place when content above it changes height. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `variant: .tonal`; `size: TanreiTabsSize` (`.small`, `.medium`); `track: Bool?` (nil reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`.auto`, `.slide`, `.none`; `.auto` reads the generated choice), under `.none` the selection is set without `withAnimation` and the `DragGesture` stays. The hit area of a small row is `.contentShape` on a frame of the minimum target."
     },
     "compose": {
       "status": "lagging",
@@ -3191,7 +3191,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
-        "selected": "selectedValue",
+        "value": "selectedValue",
         "indicatorOffset": "link",
         "transition": "transition",
         "label": "contentDescription",
@@ -3214,7 +3214,7 @@
           "notes": "`TanreiTab(value, label, icon, labelHidden, enabled)` called in the `TanreiTabs { }` content lambda. `enabled` is the inverse flag."
         }
       },
-      "notes": "`TanreiTabs(selectedValue, onSelectedValueChange, variant, fullWidth, contentDescription) { TanreiTab(…) }`, one composable for rows that hug and rows that fill (Material's `PrimaryTabRow`, `SecondaryTabRow` and `ScrollableTabRow` in one). State hoisting: the caller keeps `selectedValue` and moves it from `onSelectedValueChange`. A truncated label (`maxLines = 1`, `TextOverflow.Ellipsis`) is shown whole in a plain tooltip on long press and hover (TAB-25). Compose has no tab panel role: the product shows the selected tab's content below the row. Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `rememberTanreiTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is `Modifier.pointerInput` with `detectHorizontalDragGestures` (or `draggable` with a `DraggableState`) on the row, a `VelocityTracker` giving the fling; `onSelectedValueChange` is called only when the drag ends. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same hoisted `selectedValue` show the same choice, which is the group (TAB-36), and recompose in one frame. The caller gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by keeping the state in DataStore or `SharedPreferences`, read before the first composition. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `LazyColumn` keeps its first visible item in place when items above change height while a scrolling `Column` does not. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `TanreiTabsVariant.Tonal`; `size: TanreiTabsSize` (`Small`, `Medium`); `track: Boolean? = null` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`Auto`, `Slide`, `None`), under `None` the indicator is placed with `snapTo` in place of `animateTo` and the drag is still detected. The hit area of a small row is `Modifier.minimumInteractiveComponentSize()` outside the drawn box."
+      "notes": "`TanreiTabs(selectedValue, onSelectedValueChange, variant, fullWidth, contentDescription) { TanreiTab(…) }`, one composable for rows that hug and rows that fill (Material's `PrimaryTabRow`, `SecondaryTabRow` and `ScrollableTabRow` in one). State hoisting: the caller keeps `selectedValue` and moves it from `onSelectedValueChange`. A truncated label (`maxLines = 1`, `TextOverflow.Ellipsis`) is shown whole in a plain tooltip on long press and hover (TAB-25). Compose has no tab panel role: the product shows the selected tab's content below the row. Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `rememberTanreiTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is `Modifier.pointerInput` with `detectHorizontalDragGestures` (or `draggable` with a `DraggableState`) on the row, a `VelocityTracker` giving the fling; `onSelectedValueChange` is called only when the drag ends. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same hoisted `selectedValue` show the same choice, which is the group (TAB-36), and recompose in one frame. The caller gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by keeping the state in DataStore or `SharedPreferences`, read before the first composition. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a value the product sets, since the row cannot tell following from being set; the README says so, and says that a `LazyColumn` keeps its first visible item in place when items above change height while a scrolling `Column` does not. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `TanreiTabsVariant.Tonal`; `size: TanreiTabsSize` (`Small`, `Medium`); `track: Boolean? = null` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`Auto`, `Slide`, `None`), under `None` the indicator is placed with `snapTo` in place of `animateTo` and the drag is still detected. The hit area of a small row is `Modifier.minimumInteractiveComponentSize()` outside the drawn box."
     },
     "flutter": {
       "status": "lagging",
@@ -3224,7 +3224,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "isScrollable",
-        "selected": "value",
+        "value": "value",
         "indicatorOffset": "link",
         "transition": "transition",
         "label": "semanticLabel",
@@ -3247,7 +3247,7 @@
           "notes": "`TanreiTab<T>(value:, label:, icon:, labelHidden:, enabled:)` widgets in the bar's `tabs:` list."
         }
       },
-      "notes": "`TanreiTabBar<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, tabs: [TanreiTab<T>(…)])`, as `TabBar` but selected by value rather than by a `TabController`'s index; the caller moves `value` from `onChanged`. `isScrollable` is the inverse of fullWidth, as in Flutter's `TabBar`, and defaults to true (hug). A truncated label (`maxLines: 1`, `TextOverflow.ellipsis`) is shown whole in a `Tooltip` (TAB-25). `TanreiTabBarView` gives way to the Tab view, `TanreiTabView`, which draws a `TanreiTabBar` itself or is linked by `link:`, a `TanreiTabLink<T>` passed to both, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`: the bar reads the indicator offset (TAB-26) from it and reports its order and disabled tabs to the view through it. Until it catches up, `TanreiTabBarView<T>(value:, children:, semanticLabels:)` shows the panel of the selected value and does not swipe. Until it catches up it ships `isScrollable` defaulting to false, a line indicator and wrapping fixed labels. The drag is a `GestureDetector`'s `onHorizontalDragStart`, `onHorizontalDragUpdate` and `onHorizontalDragEnd` on the bar, `DragEndDetails.primaryVelocity` giving the fling; `onChanged` is called only from `onHorizontalDragEnd`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: bars given the same `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and rebuild in one frame. The product gives a bar that lacks a value a state of its own, since a selection that names none of a bar's tabs selects none (TAB-11), and remembers with `shared_preferences` or its own store, read before the first build. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a scroll view does not hold a bar in place when content above it changes height. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `TanreiTabsVariant.tonal`; `size: TanreiTabsSize` (`small`, `medium`); `bool? track` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`auto`, `slide`, `none`), under `none` the controller's value is set without `animateTo` and the horizontal drag is still recognised. The hit area of a small row is a `GestureDetector` box of the minimum target with `HitTestBehavior.translucent`."
+      "notes": "`TanreiTabBar<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, tabs: [TanreiTab<T>(…)])`, as `TabBar` but selected by value rather than by a `TabController`'s index; the caller moves `value` from `onChanged`. `isScrollable` is the inverse of fullWidth, as in Flutter's `TabBar`, and defaults to true (hug). A truncated label (`maxLines: 1`, `TextOverflow.ellipsis`) is shown whole in a `Tooltip` (TAB-25). `TanreiTabBarView` gives way to the Tab view, `TanreiTabView`, which draws a `TanreiTabBar` itself or is linked by `link:`, a `TanreiTabLink<T>` passed to both, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`: the bar reads the indicator offset (TAB-26) from it and reports its order and disabled tabs to the view through it. Until it catches up, `TanreiTabBarView<T>(value:, children:, semanticLabels:)` shows the panel of the selected value and does not swipe. Until it catches up it ships `isScrollable` defaulting to false, a line indicator and wrapping fixed labels. The drag is a `GestureDetector`'s `onHorizontalDragStart`, `onHorizontalDragUpdate` and `onHorizontalDragEnd` on the bar, `DragEndDetails.primaryVelocity` giving the fling; `onChanged` is called only from `onHorizontalDragEnd`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: bars given the same `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and rebuild in one frame. The product gives a bar that lacks a value a state of its own, since a selection that names none of a bar's tabs selects none (TAB-11), and remembers with `shared_preferences` or its own store, read before the first build. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a value the product sets, since the row cannot tell following from being set; the README says so, and says that a scroll view does not hold a bar in place when content above it changes height. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `TanreiTabsVariant.tonal`; `size: TanreiTabsSize` (`small`, `medium`); `bool? track` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`auto`, `slide`, `none`), under `none` the controller's value is set without `animateTo` and the horizontal drag is still recognised. The hit area of a small row is a `GestureDetector` box of the minimum target with `HitTestBehavior.translucent`."
     },
     "react-native": {
       "status": "lagging",
@@ -3257,7 +3257,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
-        "selected": "value",
+        "value": "value",
         "indicatorOffset": "link",
         "transition": "transition",
         "label": "accessibilityLabel",
@@ -3280,7 +3280,7 @@
           "notes": "The element type of the row's `items` array: `{ value, label, icon?, labelHidden?, disabled? }`."
         }
       },
-      "notes": "`<Tabs items={Tab[]} value onValueChange variant fullWidth accessibilityLabel>`; controlled, the caller moves `value` from `onValueChange` and renders the selected panel below the row. The row has the `tablist` role and each tab the `tab` role with its selected state; React Native has no tab panel role, so the selected panel follows the row in reading order. A truncated label (`numberOfLines={1}`, `ellipsizeMode=\"tail\"`) keeps the whole label as the tab's `accessibilityLabel`; React Native has no tooltip of its own, so it is not shown whole elsewhere (TAB-25: where the platform has an idiom). Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `useTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `PanResponder` on the row (or React Native Gesture Handler's `Gesture.Pan()` where the product has it), claiming the responder once the drag passes the slop sideways, with the release's `vx` giving the fling; `onValueChange` is called only on release. Until it catches up it also draws no track and follows no drag. A shared choice has no prop here: rows given the same controlled `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and render in one commit. The product gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers with AsyncStorage or its own store; AsyncStorage answers after the first frame, so a product that must not show another tab first reads it before it mounts the screen. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` holds a row in place only with `maintainVisibleContentPosition`. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `variant=\"tonal\"`; `size` (`\"small\"`, `\"medium\"`); `track?: boolean | null` (null reads the generated choice `trackVisible`); `transition` (`\"auto\"`, `\"slide\"`, `\"none\"`), under `\"none\"` the indicator's value is set with `setValue` in place of `Animated.timing` and the `PanResponder` stays. The hit area of a small row is `hitSlop`."
+      "notes": "`<Tabs items={Tab[]} value onValueChange variant fullWidth accessibilityLabel>`; controlled, the caller moves `value` from `onValueChange` and renders the selected panel below the row. The row has the `tablist` role and each tab the `tab` role with its selected state; React Native has no tab panel role, so the selected panel follows the row in reading order. A truncated label (`numberOfLines={1}`, `ellipsizeMode=\"tail\"`) keeps the whole label as the tab's `accessibilityLabel`; React Native has no tooltip of its own, so it is not shown whole elsewhere (TAB-25: where the platform has an idiom). Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `useTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `PanResponder` on the row (or React Native Gesture Handler's `Gesture.Pan()` where the product has it), claiming the responder once the drag passes the slop sideways, with the release's `vx` giving the fling; `onValueChange` is called only on release. Until it catches up it also draws no track and follows no drag. A shared choice has no prop here: rows given the same controlled `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and render in one commit. The product gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers with AsyncStorage or its own store; AsyncStorage answers after the first frame, so a product that must not show another tab first reads it before it mounts the screen. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a value the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` holds a row in place only with `maintainVisibleContentPosition`. Not built on this platform yet: the selected label's added weight from `selected.label.emphasis` with every tab keeping the heavier label's width (TAB-16, TAB-50); the selected tab's state layer over its active indicator (TAB-18); the icon's place read from `icon.placement` of the row's size (TAB-18); `variant=\"tonal\"`; `size` (`\"small\"`, `\"medium\"`); `track?: boolean | null` (null reads the generated choice `trackVisible`); `transition` (`\"auto\"`, `\"slide\"`, `\"none\"`), under `\"none\"` the indicator's value is set with `setValue` in place of `Animated.timing` and the `PanResponder` stays. The hit area of a small row is `hitSlop`."
     }
   }
 }

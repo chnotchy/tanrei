@@ -178,20 +178,20 @@ const running = (locator: Locator, property: string) =>
   }, property);
 const listen = (locator: Locator) =>
   locator.evaluate((el) => {
-    const log = ((window as any).events = { click: 0, input: 0, change: 0, carried: [] as boolean[], selectedAtInput: [] as boolean[] });
+    const log = ((window as any).events = { click: 0, input: 0, change: 0, carried: [] as boolean[], checkedAtInput: [] as boolean[] });
     el.addEventListener('click', () => log.click++);
-    el.addEventListener('input', () => { log.input++; log.selectedAtInput.push((el as any).selected); });
-    el.addEventListener('change', (event) => { log.change++; log.carried.push((event as CustomEvent).detail.selected); });
+    el.addEventListener('input', () => { log.input++; log.checkedAtInput.push((el as any).checked); });
+    el.addEventListener('change', (event) => { log.change++; log.carried.push((event as CustomEvent).detail.checked); });
   });
-const events = (page: P) => page.evaluate(() => (window as any).events as { click: number; input: number; change: number; carried: boolean[]; selectedAtInput: boolean[] });
-const isOn = (locator: Locator) => locator.evaluate((el) => (el as any).selected as boolean);
+const events = (page: P) => page.evaluate(() => (window as any).events as { click: number; input: number; change: number; carried: boolean[]; checkedAtInput: boolean[] });
+const isOn = (locator: Locator) => locator.evaluate((el) => (el as any).checked as boolean);
 function warnings(page: P) {
   const seen: string[] = [];
   page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
   return seen;
 }
 /**
- * Everything a condition paints, as drawn. The elevation and the glyph are those of the condition `selected` holds: each
+ * Everything a condition paints, as drawn. The elevation and the glyph are those of the condition `checked` holds: each
  * condition has its own layer (SWT-19), and at rest only that one shows. `icon` is null where the handle has no glyph
  * for that condition.
  */
@@ -200,7 +200,7 @@ const drawn = async (page: P, id: string) => {
     const root = el.shadowRoot!;
     const s = (selector: string) => getComputedStyle(root.querySelector(selector)!);
     const layers = (0, eval)(`(${read})`) as (root: ShadowRoot, part: string, property: string) => Layers;
-    const side = (el as any).selected ? 'on' : 'off';
+    const side = (el as any).checked ? 'on' : 'off';
     return {
       container: layers(root, 'tint', 'background-color'),
       track: layers(root, 'fill', 'background-color'),
@@ -253,7 +253,7 @@ test.describe('behavior', () => {
     const target = host(page, id);
     await listen(target);
     await trackOf(page, id).click({ force: true });
-    expect(await events(page)).toEqual({ click: 1, input: 1, change: 1, carried: [true], selectedAtInput: [true] });
+    expect(await events(page)).toEqual({ click: 1, input: 1, change: 1, carried: [true], checkedAtInput: [true] });
     await labelOf(page, id).click();
     expect(await events(page)).toMatchObject({ click: 2, change: 2, carried: [true, false] });
     await target.focus();
@@ -263,7 +263,7 @@ test.describe('behavior', () => {
     expect(await events(page)).toMatchObject({ click: 4, change: 4, carried: [true, false, true, false] });
     await target.getByRole('switch').dispatchEvent('click');
     expect(await events(page)).toMatchObject({ input: 5, change: 5, carried: [true, false, true, false, true] });
-    await target.evaluate((el) => ((el as any).selected = false));
+    await target.evaluate((el) => ((el as any).checked = false));
     await expect(input(page, id)).not.toBeChecked();
     expect((await events(page)).change).toBe(5);
   });
@@ -341,7 +341,7 @@ test.describe('behavior', () => {
       await page.keyboard.down('Space');
       await expect.poll(bg, id).toBe(down);
       await page.keyboard.up('Space');
-      await host(page, id).evaluate((el, c) => ((el as any).selected = c === 'selected'), condition);
+      await host(page, id).evaluate((el, c) => ((el as any).checked = c === 'selected'), condition);
       await expect.poll(bg, id).toBe(focused);
       await page.mouse.move(0, 0);
     }
@@ -709,7 +709,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
       expect(Number(fill), id).toBe(Number(await token(page, `--tanrei-sys-icon-fill-${condition}`)));
       expect(await css(glyph(id), 'color'), id).toBe(await resolveColor(page, T(`${condition}-icon-color`)));
     }
-    // "Only on shows a check": switched off, the selected-icon fixture has no unselectedIcon, so no glyph and the bare handle.
+    // "Only on shows a check": switched off, the selected-icon fixture has no uncheckedIcon, so no glyph and the bare handle.
     await host(page, 'selected-icon').click();
     await expect.poll(() => shown('selected-icon')).toEqual([]);
     await expect(layer('selected-icon', 'off')).toHaveCount(0);
@@ -885,7 +885,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
       el.addEventListener('change', async () => {
         await el.updateComplete;
         const root = el.shadowRoot as ShadowRoot;
-        (window as any).atClick ??= { on: el.selected, pressed: root.querySelector('.container')!.getAttribute('data-pressed'), size: Number.parseFloat(getComputedStyle(root.querySelector('.handle')!).width) };
+        (window as any).atClick ??= { on: el.checked, pressed: root.querySelector('.container')!.getAttribute('data-pressed'), size: Number.parseFloat(getComputedStyle(root.querySelector('.handle')!).width) };
       });
     });
     await container(page, 'unselected').click();
@@ -930,7 +930,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
     // The condition changes, and what the change begins is held in the task that draws it: the fifteen questions below
     // are asked of motions of 700 ms, and are then of one moment however long the answers take.
     await host(page, id).evaluate(async (el) => {
-      (el as any).selected = true;
+      (el as any).checked = true;
       await (el as any).updateComplete;
       for (const animation of el.shadowRoot!.getAnimations()) animation.pause();
     });
@@ -1008,7 +1008,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
     expect(timing.easing).toBe(easing);
     // The progress is what travels (and so every part at once: SWT-3 / SWT-13 above reads each); switched, it runs for selection-duration.
     const travelling = await host(page, 'unselected').evaluate(async (el) => {
-      (el as any).selected = true;
+      (el as any).checked = true;
       await (el as any).updateComplete;
       const all = el.shadowRoot!.getAnimations().filter((a) => a instanceof CSSTransition);
       return { place: all.filter((a) => (a as CSSTransition).transitionProperty === 'translate').map((a) => Number(a.effect!.getTiming().duration)), durations: [...new Set(all.map((a) => Number(a.effect!.getTiming().duration)))], easings: [...new Set(all.map((a) => String(a.effect!.getTiming().easing)))] };
@@ -1210,7 +1210,7 @@ test.describe('drag', () => {
     await override(page, { [T('motion-state-duration')]: '0ms' });
   });
 
-  test('SWT-19: a touch pressed on an off switch and held at the middle draws the handle there at its pressed size, every color the even mix of the two conditions’ pressed tokens and both glyphs at half opacity and at comp.switch.icon.weight, while selected, the exposed state and the native switch have not changed and nothing was emitted; a quarter of the way, every part is a quarter of the way', async ({ page }) => {
+  test('SWT-19: a touch pressed on an off switch and held at the middle draws the handle there at its pressed size, every color the even mix of the two conditions’ pressed tokens and both glyphs at half opacity and at comp.switch.icon.weight, while checked, the exposed state and the native switch have not changed and nothing was emitted; a quarter of the way, every part is a quarter of the way', async ({ page }) => {
     const id = 'unselected-icon';
     expect(await token(page, '--tanrei-sys-behavior-pressed-feedback')).toBe('overlay');
     const before = await host(page, id).ariaSnapshot();
@@ -1406,9 +1406,9 @@ test.describe('drag', () => {
     // round's held drag, let go, has returned to by then (just under 0.2, by how long the runner took), so its progress
     // is no round number, and it is held to one progress at FRAME_DIGITS.
     for (const wait of [1200, 2400]) {
-      // The transition a switch of `selected` starts, stopped at one of its moments.
+      // The transition A switch of `checked` starts, stopped at one of its moments.
       const stopped = await host(page, id).evaluate(async (el, time) => {
-        (el as any).selected = true;
+        (el as any).checked = true;
         await (el as any).updateComplete;
         // Everything the change set moving, stopped at the one moment.
         const travel = el.shadowRoot!.getAnimations();
@@ -1451,11 +1451,11 @@ test.describe('drag', () => {
     expect(await events(page)).toMatchObject({ click: 0, input: 0, change: 0 });
     expect(await dragging(page, id)).toBe(false);
     await expect.poll(() => progress(page, id)).toBe(0);
-    // Past the middle: on, heard once, `selected` already true when `input` is heard.
+    // Past the middle: on, heard once, `checked` already true when `input` is heard.
     await drag(page, id, 0, slow(0, 0.7));
     expect(await isOn(target)).toBe(true);
     await expect(input(page, id)).toBeChecked();
-    expect(await events(page)).toEqual({ click: 0, input: 1, change: 1, carried: [true], selectedAtInput: [true] });
+    expect(await events(page)).toEqual({ click: 0, input: 1, change: 1, carried: [true], checkedAtInput: [true] });
     expect(await target.ariaSnapshot()).toBe('- switch "Wi-Fi" [checked]');
     // On, released short of the middle from its own side: it stays on.
     await drag(page, id, 1, [...slow(1, 0.4), ...slow(0.4, 0.55)]);
@@ -1466,12 +1466,12 @@ test.describe('drag', () => {
     await drag(page, id, 0, slow(0, 0.5));
     expect(await isOn(target)).toBe(true);
     expect(await events(page)).toMatchObject({ click: 0, input: 3, change: 3, carried: [true, false, true] });
-    await target.evaluate((el) => ((el as any).selected = false));
+    await target.evaluate((el) => ((el as any).checked = false));
     await expect.poll(() => progress(page, id)).toBe(0);
     // A fling toward the on end, released short of the middle, turns it on…
     await drag(page, id, -0.5, [{ at: -0.2, dt: 8 }, { at: 0.1, dt: 8 }, { at: 0.3, dt: 8 }], { up: 4 });
     expect(await isOn(target)).toBe(true);
-    await target.evaluate((el) => ((el as any).selected = false));
+    await target.evaluate((el) => ((el as any).checked = false));
     // …and a fling back toward the off end, released past the middle, leaves it off.
     await drag(page, id, 1.6, [{ at: 1.3, dt: 8 }, { at: 1, dt: 8 }, { at: 0.7, dt: 8 }], { up: 4 });
     expect(await isOn(target)).toBe(false);
@@ -1540,7 +1540,7 @@ test.describe('drag', () => {
     await page.waitForTimeout(150);
     await page.mouse.up();
     expect(await isOn(target)).toBe(true);
-    expect(await events(page)).toEqual({ click: 0, input: 1, change: 1, carried: [true], selectedAtInput: [true] });
+    expect(await events(page)).toEqual({ click: 0, input: 1, change: 1, carried: [true], checkedAtInput: [true] });
     // Dragged away and back, held, released where it began: it returns, nothing is heard, and the click does not switch it.
     await page.mouse.down();
     await page.mouse.move(off, y, { steps: 6 });
@@ -1558,7 +1558,7 @@ test.describe('drag', () => {
     expect(await events(page)).toMatchObject({ click: 2, input: 3, change: 3 });
   });
 
-  test('SWT-21: Escape, a cancelled pointer, disabled becoming true and selected set by the product each end the drag without a change; the handle returns to the condition selected holds over the selection motion', async ({ page }) => {
+  test('SWT-21: Escape, a cancelled pointer, disabled becoming true and checked set by the product each end the drag without a change; the handle returns to the condition checked holds over the selection motion', async ({ page }) => {
     // The selection motion at 30 s: the return is asked for two questions after what ends the drag, and is ended by hand.
     await override(page, { [T('motion-selection-duration')]: '30s' });
     const id = 'unselected';
@@ -1594,10 +1594,10 @@ test.describe('drag', () => {
     await dragOn(page, id, [], { up: 300 });
     expect(await isOn(target)).toBe(false);
     await target.evaluate(async (el) => { (el as any).disabled = false; await (el as any).updateComplete; });
-    // The product sets selected: the drag ends, and the handle goes to the condition it has just set.
+    // The product sets checked: the drag ends, and the handle goes to the condition it has just set.
     await drag(page, id, 0, slow(0, 0.6), { up: null });
-    await target.evaluate(async (el) => { (el as any).selected = true; await (el as any).updateComplete; });
-    await returned(1, 'selected set by the product');
+    await target.evaluate(async (el) => { (el as any).checked = true; await (el as any).updateComplete; });
+    await returned(1, 'checked set by the product');
     // The pointer's later moves and its release are no longer the switch's.
     expect(await dragOn(page, id, [{ at: 0, dt: 16 }], { up: 300 })).toBe(1);
     expect(await isOn(target)).toBe(true);
@@ -1738,8 +1738,8 @@ test.describe('accessibility', () => {
 });
 
 test.describe('form', () => {
-  test('a named switch submits its value while on and resets to its selected attribute', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('wifi', { label: 'Wi-Fi', name: 'wifi', selected: true }), fixture('bt', { label: 'Bluetooth', name: 'bt', value: 'yes' })] });
+  test('a named switch submits its value while on and resets to its checked attribute', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('wifi', { label: 'Wi-Fi', name: 'wifi', checked: true }), fixture('bt', { label: 'Bluetooth', name: 'bt', value: 'yes' })] });
     await page.evaluate(() => {
       const form = document.createElement('form');
       const main = document.querySelector('main')!;

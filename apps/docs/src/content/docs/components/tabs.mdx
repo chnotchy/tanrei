@@ -38,7 +38,7 @@ This page describes the tabs as they are specified now: tabs on a track, with on
 
 A row of tabs has one kind of item, `tab`. Each platform takes the tabs the way it takes any repeated children: `<tanrei-tab>` child elements on the web, `TanreiTab` views tagged by value in SwiftUI's view builder, `TanreiTab` calls in Compose's content lambda, `TanreiTab` widgets in Flutter's `tabs:` list, and an `items` array of plain objects on React Native.
 
-The selection belongs to the row, by value. `selected` holds the value of the selected tab and `change` carries the new one. It is spelled `value` on the web, Flutter and React Native, `selection` on SwiftUI and `selectedValue` on Compose. Left empty, the first enabled tab is selected. A tab's `disabled` is its own.
+The selection belongs to the row, by value. `value` holds the value of the selected tab and `change` carries the new one. SwiftUI calls it `selection` and Compose `selectedValue`. Left empty, the first enabled tab is selected. A tab's `disabled` is its own.
 
 The tabs do not draw the panels, but they decide which one shows. On the web, `<tanrei-tab-panel>` elements follow the tabs and are matched to them by `value`. On SwiftUI each tab carries its panel. On Flutter, `TanreiTabBarView` shows the panel of the selected value. On Compose and React Native you show the selected panel yourself, right after the row. For panels a person can swipe between, use a [Tab view](/components/tab-view/) instead: it draws its own row of tabs, or links to a row placed elsewhere, such as in an app bar.
 
@@ -306,7 +306,7 @@ A [Tab view](/components/tab-view/) has a `transition` of its own for its panels
 
 ### Selection and panels
 
-- **By value.** Every tab has a `value`, unique in its row. A value survives tabs being added, removed or reordered, where an index would quietly select another view. A `selected` value that names no tab selects none and shows no panel, and debug builds report it.
+- **By value.** Every tab has a `value`, unique in its row. A value survives tabs being added, removed or reordered, where an index would quietly select another view. A `value` that names no tab selects none and shows no panel, and debug builds report it.
 - **Automatic activation.** Moving focus with the arrow keys also selects the tab, and the panel changes at once. If a panel takes time to load, show a loading state inside it rather than delaying the switch.
 - **Disabled tabs are skipped.** The arrow keys pass over them and they are never the Tab stop, because landing on one would select a tab that cannot be selected. This differs from list and menu, whose disabled items stay reachable because moving there selects nothing.
 - **The indicator slides.** When the selection changes, the indicator slides and resizes from the old tab to the new one, a circle widening into a capsule on the way. It moves at once where motion is reduced. When the row first appears, or the selected tab changes size without a new selection (a font arriving, the text size changing), the indicator is put in place without sliding. A tab that becomes selected or focused while partly scrolled out of view is scrolled into view.
@@ -383,7 +383,7 @@ The tabs of this site are an example: every set of platform samples is a [Tab vi
 - Icons, the track, the indicator, the underline and the divider are hidden from assistive technology. The covered copy of each label under the indicator is decorative, so each label is announced once.
 - A drag across the row is never the only way: every tab is selected by a tap or a click on it, and by the arrow keys. During a drag no tab is exposed as selected, no panel changes and nothing is announced; the release makes the selection, and Escape cancels the drag. With a screen reader running, a one-finger drag belongs to the reader, and tabs are selected by its activation.
 - In a group, the rows that follow change silently. Nothing is announced, focus stays on the tab the person used, and that row stays where it is in the window, so a person using magnification does not lose their place. Each row tells assistive technology its selected tab when the person reaches it.
-- Debug builds report a tab without a label, a value that is empty or repeated, a `selected` value that names no tab, a hidden label without an icon, a variant or a size the design system does not have, and a `transition` the tabs do not define.
+- Debug builds report a tab without a label, a value that is empty or repeated, a `value` that names no tab, a hidden label without an icon, a variant or a size the design system does not have, and a `transition` the tabs do not define.
 
 Known platform gaps:
 

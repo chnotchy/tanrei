@@ -2,7 +2,7 @@
 title: フィールドグループ
 description: 1 つの質問に答えるコントロールの集まり（チェックボックス、スイッチ、ひとまとまりのフィールド）に、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを添え、コントロールを縦または横に並べます。
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: 331cc7481f9a59e99b0f78e5b5ea8524608f8ee1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -77,7 +77,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
     <tanrei-checkbox label="プッシュ"></tanrei-checkbox>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="プライバシー" supporting-text="このデバイスにだけ適用されます。" requirement="optional" optional-text="任意">
-    <tanrei-switch label="利用状況データを共有する" selected></tanrei-switch>
+    <tanrei-switch label="利用状況データを共有する" checked></tanrei-switch>
     <tanrei-switch label="ステータスを表示する"></tanrei-switch>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="市区町村と郵便番号" spacing="fields" orientation="horizontal">

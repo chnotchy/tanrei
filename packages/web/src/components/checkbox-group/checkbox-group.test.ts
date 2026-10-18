@@ -919,7 +919,7 @@ test.describe('checkbox group', () => {
     await page_(
       page,
       `<${TAG} id="empty" label="Nothing yet" supporting-text="Choices will come."></${TAG}>
-       ${group_('name="notify"', `${BOXES}<tanrei-switch id="switch" label="A switch" selected></tanrei-switch><${FRAME} id="inner" label="Inside"><${BOX} id="nested" name="nested" value="nested" label="Nested" checked></${BOX}></${FRAME}>`)}
+       ${group_('name="notify"', `${BOXES}<tanrei-switch id="switch" label="A switch" checked></tanrei-switch><${FRAME} id="inner" label="Inside"><${BOX} id="nested" name="nested" value="nested" label="Nested" checked></${BOX}></${FRAME}>`)}
        <${BOX} id="alone" value="email" label="Email"></${BOX}>`,
     );
     await expect(page.locator('#empty').locator('.legend')).toHaveText('Nothing yet');

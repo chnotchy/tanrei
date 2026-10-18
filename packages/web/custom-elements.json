@@ -34167,7 +34167,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether this option is the one chosen in its group (the spec's `selected`, a native radio's `checked`).",
+              "description": "Whether this option is the one chosen in its group (a native radio's `checked`).",
               "attribute": "checked"
             },
             {
@@ -34326,7 +34326,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether this option is the one chosen in its group (the spec's `selected`, a native radio's `checked`).",
+              "description": "Whether this option is the one chosen in its group (a native radio's `checked`).",
               "fieldName": "checked"
             },
             {
@@ -41561,7 +41561,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.\n\nContract: specs/switch.spec.json. Every visual value comes from `--tanrei-comp-switch-*` tokens, one set per condition\n(unselected, selected) and state — the handle's color, size and elevation included: how a state looks is the active\ndesign system's decision. The handle travels to the inline end when on (the left in right-to-left layouts).\n\nA tap switches it. A drag along the track (touch, pen or mouse; from the track, the handle or the target around them,\nnot from the label) carries the handle with the pointer, and every part that differs between off and on is drawn at\nthe handle's progress between the two, with no threshold. `selected`, the form value and the exposed state change\nwhen the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;\nEscape, a cancelled pointer, `disabled` or a `selected` set meanwhile return the handle and fire nothing.\n\nForm-associated: while selected it submits `value` (default \"on\") under `name`, resets to its `selected` attribute and\nfollows a disabled `<fieldset>`, as a native checkbox does. It switches its own `selected` before it fires `input` and\n`change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on\nthe visible label toggles it.",
+          "description": "Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.\n\nContract: specs/switch.spec.json. Every visual value comes from `--tanrei-comp-switch-*` tokens, one set per condition\n(unselected, selected) and state — the handle's color, size and elevation included: how a state looks is the active\ndesign system's decision. The handle travels to the inline end when on (the left in right-to-left layouts).\n\nA tap switches it. A drag along the track (touch, pen or mouse; from the track, the handle or the target around them,\nnot from the label) carries the handle with the pointer, and every part that differs between off and on is drawn at\nthe handle's progress between the two, with no threshold. `checked`, the form value and the exposed state change\nwhen the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;\nEscape, a cancelled pointer, `disabled` or a `checked` set meanwhile return the handle and fire nothing.\n\nForm-associated: while checked it submits `value` (default \"on\") under `name`, resets to its `checked` attribute and\nfollows a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` before it fires `input` and\n`change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on\nthe visible label toggles it.",
           "name": "TanreiSwitch",
           "cssParts": [
             {
@@ -41606,14 +41606,14 @@
             },
             {
               "kind": "field",
-              "name": "selected",
+              "name": "checked",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the setting is on. The `selected` attribute is the default a form reset returns to.",
-              "attribute": "selected"
+              "description": "Whether the setting is on. The `checked` attribute is the default a form reset returns to.",
+              "attribute": "checked"
             },
             {
               "kind": "field",
@@ -41652,25 +41652,25 @@
             },
             {
               "kind": "field",
-              "name": "selectedIcon",
+              "name": "checkedIcon",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`selected-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
-              "attribute": "selected-icon"
+              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "attribute": "checked-icon"
             },
             {
               "kind": "field",
-              "name": "unselectedIcon",
+              "name": "uncheckedIcon",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph the handle shows while off; empty shows none (`unselected-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
-              "attribute": "unselected-icon"
+              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "attribute": "unchecked-icon"
             },
             {
               "kind": "field",
@@ -41692,7 +41692,7 @@
                 "text": "string"
               },
               "default": "'on'",
-              "description": "Web only: what it submits while selected.",
+              "description": "Web only: what it submits while checked.",
               "attribute": "value"
             },
             {
@@ -41744,14 +41744,14 @@
               "type": {
                 "text": "Event"
               },
-              "description": "The user switched it; `selected` is already the new value."
+              "description": "The user switched it; `checked` is already the new value."
             },
             {
               "name": "change",
               "type": {
                 "text": "CustomEvent<TanreiSwitchChangeDetail>"
               },
-              "description": "The user switched it; `detail.selected` (and the element's `selected`) is the new value."
+              "description": "The user switched it; `detail.checked` (and the element's `checked`) is the new value."
             }
           ],
           "attributes": [
@@ -41763,13 +41763,13 @@
               "name": "form"
             },
             {
-              "name": "selected",
+              "name": "checked",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the setting is on. The `selected` attribute is the default a form reset returns to.",
-              "fieldName": "selected"
+              "description": "Whether the setting is on. The `checked` attribute is the default a form reset returns to.",
+              "fieldName": "checked"
             },
             {
               "name": "disabled",
@@ -41799,22 +41799,22 @@
               "fieldName": "labelHidden"
             },
             {
-              "name": "selected-icon",
+              "name": "checked-icon",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`selected-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
-              "fieldName": "selectedIcon"
+              "description": "The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "fieldName": "checkedIcon"
             },
             {
-              "name": "unselected-icon",
+              "name": "unchecked-icon",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The glyph the handle shows while off; empty shows none (`unselected-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
-              "fieldName": "unselectedIcon"
+              "description": "The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left.",
+              "fieldName": "uncheckedIcon"
             },
             {
               "name": "name",
@@ -41831,7 +41831,7 @@
                 "text": "string"
               },
               "default": "'on'",
-              "description": "Web only: what it submits while selected.",
+              "description": "Web only: what it submits while checked.",
               "fieldName": "value"
             }
           ],

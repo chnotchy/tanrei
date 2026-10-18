@@ -2,7 +2,7 @@
 title: الحقل
 description: "يؤطّر عنصر تحكم واحدًا بما يعطيه النموذج لكل حقل: تسمية تستطيع أن تقول إن عنصر التحكم مطلوب أو اختياري، وسطر مساعدة، وسبب رفض القيمة، وكلٌّ منها مربوط بعنصر التحكم للتقنيات المساعدة. وهو إطار، لا عنصر تحكم أبدًا."
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="شريط تمرير ومفتاح تبديل، يسمّي الحقل كلًّا منهما ويعطيه المساعدة والعلامة" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" requirement="required" required-text="مطلوب" supporting-text="ينطبق على التنبيهات والوسائط."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الإشعارات" requirement="optional" optional-text="اختياري" supporting-text="تُرسل حين تكون مراجعة في انتظارك."><tanrei-switch selected></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الإشعارات" requirement="optional" optional-text="اختياري" supporting-text="تُرسل حين تكون مراجعة في انتظارك."><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 حقل النص يستطيع أن يقول ما هو، وهل تجب الإجابة عنه، وكيف يُجاب عنه، ولماذا رُفضت إجابة. والحقل يعطي هذه الأربعة نفسها لعنصر تحكم لا يستطيعها: شريط تمرير، أو مفتاح تبديل، أو [حقل إدخال النص](/ar/components/text-input/)، أو [حقل إدخال اللون](/ar/components/color-input/)، أو [حقل إدخال الرمز لمرة واحدة](/ar/components/one-time-code-input/)، أو عنصر تحكم بناه منتجك. وحقل النص نفسه حقل حول حقل إدخال النص. تقف التسمية فوق عنصر التحكم، والمساعدة تحته. وما دام الحقل في حالة خطأ يأخذ نص الخطأ مكان المساعدة، فلا يزيد ارتفاع النموذج في حالة الخطأ عنه في الراحة؛ ويستطيع نظام التصميم بدلًا من ذلك أن يُبقي المساعدة ويضيف نص الخطأ تحتها.

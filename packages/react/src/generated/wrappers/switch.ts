@@ -25,6 +25,6 @@ const withSwitchMarks = /* @__PURE__ */ withMarks<SwitchMarks>([], ['form']);
  * Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.
  *
  * Events:
- * - `onChange` (`change`) — The user switched it; `detail.selected` (and the element's `selected`) is the new value.
+ * - `onChange` (`change`) — The user switched it; `detail.checked` (and the element's `checked`) is the new value.
  */
 export const Switch: Marked<typeof SwitchElement, SwitchMarks> = /* @__PURE__ */ withSwitchMarks(SwitchElement);

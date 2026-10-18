@@ -2,7 +2,7 @@
 title: फ़ील्ड
 description: एक कंट्रोल को वह सब देता है जो फ़ॉर्म हर फ़ील्ड को देता है, यानी ऐसा लेबल जो बता सकता है कि कंट्रोल ज़रूरी है या वैकल्पिक, सहायता की एक पंक्ति, और मान के अस्वीकार होने की वजह, और हर एक को सहायक तकनीक के लिए उस कंट्रोल से जोड़ता है। यह फ़्रेम है, कंट्रोल कभी नहीं।
 translationOf: components/field.mdx
-sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
+sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="एक स्लाइडर और एक स्विच, जिनमें से हर एक को फ़ील्ड नाम, सहायता और निशान देता है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी" supporting-text="अलर्ट और मीडिया पर लागू होता है।"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचनाएँ" requirement="optional" optional-text="वैकल्पिक" supporting-text="जब कोई समीक्षा आपके इंतज़ार में हो, तब भेजी जाती हैं।"><tanrei-switch selected></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचनाएँ" requirement="optional" optional-text="वैकल्पिक" supporting-text="जब कोई समीक्षा आपके इंतज़ार में हो, तब भेजी जाती हैं।"><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 टेक्स्ट फ़ील्ड बता सकता है कि वह क्या है, उसका जवाब देना ज़रूरी है या नहीं, जवाब कैसे देना है, और कोई जवाब क्यों अस्वीकार हुआ। फ़ील्ड यही चार चीज़ें उस कंट्रोल को देता है जो ख़ुद ऐसा नहीं कर सकता: स्लाइडर, स्विच, [टेक्स्ट इनपुट](/hi/components/text-input/), [कलर इनपुट](/hi/components/color-input/), [वन-टाइम कोड इनपुट](/hi/components/one-time-code-input/), या वह कंट्रोल जो आपके प्रॉडक्ट ने बनाया है। टेक्स्ट फ़ील्ड ख़ुद टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है। लेबल कंट्रोल के ऊपर रहता है और सहायता उसके नीचे। जब तक फ़ील्ड में त्रुटि है, त्रुटि टेक्स्ट सहायता की जगह ले लेता है, इसलिए त्रुटि वाला फ़ॉर्म सामान्य से ज़्यादा ऊँचा नहीं होता; कोई डिज़ाइन सिस्टम इसकी जगह सहायता को बनाए रख सकता है और त्रुटि टेक्स्ट उसके नीचे जोड़ सकता है।

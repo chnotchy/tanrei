@@ -330,10 +330,10 @@ function componentsPanel(ctx: Ctx) {
   let list = folds({ 'data-components': true }, items());
   // The one control of the list: off, what every list shows; on, everything. The person's choice, kept on this device.
   const everything = h('tanrei-switch', { class: 'ts-components-everything', label: t.components.everything, 'data-components-everything': true });
-  everything.selected = everyComponent();
+  everything.checked = everyComponent();
   everything.addEventListener('change', (event) => {
     if (event.target !== everything) return;
-    setEveryComponent(!!everything.selected);
+    setEveryComponent(!!everything.checked);
     const next = folds({ 'data-components': true }, items());
     list.replaceWith(next);
     list = next;
