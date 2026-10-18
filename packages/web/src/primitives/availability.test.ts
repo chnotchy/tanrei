@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { parseReplacements, parseUnavailable, unavailableEntry, unavailableMessage } from './availability.js';
+import { outsideMessage, parseOutside, parseReplacements, parseUnavailable, unavailableEntry, unavailableMessage } from './availability.js';
 import { debugBuild } from './report.js';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -60,6 +60,17 @@ test.describe('parsing', () => {
       'variant "filled" of navigation-bar is left out of the active design system; it still works, but the system uses variant "tonal" of navigation-bar instead',
     );
     expect(unavailableMessage('segmented-button', 'tanrei', ['tabs', 'button-group'])).toMatch(/uses tabs or button-group instead$/);
+  });
+
+  test('what lives in a layer the system does not extend is `<component>=<layer>`; the message names the layer and the way in', () => {
+    expect([...parseOutside('"fab-menu=m3-like other=x =y z="')]).toEqual([
+      ['fab-menu', 'm3-like'],
+      ['other', 'x'],
+    ]);
+    expect([...parseOutside('""')]).toEqual([]);
+    expect(outsideMessage('fab-menu', 'm3-like', 'tanrei')).toBe(
+      'fab-menu lives in the layer "m3-like", which the design system "tanrei" does not extend: its stylesheet has none of the component\'s tokens. Use a system that extends "m3-like", or include the component from it in a layer of your own',
+    );
   });
 
   test('nothing is reported in a production build', () => {
@@ -135,8 +146,29 @@ test.describe('elements', () => {
 
   test('an empty list ships everything', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, `<div style='--tanrei-unavailable: ""'><tanrei-fab-menu label="Create"></tanrei-fab-menu></div>`);
+    await mount(page, `<div style='--tanrei-unavailable: ""'><tanrei-segmented-button label="View"><tanrei-segment value="a" label="A"></tanrei-segment><tanrei-segment value="b" label="B"></tanrei-segment></tanrei-segmented-button></div>`);
     await page.waitForTimeout(100);
     expect(seen).toEqual([]);
+  });
+
+  test('a component used under a system that does not descend from the layer it lives in says so; under that layer’s systems it does not', async ({ page }) => {
+    // The default system and cupertino do not extend m3-like, where the FAB menu lives: read from their sheets.
+    const outside = (file: string) => parseOutside(/--tanrei-unavailable-layer: ("[^"]*");/.exec(read(file))?.[1] ?? '');
+    expect(outside('dist/tokens.css').get('fab-menu')).toBe('m3-like');
+    expect(outside('dist/systems/cupertino.css').get('fab-menu')).toBe('m3-like');
+    expect(outside('dist/systems/m3-like.css').size).toBe(0);
+    const seen = warnings(page);
+    await mount(page, `<tanrei-fab-menu label="Create"></tanrei-fab-menu>`);
+    await expect.poll(() => seen.length).toBe(1);
+    expect(seen[0]).toContain('[tanrei] <tanrei-fab-menu>: fab-menu lives in the layer "m3-like", which the active design system does not extend');
+    seen.length = 0;
+    for (const system of ['m3-like', 'm3-expressive-like']) {
+      await mount(page, `<tanrei-fab-menu label="Create"></tanrei-fab-menu>`, { system });
+      await page.waitForFunction(() => !!customElements.get('tanrei-fab-menu'));
+      // A report that does not come has no event to wait for: the read runs in a microtask after the host's first
+      // update, well inside this wait, as the other tests here that see nothing reported wait for it.
+      await page.waitForTimeout(100);
+      expect(seen, system).toEqual([]);
+    }
   });
 });

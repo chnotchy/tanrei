@@ -11,7 +11,7 @@
 // every item is drawn.
 import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings } from '../lib/repo';
 import { contentLang, localeBase, strings } from '../lib/i18n';
-import { isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+import { categoriesOf, groupOf, isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
 import ListingSwitch from './ListingSwitch.astro';
 import SourceNote from './SourceNote.astro';
 
@@ -27,7 +27,8 @@ const Heading = `h${Astro.props.headingLevel}` as 'h2';
 const lang = contentLang(Astro);
 const t = strings(lang);
 const base = localeBase(Astro);
-const categories = [...new Set(statusComponents.map((c) => c.category))];
+// The categories, then a group for each layer that holds components of its own (the FAB menu lives in m3-like).
+const categories = categoriesOf(statusComponents);
 /** The attribute of a row, or of a category, drawn only to a reader who asked for everything. */
 const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : {});
 ---
@@ -35,10 +36,10 @@ const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : 
 <div class="not-content index">
   <ListingSwitch lang={lang} />
   {categories.map((category) => (
-    <section {...marked(statusComponents.filter((c) => c.category === category).every((c) => isOnRequest(c, listings)))}>
+    <section {...marked(statusComponents.filter((c) => groupOf(c) === category).every((c) => isOnRequest(c, listings)))}>
       <Heading class="docs-eyebrow">{t.category[category] ?? category}</Heading>
       <tanrei-list class="docs-index-list">
-        {statusComponents.filter((c) => c.category === category).map((c) => {
+        {statusComponents.filter((c) => groupOf(c) === category).map((c) => {
           const shipped = platforms.filter((p) => isImplemented(c.platforms[p])).length;
           const role = levelRole(c.level);
           const meta = `${shipped}/${platforms.length} · ${(role && t.level[role]) ?? c.level}`;

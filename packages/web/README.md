@@ -25,7 +25,8 @@ npm install @tanrei/web
 
 ```js
 import '@tanrei/web/tokens.css';   // the default system's tokens, once, as early as possible
-import '@tanrei/web';              // every element; or one at a time: '@tanrei/web/components/button'
+import '@tanrei/web';              // every element of the core; or one at a time: '@tanrei/web/components/button'
+import '@tanrei/web/m3-like';      // on an m3-like system: the elements that live in that layer (the FAB menu)
 ```
 
 ```html

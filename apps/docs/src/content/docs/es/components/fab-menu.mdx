@@ -2,7 +2,7 @@
 title: Menú FAB
 description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
 translationOf: components/fab-menu.mdx
-sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,8 +15,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[No está en el sistema Tanrei]
-El sistema Tanrei predeterminado no incluye el menú FAB, y cupertino tampoco, porque Apple no tiene botón de acción flotante; los preajustes de Material sí lo incluyen. En Tanrei, usa un [botón de acción principal](/es/components/main-action-button/) que abra una [hoja inferior](/es/components/bottom-sheet/) de acciones. El componente sigue funcionando con todos los sistemas, con una advertencia en desarrollo donde el sistema lo deja fuera. Las demostraciones de esta página se dibujan con el preajuste `m3-like`, un sistema que lo incluye.
+:::note[Un componente de la capa m3-like]
+El menú FAB vive en la capa `m3-like`: solo lo tienen los sistemas que descienden de ella —`m3-like` y `m3-expressive-like`— y sus tokens están solo en sus hojas de estilo. `@tanrei/web` no lo registra; lo registra `@tanrei/web/m3-like`. El sistema Tanrei predeterminado y cupertino no lo tienen, porque ninguno dibuja un botón de acción flotante: usa un [botón de acción principal](/es/components/main-action-button/) que abra una [hoja inferior](/es/components/bottom-sheet/) de acciones. Si se usa con uno de ellos, lo avisa en desarrollo. Un producto sobre otro sistema que lo quiera lo incluye desde la capa en su propia capa —`"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`— y lo dibuja con sus propios tokens. Las demostraciones de esta página se dibujan con `m3-like`.
 :::
 
 <DemoFrame label="Cerrado y abierto" system="m3-like">
@@ -61,7 +61,8 @@ El conmutador se dibuja como un [botón de acción principal](/es/components/mai
     </style>
 
     <script type="module">
-      import '@tanrei/web/components/fab-menu';
+      // El menú FAB vive en la capa m3-like: lo registra la entrada de esa capa, junto a la principal.
+      import '@tanrei/web/m3-like';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // El conmutador pide abrir o cerrar; tú defines open.
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));

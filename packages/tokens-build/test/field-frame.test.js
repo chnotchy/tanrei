@@ -16,7 +16,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ROOT_SYSTEM, listSystems } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, shippedSystems } from '../src/bundle.js';
 import { CONFIG, REPO_ROOT, buildModel } from '../src/model.js';
 
 const NS = `${CONFIG.namespace}.comp`;
@@ -96,10 +96,10 @@ const REQUIRED = [
     ['label', 'supporting-text', 'required-asterisk'].map((part) => `stacked.${condition}${part}.color`)),
 ];
 
-const systems = [ROOT_SYSTEM, ...listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM)];
+const systems = [DEFAULT_SYSTEM, ...shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM)];
 const models = new Map();
 const modelOf = async (system) => {
-  if (!models.has(system)) models.set(system, await (system === ROOT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
+  if (!models.has(system)) models.set(system, await (system === DEFAULT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
   return models.get(system);
 };
 /** A token's value as drawn in a scheme: a color of that scheme, anything else as the model resolved it. */
@@ -146,7 +146,7 @@ for (const [component, frame] of Object.entries(FRAMES)) {
 }
 
 test('the comparison is not vacuous: a token whose value moves away from its reference is found, by name', async () => {
-  const model = structuredClone(await modelOf(ROOT_SYSTEM));
+  const model = structuredClone(await modelOf(DEFAULT_SYSTEM));
   const [mine, held] = framePairs(model, 'field-group').find(([id]) => id.endsWith('.label.gap'));
   assert.equal(held, `${FIELD}.label.gap`);
   model.tokens[mine].value = { value: 12, unit: 'px' };
@@ -164,7 +164,7 @@ test('the comparison is not vacuous: a token whose value moves away from its ref
 });
 
 test('the text field has no group of its own: the box is the one set, the text input has what it alone draws, the Field the rows', async () => {
-  const model = await modelOf(ROOT_SYSTEM);
+  const model = await modelOf(DEFAULT_SYSTEM);
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   assert.equal(count('text-field'), 0);
   // 364 were the text input's (361 at the split, and three for the entries place): 330 are the box's
@@ -185,7 +185,7 @@ test('the text field has no group of its own: the box is the one set, the text i
 });
 
 test('a split field has no group of its own: the box is the one set, its input has what it alone draws, the Field the rows', async () => {
-  const model = await modelOf(ROOT_SYSTEM);
+  const model = await modelOf(DEFAULT_SYSTEM);
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   // The number field: 438 ids were its own, then 283 the number input's; five are — where the
   // steppers stand and how a hold repeats.

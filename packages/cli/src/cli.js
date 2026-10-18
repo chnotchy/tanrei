@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DERIVE, ENUM, enumName, legalOperations, matchingRules } from '@tanrei/token-engine';
 import { TARGETS, buildProductSystem } from '@tanrei/tokens-build/product';
-import { listSystems } from '@tanrei/tokens-build/bundle';
+import { shippedSystems as systemsOffered } from '@tanrei/tokens-build/bundle';
 import { FONT_NOTE, fontLines, fontReport } from '@tanrei/tokens-build/fonts';
 import { glyphLines } from '@tanrei/tokens-build/glyphs';
 import { leadWithStructure } from '@tanrei/tokens-build/invariants';
@@ -24,7 +24,7 @@ import { startStudioServer } from './studio-server.js';
 const CONFIG_FILE = 'tanrei.json';
 /** The systems `init --extends` accepts: the ones this version ships, the default first. Read, never listed by hand, so the help cannot fall behind them. */
 export function shippedSystems() {
-  const ids = listSystems(REPO_ROOT);
+  const ids = systemsOffered(REPO_ROOT);
   return [...ids.filter((id) => id === CONFIG.namespace), ...ids.filter((id) => id !== CONFIG.namespace)];
 }
 
@@ -241,7 +241,7 @@ function openInBrowser(url) {
 }
 
 async function systems() {
-  for (const id of listSystems(REPO_ROOT)) {
+  for (const id of systemsOffered(REPO_ROOT)) {
     const layer = loadSystem(REPO_ROOT, id);
     console.log(`${id.padEnd(12)} ${layer.name ?? ''}${layer.extends ? `  (extends ${layer.extends})` : ''}`);
     const resolved = await resolveSystem({ system: id }, { validate: false });
