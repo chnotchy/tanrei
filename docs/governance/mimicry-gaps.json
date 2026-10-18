@@ -528,6 +528,16 @@
       "proposal": "A product that leaves its actions unflagged keeps the order it gives them, which reproduces Material's order. A per-system placement order for the button group would close it if one product needs the flags and Material's order together."
     },
     {
+      "id": "close-button-size",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "Material's side sheet closes with a standard icon button 40 tall. Tanrei draws every host's close button at the small Button size (SSH-5), which m3-like values 32, and no token sets one host's close button apart in size: a system re-values the variant per host, not the size.",
+      "proposal": "A small enumerated token per host (comp.<host>.close-button.size, a Button size) would let m3-like keep 40. Add it if one product needs one host's close control to differ in size from the others; until then m3-like's side sheet closes with a 32 text Button."
+    },
+    {
       "id": "side-sheet-actions-in-header",
       "systems": [
         "cupertino"

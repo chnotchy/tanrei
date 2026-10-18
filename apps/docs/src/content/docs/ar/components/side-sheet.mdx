@@ -1,8 +1,8 @@
 ---
 title: اللوحة الجانبية
-description: تحمل محتوى تكميليًّا أو مهمة ثانوية في لوحة عند حافة النهاية، لها عنوان رئيسي وزر إغلاق اختياري وإجراءات اختيارية، بجانب المحتوى في النافذة العريضة أو فوقه في النافذة المضغوطة.
+description: تحمل محتوى تكميليًّا أو مهمة ثانوية في لوحة عند حافة النهاية، لها عنوان رئيسي وزر إغلاق وإجراءات اختيارية، بجانب المحتوى في النافذة العريضة أو فوقه في النافذة المضغوطة.
 translationOf: components/side-sheet.mdx
-sourceHash: fc5ffa5244c401cdf4301f894820d0b9cb2b1dc7
+sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="side-sheet" />
 
 :::note[مواصفة معدَّلة، لم تصل بعد إلى كل منصة]
-تصف هذه الصفحة إجراءات اللوحة الجانبية وزر إغلاقها كما هي في المواصفة الآن، مثل إجراءات مربع الحوار. الإجراءات صف بعرض كامل من أزرار من الطراز tonal تُوضع بحسب مهمتها: كل منها معلَّم بالعلامة `confirming` أو `dismissive`، واللوحة النمطية (modal) يجب أن تعرض واحدًا على الأقل. زر الإغلاق من الطراز tonal. ويقوم فاصل تحت الترويسة دائمًا كما يقوم فوق الإجراءات، وتبقى الإجراءات فوق لوحة المفاتيح الظاهرة على الشاشة. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض؛ ويبقى معلَّمًا أعلاه بأنه متأخر إلى أن تُدقَّق المراجعة. ومنصات SwiftUI و Compose و Flutter و React Native متأخرة هي الأخرى: إلى أن تلحق تقدّم المراجعة السابقة، وفيها زر أيقونة من الطراز standard للإغلاق، والإجراءات في صف من حافة البداية بالترتيب المعطى، اختيارية في الهيئتين وبينها 8.
+تصف هذه الصفحة إجراءات اللوحة الجانبية وزر إغلاقها كما هي في المواصفة الآن، مثل إجراءات مربع الحوار. الإجراءات صف بعرض كامل من أزرار من الطراز tonal تُوضع بحسب مهمتها: كل منها معلَّم بالعلامة `confirming` أو `dismissive`، واللوحة النمطية (modal) يجب أن تعرض واحدًا على الأقل. زر الإغلاق زر صغير (small) من الطراز tonal، يُرسم ما لم تكن قيمة `closable` هي false. ويقوم فاصل تحت الترويسة دائمًا كما يقوم فوق الإجراءات، وتبقى الإجراءات فوق لوحة المفاتيح الظاهرة على الشاشة. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض؛ ويبقى معلَّمًا أعلاه بأنه متأخر إلى أن تُدقَّق المراجعة. ومنصات SwiftUI و Compose و Flutter و React Native متأخرة هي الأخرى: إلى أن تلحق تقدّم المراجعة السابقة، وفيها زر أيقونة من الطراز standard للإغلاق، والإجراءات في صف من حافة البداية بالترتيب المعطى، اختيارية في الهيئتين وبينها 8.
 :::
 
 <DemoFrame label="لوحة قياسية في نهاية صف">
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p style="margin: 0">نتائج البحث</p>
       <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">عوامل التصفية</tanrei-button>
     </div>
-    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="عوامل التصفية" closable close-label="إغلاق عوامل التصفية" onclose="this.open = false">
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="عوامل التصفية" close-label="إغلاق عوامل التصفية" onclose="this.open = false">
       <p>اعرض نتائج آخر 30 يومًا التي تحمل كل التسميات المحددة.</p>
       <tanrei-button slot="actions">إعادة ضبط</tanrei-button>
       <tanrei-button slot="actions" confirming>تطبيق</tanrei-button>
@@ -54,7 +54,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **القياسية** (standard)، وهي الافتراضية، منطقة تخطيط، لا تراكب. ما دامت مفتوحة تأخذ عرضها في نهاية الصف الذي تضعها فيه، ويتغير حجم المحتوى المجاور لها. لا ترسم حجابًا (scrim) ولا تحصر التركيز أبدًا.
 - **النمطية** (modal) تراكب نمطي. تنزلق فوق المحتوى من حافة النهاية مع حجاب، وتُبقي التركيز في داخلها، وتعيده حين تُغلق.
 
-ترسم اللوحة ترويسة فيها قيمة `headline`، وما دامت قيمة `closable` هي true، زر إغلاق تسمّيه الخاصية `closeLabel`. محتواك يذهب تحت الترويسة، وأزرار Tanrei في منفذ الإجراءات (actions) تذهب على امتداد الأسفل، كل منها معلَّم بالعلامة `confirming` (يُتمّ المهمة: «تطبيق»، «حفظ») أو بالعلامة `dismissive` (يتراجع: «إلغاء»). تضعها اللوحة في مواضعها بحسب هاتين العلامتين، فتعطيها بأي ترتيب، وترسم الإجراء الذي لم تضبط له `variant` بالطراز tonal. اللوحة النمطية يجب أن تعرض إجراءً واحدًا على الأقل؛ واللوحة القياسية قد لا يكون لها أي إجراء. الإجراء لا يغلق اللوحة من تلقاء نفسه أبدًا: أغلقها من معالج الإجراء.
+ترسم اللوحة ترويسة فيها قيمة `headline`، وما دامت قيمة `closable` هي true (القيمة الافتراضية)، زر إغلاق تسمّيه الخاصية `closeLabel`. محتواك يذهب تحت الترويسة، وأزرار Tanrei في منفذ الإجراءات (actions) تذهب على امتداد الأسفل، كل منها معلَّم بالعلامة `confirming` (يُتمّ المهمة: «تطبيق»، «حفظ») أو بالعلامة `dismissive` (يتراجع: «إلغاء»). تضعها اللوحة في مواضعها بحسب هاتين العلامتين، فتعطيها بأي ترتيب، وترسم الإجراء الذي لم تضبط له `variant` بالطراز tonal. اللوحة النمطية يجب أن تعرض إجراءً واحدًا على الأقل؛ واللوحة القياسية قد لا يكون لها أي إجراء. الإجراء لا يغلق اللوحة من تلقاء نفسه أبدًا: أغلقها من معالج الإجراء.
 
 علِّم العنصر الذي ينبغي أن ينال التركيز عند فتح اللوحة بعلامة المنصة نفسها: `autofocus` على الويب، و `.defaultFocus` أو `@AccessibilityFocusState` على SwiftUI، و `FocusRequester` يُمرَّر في `initialFocus` على Compose، و `autofocus: true` على Flutter، و `initialFocusRef` على React Native. على SwiftUI ينقل `.defaultFocus` تركيز لوحة المفاتيح، وينقل ربط `@AccessibilityFocusState` الممرَّر في `initialFocus` تركيز VoiceOver. من دون علامة يذهب التركيز إلى اللوحة نفسها، فيُقرأ عنوانها الرئيسي أولًا.
 
@@ -68,7 +68,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <!-- القياسية: العنصر الأخير في صف flex. هي <aside> اسمه العنوان الرئيسي. -->
     <div style="display: flex">
       <main style="flex: 1">…</main>
-      <tanrei-side-sheet headline="عوامل التصفية" closable close-label="إغلاق عوامل التصفية">
+      <tanrei-side-sheet headline="عوامل التصفية" close-label="إغلاق عوامل التصفية">
         <p>اعرض نتائج آخر 30 يومًا التي تحمل كل التسميات المحددة.</p>
         <!-- confirming يذهب إلى نهاية الصف. من دون variant، كلاهما tonal. -->
         <tanrei-button slot="actions">إعادة ضبط</tanrei-button>
@@ -95,7 +95,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       variant={wide ? 'standard' : 'modal'}
       open={open}
       headline="عوامل التصفية"
-      closable
       closeLabel="إغلاق عوامل التصفية"
       onClose={() => setOpen(false)}
     >
@@ -210,7 +209,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="لوحة نمطية: افتحها بالزر" plain>
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">عوامل التصفية</tanrei-button>
-  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="عوامل التصفية" closable close-label="إغلاق عوامل التصفية" onclose="this.open = false">
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="عوامل التصفية" close-label="إغلاق عوامل التصفية" onclose="this.open = false">
     <p>اعرض نتائج آخر 30 يومًا التي تحمل كل التسميات المحددة.</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">تطبيق</tanrei-button>
@@ -243,7 +242,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | الجزء | يُضبط بـ | ملاحظات |
 | --- | --- | --- |
 | العنوان الرئيسي | `headline` | مطلوب. ما تدور حوله اللوحة، مثل «عوامل التصفية». وهو الاسم المتاح للتقنيات المساعدة للوحة وعنوان (heading)، ويلتف ولا يُقتطع. |
-| زر الإغلاق | `closable`، `closeLabel` | زر متوسط الحجم بأيقونة فقط، يحمل الأيقونة `close` في نهاية الترويسة، ومن الطراز tonal في النظام الافتراضي. ترسمه اللوحة وتربطه بالحدث `close`؛ وأنت تعطيه تسمية. |
+| زر الإغلاق | `closable`، `closeLabel` | زر صغير (small) بأيقونة فقط، يحمل الأيقونة `close` في نهاية الترويسة، ومن الطراز tonal في النظام الافتراضي، مثل كل أزرار الإغلاق في Tanrei (ورمز بلا خلفية في m3-like). يُرسم افتراضيًّا؛ اجعل قيمة `closable` هي false (السمة `not-closable`) حين يغلق اللوحةَ عنصرُ تحكم من عندك أو أحد الإجراءات. ترسمه اللوحة وتربطه بالحدث `close`؛ وأنت تعطيه تسمية. |
 | المحتوى | المنفذ الافتراضي | كل ما وُجدت اللوحة من أجله. تزيحه اللوحة عن الحواف إلى الداخل، وتعطيه لون محتوى، وتمرّره بين الترويسة والإجراءات. |
 | الإجراءات | منفذ الإجراءات (actions) | أزرار Tanrei، كل منها معلَّم بالعلامة `confirming` أو `dismissive`، تحت فاصل. مطلوبة في اللوحة النمطية، اختيارية في القياسية. تضعها اللوحة في مواضعها وترسم ما لا طراز له منها بالطراز tonal؛ ولا تغيّر مظهرها بغير ذلك أبدًا. |
 
@@ -265,7 +264,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### افعل
 
 - اكتب عنوانًا رئيسيًّا قصيرًا يسمّي محتوى اللوحة: «عوامل التصفية»، «التفاصيل»، «الخصائص».
-- أعطِ اللوحة القياسية زر إغلاق، ما لم يغلقها عنصر تحكم من عندك، مثل زر «عوامل التصفية» يُبدَّل.
+- أبقِ زر الإغلاق في اللوحة القياسية، وهو يُرسم افتراضيًّا، ما لم يغلقها عنصر تحكم من عندك، مثل زر «عوامل التصفية» يُبدَّل.
 - استخدم المحتوى نفسه في الهيئتين، ليتنقل المنتج بينهما بعرض النافذة وحده.
 - علِّم كل إجراء بالعلامة `confirming` أو `dismissive`، ودع اللوحة تضعها في مواضعها.
 - أعطِ اللوحة النمطية إجراءً يُنهي المهمة، مثل «تطبيق»، لا مخارج فقط.
@@ -309,7 +308,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما عليك فعله
 
 - أعطِ كل لوحة قيمة للخاصية `headline`. هي اسم اللوحة.
-- ما دامت قيمة `closable` هي true، أعطِ زر الإغلاق قيمة للخاصية `closeLabel` تقول ما الذي يغلقه، مثل «إغلاق عوامل التصفية».
+- أعطِ زر الإغلاق، الذي يُرسم افتراضيًّا، قيمة للخاصية `closeLabel` تقول ما الذي يغلقه، مثل «إغلاق عوامل التصفية».
 - أغلق اللوحة بنفسك: اضبط `open` على false استجابةً لطلب الإغلاق (الحدث `close` على الويب، و `onClose` على Compose و Flutter و React Native). وعلى SwiftUI تكتب اللوحة false في الربط عنك.
 - أعطِ اللوحة القياسية طريقة لإغلاقها: زر إغلاقها، أو عنصر تحكم من عندك له تسمية.
 - أعطِ اللوحة النمطية إجراءً واحدًا على الأقل، وعلِّم كل إجراء بالعلامة `confirming` أو `dismissive`، وأغلق اللوحة من معالجه.

@@ -1,8 +1,8 @@
 ---
 title: Hoja lateral
-description: Contiene contenido complementario o una tarea secundaria en un panel situado en el borde de fin, con un titular, un botón de cierre opcional y acciones opcionales, junto al contenido en una ventana ancha o sobre él en una compacta.
+description: Contiene contenido complementario o una tarea secundaria en un panel situado en el borde de fin, con un titular, un botón de cierre y acciones opcionales, junto al contenido en una ventana ancha o sobre él en una compacta.
 translationOf: components/side-sheet.mdx
-sourceHash: fc5ffa5244c401cdf4301f894820d0b9cb2b1dc7
+sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="side-sheet" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe las acciones y el botón de cierre de la hoja lateral tal como los define ahora la especificación, igual que los del diálogo. Las acciones son una fila a todo el ancho de botones de variante tonal, colocados según su función: cada una se marca como `confirming` o `dismissive`, y una hoja modal debe ofrecer al menos una. El botón de cierre es tonal. Bajo la cabecera hay siempre un divisor, como sobre las acciones, y las acciones se mantienen por encima del teclado en pantalla. El componente web ya hace todo esto, y las demostraciones también; arriba sigue marcado como rezagado hasta que la revisión se haya examinado. SwiftUI, Compose, Flutter y React Native también van rezagados: hasta que se pongan al día ofrecen la revisión anterior, con un botón de icono estándar para cerrar y las acciones en una fila desde el borde de inicio en el orden dado, opcionales en ambas formas y separadas por 8.
+Esta página describe las acciones y el botón de cierre de la hoja lateral tal como los define ahora la especificación, igual que los del diálogo. Las acciones son una fila a todo el ancho de botones de variante tonal, colocados según su función: cada una se marca como `confirming` o `dismissive`, y una hoja modal debe ofrecer al menos una. El botón de cierre es un botón small tonal, que se dibuja salvo que `closable` sea false. Bajo la cabecera hay siempre un divisor, como sobre las acciones, y las acciones se mantienen por encima del teclado en pantalla. El componente web ya hace todo esto, y las demostraciones también; arriba sigue marcado como rezagado hasta que la revisión se haya examinado. SwiftUI, Compose, Flutter y React Native también van rezagados: hasta que se pongan al día ofrecen la revisión anterior, con un botón de icono estándar para cerrar y las acciones en una fila desde el borde de inicio en el orden dado, opcionales en ambas formas y separadas por 8.
 :::
 
 <DemoFrame label="Una hoja estándar al final de una fila">
@@ -25,7 +25,7 @@ Esta página describe las acciones y el botón de cierre de la hoja lateral tal 
       <p style="margin: 0">Resultados de búsqueda</p>
       <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">Filtros</tanrei-button>
     </div>
-    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="Filtros" closable close-label="Cerrar filtros" onclose="this.open = false">
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="Filtros" close-label="Cerrar filtros" onclose="this.open = false">
       <p>Muestra los resultados de los últimos 30 días que tienen todas las etiquetas seleccionadas.</p>
       <tanrei-button slot="actions">Restablecer</tanrei-button>
       <tanrei-button slot="actions" confirming>Aplicar</tanrei-button>
@@ -54,7 +54,7 @@ La hoja tiene dos formas en `variant`, y un mismo producto suele usar las dos: e
 - **Estándar**, la predeterminada, es una región del diseño, no una superposición. Mientras está abierta ocupa su ancho al final de la fila en la que la colocas, y el contenido que tiene al lado cambia de tamaño. No dibuja ningún velo y nunca retiene el foco.
 - **Modal** es una superposición modal. Se desliza sobre el contenido desde el borde de fin con un velo, mantiene el foco dentro y lo devuelve al cerrarse.
 
-La hoja dibuja una cabecera con el `headline` y, mientras `closable` sea true, un botón de cierre que recibe su nombre de `closeLabel`. Tu contenido va debajo de la cabecera, y los botones de Tanrei del slot de acciones van a lo largo de la parte inferior, cada uno marcado como `confirming` (completa la tarea: Aplicar, Guardar) o `dismissive` (la abandona: Cancelar). La hoja los coloca según esas marcas, así que puedes darlos en cualquier orden, y dibuja como tonal toda acción cuya `variant` no hayas definido. Una hoja modal debe ofrecer al menos una acción; una hoja estándar puede no tener ninguna. Una acción nunca cierra la hoja por sí sola: ciérrala desde el controlador de la acción.
+La hoja dibuja una cabecera con el `headline` y, mientras `closable` sea true (el valor predeterminado), un botón de cierre que recibe su nombre de `closeLabel`. Tu contenido va debajo de la cabecera, y los botones de Tanrei del slot de acciones van a lo largo de la parte inferior, cada uno marcado como `confirming` (completa la tarea: Aplicar, Guardar) o `dismissive` (la abandona: Cancelar). La hoja los coloca según esas marcas, así que puedes darlos en cualquier orden, y dibuja como tonal toda acción cuya `variant` no hayas definido. Una hoja modal debe ofrecer al menos una acción; una hoja estándar puede no tener ninguna. Una acción nunca cierra la hoja por sí sola: ciérrala desde el controlador de la acción.
 
 Marca el elemento que debe recibir el foco al abrirse la hoja con la marca propia de la plataforma: `autofocus` en la web, `.defaultFocus` o un `@AccessibilityFocusState` en SwiftUI, un `FocusRequester` pasado como `initialFocus` en Compose, `autofocus: true` en Flutter e `initialFocusRef` en React Native. En SwiftUI, `.defaultFocus` mueve el foco del teclado, y un binding `@AccessibilityFocusState` pasado como `initialFocus` mueve VoiceOver. Sin marca, el foco va a la propia hoja, de modo que su titular se lee primero.
 
@@ -68,7 +68,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <!-- Estándar: el último elemento de una fila flex. Es un <aside> que recibe su nombre del titular. -->
     <div style="display: flex">
       <main style="flex: 1">…</main>
-      <tanrei-side-sheet headline="Filtros" closable close-label="Cerrar filtros">
+      <tanrei-side-sheet headline="Filtros" close-label="Cerrar filtros">
         <p>Muestra los resultados de los últimos 30 días que tienen todas las etiquetas seleccionadas.</p>
         <!-- confirming va al final de la fila. Sin variante, las dos son tonal. -->
         <tanrei-button slot="actions">Restablecer</tanrei-button>
@@ -95,7 +95,6 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
       variant={wide ? 'standard' : 'modal'}
       open={open}
       headline="Filtros"
-      closable
       closeLabel="Cerrar filtros"
       onClose={() => setOpen(false)}
     >
@@ -210,7 +209,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 <DemoFrame label="Una hoja modal: ábrela con el botón" plain>
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">Filtros</tanrei-button>
-  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="Filtros" closable close-label="Cerrar filtros" onclose="this.open = false">
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="Filtros" close-label="Cerrar filtros" onclose="this.open = false">
     <p>Muestra los resultados de los últimos 30 días que tienen todas las etiquetas seleccionadas.</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">Aplicar</tanrei-button>
@@ -243,7 +242,7 @@ Una hoja modal nunca es tan ancha como una ventana estrecha. Se queda al menos u
 | Parte | Se define con | Notas |
 | --- | --- | --- |
 | Titular | `headline` | Obligatorio. De qué trata la hoja, como «Filtros». Es el nombre accesible de la hoja y un encabezado, y salta de línea en lugar de cortarse. |
-| Botón de cierre | `closable`, `closeLabel` | Un botón mediano de solo icono con el glifo `close` al final de la cabecera, tonal en el sistema predeterminado. La hoja lo dibuja y lo conecta con `close`; tú le das una etiqueta. |
+| Botón de cierre | `closable`, `closeLabel` | Un botón small de solo icono con el glifo `close` al final de la cabecera, tonal en el sistema predeterminado, como todos los botones de cierre de Tanrei (un glifo sin fondo en m3-like). Se dibuja de forma predeterminada; pon `closable` a false (el atributo `not-closable`) cuando la hoja la cierre un control tuyo o una acción. La hoja lo dibuja y lo conecta con `close`; tú le das una etiqueta. |
 | Contenido | el slot predeterminado | Aquello para lo que sirve la hoja. La hoja le da un margen interior, le asigna un color de contenido y lo desplaza entre la cabecera y las acciones. |
 | Acciones | el slot de acciones | Botones de Tanrei, cada uno marcado como `confirming` o `dismissive`, bajo un divisor. Obligatorias en una hoja modal, opcionales en una estándar. La hoja las coloca y dibuja como tonal las que no tienen variante; por lo demás, nunca les cambia el estilo. |
 
@@ -265,7 +264,7 @@ La cabecera y las acciones permanecen en su sitio mientras el contenido se despl
 ### Recomendado
 
 - Escribe un titular corto que nombre el contenido de la hoja: «Filtros», «Detalles», «Propiedades».
-- Da a una hoja estándar un botón de cierre, a menos que la cierre un control tuyo, como un botón Filtros conmutado.
+- Conserva el botón de cierre de una hoja estándar, que se dibuja de forma predeterminada, a menos que la cierre un control tuyo, como un botón Filtros conmutado.
 - Usa el mismo contenido en las dos formas, para que el producto cambie de una a otra solo por el ancho de la ventana.
 - Marca cada acción como `confirming` o `dismissive`, y deja que la hoja las coloque.
 - Da a una hoja modal una acción que termine la tarea, como Aplicar, y no solo formas de salir.
@@ -309,7 +308,7 @@ Carencias conocidas por plataforma:
 ### Qué debes hacer tú
 
 - Da a cada hoja un `headline`. Es el nombre de la hoja.
-- Mientras `closable` sea true, da al botón de cierre un `closeLabel` que diga qué cierra, como «Cerrar filtros».
+- Da al botón de cierre, que se dibuja de forma predeterminada, un `closeLabel` que diga qué cierra, como «Cerrar filtros».
 - Cierra tú la hoja: pon `open` en false en respuesta a `close` (el evento `close` en la web, `onClose` en Compose, Flutter y React Native). En SwiftUI, la hoja escribe false en el binding por ti.
 - Da a una hoja estándar una forma de cerrarla: su botón de cierre, o un control tuyo con una etiqueta.
 - Da a una hoja modal al menos una acción, marca cada una como `confirming` o `dismissive`, y cierra la hoja desde su controlador.

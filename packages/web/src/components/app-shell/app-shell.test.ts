@@ -620,7 +620,7 @@ test.describe('the main region, the aside, the footer', () => {
   });
 
   test('APS-10: a standard side sheet in the aside gives the aside its own width, with no inset and no edge of the frame’s beside it; a modal one takes no space in any class; the frame never changes the sheet’s variant', async ({ page }) => {
-    const sheet = (variant: string, open = true) => `<tanrei-side-sheet slot="aside" variant="${variant}" headline="Details"${open ? ' open' : ''}>Details of the selected thing.</tanrei-side-sheet>`;
+    const sheet = (variant: string, open = true) => `<tanrei-side-sheet slot="aside" variant="${variant}" headline="Details" close-label="Close details"${open ? ' open' : ''}>Details of the selected thing.</tanrei-side-sheet>`;
     await mount(page, real({ aside: sheet('standard') }), { width: 1280 });
     const aside = region(page, 'aside');
     await expect.poll(async () => (await edges(aside)).width).toBe(await resolveToken(page, '--tanrei-comp-side-sheet-container-width'));
