@@ -233,10 +233,10 @@
       "component": "switch",
       "props": [
         {
-          "name": "selected",
+          "name": "checked",
           "type": "boolean",
           "default": false,
-          "description": "Whether it is on, as the Switch's selected."
+          "description": "Whether it is on, as the Switch's checked."
         }
       ]
     },
@@ -1296,7 +1296,7 @@
         {
           "kind": "switch",
           "props": {
-            "selected": true
+            "checked": true
           }
         }
       ]
@@ -1312,7 +1312,7 @@
         {
           "kind": "switch",
           "props": {
-            "selected": false
+            "checked": false
           }
         }
       ]
@@ -1471,7 +1471,7 @@
         {
           "kind": "switch",
           "props": {
-            "selected": true
+            "checked": true
           }
         }
       ]
@@ -11800,7 +11800,7 @@
         "switch": {
           "name": "tanrei-switch",
           "props": {
-            "selected": "selected"
+            "checked": "checked"
           }
         },
         "checkbox": {
@@ -11979,7 +11979,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "isOn"
+            "checked": "isOn"
           }
         },
         "checkbox": {
@@ -12152,7 +12152,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "checked"
+            "checked": "checked"
           }
         },
         "checkbox": {
@@ -12325,7 +12325,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "value"
+            "checked": "value"
           }
         },
         "checkbox": {
@@ -12498,7 +12498,7 @@
         "switch": {
           "name": "Switch",
           "props": {
-            "selected": "value"
+            "checked": "value"
           }
         },
         "checkbox": {

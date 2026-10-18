@@ -305,7 +305,7 @@ test.describe('selection and link', () => {
 
 test.describe('the swipe', () => {
   test('TBV-3: a touch or pen drag past the slop, further sideways than up or down, draws the switch at p (over the container’s width) and sets the tabs’ indicatorOffset to ±p; none at an end; a vertical drag is scrolling; a drag on its own row is the row’s', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('v', THREE, { selected: 'activity' })], reducedMotion: false });
+    await mountFixtures(page, spec, { fixtures: [fixture('v', THREE, { value: 'activity' })], reducedMotion: false });
     const w = await width(page, 'v');
     const D = await resolveToken(page, T('transition-distance'));
     // Toward the start edge (left): the next tab, at p = 0.25.
@@ -1006,7 +1006,7 @@ test.describe('its own row, or a link', () => {
     expect(seen.filter((w) => w.includes('TBV-17') && w.includes('<tanrei-tab-view>'))).toHaveLength(1);
 
     // Switching form at run time: own row → linked → own row, the selection kept, the panel shown at once.
-    await mountFixtures(page, spec, { fixtures: [fixture('v', THREE, { selected: 'activity' })], reducedMotion: false });
+    await mountFixtures(page, spec, { fixtures: [fixture('v', THREE, { value: 'activity' })], reducedMotion: false });
     await page.locator('[data-fixture="v"]').evaluate((stage) =>
       stage.insertAdjacentHTML(
         'afterbegin',
@@ -1122,7 +1122,7 @@ const frames = (page: P, n = 2) =>
 
 test.describe('a shared choice', () => {
   test('TBV-20: a view whose tabs follow their group’s choice shows the panel at once — whole, at rest, sharp, as tall as it — keeps the panel it hides, moves the exposure in that frame and emits nothing, while the view acted on is part of the way through its switch; a view without a panel of the choice keeps its own (TAB-36)', async ({ page }) => {
-    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [sharedFixture('shared-choice'), sharedFixture('shared-choice-lacking'), fixture('other', FOUR, { label: 'Platform', selected: 'flutter', group: 'another' })] });
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [sharedFixture('shared-choice'), sharedFixture('shared-choice-lacking'), fixture('other', FOUR, { label: 'Platform', value: 'flutter', group: 'another' })] });
     await hear(page);
     await override(page, { [T('motion-switch-duration')]: '60s' });
     const [a, b] = ['shared-choice', 'shared-choice-lacking'];
@@ -1161,7 +1161,7 @@ test.describe('a shared choice', () => {
 
   test('TBV-20: a row of tabs placed by the product and a linked view are members with the views’ own rows; a view that follows keeps what was typed in the panel it hides, moves focus from that panel to its selected tab without scrolling, and ends a swipe in progress without committing it', async ({ page }) => {
     const typed = [p('web', '<input id="in-web" aria-label="Web" />'), p('react', '<input id="in-react" aria-label="React" />'), p('swiftui'), p('flutter')];
-    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', FOUR, { label: 'Platform', selected: 'web', group: 'g' }), fixture('b', typed, { label: 'Platform', selected: 'react', group: 'g' })] });
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', FOUR, { label: 'Platform', value: 'web', group: 'g' }), fixture('b', typed, { label: 'Platform', value: 'react', group: 'g' })] });
     // A row placed by the product, in the same group (TAB-36), with a view linked to it.
     await page.evaluate(async () => {
       const stage = document.createElement('div');
@@ -1205,7 +1205,7 @@ test.describe('a shared choice', () => {
   });
 
   test('TBV-2: a selection set by the product on a view’s selected switches that view over the switch’s motion, and the views that follow it show their panel at once; a choice restored from storage is shown in the view’s first frame, with no switch and nothing emitted (TBV-20, TAB-39)', async ({ page }) => {
-    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', FOUR, { label: 'Platform', selected: 'web', group: 'p' }), fixture('b', FOUR, { label: 'Platform', selected: 'react', group: 'p' })] });
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', FOUR, { label: 'Platform', value: 'web', group: 'p' }), fixture('b', FOUR, { label: 'Platform', value: 'react', group: 'p' })] });
     await hear(page);
     await override(page, { [T('motion-switch-duration')]: '60s' });
     await view(page, 'a').evaluate(async (el: any) => {
@@ -1219,7 +1219,7 @@ test.describe('a shared choice', () => {
     expect(await heard(page)).toEqual([]);
 
     // Restored: a document with an origin, a stored value, and a recording from before the first element exists.
-    const body = await fixturesDocument(spec, { fixtures: [fixture('r', FOUR, { label: 'Platform', selected: 'web', rememberAs: 'view-key' }), fixture('f', FOUR, { label: 'Platform', group: 'restored' }), fixture('k', FOUR, { label: 'Platform', group: 'restored', rememberAs: 'group-key' })] });
+    const body = await fixturesDocument(spec, { fixtures: [fixture('r', FOUR, { label: 'Platform', value: 'web', rememberAs: 'view-key' }), fixture('f', FOUR, { label: 'Platform', group: 'restored' }), fixture('k', FOUR, { label: 'Platform', group: 'restored', rememberAs: 'group-key' })] });
     await page.route('http://tab-view.test/**', (route) => route.fulfill({ contentType: 'text/html', body }));
     await page.addInitScript(() => {
       const w = window as any;
@@ -1258,7 +1258,7 @@ test.describe('a shared choice', () => {
   });
 
   test('TBV-16: the row a view draws itself takes the view’s group and rememberAs, at first and when they change, and is the member of the group', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('a', FOUR, { label: 'Platform', selected: 'web', group: 'g16', rememberAs: 'key16' }), fixture('b', FOUR, { label: 'Platform', selected: 'react' })] });
+    await mountFixtures(page, spec, { fixtures: [fixture('a', FOUR, { label: 'Platform', value: 'web', group: 'g16', rememberAs: 'key16' }), fixture('b', FOUR, { label: 'Platform', value: 'react' })] });
     expect(await ownRow(page, 'a').evaluate((el: any) => [el.group, el.rememberAs])).toEqual(['g16', 'key16']);
     expect(await ownRow(page, 'b').evaluate((el: any) => [el.group, el.rememberAs])).toEqual(['', '']);
     // Given the group later, the view's row follows the choice the group holds, in that frame.
@@ -1278,7 +1278,7 @@ test.describe('a shared choice', () => {
 
   test('TBV-17: a linked view uses neither its group nor its rememberAs — the linked row names its own — and reports them', async ({ page }) => {
     const seen = warnings(page);
-    await mountFixtures(page, spec, { fixtures: [fixture('linked', THREE, { tabs: 'x', group: 'g17', rememberAs: 'key17' }), fixture('own', THREE, { label: 'Project', selected: 'overview', group: 'g17' })] });
+    await mountFixtures(page, spec, { fixtures: [fixture('linked', THREE, { tabs: 'x', group: 'g17', rememberAs: 'key17' }), fixture('own', THREE, { label: 'Project', value: 'overview', group: 'g17' })] });
     await expect(ownRow(page, 'linked')).toHaveCount(0);
     expect(await page.locator('#tabs-linked').evaluate((el: any) => [el.group, el.rememberAs])).toEqual(['', '']);
     await expect.poll(() => seen.some((w) => /group, remember-as apply only to a row the view draws itself; linked to other tabs, the view draws none and they are unused \(TBV-17\)/.test(w))).toBe(true);
@@ -1295,7 +1295,7 @@ test.describe('a shared choice', () => {
    */
   const keptInPlace = async (page: P, rate: number, slowed: (rate: number) => Promise<unknown>) => {
     const panels = sharedFixture('shared-choice').items!;
-    const ten = (group: string) => Array.from({ length: 10 }, (_, i) => fixture(`m${i + 1}`, panels, { label: 'Platform', selected: 'web', group }));
+    const ten = (group: string) => Array.from({ length: 10 }, (_, i) => fixture(`m${i + 1}`, panels, { label: 'Platform', value: 'web', group }));
     /** The top edge of `selector` in the eighth view in every frame from two before `act` to ten after, and how far `region` scrolled. */
     const during = async (region: string, selector: string, act: () => Promise<unknown>) => {
       await page.evaluate(
@@ -1594,7 +1594,7 @@ test.describe('accessibility', () => {
     // engine's to draw, and one of them draws it white on light grey in a dark page (1.81 : 1) — not the Tab view's.
     const control = '<button style="color: var(--tanrei-sys-color-on-surface); background-color: var(--tanrei-sys-color-surface)">Deploy</button>';
     for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, fixture('controls', [p('overview', control), p('activity'), p('settings')], { selected: 'overview', label: 'Deploys' })] });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, fixture('controls', [p('overview', control), p('activity'), p('settings')], { value: 'overview', label: 'Deploys' })] });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

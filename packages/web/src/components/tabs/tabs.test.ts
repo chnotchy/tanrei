@@ -267,7 +267,7 @@ const expected = async (page: P, variant: string, look: '' | 'selected', state =
 
 test.describe('selection and keyboard', () => {
   test('TAB-1: a pointer, Enter or Space on an enabled tab selects it and emits change once; the selected tab emits nothing', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { selected: 'overview' })] });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { value: 'overview' })] });
     await wire(page);
     await tabAt(page, 'r', 1).click();
     await tabAt(page, 'r', 1).click();
@@ -311,8 +311,8 @@ test.describe('selection and keyboard', () => {
     await mountFixtures(page, spec, {
       fixtures: [
         fixture('null', [t('a', 'A', { disabled: true }), t('b', 'B'), t('c', 'C')], {}, panels(['a', 'b', 'c'])),
-        fixture('none', THREE, { selected: 'nothing' }, panels(['overview', 'activity', 'settings'])),
-        fixture('odd', [t('', 'Empty'), t('x', 'First x'), t('x', 'Second x')], { selected: 'x' }),
+        fixture('none', THREE, { value: 'nothing' }, panels(['overview', 'activity', 'settings'])),
+        fixture('odd', [t('', 'Empty'), t('x', 'First x'), t('x', 'Second x')], { value: 'x' }),
       ],
     });
     await expect(tabAt(page, 'null', 1)).toHaveAttribute('aria-selected', 'true');
@@ -333,7 +333,7 @@ test.describe('selection and keyboard', () => {
 
   test('TAB-12: one Tab stop, the selected tab; Right and Left wrap over enabled tabs, Home and End, each selecting; mirrored in RTL; Tab goes into the panel', async ({ page }) => {
     const items = [t('a', 'A'), t('b', 'B', { disabled: true }), t('c', 'C'), t('d', 'D')];
-    await mountFixtures(page, spec, { fixtures: [fixture('r', items, { selected: 'c' }, panels(['a', 'c', 'd'], ['d']))] });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', items, { value: 'c' }, panels(['a', 'c', 'd'], ['d']))] });
     await page.evaluate(() => document.body.prepend(Object.assign(document.createElement('button'), { id: 'before', textContent: 'Before' })));
     await wire(page);
     await expect(tabAt(page, 'r', 2)).toHaveAttribute('tabindex', '0');
@@ -366,7 +366,7 @@ test.describe('selection and keyboard', () => {
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [
-        fixture('r', [t('overview', 'Overview', { icon: 'dashboard', labelHidden: true }), t('activity', 'Activity', { icon: 'history', labelHidden: true })], { selected: 'overview' }, panels(['overview', 'activity'], ['activity'])),
+        fixture('r', [t('overview', 'Overview', { icon: 'dashboard', labelHidden: true }), t('activity', 'Activity', { icon: 'history', labelHidden: true })], { value: 'overview' }, panels(['overview', 'activity'], ['activity'])),
       ],
     });
     await expect(page.getByRole('tablist', { name: 'Project' })).toHaveCount(1);
@@ -505,7 +505,7 @@ test.describe('layout', () => {
 
   test('TAB-15: the selected tab is brought into view at once when the row appears, over the indicator’s motion when it is selected or focused, and at once where motion is reduced', async ({ page }) => {
     const long = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'].map((v) => t(v, `${v[0].toUpperCase()}${v.slice(1)} tab`));
-    await mountFixtures(page, spec, { fixtures: [fixture('r', long, { selected: 'hotel' })] });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', long, { value: 'hotel' })] });
     const scroller = row(page, 'r').locator('.scroller');
     const visible = async (n: number) => {
       const [s, b] = [await bounds(scroller), await bounds(tabAt(page, 'r', n))];
@@ -556,17 +556,17 @@ test.describe('layout', () => {
       icons: true,
       fixtures: [
         ...spec.fixtures,
-        fixture('empty', [t('a', ''), t('b', 'B')], { selected: 'a' }),
-        fixture('cjk', [t('a', '日'), t('b', 'Recent activity')], { selected: 'a' }),
-        fixture('words', [t('a', '日'), t('b', 'Recent activity')], { selected: 'b' }),
-        fixture('secondary-letters', [t('s', 'S'), t('custom', 'Custom')], { variant: 'secondary', selected: 's' }),
+        fixture('empty', [t('a', ''), t('b', 'B')], { value: 'a' }),
+        fixture('cjk', [t('a', '日'), t('b', 'Recent activity')], { value: 'a' }),
+        fixture('words', [t('a', '日'), t('b', 'Recent activity')], { value: 'b' }),
+        fixture('secondary-letters', [t('s', 'S'), t('custom', 'Custom')], { variant: 'secondary', value: 's' }),
       ],
     });
     const [pad, inset, gap, plain, stacked] = await Promise.all(['active-indicator-padding-inline-medium', 'track-padding', 'container-gap', 'container-height-medium', 'container-height-with-icon'].map((n) => resolveToken(page, T(n))));
     const centre = (a: { x: number; y: number; width: number; height: number }) => ({ x: a.x + a.width / 2, y: a.y + a.height / 2 });
     const selectedOf = (id: string) => {
       const f = spec.fixtures.find((each) => each.id === id)!;
-      return f.items!.findIndex((item) => item.props.value === f.props.selected);
+      return f.items!.findIndex((item) => item.props.value === f.props.value);
     };
     // The same height on every tab of every row: the row less track.padding above and below — 40 without stacked icons,
     // 56 with them (the default system's numbers, read from its tokens).
@@ -669,7 +669,7 @@ test.describe('layout', () => {
   });
 
   test('TAB-17: the indicator and the underline slide and resize together from the old tab to the new one over the indicator’s motion, in the new tab’s colors, at once where motion is reduced; the panel changes at once; the first draw and a resize place them at once', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'Short'), t('b', 'A longer label'), t('c', 'C')], { selected: 'a' }, panels(['a', 'b', 'c']))] });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'Short'), t('b', 'A longer label'), t('c', 'C')], { value: 'a' }, panels(['a', 'b', 'c']))] });
     // The first draw: in place, no slide.
     expect(await slides(page, 'r')).toBe(0);
     expect(within(await bounds(label(page, 'r', 0)), await pill(page, 'r', 0))).toBe(true);
@@ -746,7 +746,7 @@ test.describe('layout', () => {
   });
 
   test('TAB-18: every tab is as tall as the row — at least container.height, height-with-icon where an icon is stacked, and tall enough to keep the tallest content inside the indicator; a primary tab stacks its icon above the label, a secondary one puts it before, centred on its line, gap apart; icons at their size in the fill of the selection; the label in its role', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('mixed', [t('a', 'Stacked', { icon: 'dashboard' }), t('b', 'Plain')], { selected: 'b' })] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('mixed', [t('a', 'Stacked', { icon: 'dashboard' }), t('b', 'Plain')], { value: 'b' })] });
     const [height, withIcon, gap, iconSize, thick, inset] = await Promise.all(['container-height-medium', 'container-height-with-icon', 'container-gap', 'icon-size-medium', 'primary-underline-thickness', 'track-padding'].map((n) => resolveToken(page, T(n))));
     expect((await bounds(tabAt(page, 'primary', 0))).height).toBeCloseTo(height, 1);
     expect((await bounds(tabAt(page, 'primary-icons', 0))).height).toBeCloseTo(withIcon, 1);
@@ -880,7 +880,7 @@ test.describe('layout', () => {
   test('TAB-21: right-to-left orders the tabs from the right, starts a row that hugs at its right edge, truncates a label at the end of the label’s own direction (TAB-33: a left-to-right label at its right end, in both copies) and mirrors the slide', async ({ page }) => {
     await mountFixtures(page, spec, {
       fixtures: [
-        fixture('hug', THREE, { selected: 'overview' }),
+        fixture('hug', THREE, { value: 'overview' }),
         { ...spec.fixtures.find((f) => f.id === 'primary-scrollable')!, id: 'scroll' },
         { ...spec.fixtures.find((f) => f.id === 'primary-fill-truncated')!, id: 'cut' },
       ],
@@ -930,7 +930,7 @@ test.describe('layout', () => {
   });
 
   test('TAB-33: a label is cut at the end of its own direction whatever the layout’s — a right-to-left label at its left end in a left-to-right row, a left-to-right label at its right end in either — and the box of a label without a letter keeps the layout’s direction', async ({ page }) => {
-    const fill = (id: string, text: string, direction?: 'rtl'): Fixture => ({ ...fixture(id, [t('a', text), t('b', 'B'), t('c', 'C'), t('d', 'D')], { fullWidth: true, selected: 'b' }), ...(direction ? { direction } : {}) });
+    const fill = (id: string, text: string, direction?: 'rtl'): Fixture => ({ ...fixture(id, [t('a', text), t('b', 'B'), t('c', 'C'), t('d', 'D')], { fullWidth: true, value: 'b' }), ...(direction ? { direction } : {}) });
     await mountFixtures(page, spec, { fixtures: [fill('arabic-ltr', ARABIC_LONG), fill('arabic-rtl', ARABIC_LONG, 'rtl'), fill('latin-ltr', 'Notification settings and privacy'), fill('number-rtl', '2026-10-06 12:00:00.000000 +0900', 'rtl')] });
     // A right-to-left label: it begins at its box's right edge and loses its left end, in either layout.
     for (const id of ['arabic-ltr', 'arabic-rtl']) {
@@ -971,7 +971,7 @@ test.describe('layout', () => {
     // Landed, in every fixture: the selected tab's content lies wholly within the indicator, in the covered colors; the
     // plain content has the indicator's shape cut out, so nothing is drawn twice under a translucent indicator.
     for (const f of spec.fixtures) {
-      const n = f.items!.findIndex((item) => item.props.value === f.props.selected);
+      const n = f.items!.findIndex((item) => item.props.value === f.props.value);
       const variant = (f.props.variant as string) ?? 'primary';
       const state = f.items![n].props.disabled ? 'disabled-' : '';
       const p = await pill(page, f.id, n);
@@ -1000,7 +1000,7 @@ test.describe('layout', () => {
 
     // Mid-slide, with motion: a label the indicator passes over is covered where it is covered — in the same frame as
     // the indicator, on every tab — and the newly selected one only when it lands.
-    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'First'), t('b', 'The middle one'), t('c', 'Last')], { selected: 'a' })], reducedMotion: false });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'First'), t('b', 'The middle one'), t('c', 'Last')], { value: 'a' })], reducedMotion: false });
     await override(page, { [T('motion-indicator-duration')]: '60s' });
     await tabAt(page, 'r', 2).click();
     const middle = await bounds(label(page, 'r', 1));
@@ -1062,7 +1062,7 @@ test.describe('layout', () => {
   });
 
   test('TAB-26: indicatorOffset draws the indicator and the underline between the selected tab and its next (above 0) or previous (below 0) enabled neighbour, each edge interpolated, clamped to 1, in the frame it is set and without a slide; on the selected tab where there is none; a selection made at an offset is placed at once', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'Short'), t('b', 'A longer label'), t('c', 'C'), t('d', 'Last')], { selected: 'b' })], reducedMotion: true });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', [t('a', 'Short'), t('b', 'A longer label'), t('c', 'C'), t('d', 'Last')], { value: 'b' })], reducedMotion: true });
     // Where the indicator and the underline land on each tab (placed at once: motion is reduced).
     const landed: { x: number; width: number }[] = [];
     const lines: { x: number; width: number }[] = [];
@@ -1142,7 +1142,7 @@ test.describe('layout', () => {
   });
 
   test('TAB-13: where a Tab view is linked, its panels take the place of the row’s own — each tab controls the view’s panel of its value, the row’s panels stay hidden — and the row’s own come back when the view goes', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { selected: 'overview' }, panels(['overview', 'activity', 'settings']))] });
+    await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { value: 'overview' }, panels(['overview', 'activity', 'settings']))] });
     await row(page, 'r').evaluate((el) => {
       el.id = 'linked-row';
       const view = document.createElement('tanrei-tab-view');
@@ -1950,7 +1950,7 @@ test.describe('the track and the drag', () => {
     expect(await row(page, id).evaluate((el: any) => el.value)).toBe('overview');
   });
 
-  test('TAB-29: a release chooses the nearer of the two tabs the indicator lies between, or the one a fling is toward — selected is set and change emitted once, the indicator settling from where it was left over the indicator’s motion — or returns it and emits nothing; a disabled tab is never chosen; the chosen tab is the Tab stop; the release is not a tap', async ({ page }) => {
+  test('TAB-29: a release chooses the nearer of the two tabs the indicator lies between, or the one a fling is toward — value is set and change emitted once, the indicator settling from where it was left over the indicator’s motion — or returns it and emits nothing; a disabled tab is never chosen; the chosen tab is the Tab stop; the release is not a tap', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: only('primary-fill', 'primary-disabled', 'primary'), reducedMotion: false });
     await override(page, { [T('motion-state-duration')]: '0s', [T('motion-indicator-duration')]: '60s' });
     await wire(page);
@@ -2052,9 +2052,9 @@ test.describe('the track and the drag', () => {
     expect(await log(page)).toEqual(['activity:activity']);
   });
 
-  test('TAB-30: Escape, a cancelled pointer, a lost capture, selected set by the product, or a tab under the indicator removed or disabled cancel the drag — the indicator returns over the indicator’s motion and nothing is emitted; while it lasts nothing is selected, shown, focused or exposed; where motion is reduced it follows the pointer and lands at once', async ({ page }) => {
+  test('TAB-30: Escape, a cancelled pointer, a lost capture, value set by the product, or a tab under the indicator removed or disabled cancel the drag — the indicator returns over the indicator’s motion and nothing is emitted; while it lasts nothing is selected, shown, focused or exposed; where motion is reduced it follows the pointer and lands at once', async ({ page }) => {
     const mount = async (reducedMotion = false) => {
-      await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { selected: 'overview', fullWidth: true }, panels(['overview', 'activity', 'settings']))], reducedMotion });
+      await mountFixtures(page, spec, { fixtures: [fixture('r', THREE, { value: 'overview', fullWidth: true }, panels(['overview', 'activity', 'settings']))], reducedMotion });
       await override(page, { [T('motion-state-duration')]: '0s', [T('motion-indicator-duration')]: '60s' });
       await wire(page);
     };
@@ -2100,7 +2100,7 @@ test.describe('the track and the drag', () => {
     await pointer(page, id, 'lostpointercapture');
     await returns(0, 'lostpointercapture');
     await pointer(page, id, 'pointerup', m01 + 20);
-    // The product sets selected: the indicator goes to the tab it has just set.
+    // The product sets value: the indicator goes to the tab it has just set.
     await held();
     await row(page, id).evaluate((el: any) => (el.value = 'settings'));
     await returns(2, 'value set');
@@ -2328,7 +2328,7 @@ test.describe('states, press, corners and focus style', () => {
 
   test('TAB-7: a variant the system does not have renders with the default’s tokens, and a debug build reports it', async ({ page }) => {
     const seen = warnings(page);
-    await mountFixtures(page, spec, { fixtures: [fixture('odd', THREE, { variant: 'sparkle', selected: 'overview' })] });
+    await mountFixtures(page, spec, { fixtures: [fixture('odd', THREE, { variant: 'sparkle', value: 'overview' })] });
     await expect.poll(() => drawn(page, 'odd', 0)).toEqual(await expected(page, 'primary', 'selected'));
     expect((await line(page, 'odd', 0)).height).toBeCloseTo(await resolveToken(page, T('primary-underline-thickness')), 1);
     expect((await pill(page, 'odd', 0)).width).toBeCloseTo((await bounds(label(page, 'odd', 0))).width + 2 * (await resolveToken(page, T('active-indicator-padding-inline-medium'))), 0);
@@ -2747,7 +2747,7 @@ test.describe('the first appearance', () => {
 
   test('TAB-23, TAB-18: a tab added to a row that is already drawn appears in its state at once — a disabled tab in the disabled colors, a selected one with its weight and filled icon — while the tab it takes the selection from fades', async ({ page }) => {
     await watchAll(page);
-    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [fixture('r', [t('a', 'First', { icon: 'home' }), t('b', 'Second', { icon: 'search' })], { selected: 'a', variant: 'tonal' })] });
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [fixture('r', [t('a', 'First', { icon: 'home' }), t('b', 'Second', { icon: 'search' })], { value: 'a', variant: 'tonal' })] });
     await settled(page);
     expect(await transitionsAtMount(page)).toEqual([]);
     await row(page, 'r').evaluate(async (el: any) => {
@@ -2768,8 +2768,8 @@ test.describe('the first appearance', () => {
 // its own — in one document, each given its props before it is first drawn, so that none of them is the group's choice.
 const PLATFORMS = [t('web', 'Web'), t('react', 'React'), t('swiftui', 'SwiftUI'), t('flutter', 'Flutter')];
 const sharedFixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
-/** A member of the group `g`: the four platforms, `selected` its own. */
-const member = (id: string, selected: string, props: Fixture['props'] = {}, content?: string) => fixture(id, PLATFORMS, { label: 'Platform', selected, group: 'g', ...props }, content);
+/** A member of the group `g`: the four platforms, `value` its own. */
+const member = (id: string, value: string, props: Fixture['props'] = {}, content?: string) => fixture(id, PLATFORMS, { label: 'Platform', value, group: 'g', ...props }, content);
 /** The row's `value` and the tab it exposes as selected, which are the same tab's: what the row shows. */
 const shows = (page: P, id: string) =>
   row(page, id).evaluate((el: any) => {
@@ -2864,7 +2864,7 @@ const storageLog = (page: P) => page.evaluate(() => ({ reads: (window as any).re
 test.describe('a shared choice', () => {
   test('TAB-36: rows that name one group show one choice — a row with an enabled tab of it has it selected in the frame it changes, gains the tab, has it enabled or is given the group, and emits nothing; a row without one keeps its own and follows again; another group and no group never change', async ({ page }) => {
     await mountFixtures(page, spec, {
-      fixtures: [sharedFixture('shared-choice'), sharedFixture('shared-choice-lacking'), fixture('other', PLATFORMS, { label: 'Platform', selected: 'flutter', group: 'another' }), fixture('none', PLATFORMS, { label: 'Platform', selected: 'flutter' })],
+      fixtures: [sharedFixture('shared-choice'), sharedFixture('shared-choice-lacking'), fixture('other', PLATFORMS, { label: 'Platform', value: 'flutter', group: 'another' }), fixture('none', PLATFORMS, { label: 'Platform', value: 'flutter' })],
     });
     await hear(page);
     const [a, b] = ['shared-choice', 'shared-choice-lacking'];
@@ -3096,7 +3096,7 @@ test.describe('a shared choice', () => {
 
   test('TAB-15: a tab that becomes selected because its row follows its group’s choice is brought into view inside the track at once, while the row acted on scrolls over the indicator’s motion; nothing outside the track scrolls', async ({ page }) => {
     const many = ['Overview', 'Activity', 'Settings', 'Members', 'Billing', 'Integrations', 'Security', 'Advanced'].map((name) => t(name.toLowerCase(), name));
-    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', many, { selected: 'overview', group: 'g' }), fixture('b', many, { selected: 'overview', group: 'g' })] });
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', many, { value: 'overview', group: 'g' }), fixture('b', many, { value: 'overview', group: 'g' })] });
     await override(page, { [T('motion-indicator-duration')]: '60s' });
     const scroll = (id: string) => track(page, id).evaluate((el) => el.scrollLeft);
     expect([await scroll('a'), await scroll('b')]).toEqual([0, 0]);
@@ -3113,8 +3113,8 @@ test.describe('a shared choice', () => {
   });
 
   test('TAB-39: a row with rememberAs reads its key once, stores a person’s choice — the tab’s value, under exactly that key — and never one the product set; a row drawn later, and the next document, show the remembered tab in their first frame and emit nothing; a stored value that names no tab, a disabled one or markup changes nothing and is drawn nowhere; without a key no storage is touched', async ({ page }) => {
-    const remembering = (id: string, selected: string | null = null, props: Fixture['props'] = {}) =>
-      fixture(id, PLATFORMS, { label: 'Platform', ...(selected ? { selected } : {}), rememberAs: 'k', ...props }, panels(['web', 'react', 'swiftui', 'flutter']));
+    const remembering = (id: string, value: string | null = null, props: Fixture['props'] = {}) =>
+      fixture(id, PLATFORMS, { label: 'Platform', ...(value ? { value } : {}), rememberAs: 'k', ...props }, panels(['web', 'react', 'swiftui', 'flutter']));
     await serve(page, [remembering('r'), fixture('plain', PLATFORMS, { label: 'Platform' }), fixture('grouped', PLATFORMS, { label: 'Platform', group: 'quiet' })]);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
@@ -3178,7 +3178,7 @@ test.describe('a shared choice', () => {
   });
 
   test('TAB-39: a stored value is its group’s choice — whether or not the row that read it has a tab of it — so members without a key follow before their first frame; a group that holds a choice keeps it; a member that names a key stores a choice made on another member, once for a key however many name it', async ({ page }) => {
-    const lacking = fixture('lacking', PLATFORMS.slice(0, 2), { label: 'Platform', selected: 'react', group: 'g', rememberAs: 'k' });
+    const lacking = fixture('lacking', PLATFORMS.slice(0, 2), { label: 'Platform', value: 'react', group: 'g', rememberAs: 'k' });
     await serve(page, [lacking, member('a', 'web'), member('b', 'swiftui', { rememberAs: 'k' }), member('c', 'web', { rememberAs: 'other' })]);
     await page.evaluate(() => {
       localStorage.clear();
@@ -3527,7 +3527,7 @@ test.describe('variants, the track, sizes and the transition', () => {
       icons: true,
       system: 'sizes',
       systemCss: sizesCss,
-      fixtures: [...only('primary-icons', 'primary-small-icons'), fixture('added-inline', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'roomy', selected: 'a' }), fixture('added-undeclared', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'airy', selected: 'a' })],
+      fixtures: [...only('primary-icons', 'primary-small-icons'), fixture('added-inline', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'roomy', value: 'a' }), fixture('added-undeclared', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'airy', value: 'a' })],
     });
     expect([await token(page, T('icon-placement-medium')), await token(page, T('icon-placement-small'))]).toEqual(['stacked', 'inline']);
     const stacks = async (id: string) => {
@@ -3560,7 +3560,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
-      fixtures: [...only('primary', 'tonal-no-track', 'primary-small', 'tonal-small-no-track', 'primary-small-icons', 'secondary-small-icons', 'primary-icons', 'primary-small-icon-only', 'primary-small-fill'), fixture('odd-size', THREE, { size: 'huge', selected: 'overview' })],
+      fixtures: [...only('primary', 'tonal-no-track', 'primary-small', 'tonal-small-no-track', 'primary-small-icons', 'secondary-small-icons', 'primary-icons', 'primary-small-icon-only', 'primary-small-fill'), fixture('odd-size', THREE, { size: 'huge', value: 'overview' })],
     });
     const inset = await resolveToken(page, T('track-padding'));
     const of = async (size: string) => ({
@@ -3779,7 +3779,7 @@ test.describe('variants, the track, sizes and the transition', () => {
   test('TAB-43, TAB-15, TAB-17, TAB-23: under none a new selection is whole in its first frame — the indicator on the new tab, both labels in their final colors, the tab in view, nothing running — whatever made it; hover still fades; an unknown value is auto', async ({ page }) => {
     const seen = warnings(page);
     const long = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'].map((v) => t(v, `${v[0].toUpperCase()}${v.slice(1)} tab`));
-    await mountFixtures(page, spec, { fixtures: [...only('tonal-no-transition', 'primary-no-transition', 'primary-slide', 'primary'), fixture('far', long, { selected: 'alpha', transition: 'none' })], reducedMotion: false });
+    await mountFixtures(page, spec, { fixtures: [...only('tonal-no-transition', 'primary-no-transition', 'primary-slide', 'primary'), fixture('far', long, { value: 'alpha', transition: 'none' })], reducedMotion: false });
     await override(page, { [T('motion-indicator-duration')]: '60s', [T('motion-state-duration')]: '60s', [T('tonal-selected-label-color')]: 'rgb(255, 0, 0)', [T('primary-selected-label-color')]: 'rgb(255, 0, 0)' });
     await wire(page);
     const plain = { tonal: await resolveColor(page, T('tonal-label-color')), primary: await resolveColor(page, T('primary-label-color')) };
@@ -3912,7 +3912,7 @@ test.describe('variants, the track, sizes and the transition', () => {
     await tab(page);
     expect(await focused(page)).toBe('after');
     // A row with a panel for some tabs only: each tab that has one controls it, and none is shown for a tab without.
-    await mountFixtures(page, spec, { fixtures: [fixture('some', THREE, { selected: 'overview' }, panels(['activity']))] });
+    await mountFixtures(page, spec, { fixtures: [fixture('some', THREE, { value: 'overview' }, panels(['activity']))] });
     expect(await Promise.all([0, 1, 2].map((n) => tabAt(page, 'some', n).getAttribute('aria-controls')))).toEqual([null, await panel(page, 'some', 'activity').getAttribute('id'), null]);
     expect(await panel(page, 'some', 'activity').evaluate((el) => el.hasAttribute('hidden'))).toBe(true);
   });
@@ -3995,7 +3995,7 @@ test.describe('accessibility', () => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
     for (const theme of ['light', 'dark'] as const) {
       // Read at once: a row's first appearance draws every tab in its colors without a motion (the first appearance tests).
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, fixture('panels', THREE, { selected: 'activity' }, panels(['overview', 'activity', 'settings'], ['settings']))] });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, fixture('panels', THREE, { value: 'activity' }, panels(['overview', 'activity', 'settings'], ['settings']))] });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

@@ -567,7 +567,7 @@ test.describe('behavior', () => {
 
   test('RAD-10: disabled renders from the disabled tokens of its condition — the round container stays clear — and of its error form while it is in error, which are those of the plain form: disabled wins', async ({ page }) => {
     const option = { value: 'weekly', name: 'frequency', label: 'Weekly', disabled: true, error: true };
-    await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('disabled-error-unselected', option), fixture('disabled-error-selected', { ...option, selected: true })] });
+    await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('disabled-error-unselected', option), fixture('disabled-error-selected', { ...option, checked: true })] });
     for (const [id, condition] of [['disabled-unselected', 'unselected'], ['disabled-selected', 'selected'], ['disabled-error-unselected', 'error-unselected'], ['disabled-error-selected', 'error-selected']] as const) {
       await matches(page, id, condition, 'disabled');
       // In error and disabled: every part is what the same option out of error draws (RAD-26).
@@ -1405,7 +1405,7 @@ test.describe('fixtures', () => {
     expect(spec.fixtures.map((f) => f.id)).toEqual(['unselected', 'selected', 'error-unselected', 'error-selected', 'disabled-unselected', 'disabled-selected', 'label-hidden']);
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();
-      expect(await host(page, f.id).evaluate((el) => [(el as any).checked, (el as any).error, (el as any).disabled, el.shadowRoot!.querySelector('.root')!.hasAttribute('data-error')]), f.id).toEqual([f.props.selected === true, f.props.error === true, f.props.disabled === true, f.props.error === true]);
+      expect(await host(page, f.id).evaluate((el) => [(el as any).checked, (el as any).error, (el as any).disabled, el.shadowRoot!.querySelector('.root')!.hasAttribute('data-error')]), f.id).toEqual([f.props.checked === true, f.props.error === true, f.props.disabled === true, f.props.error === true]);
       await expect(labelOf(page, f.id), f.id).toHaveCount(f.props.labelHidden ? 0 : 1);
       await expect(page.locator(`[data-fixture="${f.id}"]`).getByRole('radio', { name: String(f.props.label), exact: true }), f.id).toHaveCount(1);
     }

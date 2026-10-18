@@ -182,10 +182,10 @@
       "component": "switch",
       "props": [
         {
-          "name": "selected",
+          "name": "checked",
           "type": "boolean",
           "default": false,
-          "description": "Whether it is on, as the Switch's selected."
+          "description": "Whether it is on, as the Switch's checked."
         },
         {
           "name": "label",
@@ -255,10 +255,10 @@
       "component": "radio-button",
       "props": [
         {
-          "name": "selected",
+          "name": "checked",
           "type": "boolean",
           "default": false,
-          "description": "Whether it is the chosen one, as the Radio button's selected."
+          "description": "Whether it is the chosen one, as the Radio button's checked."
         },
         {
           "name": "value",
@@ -809,7 +809,7 @@
           "kind": "switch",
           "props": {
             "label": "Share usage data",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -822,7 +822,7 @@
           "kind": "switch",
           "props": {
             "label": "Personalized suggestions",
-            "selected": true
+            "checked": true
           }
         }
       ]
@@ -1291,7 +1291,7 @@
             "name": "radio-buttons-default",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1367,7 +1367,7 @@
             "name": "radio-buttons-supporting",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1395,7 +1395,7 @@
             "name": "radio-buttons-label-hidden",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1432,7 +1432,7 @@
             "name": "radio-buttons-required",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1503,7 +1503,7 @@
             "name": "radio-buttons-required-asterisk",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1587,7 +1587,7 @@
             "name": "radio-buttons-error-selected",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1626,7 +1626,7 @@
             "name": "radio-buttons-error-one-disabled",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1662,7 +1662,7 @@
             "name": "radio-buttons-horizontal",
             "value": "m",
             "label": "Medium",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1722,7 +1722,7 @@
             "name": "radio-buttons-horizontal-many",
             "value": "fri",
             "label": "Friday",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1776,7 +1776,7 @@
             "name": "radio-buttons-disabled",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1810,7 +1810,7 @@
             "name": "radio-buttons-one-disabled",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1886,7 +1886,7 @@
             "name": "radio-buttons-required-ja",
             "value": "standard",
             "label": "通常配送（3〜5日）",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1969,7 +1969,7 @@
             "name": "radio-buttons-rtl",
             "value": "express",
             "label": "سريع، في اليوم التالي",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -2044,7 +2044,7 @@
             "name": "radio-buttons-ltr-label-rtl",
             "value": "5",
             "label": "5 GHz",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -2090,7 +2090,7 @@
         "switch": {
           "name": "tanrei-switch",
           "props": {
-            "selected": "selected",
+            "checked": "checked",
             "label": "label",
             "disabled": "disabled"
           }
@@ -2109,7 +2109,7 @@
         "radio-button": {
           "name": "tanrei-radio-button",
           "props": {
-            "selected": "checked",
+            "checked": "checked",
             "value": "value",
             "name": "name",
             "label": "label",
@@ -2150,7 +2150,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "isOn",
+            "checked": "isOn",
             "label": "title",
             "disabled": "disabled"
           }
@@ -2169,7 +2169,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "selection",
+            "checked": "selection",
             "value": "value",
             "name": "TanreiRadioGroup",
             "label": "title",
@@ -2210,7 +2210,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "checked",
+            "checked": "checked",
             "label": "label",
             "disabled": "enabled"
           }
@@ -2229,7 +2229,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "selected",
+            "checked": "selected",
             "value": "onClick",
             "name": "selectableGroup",
             "label": "label",
@@ -2270,7 +2270,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "value",
+            "checked": "value",
             "label": "label",
             "disabled": "onChanged"
           }
@@ -2289,7 +2289,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "groupValue",
+            "checked": "groupValue",
             "value": "value",
             "name": "TanreiRadioGroup",
             "label": "label",
@@ -2330,7 +2330,7 @@
         "switch": {
           "name": "Switch",
           "props": {
-            "selected": "value",
+            "checked": "value",
             "label": "label",
             "disabled": "disabled"
           }
@@ -2349,7 +2349,7 @@
         "radio-button": {
           "name": "RadioButton",
           "props": {
-            "selected": "selected",
+            "checked": "selected",
             "value": "value",
             "name": "RadioGroup",
             "label": "label",

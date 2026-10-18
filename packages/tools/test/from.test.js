@@ -516,8 +516,8 @@ test('the radio group\'s twenty fixtures each name a twin among the field group\
     const twin = fieldGroup.fixtures.find((f) => f.id === `radio-buttons-${fixture.id}`);
     assert.equal(twin.props.kind, 'radio-group', fixture.id);
     assert.equal(twin.items.length, fixture.items.length, fixture.id);
-    // The one the group's value names is the one written selected by hand.
-    assert.deepEqual(twin.items.filter((item) => item.props.selected).map((item) => item.props.value), fixture.props.value ? [fixture.props.value] : [], fixture.id);
+    // The one the group's value names is the one written checked by hand.
+    assert.deepEqual(twin.items.filter((item) => item.props.checked).map((item) => item.props.value), fixture.props.value ? [fixture.props.value] : [], fixture.id);
   }
   assert.deepEqual(twinItemProblems(specs).filter((line) => line.includes('radio-group')), []);
 });

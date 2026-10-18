@@ -1020,7 +1020,7 @@ focusable and never announces itself — mark the region being loaded `aria-busy
 ## Selection controls: what `<tanrei-checkbox>`, `<tanrei-radio-button>` and `<tanrei-switch>` share
 
 They are **form-associated** (`ElementInternals`): with a `name` they take part in a `<form>` — `FormData`, submission,
-`form.reset()` (back to the `checked` / `selected` attribute, which is the default, as on a native control; the
+`form.reset()` (back to the `checked` attribute, which is the default, as on a native control; the
 property is not reflected), state restoration, and a disabled `<fieldset>`. Their semantics are a **native `<input>`**
 in the shadow root (axe cannot see `ElementInternals` roles), named by `label`
 (`aria-label`, so the name is the same visible or not); the drawn label is hidden from assistive technology so it is not
@@ -1130,7 +1130,7 @@ One option of a group; exactly one is chosen (`specs/radio-button.spec.json`, RA
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `checked` | boolean | `false` | the spec's `selected`, a native radio's name for it; the attribute is the form's default |
+| `checked` | boolean | `false` | whether it is the one chosen, as a native radio's; the attribute is the form's default |
 | `value` | string | `""` | what it stands for: carried by `change`, submitted with the form |
 | `name` | string | `""` | the group; reflected |
 | `disabled` | boolean | `false` | skipped by Tab and the arrow keys; reflected |
@@ -1189,21 +1189,21 @@ A setting that takes effect at once, with a handle that follows a finger dragged
 (`specs/switch.spec.json`, SWT-1…21).
 
 ```html
-<tanrei-switch label="Wi-Fi" selected></tanrei-switch>
-<tanrei-switch label="Dark mode" selected-icon="check" unselected-icon="close"></tanrei-switch>
+<tanrei-switch label="Wi-Fi" checked></tanrei-switch>
+<tanrei-switch label="Dark mode" checked-icon="check" unchecked-icon="close"></tanrei-switch>
 ```
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `selected` | boolean | `false` | whether it is on; the attribute is the form's default |
+| `checked` | boolean | `false` | whether it is on; the attribute is the form's default |
 | `disabled` | boolean | `false` | reflected |
 | `label`, `labelHidden` / `label-hidden` | | | as the checkbox's |
-| `selectedIcon` / `selected-icon`, `unselectedIcon` / `unselected-icon` | string | `""` | a glyph name of the system's icon set, shown in the handle while on / off; empty shows none |
+| `checkedIcon` / `checked-icon`, `uncheckedIcon` / `unchecked-icon` | string | `""` | a glyph name of the system's icon set, shown in the handle while on / off; empty shows none |
 | `name`, `value` | web only | `""`, `"on"` | form participation (submits `value` while on) |
 
 | Event | When |
 |---|---|
-| `input`, `change` | the user switched it — by a tap, Space, or the release of a drag; `change` is `CustomEvent<{ selected: boolean }>` |
+| `input`, `change` | the user switched it — by a tap, Space, or the release of a drag; `change` is `CustomEvent<{ checked: boolean }>` |
 
 A native checkbox with `role="switch"` — announced on / off, never as a checkbox. The layout box is the track
 (`track.width` × `track.height`, `track.shape`, an inset outline and the fill inside it). The handle's center runs on the
@@ -1231,7 +1231,7 @@ every part that differs between them is drawn at the progress by a REAL property
   transition would have to redo;
 - the label, one element, is `color-mix()` of its two colors (one color in every system the package ships).
 
-A change of `selected` changes the progress in one step, and each of those properties transitions over
+A change of `checked` changes the progress in one step, and each of those properties transitions over
 `motion.selection-*` (the fast spatial spring) — one duration and one curve, so every frame is one progress. A state
 changes a layer's own color, or a ruler's own length, over `motion.state-*`, and a press at once. The two motions are
 on different properties, so neither restarts the other: a moment of a tap's transition, under whatever state, is
@@ -1248,12 +1248,12 @@ them, not the label — with touch, a pen or the primary mouse button. Past 8 px
 pressed (so the handle is at its pressed size: 28 in the default and m3-like), and writes the progress in the frame of
 each move, the handle's center under the pointer and kept between its two positions (mirrored in RTL). Taken away from
 the handle, the handle comes to the pointer over `motion.state-*`, following it meanwhile. `touch-action: pan-y` leaves
-a vertical drag to the page. Until the release nothing but the drawing changes: `selected`, `aria-checked`, the form
+a vertical drag to the page. Until the release nothing but the drawing changes: `checked`, `aria-checked`, the form
 value and the events wait. The release chooses the side a fling is toward, else the nearer side (the other condition
-from the middle on); a change sets `selected` and fires one `input` and one `change`, and either way the progress goes
+from the middle on); a change sets `checked` and fires one `input` and one `change`, and either way the progress goes
 from where the pointer left it to the condition's over `motion.selection-*`. The `click` that follows a taken drag is
 swallowed. Escape (spent on the drag: it does not reach the page), `pointercancel`, a lost capture, `disabled` and a
-`selected` set by the product cancel: the look returns and nothing fires. With reduced motion the handle still follows
+`checked` set by the product cancel: the look returns and nothing fires. With reduced motion the handle still follows
 the pointer, without the catch-up, and lands at once.
 
 **Fallbacks.** Nothing is registered, and nothing needs to be: the switch is the same on a page whose tokens came from
@@ -4704,7 +4704,7 @@ own row, or linked to it — whose panels take their place.
 | `size` | `small` \| `medium` (or a value the system adds; `TanreiTabsSizeRegistry`) | `medium` | the row's height (32 / 48) with its size's tab padding, indicator margins and glyph (TAB-44); a small row puts the icon before the label in every variant. Unknown: drawn as `medium`, reported (TAB-7); reflected |
 | `track` | boolean \| `null` | `null` | whether the track is filled (TAB-49): the attribute is absent for null (the system's choice, `--tanrei-comp-tabs-track-visible`), bare for true and `track="false"` for false. Off fills nothing and changes nothing else |
 | `transition` | `auto` \| `slide` \| `none` | `auto` | how a new selection is drawn (TAB-43): `none` whole in one frame; `auto` — and any other value, reported — takes `--tanrei-comp-tabs-motion-transition`; reflected |
-| `value` | string \| `null` | `null` | the spec's `selected`, as a `<select>`'s value: the selected tab's value; `null` selects the first enabled tab. A value naming no tab selects none and shows no panel (reported, TAB-11). Not reflected |
+| `value` | string \| `null` | `null` | the selected tab's value, as a `<select>`'s; `null` selects the first enabled tab. A value naming no tab selects none and shows no panel (reported, TAB-11). Not reflected |
 | `label` | string | `""` | the tab list's accessible name |
 | `indicatorOffset` | number | `0` | property only, no attribute (TAB-26): draws the indicator and the underline between the selected tab (0) and the next (1) or previous (−1) enabled tab, each edge interpolated, clamped to 1, in the frame it is set and without a slide; on the selected tab where there is no enabled tab in that direction. A linked Tab view writes it while it is swiped; leave it at 0 otherwise. While it is not 0 the row follows no drag of its own. A drag across the row does not pass through this property |
 | `group` | string | `""` | names a choice this row shares with every other `<tanrei-tabs>` of the document that names the same group, compared exactly — placed by the product or drawn by a `<tanrei-tab-view>`, in shadow trees too (TAB-36). Empty: the row's choice is its own. Not reflected |
@@ -4980,7 +4980,7 @@ press, a key on the row, `value` set by the product), and `auto` again when it i
 
 | `<tanrei-tab-view>` | Type | Default | |
 |---|---|---|---|
-| `value` | string \| `null` | `null` | the spec's `selected`: kept equal to its tabs' `value` (its own row's or the linked row's) — setting either sets the other, without an event; `null` shows the panel of the tab the tabs select while theirs is `null` (the first enabled tab). Not reflected |
+| `value` | string \| `null` | `null` | the shown panel's value, kept equal to its tabs' `value` (its own row's or the linked row's) — setting either sets the other, without an event; `null` shows the panel of the tab the tabs select while theirs is `null` (the first enabled tab). Not reflected |
 | `variant` | `primary` \| `secondary` (or a value the system adds to the tabs) | `primary` | its own row's variant, with the tabs' meaning (the tabs' axis, `comp.tabs.variant`); unused while linked. Reflected |
 | `fullWidth` / `full-width` | boolean | `false` | its own row's layout: hug (false) or fill (true), with the tabs' meaning; unused while linked. The view itself is always as wide as its parent. Reflected |
 | `label` | string | `""` | its own row's accessible name (the tab list's); unused while linked, where the linked row's own `label` names it |
@@ -10101,8 +10101,8 @@ light, dark and every contrast level. `src/systems.test.ts` draws every componen
 `src/shape.test.ts` proves a pill's round caps. A component whose fixtures need a sized container (a divider, a bar), an
 anchor element (a badge: the spec's content is the anchor's icon name) or a wrapper (a radio button: each fixture its own
 group, in a form and a named radiogroup) gets one entry in `STAGING` in the harness, used by every suite that mounts it;
-a fixture's props reach the element under the web's names (`platforms.web.props`: a radio button's `selected` is
-`checked`); a fixture's `items` become child elements named by `platforms.web.items.<kind>.name`, a group
+a fixture's props reach the element under the web's names (`platforms.web.props`: a tab view's `swipeable` is
+`noSwipe`); a fixture's `items` become child elements named by `platforms.web.items.<kind>.name`, a group
 holding its own, with `itemContent` staging what an item holds (a list avatar's monogram); a list of strings (`values`) is
 a JSON array attribute; `test/png.ts` decodes a screenshot for tests that must see pixels (DIV-8) and gives
 the color a translucent token is painted as. `mountFixtures(…, { reducedMotion: true })` records a moving component's
