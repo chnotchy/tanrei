@@ -156,7 +156,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     const held = Object.values(system.vocabulary).filter((decl) => decl.kind === 'component').map((decl) => ({ $ref: componentDocumentPath(decl.component) }));
     const own = held.length ? { ...resolver, sets: { ...resolver.sets, comp: { ...resolver.sets.comp, sources: [...resolver.sets.comp.sources, ...held] } } } : resolver;
     const model = buildModel(files, { id: system.id, namespace: NS, resolver: own });
-    return { chain, system, files, model, warnings: checkInvariants(model), notices: system.notices ?? [] };
+    return { chain, system, files, model, warnings: checkInvariants(model) };
   }
 
   const bases = new Map();

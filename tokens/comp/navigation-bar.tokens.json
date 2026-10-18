@@ -45,7 +45,6 @@
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
               "Hover, focus and press show on the item container, the box the active indicator has or would have on that destination, never on the whole cell and never on a shape around the content alone.",
               "A look that draws no item container at rest draws none when disabled.",
-              "item.container.width and item.container.height are kept only for platforms that still draw a pill around the icon and label; nothing in the current spec reads them.",
               "Restyle through these tokens in a layer; never fork the component.",
               "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content on that container."
             ]
@@ -106,36 +105,6 @@
         },
         "item": {
           "container": {
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 14
-                }
-              },
-              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
-            },
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
-                }
-              },
-              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
-            },
             "shape": {
               "$type": "dimension",
               "$value": "{tanrei.sys.shape.corner.full}",

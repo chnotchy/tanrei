@@ -454,18 +454,10 @@
         ".changeset/",
         "CHANGELOG.md",
         "docs/governance/mimicry-gaps.json",
-        "tokens/comp/navigation-rail.tokens.json",
-        "tokens/tanrei.resolver.json",
-        "tokens/systems/",
-        "tokens/vocabulary.lock.json",
-        "tokens/generated/",
-        "design/tokens/",
-        "packages/tokens-build/generated-manifest.json",
         "packages/swiftui/",
         "packages/compose/",
         "packages/flutter/",
-        "packages/react-native/",
-        "packages/web/src/generated/"
+        "packages/react-native/"
       ]
     },
     {

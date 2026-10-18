@@ -169,7 +169,7 @@ test('a text style declared with "derive" alone is refused where it is declared,
   assert.throws(() => resolveNumericTokens(broken, mergeLayers([{ id: 'tanrei' }])), (error) => error instanceof SystemError && /^tanrei\.sys\.typescale\.broken: a text style's "derive" values its fontSize and letterSpacing, and this one has no style to write them into \(null\)/.test(error.message));
 });
 
-test('resolving a system does not rewrite it: a choice stays the name the layer wrote, and an adopted declaration adds no entry', () => {
+test('resolving a system does not rewrite it: a choice stays the name the layer wrote; a declaration of a core token is refused', () => {
   const pressed = 'tanrei.sys.behavior.pressed-feedback';
   const sources = { 'sys/behavior.tokens.json': { tanrei: { sys: { behavior: { $type: 'number', $extensions: voc, 'pressed-feedback': { $value: 0, $extensions: { 'dev.tanrei.enum': { values: ['overlay', 'ripple', 'dim', 'none'] }, 'dev.tanrei.derive': { fixed: 'A choice of kind.' } } } } } } } };
   const system = mergeLayers([{ id: 'tanrei' }, { id: 'acme', extends: 'tanrei', tokens: { [pressed]: { $value: 'dim', reason: 'This product dims on press.' } } }]);
@@ -180,10 +180,11 @@ test('resolving a system does not rewrite it: a choice stays the name the layer 
 
   const space = { 'sys/space.tokens.json': { tanrei: { dial: { space: { unit: { $type: 'dimension', $value: { value: 8, unit: 'px' } } } }, sys: { space: { $type: 'dimension', $extensions: voc, space100: { $value: { value: 8, unit: 'px' }, $extensions: { 'dev.tanrei.derive': { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 1 } } }, space300: { $value: { value: 24, unit: 'px' }, $extensions: { 'dev.tanrei.derive': { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 3 } } } } } } } };
   const adopted = mergeLayers([{ id: 'tanrei' }, { id: 'acme', extends: 'tanrei', vocabulary: { 'tanrei.sys.space.space300': { $type: 'dimension', rationale: 'A wider gutter for tables.', derive: { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 4 } } } }]);
-  const docs = resolveNumericTokens(space, adopted);
-  assert.match(adopted.notices[0], /now a core token; this declaration can be deleted \(its value still applies\)/);
-  assert.deepEqual(docs['sys/space.tokens.json'].tanrei.sys.space.space300.$value, { value: 32, unit: 'px' }, 'the declaration\'s value still applies');
-  assert.ok(!('tanrei.sys.space.space300' in adopted.tokens), 'without an operation appearing under "tokens" that no layer wrote');
+  assert.throws(() => resolveNumericTokens(space, adopted), (error) => error instanceof SystemError && /^tanrei\.sys\.space\.space300: a core token; a layer declares only what the core lacks: delete this declaration, and write its value under "tokens"$/.test(error.message));
+  assert.ok(!('tanrei.sys.space.space300' in adopted.tokens), 'and the merged system is not written to');
+  // The same id with another type: refused, with the rename it needs.
+  const retyped = mergeLayers([{ id: 'tanrei' }, { id: 'acme', extends: 'tanrei', vocabulary: { 'tanrei.sys.space.space300': { $type: 'number', rationale: 'A wider gutter for tables.', $value: 4 } } }]);
+  assert.throws(() => resolveNumericTokens(space, retyped), /^.*tanrei\.sys\.space\.space300: the core has this id as "dimension", not "number"\. Rename the extension\./);
 });
 
 test('which pattern rule wins, and why: explicit entry > fewer wildcards > later layer', () => {
@@ -228,10 +229,10 @@ test('a named spring set is a step that is a group: cloned whole, additive, then
   refuse({ 'tanrei.sys.motion.spring.bouncy': { from: 'standard', rationale: 'The stars land with a bounce.' } }, /"standard" is not a step but a group of steps/);
   assert.throws(() => layer({ 'acme.sys.spring.bouncy': { from: 'default-spatial', rationale: 'The stars land with a bounce.' } }), /a step cloned with "from" belongs to a series of the core vocabulary/);
   assert.match(extensionRecipes({ id: 'tanrei.sys.motion.spring.standard.default-spatial.damping', type: 'number', rule: { fixed: 'x' }, alias: null }, 'acme')[0].effect, /cloned whole from "default-spatial"/);
-  // materializeVocabulary reports a step core has since adopted, instead of failing.
+  // A layer declares only what the core lacks: a step the core has is refused.
   const adopted = JSON.parse(JSON.stringify(sources));
   adopted['sys/motion.tokens.json'].tanrei.sys.motion.spring.standard.bouncy = set(0.6);
-  assert.match(materializeVocabulary(adopted, system)[0], /"bouncy" is now a core step/);
+  assert.throws(() => materializeVocabulary(adopted, system), (error) => error instanceof SystemError && /^tanrei\.sys\.motion\.spring\.standard\.bouncy: "bouncy" is a core step of tanrei\.sys\.motion\.spring\.standard; a layer declares only what the core lacks: delete this declaration/.test(error.message));
 });
 
 test('a variant cloned with "from" carries references into its source variant over to itself', () => {
@@ -254,6 +255,9 @@ test('a variant cloned with "from" carries references into its source variant ov
   assert.equal(chip.danger['state-layer'].color.$value, '{tanrei.comp.chip.danger.label.color}');
   assert.equal(chip.danger.label.color.$value, '{tanrei.sys.color.on-primary}', 'a reference outside the source variant is kept');
   assert.equal(chip.filled['state-layer'].color.$value, '{tanrei.comp.chip.filled.label.color}', 'the source is untouched');
+  // A layer declares only what the core lacks: a variant the core has is refused.
+  const core = mergeLayers([{ id: 'tanrei' }, { id: 'acme', extends: 'tanrei', vocabulary: { 'tanrei.comp.chip.variant.filled': { from: 'filled', rationale: 'A filled chip.' } } }]);
+  assert.throws(() => resolveNumericTokens(sources, core), (error) => error instanceof SystemError && /^tanrei\.comp\.chip\.variant\.filled: "filled" is a core variant of tanrei\.comp\.chip; a layer declares only what the core lacks: delete this declaration \(its values under "tokens" stay\)$/.test(error.message));
 });
 
 // A layer may value a component's RESTING color by a color rule, as it may a state color. The fill of

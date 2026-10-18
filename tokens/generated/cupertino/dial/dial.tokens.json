@@ -2204,11 +2204,6 @@
               "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
             },
             {
-              "match": "tanrei.comp.navigation-rail.*.disabled.item.container.color",
-              "$value": "{tanrei.comp.navigation-rail.$1.item.container.color}",
-              "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-            },
-            {
               "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",
               "$value": "{tanrei.comp.navigation-drawer.$1.item.container.color}",
               "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
@@ -4495,8 +4490,12 @@
               "reason": "Apple's tab bar draws no shape around a tab; its content keeps the tab bar's spacing."
             },
             "tanrei.comp.navigation-bar.item.icon-indicator.height": {
-              "$value": "{tanrei.comp.navigation-bar.item.container.height}",
-              "reason": "Keeps the glyph's place and its distance to the title as they were."
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              },
+              "reason": "The glyph sits in a box 32 high, which sets its place in the bar and its distance to the title."
             },
             "tanrei.comp.navigation-bar.filled-selected.item.container.color": {
               "$value": {
@@ -4543,28 +4542,6 @@
               "$value": "{tanrei.comp.navigation-bar.filled-selected.item.label.color}",
               "reason": "Apple's tab bar draws no shape over a tab, so the covered copy keeps the color of what it covers."
             },
-            "tanrei.comp.navigation-rail.selected.item.container.color": {
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0,
-                  0,
-                  0
-                ],
-                "alpha": 0,
-                "hex": "#000000"
-              },
-              "reason": "iPadOS has no rail; like Apple's tab bar, the preset marks the current destination by its tint, not by a shape."
-            },
-            "tanrei.comp.navigation-rail.selected.item.icon.color": {
-              "$value": "{tanrei.sys.color.primary}"
-            },
-            "tanrei.comp.navigation-rail.selected.item.label.color": {
-              "$value": "{tanrei.sys.color.primary}"
-            },
-            "tanrei.comp.navigation-rail.item.label.typescale": {
-              "$value": "{tanrei.sys.typescale.caption}"
-            },
             "tanrei.comp.navigation-drawer.container.color.standard": {
               "$value": "{tanrei.sys.color.surface-container-low}"
             },
@@ -4586,9 +4563,6 @@
               "$value": "{tanrei.sys.color.on-primary}"
             },
             "tanrei.comp.navigation-drawer.selected.item.label.color": {
-              "$value": "{tanrei.sys.color.on-primary}"
-            },
-            "tanrei.comp.navigation-drawer.selected.item.badge.color": {
               "$value": "{tanrei.sys.color.on-primary}"
             },
             "tanrei.comp.navigation-drawer.unselected.item.icon.color": {

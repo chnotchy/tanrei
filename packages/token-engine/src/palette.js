@@ -81,7 +81,7 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     for (const [id, decl] of Object.entries(system.vocabulary ?? {})) {
       if (decl.kind !== 'token' || !id.startsWith(SYS_COLOR)) continue;
       const role = id.slice(SYS_COLOR.length);
-      if (table.has(role)) continue; // core has adopted it since; system.js reports that
+      if (table.has(role)) throw new SystemError(`${id}: "${role}" is a core color role; a layer declares only what the core lacks: delete this declaration, and write its value under "tokens"`);
       if (decl.type !== 'color') throw new Error(`${id}: a color role is declared with "$type": "color"`);
       table.set(role, { rationale: decl.rationale, template: null, declared: true, extension: { declaredBy: decl.declaredBy, onRole: decl.onRole } });
     }

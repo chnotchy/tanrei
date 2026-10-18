@@ -113,7 +113,7 @@ function kotlinValue(t) {
 
 /** Every interaction state any component declares, resting state first. */
 function allStates(ir) {
-  const found = new Set(Object.values(ir.componentTokens).flatMap((ts) => ts.filter((t) => !t.deprecated && t.state).map((t) => t.state)));
+  const found = new Set(Object.values(ir.componentTokens).flatMap((ts) => ts.filter((t) => t.state).map((t) => t.state)));
   return [RESTING, ...STATE_ORDER.filter((s) => found.has(s)), ...[...found].filter((s) => !STATE_ORDER.includes(s)).sort()];
 }
 
@@ -132,11 +132,9 @@ const RESERVED_MEMBERS = new Set(['extra', 'keys']);
  *   on an axis        → axes[axis].byKey[key][state][member]   (`sizes[size]`, `variants[variant][state]`)
  *   per state, shared → perState[state][part]                  (resting value: the flat token `<part>`, when it exists)
  *   everything else   → a flat member.
- * Deprecated tokens never reach Kotlin.
  */
 function structure(component, tokens, declaredAxes = {}) {
-  const live = tokens.filter((t) => !t.deprecated);
-  const byName = new Map(live.map((t) => [t.name, t]));
+  const byName = new Map(tokens.map((t) => [t.name, t]));
   const perState = new Map(); // state → part → token
   const flat = [];
   const axes = Object.entries(declaredAxes).map(([axis, d]) => ({
@@ -148,7 +146,7 @@ function structure(component, tokens, declaredAxes = {}) {
     byKey: new Map(d.values.map((v) => [v.key, new Map()])), // key → state → member → token
   }));
   const at = (map, key) => map.get(key) ?? map.set(key, new Map()).get(key);
-  for (const t of live) {
+  for (const t of tokens) {
     if (t.axis) {
       const byState = axes.find((a) => a.axis === t.axis)?.byKey.get(t.key);
       if (!byState) throw new Error(`kotlin: ${component}.${t.name} is placed on ${t.axis}/${t.key}, which the component's axes do not declare`);
@@ -673,9 +671,7 @@ function behaviorValue(ir) {
 
 const measureEntries = (ir) =>
   Object.entries(ir.measure).flatMap(([group, values]) =>
-    Object.entries(values)
-      .filter(([key]) => !ir.deprecatedMeasures.includes(`${group}-${key}`))
-      .map(([key, value]) => [`${group}-${key}`, value]),
+    Object.entries(values).map(([key, value]) => [`${group}-${key}`, value]),
   );
 
 /**
@@ -954,7 +950,7 @@ function ownTokens(ir) {
   for (const [namespace, tokens] of Object.entries(ir.extensions.own)) {
     const N = P(namespace);
     const groups = new Map(); // group → [{ name, token }]
-    for (const t of tokens.filter((x) => !x.deprecated)) {
+    for (const t of tokens) {
       const [tier, ...rest] = t.id.split('.').slice(1);
       const [group, parts] = tier === 'comp' && rest.length > 1 ? [rest[0], rest.slice(1)] : [tier, rest];
       if (!parts.length) throw new Error(`kotlin: ${t.id} is too short to place in ${N}Tokens`);

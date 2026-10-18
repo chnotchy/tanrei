@@ -6792,11 +6792,9 @@ public data class TanreiNavigationBarTokens(
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerHeight: Dp,
     public val containerPadding: Dp,
-    public val itemContainerHeight: Dp,
     public val itemContainerPaddingBlock: Dp,
     public val itemContainerPaddingInline: Dp,
     public val itemContainerShape: Dp,
-    public val itemContainerWidth: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorHeight: Dp,
     public val itemIconIndicatorShape: Dp,
@@ -6922,7 +6920,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
     public val itemSupportingTextColor: TanreiPaint,
     public val itemTrailingTextColor: TanreiPaint,
     public val itemTrailingIconColor: TanreiPaint,
-    public val itemBadgeColor: TanreiPaint,
     public val itemStateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
@@ -6933,7 +6930,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
         addAll(itemSupportingTextColor.roles())
         addAll(itemTrailingTextColor.roles())
         addAll(itemTrailingIconColor.roles())
-        addAll(itemBadgeColor.roles())
         addAll(itemStateLayerColor.roles())
     }
 }
@@ -7082,7 +7078,6 @@ public data class TanreiNavigationDrawerTokens(
     public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
     public val headingTypescale: TanreiTextStyle,
-    public val itemBadgeTypescale: TanreiTextStyle,
     public val itemContainerShape: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,
@@ -7132,140 +7127,6 @@ public data class TanreiNavigationDrawerTokens(
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())
         addAll(variants.referencedRoles())
-        addAll(conditions.referencedRoles())
-    }
-}
-
-/**
- * A condition of navigation-rail: the key of one entry of [TanreiNavigationRailConditions]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Unselected].
- */
-@JvmInline
-public value class TanreiNavigationRailCondition(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Unselected: TanreiNavigationRailCondition = TanreiNavigationRailCondition("unselected")
-        public val Selected: TanreiNavigationRailCondition = TanreiNavigationRailCondition("selected")
-    }
-}
-
-/** What one condition of navigation-rail draws in one interaction state. */
-@Immutable
-public data class TanreiNavigationRailConditionStateTokens(
-    public val itemContainerColor: TanreiPaint,
-    public val itemIconColor: TanreiPaint,
-    public val itemLabelColor: TanreiPaint,
-    public val itemStateLayerColor: TanreiPaint,
-) {
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(itemContainerColor.roles())
-        addAll(itemIconColor.roles())
-        addAll(itemLabelColor.roles())
-        addAll(itemStateLayerColor.roles())
-    }
-}
-
-/** One condition of navigation-rail: a full set of tokens per interaction state. */
-@Immutable
-public data class TanreiNavigationRailConditionTokens(
-    public val enabled: TanreiNavigationRailConditionStateTokens,
-    public val hovered: TanreiNavigationRailConditionStateTokens,
-    public val focused: TanreiNavigationRailConditionStateTokens,
-    public val pressed: TanreiNavigationRailConditionStateTokens,
-    public val disabled: TanreiNavigationRailConditionStateTokens,
-) {
-    public operator fun get(state: TanreiInteractionState): TanreiNavigationRailConditionStateTokens = when (state) {
-        TanreiInteractionState.Enabled -> enabled
-        TanreiInteractionState.Hovered -> hovered
-        TanreiInteractionState.Focused -> focused
-        TanreiInteractionState.Pressed -> pressed
-        TanreiInteractionState.Disabled -> disabled
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
-}
-
-/**
- * Every condition of navigation-rail: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiNavigationRailConditions(
-    public val unselected: TanreiNavigationRailConditionTokens,
-    public val selected: TanreiNavigationRailConditionTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiNavigationRailCondition> get() = linkedSetOf(TanreiNavigationRailCondition.Unselected, TanreiNavigationRailCondition.Selected) + extra.keys
-
-    public operator fun contains(key: TanreiNavigationRailCondition): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiNavigationRailCondition): TanreiNavigationRailConditionTokens? = when (key) {
-        TanreiNavigationRailCondition.Unselected -> unselected
-        TanreiNavigationRailCondition.Selected -> selected
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [unselected]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiNavigationRailCondition): TanreiNavigationRailConditionTokens = find(key) ?: unselected
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(unselected.referencedRoles())
-        addAll(selected.referencedRoles())
-        extra.values.forEach { addAll(it.referencedRoles()) }
-    }
-}
-
-/** What every variant of navigation-rail shares in one interaction state. */
-@Immutable
-public data class TanreiNavigationRailStateTokens(
-    public val opacity: Float,
-)
-
-/** `comp.navigation-rail`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
-@Immutable
-public data class TanreiNavigationRailTokens(
-    public val containerColor: TanreiPaint,
-    public val containerElevation: List<TanreiShadowLayer>,
-    public val containerGap: Dp,
-    public val containerPaddingBlock: Dp,
-    public val containerWidth: Dp,
-    public val headerGap: Dp,
-    public val itemContainerHeight: Dp,
-    public val itemContainerShape: Dp,
-    public val itemContainerWidth: Dp,
-    public val itemGap: Dp,
-    public val itemIconSize: Dp,
-    public val itemLabelTypescale: TanreiTextStyle,
-    public val motionFeedbackDuration: Int,
-    public val motionSelectionDuration: Int,
-    public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
-    public val motionStateEasing: TanreiCubicBezier,
-    public val outlineColor: TanreiPaint,
-    public val outlineWidth: Dp,
-    public val hovered: TanreiNavigationRailStateTokens,
-    public val focused: TanreiNavigationRailStateTokens,
-    public val pressed: TanreiNavigationRailStateTokens,
-    public val disabled: TanreiNavigationRailStateTokens,
-    public val conditions: TanreiNavigationRailConditions,
-) {
-    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
-    public fun opacity(state: TanreiInteractionState): Float = when (state) {
-        TanreiInteractionState.Enabled -> 1f
-        TanreiInteractionState.Hovered -> hovered.opacity
-        TanreiInteractionState.Focused -> focused.opacity
-        TanreiInteractionState.Pressed -> pressed.opacity
-        TanreiInteractionState.Disabled -> disabled.opacity
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(containerColor.roles())
-        containerElevation.forEach { add(it.role) }
-        addAll(outlineColor.roles())
         addAll(conditions.referencedRoles())
     }
 }
@@ -11400,7 +11261,6 @@ public data class TanreiSystem(
     public val modalLayer: TanreiModalLayerTokens,
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
-    public val navigationRail: TanreiNavigationRailTokens,
     public val numberInput: TanreiNumberInputTokens,
     public val oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     public val pageHeader: TanreiPageHeaderTokens,
@@ -11486,7 +11346,6 @@ public data class TanreiSystem(
         addAll(modalLayer.referencedRoles())
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
-        addAll(navigationRail.referencedRoles())
         addAll(numberInput.referencedRoles())
         addAll(oneTimeCodeInput.referencedRoles())
         addAll(pageHeader.referencedRoles())

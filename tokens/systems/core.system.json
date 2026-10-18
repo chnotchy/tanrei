@@ -2172,11 +2172,6 @@
       "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
     },
     {
-      "match": "tanrei.comp.navigation-rail.*.disabled.item.container.color",
-      "$value": "{tanrei.comp.navigation-rail.$1.item.container.color}",
-      "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-    },
-    {
       "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",
       "$value": "{tanrei.comp.navigation-drawer.$1.item.container.color}",
       "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
