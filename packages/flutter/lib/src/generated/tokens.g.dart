@@ -4610,6 +4610,7 @@ class TanreiButtonTokens {
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.toneContainerOpacity,
     required this.sizes,
     required this.variants,
     required this.hovered,
@@ -4630,6 +4631,8 @@ class TanreiButtonTokens {
   final int motionStateDuration;
   /// `comp.button.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.button.tone-container-opacity`
+  final double toneContainerOpacity;
   /// The `size` axis: `sizes[size]`.
   final TanreiButtonSizes sizes;
   /// The `variant` axis: `variants[variant]`.
@@ -4651,6 +4654,7 @@ class TanreiButtonTokens {
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? toneContainerOpacity,
     TanreiButtonSizes? sizes,
     TanreiButtonVariants? variants,
     TanreiButtonStateTokens? hovered,
@@ -4664,6 +4668,7 @@ class TanreiButtonTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        toneContainerOpacity: toneContainerOpacity ?? this.toneContainerOpacity,
         sizes: sizes ?? this.sizes,
         variants: variants ?? this.variants,
         hovered: hovered ?? this.hovered,

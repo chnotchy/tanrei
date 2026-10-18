@@ -2491,3 +2491,176 @@ test.describe('destructive', () => {
     await expect(page.locator(button('destructive')).getByRole('button', { name: 'Delete project' })).toHaveCount(1);
   });
 });
+
+// BTN-45: a host that draws a Button on a colored surface of its own gives it a tone through the internal channel. The
+// test is the host: an element that answers HOST_TONE for its children (a child in its light DOM asks when it
+// connects), drawn on the error container and giving its content color, and the push a host makes for a Button in its
+// shadow root (giveTone, through the item's controller). Every expected color is the expression BTN-45 names, resolved
+// by the page itself, so the test holds in every engine and under every system it mounts.
+test.describe('a tone a host gives (BTN-45)', () => {
+  type P = import('@playwright/test').Page;
+  const T = 'var(--tanrei-sys-color-on-error-container)';
+  const OPACITY = '--tanrei-comp-button-tone-container-opacity';
+  const of = (color: string, opacity: string) => `color-mix(in srgb, ${color} calc(var(${opacity}) * 100%), transparent)`;
+  const over = (base: string, state: 'hover' | 'focus' | 'pressed') => `color-mix(in srgb, ${base}, ${T} calc(var(--tanrei-sys-state-${state}-state-layer-opacity) * 100%))`;
+  const REST = of(T, OPACITY);
+  /** A color expression as the page computes it, read on the host's own surface. */
+  const color = (page: P, expression: string) =>
+    page.evaluate((e) => {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden';
+      probe.style.backgroundColor = e;
+      document.querySelector('test-tone-host')!.append(probe);
+      const value = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return value;
+    }, expression);
+  const toned = (page: P, id: string) => page.locator(`test-tone-host tanrei-button#${id}`);
+  const inner = (page: P, id: string) => toned(page, id).locator('[part="container"]');
+  const css = (page: P, id: string, property: string) => inner(page, id).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+  const glyph = (page: P, id: string) => inner(page, id).locator('.icon').evaluate((el) => getComputedStyle(el).color);
+  const giveTone = (page: P, id: string, tone: { color: string; focus?: string } | null) =>
+    page.locator(`tanrei-button#${id}`).evaluate((el, t) => (el as unknown as Record<symbol, { giveTone(tone: unknown): void }>)[Symbol.for('tanrei.group-item')].giveTone(t), tone);
+
+  /** The host, defined before its children connect, and Buttons in it. */
+  const mount = async (page: P, buttons: string) => {
+    await page.evaluate(
+      ([tone, markup]) => {
+        if (!customElements.get('test-tone-host'))
+          customElements.define(
+            'test-tone-host',
+            class extends HTMLElement {
+              [Symbol.for('tanrei.host-tone')]() {
+                return { color: tone };
+              }
+            },
+          );
+        document.querySelector('main')!.insertAdjacentHTML('afterbegin', `<test-tone-host style="display:flex;gap:16px;padding:16px;background:var(--tanrei-sys-color-error-container)">${markup}</test-tone-host>`);
+      },
+      [T, buttons] as const,
+    );
+  };
+  const close = (id: string, attributes = 'variant="tonal"') => `<tanrei-button id="${id}" ${attributes} size="small" label="Close"><span slot="icon">close</span></tanrei-button>`;
+  /** The same Button outside any host. */
+  const outside = (page: P, id: string, attributes: string) => page.locator('main').evaluate((main, markup) => main.insertAdjacentHTML('beforeend', markup), close(id, attributes));
+
+  test('BTN-45: the label, icon and state layer take the tone’s color and the container, where the variant draws one, the tone at tone.container.opacity — in place of the variant’s own — and nothing else of the button changes', async ({ page }) => {
+    await mount(page, close('tonal') + close('filled', 'variant="filled"') + close('elevated', 'variant="elevated"') + close('text', 'variant="text"') + close('outlined', 'variant="outlined"'));
+    const rest = await color(page, REST);
+    for (const id of ['tonal', 'filled', 'elevated']) {
+      expect(await css(page, id, 'background-color'), id).toBe(rest);
+      expect(await css(page, id, 'background-color'), id).not.toBe(await resolveColor(page, `--tanrei-comp-button-${id}-container-color`));
+    }
+    for (const id of ['tonal', 'filled', 'elevated', 'text', 'outlined']) {
+      expect(await glyph(page, id), id).toBe(await color(page, T));
+      // Its own size: small is 32 × 32 in the default system.
+      const box = (await inner(page, id).boundingBox())!;
+      expect([box.width, box.height], id).toEqual([32, 32]);
+    }
+    // The variants that draw no container at rest draw none on a tone either; an outlined edge takes the tone's
+    // translucent color in place of its own.
+    expect(await css(page, 'text', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    expect(await css(page, 'outlined', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-outlined-container-color'));
+    expect(await css(page, 'outlined', 'box-shadow')).toContain(rest);
+    // The elevation is the variant's own: the same layers after the outline as an elevated button's outside the host.
+    const layers = (value: string) => value.split(/,\s*(?![^(]*\))/).slice(1).join(', ');
+    await outside(page, 'plain-elevated', 'variant="elevated"');
+    const plain = await page.locator('#plain-elevated [part="container"]').evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(layers(await css(page, 'elevated', 'box-shadow'))).toBe(layers(plain));
+    // Not part of the public surface: nothing on the element itself says it — its attributes are those of the same
+    // Button outside a host, and it carries no style of its own.
+    await outside(page, 'plain-tonal', 'variant="tonal"');
+    const own = (selector: string) => page.locator(selector).evaluate((el) => [el.getAttributeNames().filter((name) => name !== 'id').sort(), (el as HTMLElement).style.length]);
+    expect(await own('test-tone-host #tonal')).toEqual(await own('#plain-tonal'));
+    expect(await inner(page, 'tonal').getAttribute('data-tone')).toBe('');
+  });
+
+  test('BTN-45: hovered, focused and pressed, the tone is laid over the resting container at the system’s state-layer opacity of the state (three different colors under acme), and the focus ring’s outer stroke is the tone’s', async ({ page }) => {
+    test.setTimeout(120_000);
+    await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss(), fixtures: [] });
+    await mount(page, close('tonal') + close('text', 'variant="text"'));
+    const bg = () => css(page, 'tonal', 'background-color');
+    const [rest, hovered, focused, down] = await Promise.all([color(page, REST), color(page, over(REST, 'hover')), color(page, over(REST, 'focus')), color(page, over(REST, 'pressed'))]);
+    // The point of the fixture system: no two of them are equal, so the assertions below cannot pass by accident.
+    expect(new Set([rest, hovered, focused, down]).size).toBe(4);
+    expect(await bg()).toBe(rest);
+
+    await toned(page, 'tonal').hover();
+    await expect.poll(bg).toBe(hovered);
+    await page.mouse.move(1, 1);
+    await expect.poll(bg).toBe(rest);
+    await tabTo(page, toned(page, 'tonal'));
+    await expect.poll(bg).toBe(focused);
+    // acme draws keyboard focus as a glow: its outer color is the tone's.
+    expect(await inner(page, 'tonal').evaluate((el) => getComputedStyle(el, '::after').boxShadow)).toContain(await color(page, T));
+    await page.keyboard.down('Space');
+    await expect.poll(bg).toBe(down);
+    await page.keyboard.up('Space');
+    await expect.poll(bg).toBe(focused);
+
+    // A text button: the hover layer over no container.
+    await toned(page, 'text').hover();
+    await expect.poll(() => css(page, 'text', 'background-color')).toBe(await color(page, over('var(--tanrei-comp-button-text-container-color)', 'hover')));
+  });
+
+  test('BTN-45: a host may give the focus indicator’s color on its surface; disabled, the tone is drawn at the disabled opacities', async ({ page }) => {
+    await mount(page, close('tonal') + close('own', 'variant="tonal"') + close('off', 'variant="tonal" disabled'));
+    // The ring's outer stroke is the tone's color where the host names no focus color…
+    await tabTo(page, toned(page, 'own'));
+    await expect.poll(() => css(page, 'own', 'outline-color')).toBe(await color(page, T));
+    // …and the one it names where it does.
+    await giveTone(page, 'tonal', { color: T, focus: 'var(--tanrei-sys-color-error)' });
+    await tabTo(page, toned(page, 'tonal'));
+    await expect.poll(() => css(page, 'tonal', 'outline-color')).toBe(await color(page, 'var(--tanrei-sys-color-error)'));
+    expect(await css(page, 'off', 'background-color')).toBe(await color(page, of(T, '--tanrei-sys-state-disabled-container-opacity')));
+    expect(await glyph(page, 'off')).toBe(await color(page, of(T, '--tanrei-sys-state-disabled-content-opacity')));
+  });
+
+  test('BTN-45: under a system that answers a press with a ripple, the ripple is the tone’s pressed color', async ({ page }) => {
+    await mountFixtures(page, spec, { system: 'm3-like', fixtures: [] });
+    await mount(page, close('tonal'));
+    const box = (await inner(page, 'tonal').boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await color(page, over(REST, 'hover')));
+    await page.mouse.down();
+    const ripple = inner(page, 'tonal').locator('.ripple');
+    await expect(ripple).toHaveCount(1);
+    expect(await ripple.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await color(page, over(REST, 'pressed')));
+    await page.mouse.up();
+  });
+
+  test('BTN-45: without a tone — the host taking it away, or a parent that gives none — the button is drawn as outside a host; a toggle and a destructive button keep their looks', async ({ page }) => {
+    await mount(page, close('tonal') + close('toggle', 'variant="tonal" toggle') + close('destructive', 'variant="tonal" destructive'));
+    const token = (name: string) => resolveColor(page, `--tanrei-comp-button-${name}`);
+    expect(await css(page, 'toggle', 'background-color')).toBe(await token('tonal-unselected-container-color'));
+    expect(await css(page, 'destructive', 'background-color')).toBe(await token('tonal-destructive-container-color'));
+    expect(await css(page, 'tonal', 'background-color')).toBe(await color(page, REST));
+    await giveTone(page, 'tonal', null);
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await token('tonal-container-color'));
+    expect(await glyph(page, 'tonal')).toBe(await token('tonal-icon-color'));
+    expect(await inner(page, 'tonal').evaluate((el) => [el.hasAttribute('data-tone'), el.style.getPropertyValue('--_tone')])).toEqual([false, '']);
+    // Given again, then moved out of the host: it asks the parent it now has, which gives none.
+    await giveTone(page, 'tonal', { color: T });
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await color(page, REST));
+    await toned(page, 'tonal').evaluate((el) => document.querySelector('main')!.append(el));
+    const moved = page.locator('main > tanrei-button#tonal [part="container"]');
+    await expect.poll(() => moved.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await token('tonal-container-color'));
+  });
+
+  test('BTN-45: in forced colors a toned button is drawn as any button is — in the system’s colors, with its border', async ({ page, browserName }) => {
+    await mount(page, close('tonal'));
+    await outside(page, 'plain-tonal', 'variant="tonal"');
+    await page.emulateMedia({ forcedColors: 'active' });
+    // WebKit matches the media query when it is emulated but forces no colors: there only the border is compared.
+    const forces = browserName !== 'webkit';
+    const drawn = (selector: string) =>
+      page.locator(selector).evaluate((el, all) => {
+        const s = getComputedStyle(el);
+        const border = [s.borderTopStyle, s.borderTopColor];
+        return all ? [...border, s.color, getComputedStyle(el.querySelector('.icon')!).color] : border;
+      }, forces);
+    const plain = await drawn('#plain-tonal [part="container"]');
+    expect(plain[0]).toBe('solid');
+    expect(await drawn('test-tone-host #tonal [part="container"]')).toEqual(plain);
+  });
+});

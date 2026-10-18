@@ -1929,6 +1929,7 @@ public data class TanreiButtonTokens(
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val toneContainerOpacity: Float,
     public val hovered: TanreiButtonStateTokens,
     public val focused: TanreiButtonStateTokens,
     public val pressed: TanreiButtonStateTokens,

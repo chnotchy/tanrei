@@ -1116,6 +1116,7 @@ private let acmeButtonTokens = TanreiButtonTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
       containerHeight: 32,

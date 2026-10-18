@@ -2993,6 +2993,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var toneContainerOpacity: Double
   public var sizes: TanreiButtonSizes
   public var variants: TanreiButtonVariants
   /// Values of the hovered state shared by every variant.
@@ -3011,6 +3012,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    toneContainerOpacity: Double,
     sizes: TanreiButtonSizes,
     variants: TanreiButtonVariants,
     hovered: TanreiButtonStateTokens,
@@ -3024,6 +3026,7 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.toneContainerOpacity = toneContainerOpacity
     self.sizes = sizes
     self.variants = variants
     self.hovered = hovered
