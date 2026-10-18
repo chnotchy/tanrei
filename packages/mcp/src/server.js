@@ -38,7 +38,10 @@ export function createServer() {
   server.setRequestHandler(CallToolRequestSchema, async (request) => callTool(request.params.name, request.params.arguments));
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({ resources: listResources() }));
   server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
-    resourceTemplates: [{ uriTemplate: 'tanrei://systems/{id}', name: 'System layer', description: 'The layer file of a shipped system, as authored.', mimeType: 'application/json' }],
+    resourceTemplates: [
+      { uriTemplate: 'tanrei://systems/{id}', name: 'System layer', description: 'The layer file of a shipped system, as authored.', mimeType: 'application/json' },
+      { uriTemplate: 'tanrei://components/{id}', name: 'Components manifest', description: 'The components a shipped system ships, those it does not have, and the variant values it leaves out.', mimeType: 'application/json' },
+    ],
   }));
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     try {
