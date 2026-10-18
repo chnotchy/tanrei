@@ -19,8 +19,10 @@ const t = strings(contentLang(Astro));
 // The component's own group first, then every set of tokens it reads that is no component's (the input box, proposal
 // 0149): each row names its custom property, so the family a token is of is read from its name.
 const groups = [spec.tokens, ...sharedSetsOf(spec.name)];
-const compTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type !== 'typography'));
-const typographyTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type === 'typography'));
+// A component that lives in a layer is read in that layer's system, the one that has its tokens.
+const compTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`, 'light', spec.layer).filter((tk) => tk.type !== 'typography'));
+const typographyTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`, 'light', spec.layer).filter((tk) => tk.type === 'typography'));
+const tokenFile = (group: string) => (spec.layer && group === spec.tokens ? `tokens/systems/${spec.layer}/comp/${group.replace('comp.', '')}.tokens.json` : `tokens/comp/${group.replace('comp.', '')}.tokens.json`);
 
 const showDefault = (v: unknown) => (v === null ? 'null' : typeof v === 'string' ? `"${v}"` : String(v));
 const mapped = [
@@ -239,7 +241,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 <h3>{t.fixtures}</h3>
 <p class="docs-muted">{t.fixturesHelp}</p>
 <FixtureGallery name={spec.name} />
-<SourceNote files={[`specs/${spec.name}.spec.json`, ...groups.map((group) => `tokens/comp/${group.replace('comp.', '')}.tokens.json`), 'design/tokens/']} />
+<SourceNote files={[`specs/${spec.name}.spec.json`, ...groups.map(tokenFile), spec.layer ? `design/tokens/${spec.layer}/` : 'design/tokens/']} />
 
 
 <style>

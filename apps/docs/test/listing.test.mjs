@@ -12,7 +12,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, componentPages, isOnRequest, listedFirst, listingBootstrap, shownIn, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
+const { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, componentPages, groupOf, isOnRequest, listedFirst, listingBootstrap, shownIn, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
 const { aroundPlace, listingFacts } = await import('../src/lib/page-head.ts');
 const { levelRole, levels, listings, statusComponents } = await import('../src/lib/repo.ts');
 const { pageGroup } = await import('../src/lib/search.mjs');
@@ -65,12 +65,16 @@ describe('the sidebar', () => {
     assert.equal(new Set(slugs).size, slugs.length);
     for (const slug of slugs.slice(1)) assert.ok(hasPage(slug.slice('components/'.length)), `${slug}: no page`);
   });
-  test('runs category by category, in the inventory’s order within each', () => {
+  test('runs category by category, in the inventory’s order within each, and then a group for each layer that holds components', () => {
     const rows = componentPages(statusComponents);
-    const categories = rows.map((row) => row.category);
+    const categories = rows.map(groupOf);
     assert.deepEqual([...new Set(categories)].flatMap((category) => categories.filter((other) => other === category)), categories, 'a category is one run');
+    // A component that lives in a layer stands in that layer's group, after every category.
+    assert.equal(groupOf(rows.find((row) => row.name === 'fab-menu')), 'layer:m3-like');
+    const first = categories.findIndex((group) => group.startsWith('layer:'));
+    assert.ok(first > 0 && categories.slice(first).every((group) => group.startsWith('layer:')));
     for (const category of new Set(categories)) {
-      const run = rows.filter((row) => row.category === category).map((row) => row.name);
+      const run = rows.filter((row) => groupOf(row) === category).map((row) => row.name);
       assert.deepEqual(run, statusComponents.filter((row) => run.includes(row.name)).map((row) => row.name));
     }
   });
@@ -94,7 +98,8 @@ describe('the sidebar', () => {
       for (const group of groups) {
         for (const link of group.entries) {
           const spec = specOf(link.label.slice('components/'.length));
-          assert.equal(group.label, words[spec.category], `${lang}: ${spec.name}`);
+          assert.equal(group.label, words[spec.layer ? `layer:${spec.layer}` : spec.category], `${lang}: ${spec.name}`);
+          assert.ok(group.label, `${lang}: ${spec.name} has a group named in the page's language`);
         }
       }
       // Every page is still there, once.
@@ -132,7 +137,7 @@ describe('the sidebar', () => {
 describe('the index of components', () => {
   const text = read('src/components/ComponentIndex.astro');
   test('draws every row of the status file, marks the ones shown on request, and says each one’s level', () => {
-    assert.match(text, /statusComponents\.filter\(\(c\) => c\.category === category\)\.map\(/);
+    assert.match(text, /statusComponents\.filter\(\(c\) => groupOf\(c\) === category\)\.map\(/);
     assert.match(text, /const onRequest = isOnRequest\(c, listings\);/);
     assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\}>/);
     assert.match(text, /<span class="title">\{c\.title\}<\/span>/);

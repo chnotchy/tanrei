@@ -46,6 +46,8 @@ export interface Fixture {
 type SlotFixture = 'glyph' | 'icon-only-button' | 'button' | 'text' | 'mark';
 export interface Spec {
   name: string;
+  /** The layer the component lives in (`core` when absent): only the systems that descend from it have its tokens. */
+  layer?: string;
   /** The members of a composed component. */
   builtFrom?: string[];
   props?: PropDecl[];
@@ -249,15 +251,36 @@ let acme: Promise<string> | undefined;
  * The stylesheet of the `acme` fixture system (packages/tokens-build/test/fixtures/acme.system.json), built the way a
  * product builds its own layer. It extends the vocabulary, chooses `focus-style: glow`, draws a static icon
  * set, and gives hovered, focused and pressed three different strengths — which is what makes BTN-3 observable.
+ * Built here, it also includes the components that live in a layer it does not extend (the FAB menu, from m3-like), as a
+ * product that uses them does, so that every component can be drawn under it.
  * Mount it with `mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss() })`.
  */
 export function acmeSystemCss(): Promise<string> {
   acme ??= (async () => {
     const { buildProductSystem } = await import('@tanrei/tokens-build/product');
-    const layerFile = path.join(repo, 'packages/tokens-build/test/fixtures/acme.system.json');
-    return (await buildProductSystem({ layerFile, targets: ['web'] })).files.web['acme.css'] as string;
+    const layer = JSON.parse(fs.readFileSync(path.join(repo, 'packages/tokens-build/test/fixtures/acme.system.json'), 'utf8'));
+    layer.components = { ...layer.components, include: [...(layer.components?.include ?? []), { name: 'fab-menu', from: 'm3-like' }] };
+    return (await buildProductSystem({ layers: [layer], targets: ['web'] })).files.web['acme.css'] as string;
   })();
   return acme;
+}
+
+const including = new Map<string, Promise<{ system: string; systemCss: string }>>();
+/**
+ * A product on a shipped system that includes a component which lives in a layer the system does not extend
+ * (`components.include: [{ name, from }]`), built the way a product builds its own layer: the component's tokens are
+ * valued with that system's own. Mount it with `mountFixtures(page, spec, await includingSystem('cupertino', 'fab-menu', 'm3-like'))`.
+ */
+export function includingSystem(base: string, name: string, from: string): Promise<{ system: string; systemCss: string }> {
+  const id = `${base}-with-${name}`;
+  if (!including.has(id)) {
+    including.set(id, (async () => {
+      const { buildProductSystem } = await import('@tanrei/tokens-build/product');
+      const layer = { id, name: id, extends: base, components: { include: [{ name, from }] } };
+      return { system: id, systemCss: (await buildProductSystem({ layers: [layer], targets: ['web'] })).files.web[`${id}.css`] as string };
+    })());
+  }
+  return including.get(id)!;
 }
 
 /**
@@ -2148,6 +2171,14 @@ export interface AssetUrls {
   bundle: string;
 }
 
+/**
+ * The options a spec's fixtures are drawn with: a component that lives in a layer other than the root is drawn under
+ * that layer's system, the one place its tokens are, unless the caller names a system itself.
+ */
+export function drawnUnder<T extends DocumentOptions>(spec: Spec, options: T): T {
+  return options.system || !spec.layer || spec.layer === 'core' ? options : { ...options, system: spec.layer };
+}
+
 /** The stylesheet of the mounted preset, as the document embeds it. */
 const systemStyles = (options: DocumentOptions) => (options.system ? (options.systemCss ?? read(`dist/systems/${options.system}.css`)) : '');
 
@@ -2173,7 +2204,8 @@ function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
  * with the tokens, the preset, the faces and the component bundle the stages need. A fixture that names a `direction`
  * has it as its stage's `dir`, whatever the document's is.
  */
-export async function fixturesDocument(spec: Spec, options: DocumentOptions = {}): Promise<string> {
+export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}): Promise<string> {
+  const options = drawnUnder(spec, given);
   const tag = spec.platforms.web.name;
   const staging = STAGING[spec.name] ?? {};
   // With `twins`, each fixture that names a twin is followed by that fixture of its member, staged as the
@@ -2297,7 +2329,8 @@ export function glyphsSpelled(families: string[]): string[] {
 }
 
 /** Render every fixture of a spec in the page, and wait until the components and their faces are drawn. */
-export async function mountFixtures(page: Page, spec: Spec, options: DocumentOptions & { reducedMotion?: boolean } = {}) {
+export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & { reducedMotion?: boolean } = {}) {
+  const options = drawnUnder(spec, given);
   const tag = spec.platforms.web.name;
   // Only when asked: a test that emulated reduced motion itself keeps it across mounts.
   if (options.reducedMotion !== undefined) await page.emulateMedia({ reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference' });

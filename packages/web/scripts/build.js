@@ -308,8 +308,10 @@ for (const system of fs.readdirSync('src/generated/systems').filter((file) => fi
     conditionedForSystems.push(`dist/systems/${name}`);
   }
 }
+// The bundle defines every component this package has: the main entry's and those of the layers' own entries
+// (`@tanrei/web/m3-like`), for demos and the test harness, which draw a component under the system it lives in.
 const bundle = await build({
-  entryPoints: ['src/index.ts'],
+  stdin: { contents: "export * from './src/index.ts';\nexport * from './src/m3-like.ts';\n", resolveDir: '.', loader: 'ts', sourcefile: 'tanrei.bundle.ts' },
   bundle: true,
   format: 'esm',
   target: 'es2022',

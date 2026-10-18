@@ -13,8 +13,9 @@ interface Props {
 const spec = getSpec(Astro.props.name);
 const row = statusOf(spec.name);
 const t = strings(contentLang(Astro));
-// The systems that leave this component, or some of its variants, out.
-const leftOutBy = Object.entries(unavailable).filter(([, u]) => u.components.includes(spec.name)).map(([id]) => id);
+// The systems that leave this component, or some of its variants, out — and those that do not have it at all, because
+// it lives in a layer they do not extend.
+const leftOutBy = Object.entries(unavailable).filter(([, u]) => u.components.includes(spec.name) || u.outside?.[spec.name]).map(([id]) => id);
 const variantsLeftOut = Object.entries(unavailable).flatMap(([id, u]) => (u.variants[spec.name] ? [`${id}: ${u.variants[spec.name].join(', ')}`] : []));
 ---
 
