@@ -2,7 +2,7 @@
 title: 颜色
 description: 颜色角色、单色的主色、唯一的强调色，以及每个配色方案如何生成和校验。
 translationOf: foundations/color.mdx
-sourceHash: 7374c20d700ebcfe43e183446e02015a6653fe66
+sourceHash: ddde2b1831c92ee6d35e5c257ddbcb70104b4581
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -55,7 +55,7 @@ Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，
 
 ## 配色方案如何生成
 
-颜色不是手工挑选的。系统文件（`tokens/systems/tanrei.system.json`）声明各个调色板：强调色和错误色各有一个种子色，中性色则给出色相和色度；它还以数据的形式写明，在浅色和深色的每个对比度级别下，每个角色取哪个调色板的哪个色调。构建时，生成器会：
+颜色不是手工挑选的。系统文件（`tokens/systems/core.system.json`）声明各个调色板：强调色和错误色各有一个种子色，中性色则给出色相和色度；它还以数据的形式写明，在浅色和深色的每个对比度级别下，每个角色取哪个调色板的哪个色调。构建时，生成器会：
 
 1. 使用 Apache-2.0 许可的 `material-color-utilities` 库，把每个关键色转换为 HCT 色彩空间中的**色调调色板**；在这个色彩空间里，色调与对比度之间的对应关系是可预测的；
 2. 把中性调色板的色度限制在主题规定的范围内，默认值为零，即纯灰色；

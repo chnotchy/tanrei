@@ -141,12 +141,13 @@ test('the status matrix names a docs page only where the page exists', () => {
   assert.equal(docsAddress('a-component-nobody-wrote'), null);
 });
 
-test('every system\'s unavailable list names what exists, and a layer that declares one replaces its parent\'s', () => {
+test('what every system leaves out names what exists, and a layer changes what its parent ships', () => {
   assert.deepEqual(validateAvailability(), []);
   const availability = systemAvailability();
   assert.ok(availability.tanrei.components.includes('segmented-button'));
-  // m3-like replaces the root's list with its own: every component, no filled navigation bar and no
-  // tonal tabs.
+  assert.ok(!('core' in availability), 'the root ships no output of its own, and leaves nothing out');
+  // m3-like brings back what the default system leaves out and leaves out its own: every component, no filled
+  // navigation bar and no tonal tabs.
   assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
   assert.deepEqual(availability['m3-expressive-like'], availability['m3-like']);
 });

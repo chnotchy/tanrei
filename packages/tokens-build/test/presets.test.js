@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ROOT_SYSTEM, listSystems } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, shippedSystems } from '../src/bundle.js';
 import { checkInvariants, isCriterionFinding, presetAccessibilityReport } from '../src/invariants.js';
 import { REPO_ROOT, buildModel } from '../src/model.js';
 import { loadSystem } from '../src/scheme.js';
 
-const presets = listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM);
+const presets = shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM);
 const bundle = (id) => path.join(REPO_ROOT, 'tokens/generated', id);
 const gaps = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'docs/governance/mimicry-gaps.json'), 'utf8')).gaps;
 
