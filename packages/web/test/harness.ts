@@ -1131,6 +1131,19 @@ const STAGING: Record<string, Staging> = {
       return actionable ? content : `<span class="fixture-tile">${content}</span>`;
     },
   },
+  // A handle stands on what it resizes (HDL-3: the owner places it): a 160 × 96 box drawn by a hairline ring in
+  // outline-variant, its corners those an arc is concentric with (HDL-2: arc.radius plus inset, of the handle's size),
+  // the handle at its bottom edge for a height, at its end edge for a width, and in its corner for both.
+  handle: {
+    css: () => `.stage > .owner { display: grid; box-sizing: border-box; inline-size: 160px; block-size: 96px; box-shadow: inset 0 0 0 var(--tanrei-sys-border-hairline) var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset)); }
+      .stage > .owner[data-size='small'] { border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset)); }
+      .owner > tanrei-handle { justify-self: center; align-self: end; }
+      .owner[data-axis='horizontal'] > tanrei-handle { justify-self: end; align-self: center; }
+      .owner[data-axis='both'] > tanrei-handle { justify-self: end; align-self: end; }
+      .owner[data-axis='both'][data-corner^='top'] > tanrei-handle { align-self: start; }
+      .owner[data-axis='both'][data-corner$='start'] > tanrei-handle { justify-self: start; }`,
+    wrap: (element, f) => `<div class="owner" data-axis="${f.props.axis ?? 'vertical'}" data-corner="${f.props.corner ?? 'bottom-end'}" data-size="${f.props.size ?? 'medium'}">${element}</div>`,
+  },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
   'list-row': {
