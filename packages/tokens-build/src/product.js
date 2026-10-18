@@ -3,7 +3,7 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, heldComponents, listSystems } from './bundle.js';
+import { ROOT_SYSTEM, heldComponents, listSystems, shippedSystems } from './bundle.js';
 import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
@@ -42,7 +42,7 @@ function webRegistry(ir, id) {
 function productComponents(chain, held, command) {
   const catalog = readComponentCatalog(REPO_ROOT);
   if (!catalog) throw new Error(`${CATALOG_FILE} is missing from the vocabulary at ${REPO_ROOT}: run \`pnpm generate\` in the Tanrei repository`);
-  return { $comment: manifestComment(chain.at(-1).id, `\`${command}\``), ...componentsManifest(chain, catalog, held) };
+  return { $comment: manifestComment(chain.at(-1).id, `\`${command}\``), ...componentsManifest(chain, catalog, held, shippedSystems(REPO_ROOT)) };
 }
 
 /** Every output `tanrei build` can write. A product picks the ones it ships. */

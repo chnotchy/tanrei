@@ -16,6 +16,8 @@ import { loadSystem } from '../src/scheme.js';
 
 const read = (id) => loadSystem(REPO_ROOT, id);
 const held = heldComponents(listSystems(REPO_ROOT), read);
+const shipped = shippedSystems(REPO_ROOT);
+const WEB = `${CONFIG.packages.npmScope}/web`;
 const catalog = readComponentCatalog(REPO_ROOT);
 const committed = (id) => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, manifestFile(id)), 'utf8'));
 const names = (manifest) => manifest.components.map((component) => component.name);
@@ -24,7 +26,7 @@ const omitted = (manifest, name) => manifest.omitted.find((entry) => entry.name 
 /** The manifest of a product's layers in memory, after the checks `tanrei build` runs first. */
 function productManifest(...layers) {
   assert.deepEqual(validateSystem({ layers }), [], 'the product layer is valid');
-  return componentsManifest(readSystemChain({ layers }).chain, catalog, held);
+  return componentsManifest(readSystemChain({ layers }).chain, catalog, held, shipped);
 }
 
 test('every shipped system has its manifest, and it is what its layers and the catalog give', () => {
@@ -34,7 +36,7 @@ test('every shipped system has its manifest, and it is what its layers and the c
   for (const id of shippedSystems(REPO_ROOT)) {
     const { $comment: note, ...manifest } = committed(id);
     assert.match(note, /^GENERATED /);
-    assert.deepEqual(manifest, componentsManifest(layerChain(id, read), catalog, held), id);
+    assert.deepEqual(manifest, componentsManifest(layerChain(id, read), catalog, held, shipped), id);
   }
 });
 
@@ -45,6 +47,7 @@ test('the default system lists neither the FAB menu nor the segmented button, an
   assert.ok(names(tanrei).includes('button') && names(tanrei).includes('main-action-button'), 'the premise: the core’s components are listed');
   assert.equal(find(tanrei, 'fab-menu'), undefined);
   assert.equal(find(tanrei, 'segmented-button'), undefined);
+  for (const component of tanrei.components) if (component.web.tag) assert.equal(component.web.import, WEB, `${component.name}: the main entry registers the default system’s components`);
   // The FAB menu is not left out: it lives in m3-like, which the default system does not descend from.
   assert.deepEqual(omitted(tanrei, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
   const segmented = omitted(tanrei, 'segmented-button');
@@ -66,13 +69,15 @@ test('m3-like and m3-expressive-like list both; cupertino lists the segmented bu
     const fab = find(manifest, 'fab-menu');
     assert.ok(fab, id);
     assert.equal(fab.layer, 'm3-like');
-    assert.deepEqual(fab.web, { tag: `${CONFIG.web.tagPrefix}-fab-menu`, import: `${CONFIG.packages.npmScope}/web/m3-like`, module: `${CONFIG.packages.npmScope}/web/components/fab-menu` }, 'registered by its layer’s entry, not the main one');
+    assert.deepEqual(fab.web, { tag: `${CONFIG.web.tagPrefix}-fab-menu`, import: `${WEB}/${id}`, module: `${WEB}/components/fab-menu` }, 'registered by the system’s entry, not the main one');
+    assert.equal(find(manifest, 'segmented-button').web.import, `${WEB}/${id}`, 'and so is the segmented button, which the main entry does not register');
+    assert.equal(find(manifest, 'button').web.import, `${WEB}/${id}`, 'a system’s entry registers every component it ships');
     assert.equal(omitted(manifest, 'fab-menu'), undefined);
     assert.deepEqual(find(manifest, 'text-field').variants, ['stacked', 'filled', 'outlined'], 'the preset does not inherit the default system’s choices');
     assert.deepEqual(find(manifest, 'navigation-bar').variants, ['tonal']);
   }
   const cupertino = committed('cupertino');
-  assert.ok(find(cupertino, 'segmented-button'));
+  assert.equal(find(cupertino, 'segmented-button').web.import, `${WEB}/cupertino`);
   assert.equal(find(cupertino, 'fab-menu'), undefined);
   assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
 });
@@ -108,18 +113,20 @@ test('a product keeps what the system it extends leaves out, and adds its own ch
   assert.equal(acme.components.length, committed(DEFAULT_SYSTEM).components.length - 1);
   // An ancestor's choice is undone only by name.
   const again = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { include: ['segmented-button'], variants: { 'text-input': { include: ['outlined'] } } } });
-  assert.ok(find(again, 'segmented-button'));
+  // No system it is built on ships it, so no entry registers it: its own module does, drawn with the product's tokens.
+  assert.deepEqual(find(again, 'segmented-button').web, { tag: `${CONFIG.web.tagPrefix}-segmented-button`, import: `${WEB}/components/segmented-button`, module: `${WEB}/components/segmented-button` });
+  assert.equal(find(again, 'button').web.import, WEB, 'what the default system ships, the main entry registers');
   assert.equal(omitted(again, 'segmented-button'), undefined);
   assert.deepEqual(find(again, 'text-input').variants, ['stacked', 'outlined']);
   assert.deepEqual(find(again, 'text-field').variants, ['stacked', 'outlined']);
 });
 
-test('a product on the default system that includes the FAB menu from m3-like lists it, registered by that layer’s entry', () => {
+test('a product on the default system that includes the FAB menu from m3-like lists it, registered by its own module', () => {
   const acme = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { include: [{ name: 'fab-menu', from: 'm3-like' }] } });
   const fab = find(acme, 'fab-menu');
   assert.ok(fab);
   assert.equal(fab.layer, 'm3-like');
-  assert.equal(fab.web.import, `${CONFIG.packages.npmScope}/web/m3-like`);
+  assert.equal(fab.web.import, `${WEB}/components/fab-menu`, 'not m3-like’s entry: that registers what m3-like ships, which the product does not');
   assert.equal(omitted(acme, 'fab-menu'), undefined);
   assert.equal(find(acme, 'segmented-button'), undefined, 'what the default system leaves out stays out');
   assert.deepEqual(names(acme), [...names(committed(DEFAULT_SYSTEM)), 'fab-menu'].sort());
@@ -129,7 +136,15 @@ test('a variant value a layer adds to an axis is listed for every component that
   const { axis } = catalog.components.find((component) => component.name === 'text-input').variant;
   assert.ok(axis, 'the premise: the text input’s variant is a token axis');
   const chain = [...layerChain(DEFAULT_SYSTEM, read), { id: 'acme', extends: DEFAULT_SYSTEM, vocabulary: { [`${axis}.glass`]: { from: 'stacked', rationale: 'Acme draws its fields on glass.' } } }];
-  const acme = componentsManifest(chain, catalog, held);
+  const acme = componentsManifest(chain, catalog, held, shipped);
   assert.deepEqual(find(acme, 'text-input').variants, ['stacked', 'glass']);
   assert.deepEqual(find(acme, 'text-field').variants, ['stacked', 'glass']);
+});
+
+test('a product on a preset takes the preset’s entry for what the preset ships, and the manifest needs the shipped systems', () => {
+  const acme = productManifest({ id: 'acme', name: 'Acme', extends: 'm3-like', components: { omit: { carousel: { reason: 'Acme shows one thing at a time.' } } } });
+  assert.equal(find(acme, 'segmented-button').web.import, `${WEB}/m3-like`);
+  assert.equal(find(acme, 'fab-menu').web.import, `${WEB}/m3-like`);
+  assert.equal(find(acme, 'button').web.import, `${WEB}/m3-like`);
+  assert.throws(() => componentsManifest(layerChain(DEFAULT_SYSTEM, read), catalog, held), /name the shipped systems/);
 });
