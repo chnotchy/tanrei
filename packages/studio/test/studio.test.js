@@ -41,7 +41,7 @@ function groupsLayer(extendsId) {
 for (const { id: extendsId } of studio.systems) {
   test(`a Studio layer on "${extendsId}" builds to exactly what the Studio previewed`, async () => {
     let layer = groupsLayer(extendsId);
-    if (extendsId === studio.rootId) layer = studio.dropPalette(layer, 'accent');
+    if (extendsId === studio.defaultId) layer = studio.dropPalette(layer, 'accent');
     layer = op(layer, `${NS}.comp.button.container.padding-inline-start.medium`, { scale: 2 });
     layer = op(layer, `${NS}.comp.button.container.gap.medium`, { $value: `{${NS}.sys.space.space50}` });
     layer = op(layer, `${NS}.sys.typescale.label-small`, { $value: { fontSize: { value: 11, unit: 'px' } }, reason: 'Legal footnote size is contractual.' });
@@ -49,13 +49,13 @@ for (const { id: extendsId } of studio.systems) {
 
     const { view, result } = await assertPreviewIsTheBuild(layer);
     for (const intent of ['primary', 'correct', 'incorrect']) assert.ok(view.intents.includes(intent), `${intent} is an intent with its four roles`);
-    if (extendsId === studio.rootId) assert.ok(!('accent' in view.model.colors.light), 'a dropped palette leaves no roles');
+    if (extendsId === studio.defaultId) assert.ok(!('accent' in view.model.colors.light), 'a dropped palette leaves no roles');
     const sheet = result.files.web[`${layer.id}.css`];
     assert.match(sheet, /--tanrei-dial-type-base: 1\.0625rem;/);
     assert.match(sheet, /--tanrei-comp-button-container-gap-medium: var\(--tanrei-sys-space-space50\);/);
     assert.match(sheet, /--tanrei-sys-typescale-label-small-font-size: 0\.6875rem;/);
     assert.equal(view.valueOf(`${NS}.sys.typescale.label-small`).fontSize.value, 11, 'the pin holds whatever type.base is');
-    if (extendsId === studio.rootId) assert.equal(view.valueOf(`${NS}.sys.typescale.body-large`).fontSize.value, 17, 'body-large is type.base × 1');
+    if (extendsId === studio.defaultId) assert.equal(view.valueOf(`${NS}.sys.typescale.body-large`).fontSize.value, 17, 'body-large is type.base × 1');
     assert.equal(view.valueOf(`${NS}.comp.button.container.height.medium`).value, 44);
   });
 }
@@ -193,7 +193,7 @@ for (const [kind, write] of Object.entries(OPERATIONS)) {
     const { view } = await assertPreviewIsTheBuild(layer);
     // revert-to-inherited: the editor's last operation takes the layer back to nothing.
     const reverted = Object.keys(layer.tokens ?? {}).reduce((l, id) => studio.applyOperation(l, id, null).layer, studio.setRules(layer, []));
-    assert.deepEqual(reverted, { id: 'studio-operation', extends: studio.rootId });
+    assert.deepEqual(reverted, { id: 'studio-operation', extends: studio.defaultId });
     // The editor offers only what the engine calls legal for this token.
     for (const id of Object.keys(layer.tokens ?? {})) assert.ok(studio.describe(view, id).operations.some((o) => o.op === 'revert to inherited'));
   });
@@ -242,7 +242,7 @@ for (const [kind, fragment] of Object.entries(EXTENSIONS)) {
       assert.deepEqual(studio.removeExtension(layer, id).vocabulary?.[id], undefined);
     }
     // Removing every declaration also removes the operations that only made sense with it.
-    assert.deepEqual(Object.keys(fragment.vocabulary).reduce((l, id) => studio.removeExtension(l, id), layer), { id: 'studio-extension', extends: studio.rootId });
+    assert.deepEqual(Object.keys(fragment.vocabulary).reduce((l, id) => studio.removeExtension(l, id), layer), { id: 'studio-extension', extends: studio.defaultId });
   });
 }
 

@@ -3,7 +3,7 @@
     "dev.tanrei.system": {
       "id": "m3-expressive-like",
       "chain": [
-        "tanrei",
+        "core",
         "m3-like",
         "m3-expressive-like"
       ],
@@ -145,38 +145,10 @@
       "layers": [
         {
           "$schema": "../schema/system.schema.json",
-          "id": "tanrei",
-          "name": "Tanrei",
-          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. Every other system extends this one.",
+          "id": "core",
+          "name": "Core",
+          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
           "specVersion": "tanrei-2026.2",
-          "unavailable": {
-            "components": [
-              "segmented-button",
-              "fab-menu"
-            ],
-            "variants": {
-              "text-input": [
-                "filled",
-                "outlined"
-              ],
-              "select": [
-                "filled",
-                "outlined"
-              ],
-              "combobox": [
-                "filled",
-                "outlined"
-              ],
-              "number-input": [
-                "filled",
-                "outlined"
-              ],
-              "color-input": [
-                "filled",
-                "outlined"
-              ]
-            }
-          },
           "palettes": {
             "neutral": {
               "description": "Surfaces, text and the monochrome primary. Zero chroma.",
@@ -2529,15 +2501,19 @@
           "$schema": "../schema/system.schema.json",
           "id": "m3-like",
           "name": "M3-like (Material 3-inspired)",
-          "extends": "tanrei",
-          "unavailable": {
+          "extends": "core",
+          "components": {
             "variants": {
-              "navigation-bar": [
-                "filled"
-              ],
-              "tabs": [
-                "tonal"
-              ]
+              "navigation-bar": {
+                "omit": [
+                  "filled"
+                ]
+              },
+              "tabs": {
+                "omit": [
+                  "tonal"
+                ]
+              }
             }
           },
           "description": "An independent approximation of Material Design 3's baseline look, expressed purely as values over Tanrei's vocabulary: a chromatic primary, tonal surfaces, pill buttons, shadow elevation without a ring.",

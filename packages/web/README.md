@@ -4912,7 +4912,7 @@ surface in the top layer that the row is not inside, and to a row that is covere
 What this leaves out: the band shows no hover and no press feedback, a drag cannot start in it, and the tab is not
 focused by the press.
 
-**Presets.** A tonal row is left out of m3-like and m3-expressive-like (`unavailable`, reported in debug builds); drawn
+**Presets.** A tonal row is left out of m3-like and m3-expressive-like (its `components.variants`, reported in debug builds); drawn
 there it has the default's layer on the preset's trackless, square row. m3-like and m3-expressive-like draw what they drew before this revision, by value, with one recorded
 difference (mimicry gap `tabs-state-layer-follows-indicator`): in a row that hugs, a tab whose content is not wider than
 it is tall (an icon alone, a one-letter label) draws its state layer and focus ring as wide as the row is tall, and is
