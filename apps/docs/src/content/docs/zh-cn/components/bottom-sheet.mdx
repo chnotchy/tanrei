@@ -2,7 +2,7 @@
 title: "底部面板"
 description: "从底边向上带出补充内容或一项简短的任务：可以盖在屏幕下部而让其余部分照常可用，也可以作为模态的一步，把其他一切变暗并挡住，直到它被关闭。"
 translationOf: components/bottom-sheet.mdx
-sourceHash: 3398e1ebae6e33be24f47bac4f66e51daf81fd8c
+sourceHash: a504e1751fb54db71a3a343987fb23e9c6a2d365
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -27,20 +27,21 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 底部面板是受控组件，它从不自行关闭。把 `open` 设为 true 即可打开它。当用户要求它离开时，面板触发 `close` 并带上原因，由你把 `open` 设回 false。SwiftUI 是唯一的例外：在那里 `open` 是一个绑定，面板先把 false 写入绑定，再调用 `onClose`。如果你让 `open` 保持为 true，面板就留在原处；拖动之后，它会回落到最低的高度。在 Web 上这一点与对话框不同：面板会取消原生的 `cancel` 事件，改为触发 `close`，所以在你关闭它之前，Escape 不会把它关闭。
 
-`close` 带有以下四种原因之一，大小写遵循各平台的写法：
+`close` 带有以下五种原因之一，大小写遵循各平台的写法：
 
 | 原因 | 用户做了什么 | 适用的形态 |
 | --- | --- | --- |
+| `close` | 按下了面板的关闭按钮（`closable`） | 标准和模态 |
 | `drag` | 在低于面板最低高度一半的位置松开拖动，或从那个高度向下快速滑动 | 标准和模态 |
 | `scrim` | 按下了模态面板周围变暗的区域 | 模态 |
 | `escape` | 按下了 Escape | 模态 |
 | `back` | 使用了平台的返回操作：Android 的返回按钮或返回手势、iOS 的无障碍“退出”手势。在 Web 上，不是由按键发出的关闭请求（例如浏览器中的 Android 返回手势）也算作 `back`。 | 模态 |
 
-只有当 `dismissible` 为 true 时，面板才会触发 `close`，并且每次请求恰好触发一次。当它为 false 时，遮罩、Escape 和返回操作都不起作用，向下拖动后面板会停在最低的高度。
+只有当 `dismissible` 为 true 时，面板才会触发 `close`，并且每次请求恰好触发一次。当它为 false 时，遮罩、Escape 和返回操作都不起作用，向下拖动后面板会停在最低的高度。关闭按钮是例外：无论 `dismissible` 是什么，它都以原因 `close` 请求关闭，因为它是你自己选择画出的出口。
 
 面板通过 `variant` 提供两种形态。**模态**是默认形态，是一个模态浮层：它让整个窗口变暗，把焦点留在里面，并在关闭时把焦点交还。**标准**形态是一个布局区域，而不是浮层：它盖住你放置它的父元素的底部，不绘制遮罩，用户可以继续操作它上方的内容。
 
-面板里放什么由你决定。面板按自己的内边距为内容留出边距（如果是行自带内边距的列表，把 `inset` 设为 false），裁剪内容，为它提供内容颜色，并让它滚动。面板自己没有标题，也没有关闭按钮：请把你的标题和“关闭”或“完成”按钮放在内容里。
+面板里放什么由你决定。面板按自己的内边距为内容留出边距（如果是行自带内边距的列表，把 `inset` 设为 false），裁剪内容，为它提供内容颜色，并让它滚动。给它一个 `headline`，它就会在内容上方绘制页眉：标题（一个标题元素，`label` 为空时也是面板的名称），以及在打开 `closable` 时，一个以 `closeLabel` 命名的关闭按钮——一个 small 按钮，在默认系统中是 tonal，与 Tanrei 的每个关闭按钮一样。页眉下方按 `dividerVisibility` 绘制一条分隔线，内容滚动时页眉保持不动。`closable` 默认关闭，因为手柄以及模态面板的遮罩就是面板的出口；在标准面板或没有手柄的面板中请把它打开。
 
 面板打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。没有标记时，焦点落在面板本身，因此最先朗读的是它的标签。
 
@@ -278,7 +279,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 组件负责的部分
 
-- 模态面板以模态对话框的身份提供给辅助技术，以 `label` 命名。标准面板是一个以 `label` 命名的区域（region），在 Web 上是一个地标。
+- 模态面板以模态对话框的身份提供给辅助技术，以 `label` 命名，`label` 为空时以 `headline` 命名。标准面板是一个以同样方式命名的区域（region），在 Web 上是一个地标。
+- 标题是一个标题元素。关闭按钮是一个以 `closeLabel` 命名的 Tanrei 纯图标按钮，最小目标、焦点环和状态都是按钮自己的；在两种形态中，无论 `dismissible` 是什么，它都以原因 `close` 请求面板关闭。页眉下方的分隔线是装饰性的。
 - 模态面板打开期间，它之外的一切都是惰性的，并对辅助技术隐藏，焦点和屏幕阅读器的导航都留在它里面。标准面板不让任何东西变为惰性。
 - 打开时，焦点移到你标记的元素上，否则移到面板。关闭时，焦点交还给面板打开时持有焦点的那个元素。两种形态都是如此。
 - 当 `dismissible` 为 true 时，Escape、平台的返回操作以及在遮罩上的按下会请求模态面板关闭。标准面板忽略 Escape 和返回操作。
@@ -287,11 +289,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 内容在面板内滚动，无论面板处于哪个高度，键盘焦点和辅助技术都能滚动它。
 - 文本变大时，面板随内容一起变高，最高到它的 detent 允许的高度，超出的内容可以滚动。手柄不随文本缩放。
 - 面板的颜色延伸到底部的系统边衬区之下，它的内容则保持在该边衬区之上，也保持在屏幕键盘之上。
-- 调试构建会报告没有 `label` 的面板、没有 `handleLabel` 的可交互手柄，以及未知的 `variant` 或 `detent`。
+- 调试构建会报告既没有 `label` 也没有 `headline` 的面板、没有 `handleLabel` 的可交互手柄、没有 `closeLabel` 的关闭按钮、没有手柄也没有关闭按钮却仍可被关闭的面板（屏幕上没有任何东西说明怎么关闭），以及未知的 `variant`、`detent` 或 `dividerVisibility`。
 
 已知的平台差距：
 
 - 用鼠标在内容上拖动，会像触摸一样移动面板，所以只要面板还能移动，就无法通过向下拖动来选中面板中的文本。
+- SwiftUI、Compose、Flutter 和 React Native 还不绘制页眉：`headline`、`closable`、`closeLabel`、`dividerVisibility` 以及原因 `close` 目前只在 Web 上提供。
 - Web：在触摸时，由浏览器在手势开始时决定谁来接收它，所以面板与内容滚动之间的交接需要第二个手势。鼠标和触控笔在一次拖动之内就能完成交接。触摸拖动尚未被测试覆盖。在 Firefox 中，面板立即离开，而不是滑出，与对话框的情况相同。
 - SwiftUI 既没有对话框角色，也没有区域角色：面板是一个以 `label` 命名的容器，处于模态时带有模态特征。手柄没有展开状态，所以它的值会读作“expanded”或“collapsed”，而且只有英语。没有任何标记时，SwiftUI 无法把焦点移到面板本身；面板关闭时，键盘焦点不会交还给任何元素；在 iOS 上，模态覆盖会把 VoiceOver 焦点交还。在 macOS 上，模态面板只覆盖修饰符所附着的视图，所以请把它附着在窗口的根视图上。
 - iOS 上的 SwiftUI：面板低于 full 高度时，在内容上拖动会升起面板，下一次拖动才滚动内容；在那个高度内容不会滚动，对 VoiceOver 和键盘也是如此。内容中的纯文本采用正文字体，但不带它的行高，所以两行文本高 40 点，而其他平台绘制为 44 点。
@@ -305,9 +308,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 需要你做的事
 
-- 为每个面板提供 `label`，例如“保存照片”。它是对话框或区域的名称。
+- 为每个面板提供 `label` 或 `headline`，例如“保存照片”。它是对话框或区域的名称。
 - 为手柄提供 `handleLabel`，例如“调整面板高度”，使用你的产品的语言。
 - 自己关闭面板：在响应 `close` 时（Web 上的 `close` 事件，Compose、Flutter 和 React Native 上的 `onClose`）把 `open` 设为 false，并在你自己的“完成”或“关闭”按钮中这样做。在 SwiftUI 上，面板会替你把 false 写入绑定。
-- 为标准面板，以及 `dismissible` 为 false 的模态面板，提供一个看得见的、能把它关闭的按钮。拖动不能是唯一的出路。
+- 为标准面板，以及 `dismissible` 为 false 的模态面板，提供一个看得见的、能把它关闭的按钮：面板自己的关闭按钮（`closable`，配上 `closeLabel`）或你自己的按钮。拖动不能是唯一的出路。
 - 在有帮助的地方标记初始焦点，例如简短表单的第一个输入框。
 - 在 React Native 上，传入 `initialFocusRef`；面板关闭后，自己把焦点移回打开它的元素；并把窗口的边衬区传给面板的 `insets` 或 `TanreiProvider`。

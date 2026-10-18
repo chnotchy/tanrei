@@ -1548,7 +1548,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower\npart of its parent while the content above stays usable (a layout region), or `modal`, a modal step that dims\nand blocks everything else until it is dismissed (a modal overlay).\n\nContract: specs/bottom-sheet.spec.json. The content is the default slot. The sheet is as tall as its drag handle's row\nand its content, up to its `detent`: `partial` takes `container.partial-fraction` of the area, `full` reaches up to\n`container.margin-block-start` below its top. The person moves it between the two by dragging (the handle's row, the\ncontent's padding, or the content where it lets the drag through) or with the drag handle, a button while there are\ntwo heights; the element sets `detent` and fires `detentchange`.\n\nControlled: the sheet never closes itself. While `closedby` is not `none` it fires `close` with a reason — a released\ndrag below its lowest height and, for a modal sheet, a press on the scrim, Escape or the platform's back — and you set\n`open` to false. A product that does not close it sees it settle back.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`: in the top layer over `::backdrop` (the scrim),\ndocked to the window's bottom edge, everything else inert, the page held from scrolling and focus kept inside. Focus\ngoes to the slotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was\nwhen it closes. Standard: a `<section>` named by `label`, docked to the bottom of its containing block — the host fills\nthe nearest positioned ancestor, so give the parent that holds the sheet and the content `position: relative` — with\npresses above it reaching the content; opening it moves focus in, closing it gives focus back, and Tab leaves it open.\n\nEvery visual value comes from `--tanrei-comp-bottom-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-bottom)`; the sheet sits on the on-screen keyboard (`visualViewport`).",
+          "description": "Shows supplementary content or a short task in a surface that rises from the bottom edge: `standard`, over the lower\npart of its parent while the content above stays usable (a layout region), or `modal`, a modal step that dims\nand blocks everything else until it is dismissed (a modal overlay).\n\nContract: specs/bottom-sheet.spec.json. The content is the default slot. The sheet is as tall as its drag handle's row\nand its content, up to its `detent`: `partial` takes `container.partial-fraction` of the area, `full` reaches up to\n`container.margin-block-start` below its top. The person moves it between the two by dragging (the handle's row, the\ncontent's padding, or the content where it lets the drag through) or with the drag handle, a button while there are\ntwo heights; the element sets `detent` and fires `detentchange`.\n\nA header below the handle's row holds `headline` (a heading, which names the sheet where `label` is empty) and, while\n`closable`, an icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the\nvariant `comp.bottom-sheet.close-button.variant` names (tonal in the default system), as every host's close button\nis; a divider below it as `divider-visibility` says (BSH-28, BSH-29). The header stays while the content scrolls.\n\nControlled: the sheet never closes itself. While `closedby` is not `none` it fires `close` with a reason — a released\ndrag below its lowest height and, for a modal sheet, a press on the scrim, Escape or the platform's back — and you set\n`open` to false. The close button fires `close` with the reason `close` whatever `closedby` says. A product that does\nnot close it sees it settle back.\n\nModal: a native `<dialog>` in the shadow root opened with `showModal()`: in the top layer over `::backdrop` (the scrim),\ndocked to the window's bottom edge, everything else inert, the page held from scrolling and focus kept inside. Focus\ngoes to the slotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was\nwhen it closes. Standard: a `<section>` named by `label`, docked to the bottom of its containing block — the host fills\nthe nearest positioned ancestor, so give the parent that holds the sheet and the content `position: relative` — with\npresses above it reaching the content; opening it moves focus in, closing it gives focus back, and Tab leaves it open.\n\nEvery visual value comes from `--tanrei-comp-bottom-sheet-*` tokens. The color reaches under\n`env(safe-area-inset-bottom)`; the sheet sits on the on-screen keyboard (`visualViewport`).",
           "name": "TanreiBottomSheet",
           "cssParts": [
             {
@@ -1562,6 +1562,22 @@
             {
               "description": "The grip drawn in the handle's box (hidden from assistive technology).",
               "name": "grip"
+            },
+            {
+              "description": "The row that holds the headline and the close button, while there is one.",
+              "name": "header"
+            },
+            {
+              "description": "The headline (a heading).",
+              "name": "headline"
+            },
+            {
+              "description": "The close button, an icon-only `<tanrei-button>`.",
+              "name": "close-button"
+            },
+            {
+              "description": "The hairline below the header, drawn as `divider-visibility` says (hidden from assistive technology).",
+              "name": "divider"
             },
             {
               "description": "The box that insets, clips and scrolls the content.",
@@ -1665,8 +1681,54 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required (BSH-22).",
+              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required unless `headline` names it (BSH-22).",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "headline",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the sheet is about (\"Share photo\"), drawn in its header; it names the sheet where `label` is empty (BSH-28).",
+              "attribute": "headline"
+            },
+            {
+              "kind": "field",
+              "name": "closable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the close button at the end of the header (BSH-29). False by default: the handle and the scrim are the sheet's ways out. Reflected.",
+              "attribute": "closable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "closeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The close button's accessible name (\"Close sharing\"). Required while `closable` (BSH-29). The attribute is `close-label`.",
+              "attribute": "close-label"
+            },
+            {
+              "kind": "field",
+              "name": "dividerVisibility",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiBottomSheetDividerVisibility"
+              },
+              "default": "'auto'",
+              "description": "When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is\nscrolled from its top; `auto` takes `comp.bottom-sheet.divider.visibility`, the design system's answer (always in the\ndefault system). Reflected as `divider-visibility`.",
+              "attribute": "divider-visibility",
+              "reflects": true
             }
           ],
           "events": [
@@ -1675,7 +1737,7 @@
               "type": {
                 "text": "CustomEvent<TanreiBottomSheetCloseDetail>"
               },
-              "description": "The sheet asks to be closed: `detail.reason` is `drag`, `scrim`, `escape` or `back`. Set `open` to false. Only while `closedby` is not `none`."
+              "description": "The sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), or `drag`, `scrim`, `escape` or `back` (only while `closedby` is not `none`). Set `open` to false."
             },
             {
               "name": "detentchange",
@@ -1755,8 +1817,44 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required (BSH-22).",
+              "description": "Names the modal dialog, or the standard sheet's region (\"Share photo\"). Required unless `headline` names it (BSH-22).",
               "fieldName": "label"
+            },
+            {
+              "name": "headline",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the sheet is about (\"Share photo\"), drawn in its header; it names the sheet where `label` is empty (BSH-28).",
+              "fieldName": "headline"
+            },
+            {
+              "name": "closable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws the close button at the end of the header (BSH-29). False by default: the handle and the scrim are the sheet's ways out. Reflected.",
+              "fieldName": "closable"
+            },
+            {
+              "name": "close-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The close button's accessible name (\"Close sharing\"). Required while `closable` (BSH-29). The attribute is `close-label`.",
+              "fieldName": "closeLabel"
+            },
+            {
+              "name": "divider-visibility",
+              "type": {
+                "text": "TanreiBottomSheetDividerVisibility"
+              },
+              "default": "'auto'",
+              "description": "When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is\nscrolled from its top; `auto` takes `comp.bottom-sheet.divider.visibility`, the design system's answer (always in the\ndefault system). Reflected as `divider-visibility`.",
+              "fieldName": "dividerVisibility"
             }
           ],
           "superclass": {

@@ -2025,6 +2025,7 @@ public struct TanreiBottomSheetStateTokens: Sendable, Equatable {
 
 /// Component tokens of bottom-sheet (comp.bottom-sheet).
 public struct TanreiBottomSheetTokens: Sendable, Equatable {
+  public var closeButtonVariant: Double
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
   public var containerMarginBlockStart: CGFloat
@@ -2033,6 +2034,9 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var containerPartialFraction: Double
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
+  public var dividerColor: TanreiPaint
+  public var dividerVisibility: Double
+  public var dividerWidth: CGFloat
   public var handleContainerHeight: CGFloat
   public var handleContainerShape: CGFloat
   public var handleContainerWidth: CGFloat
@@ -2040,6 +2044,11 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var handleGripShape: CGFloat
   public var handleGripWidth: CGFloat
   public var handleMarginBlock: CGFloat
+  public var headerGap: CGFloat
+  public var headerHeight: CGFloat
+  public var headerPaddingInlineEnd: CGFloat
+  public var headlineColor: TanreiPaint
+  public var headlineTypescale: TanreiTextStyle
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
   public var motionExitDuration: Double
@@ -2058,6 +2067,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var pressed: TanreiBottomSheetStateTokens
 
   public init(
+    closeButtonVariant: Double,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
     containerMarginBlockStart: CGFloat,
@@ -2066,6 +2076,9 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     containerPartialFraction: Double,
     containerShape: CGFloat,
     contentColor: TanreiPaint,
+    dividerColor: TanreiPaint,
+    dividerVisibility: Double,
+    dividerWidth: CGFloat,
     handleContainerHeight: CGFloat,
     handleContainerShape: CGFloat,
     handleContainerWidth: CGFloat,
@@ -2073,6 +2086,11 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     handleGripShape: CGFloat,
     handleGripWidth: CGFloat,
     handleMarginBlock: CGFloat,
+    headerGap: CGFloat,
+    headerHeight: CGFloat,
+    headerPaddingInlineEnd: CGFloat,
+    headlineColor: TanreiPaint,
+    headlineTypescale: TanreiTextStyle,
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
     motionExitDuration: Double,
@@ -2087,6 +2105,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     focused: TanreiBottomSheetStateTokens,
     pressed: TanreiBottomSheetStateTokens
   ) {
+    self.closeButtonVariant = closeButtonVariant
     self.containerColor = containerColor
     self.containerElevation = containerElevation
     self.containerMarginBlockStart = containerMarginBlockStart
@@ -2095,6 +2114,9 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.containerPartialFraction = containerPartialFraction
     self.containerShape = containerShape
     self.contentColor = contentColor
+    self.dividerColor = dividerColor
+    self.dividerVisibility = dividerVisibility
+    self.dividerWidth = dividerWidth
     self.handleContainerHeight = handleContainerHeight
     self.handleContainerShape = handleContainerShape
     self.handleContainerWidth = handleContainerWidth
@@ -2102,6 +2124,11 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.handleGripShape = handleGripShape
     self.handleGripWidth = handleGripWidth
     self.handleMarginBlock = handleMarginBlock
+    self.headerGap = headerGap
+    self.headerHeight = headerHeight
+    self.headerPaddingInlineEnd = headerPaddingInlineEnd
+    self.headlineColor = headlineColor
+    self.headlineTypescale = headlineTypescale
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
     self.motionExitDuration = motionExitDuration

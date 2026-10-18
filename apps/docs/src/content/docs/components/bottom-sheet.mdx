@@ -25,20 +25,21 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 A bottom sheet is controlled, and it never closes itself. You open it by setting `open`. When the person asks it to go, the sheet emits `close` with the reason, and you set `open` back to false. SwiftUI is the one exception: there `open` is a binding, so the sheet writes false to it and then calls `onClose`. If you leave `open` true, the sheet stays, and after a drag it settles back at its lowest height. On the web this differs from the dialog: the sheet cancels the native `cancel` event and emits `close` in its place, so Escape does not close it until you do.
 
-`close` carries one of four reasons, in the platform's casing:
+`close` carries one of five reasons, in the platform's casing:
 
 | Reason | What the person did | Which form |
 | --- | --- | --- |
+| `close` | Pressed the sheet's close button (`closable`) | Standard and modal |
 | `drag` | Released a drag below half of the sheet's lowest height, or flung it down from there | Standard and modal |
 | `scrim` | Pressed the dim area around a modal sheet | Modal |
 | `escape` | Pressed Escape | Modal |
 | `back` | Used the platform's back: Android's back button or gesture, the iOS accessibility escape gesture. On the web, a close request that comes without a key, such as Android's back gesture in the browser, is `back`. | Modal |
 
-The sheet emits `close` only while `dismissible` is true, and exactly once for each request. While it is false, the scrim, Escape and back do nothing, and a drag down settles at the lowest height.
+The sheet emits `close` only while `dismissible` is true, and exactly once for each request. While it is false, the scrim, Escape and back do nothing, and a drag down settles at the lowest height. The close button is the exception: it asks with the reason `close` whatever `dismissible` says, because it is a way out you chose to draw.
 
 The sheet has two forms on `variant`. **Modal**, the default, is a modal overlay: it dims the whole window, keeps focus inside, and returns focus when it closes. **Standard** is a layout region, not an overlay: it covers the bottom of the parent you place it in, draws no scrim, and lets the person keep working in the content above it.
 
-What goes in the sheet is yours. The sheet insets its content by its padding (set `inset` to false for a list whose rows pad themselves), clips it, hands it a content color and scrolls it. It has no headline or close button of its own: put your title and a Close or Done button in the content.
+What goes in the sheet is yours. The sheet insets its content by its padding (set `inset` to false for a list whose rows pad themselves), clips it, hands it a content color and scrolls it. Give it a `headline` and it draws a header above the content: the headline, a heading that also names the sheet where `label` is empty, and, with `closable` on, a close button named by `closeLabel` — a small Button, tonal in the default system, as every close button in Tanrei is. A divider stands below the header as `dividerVisibility` says, and the header stays in place while the content scrolls. `closable` is off by default, because the handle and, for a modal sheet, the scrim are the sheet's ways out; turn it on for a standard sheet or a sheet without a handle.
 
 Mark the element that should get focus when the sheet opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. Without a mark, focus goes to the sheet itself, so its label is read first.
 
@@ -276,7 +277,8 @@ Dragging is never the only way. The handle changes the height with one press or 
 
 ### What the component handles
 
-- A modal sheet is exposed as a modal dialog named by `label`. A standard sheet is a region named by `label`, a landmark on the web.
+- A modal sheet is exposed as a modal dialog named by `label`, or by its `headline` where `label` is empty. A standard sheet is a region named the same way, a landmark on the web.
+- The headline is a heading. The close button is a Tanrei icon-only Button named by `closeLabel`, with the Button's own minimum target, focus ring and states; it asks the sheet to close with the reason `close` in either form, whatever `dismissible` says. The divider below the header is decorative.
 - While a modal sheet is open, everything outside it is inert and hidden from assistive technology, and focus and screen-reader navigation stay inside it. A standard sheet makes nothing inert.
 - Opening moves focus to the element you marked, or to the sheet. Closing returns focus to the element that had it when the sheet opened. This holds for both forms.
 - Escape, the platform's back and a press on the scrim ask a modal sheet to close, while `dismissible` is true. A standard sheet ignores Escape and back.
@@ -285,11 +287,12 @@ Dragging is never the only way. The handle changes the height with one press or 
 - The content scrolls inside the sheet, and keyboard focus and assistive technology can scroll it at either height.
 - Larger text makes the sheet grow with its content, up to the height its detent allows, and the content scrolls beyond that. The handle does not scale.
 - The sheet's color reaches under the bottom system inset, and its content stays above that inset and above the on-screen keyboard.
-- Debug builds report a sheet without a `label`, an interactive handle without a `handleLabel`, and an unknown `variant` or `detent`.
+- Debug builds report a sheet with neither a `label` nor a `headline`, an interactive handle without a `handleLabel`, a close button without a `closeLabel`, a sheet with no handle and no close button that can still be dismissed (nothing on screen says how), and an unknown `variant`, `detent` or `dividerVisibility`.
 
 Known platform gaps:
 
 - A mouse drag on the content moves the sheet as a touch does, so text in a sheet cannot be selected by dragging down it while the sheet can still move.
+- SwiftUI, Compose, Flutter and React Native do not draw the header yet: `headline`, `closable`, `closeLabel` and `dividerVisibility`, and the reason `close`, are on the web only for now.
 - Web: on touch, the browser decides who takes a gesture when it begins, so the hand-off between the sheet and the content's scroll takes a second gesture. A mouse or a pen hands off within one drag. Touch dragging is not yet covered by a test. In Firefox the sheet leaves at once instead of sliding out, as the dialog does.
 - SwiftUI has neither a dialog nor a region role: the sheet is a container named by `label`, with the modal trait while modal. The handle has no expanded state, so its value says "expanded" or "collapsed", in English only. SwiftUI cannot move focus to the sheet itself when nothing is marked, and gives keyboard focus back to nothing when it closes; on iOS the modal cover gives VoiceOver back. On macOS a modal sheet covers only the view the modifier is attached to, so attach it to the window's root.
 - SwiftUI on iOS: below its full height, a drag on the content raises the sheet and the next drag scrolls, and the content does not scroll there, not even for VoiceOver or the keyboard. Plain text in the content takes the body font without its line height, so two lines are 40 points tall where the other platforms draw 44.
@@ -303,9 +306,9 @@ Known platform gaps:
 
 ### What you need to do
 
-- Give every sheet a `label`, such as "Save photo". It names the dialog or the region.
+- Give every sheet a `label` or a `headline`, such as "Save photo". It names the dialog or the region.
 - Give the handle a `handleLabel`, such as "Resize sheet", in your product's language.
 - Close the sheet yourself: set `open` to false in answer to `close` (the `close` event on the web, `onClose` on Compose, Flutter and React Native), and from your own Done or Close button. On SwiftUI the sheet writes false to the binding for you.
-- Give a standard sheet, and a modal sheet whose `dismissible` is false, a visible button that closes it. Dragging must not be the only way out.
+- Give a standard sheet, and a modal sheet whose `dismissible` is false, a visible button that closes it: its close button (`closable`, with a `closeLabel`) or one of your own. Dragging must not be the only way out.
 - Mark initial focus where it helps, such as the first field of a short form.
 - On React Native, pass `initialFocusRef`, move focus back to the sheet's opener yourself after it closes, and pass the window's insets to the sheet's `insets` or to `TanreiProvider`.

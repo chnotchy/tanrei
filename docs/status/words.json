@@ -160,6 +160,10 @@
       "key": "closeLabel",
       "readers": [
         {
+          "component": "bottom-sheet",
+          "prop": "closeLabel"
+        },
+        {
           "component": "callout",
           "prop": "closeLabel"
         },

@@ -623,7 +623,9 @@
       "builtFrom": [
         "modal-layer"
       ],
-      "uses": [],
+      "uses": [
+        "button"
+      ],
       "hasSpec": true,
       "docs": "/components/bottom-sheet/",
       "platforms": {
