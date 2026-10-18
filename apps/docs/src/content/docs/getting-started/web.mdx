@@ -119,7 +119,8 @@ loadTheme();       // what is stored: 'light', 'dark' or 'system'
 
 In Next.js (App Router), inline it in the root layout. `suppressHydrationWarning` is there because the script changes an attribute of `<html>` before React hydrates it.
 
-```tsx title="app/layout.tsx"
+```tsx
+// app/layout.tsx
 import { themeScript } from '@tanrei/web/theme-script';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -136,8 +137,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 In Astro, inline it in the layout:
 
-```html title="src/layouts/Layout.astro"
+```html
 ---
+// src/layouts/Layout.astro
 import { themeScript } from '@tanrei/web/theme-script';
 ---
 <html lang="en">

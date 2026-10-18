@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 7eed0ff688ffca9e673ee75345968947bb563997
+sourceHash: f503ede98f6f6c4e9f3079176080cc2dbd1112f6
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -121,7 +121,8 @@ loadTheme();       // जो सहेजा गया है: 'light', 'dark' �
 
 Next.js (App Router) में इसे रूट लेआउट में इनलाइन लिखें। `suppressHydrationWarning` इसलिए है कि React के हाइड्रेट करने से पहले स्क्रिप्ट `<html>` का एक ऐट्रिब्यूट बदल देती है।
 
-```tsx title="app/layout.tsx"
+```tsx
+// app/layout.tsx
 import { themeScript } from '@tanrei/web/theme-script';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -138,8 +139,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 Astro में इसे लेआउट में इनलाइन लिखें:
 
-```html title="src/layouts/Layout.astro"
+```html
 ---
+// src/layouts/Layout.astro
 import { themeScript } from '@tanrei/web/theme-script';
 ---
 <html lang="en">

@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 7eed0ff688ffca9e673ee75345968947bb563997
+sourceHash: f503ede98f6f6c4e9f3079176080cc2dbd1112f6
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -121,7 +121,8 @@ loadTheme();       // المحفوظ: 'light' أو 'dark' أو 'system'
 
 في Next.js (App Router)، اكتبه مضمَّنًا في التخطيط الجذري. والخاصية `suppressHydrationWarning` موجودة لأن السكربت يغيّر سمة من سمات `<html>` قبل أن يرطّبه React.
 
-```tsx title="app/layout.tsx"
+```tsx
+// app/layout.tsx
 import { themeScript } from '@tanrei/web/theme-script';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -138,8 +139,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 وفي Astro، اكتبه مضمَّنًا في التخطيط:
 
-```html title="src/layouts/Layout.astro"
+```html
 ---
+// src/layouts/Layout.astro
 import { themeScript } from '@tanrei/web/theme-script';
 ---
 <html lang="en">

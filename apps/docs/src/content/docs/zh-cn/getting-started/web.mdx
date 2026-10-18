@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 7eed0ff688ffca9e673ee75345968947bb563997
+sourceHash: f503ede98f6f6c4e9f3079176080cc2dbd1112f6
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -121,7 +121,8 @@ loadTheme();       // 保存的内容：'light'、'dark' 或 'system'
 
 在 Next.js（App Router）中，把它内联在根布局里。加上 `suppressHydrationWarning`，是因为脚本会在 React 水合之前改变 `<html>` 的一个属性。
 
-```tsx title="app/layout.tsx"
+```tsx
+// app/layout.tsx
 import { themeScript } from '@tanrei/web/theme-script';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -138,8 +139,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 在 Astro 中，把它内联在布局里：
 
-```html title="src/layouts/Layout.astro"
+```html
 ---
+// src/layouts/Layout.astro
 import { themeScript } from '@tanrei/web/theme-script';
 ---
 <html lang="en">
