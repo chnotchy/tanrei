@@ -23,6 +23,8 @@ import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostSt
 export type TanreiSnackbarDuration = 'auto' | 'short' | 'long' | 'indefinite';
 /** The form of a snackbar: the neutral bar, or a status form with its glyph (SNK-21). */
 export type TanreiSnackbarStatus = 'default' | 'info' | 'warning' | 'error' | 'success';
+/** Where the host places a snackbar: the bottom edge, centred (SNK-13), or the top edge at the end side (SNK-35). */
+export type TanreiSnackbarPlacement = 'bottom' | 'top-end';
 /** Why a snackbar closed without its action. */
 export type TanreiSnackbarDismissReason = 'close' | 'escape' | 'timeout' | 'host';
 /** What `dismiss` carries. */
@@ -46,6 +48,8 @@ export interface TanreiSnackbarOptions {
   closeLabel?: string;
   expandLabel?: string;
   duration?: TanreiSnackbarDuration;
+  /** Where it stands (SNK-35): left out, the host's own `placement`. */
+  placement?: TanreiSnackbarPlacement;
 }
 /** How a snackbar the host showed closed: with its action, or dismissed and why. */
 export type TanreiSnackbarResult = { result: 'action' } | { result: 'dismiss'; reason: TanreiSnackbarDismissReason };
@@ -73,9 +77,9 @@ const lines = (el: HTMLElement | null | undefined) => {
 const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el.clientHeight + 0.5;
 
 /**
- * Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as
- * information, a warning, an error or a success), with at most one action, without taking focus or interrupting their
- * work.
+ * Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened
+ * (neutrally, or as information, a warning, an error or a success), with at most one action, without taking focus or
+ * interrupting their work.
  *
  * Contract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which
  * queues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in
@@ -126,6 +130,7 @@ export class TanreiSnackbar extends LitElement {
     expanded: { type: Boolean, reflect: true },
     expandLabel: { type: String, attribute: 'expand-label' },
     duration: { type: String, reflect: true },
+    placement: { type: String, reflect: true },
     stacked: { state: true },
     expandable: { state: true },
     scrolls: { state: true },
@@ -167,6 +172,14 @@ export class TanreiSnackbar extends LitElement {
 
   /** How long it stays by itself: `auto` is short without an action and indefinite with one. */
   duration: TanreiSnackbarDuration = 'auto';
+
+  /**
+   * Where its host places it: `bottom`, centred at the bottom edge (SNK-13), or `top-end`, at the top edge on the end side
+   * — the top right in a left-to-right layout, the top left in a right-to-left one, and across the top of a compact
+   * window (SNK-35). It enters from that edge (SNK-36) and, expanding, keeps that edge in place (SNK-24, SNK-37). An
+   * unknown value is `bottom`. Drawn in place, `top-end` stands at the end of the width it is given (SNK-19).
+   */
+  placement: TanreiSnackbarPlacement = 'bottom';
 
   /** SNK-16: the action on its own row. */
   private stacked = false;
@@ -322,7 +335,10 @@ export class TanreiSnackbar extends LitElement {
     if (scrolls !== this.scrolls) this.scrolls = scrolls;
   }
 
-  /** SNK-24: grows or shrinks the bar from its height before, keeping its bottom edge where a host places it. */
+  /**
+   * SNK-24, SNK-37: grows or shrinks the bar from its height before, keeping in place the edge a host places it at — the
+   * host is fixed to the bottom edge or to the top one (snackbar.styles.ts), so the bar's height alone moves.
+   */
   private resize(from: number) {
     const bar = this.renderRoot.querySelector<HTMLElement>('.bar');
     const probe = this.renderRoot.querySelector('.expand-timing');
@@ -504,7 +520,9 @@ interface Request {
 }
 
 /**
- * Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13).
+ * Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,
+ * with `placement="top-end"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it
+ * reads from `--tanrei-app-shell-scroll-offset` on the document's root.
  * Place it once, as the last element of the page: its place in the focus order is where a snackbar's controls are
  * (SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role="status"`) for the
  * default, info and success forms, assertive (`role="alert"`) for warning and error — so it must be in the document
@@ -518,6 +536,16 @@ interface Request {
  */
 export class TanreiSnackbarHost extends LitElement {
   static override styles = [hostStyles, hiddenHost];
+
+  static override properties: PropertyDeclarations = {
+    placement: { type: String, reflect: true },
+  };
+
+  /**
+   * Where it places every snackbar whose `show()` options name no `placement` (SNK-35): `bottom`, the default, or
+   * `top-end`. A product chooses one place for its snackbars.
+   */
+  placement: TanreiSnackbarPlacement = 'bottom';
 
   private readonly queue: Request[] = [];
   private current: { request: Request; snackbar: TanreiSnackbar } | null = null;
@@ -584,8 +612,8 @@ export class TanreiSnackbarHost extends LitElement {
     const request = this.queue.shift();
     if (!request) return;
     const snackbar = document.createElement('tanrei-snackbar');
-    const { message, title = '', action = '', status = 'default', statusLabel = '', inverse = null, closable = false, closeLabel = '', expandLabel = '', duration = 'auto' } = request.options;
-    Object.assign(snackbar, { message, headline: title, action, status, statusLabel, inverse, closable, closeLabel, expandLabel, duration });
+    const { message, title = '', action = '', status = 'default', statusLabel = '', inverse = null, closable = false, closeLabel = '', expandLabel = '', duration = 'auto', placement = this.placement } = request.options;
+    Object.assign(snackbar, { message, headline: title, action, status, statusLabel, inverse, closable, closeLabel, expandLabel, duration, placement });
     snackbar.setAttribute('popover', 'manual');
     this.current = { request, snackbar };
     snackbar.addEventListener('action', this.onSettled);
@@ -598,7 +626,8 @@ export class TanreiSnackbarHost extends LitElement {
     await snackbar.updateComplete;
     if (this.current?.snackbar !== snackbar) return;
     snackbar.showPopover();
-    // SNK-17: it rises in while fading in (only fades where motion is reduced).
+    // SNK-17, SNK-36: it rises in from below, or descends from above at the top end, while fading in (only fades where
+    // motion is reduced).
     snackbar.classList.add('entering');
     void Promise.allSettled(snackbar.getAnimations().map((a) => a.finished)).then(() => snackbar.classList.remove('entering'));
     this.announce(snackbar.announcement, snackbar.assertive);

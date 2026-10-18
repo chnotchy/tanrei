@@ -21048,6 +21048,7 @@ class TanreiSnackbarStateTokens {
 class TanreiSnackbarTokens {
   const TanreiSnackbarTokens({
     required this.actionTonalLayerOpacity,
+    required this.breakpointMedium,
     required this.closeButtonVariant,
     required this.containerColor,
     required this.containerElevation,
@@ -21152,6 +21153,8 @@ class TanreiSnackbarTokens {
 
   /// `comp.snackbar.action-tonal-layer-opacity`
   final double actionTonalLayerOpacity;
+  /// `comp.snackbar.breakpoint-medium`
+  final double breakpointMedium;
   /// `comp.snackbar.close-button-variant`
   final double closeButtonVariant;
   /// `comp.snackbar.container-color`
@@ -21356,6 +21359,7 @@ class TanreiSnackbarTokens {
   /// A copy with the given tokens replaced.
   TanreiSnackbarTokens copyWith({
     double? actionTonalLayerOpacity,
+    double? breakpointMedium,
     double? closeButtonVariant,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -21458,6 +21462,7 @@ class TanreiSnackbarTokens {
     TanreiSnackbarStateTokens? pressed,
   }) => TanreiSnackbarTokens(
         actionTonalLayerOpacity: actionTonalLayerOpacity ?? this.actionTonalLayerOpacity,
+        breakpointMedium: breakpointMedium ?? this.breakpointMedium,
         closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,

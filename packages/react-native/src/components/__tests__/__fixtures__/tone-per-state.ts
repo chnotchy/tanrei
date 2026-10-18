@@ -13274,6 +13274,7 @@ export const tonePerState = {
     },
     snackbar: {
       actionTonalLayerOpacity: 0.12,
+      breakpointMedium: 600,
       closeButtonVariant: 1,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level3",

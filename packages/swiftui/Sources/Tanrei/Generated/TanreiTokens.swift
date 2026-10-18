@@ -14537,6 +14537,7 @@ public struct TanreiSnackbarStateTokens: Sendable, Equatable {
 /// Component tokens of snackbar (comp.snackbar).
 public struct TanreiSnackbarTokens: Sendable, Equatable {
   public var actionTonalLayerOpacity: Double
+  public var breakpointMedium: CGFloat
   public var closeButtonVariant: Double
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -14643,6 +14644,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
 
   public init(
     actionTonalLayerOpacity: Double,
+    breakpointMedium: CGFloat,
     closeButtonVariant: Double,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -14745,6 +14747,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
     pressed: TanreiSnackbarStateTokens
   ) {
     self.actionTonalLayerOpacity = actionTonalLayerOpacity
+    self.breakpointMedium = breakpointMedium
     self.closeButtonVariant = closeButtonVariant
     self.containerColor = containerColor
     self.containerElevation = containerElevation

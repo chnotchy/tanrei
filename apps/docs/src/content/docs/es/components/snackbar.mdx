@@ -1,8 +1,8 @@
 ---
 title: Snackbar
-description: Informa brevemente a la persona, en el borde inferior de la pantalla, de lo que la aplicación acaba de hacer, con una acción como máximo, sin tomar el foco ni interrumpir su trabajo.
+description: Informa brevemente a la persona, en el borde inferior de la pantalla o en su extremo superior final, de lo que la aplicación acaba de hacer, con una acción como máximo, sin tomar el foco ni interrumpir su trabajo.
 translationOf: components/snackbar.mdx
-sourceHash: 265a3dc9b3b5975ed6c98cbbd21f375d192bc6c0
+sourceHash: febc4ce05890121860b19e8cab8e263f3b82ff1c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -26,7 +26,7 @@ Esta página describe el snackbar tal como lo define ahora la especificación: u
 
 ### Uso
 
-Un snackbar no se coloca. Le pides a un anfitrión que muestre uno, y el anfitrión lo pone en cola, lo sitúa en la parte inferior de su área, controla su tiempo de espera y lo anuncia. `show` se resuelve una vez que ese snackbar se ha cerrado: con `action` cuando se activó su acción, o con `dismiss` y el motivo. Así, el código de «deshacer» se lee de arriba abajo.
+Un snackbar no se coloca. Le pides a un anfitrión que muestre uno, y el anfitrión lo pone en cola, lo sitúa en la parte inferior de su área o en su extremo superior final, controla su tiempo de espera y lo anuncia. `show` se resuelve una vez que ese snackbar se ha cerrado: con `action` cuando se activó su acción, o con `dismiss` y el motivo. Así, el código de «deshacer» se lee de arriba abajo.
 
 | Plataforma | El anfitrión | Mostrar un snackbar |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ Un snackbar no se coloca. Le pides a un anfitrión que muestre uno, y el anfitri
 | Flutter | `TanreiSnackbarMessenger`, alrededor de la página sobre la que informa | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`, un controlador cuyo `closed` es un future |
 | React Native | lo renderiza `TanreiProvider` en su capa de superposición | `useSnackbar().show(options)`, una promesa |
 
-Cada anfitrión también cierra el snackbar que se está mostrando (`dismissCurrent`) y además descarta los que esperan (`clear`), en ambos casos con el motivo `host`. Un elemento snackbar dibujado fuera de un anfitrión se dibuja allí donde está, centrado en el ancho que se le da, igual que lo centra un anfitrión: sin tiempo de espera, cola, entrada ni anuncio. Esa forma es para páginas de documentación y pruebas, como la demostración de arriba.
+Cada anfitrión también cierra el snackbar que se está mostrando (`dismissCurrent`) y además descarta los que esperan (`clear`), en ambos casos con el motivo `host`. Un elemento snackbar dibujado fuera de un anfitrión se dibuja allí donde está, centrado en el ancho que se le da, igual que lo centra un anfitrión (o al final de ese ancho cuando su `placement` es `top-end`): sin tiempo de espera, cola, entrada ni anuncio. Esa forma es para páginas de documentación y pruebas, como la demostración de arriba.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -274,9 +274,43 @@ Dibujarse en inverso cambia los colores y nada más: el tamaño, las esquinas, l
 
 ### Texto largo
 
-Mientras están contraídos, el título y el mensaje muestran como máximo tres líneas cada uno, y terminan con puntos suspensivos donde se cortan. Entonces aparece un botón de expandir entre la acción y el botón de cierre. Al activarlo se muestra todo el texto, se emite `toggle` con el nuevo valor de `expanded` (`expandedchange` en la web), el foco se queda en el botón y el snackbar no se cierra. La barra crece hacia arriba desde su borde inferior, de inmediato donde el movimiento está reducido. Su contenido se alinea arriba, de modo que el glifo, la primera línea y los controles que tiene al lado mantienen su distancia al borde superior mientras la barra crece o se encoge, y una acción en su propia fila mantiene su distancia al borde inferior. Tu código también puede definir `expanded`, lo que no emite nada.
+Mientras están contraídos, el título y el mensaje muestran como máximo tres líneas cada uno, y terminan con puntos suspensivos donde se cortan. Entonces aparece un botón de expandir entre la acción y el botón de cierre. Al activarlo se muestra todo el texto, se emite `toggle` con el nuevo valor de `expanded` (`expandedchange` en la web), el foco se queda en el botón y el snackbar no se cierra. La barra crece hacia arriba desde su borde inferior (o hacia abajo desde su borde superior cuando se coloca en el extremo superior final), de inmediato donde el movimiento está reducido. Su contenido se alinea arriba, de modo que el glifo, la primera línea y los controles que tiene al lado mantienen su distancia al borde superior mientras la barra crece o se encoge, y una acción en su propia fila mantiene su distancia al borde inferior. Tu código también puede definir `expanded`, lo que no emite nada.
 
 Si el texto expandido sigue siendo más alto que el espacio que tiene el anfitrión, la barra toma esa altura y su texto se desplaza dentro de ella, mientras el glifo y los controles permanecen en su sitio. La tecnología de apoyo siempre recibe el texto entero, esté cortado o no.
+
+### Ubicación
+
+| `placement` | Dónde está la barra | Para qué usarlo |
+| --- | --- | --- |
+| `bottom` (predeterminado) | Abajo en la ventana, centrada, con un margen sobre el borde inferior. | La mayoría de los productos, y cualquier producto en un teléfono. |
+| `top-end` | Arriba en la ventana, en el lado final: arriba a la derecha, o arriba a la izquierda en un diseño de derecha a izquierda. En una ventana compacta (de menos de 600 de ancho en el sistema predeterminado) ocupa en cambio todo el ancho de la parte superior. | Las pantallas de escritorio de una aplicación de gestión, donde la parte inferior de la pantalla es donde está el trabajo. |
+
+Elige una sola ubicación para todo el producto y dásela al anfitrión, para que las personas aprendan dónde aparecen los mensajes: `placement` en `<tanrei-snackbar-host>` se aplica a cada snackbar que muestra, y un snackbar pedido con su propio `placement` lo conserva. En un teléfono, mantén la parte inferior, donde Material coloca el snackbar y donde está el pulgar. En las pantallas de escritorio de una aplicación de gestión, como un panel de control, una consola de administración o un editor cuya propia barra de herramientas, barra de estado o paginación de tabla está abajo, usa `top-end`, donde Carbon y Fluent colocan sus notificaciones.
+
+En el extremo superior final, la barra queda a un margen del borde superior y del borde final, dentro del área segura y por debajo de una cabecera fija, de modo que nunca tapa la barra de aplicación superior. En la web lee la altura de la cabecera de `--tanrei-app-shell-scroll-offset`, que [Estructura de la aplicación](/es/components/app-shell/) define en la raíz del documento; un producto con un marco propio define esa propiedad con la altura de su propia cabecera fija. Baja desde encima del borde superior en lugar de subir desde abajo, y una barra expandida crece hacia abajo. Nada más cambia: sigue habiendo un solo snackbar a la vez y nunca una pila, sus controles se siguen alcanzando en el lugar del anfitrión en el orden del foco y se anuncia de la misma manera.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Cada snackbar que muestra este anfitrión queda en el extremo superior final. -->
+    <tanrei-snackbar-host placement="top-end"></tanrei-snackbar-host>
+
+    <script type="module">
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+      snackbars.show({ message: 'Report exported', action: 'Open' });
+      // Un snackbar pedido abajo conserva su propia ubicación.
+      snackbars.show({ message: 'Photo saved', placement: 'bottom' });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <SnackbarHost ref={snackbars} placement="top-end" />
+    ```
+  </TabItem>
+</Tabs>
+
+SwiftUI, Compose, Flutter y React Native todavía no tienen la ubicación en el extremo superior final: sus snackbars quedan abajo.
 
 ### Duración
 
@@ -294,7 +328,7 @@ Un snackbar temporizado se pausa mientras el puntero está sobre él, mientras e
 Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, así que mostrarlo nunca mueve el foco.
 
 - **De uno en uno.** El anfitrión muestra los snackbars en el orden en que se pidieron. El siguiente espera hasta que el anterior se ha desvanecido. Un snackbar pedido mientras hay un diálogo modal de Tanrei abierto espera hasta que el diálogo se cierra.
-- **Ubicación.** Abajo y centrado, con un margen sobre el borde inferior y desde los lados, dentro del área segura y por encima del teclado en pantalla. Se dibuja por encima del contenido de su área y por debajo de un diálogo modal y su velo.
+- **Ubicación.** Abajo y centrado, con un margen sobre el borde inferior y desde los lados, dentro del área segura y por encima del teclado en pantalla; o, con `placement="top-end"`, en el extremo superior final, por debajo de una cabecera fija (consulta [Ubicación](#ubicación)). En ambos casos se dibuja por encima del contenido de su área y por debajo de un diálogo modal y su velo.
 - **Anuncio.** Cuando aparece, la tecnología de apoyo lee una vez la etiqueta de estado, el título y el mensaje, seguidos de la etiqueta de la acción: de forma cortés, después de lo que se está leyendo, o de forma asertiva para warning y error. Nada toma el foco del teclado ni el del lector de pantalla.
 - **Foco.** A la acción, al botón de expandir y al botón de cierre se llega con Tab en el lugar del anfitrión en el orden del foco, y por eso el anfitrión va el último. La barra en sí no es una parada de tabulación, salvo su texto mientras una barra expandida lo desplaza.
 - **Cierre.** El snackbar se cierra cuando se activa su acción (`action`), o sin ella (`dismiss`), por uno de estos motivos:
@@ -307,14 +341,14 @@ Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, 
 | `host` | Tu código lo cerró o vació la cola. |
 
 - **Devolución del foco.** Cuando un snackbar se cierra mientras el foco está dentro de él, el foco vuelve al elemento que lo tenía antes de que entrara en el snackbar.
-- **Movimiento.** Sube hasta su sitio desde debajo del borde inferior mientras aparece con un fundido, y se desvanece sin moverse de su sitio. Donde el movimiento está reducido, aparece y desaparece con un fundido, sin moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece y desaparece de inmediato.
+- **Movimiento.** Sube hasta su sitio desde debajo del borde inferior (o baja desde encima del borde superior en el extremo superior final) mientras aparece con un fundido, y se desvanece sin moverse de su sitio. Donde el movimiento está reducido, aparece y desaparece con un fundido, sin moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece y desaparece de inmediato.
 
 ### Recomendado
 
 - Di lo que ocurrió en pasado: «Mensaje enviado», «3 archivos movidos».
 - Da a la acción un verbo corto que las personas esperen después del mensaje: «Deshacer», «Ver», «Reintentar».
 - Elige el estado que corresponda a lo que ocurrió, y da un `statusLabel` a cada forma de estado.
-- Decide una sola vez, para todo el producto, si los snackbars se dibujan sobre una superficie o en inverso.
+- Decide una sola vez, para todo el producto, si los snackbars se dibujan sobre una superficie o en inverso, y dónde se colocan.
 - Mantén el texto lo bastante corto como para que rara vez necesite el botón de expandir.
 - Conserva la duración predeterminada `auto` a menos que tengas un motivo. Nunca deja a nadie sin tiempo para usar una acción.
 - Pon el anfitrión el último en la página o en el diseño, para que sus controles sean los últimos en el orden del foco.
@@ -340,6 +374,7 @@ Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, 
 - La acción recibe su nombre de su etiqueta, el botón de expandir de `expandLabel` y el botón de cierre de `closeLabel`. A todos se llega con Tab en el lugar del anfitrión en el orden del foco, y se activan con Enter o Espacio.
 - El botón de expandir expone si el texto está expandido y conserva el mismo nombre en los dos estados. Una barra expandida cuyo texto se desplaza convierte el texto en una parada del foco, que recibe su nombre del título y se desplaza con las teclas de flecha y con Re Pág y Av Pág.
 - Escape cierra el snackbar mientras el foco está dentro de él. Cuando se cierra con el foco dentro, el foco vuelve adonde estaba antes.
+- El lugar donde está la barra no cambia nada más. Un snackbar en el extremo superior final se alcanza con Tab en el lugar del anfitrión en el orden del foco, se anuncia exactamente igual que uno abajo y nunca tapa una cabecera fija.
 - Un snackbar con una acción no agota su tiempo de forma predeterminada. Los snackbars temporizados se pausan mientras tienen el cursor encima, el foco o están expandidos, se alargan hasta el tiempo de espera de accesibilidad de Android y, con una acción, nunca agotan su tiempo mientras hay un lector de pantalla en funcionamiento.
 - La acción cumple el objetivo mínimo en los dos ejes sin cambiar su tamaño dibujado, y los botones de expandir y de cierre, que son Button, conservan el suyo. Todo anillo de foco se muestra solo para el foco del teclado, en un color de la forma del snackbar, de modo que se ve en cualquier barra: una superficie, el tinte de un estado y una barra en inverso.
 - Los glifos de expandir y de cierre mantienen al menos 3:1 frente a su círculo en todos los estados y formas. En el sistema predeterminado mantienen al menos 8.0:1 en reposo, y 6.2:1 con el foco o al pulsarlos.

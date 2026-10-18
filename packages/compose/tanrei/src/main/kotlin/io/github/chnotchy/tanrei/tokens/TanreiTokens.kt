@@ -9051,6 +9051,7 @@ public data class TanreiSnackbarStateTokens(
 @Immutable
 public data class TanreiSnackbarTokens(
     public val actionTonalLayerOpacity: Float,
+    public val breakpointMedium: Dp,
     public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,

@@ -74986,6 +74986,16 @@
             }
           }
         },
+        "breakpoint": {
+          "medium": {
+            "$type": "dimension",
+            "$value": {
+              "value": 600,
+              "unit": "px"
+            },
+            "$description": "The window width from which a snackbar placed at the top end stands at the end side (SNK-35). Below it the window is compact and the snackbar stands across the top. A width of the window, not a size of anything drawn."
+          }
+        },
         "close-button": {
           "variant": {
             "$type": "number",

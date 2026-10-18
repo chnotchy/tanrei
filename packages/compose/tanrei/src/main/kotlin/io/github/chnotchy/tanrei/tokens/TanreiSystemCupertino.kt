@@ -7286,6 +7286,7 @@ private object CupertinoSystemSource {
     fun snackbar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSnackbarTokens =
         TanreiSnackbarTokens(
             actionTonalLayerOpacity = 0f,
+            breakpointMedium = 600.dp,
             closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,
