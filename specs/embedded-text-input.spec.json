@@ -105,6 +105,17 @@
       "description": "Exposes the input as required and, on the web in a form of its own, reports a missing value. It draws nothing and validates nothing else."
     },
     {
+      "name": "requirement",
+      "type": "enum",
+      "values": [
+        "none",
+        "required",
+        "optional"
+      ],
+      "default": "none",
+      "description": "What the form asks of the embedded text input, in the words a Field's requirement uses: required behaves as required true; optional and none change nothing, because the embedded text input draws no requirement mark of its own (a Field draws it)."
+    },
+    {
       "name": "disabled",
       "type": "boolean",
       "default": false,
@@ -278,6 +289,10 @@
     {
       "id": "ETI-28",
       "text": "WHILE the embedded text input is drawn with nothing around it that marks a box THE embedded text input SHALL still render and work exactly as it does in one: it cannot see whether a box is drawn, reports nothing about it, and falls back to no look of its own. That a box is drawn, that it shows focus (ETI-11), marks an error and a disabled input, pads the text and passes a press on (ETI-12) are held where the holder is: in the spec and the tests of a Tanrei component that is built from it, and by the product for a box of its own."
+    },
+    {
+      "id": "ETI-29",
+      "text": "WHILE requirement is required THE embedded text input SHALL behave in every respect as WHILE required is true, whatever required is; WHILE requirement is optional or none it SHALL behave as required alone says; and WHEN requirement names a value the embedded text input does not know THE embedded text input SHALL behave as none and in debug builds report the unknown value."
     }
   ],
   "accessibility": {
@@ -522,6 +537,7 @@
         "enterKey": "enterKey",
         "error": "error",
         "required": "required",
+        "requirement": "requirement",
         "disabled": "disabled",
         "readOnly": "readOnly",
         "autocomplete": "autocomplete"
@@ -550,6 +566,7 @@
         "enterKey": "enterKey",
         "error": "error",
         "required": "required",
+        "requirement": "requirement",
         "disabled": "disabled",
         "readOnly": "readOnly",
         "autocomplete": "textContentType"
@@ -578,6 +595,7 @@
         "enterKey": "enterKey",
         "error": "isError",
         "required": "required",
+        "requirement": "requirement",
         "disabled": "enabled",
         "readOnly": "readOnly",
         "autocomplete": "contentType"
@@ -606,6 +624,7 @@
         "enterKey": "enterKey",
         "error": "isError",
         "required": "required",
+        "requirement": "requirement",
         "disabled": "enabled",
         "readOnly": "readOnly",
         "autocomplete": "autofillHints"
@@ -634,6 +653,7 @@
         "enterKey": "enterKey",
         "error": "error",
         "required": "required",
+        "requirement": "requirement",
         "disabled": "disabled",
         "readOnly": "readOnly",
         "autocomplete": "autoComplete"

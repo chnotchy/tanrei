@@ -82,6 +82,10 @@
       "note": "The Field exposes its text input as required (FLD-10, TXI-23)."
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -235,7 +239,7 @@
   "behavior": [
     {
       "id": "TXF-62",
-      "text": "THE text field SHALL be a Field that frames one text input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its text input, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon and trailing-icon slots for its text input; and SHALL emit its text input's events as its own, each once. THE text field SHALL be as wide as the place it stands in, and its text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63). It SHALL draw no part of its own, have no token of its own and hold no state of its own but the count it carries from one member to the other (TXF-67): what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that text input do when a product places the one in the other (FLD-1 to FLD-28; TXI-1 to TXI-63), with the Field given the input's count — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, TXI-13, TXI-50); the supporting row, the error and the count (FLD-7 to FLD-9, FLD-26, FLD-27, TXI-19, TXF-67); the name, the description and the states (FLD-10, FLD-11, FLD-14, TXI-23); and a date's entry error shown in the Field's row (FLD-28, TXI-30).",
+      "text": "THE text field SHALL be a Field that frames one text input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and every other prop to its text input, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon and trailing-icon slots for its text input; and SHALL emit its text input's events as its own, each once. THE text field SHALL be as wide as the place it stands in, and its text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63). It SHALL draw no part of its own, have no token of its own and hold no state of its own but the count it carries from one member to the other (TXF-67): what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that text input do when a product places the one in the other (FLD-1 to FLD-28; TXI-1 to TXI-63), with the Field given the input's count — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, TXI-13, TXI-50); the supporting row, the error and the count (FLD-7 to FLD-9, FLD-26, FLD-27, TXI-19, TXF-67); the name, the description and the states (FLD-10, FLD-11, FLD-14, TXI-23); and a date's entry error shown in the Field's row (FLD-28, TXI-30).",
       "verify": "The twin test: every fixture of the text field has a twin, the Field's fixture text-<id>, a Field around a text input written by hand with the same values, and with the count text the text field fills (TXF-67) written by hand; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (TXI-62), never a baseline to update."
     },
     {
@@ -1423,6 +1427,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1476,6 +1481,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1529,6 +1535,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1582,6 +1589,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1635,6 +1643,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

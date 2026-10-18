@@ -110,6 +110,12 @@
       "description": "What the form asks of the control. required exposes it as required and draws the required mark beside the label; optional draws the optional tag; none says and draws nothing. One setting with three states, because a control is never both. It never validates: a missing answer is the product's to report with error."
     },
     {
+      "name": "required",
+      "type": "boolean",
+      "default": false,
+      "description": "HTML's name for what requirement required says: true makes the control required, as requirement required does, whatever requirement names; false leaves requirement as it is. For a product that writes the platform's own word; the two never disagree, because required true wins."
+    },
+    {
       "name": "requiredMark",
       "type": "enum",
       "values": [
@@ -119,7 +125,7 @@
         "none"
       ],
       "default": "auto",
-      "description": "How this control shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless requirement is required."
+      "description": "How this control shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless the control is required (requirement required, or required true)."
     },
     {
       "name": "requiredText",
@@ -1039,6 +1045,10 @@
       "id": "FLD-31",
       "text": "WHILE the field is in error — error is true, or its control reports that it refused an entry (FLD-28) — and has words for it — errorText, or the control's own words for a refusal — THE field SHALL draw those words as its error text, in its supporting row: as the row's first line, comp.field.supporting-text.gap below the control — in the help's place WHERE comp.field.error-text.placement is replace (FLD-7), and WHILE supportingText is empty under either value — and WHERE it is append and supportingText is not empty, comp.field.error-text.gap below the last line of the help. It SHALL start where the help starts (FLD-26), be drawn in comp.field.supporting-text.typescale and comp.field.standard.error-text.color (its focused and disabled tokens as FLD-13 and FLD-14 say), wrap onto as many lines as it needs, never be cut, and never share a line with the help. WHILE the field is not in error, or is in error without words, THE field SHALL draw no error text and no gap for it and SHALL keep no room for one: under replace a field with a help is as tall in error as at rest while its error text takes as many lines as its help, under append it is taller by comp.field.error-text.gap and the lines of its error text, and a form at rest is no taller for errors it does not have. WHEN the error text appears, goes or changes its words THE field SHALL draw the row as it then is at once, with no motion of its own — what stands below the field moves with the layout, and only the colors of FLD-13 ease — so there is nothing here that reduced motion changes. THE field SHALL lay the error text out as text of its own direction (FLD-21), mirror it with its row (FLD-18), draw it in the platform's text color under forced colors (FLD-17), let it wrap and grow with enlarged text (FLD-16), and do nothing WHEN it is pressed (FLD-12).",
       "verify": "Fixtures text-stacked-supporting-error, text-outlined-supporting-error, text-stacked-supporting-error-long and text-stacked-supporting-error-rtl. Under the default system (replace), below the control: 4, one line of error text (16), and no help; the same field out of error draws its one line of help there and is as tall. With comp.field.error-text.placement append: 4, one line of help (16), 4, one line of error text (16); the same field out of error is 20 shorter, and its label, its control and its help are where they were. Unit: with supportingText empty the error text is 4 below the control, the picture every fixture named *-error without help had before this sentence; setting error to false removes the error text and its gap in the same frame; a field with error true and errorText empty draws its help in its resting place and color and no second line (fixture slider-error-without-text)."
+    },
+    {
+      "id": "FLD-32",
+      "text": "WHILE required is true THE field SHALL behave in every respect as WHILE requirement is required, whatever requirement names: every sentence that holds WHILE requirement is required — this field's, and those of each component built from a field — SHALL hold, and WHILE required is false requirement alone SHALL say what the form asks."
     }
   ],
   "accessibility": {
@@ -11773,6 +11783,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -11953,6 +11964,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12126,6 +12138,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12299,6 +12312,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -12472,6 +12486,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

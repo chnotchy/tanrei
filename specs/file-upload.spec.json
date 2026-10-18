@@ -289,6 +289,10 @@
     {
       "name": "required",
       "from": "file-picker.required"
+    },
+    {
+      "name": "requirement",
+      "from": "file-picker.requirement"
     }
   ],
   "items": [
@@ -626,7 +630,7 @@
     },
     {
       "id": "FUP-56",
-      "text": "THE file upload SHALL hold exactly one file picker, as its member, and SHALL build no choosing of its own: the Button and the glyph the product places in the file upload's trigger and icon slots SHALL be the file picker's trigger and glyph (FPK-5, FPK-4), and layout, multiple, accept, maxSize, constraintsText, dropText, disabled, error and required SHALL be given to the file picker as they are given to the file upload. THE file upload SHALL give its file picker no maxFiles, because the room that is left is measured against what the file upload holds (FUP-9, FUP-43), and no label (FUP-24). THE file upload SHALL draw the file picker from the file picker's own tokens and SHALL give it no look, no state and no size that a file picker standing alone does not have. Everything the file picker's sentences say (FPK-1 to FPK-31) SHALL hold for it inside the file upload, with two differences: it is named, described and put in its states by the file upload (FUP-24, FUP-32), and its two events are answered by the file upload (FUP-57).",
+      "text": "THE file upload SHALL hold exactly one file picker, as its member, and SHALL build no choosing of its own: the Button and the glyph the product places in the file upload's trigger and icon slots SHALL be the file picker's trigger and glyph (FPK-5, FPK-4), and layout, multiple, accept, maxSize, constraintsText, dropText, disabled, error, required and requirement SHALL be given to the file picker as they are given to the file upload. THE file upload SHALL give its file picker no maxFiles, because the room that is left is measured against what the file upload holds (FUP-9, FUP-43), and no label (FUP-24). THE file upload SHALL draw the file picker from the file picker's own tokens and SHALL give it no look, no state and no size that a file picker standing alone does not have. Everything the file picker's sentences say (FPK-1 to FPK-31) SHALL hold for it inside the file upload, with two differences: it is named, described and put in its states by the file upload (FUP-24, FUP-32), and its two events are answered by the file upload (FUP-57).",
       "verify": "On the web: the shadow root holds one `tanrei-file-picker`; the twin of each fixture — a `tanrei-file-picker` written by hand with the same forwarded attributes, the same children in its slots and, where the fixture has no row, `selection-text` set to the fixture's `emptyText` — draws the same picture as the file upload's part above its list."
     },
     {
@@ -1644,6 +1648,7 @@
         "disabled": "disabled",
         "error": "error",
         "required": "required",
+        "requirement": "requirement",
         "reorderable": "reorderable",
         "dragHandleLabel": "dragHandleLabel",
         "dragHandleHint": "dragHandleHint",
@@ -1722,6 +1727,7 @@
         "disabled": "disabled",
         "error": "isError",
         "required": "isRequired",
+        "requirement": "requirement",
         "reorderable": "onMove",
         "dragHandleLabel": "dragHandleLabel",
         "dragHandleHint": "dragHandleHint",
@@ -1800,6 +1806,7 @@
         "disabled": "enabled",
         "error": "isError",
         "required": "required",
+        "requirement": "requirement",
         "reorderable": "onMove",
         "dragHandleLabel": "dragHandleLabel",
         "dragHandleHint": "dragHandleHint",
@@ -1878,6 +1885,7 @@
         "disabled": "enabled",
         "error": "isError",
         "required": "required",
+        "requirement": "requirement",
         "reorderable": "onMove",
         "dragHandleLabel": "handleSemanticLabel",
         "dragHandleHint": "handleSemanticHint",
@@ -1956,6 +1964,7 @@
         "disabled": "disabled",
         "error": "error",
         "required": "required",
+        "requirement": "requirement",
         "reorderable": "reorderable",
         "dragHandleLabel": "dragHandleLabel",
         "dragHandleHint": "dragHandleHint",

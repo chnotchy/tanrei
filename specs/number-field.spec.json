@@ -75,6 +75,10 @@
       "note": "The Field exposes its number input as required (FLD-10, NMI-12)."
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -178,7 +182,7 @@
   "behavior": [
     {
       "id": "NUM-47",
-      "text": "THE number field SHALL be a Field that frames one number input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its number input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its number input's events as its own, each once. THE number field SHALL be as wide as the place it stands in, and its number input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (NMI-36). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that number input do when a product places the one in the other (FLD-1 to FLD-28; NMI-1 to NMI-46) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, NMI-7, NMI-8); the supporting row and the error (FLD-7 to FLD-9, FLD-26); the name, the description and the states (FLD-10, FLD-11, FLD-14, NMI-12, NMI-32); a text that is not a number shown as an error in the Field's row, in the input's words (FLD-28, NMI-21); and the two steppers, which are the number input's Buttons and stand inside its box (NMI-25).",
+      "text": "THE number field SHALL be a Field that frames one number input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and every other prop to its number input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its number input's events as its own, each once. THE number field SHALL be as wide as the place it stands in, and its number input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (NMI-36). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that number input do when a product places the one in the other (FLD-1 to FLD-28; NMI-1 to NMI-46) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, NMI-7, NMI-8); the supporting row and the error (FLD-7 to FLD-9, FLD-26); the name, the description and the states (FLD-10, FLD-11, FLD-14, NMI-12, NMI-32); a text that is not a number shown as an error in the Field's row, in the input's words (FLD-28, NMI-21); and the two steppers, which are the number input's Buttons and stand inside its box (NMI-25).",
       "verify": "The twin test: every fixture of the number field has a twin, the Field's fixture number-<id>, a Field around a number input written by hand with the same values; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (NMI-45), never a baseline to update."
     },
     {
@@ -882,6 +886,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -924,6 +929,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -966,6 +972,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1008,6 +1015,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1050,6 +1058,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

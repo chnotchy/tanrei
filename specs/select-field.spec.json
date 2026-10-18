@@ -75,6 +75,10 @@
       "note": "The Field exposes its select as required (FLD-10, SEL-11)."
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -137,7 +141,7 @@
   "behavior": [
     {
       "id": "SEF-1",
-      "text": "THE select field SHALL be a Field that frames one select, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its select, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its select; SHALL give its select every option and option group the product gives it, in the order given, as that select's own items, read, drawn and chosen by the select (SEL-17, SEL-31 to SEL-45); and SHALL emit its select's events as its own, each once. It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that select do when a product places the one in the other (FLD-1 to FLD-28; SEL-1 to SEL-64) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, SEL-15, SEL-7); the supporting row and the error, started where the value starts (FLD-7 to FLD-9, FLD-26); the rows drawn focused while the list is open (FLD-13, SEL-20); the name, the description and the states (FLD-10, FLD-11, FLD-14, SEL-11); and the width, which is the Field's and which the select fills (FLD-1, SEL-49).",
+      "text": "THE select field SHALL be a Field that frames one select, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and every other prop to its select, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its select; SHALL give its select every option and option group the product gives it, in the order given, as that select's own items, read, drawn and chosen by the select (SEL-17, SEL-31 to SEL-45); and SHALL emit its select's events as its own, each once. It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that select do when a product places the one in the other (FLD-1 to FLD-28; SEL-1 to SEL-64) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, SEL-15, SEL-7); the supporting row and the error, started where the value starts (FLD-7 to FLD-9, FLD-26); the rows drawn focused while the list is open (FLD-13, SEL-20); the name, the description and the states (FLD-10, FLD-11, FLD-14, SEL-11); and the width, which is the Field's and which the select fills (FLD-1, SEL-49).",
       "verify": "The twin test: every fixture of the select field has a twin, the Field's fixture select-<id>, a Field around a select written by hand with the same values and the same options; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (SEL-63), never a baseline to update."
     },
     {
@@ -2931,6 +2935,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2979,6 +2984,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3027,6 +3033,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3075,6 +3082,7 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -3123,6 +3131,7 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

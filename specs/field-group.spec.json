@@ -87,6 +87,12 @@
       "description": "What the form asks of the set. required exposes it as required and draws the required mark beside the label; optional draws the optional tag; none says and draws nothing. One setting with three states, because a set is never both. It never validates: a missing answer is the product's to report with error."
     },
     {
+      "name": "required",
+      "type": "boolean",
+      "default": false,
+      "description": "HTML's name for what requirement required says: true makes the set required, as requirement required does, whatever requirement names; false leaves requirement as it is. For a product that writes the platform's own word; the two never disagree, because required true wins."
+    },
+    {
       "name": "requiredMark",
       "type": "enum",
       "values": [
@@ -96,7 +102,7 @@
         "none"
       ],
       "default": "auto",
-      "description": "How this set shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field-group.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless requirement is required."
+      "description": "How this set shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field-group.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless the set is required (requirement required, or required true)."
     },
     {
       "name": "requiredText",
@@ -403,6 +409,10 @@
       "id": "FGR-25",
       "text": "WHILE kind is radio-group THE field group SHALL be exposed to assistive technology as one radio group in the place of the group of FGR-10 — never a radio group inside a group, nor a group inside a radio group — that contains its radio buttons: named by label, whether or not the label is drawn; required WHILE requirement is required; invalid WHILE error is true; disabled WHILE disabled is true (FGR-14); saying its orientation where the platform's radio group has one; and described as FGR-11 says, without requiredText, because the required state carries it. It SHALL change nothing that is drawn: its rows, its tokens, its measures and its layout are those of the same field group whose kind is group (FGR-1 to FGR-8, FGR-13). It SHALL hold the radio buttons of one group and no other control, and in debug builds SHALL report another control, radio buttons of more than one group, and a spacing other than controls. The radio buttons SHALL keep what their own group gives them — exclusion, the arrow keys, the single tab stop and each one's position in the set (RAD-3, RAD-4, RAD-5, RAD-16), from the radio group they stand in (RGP-3 to RGP-6) or, written by hand, from their name (RAD-25) — and THE field group SHALL still select nothing, hold no value, move no focus, handle no key and emit no event (FGR-12, FGR-15). WHERE the platform forms a radio group with a container of its own THE field group SHALL be the frame of that container and SHALL NOT expose a second group around it.",
       "verify": "Unit: with kind radio-group and three radio buttons of one name, exactly one radio group and no other group is in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose both states on it, and requiredText is not in its description; the radio buttons say 1, 2 and 3 of 3. Each fixture radio-buttons-* is the same picture as the same fixture with kind group, and as the radio group's fixture that names it as its twin."
+    },
+    {
+      "id": "FGR-26",
+      "text": "WHILE required is true THE field group SHALL behave in every respect as WHILE requirement is required, whatever requirement names: every sentence that holds WHILE requirement is required — this field group's, and those of each component built from a field group — SHALL hold, and WHILE required is false requirement alone SHALL say what the form asks."
     }
   ],
   "accessibility": {
@@ -2070,6 +2080,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2130,6 +2141,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2190,6 +2202,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2250,6 +2263,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2310,6 +2324,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

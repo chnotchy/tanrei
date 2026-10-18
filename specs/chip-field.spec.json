@@ -122,6 +122,10 @@
       "note": "required asks for at least one entry (CHF-25)."
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -979,6 +983,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1020,6 +1025,7 @@
         "error": "error",
         "disabled": ".disabled(_:)",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1061,6 +1067,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1102,6 +1109,7 @@
         "error": "error",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1143,6 +1151,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

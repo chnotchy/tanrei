@@ -68,6 +68,10 @@
       "note": "The Field exposes its color input as required (FLD-10, CLI-11)."
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -127,7 +131,7 @@
   "behavior": [
     {
       "id": "CLF-43",
-      "text": "THE color field SHALL be a Field that frames one color input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and variant, size, value, invalidText, picker and pickerLabel to its color input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its color input's events as its own, each once. THE color field SHALL be as wide as the place it stands in, and its color input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CLI-44). Its value SHALL at every moment be the value its color input holds — a color in the value's own form, or the empty string (CLI-16) — and not the text the product set where the two differ (CLI-21). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that color input do when a product places the one in the other (FLD-1 to FLD-28; CLI-1 to CLI-44) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CLI-15, CLI-7); the supporting row, started at the value's text, after the swatch (FLD-7 to FLD-9, FLD-26, CLI-43); the name, the description and the states (FLD-10, FLD-11, FLD-14, CLI-11); and the entry error of a text that is not a color, shown in the Field's row (FLD-28, CLI-20).",
+      "text": "THE color field SHALL be a Field that frames one color input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText to its Field and variant, size, value, invalidText, picker and pickerLabel to its color input, each unchanged; SHALL hold the label-icon slot for its Field; and SHALL emit its color input's events as its own, each once. THE color field SHALL be as wide as the place it stands in, and its color input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CLI-44). Its value SHALL at every moment be the value its color input holds — a color in the value's own form, or the empty string (CLI-16) — and not the text the product set where the two differ (CLI-21). It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that color input do when a product places the one in the other (FLD-1 to FLD-28; CLI-1 to CLI-44) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CLI-15, CLI-7); the supporting row, started at the value's text, after the swatch (FLD-7 to FLD-9, FLD-26, CLI-43); the name, the description and the states (FLD-10, FLD-11, FLD-14, CLI-11); and the entry error of a text that is not a color, shown in the Field's row (FLD-28, CLI-20).",
       "verify": "The twin test: every fixture of the color field has a twin, the Field's fixture color-<id>, a Field around a color input written by hand with the same values; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (CLI-43), never a baseline to update. Unit: set value to \"0F766E\" and read it back as \"#0f766e\" with no event emitted."
     },
     {
@@ -576,6 +580,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -605,6 +610,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -634,6 +640,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -663,6 +670,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -692,6 +700,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

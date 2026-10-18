@@ -65,6 +65,10 @@
       "note": "required exposes the radio group as required, and on the web an empty value is reported to the form's own validation (RGP-9, RGP-10)."
     },
     {
+      "name": "required",
+      "from": "field-group.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field-group.requiredMark"
     },
@@ -982,6 +986,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1015,6 +1020,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1047,6 +1053,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1079,6 +1086,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1111,6 +1119,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

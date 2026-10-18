@@ -53,6 +53,10 @@
       "from": "field.requirement"
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -127,7 +131,7 @@
     },
     {
       "id": "OTF-2",
-      "text": "THE one-time-code field SHALL give each of its props, unchanged, to the member it is from and SHALL hold no state between the two: label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText are the Field's; value, length, type, groupSize, mask and readOnly are the One-time-code input's. A value a member does not know SHALL be passed on as given and answered by that member (FLD-22, OTC-19). THE one-time-code field SHALL never set the One-time-code input's own label, error or disabled: the Field's label names the control (FLD-10, OTC-22), the Field's error puts it in its error condition (FLD-8, OTC-17) and the Field's disabled disables it (FLD-14, OTC-20), so that each is said once, in the place where the label follows."
+      "text": "THE one-time-code field SHALL give each of its props, unchanged, to the member it is from and SHALL hold no state between the two: label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText and optionalText are the Field's; value, length, type, groupSize, mask and readOnly are the One-time-code input's. A value a member does not know SHALL be passed on as given and answered by that member (FLD-22, OTC-19). THE one-time-code field SHALL never set the One-time-code input's own label, error or disabled: the Field's label names the control (FLD-10, OTC-22), the Field's error puts it in its error condition (FLD-8, OTC-17) and the Field's disabled disables it (FLD-14, OTC-20), so that each is said once, in the place where the label follows."
     },
     {
       "id": "OTF-3",
@@ -238,6 +242,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -267,6 +272,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -296,6 +302,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -325,6 +332,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -354,6 +362,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",

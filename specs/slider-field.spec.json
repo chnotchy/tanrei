@@ -57,6 +57,10 @@
       "from": "field.requirement"
     },
     {
+      "name": "required",
+      "from": "field.required"
+    },
+    {
       "name": "requiredMark",
       "from": "field.requiredMark"
     },
@@ -165,7 +169,7 @@
     },
     {
       "id": "SLF-2",
-      "text": "THE slider field SHALL give each member the value of every prop that is that member's, at once and whenever it changes, and SHALL hold none back: the Field takes label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText, optionalText and the glyph of the label-icon slot; the Slider takes value, startValue, range, min, max, step, origin, stops, size, valueIndicator, valueText, startValueText, startLabel and, as its own label, endLabel. THE slider field SHALL give the Slider no orientation, so that the track always runs along the line (SLD-21), and SHALL NOT set the Slider's own disabled: the Field disables its control (FLD-14)."
+      "text": "THE slider field SHALL give each member the value of every prop that is that member's, at once and whenever it changes, and SHALL hold none back: the Field takes label, labelHidden, supportingText, errorText, error, disabled, requirement, required, requiredMark, requiredText, optionalText and the glyph of the label-icon slot; the Slider takes value, startValue, range, min, max, step, origin, stops, size, valueIndicator, valueText, startValueText, startLabel and, as its own label, endLabel. THE slider field SHALL give the Slider no orientation, so that the track always runs along the line (SLD-21), and SHALL NOT set the Slider's own disabled: the Field disables its control (FLD-14)."
     },
     {
       "id": "SLF-3",
@@ -520,6 +524,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -556,6 +561,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "isRequired",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -592,6 +598,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -628,6 +635,7 @@
         "error": "isError",
         "disabled": "enabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -664,6 +672,7 @@
         "error": "error",
         "disabled": "disabled",
         "requirement": "requirement",
+        "required": "required",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
