@@ -13,9 +13,6 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[A component of the m3-like layer]
-The FAB menu lives in the `m3-like` layer: only the systems that descend from it — `m3-like` and `m3-expressive-like` — have it, and its tokens are in their stylesheets alone. `@tanrei/web` does not register it; the entries of those systems do (`@tanrei/web/m3-like`, `@tanrei/web/m3-expressive-like`). The default Tanrei system and cupertino do not have it, because neither draws a floating action button: use a [Main Action Button](/components/main-action-button/) that opens a [bottom sheet](/components/bottom-sheet/) of actions. Used under one of them, it says so in development. A product on another system that wants it includes it from the layer in its own layer — `"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }` — imports its own module, `@tanrei/web/components/fab-menu`, and draws it with its own tokens. The demos on this page are drawn under `m3-like`.
-:::
 
 <DemoFrame label="Closed and open" system="m3-like">
   {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}

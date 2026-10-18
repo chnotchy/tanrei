@@ -1,13 +1,13 @@
 ---
-// "All components": the one control of the lists of components,
-// Tanrei's Switch. Off — a reader's first visit — the sidebar and the index show the components every list shows; on,
-// also the ones a spec marks to be shown on request (`listing`), each in its place and marked. Every switch of a page
-// says the same, and the choice is the reader's: kept in the origin's storage under the key the head's script reads
-// before the first paint (lib/listing.mjs, `listingBootstrap`).
+// "All components": a control of the lists of components (the other is the choice of design system,
+// SystemSelect.astro), Tanrei's Switch. Off — a reader's first visit — the sidebar and the index show the components
+// every list shows; on, also the ones a spec marks to be shown on request (`listing`), each in its place and marked.
+// Every switch of a page says the same, and the choice is the reader's: kept in the origin's storage under the key the
+// head's script reads before the first paint (lib/listing.mjs, `listingBootstrap`).
 //
 // What is not shown is taken out of the document, not only out of sight: a list counts its items and moves focus
-// among them, and must count what the reader sees. Each row is held and put back in its place when everything is
-// asked for. The rule that hides a marked row before this script runs is the stylesheet's below.
+// among them, and must count what the reader sees (lib/list-filter.ts holds the rows, for both controls). The rule
+// that hides a marked row before the script runs is the stylesheet's below.
 //
 // Without script nothing is hidden and nothing could be switched: the control is not drawn.
 import { strings } from '../lib/i18n';
@@ -25,30 +25,13 @@ const t = strings(Astro.props.lang);
 
 <script>
   import '@tanrei/web/components/switch';
-  import { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+  import { LISTING_EVERYTHING, LISTING_KEY } from '../lib/listing.mjs';
+  import { showEverything, showsEverything } from '../lib/list-filter';
 
   type Switch = HTMLElement & { checked: boolean };
-  const root = document.documentElement;
-  /** The rows taken out of the document, each by the mark that keeps its place. */
-  const held = new Map<Comment, Element>();
-
-  const show = (everything: boolean) => {
-    if (everything) {
-      for (const [mark, row] of held) mark.replaceWith(row);
-      held.clear();
-      root.removeAttribute(LISTING_ATTR);
-    } else {
-      for (const row of document.querySelectorAll(`[${ON_REQUEST_ATTR}]`)) {
-        const mark = document.createComment('');
-        row.replaceWith(mark);
-        held.set(mark, row);
-      }
-      root.setAttribute(LISTING_ATTR, 'listed');
-    }
-    for (const control of document.querySelectorAll<Switch>('[data-docs-listing-switch]')) control.checked = everything;
-  };
+  const controls = () => document.querySelectorAll<Switch>('[data-docs-listing-switch]');
   // What the head's script found before the first paint.
-  show(root.getAttribute(LISTING_ATTR) !== 'listed');
+  for (const control of controls()) control.checked = showsEverything();
 
   document.addEventListener('change', (event) => {
     const control = event.target as Switch;
@@ -58,7 +41,8 @@ const t = strings(Astro.props.lang);
       if (everything) localStorage.setItem(LISTING_KEY, LISTING_EVERYTHING);
       else localStorage.removeItem(LISTING_KEY);
     } catch {}
-    show(everything);
+    showEverything(everything);
+    for (const other of controls()) other.checked = everything;
   });
 </script>
 

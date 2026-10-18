@@ -87,7 +87,8 @@ describe('the page on AI agents', () => {
     assert.match(english, /\bsetWords\(\)/);
     // The default system is the namespace, and a component's page says it in the words of the site's dictionary.
     assert.ok(english.includes(`default design system, \`${config.namespace}\``));
-    assert.ok(english.includes(`"${strings('en').notShippedIn} ${config.namespace}"`));
+    assert.ok(english.includes(`"${strings('en').system.lacks.replace('{systems}', config.namespace).replace(/\.$/, '')}"`));
+    assert.ok(english.includes(`"${strings('en').variantsNotShippedIn}"`));
     // What a debug report starts with.
     assert.match(read('packages/web/src/primitives/report.ts'), /console\[level\]\(`\[tanrei\] /);
     assert.ok(english.includes('`[tanrei]`'));
