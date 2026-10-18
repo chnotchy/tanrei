@@ -6211,7 +6211,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsMarginBlockStart: CGFloat
   public var actionsVariant: Double
-  public var closeButtonVariant: Double
   public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -6250,7 +6249,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     actionsGap: CGFloat,
     actionsMarginBlockStart: CGFloat,
     actionsVariant: Double,
-    closeButtonVariant: Double,
     compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -6288,7 +6286,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.actionsGap = actionsGap
     self.actionsMarginBlockStart = actionsMarginBlockStart
     self.actionsVariant = actionsVariant
-    self.closeButtonVariant = closeButtonVariant
     self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
     self.containerElevation = containerElevation

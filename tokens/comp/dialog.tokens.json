@@ -8,7 +8,7 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a dialog reads: the scrim behind it; the container's color, elevation, corner shape, padding, gap, minimum and maximum width, the three fixed widths a product may choose instead, and its margin to the window; the window width below which it sits at the bottom; the header (where the icon sits, its gap to the headline and the close button's variant); the icon, headline, supporting text and content colors and text styles; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the enter and exit motion, centred and from the bottom.",
+            "usage": "Everything a dialog reads: the scrim behind it; the container's color, elevation, corner shape, padding, gap, minimum and maximum width, the three fixed widths a product may choose instead, and its margin to the window; the window width below which it sits at the bottom; the header (where the icon sits and its gap to the headline); the icon, headline, supporting text and content colors and text styles; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the enter and exit motion, centred and from the bottom.",
             "rules": [
               "Every dialog has at least one action. The actions are Tanrei Buttons, marked confirming or dismissive; the dialog places them as a full-width Button group and gives a Button without a variant the one comp.dialog.actions.variant names (tonal in the default system). It never changes a variant the product set.",
               "Choose another look for every dialog of a product by re-valuing comp.dialog.actions.variant and comp.dialog.actions.arrangement in its layer; set a Button's variant for one action only.",
@@ -114,34 +114,10 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline), and between the headline and the close button at the header's end.",
+            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline).",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product pairs a glyph with the words beside it more tightly than it spaces the stacked parts of a surface; the header's gap is that pairing, apart from container.gap."
-              }
-            }
-          }
-        },
-        "close-button": {
-          "variant": {
-            "$type": "number",
-            "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button at the header's end (DLG-25). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product decides once how its dialogs' close control stands: a bare glyph that leaves the header to its headline, or a tonal button that reads as a control on any content, as its sheets' does."
-              },
-              "dev.tanrei.enum": {
-                "values": [
-                  "filled",
-                  "tonal",
-                  "elevated",
-                  "outlined",
-                  "text"
-                ]
-              },
-              "dev.tanrei.derive": {
-                "fixed": "A choice of kind; no dial scales it."
               }
             }
           }

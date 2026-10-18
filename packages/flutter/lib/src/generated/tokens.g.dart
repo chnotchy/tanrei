@@ -9181,7 +9181,6 @@ class TanreiDialogTokens {
     required this.actionsGap,
     required this.actionsMarginBlockStart,
     required this.actionsVariant,
-    required this.closeButtonVariant,
     required this.compactWindowWidth,
     required this.containerColor,
     required this.containerElevation,
@@ -9224,8 +9223,6 @@ class TanreiDialogTokens {
   final double actionsMarginBlockStart;
   /// `comp.dialog.actions-variant`
   final double actionsVariant;
-  /// `comp.dialog.close-button-variant`
-  final double closeButtonVariant;
   /// `comp.dialog.compact-window-width`
   final double compactWindowWidth;
   /// `comp.dialog.container-color`
@@ -9297,7 +9294,6 @@ class TanreiDialogTokens {
     double? actionsGap,
     double? actionsMarginBlockStart,
     double? actionsVariant,
-    double? closeButtonVariant,
     double? compactWindowWidth,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -9335,7 +9331,6 @@ class TanreiDialogTokens {
         actionsGap: actionsGap ?? this.actionsGap,
         actionsMarginBlockStart: actionsMarginBlockStart ?? this.actionsMarginBlockStart,
         actionsVariant: actionsVariant ?? this.actionsVariant,
-        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,

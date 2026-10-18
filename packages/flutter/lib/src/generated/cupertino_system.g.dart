@@ -3669,7 +3669,6 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     actionsGap: 8.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 4.0,
-    closeButtonVariant: 4.0,
     compactWindowWidth: 0.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerHigh),
     containerElevation: _elevationLevel3,
