@@ -1623,6 +1623,18 @@
     "tanrei.comp.one-time-code-input.standard.disabled.error.outline.color": {
       "$value": "{tanrei.comp.one-time-code-input.standard.outline.color}",
       "reason": "A disabled code input draws no edge, in error too: it cannot be corrected while disabled. As the stacked text field."
+    },
+    "tanrei.comp.handle.standard.hovered.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "A handle answers a pointer over it with a darker line (HDL-4): the line is the handle's answer itself, where the generic rule keeps a part at its resting color."
+    },
+    "tanrei.comp.handle.standard.pressed.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "The line stays dark while a press or a drag holds the handle (HDL-4 draws the two alike)."
+    },
+    "tanrei.comp.handle.standard.disabled.container.color": {
+      "$value": "{tanrei.comp.handle.standard.container.color}",
+      "reason": "A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."
     }
   },
   "rules": [

@@ -58,6 +58,16 @@ export { TanreiAvatar, TanreiAvatarGroup, type TanreiAvatarShape, type TanreiAva
 export { TanreiSwatch, type TanreiSwatchShape, type TanreiSwatchSize } from './components/swatch/swatch.js';
 export { TanreiBadge } from './components/badge/badge.js';
 export {
+  TanreiHandle,
+  type TanreiHandleAxis,
+  type TanreiHandleCorner,
+  type TanreiHandleResizeDetail,
+  type TanreiHandleResizeEndDetail,
+  type TanreiHandleResizeStartDetail,
+  type TanreiHandleSize,
+  type TanreiHandleStepDetail,
+} from './components/handle/handle.js';
+export {
   TanreiBottomSheet,
   type TanreiBottomSheetCloseDetail,
   type TanreiBottomSheetCloseReason,

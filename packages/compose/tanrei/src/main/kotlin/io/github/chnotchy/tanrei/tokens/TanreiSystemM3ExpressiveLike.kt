@@ -91,6 +91,7 @@ private object M3ExpressiveLikeSystemSource {
             fileItem = fileItem(typescale, elevation),
             filePicker = filePicker(typescale, elevation),
             fileUpload = fileUpload(typescale, elevation),
+            handle = handle(typescale, elevation),
             imagePreview = imagePreview(typescale, elevation),
             inlineCode = inlineCode(typescale, elevation),
             inputBox = inputBox(typescale, elevation),
@@ -4238,6 +4239,53 @@ private object M3ExpressiveLikeSystemSource {
     fun fileUpload(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiFileUploadTokens =
         TanreiFileUploadTokens(
             listGap = 16.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun handle(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiHandleTokens =
+        TanreiHandleTokens(
+            containerShape = 9999.dp,
+            inset = 4.dp,
+            motionFeedbackDuration = 450,
+            motionStateDuration = 150,
+            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            hovered = TanreiHandleStateTokens(opacity = 1f),
+            focused = TanreiHandleStateTokens(opacity = 1f),
+            pressed = TanreiHandleStateTokens(opacity = 1f),
+            disabled = TanreiHandleStateTokens(opacity = 1f),
+            sizes = TanreiHandleSizes(
+                small = TanreiHandleSizeTokens(containerLength = 20.dp, containerBreadth = 16.dp, lineLength = 12.dp, lineThickness = 3.dp, lineActiveLength = 16.dp, lineActiveThickness = 4.dp, arcRadius = 8.dp),
+                medium = TanreiHandleSizeTokens(containerLength = 48.dp, containerBreadth = 24.dp, lineLength = 32.dp, lineThickness = 4.dp, lineActiveLength = 40.dp, lineActiveThickness = 6.dp, arcRadius = 16.dp),
+            ),
+            conditions = TanreiHandleConditions(
+                standard = TanreiHandleConditionTokens(
+                    enabled = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        lineColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    hovered = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.08f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    focused = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.12f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    pressed = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.12f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    disabled = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        lineColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")

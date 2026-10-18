@@ -696,6 +696,22 @@
       }
     },
     {
+      "name": "handle",
+      "title": "Handle",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-handle",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/handle"
+      },
+      "react": {
+        "name": "Handle",
+        "import": "@tanrei/react/cupertino"
+      }
+    },
+    {
       "name": "image-preview",
       "title": "Image preview",
       "level": "feature",

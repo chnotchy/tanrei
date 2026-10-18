@@ -2501,6 +2501,77 @@ export interface TanreiFileUploadTokens {
 }
 
 /**
+ * Every value of `comp.handle`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiHandleSizeRegistry {
+  small: true;
+  medium: true;
+}
+export type TanreiHandleSize = keyof TanreiHandleSizeRegistry;
+export type TanreiCoreHandleSize = "small" | "medium";
+
+/** The tokens of one `size` of `comp.handle`. */
+export interface TanreiHandleSizeTokens {
+  readonly containerLength: number;
+  readonly containerBreadth: number;
+  readonly lineLength: number;
+  readonly lineThickness: number;
+  readonly lineActiveLength: number;
+  readonly lineActiveThickness: number;
+  readonly arcRadius: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiHandleSizes = { readonly [Key in TanreiCoreHandleSize]: TanreiHandleSizeTokens } & { readonly [Key in TanreiHandleSize]?: TanreiHandleSizeTokens };
+
+/**
+ * Every value of `comp.handle`'s `condition` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `standard` (with a dev-only warning).
+ */
+export interface TanreiHandleConditionRegistry {
+  standard: true;
+}
+export type TanreiHandleCondition = keyof TanreiHandleConditionRegistry;
+export type TanreiCoreHandleCondition = "standard";
+
+/** What one `condition` of `comp.handle` is drawn from in ONE interaction state. */
+export interface TanreiHandleConditionStateTokens {
+  readonly containerColor: TanreiPaint;
+  readonly lineColor: TanreiPaint;
+  readonly stateLayerColor: TanreiPaint;
+}
+/** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
+export interface TanreiHandleConditionTokens {
+  readonly enabled: TanreiHandleConditionStateTokens;
+  readonly hovered: TanreiHandleConditionStateTokens;
+  readonly focused: TanreiHandleConditionStateTokens;
+  readonly pressed: TanreiHandleConditionStateTokens;
+  readonly disabled: TanreiHandleConditionStateTokens;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiHandleConditions = { readonly [Key in TanreiCoreHandleCondition]: TanreiHandleConditionTokens } & { readonly [Key in TanreiHandleCondition]?: TanreiHandleConditionTokens };
+
+/**
+ * `comp.handle`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`sizes`, `conditions`), keyed by the axis value.
+ */
+export interface TanreiHandleTokens {
+  readonly containerShape: number;
+  readonly disabledOpacity: number;
+  readonly focusedOpacity: number;
+  readonly hoveredOpacity: number;
+  readonly inset: number;
+  readonly motionFeedbackDuration: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
+  readonly pressedOpacity: number;
+  readonly sizes: TanreiHandleSizes;
+  readonly conditions: TanreiHandleConditions;
+}
+
+/**
  * `comp.image-preview`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -5555,6 +5626,7 @@ export interface TanreiComponents {
   readonly fileItem: TanreiFileItemTokens;
   readonly filePicker: TanreiFilePickerTokens;
   readonly fileUpload: TanreiFileUploadTokens;
+  readonly handle: TanreiHandleTokens;
   readonly imagePreview: TanreiImagePreviewTokens;
   readonly inlineCode: TanreiInlineCodeTokens;
   readonly inputBox: TanreiInputBoxTokens;
@@ -5677,6 +5749,8 @@ declare module './vocabulary' {
   interface TanreiFigureVariantRegistry {}
   interface TanreiFileItemFormRegistry {}
   interface TanreiFilePickerConditionRegistry {}
+  interface TanreiHandleSizeRegistry {}
+  interface TanreiHandleConditionRegistry {}
   interface TanreiInputBoxSizeRegistry {}
   interface TanreiInputBoxVariantRegistry {}
   interface TanreiKeyboardShortcutSizeRegistry {}

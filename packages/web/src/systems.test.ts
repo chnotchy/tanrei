@@ -19,6 +19,9 @@ const SUBJECTS = [
   // Modal, one height: the scrim, the sheet's color, top corners (eased in cupertino), elevation and padding, the handle's
   // row and grip (cupertino's 36 × 5 grabber in a 16 row) and the body text. Its baseline is the 400 × 720 window.
   subject('bottom-sheet', (fixture) => fixture.id === 'modal', { window: { width: 400, height: 720 }, wholeWindow: true }),
+  // An arc at its corner, drawn at rest: each preset's line color and thickness, the arc's radius and inset from the
+  // corner (the stage's corner is concentric with it).
+  subject('handle', (fixture) => fixture.id === 'both-bottom-end'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.

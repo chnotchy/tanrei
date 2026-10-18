@@ -1846,19 +1846,37 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/handle/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 8,
+      "alpha": 9,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 62,
+      "planned": 63,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1866,7 +1884,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 62,
+      "planned": 63,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1874,7 +1892,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 62,
+      "planned": 63,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1882,7 +1900,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 62,
+      "planned": 63,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
