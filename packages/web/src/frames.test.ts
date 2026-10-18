@@ -84,6 +84,22 @@ test.describe('sampleFrames', () => {
     expect(seen.complete).toBe(false);
     expect(seen.rest.probe.width).toBe(200);
   });
+
+  test('a motion that begins and ends while the test still acts fails the sampling in its own words', async ({ page }) => {
+    await stage(page, BAR);
+    const sampled = sampleFrames(page.locator('#stage'), async () => {
+      // Begun and finished in one task, its events arrive in the next frame: two frames go by before the act ends.
+      await page.locator('#bar').evaluate((el: HTMLElement) => {
+        el.style.inlineSize = '200px';
+        void getComputedStyle(el).inlineSize;
+        for (const animation of el.getAnimations()) animation.finish();
+      });
+      await twoFrames(page);
+    });
+    await expect(sampled).rejects.toThrow(/sampleFrames: a motion began and ended between two frames read here/);
+    // …and the sampler is gone from the page.
+    expect(await page.evaluate(() => '__tanreiFrames' in window)).toBe(false);
+  });
 });
 
 // An element whose mark turns blue: in its first update (right), from a resize observer under a transition (the first
