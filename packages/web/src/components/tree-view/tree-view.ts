@@ -431,6 +431,7 @@ export class TanreiTreeView extends ReactiveElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    if (!this.hasUpdated) this.drawStates();
     this.adoptSheet();
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener);
     this.mutations?.observe(this, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ITEM_ATTRIBUTES });
@@ -463,6 +464,20 @@ export class TanreiTreeView extends ReactiveElement {
    */
   private adoptSheet() {
     adoptUnlessDrawn(this, sheet('tree-view', () => TREE_VIEW_CSS), '--_trv-gap');
+  }
+
+  protected override willUpdate() {
+    if (!this.hasUpdated) this.drawStates();
+  }
+
+  /**
+   * TRV-15, TRV-9: the rows' states — selected, expanded — as the first frame draws them. They are written when the
+   * tree is first connected, before anything asks for style (`adoptSheet`'s question, a product that measures what it
+   * inserted), and again before the first update for a value set in between: a row styled once without its
+   * `aria-selected` would move into the selected condition over TRV-31's motion, as if the selection had changed.
+   */
+  private drawStates() {
+    for (const root of this.roots()) for (let item = firstItem(root); item; item = this.nextShown(item)) this.readState(item);
   }
 
   protected override updated(changed: PropertyValues) {
