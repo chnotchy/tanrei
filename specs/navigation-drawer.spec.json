@@ -488,7 +488,7 @@
       "container": true,
       "props": [
         {
-          "name": "heading",
+          "name": "title",
           "type": "string",
           "default": "",
           "description": "The text that names the items under it, exposed as a heading. Empty draws no heading row."
@@ -657,7 +657,7 @@
     },
     {
       "id": "NVD-16",
-      "text": "WHILE a section's heading is not empty THE navigation drawer SHALL draw it in comp.navigation-drawer.heading.typescale and comp.navigation-drawer.heading.color, in a row at least comp.navigation-drawer.heading.height.regular high with the text vertically centered and starting where the destinations' labels start WHILE they have no icon (comp.navigation-drawer.item.padding-inline.regular inside the drawer's inner edge), and SHALL expose it as a heading that is not focusable; WHILE the drawer is collapsed it SHALL keep the row at its height, draw no text in it and hide it from assistive technology; WHILE the heading is empty the section SHALL draw no heading row. THE navigation drawer SHALL set the heading's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
+      "text": "WHILE a section's title is not empty THE navigation drawer SHALL draw it as the section's heading in comp.navigation-drawer.heading.typescale and comp.navigation-drawer.heading.color, in a row at least comp.navigation-drawer.heading.height.regular high with the text vertically centered and starting where the destinations' labels start WHILE they have no icon (comp.navigation-drawer.item.padding-inline.regular inside the drawer's inner edge), and SHALL expose it as a heading that is not focusable; WHILE the drawer is collapsed it SHALL keep the row at its height, draw no text in it and hide it from assistive technology; WHILE the title is empty the section SHALL draw no heading row. THE navigation drawer SHALL set the heading's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "NVD-17",
@@ -987,7 +987,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Mail"
+            "title": "Mail"
           },
           "items": [
             {
@@ -1028,7 +1028,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Labels",
+            "title": "Labels",
             "divider": true
           },
           "items": [
@@ -1147,7 +1147,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Mail"
+            "title": "Mail"
           },
           "items": [
             {
@@ -1188,7 +1188,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Labels",
+            "title": "Labels",
             "divider": true
           },
           "items": [
@@ -1750,7 +1750,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Guides"
+            "title": "Guides"
           },
           "items": [
             {
@@ -1913,7 +1913,7 @@
         {
           "kind": "section",
           "props": {
-            "heading": "Projects"
+            "title": "Projects"
           },
           "items": [
             {
@@ -4761,7 +4761,7 @@
         "section": {
           "name": "tanrei-navigation-drawer-section",
           "props": {
-            "heading": "heading",
+            "title": "headline",
             "divider": "divider"
           },
           "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. It draws a `<tanrei-divider>` before itself while `divider` is set, and its heading as a heading element (`role=\"heading\"`, level 2 unless a web-only `heading-level` says otherwise)."
@@ -4869,7 +4869,7 @@
         "section": {
           "name": "TanreiNavigationDrawerSection",
           "props": {
-            "heading": "heading",
+            "title": "heading",
             "divider": "divider"
           },
           "notes": "`TanreiNavigationDrawerSection(_ heading: String = \"\", divider: Bool = false) { items }`, as SwiftUI's `Section`; the heading carries the header trait."
@@ -4977,7 +4977,7 @@
         "section": {
           "name": "TanreiNavigationDrawerSection",
           "props": {
-            "heading": "heading",
+            "title": "heading",
             "divider": "divider"
           },
           "notes": "`TanreiNavigationDrawerSection(heading = \"\", divider = false) { … }`, a composable whose content lambda holds its items; the heading has `Modifier.semantics { heading() }` and the divider is a `TanreiDivider`."
@@ -5085,7 +5085,7 @@
         "section": {
           "name": "TanreiNavigationDrawerSection",
           "props": {
-            "heading": "heading",
+            "title": "heading",
             "divider": "divider"
           },
           "notes": "`TanreiNavigationDrawerSection(heading: '', divider: false, children: [...])`; the heading is wrapped in `Semantics(header: true)` and the divider is a `TanreiDivider`."
@@ -5193,7 +5193,7 @@
         "section": {
           "name": "NavigationDrawerSection",
           "props": {
-            "heading": "heading",
+            "title": "heading",
             "divider": "divider"
           },
           "notes": "An entry `{ heading?, divider?, items: (NavigationDrawerDestination | NavigationDrawerGroup)[] }`; its `items` array tells it from a destination."
