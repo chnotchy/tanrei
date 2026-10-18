@@ -3,7 +3,7 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, availabilityOf, heldComponents, listSystems, outsideComponents, shippedSystems } from './bundle.js';
+import { ROOT_SYSTEM, heldComponents, listSystems, shippedSystems } from './bundle.js';
 import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
@@ -14,7 +14,7 @@ import { emitTs } from './emit/ts.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
-import { nativeChain } from './layers.js';
+import { nativeChain, sheetAvailability } from './layers.js';
 import { CONFIG, GENERATED_HEADER, REPO_ROOT, pascal } from './model.js';
 import { LAYER_SUFFIX, LayerProblems, chainDigest, localLayerFile, readSystemChain, resolveChain, resolveSystem, systemIdOf, validateSystem } from './resolve.js';
 import { loadSystem } from './scheme.js';
@@ -105,7 +105,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
       tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
       // The product's sheet says what its system does not have, as a shipped system's does: declared in its own scope,
       // so that an element there reads the product's lists and not the default system's from `:root`.
-      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, unavailable: availabilityOf(chain), outside: outsideComponents(chain, held) }), ...webRegistry(ir, id) }),
+      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held) }), ...webRegistry(ir, id) }),
       swiftui: () => flat(emitSwift(nativeIr, { external: true })),
       compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),
       flutter: () => flat(emitDart(nativeIr, { external: true })),
