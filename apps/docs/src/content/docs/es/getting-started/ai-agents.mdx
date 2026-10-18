@@ -2,7 +2,7 @@
 title: Usar Tanrei con agentes de IA
 description: Conecta el servidor MCP de Tanrei, dale a un agente de programación las reglas de interfaz de tu producto en AGENTS.md y mantenlo dentro de los componentes y los valores del sistema predeterminado.
 translationOf: getting-started/ai-agents.mdx
-sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
+sourceHash: f71de545a719529973dd71afa242157ac819255e
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -66,6 +66,10 @@ El servidor necesita Node.js 20 o posterior. Resuelve un `layerFile` relativo de
 Sus herramientas y lo que responde cada una:
 
 - `list_systems`: los sistemas incluidos con Tanrei y, si le das tu archivo de capa, la cadena de capas de tu producto, con lo que cada una añade al vocabulario y sus hallazgos de accesibilidad
+- `list_components`: los componentes que incluye un sistema, según su manifiesto de componentes, cada uno con el módulo que lo registra y los valores de `variant` que ofrece el sistema, y lo que el sistema no tiene, con qué usar en su lugar; un agente la llama primero
+- `get_component`: un componente tal como lo describe su especificación, para un sistema: sus props, eventos, slots y estados, su comportamiento como reglas con identificadores estables, su accesibilidad y un ejemplo
+- `find_component`: los componentes del sistema que hacen una tarea que describes con palabras corrientes, el mejor primero, y aparte los que encajan pero el sistema no tiene, con qué usar en su lugar
+- `check_usage`: cada elemento, importación y `variant` de tu código que el sistema no tiene, con su archivo, línea y columna y qué usar en su lugar; no escribe nada
 - `search_tokens`: tokens encontrados por id, con una subcadena o un glob, con el tipo, la clase y la descripción de cada uno
 - `resolve`: a qué se resuelve un token en un sistema y un esquema, a través de qué alias y reglas, qué capa lo fijó y su propiedad personalizada de CSS
 - `explain_token`: por qué existe un token, qué lo sigue, los cambios que una capa puede escribir para él y cómo añadir vocabulario a su lado, cada uno como un fragmento de capa
@@ -79,8 +83,9 @@ Sus recursos y lo que contiene cada uno:
 - `tanrei://philosophy`: las ideas detrás del vocabulario y las reglas que sigue una capa, en una sola página
 - `tanrei://schema/system`: el JSON Schema de un archivo de capa
 - `tanrei://systems/<id>`: el archivo de capa de cada sistema incluido, tal como está escrito
+- `tanrei://components/<id>`: el manifiesto de componentes de cada sistema incluido, tal como lo genera el repositorio
 
-El servidor también le da al agente sus reglas al conectarse: cambiar los valores mediante una capa, añadir vocabulario solo bajo `vocabulary` y con una justificación, dar un motivo a cada valor fijado, no cambiar nunca un umbral de accesibilidad y no editar nunca un archivo generado. Estas dos listas son las del propio servidor: una comprobación mantiene esta página fiel a las herramientas y los recursos que tiene el servidor, en todos los idiomas, así que una herramienta que el servidor gane se añade aquí con ella.
+El servidor también le da al agente sus reglas al conectarse: no usar ningún componente que el manifiesto del sistema no liste, cambiar los valores mediante una capa, añadir vocabulario solo bajo `vocabulary` y con una justificación, dar un motivo a cada valor fijado, no cambiar nunca un umbral de accesibilidad y no editar nunca un archivo generado. Estas dos listas son las del propio servidor: una comprobación mantiene esta página fiel a las herramientas y los recursos que tiene el servidor, en todos los idiomas, así que una herramienta que el servidor gane se añade aquí con ella.
 
 ## Un archivo de reglas para tu repositorio
 

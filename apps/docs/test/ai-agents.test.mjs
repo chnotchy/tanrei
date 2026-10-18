@@ -44,8 +44,8 @@ describe('the page on AI agents', () => {
     for (const { folder, text } of pages) assert.deepEqual(listed(text, /^[a-z]+(_[a-z]+)*$/), tools, `${folder}getting-started/ai-agents.mdx`);
   });
 
-  test('lists every resource of the MCP server, a shipped system’s file once as `<id>`', () => {
-    const uris = [...new Set(listResources().map(({ uri }) => uri.replace(/^(tanrei:\/\/systems\/).+$/, '$1<id>')))];
+  test('lists every resource of the MCP server, a shipped system’s file and its components manifest once each as `<id>`', () => {
+    const uris = [...new Set(listResources().map(({ uri }) => uri.replace(/^(tanrei:\/\/(?:systems|components)\/).+$/, '$1<id>')))];
     for (const { folder, text } of pages) assert.deepEqual(listed(text, /^tanrei:\/\//), uris, `${folder}getting-started/ai-agents.mdx`);
   });
 

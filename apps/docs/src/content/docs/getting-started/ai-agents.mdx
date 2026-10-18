@@ -64,6 +64,10 @@ The server needs Node.js 20 or newer. It resolves a relative `layerFile` from it
 Its tools, and what each one answers:
 
 - `list_systems`: the systems that ship with Tanrei and, given your layer file, your product's chain of layers, with what each one adds to the vocabulary and its accessibility findings
+- `list_components`: the components a system ships, from its components manifest, each with the module that registers it and the variant values the system offers, and what the system does not have, with what to use instead; an agent calls it first
+- `get_component`: one component as its spec describes it, for one system: its props, events, slots and states, its behaviour as rules with stable ids, its accessibility and an example
+- `find_component`: the components of the system that do a job you describe in plain words, best first, and apart from them those that match but the system does not have, with what to use instead
+- `check_usage`: every element, import and `variant` in your code that the system does not have, with its file, line and column and what to use instead; it writes nothing
 - `search_tokens`: tokens found by id, by a substring or a glob, with each token's type, kind and description
 - `resolve`: what a token resolves to in a system and scheme, through which aliases and rules, set by which layer, and its CSS custom property
 - `explain_token`: why a token exists, what follows it, the changes a layer may write for it and how to add vocabulary next to it, each as a fragment of a layer
@@ -77,8 +81,9 @@ Its resources, and what each one holds:
 - `tanrei://philosophy`: the ideas behind the vocabulary and the rules a layer follows, on one page
 - `tanrei://schema/system`: the JSON Schema of a layer file
 - `tanrei://systems/<id>`: each shipped system's layer file as it is written
+- `tanrei://components/<id>`: each shipped system's components manifest, as the repository generates it
 
-The server also gives the agent its rules when it connects: change values through a layer, add vocabulary only under `vocabulary` and with a rationale, give every pinned value a reason, never change an accessibility threshold, and never edit a generated file. These two lists are the server's own: a check holds this page to the tools and resources the server has, in every language, so a tool the server gains is added here with it.
+The server also gives the agent its rules when it connects: use no component the system's manifest does not list, change values through a layer, add vocabulary only under `vocabulary` and with a rationale, give every pinned value a reason, never change an accessibility threshold, and never edit a generated file. These two lists are the server's own: a check holds this page to the tools and resources the server has, in every language, so a tool the server gains is added here with it.
 
 ## A rules file for your repository
 
