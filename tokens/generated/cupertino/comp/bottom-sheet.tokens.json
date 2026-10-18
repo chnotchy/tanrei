@@ -190,7 +190,7 @@
         "close-button": {
           "variant": {
             "$type": "number",
-            "$value": 4,
+            "$value": 1,
             "$description": "The Button variant of the close button, an icon-only small Button (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -207,7 +207,7 @@
                 ]
               },
               "dev.tanrei.derive": {
-                "fixed": "The bare close glyph this preset draws on its other surfaces; the change to a tonal close button is the default system's."
+                "fixed": "A choice of kind; no dial scales it."
               }
             }
           }

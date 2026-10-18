@@ -658,7 +658,7 @@ private let cupertinoBadgeTokens = TanreiBadgeTokens(
 )
 
 private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
-  closeButtonVariant: 4,
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLowest),
   containerElevation: cupertinoElevation.level2,
   containerMarginBlockStart: 48,

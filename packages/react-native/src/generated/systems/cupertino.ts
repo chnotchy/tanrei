@@ -1014,7 +1014,7 @@ export const cupertino = {
       outlineWidth: 2,
     },
     bottomSheet: {
-      closeButtonVariant: 4,
+      closeButtonVariant: 1,
       containerColor: { kind: "role", role: "surfaceContainerLowest" },
       containerElevation: "level2",
       containerMarginBlockStart: 48,

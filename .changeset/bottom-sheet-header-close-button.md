@@ -24,7 +24,8 @@ so a standard sheet, or a sheet without a handle, needed a Close button of the p
   handle and no close button that can still be dismissed (nothing on screen says how).
 - New tokens: `comp.bottom-sheet.header.height`, `.header.gap`, `.header.padding-inline-end`, `.headline.typescale`,
   `.headline.color`, `.divider.color`, `.divider.width`, `.divider.visibility` and `.close-button.variant` (tonal).
-  `m3-like` (and so `m3-expressive-like`) and `cupertino` set the variant to text.
+  `m3-like` (and so `m3-expressive-like`) sets the variant to text, Material 3's standard icon button; `cupertino` keeps
+  the tonal circle.
 
 SwiftUI, Compose, Flutter and React Native are lagging and do not draw the header yet. Baselines: three new fixtures,
 `modal-header`, `no-handle-header` and `standard-header`; the existing ones do not change.
