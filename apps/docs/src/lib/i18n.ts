@@ -62,8 +62,10 @@ const en = {
   // The choice of design system the lists of components show (components/SystemSelect.astro) and the index's line of
   // what the chosen one does not have; the note an availability block leads with on the page of a component that some
   // systems do not have (components/ComponentAvailability.astro) — `{systems}`, `{entries}`, `{layer}`, `{components}`
-  // and `{guide}` are where the page writes the names, the entries, the links and the link to the guide.
+  // and `{guide}` are where the page writes the names, the entries, the links and the link to the guide; and the facts
+  // of each preset (components/PresetFacts.astro).
   system: { choice: 'Design system', notIn: 'Not in {system}:', insteadUse: '{component} (use {components} instead)', noteTitle: 'Not in every design system', has: 'Shipped by {systems}, registered by {entries}.', lacks: 'Not in {systems}.', livesIn: 'It lives in the {layer} layer, which they do not extend.', leftOutBy: 'The {layer} layer leaves it out.', use: 'Use {components} instead.', take: 'A product on a system without it can still take it: include it in your own layer ({guide}) and import its own module. It is then drawn with your system’s own tokens.', guide: 'Your own design system', layerFile: 'In your layer file', yourCode: 'In your code' },
+  preset: { stylesheet: 'Stylesheet', attribute: 'Attribute', components: 'Components', count: '{count}, registered by {entry}', text: 'Text', code: 'Code', icons: 'Icons', load: 'load {families}', platform: 'the platform’s own fonts', beyond: 'Beyond the default system', notIn: 'Not in it', variantsBeyond: 'Variant values beyond the default system', variantsOut: 'Variant values it leaves out', none: 'none' },
   name: 'Name',
   status_: 'Status',
   notes: 'Notes',
@@ -288,6 +290,7 @@ const ja: typeof en = {
   availability: '提供状況',
   variantsNotShippedIn: '提供しないバリアント',
   system: { choice: 'デザインシステム', notIn: '{system} にないもの:', insteadUse: '{component}（代わりに {components}）', noteTitle: 'すべてのデザインシステムにあるわけではありません', has: '{systems} にあり、{entries} が登録します。', lacks: '{systems} にはありません。', livesIn: 'このコンポーネントは {layer} レイヤーにあり、これらのシステムはそのレイヤーを継いでいません。', leftOutBy: '{layer} レイヤーが外しています。', use: '代わりに {components} を使います。', take: 'これを持たないシステムの上のプロダクトでも、自分のレイヤーに取り込み（{guide}）、コンポーネント自身のモジュールを読み込めば使えます。そのときは自分のシステムのトークンで描かれます。', guide: '自分のデザインシステムを作る', layerFile: 'レイヤーのファイルに', yourCode: 'コードに' },
+  preset: { stylesheet: 'スタイルシート', attribute: '属性', components: 'コンポーネント', count: '{count} 個。{entry} が登録します', text: '本文', code: 'コード', icons: 'アイコン', load: '{families} を読み込みます', platform: 'プラットフォームのフォントを使います', beyond: '既定のシステムにないもの', notIn: 'このシステムにないもの', variantsBeyond: '既定のシステムにないバリアント', variantsOut: '外しているバリアント', none: 'なし' },
   name: '名前',
   status_: 'ステータス',
   notes: '備考',
@@ -490,6 +493,7 @@ const zh: typeof en = {
   availability: '可用情况',
   variantsNotShippedIn: '不提供的变体',
   system: { choice: '设计系统', notIn: '{system} 中没有：', insteadUse: '{component}（请改用 {components}）', noteTitle: '并非每个设计系统都有', has: '{systems} 提供此组件，由 {entries} 注册。', lacks: '{systems} 中没有此组件。', livesIn: '它位于 {layer} 层，而这些系统并不继承该层。', leftOutBy: '{layer} 层将它排除在外。', use: '请改用 {components}。', take: '基于没有此组件的系统构建的产品仍可使用它：在你自己的层中引入它（{guide}），并导入它自己的模块。这样它会用你的系统自己的令牌绘制。', guide: '你自己的设计系统', layerFile: '在你的层文件中', yourCode: '在你的代码中' },
+  preset: { stylesheet: '样式表', attribute: '属性', components: '组件', count: '{count} 个，由 {entry} 注册', text: '正文', code: '代码', icons: '图标', load: '加载 {families}', platform: '使用平台自带的字体', beyond: '默认系统没有的', notIn: '此系统没有的', variantsBeyond: '默认系统没有的变体值', variantsOut: '排除的变体值', none: '无' },
   name: '名称',
   status_: '状态',
   notes: '备注',
@@ -691,6 +695,7 @@ const es: typeof en = {
   availability: 'Disponibilidad',
   variantsNotShippedIn: 'Variantes que no se incluyen en',
   system: { choice: 'Sistema de diseño', notIn: 'No está en {system}:', insteadUse: '{component} (usa {components} en su lugar)', noteTitle: 'No está en todos los sistemas de diseño', has: 'Lo incluyen {systems}, registrado por {entries}.', lacks: 'No está en {systems}.', livesIn: 'Vive en la capa {layer}, que esos sistemas no extienden.', leftOutBy: 'La capa {layer} lo deja fuera.', use: 'Usa {components} en su lugar.', take: 'Un producto sobre un sistema que no lo tiene puede usarlo igualmente: inclúyelo en tu propia capa ({guide}) e importa su propio módulo. Entonces se dibuja con los tokens de tu propio sistema.', guide: 'Tu propio sistema de diseño', layerFile: 'En el archivo de tu capa', yourCode: 'En tu código' },
+  preset: { stylesheet: 'Hoja de estilos', attribute: 'Atributo', components: 'Componentes', count: '{count}, registrados por {entry}', text: 'Texto', code: 'Código', icons: 'Iconos', load: 'carga {families}', platform: 'las fuentes propias de la plataforma', beyond: 'Además del sistema predeterminado', notIn: 'No están en él', variantsBeyond: 'Valores de variante además del sistema predeterminado', variantsOut: 'Valores de variante que deja fuera', none: 'ninguno' },
   name: 'Nombre',
   status_: 'Estado',
   notes: 'Notas',
@@ -892,6 +897,7 @@ const hi: typeof en = {
   availability: 'उपलब्धता',
   variantsNotShippedIn: 'वे वेरिएंट जो इनमें शामिल नहीं',
   system: { choice: 'डिज़ाइन सिस्टम', notIn: '{system} में नहीं:', insteadUse: '{component} (इसके बजाय {components} इस्तेमाल करें)', noteTitle: 'हर डिज़ाइन सिस्टम में नहीं', has: '{systems} में शामिल, {entries} से रजिस्टर होता है।', lacks: '{systems} में नहीं है।', livesIn: 'यह {layer} लेयर में है, जिसे ये सिस्टम आगे नहीं बढ़ाते।', leftOutBy: '{layer} लेयर इसे छोड़ देती है।', use: 'इसके बजाय {components} इस्तेमाल करें।', take: 'जिस सिस्टम में यह नहीं है, उस पर बना प्रोडक्ट भी इसे ले सकता है: इसे अपनी लेयर में शामिल करें ({guide}) और इसका अपना मॉड्यूल इम्पोर्ट करें। तब यह आपके सिस्टम के अपने टोकन से बनता है।', guide: 'आपका अपना डिज़ाइन सिस्टम', layerFile: 'अपनी लेयर फ़ाइल में', yourCode: 'अपने कोड में' },
+  preset: { stylesheet: 'स्टाइलशीट', attribute: 'एट्रिब्यूट', components: 'कंपोनेंट', count: '{count}, {entry} से रजिस्टर होते हैं', text: 'टेक्स्ट', code: 'कोड', icons: 'आइकन', load: '{families} लोड करें', platform: 'प्लेटफ़ॉर्म के अपने फ़ॉन्ट', beyond: 'डिफ़ॉल्ट सिस्टम के अलावा', notIn: 'इसमें नहीं', variantsBeyond: 'डिफ़ॉल्ट सिस्टम के अलावा वेरिएंट मान', variantsOut: 'वे वेरिएंट मान जो यह छोड़ देता है', none: 'कोई नहीं' },
   name: 'नाम',
   status_: 'स्थिति',
   notes: 'टिप्पणियाँ',
@@ -1093,6 +1099,7 @@ const ar: typeof en = {
   availability: 'التوفر',
   variantsNotShippedIn: 'أشكال غير متوفرة في',
   system: { choice: 'نظام التصميم', notIn: 'غير موجود في {system}:', insteadUse: '{component} (استخدم {components} بدلًا منه)', noteTitle: 'ليس في كل أنظمة التصميم', has: 'متوفر في {systems}، وتسجّله {entries}.', lacks: 'غير موجود في {systems}.', livesIn: 'يقع في الطبقة {layer}، وهذه الأنظمة لا توسّعها.', leftOutBy: 'تستبعده الطبقة {layer}.', use: 'استخدم {components} بدلًا منه.', take: 'يمكن لمنتج مبني على نظام لا يتضمّنه أن يستخدمه مع ذلك: أدرجه في طبقتك الخاصة ({guide}) واستورد وحدته الخاصة. عندها يُرسم برموز نظامك الخاص.', guide: 'نظام التصميم الخاص بك', layerFile: 'في ملف طبقتك', yourCode: 'في شيفرتك' },
+  preset: { stylesheet: 'ورقة الأنماط', attribute: 'السمة', components: 'المكوّنات', count: '{count}، تسجّلها {entry}', text: 'النص', code: 'الشيفرة', icons: 'الأيقونات', load: 'حمّل {families}', platform: 'خطوط المنصّة نفسها', beyond: 'ما يزيد على النظام الافتراضي', notIn: 'غير موجود فيه', variantsBeyond: 'قيم أشكال تزيد على النظام الافتراضي', variantsOut: 'قيم أشكال يستبعدها', none: 'لا شيء' },
   name: 'الاسم',
   status_: 'الحالة',
   notes: 'ملاحظات',

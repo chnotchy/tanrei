@@ -1,0 +1,94 @@
+---
+title: プリセット
+description: 同梱のプリセットでプロダクトを描きます。スタイルシート 1 本と属性 1 つ、プリセットが求めるフォント、使えるコンポーネント。プリセットのコンポーネントを 1 つだけ、自分のシステムに取り込むこともできます。
+translationOf: getting-started/presets.mdx
+sourceHash: b2dfc26dbf45b28c12730928bdddf74dd177e727
+---
+
+import Steps from '../../../../components/Steps.astro';
+import PresetFacts from '../../../../components/PresetFacts.astro';
+
+Tanrei は既定のシステム `tanrei` と、3 つのプリセット `m3-like`、`m3-expressive-like`、`cupertino` を同梱しています。プリセットは、自分で書くものと同じ[デザインシステムのレイヤー](/ja/foundations/design-systems/#同梱されるシステム)です。Tanrei のコンポーネントに別のデザインシステムの値を与え、どのコンポーネントと、どの `variant` の値を持つかを決めます。そのまま使うことも、[自分のデザインシステム](/ja/getting-started/your-design-system/)の出発点にすることもできます。
+
+## Web でプリセットを使う
+
+<Steps>
+
+1. トークンを読み込み、次にプリセットのスタイルシートを読み込みます。プリセットのトークンは、その属性を付けた範囲に効きます。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import '@tanrei/web/systems/m3-like.css';
+   ```
+
+2. 属性を `<html>` か、ページの任意の部分に付けます。1 つのページに複数のシステムを置けます。
+
+   ```html
+   <html data-tanrei-system="m3-like">
+   ```
+
+3. `@tanrei/web` の代わりに、プリセットのエントリーでコンポーネントを登録します。エントリーが登録するのは、そのプリセットが持つコンポーネントだけです。
+
+   ```js
+   import '@tanrei/web/m3-like';
+   ```
+
+4. プリセットのフォントを、トークンが使うファミリー名のまま読み込みます（下に一覧があります）。Tanrei はフォントファイルを同梱しません。[フォント](/ja/getting-started/web/#フォント)を参照してください。
+
+</Steps>
+
+プリセットが持つものは、そのコンポーネントマニフェスト `@tanrei/web/systems/<id>.components.json` に載っており、エディターやコーディングエージェントはこれを読みます。このサイトでは、[コンポーネントの一覧](/ja/components/)の横か、サイドバーの上端でデザインシステムを選ぶと、一覧はそのシステムが持つものだけを表示します。
+
+## プリセット
+
+各プリセットの以下の情報は、そのレイヤー、解決済みのトークン、コンポーネントマニフェストから読み込んでいます。
+
+### m3-like
+
+<PresetFacts system="m3-like" />
+
+### m3-expressive-like
+
+<PresetFacts system="m3-expressive-like" />
+
+### cupertino
+
+<PresetFacts system="cupertino" />
+
+## プリセットのコンポーネントを 1 つ、自分のシステムに取り込む
+
+プリセットにあって既定のシステムにないコンポーネント（`m3-like` の FAB メニューや、セグメントボタン）も、既定のシステムの上に作るプロダクトから使えます。`tanrei` を継ぐレイヤーを書き、そこにコンポーネントを取り込み、コンポーネント自身のモジュールを読み込みます。するとそのコンポーネントは、自分のシステムのトークンで描かれます。トークンが自分のシステムのトークンを参照するので、こうして取り込んだ FAB メニューはプロダクトのほかの部分と同じ見た目になり、プリセットの値は何も持ち込まれません。
+
+<Steps>
+
+1. コンポーネントを自分のレイヤー（`design/acme.system.json`。[自分のデザインシステムを作る](/ja/getting-started/your-design-system/)を参照）に取り込みます。プリセットのレイヤーにあるコンポーネントは、そのレイヤーを `from` で指定します。既定のシステムが外しているコンポーネントは、名前だけを書きます。
+
+   ```json
+   {
+     "id": "acme",
+     "extends": "tanrei",
+     "components": {
+       "include": [{ "name": "fab-menu", "from": "m3-like" }, "segmented-button"]
+     }
+   }
+   ```
+
+2. ビルドします。`npx tanrei build` が、取り込んだコンポーネントのトークンを自分の値で解決したシステムのスタイルシートと、それらを載せたコンポーネントマニフェストを書き出します。
+
+3. 自分のスタイルシートを読み込み、自分の属性を付け、既定のシステムのコンポーネントと取り込んだコンポーネントを登録します。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import './styles/acme.css';
+   import '@tanrei/web';
+   import '@tanrei/web/components/fab-menu';
+   import '@tanrei/web/components/segmented-button';
+   ```
+
+   ```html
+   <html data-tanrei-system="acme">
+   ```
+
+</Steps>
+
+コンポーネントを、それを持たないシステムの下で使っても描かれますが、開発ビルドのコンソールにそのことが表示されます。各コンポーネントのページには、どのシステムがそれを持ち、ほかのシステムが代わりに何を使うかが書いてあります。

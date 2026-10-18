@@ -106,6 +106,7 @@ export default defineConfig({
             'getting-started/compose',
             'getting-started/flutter',
             'getting-started/react-native',
+            'getting-started/presets',
             'getting-started/your-design-system',
           ],
         },
