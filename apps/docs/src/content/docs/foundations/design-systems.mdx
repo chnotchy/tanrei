@@ -134,6 +134,34 @@ import '@tanrei/web/cupertino'; // the components cupertino ships
 
 What neither values nor choices of kind can express yet — backdrop materials, uppercase labels as a matter of style — is listed as a defect of Tanrei in `docs/governance/mimicry-gaps.json`, not hidden.
 
+## A component your system does not have
+
+A system can leave out a component, or one value of a component's `variant`: the default system has no segmented button, and no filled or outlined text field. A layer says so under `components`, with the reason and what to use instead:
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+What is left out still renders and works. In a development build, each element that uses it warns once in the console, naming your system and what it uses instead. The warning names the component you wrote: `<tanrei-text-field variant="outlined">` is reported as the text field's `outlined`, not as the text input it draws inside. A component that lives in another system's layer, such as the FAB menu in m3-like, is reported the same way, with the layer it lives in.
+
+To fail your tests on it, have it reported as an error, and ask what was used:
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // in your test setup, before anything renders
+
+test('the product uses only what its system has', async () => {
+  // …render the screens of the product…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+`unavailableUses()` lists each use once, in alphabetical order (`segmented-button`, `text-field:outlined`), in either mode. A production build checks nothing, so there the list stays empty. `@tanrei/web/availability` holds the same two functions without registering any element.
+
 ## Sharing a system
 
 Building a system produces a self-contained **DTCG 2025.10 bundle** — plain, fully valued token files with a standard resolver — so any tool that reads design tokens can consume it without Tanrei. The layer files that produced it travel inside the bundle, so Tanrei (or an AI agent) can rebuild or modify it.

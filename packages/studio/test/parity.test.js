@@ -33,13 +33,14 @@ for (const { id } of studio.systems) {
 
 // The build declares what a product does not have in the product's own scope; the preview must too, or an element in
 // it reads the default system's lists from `:root`.
-test("a layer's components: the preview's sheet says what it leaves out and what lives in a layer it does not extend, as the build's does", async () => {
-  const layer = { id: 'studio-omits', extends: studio.defaultId, components: { omit: { avatar: { reason: 'This product shows no people.' } }, variants: { 'text-field': { omit: ['filled'] } } } };
+test("a layer's components: the preview's sheet says what it leaves out and what lives in a layer it does not extend, and what it uses instead, as the build's does", async () => {
+  const layer = { id: 'studio-omits', extends: studio.defaultId, components: { omit: { carousel: { reason: 'This product shows one item at a time.', insteadUse: ['list'] } }, variants: { 'text-field': { omit: ['filled'] } } } };
   await assertPreviewIsTheBuild(layer);
   const sheet = studio.preview(layer).css(layer.id);
   const unavailable = sheet.match(/--tanrei-unavailable: "([^"]*)";/)[1].split(' ');
-  for (const entry of ['avatar', 'text-field:filled']) assert.ok(unavailable.includes(entry), entry);
+  for (const entry of ['carousel', 'text-field:filled']) assert.ok(unavailable.includes(entry), entry);
   assert.match(sheet, /--tanrei-unavailable-layer: "fab-menu=m3-like";/);
+  assert.ok(sheet.match(/--tanrei-unavailable-replacement: "([^"]*)";/)[1].split(' ').includes('carousel=list'), 'what the layer uses instead');
 });
 
 test('the acme fixture — every kind of extension — previews exactly as it builds', async () => {

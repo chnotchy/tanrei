@@ -15,6 +15,10 @@ export { observeLinks, setExternalLabel, setSiteOrigins } from './link.js';
 // The product's words: Tanrei ships none. `setWords()` gives them once for every component that reads them,
 // `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
 export { type TanreiWords, type WordKey, missingWords, setWords, wordKeys, wordReaders } from './words.js';
+// What the active system does not have: a debug build reports each use of it, as a warning or — after
+// `setAvailabilityMode('error')`, in a product's tests — as an error, and `unavailableUses()` lists the uses
+// (`@tanrei/web/availability` is the same two alone).
+export { type AvailabilityMode, setAvailabilityMode, unavailableUses } from './availability.js';
 // The steps and the previous and next links of the page — `class="tanrei-steps"` lists and `class="tanrei-previous-next-links"` landmarks
 // (steps.css, previous-next-links.css): loading the components also adds the debug reports of the first and, for the second, what
 // a stylesheet cannot (`@tanrei/web/steps` and `@tanrei/web/previous-next-links` are the same scripts alone).

@@ -195,6 +195,16 @@ test('a product’s stylesheet says what its system does not have, in its own sc
   assert.deepEqual(declared(including.read('out/web/acme.css'), '--tanrei-unavailable-layer'), []);
 });
 
+test('a product’s stylesheet names what its system uses instead, as its components manifest does', () => {
+  const carousel = { reason: 'This product shows one item at a time.', insteadUse: ['list'] };
+  const { run, read } = product({ ...acme, components: { omit: { carousel } } }, { web: 'out/web', tokens: 'out/tokens' });
+  assert.equal(run(['build']).status, 0);
+  const listed = /\[data-tanrei-system="acme"\] \{\n[^}]*--tanrei-unavailable-replacement: "([^"]*)";/.exec(read('out/web/acme.css'))?.[1];
+  const { omitted } = JSON.parse(read('out/tokens/components.json'));
+  assert.equal(listed, omitted.filter((entry) => entry.insteadUse).map((entry) => `${entry.name}=${entry.insteadUse.join(',')}`).join(' '));
+  assert.match(listed, /^carousel=list segmented-button=[a-z,-]+$/, 'its own omit and the default system’s, which it keeps');
+});
+
 test('explain, systems, init, help', () => {
   const { run, dir } = product(acme, { web: 'out/web' });
   assert.match(run(['explain', 'tanrei.comp.button.container.gap.medium']).stdout, /acme:\n\s+\{"\$value":"\{tanrei\.sys\.space\.space50\}"\}/);

@@ -641,8 +641,8 @@ const focusPath = (page: Page) =>
   });
 /**
  * A debug report that is about the composed element or its members. That the active design system leaves a value out
- * is said of a fixture that draws such a
- * value, by the member and by its twin alike, and is not a case a composed element cannot be in.
+ * is said of a fixture that draws such a value — under the composed element, for the member it draws, and by its twin
+ * alike — and is not a case a composed element cannot be in.
  */
 const reports = (seen: string[]) => seen.filter((text) => text.includes('[tanrei]') && !text.includes('is left out of the active design system'));
 function warnings(page: Page) {
@@ -1444,8 +1444,9 @@ for (const written of COMPOSED) {
         (el as HTMLElement & { requestUpdate(): void; updateComplete: Promise<unknown> }).requestUpdate();
         await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
       });
-      expect(seen.filter((text) => text.includes(`<${tag}>`))).toHaveLength(1);
-      expect(seen.find((text) => text.includes(`<${tag}>`))).toContain('aria-label');
+      // A fixture of a value the system leaves out is reported under the composed element too (AVL-1): not this report.
+      expect(reports(seen).filter((text) => text.includes(`<${tag}>`))).toHaveLength(1);
+      expect(reports(seen).find((text) => text.includes(`<${tag}>`))).toContain('aria-label');
       for (const fixture of byDesign) {
         seen.length = 0;
         await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });

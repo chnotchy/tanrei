@@ -103,8 +103,8 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
     const flat = (emitted) => Object.fromEntries(Object.entries(emitted).map(([file, text]) => [path.basename(file), note ? `// ${note}\n${text}` : text]));
     const all = {
       tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
-      // The product's sheet says what its system does not have, as a shipped system's does: declared in its own scope,
-      // so that an element there reads the product's lists and not the default system's from `:root`.
+      // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
+      // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
       web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held) }), ...webRegistry(ir, id) }),
       swiftui: () => flat(emitSwift(nativeIr, { external: true })),
       compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),

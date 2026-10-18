@@ -9,6 +9,7 @@ import { test } from 'node:test';
 import { DEFAULT_SYSTEM, heldComponents, layerChain, listSystems, shippedSystems } from '../src/bundle.js';
 import { componentCatalog } from '../src/components-catalog.js';
 import { CATALOG_FILE, componentsManifest, manifestFile, readComponentCatalog } from '../src/components-manifest.js';
+import { omittedOf, replacementsOf, sheetAvailability } from '../src/layers.js';
 import { CONFIG } from '../src/config.js';
 import { REPO_ROOT } from '../src/model.js';
 import { readSystemChain, validateSystem } from '../src/resolve.js';
@@ -155,4 +156,26 @@ test('a product on a preset takes the preset’s entry for what the preset ships
   assert.equal(find(acme, 'fab-menu').web.import, `${WEB}/m3-like`);
   assert.equal(find(acme, 'button').web.import, `${WEB}/m3-like`);
   assert.throws(() => componentsManifest(layerChain(DEFAULT_SYSTEM, read), catalog, held), /name the shipped systems/);
+});
+
+test('every stylesheet names what its system uses instead of what it does not have, from its manifest’s `insteadUse`', () => {
+  const sheetOf = (id) => fs.readFileSync(path.join(REPO_ROOT, id === DEFAULT_SYSTEM ? 'packages/web/src/generated/tokens.css' : `packages/web/src/generated/systems/${id}.css`), 'utf8');
+  const listed = (sheet) => /--tanrei-unavailable-replacement: "([^"]*)";/.exec(sheet)?.[1];
+  for (const id of shipped) {
+    const expected = committed(id).omitted.filter((entry) => entry.insteadUse).map((entry) => `${entry.name}=${entry.insteadUse.join(',')}`).join(' ');
+    assert.equal(listed(sheetOf(id)), expected, `${id}: declared even when empty, so a preset's list replaces the default system's`);
+  }
+  const insteadUse = read(DEFAULT_SYSTEM).components.omit['segmented-button'].insteadUse;
+  assert.equal(listed(sheetOf(DEFAULT_SYSTEM)), `segmented-button=${insteadUse.join(',')}`);
+  // The same list from the layers alone: what a product's sheet is made from.
+  const acme = [...layerChain(DEFAULT_SYSTEM, read), { id: 'acme', extends: DEFAULT_SYSTEM, components: { omit: { carousel: { reason: 'Acme shows one thing at a time.', insteadUse: ['list'] } } } }];
+  assert.deepEqual(sheetAvailability(acme, held).replacements, { carousel: ['list'], 'segmented-button': insteadUse });
+  assert.deepEqual(omittedOf(acme, held).map(({ name }) => name), componentsManifest(acme, catalog, held, shipped).omitted.map(({ name }) => name));
+});
+
+test('a component that lives in another layer is named instead of as soon as its manifest entry names a replacement', () => {
+  // No layer names one yet for a component that lives in a layer the system does not extend; the entry the manifest
+  // would carry stands for it.
+  assert.deepEqual(replacementsOf([{ name: 'fab-menu', providedBy: 'm3-like', insteadUse: ['main-action-button'] }, { name: 'carousel', omittedBy: 'acme' }]), { 'fab-menu': ['main-action-button'] });
+  assert.equal(omittedOf(layerChain(DEFAULT_SYSTEM, read), held).find((entry) => entry.name === 'fab-menu').providedBy, 'm3-like');
 });

@@ -157,6 +157,9 @@ const unavailableValue = ({ components, variants }) =>
 /** What lives in a layer the system does not extend: `component=layer`, space-separated, in one string. */
 const outsideValue = (outside) => JSON.stringify(Object.entries(outside).map(([component, layer]) => `${component}=${layer}`).join(' '));
 
+/** What the system uses instead: `component=replacement,replacement`, space-separated, in one string. */
+const replacementValue = (replacements) => JSON.stringify(Object.entries(replacements).map(([entry, uses]) => `${entry}=${uses.join(',')}`).join(' '));
+
 const block = (selector, decls, indent = '') =>
   `${indent}${selector} {\n${decls.map(([n, v]) => `${indent}  ${n}: ${v};`).join('\n')}\n${indent}}`;
 
@@ -165,15 +168,17 @@ function colorValue(token) {
 }
 
 /**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string> }} [options]
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]> }} [options]
  *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
  *   systems can coexist on one page. `unavailable` = what the system does not ship, declared as one string
  *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
  *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
  *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
- *   system's sheet has no tokens for them, and a component used there says so.
+ *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
+ *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
+ *   way, so that the report names them.
  */
-export function emitCss(model, { scope, unavailable, outside } = {}) {
+export function emitCss(model, { scope, unavailable, outside, replacements } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
@@ -220,7 +225,7 @@ export function emitCss(model, { scope, unavailable, outside } = {}) {
     // Custom properties resolve their var() references where they are declared. Declaring the whole
     // set again on a contrast scope makes component tokens pick up that scope's system colors, so
     // data-${NS}-contrast works on a subtree and not only on <html>.
-    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : [])], '  '),
+    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []), ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : [])], '  '),
     block(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
     '',
     `  /* Theme follows the OS by default; force it per subtree with data-${NS}-theme. */`,
