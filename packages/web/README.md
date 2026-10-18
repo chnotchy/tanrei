@@ -5502,10 +5502,13 @@ are announced. It never takes or moves focus, except to give
 it back: closed while focus is inside it, focus returns to the element that had it before it entered the callout, or
 the focused element is blurred where that one is gone (CLO-12).
 
-**The close button (CLO-10…19)** is the snackbar's: a native button drawn from `--tanrei-comp-callout-close-*` per state
-and form (the tonal look's by status; `outlined` in every status), `stateRules()`, `PressController`, the ripple, the
-minimum target, and the shared focus ring with its outer stroke in the form's `focus-ring-color`. No Escape, no timeout,
-no motion.
+**The close button (CLO-10, CLO-11)** is a `<tanrei-button size="small">` with the `close` glyph in its `icon` slot,
+in the shadow root (part `close-button`). After each update the callout gives it, through the Button's internal channel,
+the variant `--tanrei-comp-callout-close-button-variant` names (`giveVariant()`) and, in every look but `outlined`, the
+tone of its form (`giveTone()`, BTN-45): `var(--tanrei-comp-callout-[<status>-]body-color-<variant>)`, so that the Button
+draws its container as that color made translucent and its glyph in it. Its states, press answer, focus ring and
+minimum target are the Button's; the callout adds no style to it. A callout connected again asks for an update, because
+a Button that reconnects lets go of what its host gave it. No Escape, no timeout, no motion.
 
 **Glyphs (CLO-5, CLO-6, CLO-27, CLO-29).** A status draws `info`, `warning`, `error` or `check_circle` unless the `icon`
 slot holds a glyph; without a status and without one there is no glyph and no room for one. The glyph's opacity is a mix
@@ -5514,7 +5517,7 @@ right-to-left by the icon helper. Until the icon font can draw a glyph its box d
 `GlyphDrawnController` measures, so the product's glyph name is not spelled either).
 
 **Forced colors (CLO-24).** Every look gains a `CanvasText` border of `outline.width`, which the paddings give room
-for; the title, the body and the glyph take `CanvasText` and the close button `ButtonText`.
+for; the title, the body and the glyph take `CanvasText`; the close button is a Button, drawn as every Button is there.
 
 **Before the element is defined (`@tanrei/web/callout.css`).** `tanrei-callout:not(:defined)` is a block with the
 callout's paddings and the body's text style, room at the start for a status's or the `icon` slot's glyph (whose name

@@ -2,7 +2,7 @@
 title: Callout
 description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
 translationOf: components/callout.mdx
-sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+sourceHash: 45990ea481aa7ae5b0e2f8995548890f5b3b36af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -173,7 +173,7 @@ La prosa no trae color, así que se lee sobre cualquier relleno, y sus enlaces v
 
 Las acciones son tus propios [botones](/es/components/button/) o enlaces, uno o dos. Usa botones `outlined` o `text`: un botón `tonal` tiene el relleno del callout tonal sin estado, y ahí no se distingue como botón. El callout los dispone en una fila que salta de línea y no hace nada más: no se cierra cuando se pulsa uno.
 
-`closable` dibuja un botón de cierre, que recibe su nombre de `close-label`. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
+`closable` dibuja un botón de cierre: un [botón](../button/) pequeño, solo con icono, que recibe su nombre de `close-label` y su variante de `--tanrei-comp-callout-close-button-variant` (tonal en el sistema predeterminado). En un callout tonal se dibuja en el color de texto del propio callout —un círculo de ese color hecho translúcido, con el glifo dentro en el mismo color—, de modo que se ve sobre el relleno de cualquier estado; en un callout outlined, que no tiene relleno, es el botón tal como es en cualquier otra parte. Responde al paso del puntero, al foco y a la pulsación como cualquier botón. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
 
 ### Aparecer en respuesta a algo
 
@@ -232,7 +232,7 @@ El cuerpo, el slot del título y las acciones son hijos del propio elemento, as�
 - Un título dado como texto es texto sin más. Un encabezado en el slot `title` conserva su nivel.
 - No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces y controles del cuerpo, después a las acciones y después al botón de cierre.
 - Cuando se cierra mientras el foco está dentro, el foco vuelve al elemento que lo tenía antes de entrar en el callout, de modo que el siguiente Tab llega a lo que venía a continuación.
-- El área de pulsación del botón de cierre alcanza el objetivo mínimo, y su anillo de foco se dibuja en un color que se ve sobre el relleno del callout.
+- El botón de cierre es un botón: su área de pulsación alcanza el objetivo mínimo y, en un callout tonal, su glifo y su anillo de foco van en el color de texto del callout, que mantiene al menos 6:1 frente al botón en todos los estados y esquemas de color del sistema predeterminado.
 - Con el texto ampliado, todo salta de línea y crece; el glifo y el botón de cierre se quedan en la primera línea.
 - Con colores forzados, todos los aspectos ganan un borde en el color del texto, y el glifo se dibuja entero.
 - En un diseño de derecha a izquierda, el glifo pasa a la derecha y el botón de cierre a la izquierda, un glifo que el conjunto de iconos marca para ello se refleja, y un título escrito de izquierda a derecha conserva su propio orden.
