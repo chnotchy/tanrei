@@ -2,7 +2,7 @@
 title: أنظمة التصميم والتخصيص
 description: مفردات واحدة وأنظمة تصميم كثيرة. غيِّر قرص ضبط، أو أعلن لوحة ألوان، أو أعد توجيه رمز، فتتبعك كل المنصات في إيداع واحد.
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: 4c890c31daebc5db9719d6f53c3e48ce32b794cf
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -122,11 +122,12 @@ import SystemGallery from '../../../../components/SystemGallery.astro';
 
 <SystemGallery />
 
-على الويب يكون الإعداد الجاهز ورقة أنماط إضافية واحدة، محصورة في سمة، فتستطيع الأنظمة أن تتجاور في الصفحة نفسها:
+على الويب يكون الإعداد الجاهز ورقة أنماط إضافية واحدة، محصورة في سمة، فتستطيع الأنظمة أن تتجاور في الصفحة نفسها. ويسجّل مدخلُه المكوّناتِ التي يملكها، ومنها ما يتركه النظام الافتراضي (لا يسجّل `@tanrei/web` إلا مكوّنات النظام الافتراضي):
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/cupertino'; // المكوّنات التي يملكها cupertino
 ```
 
 ```html

@@ -2,7 +2,7 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -51,13 +51,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. Registra los componentes. Importa todo, o solo los elementos que uses.
+2. Registra los componentes de tu sistema de diseño, o solo los elementos que uses.
 
    ```js
    import '@tanrei/web';
+   // con un preajuste, su entrada en su lugar: m3-like, m3-expressive-like o cupertino
+   import '@tanrei/web/m3-like';
    // o bien, un elemento cada vez:
    import '@tanrei/web/components/button';
    ```
+
+   `@tanrei/web` registra los componentes que incluye el sistema predeterminado y ningún otro, así que un producto construido sobre él no puede llegar a uno que su sistema no tiene. La entrada de un preajuste, `@tanrei/web/<id>`, registra lo que ese preajuste incluye, y `@tanrei/web/all`, todos los componentes del paquete. Un componente que solo incluye un preajuste, como el [botón segmentado](/es/components/segmented-button/), se puede usar igualmente a propósito: inclúyelo en la capa de tu sistema e importa su propio módulo.
 
    Los especificadores `@tanrei/web/…` son exportaciones del paquete: los resuelve un empaquetador (Vite, webpack, esbuild). Sin él, un navegador no puede resolver un especificador desnudo en `<link>` ni en `<script src>`, así que sirve el directorio `dist/` del paquete y apunta a los archivos: las hojas de estilos tal como están, y `tanrei.bundle.js`, que incluye Lit y todos los elementos:
 
@@ -89,6 +93,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">Desplegar</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
 </DemoFrame>
+
+## El manifiesto de los elementos
+
+Los editores y los agentes de programación leen los elementos del paquete en su [manifiesto de custom elements](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`: cada elemento con sus atributos, propiedades, eventos, slots y partes, y nada que un producto no pueda alcanzar. `@tanrei/web/custom-elements/<id>.json` contiene solo los elementos que incluye el sistema `<id>`, así que una herramienta que trabaja en un sistema no ofrece nada más.
 
 ## Tema y contraste
 

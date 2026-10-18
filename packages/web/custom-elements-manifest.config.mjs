@@ -319,12 +319,29 @@ const primitiveBasesOnly = {
   },
 };
 
+/**
+ * The manifest is what a product, an editor or a coding agent reads of the package: its public surface, and nothing a
+ * reader cannot use. Two things the analyzer writes are not that, and were most of its size:
+ *   - the private and protected members of every class (`private`, `protected`, `#name`): no product can reach them;
+ *   - the text of each `css` template a module declares (a component's styles): the drawing, not the surface — a
+ *     product styles an element through its parts and its tokens, both listed.
+ * This takes them out once everything else is linked, so that what a class inherits is taken out of its subclasses
+ * too. The declaration of a styles constant stays, without its text.
+ */
+const publicSurface = {
+  name: 'tanrei-public-surface',
+  packageLinkPhase({ customElementsManifest }) {
+    for (const declaration of customElementsManifest.modules.flatMap((module) => module.declarations ?? [])) {
+      if (declaration.members) declaration.members = declaration.members.filter((member) => member.privacy !== 'private' && member.privacy !== 'protected');
+      if (declaration.kind === 'variable' && /^css\s*`/.test(declaration.default ?? '')) delete declaration.default;
+    }
+  },
+};
+
 export default {
   // The components, and the primitives that hold an element's base class (NavigationDestination; the composed
   // elements' ComposedElement and ComposedControl).
-  // `src/m3-like.ts`: the entry of the components that live in the m3-like layer — the manifest lists their exports
-  // under that module's path, so a reader sees which entry registers them.
-  globs: ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts', 'src/m3-like.ts'],
+  globs: ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts'],
   exclude: ['**/*.test.ts'],
   outdir: '.',
   litelement: true,
@@ -332,6 +349,7 @@ export default {
     declaredAttributes(),
     primitiveBasesOnly,
     composedFrom(),
+    publicSurface,
     {
       // The analyzer emits `modules` in a different order from run to run on unchanged sources, so unsorted, the
       // committed manifest would churn by thousands of lines and the drift check could not hold. Sorting by path makes the output a function of the sources.

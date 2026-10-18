@@ -2,7 +2,7 @@
 title: "设计系统与定制"
 description: "一套词汇，多个设计系统。改一个调节量、声明一个调色板、重新指向一个令牌——所有平台在同一次提交中跟着变化。"
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: 4c890c31daebc5db9719d6f53c3e48ce32b794cf
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -122,11 +122,12 @@ Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈�
 
 <SystemGallery />
 
-在 Web 上，预设只是多一张样式表，作用域限定在一个属性上，所以多个系统甚至可以并排出现：
+在 Web 上，预设只是多一张样式表，作用域限定在一个属性上，所以多个系统甚至可以并排出现。预设的入口注册它所包含的组件，其中也有默认系统不包含的组件（`@tanrei/web` 只注册默认系统的组件）：
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/cupertino'; // cupertino 包含的组件
 ```
 
 ```html
