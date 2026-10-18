@@ -2,12 +2,14 @@
 //   mul    { of: "{id}", by: n, exp?: "{id}" | n }   → of × by^exp   (exp defaults to 1, so by^1 = by exactly)
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
+//   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
+//                                                       one at an inset (the concentric radius); never below zero
 //   em     { by: n }                                  → this token's fontSize × by   (typography.letterSpacing only)
 //   pick   { by: "{id}", values: { <name>: v, … } }   → the value named by the choice of kind `by` names now; `v` is
 //                                                       a literal of this token's type or "{id}" (one entry per name)
 //   fixed  { fixed: "reason" }                        → keep the literal; dials do not move it
 // The color half — tone, alpha, mix, contrast-pick — lives in palette.js (color roles) and states.js (per-state
-// component tokens); together they are the nine functions, and the language has no others. `pick` is the one table
+// component tokens); together they are the ten functions, and the language has no others. `pick` is the one table
 // in it: a token whose value is set by a choice of kind (`sys.behavior.appearance` sets how far a surface that appears
 // is scaled), so that a layer that makes the choice gets the values that go with it, and a layer that pins one of
 // those values keeps its pin.
@@ -34,7 +36,7 @@ const refId = (v) => v.slice(1, -1);
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
   return [rule.of, rule.base, rule.exp, rule.by, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
@@ -62,6 +64,12 @@ export function evaluateNumeric(rule, lookup, ctx) {
     case 'clamp': {
       const of = lookup(refId(rule.of));
       return { value: Math.min(rule.max, Math.max(rule.min, of.value)), unit: of.unit };
+    }
+    case 'sub': {
+      if (!isRef(rule.of) || !isRef(rule.by)) throw new Error('"sub" needs "of" and "by", each a token as "{id}"');
+      const [of, by] = [lookup(refId(rule.of)), lookup(refId(rule.by))];
+      if ((of.unit ?? null) !== (by.unit ?? null)) throw new Error(`"sub" takes ${rule.by} (${by.unit ?? 'no unit'}) from ${rule.of} (${of.unit ?? 'no unit'}): both need one unit`);
+      return { value: roundTo(Math.max(0, of.value - by.value), ROUND[ctx.type] ?? ROUND.number), unit: of.unit };
     }
     case 'em':
       if (ctx.fontSize === undefined) throw new Error('"em" is only valid for typography.letterSpacing');
