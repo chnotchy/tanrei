@@ -1,4 +1,4 @@
-// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id (SNK-1…34) is
+// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id (SNK-1…37) is
 // cited by a test title, every fixture has a baseline (drawn in place, SNK-19), and every value is read back from the
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -605,6 +605,269 @@ test.describe('host', () => {
     expect(stage.height).toBeCloseTo(240, 0);
     expect(scrolls.y).toBeGreaterThanOrEqual(stage.top - 0.5);
     expect(scrolls.y + scrolls.height).toBeLessThanOrEqual(stage.bottom + 0.5);
+  });
+});
+
+// ── At the top end ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** The bar of the showing snackbar, read in the page in one frame. */
+const shownBar = (page: P) =>
+  shown(page).evaluate((el) => {
+    const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
+    return { x: box.x, y: box.y, width: box.width, height: box.height, right: box.right, bottom: box.bottom };
+  });
+/**
+ * SNK-36: the showing snackbar's entrance read frame by frame — paused and set to each fraction of its time in the task
+ * that reads it, so nothing depends on how fast the machine runs it — then let go to its end, where the bar rests.
+ */
+const entranceFrames = (page: P, fractions: number[]) =>
+  shown(page).evaluate((el, at) => {
+    // Its entrance, which the host begins with the show (the snackbar runs no other motion of its own).
+    const motion = el.getAnimations().find((each) => (each as CSSAnimation).animationName?.startsWith('snackbar-'));
+    if (!motion) throw new Error('the snackbar is not entering');
+    const duration = Number(motion.effect!.getComputedTiming().duration);
+    motion.pause();
+    const read = () => {
+      const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
+      return { y: box.y, x: box.x, height: box.height, opacity: Number(getComputedStyle(el).opacity) };
+    };
+    const frames = at.map((fraction) => {
+      motion.currentTime = duration * fraction;
+      return read();
+    });
+    motion.finish();
+    return { name: (motion as CSSAnimation).animationName, frames, rest: read() };
+  }, fractions);
+
+test.describe('at the top end', () => {
+  test('SNK-35: at the top end of a wide window — the margin below the top edge and from the end edge — above the content; the host’s placement for a snackbar that names none, its own where it names one; an unknown placement is bottom', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    const margin = await resolveToken(page, T('container-margin'));
+    await host(page).evaluate((h: any) => (h.placement = 'top-end'));
+    await expect(host(page)).toHaveAttribute('placement', 'top-end');
+    await show(page, { message: 'Report exported', action: 'Open' });
+    await expect.poll(() => showing(page)).toEqual(['Report exported']);
+    await expect(shown(page)).toHaveAttribute('placement', 'top-end');
+    await motionEnded(shown(page));
+    const b = await shownBar(page);
+    expect(b.y).toBeCloseTo(margin, 0);
+    expect(b.right).toBeCloseTo(800 - margin, 0);
+    // Narrower than the window less its margins: as wide as its content, within its bounds (SNK-14).
+    expect(b.width).toBeLessThan(800 - 2 * margin - 1);
+    expect(b.width).toBeGreaterThanOrEqual((await resolveToken(page, T('container-min-width'))) - 0.5);
+    expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.localName, [b.x + 4, b.y + 4])).toBe('tanrei-snackbar');
+    // A snackbar that names its own placement keeps it; one with an unknown name is at the bottom (SNK-13).
+    for (const [placement, at] of [['bottom', 'bottom'], ['sideways', 'bottom']] as const) {
+      await host(page).evaluate((h: any) => h.dismissCurrent());
+      await expect.poll(() => showing(page)).toEqual([]);
+      await show(page, { message: placement, placement, duration: 'indefinite' });
+      await expect.poll(() => showing(page)).toEqual([placement]);
+      await motionEnded(shown(page));
+      const box = await shownBar(page);
+      expect(box.bottom, `${placement} is at the ${at}`).toBeCloseTo(600 - margin, 0);
+      expect(box.x + box.width / 2, `${placement} is centred`).toBeCloseTo(400, 0);
+    }
+  });
+
+  test('SNK-35, SNK-27: right-to-left, at the top left; a change of direction while it is shown moves it at once, without a motion', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    await page.evaluate(() => (document.documentElement.dir = 'rtl'));
+    const margin = await resolveToken(page, T('container-margin'));
+    await show(page, { message: 'Report exported', action: 'Open', placement: 'top-end' });
+    await expect.poll(() => showing(page)).toEqual(['Report exported']);
+    await motionEnded(shown(page));
+    const b = await shownBar(page);
+    expect(b.x).toBeCloseTo(margin, 0);
+    expect(b.y).toBeCloseTo(margin, 0);
+    // The direction changes; the bar stands at the top right in the same frame, and nothing moves it there.
+    const after = await shown(page).evaluate((el) => {
+      document.documentElement.dir = 'ltr';
+      const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
+      const motions = [...el.getAnimations(), ...el.shadowRoot!.querySelector('.bar')!.getAnimations()].map((each) => (each as CSSAnimation).animationName ?? 'transition');
+      return { right: box.right, y: box.y, motions };
+    });
+    expect(after.right).toBeCloseTo(800 - margin, 0);
+    expect(after.y).toBeCloseTo(margin, 0);
+    expect(after.motions).toEqual([]);
+  });
+
+  test('SNK-35: below a sticky header — what the frame keeps over the top — and inside the safe area, whichever is lower', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    const margin = await resolveToken(page, T('container-margin'));
+    // What <tanrei-app-shell> writes on the root for its sticky header (APS-17): a 64 px app bar.
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '64px' });
+    await show(page, { message: 'Report exported', placement: 'top-end', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Report exported']);
+    await motionEnded(shown(page));
+    expect((await shownBar(page)).y).toBeCloseTo(64 + margin, 0);
+    // The header is gone (a static header keeps nothing): the margin below the window's top edge.
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '' });
+    await expect.poll(async () => (await shownBar(page)).y).toBeCloseTo(margin, 0);
+  });
+
+  test('SNK-35: in a compact window, across the top — the margin from each side, within max-width; from breakpoint.medium on, as wide as its content at the end', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 600 });
+    await mountHost(page);
+    const [margin, medium, max] = await Promise.all([T('container-margin'), T('breakpoint-medium'), T('container-max-width')].map((name) => resolveToken(page, name)));
+    const windowWidth = () => page.evaluate(() => document.documentElement.clientWidth);
+    /** A new window size, once the page has it (an engine may apply it a little later than the call returns). */
+    const resize = async (width: number) => {
+      await page.setViewportSize({ width, height: 600 });
+      await expect.poll(() => page.evaluate(() => innerWidth)).toBe(width);
+    };
+    await show(page, { message: 'Saved', placement: 'top-end', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Saved']);
+    await motionEnded(shown(page));
+    const b = await shownBar(page);
+    expect(b.y).toBeCloseTo(margin, 0);
+    expect(b.x).toBeCloseTo(margin, 0);
+    expect(b.right).toBeCloseTo((await windowWidth()) - margin, 0);
+    // The widest compact window: across it, but no wider than max-width, and then at the end.
+    await resize(medium - 1);
+    const across = Math.min((await windowWidth()) - 2 * margin, max);
+    await expect.poll(async () => (await shownBar(page)).width).toBeCloseTo(across, 0);
+    expect((await shownBar(page)).right).toBeCloseTo((await windowWidth()) - margin, 0);
+    // From the medium width on, the window is not compact: as wide as its content, at the end.
+    await resize(medium);
+    await expect.poll(async () => (await shownBar(page)).width).toBeLessThan(across - 1);
+    expect((await shownBar(page)).right).toBeCloseTo((await windowWidth()) - margin, 0);
+    expect((await shownBar(page)).y).toBeCloseTo(margin, 0);
+  });
+
+  test('SNK-35: the placement changes no order — the controls are reached at the host’s place, the message is announced as at the bottom, and one shows at a time, unstacked', async ({ page }) => {
+    await mountHost(page);
+    await page.locator('#before').focus();
+    const polite = host(page).locator('.announce[role="status"]');
+    await show(page, { message: 'One', action: 'Undo', placement: 'top-end' });
+    await show(page, { message: 'Two', action: 'Undo', placement: 'top-end' });
+    await expect(polite).toHaveText('One. Undo');
+    await expect(page.locator('#before')).toBeFocused();
+    await expect.poll(() => showing(page)).toEqual(['One']);
+    // Tab from the element before the host reaches the action, though the bar stands at the top of the window.
+    await tabTo(page, page.locator('#before'));
+    await tab(page);
+    expect(await shown(page).evaluate((el) => el.shadowRoot!.activeElement?.className)).toContain('action');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => showing(page)).toEqual(['Two']);
+    expect(await results(page)).toEqual([{ message: 'One', result: 'dismiss', reason: 'escape' }]);
+    expect(await page.evaluate(() => document.querySelectorAll('tanrei-snackbar-host tanrei-snackbar').length)).toBe(1);
+  });
+
+  test('SNK-36: it descends from above the top edge by its height plus its margin while fading in, fades out in place, and only fades where motion is reduced', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountHost(page);
+    // The entrance at 40 s, so that it is still running when it is read; it is read frame by frame wherever it is.
+    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
+    const margin = await resolveToken(page, T('container-margin'));
+    await show(page, { message: 'Report exported', action: 'Open', placement: 'top-end' });
+    await expect.poll(() => showing(page)).toEqual(['Report exported']);
+    const { name, frames, rest } = await entranceFrames(page, [0, 0.5]);
+    expect(name).toBe('snackbar-in-top');
+    // The first frame: its own height plus its margin above where it rests — wholly above the top edge — and unseen.
+    expect(frames[0].y).toBeCloseTo(rest.y - rest.height - margin, 0);
+    expect(frames[0].y + frames[0].height).toBeLessThanOrEqual(0.5);
+    expect(frames[0].opacity).toBe(0);
+    // Half way: between, coming down, and fading in; straight down, at the end edge all the way.
+    expect(frames[1].y).toBeGreaterThan(frames[0].y + 1);
+    expect(frames[1].y).toBeLessThan(rest.y - 1);
+    expect(frames[1].opacity).toBeGreaterThan(0);
+    expect(frames[1].opacity).toBeLessThan(1);
+    for (const frame of frames) expect(frame.x).toBeCloseTo(rest.x, 0);
+    expect(rest.y).toBeCloseTo(margin, 0);
+    expect(rest.opacity).toBe(1);
+    // Out: it fades in place, at the top end.
+    await host(page).evaluate((h: any) => h.dismissCurrent());
+    const leaving = await page.locator('tanrei-snackbar-host tanrei-snackbar').evaluate((el) => {
+      const [motion] = el.getAnimations();
+      motion.pause();
+      motion.currentTime = Number(motion.effect!.getComputedTiming().duration) / 2;
+      const box = el.shadowRoot!.querySelector('.bar')!.getBoundingClientRect();
+      const read = { name: (motion as CSSAnimation).animationName, y: box.y, x: box.x, opacity: Number(getComputedStyle(el).opacity) };
+      motion.finish();
+      return read;
+    });
+    expect(leaving.name).toBe('snackbar-out');
+    expect(leaving.y).toBeCloseTo(rest.y, 0);
+    expect(leaving.x).toBeCloseTo(rest.x, 0);
+    expect(leaving.opacity).toBeLessThan(1);
+    await expect.poll(() => showing(page)).toEqual([]);
+    // Where motion is reduced: a fade, without moving.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await show(page, { message: 'Reduced', placement: 'top-end', duration: 'indefinite' });
+    await expect.poll(() => showing(page)).toEqual(['Reduced']);
+    const reduced = await entranceFrames(page, [0]);
+    expect(reduced.name).toBe('snackbar-fade-in');
+    expect(reduced.frames[0].y).toBeCloseTo(reduced.rest.y, 0);
+    expect(reduced.frames[0].opacity).toBe(0);
+  });
+
+  test('SNK-37: at the top end the bar grows downward and shrinks back, its top edge in place; expanded, it is at most as tall as the area below a sticky header', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 240 });
+    await mountHost(page);
+    const margin = await resolveToken(page, T('container-margin'));
+    await show(page, { title: TITLE, message: LONG, expandLabel: 'Show full message', duration: 'indefinite', placement: 'top-end' });
+    await expect.poll(() => showing(page)).toEqual([LONG]);
+    await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
+    await motionEnded(shown(page));
+    const before = await shownBar(page);
+    // Half way through the bar's own motion, begun by a press on the expand button, read in the task that begins it.
+    const during = await shown(page).evaluate(async (el: any) => {
+      const barEl = el.shadowRoot.querySelector('.bar') as HTMLElement;
+      (el.shadowRoot.querySelector('.expand') as HTMLElement).click();
+      await el.updateComplete;
+      // The bar's one motion, its height (SNK-24): all it runs after the press, listed by what each moves.
+      const motions = barEl.getAnimations();
+      const moved = motions.map((each) => Object.keys((each.effect as KeyframeEffect).getKeyframes()[0]).filter((key) => !['offset', 'easing', 'composite', 'computedOffset'].includes(key)).join());
+      const [motion] = motions;
+      motion.pause();
+      motion.currentTime = Number(motion.effect!.getComputedTiming().duration) / 2;
+      const box = barEl.getBoundingClientRect();
+      motion.play();
+      return { y: box.y, height: box.height, moved };
+    });
+    expect(during.moved).toEqual(['blockSize']);
+    expect(during.height, 'half way: taller than collapsed').toBeGreaterThan(before.height + 1);
+    await motionEnded(shown(page).locator('.bar'));
+    const after = await shownBar(page);
+    expect(during.height, 'half way: not yet expanded').toBeLessThan(after.height - 1);
+    for (const box of [during, after]) expect(box.y).toBeCloseTo(before.y, 0);
+    // Expanded in a 240 tall window, the text scrolls: the bar takes the window less the margins (SNK-25).
+    expect(after.bottom).toBeCloseTo(240 - margin, 0);
+    // Below a 64 px sticky header, the area is measured from below it.
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '64px' });
+    await expect.poll(async () => (await shownBar(page)).y).toBeCloseTo(64 + margin, 0);
+    expect((await shownBar(page)).bottom).toBeCloseTo(240 - margin, 0);
+    await rootTokens(page, { '--tanrei-app-shell-scroll-offset': '' });
+    await shown(page).locator('.expand').click();
+    await expect.poll(async () => (await shownBar(page)).height).toBeCloseTo(before.height, 0);
+    expect((await shownBar(page)).y).toBeCloseTo(before.y, 0);
+  });
+
+  test('SNK-19, SNK-35: drawn in place at the top end — at the end of the width it is given, at its start right-to-left, and across a width narrower than breakpoint.medium', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true });
+    const medium = await resolveToken(page, T('breakpoint-medium'));
+    const stage = (id: string) =>
+      page.locator(`[data-fixture="${id}"]`).evaluate((el) => {
+        const s = getComputedStyle(el);
+        const box = el.getBoundingClientRect();
+        return { left: box.left + Number.parseFloat(s.paddingLeft), right: box.right - Number.parseFloat(s.paddingRight) };
+      });
+    const [ltr, rtl, compact] = await Promise.all(['top-end', 'top-end-rtl', 'top-end-compact'].map(stage));
+    expect(ltr.right - ltr.left).toBeGreaterThanOrEqual(medium);
+    expect(compact.right - compact.left).toBeLessThan(medium);
+    const [a, b, c] = await Promise.all(['top-end', 'top-end-rtl', 'top-end-compact'].map((id) => bounds(part(page, id, 'bar'))));
+    expect(a.width).toBeLessThan(ltr.right - ltr.left - 1);
+    expect(a.x + a.width).toBeCloseTo(ltr.right, 0);
+    expect(b.x).toBeCloseTo(rtl.left, 0);
+    expect(b.width).toBeCloseTo(a.width, 0);
+    expect(c.x).toBeCloseTo(compact.left, 0);
+    expect(c.width).toBeCloseTo(compact.right - compact.left, 0);
+    // In place it is static and at rest, whatever its placement.
+    expect(await css(bar(page, 'top-end'), 'position')).toBe('static');
+    expect(await css(bar(page, 'top-end'), 'animation-name')).toBe('none');
   });
 });
 

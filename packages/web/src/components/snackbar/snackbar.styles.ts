@@ -100,8 +100,9 @@ export const styles = css`
   :host([inverse='false' i]) {
     ${unsafeCSS(INVERSE_PROPERTY)}: off;
   }
-  /* SNK-13: shown by its host as a manual popover — in the top layer, at the bottom of the window, centred, the margin
-     above the bottom edge (and the keyboard, and the safe area) and from the sides. None of the browser's popover box. */
+  /* SNK-13: shown by its host as a manual popover — in the top layer and, at the bottom (the default, and what an
+     unknown placement is), at the bottom of the window, centred, the margin above the bottom edge (and the keyboard, and
+     the safe area) and from the sides. None of the browser's popover box. */
   :host([popover]) {
     box-sizing: border-box;
     position: fixed;
@@ -124,6 +125,46 @@ export const styles = css`
   }
   :host([popover]:not(:popover-open)) {
     display: none;
+  }
+  /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
+     the frame keeps over the top of the window (a sticky header of <tanrei-app-shell>, APS-17, or a product's own frame
+     that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the
+     safe-area inset on that side. */
+  :host([popover][placement='top-end']) {
+    --_inset-start: env(safe-area-inset-left, 0px);
+    --_inset-end: env(safe-area-inset-right, 0px);
+    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
+    inset: calc(${t('container-margin')} + var(--_inset-top)) auto auto auto;
+    inset-inline-end: calc(${t('container-margin')} + var(--_inset-end));
+    margin: 0;
+    max-inline-size: calc(100% - 2 * ${t('container-margin')} - var(--_inset-start) - var(--_inset-end));
+    /* In a compact window (narrower than breakpoint.medium) it stands across the top, the margin from each side: its
+       least width is then the window's less the margins, and otherwise none. (B - 100vw) is positive only below the
+       breakpoint, and × 100000 turns any such amount into more than a window is wide — a step, without a media query,
+       which cannot read a custom property. */
+    min-inline-size: min(100% - 2 * ${t('container-margin')} - var(--_inset-start) - var(--_inset-end), (${t('breakpoint-medium')} - 100vw) * 100000);
+    /* SNK-25, SNK-37: the host's area is measured from below what the frame keeps over its top. */
+    max-block-size: calc(100dvh - 2 * ${t('container-margin')} - var(--_inset-top) - env(safe-area-inset-bottom, 0px) - var(--tanrei-snackbar-keyboard, 0px));
+  }
+  :host([popover][placement='top-end']:dir(rtl)) {
+    --_inset-start: env(safe-area-inset-right, 0px);
+    --_inset-end: env(safe-area-inset-left, 0px);
+  }
+  /* SNK-35: shown, the bar fills its host's box, which is as wide as the bar's content within its bounds and, in a compact
+     window, as wide as the window less the margins (above), and stands at its end where max-width holds it narrower.
+     The host's least width resolves against the window; a percentage in the bar's own least width would not count
+     toward the host's width in every engine, and its width of 100% counts as its content's. */
+  :host([popover][placement='top-end']) .bar {
+    inline-size: 100%;
+    justify-self: end;
+    margin-inline: 0;
+  }
+  /* SNK-19, SNK-35: drawn in place at the top end, the bar stands at the end of the width it is given, and across the
+     whole of it where that width — which stands for the host's area — is narrower than breakpoint.medium (the same step
+     as the host's). */
+  :host([placement='top-end']:not([popover])) .bar {
+    margin-inline: auto 0;
+    min-inline-size: max(min(${t('container-min-width')}, 100%), min(100%, (${t('breakpoint-medium')} - 100%) * 100000));
   }
 
   /* SNK-15: the action — its label at least controls.height tall, on its corners. */
@@ -463,9 +504,13 @@ export const styles = css`
   }
 
   /* SNK-17: in, it rises from below the bottom edge by its own height plus its margin while fading in; out, it fades in
-     place. Where motion is reduced it only fades. */
+     place, at either placement. Where motion is reduced it only fades. */
   :host(.entering) {
     animation: snackbar-in ${t('motion-enter-duration')} ${t('motion-enter-easing')} both;
+  }
+  /* SNK-36: at the top end it descends from above the top edge instead, by the same distance — the mirror of the rise. */
+  :host(.entering[placement='top-end']) {
+    animation-name: snackbar-in-top;
   }
   :host(.leaving) {
     animation: snackbar-out ${t('motion-exit-duration')} ${t('motion-exit-easing')} both;
@@ -474,6 +519,12 @@ export const styles = css`
     from {
       opacity: 0;
       translate: 0 calc(100% + ${t('container-margin')});
+    }
+  }
+  @keyframes snackbar-in-top {
+    from {
+      opacity: 0;
+      translate: 0 calc(-100% - ${t('container-margin')});
     }
   }
   @keyframes snackbar-out {
@@ -487,7 +538,8 @@ export const styles = css`
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    :host(.entering) {
+    :host(.entering),
+    :host(.entering[placement='top-end']) {
       animation-name: snackbar-fade-in;
     }
     .control {

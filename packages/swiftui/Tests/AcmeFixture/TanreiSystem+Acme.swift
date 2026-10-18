@@ -7904,6 +7904,7 @@ private let acmeSliderTokens = TanreiSliderTokens(
 
 private let acmeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0.12,
+  breakpointMedium: 600,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: acmeElevation.level3,

@@ -40429,7 +40429,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as\ninformation, a warning, an error or a success), with at most one action, without taking focus or interrupting their\nwork.\n\nContract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which\nqueues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in\nplace, at rest: no timeout, queue, entrance or announcement (SNK-19); it still fires `action`, `dismiss` and\n`expandedchange`.\n\nIt is drawn on a raised surface of the scheme or, `inverse`, as a bar of the opposite scheme; left unset, the system\nchooses (`--tanrei-comp-snackbar-container-inverse`, off in the default system). That and its `status` make its form,\none of ten, and the form changes colors only (SNK-30).\n\nThe action is the snackbar's own control, drawn from `--tanrei-comp-snackbar-action-*` tokens per state and form; the\nbar from `--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The\nexpand and close buttons are icon-only `<tanrei-button>`s of the small size (SNK-34), in the variant\n`--tanrei-comp-snackbar-close-button-variant` names and in the form's tone: its message color and its focus color,\nwhich they draw their glyph, their circle and their states in (BTN-45). The keyboard focus indicator's outer stroke is\nthe form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar (SNK-29).\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the bar.",
+          "description": "Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened\n(neutrally, or as information, a warning, an error or a success), with at most one action, without taking focus or\ninterrupting their work.\n\nContract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which\nqueues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in\nplace, at rest: no timeout, queue, entrance or announcement (SNK-19); it still fires `action`, `dismiss` and\n`expandedchange`.\n\nIt is drawn on a raised surface of the scheme or, `inverse`, as a bar of the opposite scheme; left unset, the system\nchooses (`--tanrei-comp-snackbar-container-inverse`, off in the default system). That and its `status` make its form,\none of ten, and the form changes colors only (SNK-30).\n\nThe action is the snackbar's own control, drawn from `--tanrei-comp-snackbar-action-*` tokens per state and form; the\nbar from `--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The\nexpand and close buttons are icon-only `<tanrei-button>`s of the small size (SNK-34), in the variant\n`--tanrei-comp-snackbar-close-button-variant` names and in the form's tone: its message color and its focus color,\nwhich they draw their glyph, their circle and their states in (BTN-45). The keyboard focus indicator's outer stroke is\nthe form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar (SNK-29).\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the bar.",
           "name": "TanreiSnackbar",
           "cssParts": [
             {
@@ -40594,6 +40594,18 @@
             },
             {
               "kind": "field",
+              "name": "placement",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSnackbarPlacement"
+              },
+              "default": "'bottom'",
+              "description": "Where its host places it: `bottom`, centred at the bottom edge (SNK-13), or `top-end`, at the top edge on the end side\n— the top right in a left-to-right layout, the top left in a right-to-left one, and across the top of a compact\nwindow (SNK-35). It enters from that edge (SNK-36) and, expanding, keeps that edge in place (SNK-24, SNK-37). An\nunknown value is `bottom`. Drawn in place, `top-end` stands at the end of the width it is given (SNK-19).",
+              "attribute": "placement",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "hosted",
               "type": {
                 "text": "boolean"
@@ -40742,6 +40754,15 @@
               "default": "'auto'",
               "description": "How long it stays by itself: `auto` is short without an action and indefinite with one.",
               "fieldName": "duration"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "TanreiSnackbarPlacement"
+              },
+              "default": "'bottom'",
+              "description": "Where its host places it: `bottom`, centred at the bottom edge (SNK-13), or `top-end`, at the top edge on the end side\n— the top right in a left-to-right layout, the top left in a right-to-left one, and across the top of a compact\nwindow (SNK-35). It enters from that edge (SNK-36) and, expanding, keeps that edge in place (SNK-24, SNK-37). An\nunknown value is `bottom`. Drawn in place, `top-end` stands at the end of the width it is given (SNK-19).",
+              "fieldName": "placement"
             }
           ],
           "superclass": {
@@ -40753,7 +40774,7 @@
         },
         {
           "kind": "class",
-          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13).\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.",
+          "description": "Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,\nwith `placement=\"top-end\"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it\nreads from `--tanrei-app-shell-scroll-offset` on the document's root.\nPlace it once, as the last element of the page: its place in the focus order is where a snackbar's controls are\n(SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role=\"status\"`) for the\ndefault, info and success forms, assertive (`role=\"alert\"`) for warning and error — so it must be in the document\nbefore the first one.\n\n`show(options)` resolves once that snackbar has closed: `{ result: 'action' }` or `{ result: 'dismiss', reason }`.\n`dismissCurrent()` closes the showing one (reason `host`); `clear()` also drops every waiting one.",
           "name": "TanreiSnackbarHost",
           "slots": [
             {
@@ -40762,6 +40783,18 @@
             }
           ],
           "members": [
+            {
+              "kind": "field",
+              "name": "placement",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSnackbarPlacement"
+              },
+              "default": "'bottom'",
+              "description": "Where it places every snackbar whose `show()` options name no `placement` (SNK-35): `bottom`, the default, or\n`top-end`. A product chooses one place for its snackbars.",
+              "attribute": "placement",
+              "reflects": true
+            },
             {
               "kind": "method",
               "name": "show",
@@ -40798,6 +40831,17 @@
               },
               "description": "The snackbar being shown, if any.",
               "readonly": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "placement",
+              "type": {
+                "text": "TanreiSnackbarPlacement"
+              },
+              "default": "'bottom'",
+              "description": "Where it places every snackbar whose `show()` options name no `placement` (SNK-35): `bottom`, the default, or\n`top-end`. A product chooses one place for its snackbars.",
+              "fieldName": "placement"
             }
           ],
           "superclass": {

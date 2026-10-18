@@ -53,7 +53,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a snackbar reads. It has ten forms: the default form and four status forms (info, warning, error, success), each drawn on a surface of the scheme or, inverse, in the opposite scheme's colors; container.inverse says which of the two a snackbar takes when the product did not say. For every form: the bar's color, the title's and the message's colors, the status glyph's color, the color of a status form's edge and the color of the focus indicator on that bar; and, for the action, drawn as a tonal button, in each state, its container color, content color and state-layer color. The expand and close buttons are Tanrei Buttons of the small size: close-button.variant names their variant, and the snackbar gives them its form's message color and focus-ring color as their tone. Four opacities are shared by every form and say how far a part steps back from its color: the message under a title (supporting-text.under-title.opacity), the status glyph (icon.opacity), a status form's edge (outline.opacity) and the action's tonal layer (action.tonal-layer.opacity). Also shared: the bar's elevation, shape, padding and size limits; the text styles and line limits; the glyph's size and gap; the edge's width; the action's height (a small Button's), shape and text style, and the gap between the controls; how far the bar sits from the window's edges; how it enters, leaves and expands; and the two timeouts.",
+            "usage": "Everything a snackbar reads. It has ten forms: the default form and four status forms (info, warning, error, success), each drawn on a surface of the scheme or, inverse, in the opposite scheme's colors; container.inverse says which of the two a snackbar takes when the product did not say. For every form: the bar's color, the title's and the message's colors, the status glyph's color, the color of a status form's edge and the color of the focus indicator on that bar; and, for the action, drawn as a tonal button, in each state, its container color, content color and state-layer color. The expand and close buttons are Tanrei Buttons of the small size: close-button.variant names their variant, and the snackbar gives them its form's message color and focus-ring color as their tone. Four opacities are shared by every form and say how far a part steps back from its color: the message under a title (supporting-text.under-title.opacity), the status glyph (icon.opacity), a status form's edge (outline.opacity) and the action's tonal layer (action.tonal-layer.opacity). Also shared: the bar's elevation, shape, padding and size limits; the text styles and line limits; the glyph's size and gap; the edge's width; the action's height (a small Button's), shape and text style, and the gap between the controls; how far the bar sits from the window's edges; the window width below which a snackbar placed at the top end stands across the top (breakpoint.medium); how it enters, leaves and expands; and the two timeouts.",
             "rules": [
               "One message, at most one action. A second choice belongs in a dialog.",
               "The action is a tonal button by default, because it is usually an undo that must be seen at once. Tonal means one quiet step away from the bar it sits on, the same step in every form: the action's container is the bar's own color, and the tonal layer (the action's content color at action.tonal-layer.opacity) is drawn over it. Never give the action a fill that outweighs the message. A product that wants a text action sets action.tonal-layer.opacity to 0. An action important enough to seem to want a filled button does not belong in a snackbar: put a Main Action Button in a bottom sheet instead.",
@@ -68,6 +68,7 @@
               "The action's state-layer.color is the color hover, focus and press mix into its container; it aliases the action's content color, in every form. The expand and close buttons answer their states as Buttons, over the tone the snackbar gives them.",
               "A form's focus-ring.color must keep 3:1 against that form's container.color. On a bar that is not a surface role it is the bar's content color, never sys.color.focus-ring. It is also the focus color of the tone the expand and close buttons are given.",
               "A snackbar with an action does not time out by default (duration auto). A product that times one out must offer the action somewhere else too.",
+              "breakpoint.medium is a width of the window, not a size of anything drawn. It aliases the system's window class (sys.breakpoint.medium); set it here only to part this one component from the rest, and never as a literal.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
           },
@@ -188,6 +189,19 @@
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space100}",
             "$description": "Between the message and the first control, and between the message and an action moved to its own row."
+          }
+        },
+        "breakpoint": {
+          "$type": "dimension",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that shows its snackbars at the top end of a wide window shows them across the top of a narrow one, from the same window width at which its own layout becomes a single column.",
+              "since": "0.1.0"
+            }
+          },
+          "medium": {
+            "$value": "{tanrei.sys.breakpoint.medium}",
+            "$description": "The window width from which a snackbar placed at the top end stands at the end side (SNK-35). Below it the window is compact and the snackbar stands across the top. A width of the window, not a size of anything drawn."
           }
         },
         "title": {

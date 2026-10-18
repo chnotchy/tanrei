@@ -7733,6 +7733,7 @@ private let cupertinoSliderTokens = TanreiSliderTokens(
 
 private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
+  breakpointMedium: 600,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: cupertinoElevation.level3,
