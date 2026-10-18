@@ -18511,7 +18511,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shows lines of code to read, compare and copy: in the code face, on a quiet fill or inside one hairline, scrolling\ninside itself or wrapping, with an optional header, line numbers, marked lines, a prompt and a copy button; given\nthe code and its language it highlights the code by itself, in the system's syntax colors.\n\nContract: specs/code-block.spec.json. The code stays in the document, as an ordinary `<pre><code>`:\n\n    <tanrei-code-block title=\"sizes.js\" language=\"js\" copy copy-label=\"Copy\" copied-label=\"Copied\" copy-failed-label=\"Could not copy\">\n      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>\n    </tanrei-code-block>\n\nso it is there without script — for a reader whose script failed, for crawlers, for find-in-page — and the element\ndraws the frame around it. `@tanrei/web/code.css` draws a block that is not upgraded yet where the element will: its\nfill, corners, paddings and face, the header's row with the title and the language label, the room of the copy\nbutton, and — for lines written where the page was made — what stands beside them; nothing moves when the element\nis defined. A block built by script sets `code` instead, and the element writes the `<pre><code>`.\n\n**It highlights by itself** (COD-19). Three sources of color, in this order: runs the document gives —\n`<span data-syntax=\"keyword\">` in the `<code>`, or a `<code data-syntax-of=\"…\">` written by `highlightToHtml` where\nthe page was made — are drawn as they are and never read again (COD-29); otherwise, while `highlight` is true and\n`language` names a language the highlighter knows, the block imports `@tanrei/web/highlight` and colors the code\n(COD-27); otherwise the code is plain. The code is drawn at once, plain; its colors arrive in one frame and move\nnothing (COD-28). A role is one of `comment`, `keyword`, `string`, `constant`, `function`, `type`, `tag`, `property`,\n`punctuation` — or one a design system added — colored from `--tanrei-comp-code-block-syntax-color-*` and weighted\nfrom `…-syntax-emphasis-*`. `language` is not drawn: the header's words are `language-label`.\n\n**Lines.** The element gives each line a box of its own — `<span data-line>` holding `<span data-line-code>` — by\nmoving the code's nodes and splitting text and runs at line breaks, without adding or removing a character of the\ncode; `[data-line]` children a highlighter already wrote are used as they are, and lines that `highlightToHtml`\nwrote with the block's props are left untouched. Numbers, signs and the prompt are\ndrawn, not text: never selected, copied or read. A marked line's label (`highlighted-label`, `added-label`,\n`removed-label`) is the one thing it adds for assistive technology, before the line.\n\nThe body is one focus stop, with the block's name, only while it can scroll; it is left to right in every layout,\nand the frame mirrors. The outlined look is read on whatever it is placed on: where that is not the surface color,\nname it in `--tanrei-code-block-ground`, which the gutter and the copy button's patch stand on while code scrolls\nunder them.",
+          "description": "Shows lines of code to read, compare and copy: in the code face, on a quiet fill or inside one hairline, scrolling\ninside itself or wrapping, with an optional header, line numbers, marked lines, a prompt and a copy button; given\nthe code and its language it highlights the code by itself, in the system's syntax colors.\n\nContract: specs/code-block.spec.json. The code stays in the document, as an ordinary `<pre><code>`:\n\n    <tanrei-code-block headline=\"sizes.js\" language=\"js\" copy copy-label=\"Copy\" copied-label=\"Copied\" copy-failed-label=\"Could not copy\">\n      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>\n    </tanrei-code-block>\n\nso it is there without script — for a reader whose script failed, for crawlers, for find-in-page — and the element\ndraws the frame around it. `@tanrei/web/code.css` draws a block that is not upgraded yet where the element will: its\nfill, corners, paddings and face, the header's row with the title and the language label, the room of the copy\nbutton, and — for lines written where the page was made — what stands beside them; nothing moves when the element\nis defined. A block built by script sets `code` instead, and the element writes the `<pre><code>`.\n\n**It highlights by itself** (COD-19). Three sources of color, in this order: runs the document gives —\n`<span data-syntax=\"keyword\">` in the `<code>`, or a `<code data-syntax-of=\"…\">` written by `highlightToHtml` where\nthe page was made — are drawn as they are and never read again (COD-29); otherwise, while `highlight` is true and\n`language` names a language the highlighter knows, the block imports `@tanrei/web/highlight` and colors the code\n(COD-27); otherwise the code is plain. The code is drawn at once, plain; its colors arrive in one frame and move\nnothing (COD-28). A role is one of `comment`, `keyword`, `string`, `constant`, `function`, `type`, `tag`, `property`,\n`punctuation` — or one a design system added — colored from `--tanrei-comp-code-block-syntax-color-*` and weighted\nfrom `…-syntax-emphasis-*`. `language` is not drawn: the header's words are `language-label`.\n\n**Lines.** The element gives each line a box of its own — `<span data-line>` holding `<span data-line-code>` — by\nmoving the code's nodes and splitting text and runs at line breaks, without adding or removing a character of the\ncode; `[data-line]` children a highlighter already wrote are used as they are, and lines that `highlightToHtml`\nwrote with the block's props are left untouched. Numbers, signs and the prompt are\ndrawn, not text: never selected, copied or read. A marked line's label (`highlighted-label`, `added-label`,\n`removed-label`) is the one thing it adds for assistive technology, before the line.\n\nThe body is one focus stop, with the block's name, only while it can scroll; it is left to right in every layout,\nand the frame mirrors. The outlined look is read on whatever it is placed on: where that is not the surface color,\nname it in `--tanrei-code-block-ground`, which the gutter and the copy button's patch stand on while code scrolls\nunder them.",
           "name": "TanreiCodeBlock",
           "cssProperties": [
             {
@@ -18604,14 +18604,14 @@
             },
             {
               "kind": "field",
-              "name": "title",
+              "name": "headline",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "A file name or a few words that say what the code is. Drawn in the header and used as the block's accessible name.\nThe attribute is read and removed from the element, so the browser does not also draw its own `title` tooltip over\nthe block.",
-              "attribute": "title"
+              "description": "A file name or a few words that say what the code is (the spec's `title`). Drawn in the header and used as the block's accessible name.",
+              "attribute": "headline"
             },
             {
               "kind": "field",
@@ -19022,15 +19022,6 @@
               "description": "The `<code>` that holds the code: the `pre`'s own, made around the `pre`'s content where the product wrote none."
             },
             {
-              "kind": "field",
-              "name": "removingTitle",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
               "kind": "method",
               "name": "cancelRuns",
               "privacy": "private"
@@ -19320,13 +19311,13 @@
               "fieldName": "size"
             },
             {
-              "name": "title",
+              "name": "headline",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "A file name or a few words that say what the code is. Drawn in the header and used as the block's accessible name.\nThe attribute is read and removed from the element, so the browser does not also draw its own `title` tooltip over\nthe block.",
-              "fieldName": "title"
+              "description": "A file name or a few words that say what the code is (the spec's `title`). Drawn in the header and used as the block's accessible name.",
+              "fieldName": "headline"
             },
             {
               "name": "language",
@@ -55650,14 +55641,14 @@
           "members": [
             {
               "kind": "field",
-              "name": "heading",
+              "name": "headline",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The text that names the items under it, exposed as a heading. Empty draws no heading row.",
-              "attribute": "heading"
+              "description": "The text that names the items under it (the spec's `title`), exposed as a heading. Empty draws no heading row.",
+              "attribute": "headline"
             },
             {
               "kind": "field",
@@ -55703,13 +55694,13 @@
           ],
           "attributes": [
             {
-              "name": "heading",
+              "name": "headline",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "The text that names the items under it, exposed as a heading. Empty draws no heading row.",
-              "fieldName": "heading"
+              "description": "The text that names the items under it (the spec's `title`), exposed as a heading. Empty draws no heading row.",
+              "fieldName": "headline"
             },
             {
               "name": "divider",
@@ -90773,14 +90764,14 @@
             },
             {
               "kind": "field",
-              "name": "title",
+              "name": "headline",
               "privacy": "public",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "A heading for a rich tooltip; a plain one ignores it. The attribute is read once and removed from the element, so the\nbrowser does not also draw its own `title` tooltip over the anchor.",
-              "attribute": "title"
+              "description": "A heading for a rich tooltip (the spec's `title`); a plain one ignores it.",
+              "attribute": "headline"
             },
             {
               "kind": "field",
@@ -91082,15 +91073,6 @@
               "privacy": "private",
               "default": "null",
               "description": "TIP-27: the element this tooltip put `aria-keyshortcuts` on, and what it wrote."
-            },
-            {
-              "kind": "field",
-              "name": "removingTitle",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
             },
             {
               "kind": "field",
@@ -91461,13 +91443,13 @@
               "fieldName": "text"
             },
             {
-              "name": "title",
+              "name": "headline",
               "type": {
                 "text": "string"
               },
               "default": "''",
-              "description": "A heading for a rich tooltip; a plain one ignores it. The attribute is read once and removed from the element, so the\nbrowser does not also draw its own `title` tooltip over the anchor.",
-              "fieldName": "title"
+              "description": "A heading for a rich tooltip (the spec's `title`); a plain one ignores it.",
+              "fieldName": "headline"
             },
             {
               "name": "shortcut",
