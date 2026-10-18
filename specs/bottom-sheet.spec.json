@@ -405,6 +405,7 @@
       "props": {
         "variant": "standard",
         "open": true,
+        "label": "Cafés and bakeries nearby",
         "headline": "Nearby places",
         "closable": true,
         "closeLabel": "Close nearby places",
