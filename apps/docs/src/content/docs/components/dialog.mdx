@@ -31,7 +31,7 @@ A dialog is controlled. You open it by setting `open` and close it by setting `o
 
 The dialog has an optional icon, a headline, optional supporting text, optional content of your own, and its actions. A dialog is a dialogue: it always offers at least one answer. The actions are Tanrei Buttons, each marked `confirming` (it completes the task: Save, Delete, Allow) or `dismissive` (it backs out: Cancel, Not now). The dialog places them by those marks, so you give them in any order, and it draws an action whose `variant` you did not set as tonal.
 
-Set `closable` to draw a close button at the end of the header, named by `closeLabel`. Set `width` to `small`, `medium` or `large` to give the dialog a fixed width instead of the width of its content.
+Set `width` to `small`, `medium` or `large` to give the dialog a fixed width instead of the width of its content. A dialog has no close button: its way out without an answer is a dismissive action, such as Cancel.
 
 Mark the element that should get focus when the dialog opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. Without a mark, focus goes to the dialog itself, so its headline is read first.
 
@@ -58,9 +58,10 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
       <tanrei-button slot="actions" confirming variant="filled" destructive>Delete</tanrei-button>
     </tanrei-dialog>
 
-    <!-- A form with one action: a close button, and a fixed width. -->
-    <tanrei-dialog headline="Edit display name" closable close-label="Close" width="small">
+    <!-- A form: Cancel beside Save, and a fixed width. A dialog has no close button. -->
+    <tanrei-dialog headline="Edit display name" width="small">
       <tanrei-text-input label="Display name" autofocus></tanrei-text-input>
+      <tanrei-button slot="actions" dismissive>Cancel</tanrei-button>
       <tanrei-button slot="actions" confirming>Save</tanrei-button>
     </tanrei-dialog>
 
@@ -73,8 +74,8 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
       // An action never closes the dialog: you do, from its handler.
       cancel.addEventListener('click', () => (dialog.open = false));
       discard.addEventListener('click', () => { discardDraft(); dialog.open = false; });
-      // Escape, a press on the backdrop and the close button fire cancel, as on a native <dialog>;
-      // e.detail.reason says which: escape, back, scrim or close.
+      // Escape and a press on the backdrop fire cancel, as on a native <dialog>;
+      // e.detail.reason says which: escape, back or scrim.
       // The dialog then closes itself, unless you cancel the event.
       dialog.addEventListener('cancel', (e) => { if (unsaved()) e.preventDefault(); });
       // close follows every close.
@@ -215,7 +216,6 @@ Use a snackbar to report what just happened, with an optional Undo, instead of a
 | --- | --- | --- |
 | Icon | the icon slot | Optional. A glyph that marks the kind of decision, such as `delete`. It sits at the start of the headline's first line, 12 before it, and stays beside that line when the headline wraps. |
 | Headline | `headline` | Required. The question or statement, such as "Discard draft?". Always aligned to the start. It is the dialog's accessible name. |
-| Close button | `closable`, `closeLabel` | Optional. An icon-only Button with the close glyph at the end of the header, named by `closeLabel`. It dismisses the dialog as Escape does, so it is drawn only while `dismissible` is true. |
 | Supporting text | `supportingText` | What will happen, or what the person needs to know to decide. Always aligned to the start. It is the dialog's description. |
 | Content | the default slot | Whatever else the decision needs: a list to choose from, a field. The dialog insets it and gives it a content color; it does not lay it out. |
 | Actions | the actions slot | Required: one Tanrei Button at least, each marked `confirming` or `dismissive`. The dialog places them as a full-width Button group and draws those without a variant as tonal. |
@@ -234,22 +234,22 @@ The actions share the container's inner width equally, with 16 between them.
 - **Another look.** Set one Button's `variant` to give that action another look, such as a text Cancel beside a filled Delete. Set `destructive` on an action that deletes or discards, such as that Delete: it keeps its variant and takes the error color. The dialog never overwrites a variant you set, nor `destructive`. A product that wants another look for every dialog sets it once in its layer (`actions.variant`, and `actions.arrangement` for actions at their own widths aligned to the end), not on each Button.
 - **At least one.** A dialog with no action still opens, and debug builds report it as an error. Where a platform's API can require actions, the spec says it does: SwiftUI's `actions:` builder, Compose's `actions` parameter, Flutter's `actions` list and React Native's `actions` prop. Of the four, only SwiftUI's is required today; the others still take a dialog without actions until they catch up. Debug builds also report a dialog whose actions are all disabled while `dismissible` is false, since that leaves no way out.
 
-### The close button
+### No close button
 
-<DemoFrame label="A form with one action, a close button and a small width">
-  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-closable').open = true">Edit display name</tanrei-button>
-  <tanrei-dialog id="dialog-demo-closable" headline="Edit display name" supporting-text="This name is shown to everyone on the team." closable close-label="Close" width="small">
+<DemoFrame label="A form with Cancel beside Save, and a small width">
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">Edit display name</tanrei-button>
+  <tanrei-dialog id="dialog-demo-form" headline="Edit display name" supporting-text="This name is shown to everyone on the team." width="small">
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Save</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
-Set `closable` to draw a close button at the end of the header: an icon-only Button with the close glyph, named by `closeLabel` ("Close", or "Close settings" where the page has other close buttons). It is drawn without a fill in the default system. A system may give it another Button variant (`close-button.variant`).
+A dialog draws no close button in its header. It asks for a decision, and its way out without one is its dismissive action and, while `dismissible` is true, Escape, the platform's back and a press on the scrim.
 
-- **What it does.** Pressing it emits `dismiss` with the reason `close`, as Escape, back and the scrim do with their own reasons. You close the dialog in answer, as for any dismissal; on the web the dialog closes itself unless you cancel `cancel`.
-- **When to use it.** Give it to a dialog with no dismissive action, such as a form whose one action is Save or a dialog that shows something to read, and to a large dialog whose actions are far from where a person starts. A short confirmation with Cancel beside the confirming action seldom needs one.
-- **Only while dismissible.** A close button is a way out without an answer. When `dismissible` is false, the person must choose one of the actions, so the dialog draws no close button, whatever `closable` says, and debug builds report that `closable` is ignored. An alert dialog may have one while it is dismissible. Set `dismissible` to false for an alert that must be answered, and the close button goes with Escape and the scrim.
-- **Its place.** It sits at the end of the header, 12 after the headline, centred on the headline's first line. A long headline wraps before it. In right-to-left it sits at the left. Where a system puts the icon above a centred headline, the icon and the headline stay centred in the dialog, and the close button sits at the top end.
-- **Focus.** It is the first stop in the Tab order, before the content and the actions. Focus does not start on it: without a mark, focus goes to the dialog itself.
+- **A form or a choice.** Put a dismissive action, such as Cancel, beside the confirming one, as above.
+- **Something to read.** Give the dialog one action labelled Close, or Cancel where there is something to cancel, and mark it `dismissive`. If the content needs only a way out and no answer, show it instead in a side sheet, which has a close button, or in a bottom sheet, which the person can swipe away.
+- **A long dialog.** While its content scrolls, the actions stay in place at its foot, so the way out stays in view.
+- **On the web.** A dialog given `closable` or `close-label` draws nothing for it, and debug builds report that a dialog has no close button.
 
 ### Width
 
@@ -279,7 +279,7 @@ A dialog is a modal overlay. It moves focus in, keeps it in, and returns it when
 - **Opening.** When `open` becomes true, the dialog is presented above everything in its window, centred (or at the bottom of a compact window), over a scrim that dims the whole window. Everything outside it becomes inert: it cannot be focused or pressed, and assistive technology cannot reach it. The content behind it stops scrolling.
 - **Focus in.** Focus moves to the element you marked, or to the dialog itself, so assistive technology reads the headline first and the next Tab reaches the first focusable element. Focus moves when the dialog opens, not when its motion ends.
 - **Focus kept in.** Tab from the last focusable element goes to the first, and Shift+Tab from the first goes to the last. Screen-reader navigation does not leave the dialog.
-- **Dismissing.** While `dismissible` is true, Escape, the platform's back (Android's back button or gesture, the iOS accessibility escape gesture), a press on the scrim and the close button emit `dismiss` once, with the reason `escape`, `back`, `scrim` or `close`, and you close the dialog. On the web the dialog closes itself unless you cancel `cancel`, as a native `<dialog>` does. While `dismissible` is false these do nothing, and only an action closes the dialog. A dialog at the bottom of a compact window does not close on a swipe.
+- **Dismissing.** While `dismissible` is true, Escape, the platform's back (Android's back button or gesture, the iOS accessibility escape gesture) and a press on the scrim emit `dismiss` once, with the reason `escape`, `back` or `scrim`, and you close the dialog. On the web the dialog closes itself unless you cancel `cancel`, as a native `<dialog>` does. While `dismissible` is false these do nothing, and only an action closes the dialog. A dialog at the bottom of a compact window does not close on a swipe.
 - **Focus back.** When it closes, focus returns to the element that had it when the dialog opened. The content behind it is restored as it was.
 - **Stacking.** A dialog opened from a dialog stacks above it with its own scrim and makes the first one inert too. Escape dismisses only the topmost, and closing it returns focus to the element inside the first dialog that had it.
 - **Announcement.** The dialog is announced as a dialog, named by its headline and described by its supporting text. With `alert`, it is an alert dialog, and assistive technology reads the headline and the supporting text as soon as it opens.
@@ -295,13 +295,14 @@ A snackbar that has not been shown yet waits while a Tanrei dialog is open, and 
 - Name actions after what they do: "Discard", "Delete", "Sign out". Avoid "Yes" and "No".
 - Mark every action `confirming` or `dismissive`, and let the dialog place them.
 - Give every dialog an answer. A dialog that only informs is a snackbar or a line on the page.
+- Give a dialog that shows something to read an action labelled Close, or Cancel, or show the content in a side sheet instead.
 - In a destructive confirmation, mark Cancel for initial focus. In a form, mark the first field. In a dialog whose text must be read first, mark nothing.
 - Set `alert` for urgent interruptions only: a destructive confirmation, a lost connection.
 
 ### Don't
 
 - Don't open a dialog the person did not ask for, unless the task truly cannot go on.
-- Don't draw a close button you would have to take away: on a dialog that must be answered, set `dismissible` to false and leave `closable` off.
+- Don't add a close button of your own to the header or the content: a dialog has none, and its way out is a dismissive action.
 - Don't set `dismissible` to false unless the person must choose one of the actions. Switch and screen-reader users rely on Escape and back. A dialog that cannot be dismissed still needs a visible way out, such as Cancel.
 - Don't put more than a few details in a dialog. Put a long form on a page.
 - Don't order the actions by hand to put the confirming one last, or set a variant on every Button to get tonal: the dialog does both.
@@ -317,8 +318,7 @@ A snackbar that has not been shown yet waits while a Tanrei dialog is open, and 
 - The dialog is exposed as a modal dialog, or an alert dialog while `alert` is true, named by its headline and described by its supporting text. With `alert`, the headline and supporting text are read as soon as it opens.
 - Everything outside it is inert and hidden from assistive technology while it is open.
 - Opening moves focus to the element you marked, or to the dialog itself. Tab and Shift+Tab wrap inside it. Closing returns focus to the element that had it when it opened.
-- Escape, the platform's back, a press on the scrim and the close button emit `dismiss` while `dismissible` is true. With stacked dialogs, only the topmost is dismissed.
-- The close button is a Tanrei Button named by `closeLabel`. It is the first Tab stop, and focus does not start on it.
+- Escape, the platform's back and a press on the scrim emit `dismiss` while `dismissible` is true. With stacked dialogs, only the topmost is dismissed.
 - Enter and Space activate the focused button. The dialog adds no default action to Enter.
 - The actions are Tanrei Buttons, which meet the minimum target themselves. The 16 between stacked actions keeps each whole target.
 - Focus and screen readers meet the actions in the placed order, the same order a sighted person sees.
@@ -329,7 +329,7 @@ A snackbar that has not been shown yet waits while a Tanrei dialog is open, and 
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native: `dividerVisibility` waits for those platforms to catch up. Their dividers appear only while something is scrolled out of view beyond them, as `scroll` does.
-- SwiftUI, Compose, Flutter and React Native: the close button (`closable`, `closeLabel`), `width` and the reason `dismiss` carries wait for those platforms to catch up.
+- SwiftUI, Compose, Flutter and React Native: `width` and the reason `dismiss` carries wait for those platforms to catch up.
 - Web: Firefox cannot keep a closing dialog in the top layer while it fades, so there the dialog disappears at once when it closes, without the exit fade.
 - Web: keeping clear of the on-screen keyboard has not yet been checked on a device that has one.
 - SwiftUI has no dialog or alert dialog role. The container carries the modal trait, is named by the headline and described by the supporting text as its hint, and the headline carries the heading trait. With `alert`, VoiceOver reads the headline and the supporting text as the dialog opens.
@@ -348,7 +348,6 @@ Known platform gaps:
 - Give every dialog at least one action, and mark each one `confirming` or `dismissive`. On the platforms that still ship the previous revision, put the confirming action last yourself.
 - Close the dialog yourself: from each action's handler, and in answer to `dismiss` (`onRequestClose`, `onDismissRequest`, the binding or the route, depending on the platform).
 - Mark initial focus where it helps: Cancel in a destructive confirmation, the first field in a form.
-- With `closable`, give `closeLabel`: it is the close button's only name.
 - Give every dialog a visible way out, a dismissive action such as Cancel, even when `dismissible` is false.
 - On React Native, pass `initialFocusRef`. After the dialog closes, move focus back to its opener yourself if the platform does not.
 - On SwiftUI for macOS, attach `.tanreiDialog` to the window's root view, so the scrim covers the whole window.

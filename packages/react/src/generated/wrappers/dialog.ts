@@ -14,7 +14,7 @@ import { TanreiDialog as TanreiDialogElement, type TanreiDialogDismissDetail } f
  * - `actions` — The answers, one at least: Tanrei Buttons, each marked `confirming` or `dismissive`. The dialog places them and gives those without a `variant` its own.
  *
  * Events:
- * - `onCancel` (`cancel`) — Escape, back, a press on the scrim or the close button asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back`, `scrim` or `close`. Cancelable: `preventDefault()` keeps it open.
+ * - `onCancel` (`cancel`) — Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back` or `scrim`. Cancelable: `preventDefault()` keeps it open.
  * - `onClose` (`close`) — The dialog closed, whatever closed it.
  */
 export const Dialog = /* @__PURE__ */ createComponent({

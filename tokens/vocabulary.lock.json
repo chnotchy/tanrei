@@ -2374,7 +2374,6 @@
     "tanrei.comp.dialog.actions.gap": "dimension",
     "tanrei.comp.dialog.actions.margin-block-start": "dimension",
     "tanrei.comp.dialog.actions.variant": "number",
-    "tanrei.comp.dialog.close-button.variant": "number",
     "tanrei.comp.dialog.compact.window-width": "dimension",
     "tanrei.comp.dialog.container.color": "color",
     "tanrei.comp.dialog.container.elevation": "shadow",

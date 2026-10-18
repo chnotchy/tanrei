@@ -154,27 +154,11 @@ export const styles = css`
     align-items: flex-start;
     gap: ${t('header-gap')};
   }
-  /* DLG-26: the header is one row — the icon and the headline, taking the width the close button leaves, and the close
-     button at its end, header.gap after the headline, its end edge at the container's padding (the row is inside it).
-     The row's first line is the headline's: the close button is centred on a line of that height, and beside a close
-     button taller than that line the icon and the headline's first line are centred on the button. */
+  /* DLG-26, DLG-28: the header is one row that holds the icon and the headline across the inner width, and nothing at
+     its end. */
   .header {
     display: flex;
     flex: none;
-    align-items: flex-start;
-    gap: ${t('header-gap')};
-    font: ${t('headline-typescale-font')};
-  }
-  .header.closable .head {
-    padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));
-  }
-  /* DLG-25: the icon-only Button, placed and never restyled (its variant is given through the Button's own channel). */
-  .close-box {
-    display: flex;
-    flex: none;
-    align-items: center;
-    min-block-size: 1lh;
-    margin-inline-start: auto;
   }
   .middle {
     position: relative;
@@ -359,12 +343,6 @@ export const styles = css`
   ${dialog} .head.with-icon .headline {
     align-self: stretch;
     text-align: center;
-  }
-  /* DLG-26: above, the icon and the headline stay centred in the container: as far from the row's start as the close
-     button and its gap take at the row's end, and the close button at the row's top end. */
-  ${dialog} .header.closable .head.with-icon {
-    padding-block: 0;
-    margin-inline-start: calc(var(--tanrei-comp-button-container-height-small) + ${T('header-gap')});
   }`,
   )}
 

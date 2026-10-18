@@ -3688,7 +3688,6 @@ private let m3ExpressiveLikeDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
-  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: m3ExpressiveLikeElevation.level3,

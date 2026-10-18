@@ -2873,7 +2873,6 @@
     --tanrei-comp-dialog-actions-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-dialog-actions-margin-block-start: var(--tanrei-sys-space-space300);
     --tanrei-comp-dialog-actions-variant: tonal;
-    --tanrei-comp-dialog-close-button-variant: text;
     --tanrei-comp-dialog-compact-window-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 150), 0.25px);
     --tanrei-comp-dialog-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-dialog-container-elevation: var(--tanrei-sys-elevation-level3);
