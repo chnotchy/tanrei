@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 1c66a25e878944e390c4c6c4d1a0adaa67f19592
+sourceHash: d1e9ec01d253afa6bea58125af2b81a99e5d01a6
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -45,11 +45,20 @@ npm install @tanrei/web
 
 <Steps>
 
-1. حمِّل الرموز مرة واحدة، وفي أبكر وقت ممكن. الرموز موضوعة داخل طبقة تتالٍ (`tanrei.tokens`)، فتكون الغلبة دائمًا لأنماطك أنت.
+1. حمِّل أوراق الأنماط مرة واحدة، وفي أبكر وقت ممكن. كلها موضوعة داخل طبقات تتالٍ (`tanrei.*`)، فتكون الغلبة دائمًا لأنماطك أنت.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   الملف `tanrei.css` يضم كل شيء في ملف واحد: أساس الصفحة، والرموز، وأوراق أنماط الأجزاء التي تُرسم من دون عنصر (أنماط النص، والجدول، والأكورديون، وغيرها). ولتحمّل ما تستخدمه وحده، خذ الرموز، والأساس إن أردته، وكل ورقة من تلك الأوراق حين تحتاج إليها:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // الصفحة بلون سطح النظام ولون نصه وخط المتن، ومن دون هامش على body
    ```
+
+   يعطي الأساس الصفحة نفسها لون السطح، ويعطي نصك أنت اللون on-surface وخط المتن، ويزيل الهامش الذي يضعه المتصفح على body. ومن دونه تبقى الصفحة على إعدادات المتصفح الافتراضية.
 
 2. سجِّل مكوّنات نظام التصميم الخاص بك، أو العناصر التي تستخدمها فقط.
 
@@ -66,7 +75,7 @@ npm install @tanrei/web
    المحدِّدات من الصيغة `@tanrei/web/…` هي صادرات الحزمة (package exports)، ويحلّها المُحزِّم (Vite أو webpack أو esbuild). ومن دون مُحزِّم لا يستطيع المتصفح حلّ محدِّد مجرّد في `<link>` أو `<script src>`؛ لذلك قدِّم مجلد `dist/` من الحزمة وأشِر إلى الملفات مباشرة: أوراق الأنماط كما هي، والملف `tanrei.bundle.js` الذي يحمل Lit وجميع العناصر:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 

@@ -2,7 +2,7 @@
 title: React
 description: Tanrei の Web Components から生成した、型付きの React コンポーネント。
 translationOf: getting-started/react.mdx
-sourceHash: b6474cec992f65a55cced26db1486d81eaebe091
+sourceHash: 6f9902925cc0646f01425a6a04db14d8ef3e627f
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,8 +42,10 @@ npm install @tanrei/react @tanrei/web
 
 ## 使い方
 
+コンポーネントが描画される前に、スタイルシートを一度だけ読み込みます。`tanrei.css` は、ページのベース、トークン、パッケージのほかのすべてのスタイルシートを 1 つにまとめたファイルです。1 つずつ読み込む方法は [Web のガイド](/ja/getting-started/web/)を参照してください。
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 

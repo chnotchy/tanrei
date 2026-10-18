@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { build } from 'esbuild';
+import { allStylesheets } from './stylesheets.js';
 import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
 import { bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
@@ -294,6 +295,12 @@ else if (!tableOfContentsModule.includes(':where(tanrei-table-of-contents)')) th
 const { ICONS_CSS } = await import('../dist/styles/icons.js');
 fs.writeFileSync('dist/icons.css', ICONS_CSS);
 fs.writeFileSync('dist/shape.css', `/* Corner smoothing for a light-DOM box: put data-tanrei-shape on it and name its radius token in --tanrei-corner-radius (and set --tanrei-corner-pill: 1 on a pill). */\n@layer tanrei.components {\n${SHAPE_CSS.replace(/^/gm, '  ')}\n}\n`);
+// The page's base (`@tanrei/web/base.css`), and `@tanrei/web/tanrei.css`: the base, the tokens and every other
+// stylesheet the package exports, in one file, in the order of the exports (prose before the link, the steps and the
+// timeline, whose rules prose says again after its own). The list is the exports' own (scripts/stylesheets.js), so a
+// stylesheet added to them is in the file.
+fs.copyFileSync('src/styles/base.css', 'dist/base.css');
+fs.writeFileSync('dist/tanrei.css', allStylesheets(JSON.parse(fs.readFileSync('package.json', 'utf8')), (file) => fs.readFileSync(file, 'utf8')));
 fs.rmSync('dist/systems', { recursive: true, force: true });
 fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
 // Each shipped system's components manifest, the default's among them (`@tanrei/web/systems/<id>.components.json`):

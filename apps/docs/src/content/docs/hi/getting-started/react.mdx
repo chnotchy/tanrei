@@ -2,7 +2,7 @@
 title: React
 description: Tanrei के Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।
 translationOf: getting-started/react.mdx
-sourceHash: b6474cec992f65a55cced26db1486d81eaebe091
+sourceHash: 6f9902925cc0646f01425a6a04db14d8ef3e627f
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -42,8 +42,10 @@ npm install @tanrei/react @tanrei/web
 
 ## इस्तेमाल
 
+कंपोनेंट रेंडर होने से पहले स्टाइलशीट एक बार लोड करें: `tanrei.css` में पेज का बेस, टोकन और पैकेज की बाक़ी सारी स्टाइलशीट एक फ़ाइल में हैं। उन्हें एक-एक करके लोड करने के लिए [वेब गाइड](/hi/getting-started/web/) देखें।
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
 import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
