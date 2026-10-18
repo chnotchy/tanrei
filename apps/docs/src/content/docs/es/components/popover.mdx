@@ -1,8 +1,8 @@
 ---
 title: Popover
-description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página.
+description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página; en una ventana compacta, en una superficie modal con el aspecto de la hoja inferior.
 translationOf: components/popover.mdx
-sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
+sourceHash: 884534bbb92726b8df5fc08405bae4ec589ac116
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -28,13 +28,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-popover>
 </DemoFrame>
 
-Usa un popover para el contenido con el que una persona trabaja junto al control que lo abrió: unos pocos ajustes, un formulario breve, un panel para compartir, una nota que necesita un enlace o un botón. El resto de la página se puede seguir usando a su alrededor.
+Usa un popover para el contenido con el que una persona trabaja junto al control que lo abrió: unos pocos ajustes, un formulario breve, un panel para compartir, una nota que necesita un enlace o un botón. El resto de la página se puede seguir usando a su alrededor. En una ventana compacta toma en su lugar el aspecto de la hoja inferior, en el borde inferior de la ventana, como lo hacen ahí todos los popovers y diálogos de Tanrei.
 
 ### Uso
 
 El control es tuyo. En la web lo indicas con `anchor`, el id del elemento junto al que se sitúa el popover. Ese elemento es también el activador: el popover comunica a la tecnología de apoyo que ese elemento abre un diálogo y si el diálogo está abierto, y le devuelve el foco. Donde un campo sirve de ancla a la superficie y la abre un botón situado dentro del campo, indica el botón con `opener`.
 
-Un popover es un componente controlado, como el menú. Defines `open` cuando se pulsa el activador y lo vuelves a poner en false cuando el popover emite `close`. Nunca se abre solo: ni al pasar el cursor, ni con el foco, ni al cabo de un tiempo. `close` lleva un motivo: `escape`, `outside`, `focus-out`, `close` (su botón de cierre) o `anchor-hidden`. Una acción nunca cierra el popover; lo cierra tu controlador.
+Un popover es un componente controlado, como el menú. Defines `open` cuando se pulsa el activador y lo vuelves a poner en false cuando el popover emite `close`. Nunca se abre solo: ni al pasar el cursor, ni con el foco, ni al cabo de un tiempo. `close` lleva un motivo: `escape`, `outside`, `focus-out`, `close` (su botón de cierre) o `anchor-hidden`. Una acción nunca cierra el popover; lo cierra tu controlador. Como hoja en una ventana compacta, envía `outside` cuando se pulsa su velo, y nunca `focus-out` ni `anchor-hidden`.
 
 Dale un nombre: `headline` donde dibuja un titular, `label` donde no lo dibuja.
 
@@ -150,11 +150,27 @@ Una acción sin `variant` toma `comp.popover.actions.variant` (tonal en el siste
 
 El popover aparece con un fundido mientras crece desde el borde que da al ancla, y desaparece con un fundido. Un movimiento que se interrumpe da la vuelta desde donde está. Donde el movimiento está reducido, aparece y desaparece de inmediato.
 
+### En una ventana compacta
+
+En una ventana más estrecha que `comp.popover.compact.window-width` (600 en el sistema predeterminado), un popover toma el aspecto de la hoja inferior. Es la regla de Tanrei para todos los popovers y todos los diálogos en una ventana compacta. Sigues abriendo el mismo popover con las mismas props y los mismos eventos; solo cambia cómo se dibuja.
+
+- Se sitúa en el borde inferior de la ventana, tan ancho como la ventana hasta `comp.bottom-sheet.container.max-width`, con el color y la elevación de la hoja inferior. Sus esquinas superiores toman `comp.bottom-sheet.container.shape` y las inferiores son rectas. Con el teclado en pantalla, se apoya sobre él.
+- Es tan alto como sus partes, y nunca más que la ventana menos `comp.bottom-sheet.container.margin-block-start` arriba. Más allá, el contenido se desplaza entre la cabecera y las acciones.
+- No tiene flecha ni tirador de arrastre, y no sigue un arrastre. `placement`, `offset`, `crossOffset` y `width` no se aplican.
+- Es modal: el velo de la hoja inferior atenúa la página, todo lo que queda detrás se vuelve inerte y el foco se queda dentro. Lo cierran Escape, la acción de retroceso, una pulsación en el velo y el botón de cierre.
+- Sube desde el borde inferior con el movimiento de la hoja inferior y vuelve a bajar al cerrarse. Donde el movimiento está reducido, aparece y desaparece con un fundido en su sitio.
+- Si el ancho de la ventana cruza ese valor mientras el popover está abierto, cambia de forma de inmediato, sin movimiento, y el foco se queda donde estaba.
+
+Pon `compactPresentation` en `own` (`compact-presentation="own"` en la web) para que un popover se quede junto a su ancla en cualquier ventana, en una superficie que debe estar al lado de aquello a lo que pertenece. Un popover con `initialFocus="anchor"` se queda siempre junto a su ancla, porque el campo en el que la persona escribe debe seguir siendo utilizable. Un sistema de diseño que no quiera hojas nunca pone `comp.popover.compact.window-width` en 0.
+
+Aquí los menús no son popovers: un menú, la lista de un select o de un combobox y el menú de un botón se quedan junto a su control en cualquier ventana.
+
 <ComponentSpecs name="popover" />
 
 ### Qué dibuja la web de otra manera
 
 - El popover es un elemento `popover="manual"` en la capa superior. Dentro de un `<dialog>` modal debe ser descendiente de ese diálogo para que se pueda manejar ahí.
+- En una ventana compacta, la hoja es un `<dialog>` nativo abierto con `showModal()`, y su velo es el `::backdrop` del diálogo.
 - Una pulsación fuera cierra el popover y además llega al elemento que hay debajo.
 - La web no tiene un gesto de retroceso propio, así que `close` nunca lleva el motivo `back`.
 - `anchorElement` y `openerElement` son propiedades para un elemento al que un id no puede llegar, como uno que está en otro shadow root.
@@ -171,7 +187,7 @@ El popover aparece con un fundido mientras crece desde el borde que da al ancla,
 | Lo abre | El paso del cursor, el foco del teclado, una pulsación larga | Una pulsación en su activador | Una pulsación en su ancla | El producto |
 | Contiene | Una descripción de su ancla | Contenido que una persona maneja | Solo elementos | Una decisión |
 | Recibe el foco | Nunca | Sí, y lo devuelve | Sí, y lo devuelve | Sí, y lo retiene |
-| Bloquea la página | No | No | No | Sí |
+| Bloquea la página | No | No (sí, como hoja en una ventana compacta) | No | Sí |
 
 1. Si solo dice qué es el control y nada de lo que contiene se puede pulsar, es un tooltip.
 2. Si es una lista de comandos o de opciones, es un menú.
@@ -184,6 +200,7 @@ El popover aparece con un fundido mientras crece desde el borde que da al ancla,
 - Mantén breve el contenido. Una sola tarea y, como mucho, unos pocos campos.
 - Añade `closable` cuando el popover sea lo bastante grande para tapar lo que una persona pulsaría fuera de él, y para el tacto, donde no hay Escape.
 - Usa `width="anchor"` e `initialFocus="anchor"` para una superficie situada bajo un campo en el que la persona está escribiendo.
+- Pon `compactPresentation` en `own` solo para un popover que en una ventana compacta deba quedarse junto a aquello a lo que pertenece, como una nota junto a la palabra que explica.
 - Mantén cortas las etiquetas de las acciones. Una etiqueta más ancha que el popover no salta de línea.
 
 ### Evita
@@ -200,13 +217,14 @@ El popover aparece con un fundido mientras crece desde el borde que da al ancla,
 ### De qué se encarga el componente
 
 - El contenedor es un diálogo no modal que recibe su nombre de `headline` o de `label`. Nada de lo que queda fuera se oculta ni se deja inerte.
+- Como hoja en una ventana compacta, el contenedor es un diálogo modal: todo lo que queda fuera se vuelve inerte, y Tab y Mayús+Tab dan la vuelta dentro de él. Al cerrarse, el foco vuelve al activador.
 - El activador expone que abre un diálogo y si ese diálogo está abierto. Su nombre y su rol no cambian.
 - Al abrirse, el foco pasa al elemento que marcaste, o al contenedor, de modo que lo primero que se lee es el nombre del popover. El indicador de foco se muestra en el contenedor solo cuando el popover se abrió con el teclado.
 - El popover va justo después de su activador en el orden de tabulación, esté donde esté en el documento. Tab desde su último elemento sigue hacia lo que viene después del activador, y eso lo cierra. El foco nunca queda retenido dentro.
 - Escape cierra solo la superposición que está más arriba y no va más allá: un diálogo en el que está el popover sigue abierto.
 - Al cerrarse, el foco vuelve al activador si estaba dentro del popover. Si la persona llevó el foco a otro lugar, se queda ahí.
 - Una superposición abierta desde dentro del popover, como un menú o un tooltip, le pertenece: una pulsación en ella, o el foco en ella, no cierra el popover.
-- Con el texto al 200%, el contenido del popover salta de línea, y el popover crece hasta sus límites y se desplaza. En una ventana de 320 de ancho tiene la anchura de la ventana menos los márgenes.
+- Con el texto al 200%, el contenido del popover salta de línea, y el popover crece hasta sus límites y se desplaza. En una ventana compacta es una hoja a todo el ancho de la ventana. Un popover que conserva su propia presentación tiene, en una ventana de 320 de ancho, la anchura de la ventana menos los márgenes.
 
 ### Qué debes hacer tú
 
