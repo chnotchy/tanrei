@@ -2,7 +2,7 @@
 title: منتقي الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي الملفات الخاص بالمنصة، من زر، وحيث يتسع المكان من موضع يمكن أيضًا سحب الملفات إليه، ويقول القيود بالكلمات قبل الاختيار، ويحكم على ما اختير، ويسلّم منتجك الملفات التي قبلها والملفات التي رفضها. وهو لا يحتفظ بشيء، ولا يسرد شيئًا، ولا يشارك في أي نموذج.
 translationOf: components/file-picker.mdx
-sourceHash: 6a21f3497097f5a17ef47e467a09b0f4906150eb
+sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -171,7 +171,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 ضع منتقي الملفات داخل [حقل](/ar/components/field/) حين يعرض النموذج تسمية أو مساعدة أو خطأ أو علامة المطلوب. فالحقل يرسمها ويعطيها لمنتقي الملفات، وعندئذ تسمّي مشغِّله وتصفه.
 
 ```html
-<tanrei-field label="المرفق" requirement="required" required-text="مطلوب"
+<tanrei-field label="المرفق" required required-text="مطلوب"
               error error-text="اختر ملف PDF لا يتجاوز حجمه 10 ميغابايت.">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="ملف PDF، حتى 10 ميغابايت" selection-text="لم يُختر أي ملف">
@@ -180,7 +180,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 </tanrei-field>
 ```
 
-منتقي الملفات لا يرسل شيئًا. فليس له `name` ولا قيمة، والخاصية `required` تخبر التقنيات المساعدة فقط. أما القول إن ملفًا ناقص فشأن المكوّن الذي يحتفظ بالملفات: شيفرتك، أو [مكوّن رفع الملفات](/ar/components/file-upload/)، وهو عنصر تحكم في النماذج.
+منتقي الملفات لا يرسل شيئًا. فليس له `name` ولا قيمة، والخاصية `required` تخبر التقنيات المساعدة فقط. أما القول إن ملفًا ناقص فشأن المكوّن الذي يحتفظ بالملفات: شيفرتك، أو [مكوّن رفع الملفات](/ar/components/file-upload/)، وهو عنصر تحكم في النماذج. والقيمة `required`، كما يقولها الحقل، تساوي `required`.
 
 ### من اليمين إلى اليسار
 

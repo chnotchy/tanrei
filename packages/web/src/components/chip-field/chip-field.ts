@@ -11,12 +11,12 @@ import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.j
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiChip } from '../chip/chip.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiTextInput, type TanreiTextInputActionDetail, type TanreiTextInputSize, type TanreiTextInputType, type TanreiTextInputVariant } from '../text-input/text-input.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The members' own types are the chip field's for what it takes from them.
-export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
+export type { TanreiFieldRequiredMark, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
 
 /** Why a candidate entry was refused: the product's check, the same text already in the list, or a full list. */
 export type TanreiChipFieldRejectReason = 'invalid' | 'duplicate' | 'limit';
@@ -46,7 +46,7 @@ export interface TanreiChipFieldRejectDetail {
 }
 
 /** CHF-1: the props that are the Field's, given to it unchanged. `disabled`, `error` and `errorText` are the Field's too, each joined with what the chip field holds (W2, W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CHF-1: the props that are the Text input's, given to it unchanged. `type`, `placeholder` and `inputValue` are its too (CHF-26, CHF-17, CHF-3). */
 const INPUT = ['variant', 'size', 'readOnly', 'autocomplete'] as const;
 
@@ -132,7 +132,7 @@ const WORD_PROPS = { entryRemoveLabel: 'removeLabel', entryAddedText: 'addedText
  * `value` is an array of strings (assign a new array to change it); the `value` attribute is read once, as a JSON
  * array. `inputValue` is the text being typed. Form-associated: it submits one value per entry under `name` — none
  * while the list is empty, never the typed text —, resets to the list it was first given, is restored on navigation,
- * follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and the list is empty.
+ * follows a disabled `<fieldset>`, and reports a missing value while `required` is set and the list is empty.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the typing part, and its name is `label`.
  *
@@ -207,7 +207,8 @@ export class TanreiChipField extends ComposedElement {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -310,8 +311,11 @@ export class TanreiChipField extends ComposedElement {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
+  /** @from tanrei-field.required */
+  required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -488,7 +492,7 @@ export class TanreiChipField extends ComposedElement {
       for (const entry of this.list) data.append(this.name, entry);
       this.internals.setFormValue(data, JSON.stringify(this.list));
     }
-    if (this.requirement === 'required' && this.list.length === 0 && !this.inert_) {
+    if (this.required && this.list.length === 0 && !this.inert_) {
       const message = missingValueMessage('text', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
       const anchor = this.native;
       if (anchor) this.internals.setValidity({ valueMissing: true }, message, anchor);

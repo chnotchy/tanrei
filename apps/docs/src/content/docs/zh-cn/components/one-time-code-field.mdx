@@ -2,7 +2,7 @@
 title: "一次性验证码字段"
 description: "以一个完整字段的形式，向用户索取发送给他的简短验证码：标签下方是格子，带有一行帮助文本和验证码错误时的文字；它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/one-time-code-field.mdx
-sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-one-time-code-field name="code" label="验证码"
         supporting-text="请输入发送到手机的 6 位验证码。"
         error-text="验证码不正确。请核对短信后重试。"
-        requirement="required" required-text="必填"
+        required required-text="必填"
         group-size="3"></tanrei-one-time-code-field>
     </form>
 
@@ -105,8 +105,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="带产品文字的必填、选填、禁用，以及遮蔽的 4 位验证码" plain column>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" requirement="required" required-text="必填" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3"></tanrei-one-time-code-field>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="备用验证码" requirement="optional" optional-text="选填" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" required required-text="必填" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="备用验证码" optional optional-text="选填" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" disabled supporting-text="请输入发送到手机的 6 位验证码。" group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="信函中的 PIN 码" length="4" mask value="4821"></tanrei-one-time-code-field>
 </DemoFrame>
@@ -115,7 +115,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段 | 来自一次性验证码输入框 |
 | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
 | 事件 | — | `input`, `change`, `complete`, `action` |
 | 插槽 | `label-icon` | — |
 | 令牌 | `comp.field.*` | `comp.one-time-code-input.*` |
@@ -138,7 +138,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### Web 上绘制方式的不同之处
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-one-time-code-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
-- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有验证码，禁用时什么都不提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在格子里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有验证码，禁用时什么都不提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；设置了 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在格子里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
 - `input`、`change`、`complete` 和 `action` 是一次性验证码输入框的 CustomEvent，带有 `detail.value`。它们的 target 是这个元素，在每个监听器里，`event.target.value` 都是验证码。
 - 部件：`field` 和 `one-time-code-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label`、`label-icon`、`requirement-label`、`supporting-text`；`input`、`cell`、`character`、`caret`、`separator`。
 - 这个元素本身不能获得焦点：`focus()` 会把焦点交给格子，页面自己的 `<label for>` 也会把焦点移到那里。元素上的 `autofocus` 会在它第一次绘制时让格子获得焦点，除非焦点已经在别的东西上。
@@ -172,7 +172,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 组件负责的部分
 
 - 它是一个文本框，也就是一次性验证码输入框的那一个。它的名称是 `label`，无论标签是否绘制；它的描述是显示出来的辅助文本或错误文本，字段为选填时还加上选填文字。
-- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；`mask` 为 true 时，暴露为密码框。
+- `error` 为 true 时，它暴露为无效；设置了 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；`mask` 为 true 时，暴露为密码框。
 - 名称、描述和状态的关联方式，与字段把它们关联到它框住的任何控件时完全一样。在下一层手写的字段，是同一个文本框。
 - 画出来的标签、必填和选填标记、格子、插入点和分组标记，不会再暴露第二次。
 - 它只是一个 Tab 停靠点。按下标签会把焦点移到格子上，不操作任何东西；按下帮助文本什么都不会发生。
@@ -186,5 +186,5 @@ Web 上的已知差距都是它的成员的差距：键入验证码时屏幕阅�
 
 - 始终给出 `label`，用的是用户自己称呼这个验证码时会说的词。
 - 用文字说明期望的内容：有几个字符，验证码发到了哪里。格子只向看得见的人显示长度。
-- 用 `errorText`、`supportingText` 和 `requirement` 说明验证码不正确、已过期或必填。颜色绝不是唯一的提示。
+- 用 `errorText`、`supportingText` 和 `required` 说明验证码不正确、已过期或必填。颜色绝不是唯一的提示。
 - 输入验证码的时间有限时，要说明这一点，并让用户可以申请更多时间或新的验证码。

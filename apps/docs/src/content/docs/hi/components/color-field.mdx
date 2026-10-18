@@ -2,7 +2,7 @@
 title: कलर फ़ील्ड
 description: लोगों को किसी फ़ॉर्म के फ़ील्ड के रूप में एक रंग तय करने देता है। इसमें टेक्स्ट वाला एक मान होता है जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, टेक्स्ट के बग़ल में उस रंग का नमूना, और एक बटन जो पिकर माँगता है। यह टेक्स्ट फ़ील्ड जैसा दिखता है और उसी की नाप का होता है।
 translationOf: components/color-field.mdx
-sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
+sourceHash: 981991b1662953f8c4505095fbd273de151ef4ba
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```html
     <form>
       <tanrei-color-field name="brand" label="ब्रैंड का रंग" value="#0f766e"
-        requirement="required" required-text="ज़रूरी"
+        required required-text="ज़रूरी"
         supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।"
         invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।"
         picker picker-label="रंग चुनें"></tanrei-color-field>
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 वही फ़ील्ड, उसके दोनों सदस्यों से हाथ से लिखा जाए, तो वैसा ही दिखता है, और सहायक तकनीक के लिए वही टेक्स्ट बॉक्स होता है, उसी नाम, विवरण और स्टेट के साथ:
 
 ```html
-<tanrei-field label="ब्रैंड का रंग" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="ब्रैंड का रंग" required required-text="ज़रूरी"
   supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।"
@@ -89,7 +89,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक कलर इनपुट है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" requirement="required" required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" required required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
     <tanrei-color-input value="#0f766e" invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।" picker picker-label="रंग चुनें"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="एक ख़ाली कलर फ़ील्ड, सफ़ेद, काला, एक large, एक अक्षम, और सिर्फ़ बॉक्स, यानी कलर इनपुट, ऐसी पंक्ति में जो उसके रंग का नाम देती है" plain column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ऐक्सेंट रंग" requirement="optional" optional-text="वैकल्पिक"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ऐक्सेंट रंग" optional optional-text="वैकल्पिक"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="पेज का बैकग्राउंड" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टेक्स्ट" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#0f766e" size="large" picker picker-label="रंग चुनें"></tanrei-color-field>
@@ -120,7 +120,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | भाग | यह क्या है |
 | --- | --- |
 | लेबल | कंटेनर के ऊपर (`stacked`), जहाँ उसे फ़ील्ड बनाता है, या उसके भीतर फ़्लोट होता हुआ (`filled`, `outlined`), जहाँ उसे कलर इनपुट बनाता है। यही एक्सेसिबल नाम है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो |
-| ज़रूरी या वैकल्पिक का निशान | लेबल के बाद: `requirement="required"` के लिए ज़रूरी का टैग, तारांकन या कुछ नहीं, और `optional` के लिए वैकल्पिक का टैग |
+| ज़रूरी या वैकल्पिक का निशान | लेबल के बाद: `required` के लिए ज़रूरी का टैग, तारांकन या कुछ नहीं, और `optional` के लिए वैकल्पिक का टैग |
 | स्वॉच | कंटेनर की शुरुआत में मान का नमूना: एक छोटा चौकोर, जो ठीक मान के रंग से भरा है, एक बारीक रेखा के भीतर। ख़ाली होने पर वह अकेली बारीक रेखा है। वह कोई कंट्रोल नहीं है |
 | इनपुट | टेक्स्ट के रूप में मान। एक पंक्ति, जो स्क्रॉल होती है |
 | पिकर बटन | `picker` के साथ: अंत में सिर्फ़ आइकन वाला एक text बटन, जिसका नाम `pickerLabel` से आता है |
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### हर सदस्य क्या देता है
 
-- **फ़ील्ड से**: प्रॉपर्टी `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText` और `optionalText`; स्लॉट `label-icon`; टोकन `comp.field.*`।
+- **फ़ील्ड से**: प्रॉपर्टी `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText` और `optionalText`; स्लॉट `label-icon`; टोकन `comp.field.*`।
 - **कलर इनपुट से**: प्रॉपर्टी `variant`, `size`, `value`, `invalidText`, `picker` और `pickerLabel`; इवेंट `input`, `change`, `pickerRequest` और `entryError`; टोकन: बॉक्स के लिए `comp.input-box.*`, जिन्हें हर इनपुट बॉक्स पढ़ता है, और स्वॉच के लिए `comp.color-input.*`।
 
 कलर इनपुट के अपने `label`, `labelHidden`, `error` और `disabled` होते हैं। कलर फ़ील्ड इन्हें सेट नहीं करता: उसका `label` फ़ील्ड का है, जो इनपुट को नाम देता है और filled या outlined फ़ील्ड में वही है जो बॉक्स में फ़्लोट होता है।
@@ -178,7 +178,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### वेब क्या अलग ढंग से बनाता है
 
 - एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-color-input>` है, और कुछ नहीं। एलिमेंट को इंपोर्ट करने से दोनों डिफ़ाइन हो जाते हैं।
-- कलर फ़ील्ड फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` लेता है और `value` सबमिट करता है: रंग, या ख़ाली स्ट्रिंग। वह `value` ऐट्रिब्यूट पर रीसेट होता है, और जब तक `requirement="required"` है और `value` ख़ाली है, तब तक मान के न होने की रिपोर्ट करता है, और जब तक एंट्री की त्रुटि बनी है, तब तक ग़लत इनपुट की। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
+- कलर फ़ील्ड फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` लेता है और `value` सबमिट करता है: रंग, या ख़ाली स्ट्रिंग। वह `value` ऐट्रिब्यूट पर रीसेट होता है, और जब तक `required` है और `value` ख़ाली है, तब तक मान के न होने की रिपोर्ट करता है, और जब तक एंट्री की त्रुटि बनी है, तब तक ग़लत इनपुट की। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
 - `value` हमेशा कलर इनपुट का होता है: `0F766E` के रूप में सेट किया गया मान `#0f766e` के रूप में वापस पढ़ा जाता है, और जो मान रंग नहीं है, वह ख़ाली स्ट्रिंग के रूप में।
 - `input` और `change` सादे इवेंट हैं: `value` एलिमेंट से पढ़ें। `pickerrequest` और `entryerror` CustomEvent हैं, पहला `detail.value` के साथ, दूसरा `detail.text` और `detail.message` के साथ। ये कलर इनपुट के अपने इवेंट हैं, जिनका टार्गेट यही एलिमेंट है। `detail.message` में `invalidText` आता है, और जहाँ आपने उसे नहीं दिया वहाँ वह ख़ाली रहता है, तब भी जब फ़ील्ड उसकी जगह `errorText` दिखा रहा हो।
 - भाग: `field` और `color-input` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`। `label` और `requirement-label` वे हैं जो दिखाए जाते हैं, उन्हें जो भी सदस्य बनाए; `field-label`, `color-input-label`, `field-requirement-label` और `color-input-requirement-label` किसी एक सदस्य वाले का नाम लेते हैं।
@@ -214,7 +214,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### न करें
 
 - रंग को अकेले स्वॉच से न बताएँ। मान टेक्स्ट है; जो व्यक्ति दो नमूनों में फ़र्क़ नहीं कर पाता, वह दो अलग मान पढ़ता है।
-- ख़ाली `value` को अपने आप में त्रुटि न मानें। `requirement` कभी वैलिडेट नहीं करता।
+- ख़ाली `value` को अपने आप में त्रुटि न मानें। `required` कभी वैलिडेट नहीं करता।
 - जब तक व्यक्ति टाइप कर रहा है, `aria-invalid` या `error` सेट न करें। `change` या `entryerror` का इंतज़ार करें।
 - कलर फ़ील्ड को फ़ील्ड के भीतर न रखें। वह पहले से एक फ़ील्ड है; फ़ील्ड जिस कंट्रोल को फ़्रेम देता है, वह [कलर इनपुट](/hi/components/color-input/) है।
 
@@ -226,7 +226,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - इनपुट एक टेक्स्ट फ़ील्ड है। उसका नाम `label` है, चाहे वह दिखाया गया हो या छिपाया गया हो, और उसका मान वह टेक्स्ट है जो वह दिखाता है।
 - दिखाया गया सहायक टेक्स्ट या त्रुटि टेक्स्ट उसका विवरण है, और जब तक फ़ील्ड वैकल्पिक है, उसके साथ `optionalText`।
-- जब तक `error` true है या एंट्री की त्रुटि बनी है, वह अमान्य के रूप में दिया जाता है, और जब तक `requirement` का मान `required` है, ज़रूरी के रूप में।
+- जब तक `error` true है या एंट्री की त्रुटि बनी है, वह अमान्य के रूप में दिया जाता है, और जब तक `required` सेट है, ज़रूरी के रूप में।
 - जो त्रुटि फ़ील्ड पर फ़ोकस रहते हुए आती है, उसे एक बार, बिना टोके (polite), पढ़कर सुनाया जाता है। वह फ़ोकस को कभी नहीं हटाती।
 - स्वॉच सजावटी है और सहायक तकनीक से छिपा रहता है: रंग मान के टेक्स्ट से पता चलता है।
 - पिकर बटन एक अलग बटन है, जिसका नाम `pickerLabel` से आता है, और जो डायलॉग खोलने वाले बटन के रूप में दिया जाता है। वह इनपुट के बाद फ़ोकस का एक पड़ाव है। ख़ुद फ़ील्ड को दिया गया फ़ोकस हमेशा इनपुट पर जाता है।

@@ -896,8 +896,8 @@ test.describe('behavior', () => {
         document.querySelector('main')!.innerHTML = markup.map(([id, html]) => `<div class="stage" data-in="${id}" style="inline-size: 360px">${html}</div>`).join('');
       },
       [
-        ['help', field('label="Attachment" supporting-text="We keep it for a year." requirement="optional" optional-text="Optional"')],
-        ['error', field('label="Attachment" supporting-text="We keep it for a year." error error-text="Choose a PDF of 10 MB or less." requirement="required" required-text="Required"')],
+        ['help', field('label="Attachment" supporting-text="We keep it for a year." optional optional-text="Optional"')],
+        ['error', field('label="Attachment" supporting-text="We keep it for a year." error error-text="Choose a PDF of 10 MB or less." required required-text="Required"')],
         ['off', field('label="Attachment" disabled')],
         ['own', field('label="Attachment"', 'label="Supporting documents"')],
       ],
@@ -939,7 +939,7 @@ test.describe('behavior', () => {
     // A frame that is not defined yet: the file upload asked, and nobody answered.
     await page.evaluate(() => {
       document.querySelector('main')!.innerHTML =
-        '<div class="stage" data-in="late" style="inline-size: 360px"><late-field label="Attachment" supporting-text="We keep it for a year." requirement="required" required-text="Required" error error-text="Choose a PDF."><tanrei-file-upload constraints-text="PDF, up to 10 MB"><tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button></tanrei-file-upload></late-field></div>';
+        '<div class="stage" data-in="late" style="inline-size: 360px"><late-field label="Attachment" supporting-text="We keep it for a year." required required-text="Required" error error-text="Choose a PDF."><tanrei-file-upload constraints-text="PDF, up to 10 MB"><tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button></tanrei-file-upload></late-field></div>';
     });
     const inside = page.locator('[data-in="late"] tanrei-file-upload');
     const button = inside.locator(':scope > tanrei-button [part="container"]');

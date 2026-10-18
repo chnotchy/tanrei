@@ -14,8 +14,8 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="field" />
 
 <DemoFrame label="A slider and a switch, each named, helped and marked by a field" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" supporting-text="Applies to alerts and media."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notifications" requirement="optional" optional-text="Optional" supporting-text="Sent when a review is waiting for you."><tanrei-switch checked></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" supporting-text="Applies to alerts and media."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notifications" optional optional-text="Optional" supporting-text="Sent when a review is waiting for you."><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 A text field can say what it is, whether it must be answered, how to answer it and why an answer was refused. A field gives the same four things to a control that cannot: a slider, a switch, a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/), a control your product built. A text field is itself a field around a text input. The label stands above the control and the help below it. While the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design system can keep the help and add the error text below it instead.
@@ -29,12 +29,12 @@ On the web it is `<tanrei-field>`. The other platforms have not implemented it y
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field label="Volume" supporting-text="Applies to alerts and media." requirement="optional" optional-text="Optional">
+    <tanrei-field label="Volume" supporting-text="Applies to alerts and media." optional optional-text="Optional">
       <tanrei-slider name="volume" value="40"></tanrei-slider>
     </tanrei-field>
 
     <!-- The product validates; the field shows the reason and marks the control invalid. -->
-    <tanrei-field label="Volume" requirement="required" required-text="Required" error error-text="Choose a level above 0.">
+    <tanrei-field label="Volume" required required-text="Required" error error-text="Choose a level above 0.">
       <tanrei-slider name="volume" value="0"></tanrei-slider>
     </tanrei-field>
 
@@ -67,10 +67,10 @@ On the web it is `<tanrei-field>`. The other platforms have not implemented it y
 ## Specs
 
 <DemoFrame label="The three requirement marks, an error, a disabled field and a label glyph" plain column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="optional" optional-text="Optional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" error error-text="Choose a level above 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" optional optional-text="Optional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" error error-text="Choose a level above 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
@@ -82,7 +82,7 @@ On the web it is `<tanrei-field>`. The other platforms have not implemented it y
 
 <DemoFrame label="A text input in a field: with help and a count, and in error" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Display name" supporting-text="Shown beside your comments." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" error error-text="Enter a complete email address."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required" error error-text="Enter a complete email address."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
 </DemoFrame>
 
 ### Around a text input
@@ -132,7 +132,7 @@ The rule of thumb: if the control has a `supportingText` prop, it needs no field
 
 ### Required and optional
 
-`requirement` is `none`, `required` or `optional`: one setting, because a control is never both.
+`required` and `optional` say what the form asks of the control. `required`, the name HTML gives it, exposes the control as required and draws the required mark: `<tanrei-field label="Email" required>`. `optional` draws the optional tag. A control is never both: with both set it is required, and a development build says that `optional` is ignored. In React they are props, as `required` is on an `<input>`.
 
 - `required` exposes the control as required and draws the required mark beside the label.
 - `optional` draws a quiet tag and adds its text to the control's description.
@@ -178,7 +178,7 @@ Disable a framed control on the field, not on the control, so that the label and
 
 - The label is the control's accessible name, drawn or hidden with `labelHidden`. A control that has a name of its own keeps it.
 - The control's description is what the supporting row shows — the help, or while the field is in error the error text in its place (under `append`, the help and then the error text) — then `optionalText` while the control is optional. They follow any description the control already has.
-- The control is exposed as invalid while `error` is true, as required while `requirement` is `required`, and as disabled while `disabled` is true. A control whose role has no required state, such as a slider, says `requiredText` in its description instead.
+- The control is exposed as invalid while `error` is true, as required while `required` is set, and as disabled while `disabled` is true. A control whose role has no required state, such as a slider, says `requiredText` in its description instead.
 - A control that has an error condition of its own, such as a checkbox or a radio button, is drawn in it.
 - An error that appears, or changes its words, while focus is inside the field is announced once, politely: the error text alone, not the help again. Focus never moves because of an error.
 - A press on the label moves focus to the control and does not operate it.

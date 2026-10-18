@@ -291,7 +291,7 @@
     },
     {
       "id": "CLI-41",
-      "text": "WHEN variant or size names a value that the active design system does not have THE color input SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the color input does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked color input does (CLI-15, CLI-22), with that value's own tokens. A requirement or a required mark it does not know is the Field's to answer (FLD-22)."
+      "text": "WHEN variant or size names a value that the active design system does not have THE color input SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the color input does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked color input does (CLI-15, CLI-22), with that value's own tokens. A required mark it does not know is the Field's to answer (FLD-22)."
     },
     {
       "id": "CLI-42",

@@ -14,11 +14,11 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `requirement`, which marks a field as required or optional and replaces the `required` flag. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
+This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
 :::
 
 <DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
-  <tanrei-text-field label="Email" type="email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in."></tanrei-text-field>
+  <tanrei-text-field label="Email" type="email" required required-text="Required" supporting-text="We only use it to sign you in."></tanrei-text-field>
   <tanrei-text-field label="Start date" type="date" locale="en-US" value="2026-09-27" picker picker-label="Choose start date" segment-empty-text="Empty"></tanrei-text-field>
 </DemoFrame>
 
@@ -34,9 +34,9 @@ It is a block as wide as the place it is put in, and its box fills it. It has no
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="Email" type="email" autocomplete="email" requirement="required" required-text="Required"
+      <tanrei-text-field name="email" label="Email" type="email" autocomplete="email" required required-text="Required"
         supporting-text="We only use it to sign you in."></tanrei-text-field>
-      <tanrei-text-field name="company" label="Company" requirement="optional" optional-text="Optional"></tanrei-text-field>
+      <tanrei-text-field name="company" label="Company" optional optional-text="Optional"></tanrei-text-field>
       <!-- Follows its text from 3 lines to 8, then scrolls. -->
       <tanrei-text-field name="message" label="Message" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- Resized by hand, with a grip. -->
@@ -91,7 +91,7 @@ It is a block as wide as the place it is put in, and its box fills it. It has no
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="Required"
       error={submitted && !isValid(email)}
       errorText="Enter a complete email address."
@@ -203,14 +203,14 @@ It is a block as wide as the place it is put in, and its box fills it. It has no
 The same field, written by hand from its two members, is the same picture, and to assistive technology the same text box with the same name, description and states:
 
 ```html
-<tanrei-field label="Email" requirement="required" required-text="Required"
+<tanrei-field label="Email" required required-text="Required"
   supporting-text="We only use it to sign you in.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="The same field written by hand: a field with a text input in it" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required" supporting-text="We only use it to sign you in.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -254,9 +254,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="Required and optional: the tags, and the asterisk" plain column>
-  <tanrei-text-field label="Email" type="email" requirement="required" required-text="Required"></tanrei-text-field>
-  <tanrei-text-field label="Company" requirement="optional" optional-text="Optional"></tanrei-text-field>
-  <tanrei-text-field label="Email" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="Email" type="email" required required-text="Required"></tanrei-text-field>
+  <tanrei-text-field label="Company" optional optional-text="Optional"></tanrei-text-field>
+  <tanrei-text-field label="Email" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="Several lines: following the text, resized by a grip (down, and both ways), and fixed" plain column>
@@ -294,7 +294,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | Aspect | From the field | From the text input |
 | --- | --- | --- |
-| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | Every other one: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, the lines and the resize, `wrap`, `maxLength`, `counter`, the prefix and the suffix, `autocomplete`, and everything of a date or a time |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | Every other one: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, the lines and the resize, `wrap`, `maxLength`, `counter`, the prefix and the suffix, `autocomplete`, and everything of a date or a time |
 | Events | — | `input`, `change`, `action`, `pickerRequest`, `entryError` |
 | Slots | `label-icon` | `leading-icon`, `trailing-icon` |
 | Tokens | `comp.field.*` | `comp.input-box.*` for the box, which every input box reads; `comp.text-input.*` for what a text input alone draws |
@@ -316,12 +316,12 @@ The text field has no token of its own. Its box reads the [text input's tokens](
 
 - The element's shadow root holds a `<tanrei-field>` with a `<tanrei-text-input>` in it, and nothing else. Importing the element defines both.
 - The element is a block that fills its place, not an inline box as wide as the browser's own text input.
-- The element is form-associated. It takes `name` and `form`, submits the value — nothing while disabled —, resets to the `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and it is empty. Its two members add no entry to the form. Enter in a single-line field presses the default button of the element's form; cancel `action` to prevent it.
+- The element is form-associated. It takes `name` and `form`, submits the value — nothing while disabled —, resets to the `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is set and it is empty. Its two members add no entry to the form. Enter in a single-line field presses the default button of the element's form; cancel `action` to prevent it.
 - `input`, `change`, `action`, `pickerrequest` and `entryerror` are the text input's own events. Their target is the element, and `event.target.value` is the new value in every listener. The detail types are the input's: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
 - Parts: `field` and `text-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `text-input-label`, `field-requirement-label` and `text-input-requirement-label` name one member's.
 - The element is not focusable itself and has no role: `focus()` goes to the input. A press on the label row, on the box or on a floating label focuses the input. A press on the help, the error text, the count or the gap between a row and the box does nothing.
 - Name it with `label` — with `label-hidden` where the label is not to be drawn — and never with `aria-label`, which names nothing here.
-- The attributes are the members' own: kebab-case, such as `supporting-text`, `error-text`, `min-rows` and `no-wrap`, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. There is no `required` attribute: say `requirement="required"`.
+- The attributes are the members' own: kebab-case, such as `supporting-text`, `error-text`, `min-rows` and `no-wrap`, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. There is no `required` attribute: say `required`.
 - Before the element is defined it has no size. Reserve its height.
 
 ## Guidelines
@@ -352,7 +352,7 @@ The default is stacked in every system, including the presets. A Material produc
 
 ### Required and optional
 
-`requirement` says what the form asks of a field: `none` (the default), `required` or `optional`. It is one setting with three values, because a field is never both.
+`required` and `optional` say what the form asks of a field: `required` that it must be answered, `optional` that it may be left out. A field is never both: with both set it is required.
 
 - **Required** exposes the field as required and draws the required mark beside the label.
 - **Optional** draws the requirement tag in its optional form and adds its text to the field's description.
@@ -363,7 +363,7 @@ The default is stacked in every system, including the presets. A Material produc
 
 Mark the fewer of the two in a form: where most fields are required, mark the optional ones, and the other way round. If you use the asterisk — and a filled or outlined field always does for a required field — say once in the form, near its top, what it means ("* Required"): an asterisk is a convention, not a word, and not everyone knows it.
 
-`requirement` replaces the `required` flag of the previous revision. On the web neither the `required` attribute nor the property exists any more: write `requirement="required"`. A field that was required now also shows a mark: set `requiredMark` to `none` where you do not want one.
+A required field shows a mark: set `requiredMark` to `none` where you do not want one.
 
 ### Help and error text
 
@@ -457,7 +457,7 @@ A field's clock is its locale's: it has no setting for 12 or 24 hours and no min
 - Put fixed text that is not part of the value in `prefixText` and `suffixText`: a currency sign, a unit.
 - Put a clear or reveal-password action in the trailing slot as your own icon-only Button, with its own name. The picker button is the only action the field builds in, and it comes after yours.
 - Use `multiline` for text that may run to several lines. By default it grows from `minRows` to `maxRows`, then scrolls.
-- Set `requirement` on the fields a form asks for, and still say what is missing in `errorText` when the form is submitted.
+- Set `required` on the fields a form asks for, and still say what is missing in `errorText` when the form is submitted.
 - Use `type="code"` for a value a machine reads — a pattern, a key, a snippet of configuration — and say what it must be in the label and in `supportingText`.
 
 ### Don't
@@ -467,7 +467,7 @@ A field's clock is its locale's: it has no setting for 12 or 24 hours and no min
 - Don't mix variants in one form.
 - Don't put a text field inside a field. It is a field already; a debug build says so. The control a field frames is the text input.
 - Don't use a `text` field and your own parsing for a date. Use `date`, so the locale's order, the segments' keys and the entry error come with it.
-- Don't write "(required)" in the label as well as setting `requirement`. The mark already says it, and a screen reader would hear it twice.
+- Don't write "(required)" in the label as well as setting `required`. The mark already says it, and a screen reader would hear it twice.
 - Don't let a manually resized field be the only way to see a long text. Give it enough `minRows` to be useful as it opens.
 - Don't disable a field only to show a value that cannot change. Use `readOnly`, so people can still focus, select and copy it.
 - Don't set a code face on a text field from outside, with `::part(input)` or a style of your own, and don't add `dir` or `spellcheck` to the element. Use `type="code"`: the face alone leaves a field that looks right and still corrects what is typed.
@@ -526,7 +526,7 @@ Known platform gaps:
 - Write a label that names the value, and keep it even when you hide it.
 - Write error text that says how to fix the value, and set `error` yourself. On SwiftUI and React Native, that text is the only way the error is heard. For a date or time field, also write `invalidText` and `unavailableText`, and give `segmentEmptyText`: without it an empty segment is read with no value.
 - Give the picker button its `pickerLabel` in your product's language, and open the picker from `pickerRequest`.
-- Set `requirement`, and give `requiredText` and `optionalText`: on the field, or once for the whole product with `setWords({ requiredText, optionalText })` — as `resizeLabel` and `segmentEmptyText` can be. Tanrei ships no words on the web; a missing one is reported in development. See [The product's words](/foundations/words/). Until SwiftUI, Compose, Flutter and React Native catch up, their fields draw no mark, and SwiftUI and React Native do not announce the required state: say "required" in the label there.
+- Set `required` or `optional`, and give `requiredText` and `optionalText`: on the field, or once for the whole product with `setWords({ requiredText, optionalText })` — as `resizeLabel` and `segmentEmptyText` can be. Tanrei ships no words on the web; a missing one is reported in development. See [The product's words](/foundations/words/). Until SwiftUI, Compose, Flutter and React Native catch up, their fields draw no mark, and SwiftUI and React Native do not announce the required state: say "required" in the label there.
 - Name the resize grip with `resizeLabel`. Without it the grip is drawn and works, and has no name.
 - Put a unit or currency in `prefixText` or `suffixText`, not in the value, so that it is read with the value and not typed.
 - For a code field, say what the code must be in `label` and `supportingText` ("Webhook body", "JSON"), and say what is wrong with it in `errorText`: the field does not know the language.

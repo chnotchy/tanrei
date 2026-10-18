@@ -85,7 +85,7 @@ On the web it is `<tanrei-color-input>`. The other platforms have not implemente
 A field around a color input is a color field written out. Leave the input's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, `invalidText` and the picker on the input.
 
 ```html
-<tanrei-field label="Brand color" requirement="required" required-text="Required"
+<tanrei-field label="Brand color" required required-text="Required"
   supporting-text="Six hexadecimal digits, like #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="Enter six hexadecimal digits, like #0f766e."
@@ -94,7 +94,7 @@ A field around a color input is a color field written out. Leave the input's own
 ```
 
 <DemoFrame label="A field with a color input in it: the same picture as a color field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" requirement="required" required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" required required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>

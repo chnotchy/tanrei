@@ -2,7 +2,7 @@
 title: フィールド
 description: フォームのどのフィールドにもあるもの、つまり必須か任意かを示せるラベル、補足の 1 行、値が受け付けられなかった理由を 1 つのコントロールに添え、支援技術に向けてそれぞれをコントロールと結び付けます。フィールドは枠であり、コントロールではありません。
 translationOf: components/field.mdx
-sourceHash: 062d8262e930e102d01919dd43527bc6fecf2197
+sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,8 +16,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field" />
 
 <DemoFrame label="フィールドで名前、補足、印を付けたスライダーとスイッチ" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" supporting-text="通知とメディアに適用されます。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch checked></tanrei-switch></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" supporting-text="通知とメディアに適用されます。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" optional optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch checked></tanrei-switch></tanrei-field>
 </DemoFrame>
 
 テキストフィールドは、何を入力するものか、回答が必須かどうか、どう答えればよいか、なぜ回答が受け付けられなかったかを、自分で伝えられます。フィールドは、それができないコントロール（スライダー、スイッチ、[テキスト入力欄](/ja/components/text-input/)、[カラー入力欄](/ja/components/color-input/)、[ワンタイムコード入力欄](/ja/components/one-time-code-input/)、プロダクトが独自に作ったコントロールなど）に、同じ 4 つを添えます。テキストフィールドは、それ自体が、テキスト入力欄を囲むフィールドです。ラベルはコントロールの上に、補足は下に置きます。フィールドがエラーの間は、エラーテキストが補足の位置に代わって出るので、エラーのフォームが通常より高くなることはありません。デザインシステムによっては、補足を残してその下にエラーテキストを加えることもできます。
@@ -31,12 +31,12 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field label="音量" supporting-text="通知とメディアに適用されます。" requirement="optional" optional-text="任意">
+    <tanrei-field label="音量" supporting-text="通知とメディアに適用されます。" optional optional-text="任意">
       <tanrei-slider name="volume" value="40"></tanrei-slider>
     </tanrei-field>
 
     <!-- 検証するのはプロダクト側です。フィールドは理由を表示し、コントロールが invalid であることを伝えます。 -->
-    <tanrei-field label="音量" requirement="required" required-text="必須" error error-text="0 より大きい値を選んでください。">
+    <tanrei-field label="音量" required required-text="必須" error error-text="0 より大きい値を選んでください。">
       <tanrei-slider name="volume" value="0"></tanrei-slider>
     </tanrei-field>
 
@@ -69,10 +69,10 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 ## 仕様
 
 <DemoFrame label="3 種類の必須・任意の印、エラー、無効なフィールド、ラベルのグリフ" plain column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="任意"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" error error-text="0 より大きい値を選んでください。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="任意"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" error error-text="0 より大きい値を選んでください。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
@@ -84,7 +84,7 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 <DemoFrame label="フィールドの中のテキスト入力欄：補足と文字数のあるものと、エラーのもの" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="表示名" supporting-text="コメントの横に表示されます。" count-text="5/40"><tanrei-text-input value="山田 花子" maxlength="40" counter></tanrei-text-input></tanrei-field>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須" error error-text="メールアドレスを最後まで入力してください。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" error error-text="メールアドレスを最後まで入力してください。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
 </DemoFrame>
 
 ### テキスト入力欄を囲む
@@ -134,7 +134,7 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 ### 必須と任意
 
-`requirement` は `none`、`required`、`optional` のいずれかです。コントロールが必須と任意の両方になることはないので、設定は 1 つです。
+`required` と `optional` は、フォームがコントロールに何を求めるかを表します。`required`（HTML での名前）はコントロールを必須として伝え、必須の印を描きます。`<tanrei-field label="メール" required>` のように書きます。`optional` は任意のタグを描きます。コントロールが必須と任意の両方になることはありません。両方を設定すると必須になり、開発時のビルドは `optional` を無視したことを知らせます。React でも、`<input>` の `required` と同じく props に書けます。
 
 - `required` は、コントロールが必須であることを支援技術に伝え、ラベルの横に必須の印を描きます。
 - `optional` は、控えめなタグを描き、そのテキストをコントロールの説明に加えます。
@@ -180,7 +180,7 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 - ラベルは、描かれていても、`labelHidden` で隠されていても、コントロールのアクセシブルネームになります。自分の名前を持つコントロールは、その名前を保ちます。
 - コントロールの説明は、補足の行に出ているもの（補足、またはフィールドがエラーの間はその位置に代わるエラーテキスト。`append` では補足、続いてエラーテキスト）と、コントロールが任意の間の `optionalText` の順です。コントロールがすでに説明を持っていれば、その後に続きます。
-- `error` が true の間はコントロールが invalid であることを、`requirement` が `required` の間は必須であることを、`disabled` が true の間は無効であることを伝えます。スライダーのように、ロールに必須の状態がないコントロールでは、代わりに説明の中で `requiredText` を伝えます。
+- `error` が true の間はコントロールが invalid であることを、`required` が設定されている間は必須であることを、`disabled` が true の間は無効であることを伝えます。スライダーのように、ロールに必須の状態がないコントロールでは、代わりに説明の中で `requiredText` を伝えます。
 - チェックボックスやラジオボタンのように自身のエラーの状態を持つコントロールは、その状態で描かれます。
 - フォーカスがフィールドの中にある間にエラーが現れるか、エラーの文言が変わると、1 度だけ、控えめに読み上げます。読み上げるのはエラーテキストだけで、補足をもう一度読むことはありません。エラーのためにフォーカスが動くことはありません。
 - ラベルを押すと、フォーカスがコントロールに移ります。コントロールが操作されることはありません。

@@ -2,7 +2,7 @@
 title: Entrada de color
 description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/color-input.mdx
-sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
+sourceHash: d34d509c0e3d4ab5d450352da69d5c2088816cda
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,7 @@ En la web es `<tanrei-color-input>`. Las demás plataformas todavía no la han i
 Un campo alrededor de una entrada de color es un campo de color escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value`, `invalidText` y el selector, en la entrada.
 
 ```html
-<tanrei-field label="Color de marca" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Color de marca" required required-text="Obligatorio"
   supporting-text="Seis dígitos hexadecimales, como #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="Introduce seis dígitos hexadecimales, como #0f766e."
@@ -96,7 +96,7 @@ Un campo alrededor de una entrada de color es un campo de color escrito por exte
 ```
 
 <DemoFrame label="Un campo con una entrada de color dentro: la misma imagen que un campo de color" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" requirement="required" required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" required required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>

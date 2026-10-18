@@ -2,7 +2,7 @@
 title: नंबर इनपुट
 description: किसी संख्या का बॉक्स — जो लोकेल के रूप में टाइप की जाती है या किसी कुंजी या बटन से स्टेप-दर-स्टेप बदली जाती है, सीमाओं के भीतर रखी जाती है, और जिसकी इकाई उसके बग़ल में रहती है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस संख्या के लिए जिसका लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/number-input.mdx
-sourceHash: 2790f391198caf794180332adcdc03fd67075c81
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -100,7 +100,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 नंबर इनपुट के चारों ओर का फ़ील्ड, हाथ से पूरा लिखा गया नंबर फ़ील्ड है। इनपुट का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर बताया जाता है; `name`, `value`, सीमाएँ और इकाई इनपुट पर।
 
 ```html
-<tanrei-field label="मात्रा" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="मात्रा" required required-text="ज़रूरी"
   supporting-text="हर ऑर्डर में 99 तक।">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="कोई संख्या डालें।"
     increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="एक फ़ील्ड जिसके भीतर नंबर इनपुट है: वही तस्वीर जो नंबर फ़ील्ड की है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" requirement="required" required-text="ज़रूरी" supporting-text="हर ऑर्डर में 99 तक।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" required required-text="ज़रूरी" supporting-text="हर ऑर्डर में 99 तक।">
     <tanrei-number-input min="1" max="99" invalid-text="कोई संख्या डालें।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>

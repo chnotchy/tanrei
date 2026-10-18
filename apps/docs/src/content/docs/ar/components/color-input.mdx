@@ -2,7 +2,7 @@
 title: حقل إدخال اللون
 description: الصندوق الذي يعيّن فيه الناس لونًا واحدًا، فيه عيّنة منه، والقيمة نصًّا يقرؤونه ويكتبونه ويلصقونه، وزر يطلب منتقيًا، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لصف أو عمود يسمّي اللون سلفًا، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/color-input.mdx
-sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
+sourceHash: d34d509c0e3d4ab5d450352da69d5c2088816cda
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بحقل إدخال اللون هو حقل لون مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` و `invalidText` والمنتقي على حقل الإدخال.
 
 ```html
-<tanrei-field label="لون العلامة التجارية" requirement="required" required-text="مطلوب"
+<tanrei-field label="لون العلامة التجارية" required required-text="مطلوب"
   supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e."
@@ -96,7 +96,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="حقل فيه حقل إدخال اللون: الصورة نفسها التي لحقل اللون" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" requirement="required" required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" required required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." picker picker-label="اختيار لون"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>

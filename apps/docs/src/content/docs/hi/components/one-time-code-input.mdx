@@ -2,7 +2,7 @@
 title: वन-टाइम कोड इनपुट
 description: व्यक्ति को भेजा गया छोटा कोड, जैसे साइन-इन या पुष्टि कोड, एक ही टेक्स्ट मान के रूप में लेता है और उसे अलग-अलग सेल में दिखाता है, ताकि कोड की लंबाई और जो अभी बाक़ी है वह दिखे, और प्लैटफ़ॉर्म उसे एक ही बार में भर सके।
 translationOf: components/one-time-code-input.mdx
-sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
+sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,7 +45,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-field label="पुष्टि कोड"
         supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।"
         error-text="यह कोड सही नहीं है। संदेश देखकर फिर कोशिश करें।"
-        requirement="required" required-text="ज़रूरी">
+        required required-text="ज़रूरी">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -209,5 +209,5 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - कंट्रोल को नाम दें: उसके चारों ओर के फ़ील्ड का लेबल, या जहाँ दिखने वाला लेबल कहीं और है वहाँ उसका अपना `label`, उन्हीं शब्दों में।
 - क्या अपेक्षित है, यह शब्दों में बताएँ: कितने अक्षर, और कोड कहाँ भेजा गया। सेल लंबाई सिर्फ़ उन्हें दिखाते हैं जो उन्हें देख सकते हैं।
-- कोड ग़लत है, उसकी अवधि ख़त्म हो चुकी है या वह ज़रूरी है, यह फ़ील्ड के `errorText`, `supportingText` और `requirement` से बताएँ। रंग कभी अकेला संकेत नहीं होता।
+- कोड ग़लत है, उसकी अवधि ख़त्म हो चुकी है या वह ज़रूरी है, यह फ़ील्ड के `errorText`, `supportingText` और `required` से बताएँ। रंग कभी अकेला संकेत नहीं होता।
 - जहाँ कोड दर्ज करने का समय सीमित है, वहाँ यह बताएँ, और व्यक्ति को और समय या नया कोड माँगने दें।

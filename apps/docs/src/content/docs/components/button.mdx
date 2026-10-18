@@ -256,7 +256,7 @@ On the web a button is one of its form's controls, and `type` says what a press 
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="Name" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="Name" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">Clear</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">Save draft</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">Publish</tanrei-button>
@@ -289,7 +289,7 @@ On the web a button is one of its form's controls, and `type` says what a press 
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="Name" name="name" requirement="required" />
+      <TextField label="Name" name="name" required />
       <Button type="reset" variant="text">Clear</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">Save draft</Button>
       <Button type="submit" name="intent" value="publish">Publish</Button>

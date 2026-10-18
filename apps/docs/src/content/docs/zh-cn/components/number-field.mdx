@@ -2,7 +2,7 @@
 title: "数字字段"
 description: "让用户把数字当作数字来输入——按所在区域设置的写法键入，或者用按键或按钮步进；数字被限制在范围之内，单位就在旁边——它是表单中一个完整的字段，由一个字段和一个数字输入框组成。"
 translationOf: components/number-field.mdx
-sourceHash: d14b4c010e77328467d20894bf802cdfa9ea87a5
+sourceHash: 3c1eabf6d7a809f831a180497a3ea74c23603162
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```html
     <form>
       <tanrei-number-field name="quantity" label="数量" value="1" min="1" max="99"
-        requirement="required" required-text="必填" invalid-text="请输入数字。" increment-label="增加" decrement-label="减少"></tanrei-number-field>
+        required required-text="必填" invalid-text="请输入数字。" increment-label="增加" decrement-label="减少"></tanrei-number-field>
     </form>
 
     <!-- 带单位，步长为 0.25，没有上限。 -->
@@ -79,7 +79,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个微调按钮（spin button），名称、描述和状态都相同：
 
 ```html
-<tanrei-field label="数量" requirement="required" required-text="必填"
+<tanrei-field label="数量" required required-text="必填"
   supporting-text="每笔订单最多 99 件。">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="请输入数字。"
     increment-label="增加" decrement-label="减少"></tanrei-number-input>
@@ -87,7 +87,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="手写出来的同一个字段：里面放着一个数字输入框的字段" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" requirement="required" required-text="必填" supporting-text="每笔订单最多 99 件。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必填" supporting-text="每笔订单最多 99 件。">
     <tanrei-number-input min="1" max="99" invalid-text="请输入数字。" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -118,7 +118,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 部件 | 它是什么 |
 | --- | --- |
 | 标签 | 属于字段：位于容器上方（`stacked`）。在 `filled` 和 `outlined` 中由数字输入框绘制，浮在方框里面，字段不绘制标签行。它就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的 |
-| 必填和选填标记 | 属于字段，位于标签之后：`requirement="required"` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签。浮动标签带的是星号 |
+| 必填和选填标记 | 属于字段，位于标签之后：`required` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签。浮动标签带的是星号 |
 | 输入框 | 属于数字输入框：以文本形式呈现的数字。编辑期间是用户键入的内容；其余时候是已确认的数字，按区域设置的写法显示。只有一行，放不下时滚动 |
 | 前缀、后缀 | 属于数字输入框：数字前后的固定文本，例如货币符号或单位。它们属于方框，绝不属于值 |
 | 步进按钮 | 属于数字输入框：末尾的两个按钮，第一个减小，第二个增大。把 `steppers` 设为 false 就不绘制它们 |
@@ -188,7 +188,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### Web 上绘制方式的不同之处
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-number-input>`。导入数字字段，两者也随之完成定义。
-- 数字字段是与表单关联的元素，也是它的表单遇到的唯一控件。它接受 `name`，无论区域设置显示成什么样，都以普通的十进制数字（`12.5`）提交它的值。重置时回到 `value` 属性（attribute）的值；在 `requirement="required"` 且没有数字时报告缺少值，在文本不是数字时报告输入有误。
+- 数字字段是与表单关联的元素，也是它的表单遇到的唯一控件。它接受 `name`，无论区域设置显示成什么样，都以普通的十进制数字（`12.5`）提交它的值。重置时回到 `value` 属性（attribute）的值；在 `required` 且没有数字时报告缺少值，在文本不是数字时报告输入有误。
 - 它是一个块，和它所在的地方一样宽。在不给宽度的地方，长标签会让它比自己的方框更宽：这时请给它一个宽度。
 - 部件就是成员的部件，沿用它们自己的名称：来自字段的 `label`、`label-icon`、`requirement-label` 和 `supporting-text`；来自数字输入框的 `container`、`outline`、`active-indicator`、`input`、`prefix`、`suffix` 和 `stepper`。`label` 和 `requirement-label` 指向两者中画出来的那一个；`field-label` 和 `number-input-label` 只指向其中一个。两个成员本身是部件 `field` 和 `number-input`。
 - `entryerror` 的 `detail.text` 是输入框的 `invalidText`，没有提供时为空。detail 的类型是数字输入框的：`TanreiNumberInputInputDetail` 和 `TanreiNumberInputEntryErrorDetail`。
@@ -239,7 +239,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 输入框是一个微调按钮（spin button）。它的名称是 `label`，无论是画出来的还是隐藏的，绝不是占位符。
 - 它的值是已确认的数字，它的范围是 `min` 和 `max`。
 - 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
-- `error` 为 true 或文本不是数字时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；只读时，暴露为只读。
+- `error` 为 true 或文本不是数字时，它暴露为无效；设置了 `required` 时，暴露为必填；只读时，暴露为只读。
 - 字段获得焦点期间出现的错误，会以礼貌（polite）的方式朗读一次——文本不是数字时也一样。
 - 步进按钮是由 `decrementLabel` 和 `incrementLabel` 命名的按钮；没有人命名的那一个对辅助技术隐藏。它们不在焦点顺序中，因为方向键在输入框里就能步进；通过触摸浏览的用户仍然能找到它们。
 - 按下步进按钮不会移动焦点，所以不会唤起屏幕键盘。

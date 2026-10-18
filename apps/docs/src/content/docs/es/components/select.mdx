@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 222e3da773560b3e6266645a13820fe9856c0687
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ Las opciones son hijos del select: cada una tiene un valor y una etiqueta. `valu
 Un campo alrededor de un select es un campo de selección escrito por extenso. Deja vacío el `label` del propio select: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se dicen en el campo; `name`, `value`, las opciones y todo lo que tiene que ver con elegir, en el select.
 
 ```html
-<tanrei-field label="País" requirement="required" required-text="Obligatorio"
+<tanrei-field label="País" required required-text="Obligatorio"
   supporting-text="El país al que van dirigidas tus facturas.">
   <tanrei-select name="country" placeholder="Elige un país">
     <tanrei-option value="jp">Japón</tanrei-option>
@@ -107,7 +107,7 @@ Un campo alrededor de un select es un campo de selección escrito por extenso. D
 ```
 
 <DemoFrame label="Un campo con un select dentro: la misma imagen que un campo de selección" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" requirement="required" required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" required required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-select placeholder="Elige un país">
       <tanrei-option value="jp">Japón</tanrei-option>
       <tanrei-option value="ke">Kenia</tanrei-option>
@@ -203,7 +203,7 @@ El valor solo cambia cuando la persona confirma una opción en la lista abierta:
 - `change` es un evento compuesto que se propaga. `toggle` es compuesto y no se propaga: se oye en el select, y en un campo de selección que lo rodee, y nunca en un antecesor como un `<details>`.
 - La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
 - Una etiqueta flotante (`filled`, `outlined`) queda dentro del contenedor, así que una pulsación en ella abre la lista.
-- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
+- `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
 - Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
 - Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-select:not(:defined) > *` y reserva la altura.
 - La web no tiene un gesto de retroceso propio, así que `toggle` nunca lleva el motivo `back`.

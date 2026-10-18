@@ -1499,7 +1499,7 @@ whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row wi
 </tanrei-text-input>
 
 <!-- Framed by hand — what <tanrei-text-field> is, one level down. The Field names it, describes it and marks it. -->
-<tanrei-field label="Email" requirement="required" supporting-text="We never share your address.">
+<tanrei-field label="Email" required supporting-text="We never share your address.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 
@@ -1520,7 +1520,7 @@ whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row wi
 - **The name** is its own `label`, else its Field's; **the description** is its own — the prefix and the suffix while
   shown, the count — and then its Field's, in one `aria-describedby` (the count and the Field's words are hidden
   elements of its shadow root); the words of an entry error are part of it while no Field frames the input (TXI-30).
-- **Required** is its Field's to say (TXI-23): it has no `requirement`. A bare input that must be required is framed by
+- **Required** is its Field's to say (TXI-23): it has no `required`. A bare input that must be required is framed by
   a Field with `label-hidden`.
 - **`countText`** (read-only) is the count it keeps while `counter` is set — `12/40`, or `12` without `maxlength` —
   new in its own `input` event and at once for a value or a `maxlength` the product sets. It is described and announced
@@ -1765,7 +1765,7 @@ count (`specs/text-field.spec.json`, TXF-62…67). It is a **composed** element:
 members' own elements and nothing else, and everything it does is "Composed elements", above.
 
 ```html
-<tanrei-text-field name="email" label="Email" type="email" autocomplete="email" requirement="required"
+<tanrei-text-field name="email" label="Email" type="email" autocomplete="email" required
                    supporting-text="We never share your address." maxlength="80" counter></tanrei-text-field>
 <tanrei-text-field label="Start date" type="date" locale="en-US" picker picker-label="Choose date"
                    invalid-text="Finish the date."></tanrei-text-field>
@@ -1775,7 +1775,7 @@ members' own elements and nothing else, and everything it does is "Composed elem
 ```
 
 - **Thirty-seven properties, none its own**: ten are the Field's (`label`, `label-hidden`, `supporting-text`,
-  `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text`, `optional-text`), twenty-seven
+  `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`), twenty-seven
   the input's. The input's own `label`, `labelHidden`, `error` and `disabled` are never set: the Field says each to
   its control.
 - **One thing it does that the pair by hand does not** (`fills`, TXF-67): while `counter` is set it gives its Field the
@@ -1791,7 +1791,7 @@ members' own elements and nothing else, and everything it does is "Composed elem
   the input's own events with the element as their target; it dispatches none. The detail types are the input's
   (`TanreiTextInputActionDetail`, `…PickerRequestDetail`, `…EntryErrorDetail`).
 - **It is the form's control**: `name`, `form`, the value (nothing while disabled), reset to the `value` attribute,
-  restore, a disabled fieldset, `valueMissing` while `requirement="required"` and empty, a date's entry error.
+  restore, a disabled fieldset, `valueMissing` while `required` and empty, a date's entry error.
 - **Focus is not delegated**: `focus()` goes to the input; a press on the label row focuses it (FLD-12), and so does a
   press on the box or on a floating label (TXI-8); **a press on the help, the error text, the count or the gap between
   a row and the box does nothing**.
@@ -1806,11 +1806,11 @@ form-associated, holds a value, emits an event, takes focus or handles a key. Th
 default slot and stay in the product's light DOM, with their place in a `<form>`, their `name`, `value` and events.
 
 ```html
-<tanrei-field label="Volume" supporting-text="Applies to alerts and media." requirement="optional">
+<tanrei-field label="Volume" supporting-text="Applies to alerts and media." optional>
   <tanrei-slider name="volume" value="40"></tanrei-slider>
 </tanrei-field>
 
-<tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." requirement="required"
+<tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." required
                     error error-text="Choose at least one way to reach you.">
   <tanrei-checkbox name="notify" value="email" label="Email"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
@@ -1828,7 +1828,8 @@ component's own markup, and only the controls are the product's. The host is `di
 | `errorText` / `error-text` | string | `""` | a field: while `error`, in the help's place — the row's first line — or below the help, which then stays, where `--tanrei-comp-field-error-text-placement` is `append` (FLD-7, FLD-31). A group: a row of its own below the last control |
 | `error` | boolean | `false` | the error condition; the product's to set; reflected |
 | `disabled` | boolean | `false` | disables the control, or every control, and draws the frame as disabled; reflected |
-| `requirement` | `none` \| `required` \| `optional` | `none` | reflected; another value behaves as `none` and is reported |
+| `required` | boolean | `false` | the form asks for an answer: the required mark and the required state; reflected |
+| `optional` | boolean | `false` | the optional tag, and `optionalText` in the description; ignored while `required` is set, which is reported (FLD-32, FGR-26); reflected |
 | `requiredMark` / `required-mark` | `auto` \| `tag` \| `asterisk` \| `none` | `auto` | `auto` is the system's `--tanrei-comp-field-requirement-mark` (`-field-group-` for a group), which follows `--tanrei-sys-behavior-requirement-mark` unless a layer sets it apart; reflected. Another value behaves as `auto` and is reported |
 | `requiredText` / `required-text`, `optionalText` / `optional-text` | string | `""` | the tag's text, also what assistive technology is told where there is no state for it: the instance's, else the product's words. Without `requiredText` the asterisk stands in the tag's place; without `optionalText` no tag is drawn and nothing is said (FLD-24, FGR-24) |
 | `orientation` (group) | `vertical` \| `horizontal` | `vertical` | a column, or a row that wraps; reflected |
@@ -1966,7 +1967,7 @@ field group's own element the radio group of the radio buttons it holds — the 
 group:
 
 ```html
-<tanrei-field-group kind="radio-group" label="Delivery" requirement="required" required-text="Required">
+<tanrei-field-group kind="radio-group" label="Delivery" required required-text="Required">
   <tanrei-radio-button name="delivery" value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="Express, next day" checked></tanrei-radio-button>
 </tanrei-field-group>
@@ -1974,7 +1975,7 @@ group:
 
 - **The same `<fieldset>`, with the role.** In this kind the fieldset carries `role="radiogroup"`,
   `aria-labelledby` its `<legend>` (which stays in the tree while `label-hidden`), `aria-required` while
-  `requirement="required"`, `aria-invalid` while `error`, `aria-orientation` as `orientation` says and `aria-disabled`
+  `required`, `aria-invalid` while `error`, `aria-orientation` as `orientation` says and `aria-disabled`
   — attributes, not `ElementInternals` states, which axe cannot see. The hidden text for `required-text` is not rendered
   and is left out of `aria-describedby`: the state says it (`groupRows(props, { requiredState: true })`). Nothing else
   in the shadow root differs, so the two kinds are the same pixels (a test draws each `radio-buttons-*` fixture in
@@ -2008,7 +2009,7 @@ element, in the construction of `<tanrei-checkbox-group>`: the members that hold
 product's own children.
 
 ```html
-<tanrei-radio-group label="Delivery" name="delivery" value="standard" requirement="required" required-text="Required"
+<tanrei-radio-group label="Delivery" name="delivery" value="standard" required required-text="Required"
                     supporting-text="You can change this until the order ships.">
   <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
   <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
@@ -2016,7 +2017,7 @@ product's own children.
 </tanrei-radio-group>
 
 <!-- One level down, the same picture and the same radio group, by hand: without the one value, the one change and the place in a form as one control. -->
-<tanrei-field-group kind="radio-group" label="Delivery" requirement="required" required-text="Required"
+<tanrei-field-group kind="radio-group" label="Delivery" required required-text="Required"
                     supporting-text="You can change this until the order ships.">
   <tanrei-radio-button name="delivery" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
   …
@@ -2042,7 +2043,7 @@ set on the radio group is inherited by the field group inside, and each radio bu
 |---|---|---|---|
 | `value` | string | `""` | the value of the selected radio button; `""` is none. The attribute is the first value and what a form reset returns to; the property is the live one |
 | `name` | string | `""` | the name `value` is submitted under (a web attribute, not a spec prop); reflected |
-| `label`, `labelHidden` / `label-hidden`, `supportingText` / `supporting-text`, `errorText` / `error-text`, `error`, `disabled`, `requirement`, `requiredMark` / `required-mark`, `requiredText` / `required-text`, `optionalText` / `optional-text`, `orientation` | | | the field group's own, declared in place as it declares them and set on it unchanged (`forward()`); there is no `spacing` and no `kind` — the group sets both |
+| `label`, `labelHidden` / `label-hidden`, `supportingText` / `supporting-text`, `errorText` / `error-text`, `error`, `disabled`, `required`, `optional`, `requiredMark` / `required-mark`, `requiredText` / `required-text`, `optionalText` / `optional-text`, `orientation` | | | the field group's own, declared in place as it declares them and set on it unchanged (`forward()`); there is no `spacing` and no `kind` — the group sets both |
 
 Slot: the default slot (the radio buttons). Parts: `field-group` (the frame), and the field group's own under its
 names — `label`, `requirement-label`, `supporting-text`, `error-text`, the names this element's parts had before.
@@ -2082,7 +2083,7 @@ already selected. Methods: `focus()` (moves focus to the radio button that is th
 - **A form control.** `static formAssociated = true`: it submits `value` under `name` while `value` is not empty and
   the group is not disabled — also while the radio button of that value is one the product disabled by itself — is
   reset to its `value` attribute, is restored on navigation, follows `<fieldset disabled>` and reports `valueMissing`
-  while `requirement="required"` and `value` is empty, in the browser's own words for a set of radio buttons left
+  while `required` and `value` is empty, in the browser's own words for a set of radio buttons left
   unanswered (where a browser has none: `error-text`, else the required text, else `label`), anchored on the native
   radio of the radio button that is the stop (`validationAnchor`): `reportValidity()` then focuses it. (Anchored on the
   radio button's own element, which takes no focus, nothing was focused.) It never sets `error`. Its radio buttons
@@ -2104,7 +2105,7 @@ component one level down; one with neither a group nor a name is a group of one 
 shadow roots down (a selector for `[role="radiogroup"]` in the radio group's own shadow root finds nothing);
 the label row stands in a `<legend>`, whose box is as wide as the label and its mark, not as wide as the group
 (`::part(label)` reaches it; a rule that relies on the label's box filling the row does not hold); and the debug
-reports about the frame's own props — an unknown `requirement`, `required-mark` or `orientation`, missing words, an
+reports about the frame's own props — an unknown `required`, `optional`, `required-mark` or `orientation`, missing words, an
 empty label — are the field group's, under its ids (FGR-22, FGR-24, FGR-10).
 
 **What the three engines do** (each is held by a test of `primitives/composed.test.ts`, `W13-7 the twin`, or of
@@ -2136,7 +2137,7 @@ table. The pattern is the select-only combobox: focus stays on the trigger and o
 </tanrei-select>
 
 <!-- In a field, by hand: the field names it, describes it and marks it. -->
-<tanrei-field label="Time zone" requirement="required" supporting-text="Times are shown in this time zone.">
+<tanrei-field label="Time zone" required supporting-text="Times are shown in this time zone.">
   <tanrei-select name="zone" value="Europe/Lisbon">
     <span slot="leading-icon">public</span>
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">Tokyo</tanrei-option></tanrei-option-group>
@@ -2173,7 +2174,7 @@ the field whatever is chosen; it takes the place of the chosen option's own). Pa
 `group`, `group-title`, `divider`.
 
 **What is the field's, not the select's**: the attributes `supporting-text`, `error-text`,
-`requirement`, `required-mark`, `required-text` and `optional-text`, the `label-icon` slot, the parts `label-icon` and
+`required`, `optional`, `required-mark`, `required-text` and `optional-text`, the `label-icon` slot, the parts `label-icon` and
 `supporting-text`, and the label row of the stacked look. Each is the field's, and so the select field's. On a select
 they draw nothing, and a debug build says so once for the element and names `<tanrei-select-field>` (SEL-64). **One
 case is silent:** `<tanrei-select label="Country">` draws no label — `label` alone is a correct bare select, named
@@ -2309,14 +2310,14 @@ It takes every attribute, property, event and child a framed select takes, under
 is this tag.
 
 ```html
-<tanrei-select-field name="country" label="Country" requirement="required" required-text="Required"
+<tanrei-select-field name="country" label="Country" required required-text="Required"
   placeholder="Choose a country" supporting-text="Where your invoices are addressed.">
   <tanrei-option value="jp">Japan</tanrei-option>
   <tanrei-option value="ke">Kenya</tanrei-option>
 </tanrei-select-field>
 
 <!-- One level down: the same picture, the same name, description and states. -->
-<tanrei-field label="Country" requirement="required" required-text="Required" supporting-text="Where your invoices are addressed.">
+<tanrei-field label="Country" required required-text="Required" supporting-text="Where your invoices are addressed.">
   <tanrei-select name="country" placeholder="Choose a country">
     <tanrei-option value="jp">Japan</tanrei-option>
     <tanrei-option value="ke">Kenya</tanrei-option>
@@ -2340,7 +2341,7 @@ The shadow root, and nothing else in it:
 |---|---|
 | Members | `tanrei-field` holding `tanrei-select`; the product places none, and gives the options |
 | Value member | `tanrei-select` |
-| Props from the field | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` |
+| Props from the field | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` |
 | Props from the select | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` — and the `inline` attribute, for tests and fixtures, which is no prop: the element has no property for it, watches the attribute and gives its select what it says |
 | Props of one name on both | `label`, `labelHidden`, `error`, `disabled`: the field's. The select's own are never set |
 | Read through, never copied | `value` (W5) and `open`, by an accessor of the same kind: what was last set until the select has taken it, then what the select holds. Both are new in every listener of `change` and `toggle`, and when the select takes `open` back with no event; the reflected `open` attribute follows the select |
@@ -2452,7 +2453,7 @@ the select's elements.
 </tanrei-combobox>
 
 <!-- Framed by hand — what <tanrei-combobox-field> is, one level down. The Field names it, describes it and marks it. -->
-<tanrei-field label="City" requirement="required" supporting-text="Where the order is sent.">
+<tanrei-field label="City" required supporting-text="Where the order is sent.">
   <tanrei-combobox name="city" value="tokyo" clearable clear-label="Clear city">
     <tanrei-option value="kyoto">Kyoto</tanrei-option>
     <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -2474,10 +2475,10 @@ the select's elements.
 <tanrei-combobox label="Plan"><slot></slot></tanrei-combobox>
 ```
 
-**What is the field's, not the combobox's**: the six properties `supportingText`, `errorText`, `requirement`,
-`requiredMark`, `requiredText` and `optionalText` with their attributes, the `label-icon` slot, the parts `label-icon`
-and `supporting-text`, and the types `TanreiFieldRequirement` and `TanreiFieldRequiredMark`.
-`<tanrei-combobox label="City" supporting-text="…" requirement="required">` renders and works, and silently draws none
+**What is the field's, not the combobox's**: the seven properties `supportingText`, `errorText`, `required`,
+`optional`, `requiredMark`, `requiredText` and `optionalText` with their attributes, the `label-icon` slot, the parts `label-icon`
+and `supporting-text`, and the type `TanreiFieldRequiredMark`.
+`<tanrei-combobox label="City" supporting-text="…" required>` renders and works, and silently draws none
 of the three: that is `<tanrei-combobox-field>` with the same attributes, children and listeners. A bare combobox is
 never required by itself; the host is a block as wide as its place; and `toggle` is composed.
 
@@ -2627,7 +2628,7 @@ root is the two members' own elements and nothing else, it draws nothing of its 
 attributes, children and listeners of a framed combobox, name for name.
 
 ```html
-<tanrei-combobox-field name="city" label="City" requirement="required" supporting-text="Where the order is sent."
+<tanrei-combobox-field name="city" label="City" required supporting-text="Where the order is sent."
                        value="tokyo" clearable clear-label="Clear city">
   <tanrei-option value="kyoto">Kyoto</tanrei-option>
   <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -2647,7 +2648,7 @@ Built as "Composed elements" above says (`ComposedControl`; W1 to W13); what fol
 
 | | |
 |---|---|
-| To the Field (10) | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled` (joined with a disabled fieldset's), `requirement`, `requiredMark`, `requiredText`, `optionalText` |
+| To the Field (10) | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled` (joined with a disabled fieldset's), `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` |
 | To the combobox (16) | `variant`, `size`, `value`, `inputValue`, `placeholder`, `readOnly`, `open`, `allowCustomValue`, `filter`, `noChevron`, `clearable`, `clearLabel`, `status`, `statusText`, `emptyText`, `separation` — and `inline`, its test attribute, which is no prop of the spec and is kept out of the manifest |
 | Never set | the combobox's own `label`, `labelHidden`, `error`, `disabled`: they reach it through the Field's connection |
 | Events | `input`, `change`, `action` leave by themselves, composed and bubbling; `toggle` is composed and does not bubble (heard on the element, by no ancestor). None is stopped, none is copied |
@@ -2664,8 +2665,8 @@ combobox opens and closes its list itself, so the host's attribute follows after
 (`memberUpdated()`).
 
 **The form (CBF-4).** The element is the form's one control: it repeats what its combobox tells its own internals —
-the committed value, never the text of an edit; nothing while disabled; `valueMissing` while `requirement` is
-`required` and the value is empty, anchored on the combobox's input. Enter with no option active presses the default
+the committed value, never the text of an edit; nothing while disabled; `valueMissing` while `required` is
+set and the value is empty, anchored on the combobox's input. Enter with no option active presses the default
 button of the element's own form; an Enter that chooses an option submits nothing.
 
 **Focus, and the label row (CBF-5).** Not delegated. A press on the Field's label row focuses the input and opens
@@ -2699,7 +2700,7 @@ combobox share (`src/primitives/field-trigger.ts`); its steppers are `<tanrei-bu
                      suffix-text="×" value-text="1.5 times" align="end" no-steppers></tanrei-number-input>
 
 <!-- In a Field, by hand: the twin of a number field. -->
-<tanrei-field label="Quantity" requirement="required" supporting-text="Up to 99 per order.">
+<tanrei-field label="Quantity" required supporting-text="Up to 99 per order.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Enter a number."></tanrei-number-input>
 </tanrei-field>
 ```
@@ -2838,14 +2839,14 @@ split; it draws nothing, holds no state and has no token.
 
 | | |
 |---|---|
-| To the Field (10) | `label`, `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled` (joined with a disabled fieldset's), `requirement`, `required-mark`, `required-text`, `optional-text` |
+| To the Field (10) | `label`, `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled` (joined with a disabled fieldset's), `required`, `optional`, `required-mark`, `required-text`, `optional-text` |
 | To the number input (19) | `variant`, `size`, `value`, `placeholder`, `readonly`, `min`, `max`, `step`, `no-steppers`, `increment-label`, `decrement-label`, `prefix-text`, `suffix-text`, `value-text`, `align`, `min-fraction-digits`, `max-fraction-digits`, `locale`, `invalid-text`. The input's own `label`, `labelHidden`, `error` and `disabled` are never set |
 | Value | `number \| null`, at every moment the input's (`ComposedControl<number \| null>`); `firstValue()` reads the `value` attribute as the input does, and a reset calls the input's `resetTo()` so that the same value is still a new one |
 | Events | `input`, `change`, `action`, `entryerror`: the input's own, with the element as their target; none is dispatched or stopped |
 | Slot | `label-icon`, passed to the Field |
 | Parts | `field`, `number-input`; from the Field `label`, `label-icon`, `requirement-label`, `supporting-text` (not `counter`: a number keeps no count; nor `value-text`: its value is read in the input); from the input `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `prefix`, `suffix`, `stepper`. `label` and `requirement-label` are exported bare from both and always as `field-label`, `number-input-label`, `field-requirement-label`, `number-input-requirement-label` (FLD-25 holds that the two are never drawn at once). `stepper` is a `<tanrei-button>` that is a part of the input: it is exported through two shadow roots, one level at each step, and nothing inside the Button is |
 | Focus | not delegated; `focus()` goes to the input; one stop; a press on a stepper moves none |
-| Types | the members': `TanreiNumberInputVariant`, `…Size`, `…Align`, `…InputDetail`, `…EntryErrorDetail`, `TanreiFieldRequirement`, `TanreiFieldRequiredMark` (re-exported by the module) |
+| Types | the members': `TanreiNumberInputVariant`, `…Size`, `…Align`, `…InputDetail`, `…EntryErrorDetail`, `TanreiFieldRequiredMark` (re-exported by the module) |
 
 It is a block as wide as its place; a long label in a place that gives no width widens it to the row; `entryerror`'s
 `detail.text` is the input's `invalidText`; `::part(label)` reaches the drawn one of two; it has no tokens of its own
@@ -2869,7 +2870,7 @@ draws no picker surface of its own: the picker is the browser's, or the product'
 <tanrei-color-input label="Primary, tone 40" value="#0f766e" picker picker-label="Choose the color of Primary, tone 40"></tanrei-color-input>
 
 <!-- Framed by hand — what <tanrei-color-field> is, one level down. The Field names it, describes it and marks it. -->
-<tanrei-field label="Brand color" requirement="required" supporting-text="Six hexadecimal digits, like #0f766e.">
+<tanrei-field label="Brand color" required supporting-text="Six hexadecimal digits, like #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e."
                       picker picker-label="Choose color"></tanrei-color-input>
 </tanrei-field>
@@ -2892,7 +2893,7 @@ draws no picker surface of its own: the picker is the browser's, or the product'
 No slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its
 asterisk), `swatch`, `input`, `picker-button`. Methods: `focus()` (the input, never the picker button), `blur()`,
 `select()`, and the constraint validation's `form`, `validity`, `validationMessage`, `willValidate`,
-`checkValidity()`, `reportValidity()`. It has no `requirement`: it is required when its Field says so.
+`checkValidity()`, `reportValidity()`. It has no `required`: it is required when its Field says so.
 
 | Event | | When |
 |---|---|---|
@@ -2980,14 +2981,14 @@ or, in the filled and the outlined look, with the label floating in the box — 
 members' own elements and nothing else, and everything it does is "Composed elements", above.
 
 ```html
-<tanrei-color-field name="brand" label="Brand color" value="#0f766e" requirement="required"
+<tanrei-color-field name="brand" label="Brand color" value="#0f766e" required
                     supporting-text="Six hexadecimal digits, like #0f766e."
                     invalid-text="Enter six hexadecimal digits, like #0f766e."
                     picker picker-label="Choose color"></tanrei-color-field>
 ```
 
 - **Sixteen properties, none its own**: ten are the Field's (`label`, `label-hidden`, `supporting-text`,
-  `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text`, `optional-text`), six the
+  `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`), six the
   input's (`variant`, `size`, `value`, `invalid-text`, `picker`, `picker-label`). The input's own `label`,
   `labelHidden`, `error` and `disabled` are never set: the Field says each to its control. It does nothing the pair by
   hand does not (no `fills`).
@@ -3006,7 +3007,7 @@ members' own elements and nothing else, and everything it does is "Composed elem
   are the input's (`TanreiColorInputPickerRequestDetail`, `…EntryErrorDetail`). **`entryerror`'s `detail.message` is
   `invalidText`**, empty where there is none.
 - **It is the form's control**: `name`, `form`, the value (nothing while disabled), reset to the `value` attribute,
-  restore, a disabled fieldset, `valueMissing` while `requirement="required"` and empty, `badInput` while a committed
+  restore, a disabled fieldset, `valueMissing` while `required` and empty, `badInput` while a committed
   text is not a color. Enter in the input presses the default button of the element's form.
 - **Focus is not delegated, and there are two stops**: the input, then the picker button. `focus()` goes to the input,
   never the button (CLF-45); a press on the label row focuses it (FLD-12), and so does a press on the box, the swatch
@@ -3089,7 +3090,7 @@ elements", above.
 ```
 
 - **Sixteen properties, none its own**: ten are the Field's (`label`, `label-hidden`, `supporting-text`,
-  `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text`, `optional-text`), six the
+  `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`), six the
   input's (`value`, `length`, `type`, `group-size`, `mask`, `readonly`). The input's own `label`, `error` and
   `disabled` are never set: the Field says each to its control.
 - **No token, no part of its own.** `--tanrei-comp-field-*` and `--tanrei-comp-one-time-code-input-*` reach the
@@ -3099,7 +3100,7 @@ elements", above.
 - **`value` is the input's at every moment**, and `input`, `change`, `complete` and `action` are the input's own
   events with the element as their target; it dispatches none.
 - **It is the form's control**: `name`, `form`, the code submitted alone (nothing while disabled), reset to the
-  `value` attribute, restore, a disabled fieldset, `valueMissing` while `requirement="required"` and empty. Enter in
+  `value` attribute, restore, a disabled fieldset, `valueMissing` while `required` and empty. Enter in
   the cells presses the default button of the element's form.
 - **It is as wide as its place** (`display: block`), and the control fills the frame; it has no size of its own.
 - **Not focusable itself, no role**: `focus()` goes to the cells; name it with `label` (`label-hidden` where it is not
@@ -3118,7 +3119,7 @@ children**: what "Composed elements", above, says of a member in the shadow root
 
 ```html
 <tanrei-checkbox-group name="notify" label="Notify me by" supporting-text="Choose all that apply."
-                       requirement="required" required-text="Required"
+                       required required-text="Required"
                        error-text="Choose at least one way to reach you." select-all-label="All of these">
   <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
   <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
@@ -3126,7 +3127,7 @@ children**: what "Composed elements", above, says of a member in the shadow root
 </tanrei-checkbox-group>
 
 <!-- One level down, the same picture and the same group, by hand: for checkboxes that each have a name of their own. -->
-<tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+<tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
   <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
   …
 </tanrei-field-group>
@@ -3244,7 +3245,7 @@ text for separators, and it has one live region.
   wrappers, all `display: contents`, in the `entries` slot; one hidden `aria-live="polite"` element for `addedText`,
   `addedCountText` and `removedText`, each the product's sentence with `{entry}` or `{count}` filled.
 - **It is the form's control**: one value per entry under `name` (a `FormData`), nothing while empty or disabled and
-  never the typed text; reset, restore, a disabled fieldset; `valueMissing` while `requirement="required"` and the
+  never the typed text; reset, restore, a disabled fieldset; `valueMissing` while `required` and the
   list is empty, anchored to the typing part.
 - **No token, no part of its own.** Parts: `field`, `text-input`, `chip` (the members); the Field's and the Text
   input's under their own names (`label` and `requirement-label` also as `field-…` and `text-input-…`); the Chip's as
@@ -3276,7 +3277,7 @@ it does is "Composed elements", above — plus the one thing it fills itself.
 ```
 
 - **Twenty-five properties, one its own**: ten are the Field's (`label`, `label-hidden`, `supporting-text`,
-  `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text`, `optional-text`), fourteen the
+  `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`), fourteen the
   Slider's (`value`, `start-value`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `value-indicator`,
   `value-text`, `start-value-text`, `start-label`, and `end-label`, which is the Slider's `label` and is given to it
   only while `range` is set), and `value-hidden` is its own. `formatValue` is a property of the element, never an

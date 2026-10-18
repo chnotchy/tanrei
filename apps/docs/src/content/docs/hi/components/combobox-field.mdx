@@ -2,7 +2,7 @@
 title: कॉम्बोबॉक्स फ़ील्ड
 description: लोगों को फ़ॉर्म के एक फ़ील्ड के रूप में, टाइप करके एक मान खोजने देता है। यह एक कॉम्बोबॉक्स है, जिसमें विकल्पों की लिस्ट टाइप करने के साथ छोटी होती जाती है और लोग उसमें से चुनते हैं, या जहाँ प्रॉडक्ट इसकी छूट देता है, वहाँ अपना कोई मान देते हैं। वह ऐसे लेबल के नीचे रहता है जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, सहायता की एक पंक्ति और मान के अस्वीकार होने की वजह के साथ।
 translationOf: components/combobox-field.mdx
-sourceHash: 695f5a07f9b3ed6d358dee0d414c102a7c3a5232
+sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -47,7 +47,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-combobox-field name="city" label="शहर" value="tokyo" requirement="required" required-text="ज़रूरी"
+      <tanrei-combobox-field name="city" label="शहर" value="tokyo" required required-text="ज़रूरी"
         clearable clear-label="शहर मिटाएँ" empty-text="कोई नतीजा नहीं">
         <tanrei-option value="kyoto">क्योटो</tanrei-option>
         <tanrei-option value="tokyo">टोक्यो</tanrei-option>
@@ -107,14 +107,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <!-- कॉम्बोबॉक्स फ़ील्ड -->
-<tanrei-combobox-field name="city" label="शहर" requirement="required" required-text="ज़रूरी"
+<tanrei-combobox-field name="city" label="शहर" required required-text="ज़रूरी"
   supporting-text="ऑर्डर इसी शहर में भेजा जाता है।" value="tokyo">
   <tanrei-option value="kyoto">क्योटो</tanrei-option>
   <tanrei-option value="tokyo">टोक्यो</tanrei-option>
 </tanrei-combobox-field>
 
 <!-- वही, हाथ से: फ़्रेम की प्रॉपर्टी फ़ील्ड पर, बाक़ी सब कुछ, और विकल्प भी, कॉम्बोबॉक्स पर -->
-<tanrei-field label="शहर" requirement="required" required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
+<tanrei-field label="शहर" required required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">क्योटो</tanrei-option>
     <tanrei-option value="tokyo">टोक्यो</tanrei-option>
@@ -123,7 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="एक फ़ील्ड, जिसके भीतर एक कॉम्बोबॉक्स है: कॉम्बोबॉक्स फ़ील्ड जैसा ही दिखता है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" requirement="required" required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" required required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
     <tanrei-combobox value="tokyo" empty-text="कोई नतीजा नहीं">
       <tanrei-option value="kyoto">क्योटो</tanrei-option>
       <tanrei-option value="tokyo">टोक्यो</tanrei-option>
@@ -161,7 +161,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | भाग | यह क्या है |
 | --- | --- |
 | लेबल | कंटेनर के ऊपर फ़ील्ड की पंक्ति (`stacked`), या कंटेनर के भीतर फ़्लोट होता हुआ कॉम्बोबॉक्स का अपना लेबल (`filled`, `outlined`)। यही एक्सेसिबल नाम है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो |
-| ज़रूरी या वैकल्पिक का निशान | लेबल के बाद: `requirement="required"` के लिए ज़रूरी का टैग, तारांकन या कुछ नहीं, और `optional` के लिए वैकल्पिक का टैग। फ़्लोट होते लेबल को तारांकन मिलता है |
+| ज़रूरी या वैकल्पिक का निशान | लेबल के बाद: `required` के लिए ज़रूरी का टैग, तारांकन या कुछ नहीं, और `optional` के लिए वैकल्पिक का टैग। फ़्लोट होते लेबल को तारांकन मिलता है |
 | इनपुट | टेक्स्ट: वह जो व्यक्ति कोई विकल्प खोजने के लिए टाइप करता है, और जब वह टाइप नहीं कर रहा होता, तब चुने हुए विकल्प का लेबल या कस्टम मान। एक पंक्ति, जो स्क्रॉल होती है |
 | प्लेसहोल्डर | वह संकेत जो इनपुट के ख़ाली रहने तक दिखता है। वह कभी लेबल नहीं होता, और कभी कोई मान नहीं होता |
 | शुरुआती आइकन | `leading-icon` स्लॉट का ग्लिफ़, और वह न हो तो चुने हुए विकल्प का अपना ग्लिफ़ |
@@ -215,7 +215,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - `<tanrei-option>` और `<tanrei-option-group>` डेटा हैं: वे कुछ नहीं बनाते। ये वही एलिमेंट हैं जो सिलेक्ट में रहते हैं। जिस विकल्प का मान ख़ाली स्ट्रिंग है, वह दिखाया जाता है पर चुना नहीं जा सकता, क्योंकि ख़ाली मान का मतलब है कि कुछ नहीं चुना गया।
 - एलिमेंट के शैडो रूट में एक `<tanrei-combobox>` के चारों ओर एक `<tanrei-field>` है। आपके `<tanrei-option>` चाइल्ड उसके अपने चाइल्ड बने रहते हैं और एक स्लॉट से होकर कॉम्बोबॉक्स तक पहुँचते हैं; न कुछ खिसकाया जाता है, न कॉपी किया जाता है।
-- कॉम्बोबॉक्स फ़ील्ड फ़ॉर्म से जुड़ा एलिमेंट है: वही एक कंट्रोल जो फ़ॉर्म को दिखता है। वह `name` लेता है, `value` सबमिट करता है और उस संपादन का टेक्स्ट कभी नहीं जो कमिट नहीं हुआ, रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, और जब तक `requirement="required"` है और `value` ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। कोई विकल्प सक्रिय न होने पर Enter उसका फ़ॉर्म सबमिट करती है।
+- कॉम्बोबॉक्स फ़ील्ड फ़ॉर्म से जुड़ा एलिमेंट है: वही एक कंट्रोल जो फ़ॉर्म को दिखता है। वह `name` लेता है, `value` सबमिट करता है और उस संपादन का टेक्स्ट कभी नहीं जो कमिट नहीं हुआ, रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, और जब तक `required` है और `value` ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। कोई विकल्प सक्रिय न होने पर Enter उसका फ़ॉर्म सबमिट करती है।
 - `value`, `inputValue` और `open` हर पल कॉम्बोबॉक्स के ही होते हैं: हर लिसनर में हर एक में पहले से नया मान होता है।
 - `chevron` का ऐट्रिब्यूट उलटे अर्थ वाला `no-chevron` है, और `readOnly` का `readonly`।
 - `input` टेक्स्ट एलिमेंट का नेटिव इवेंट है। `change` और `action` के साथ `detail.value` और `detail.inputValue` आते हैं। चारों इवेंट कॉम्बोबॉक्स के अपने हैं, जिनका टार्गेट कॉम्बोबॉक्स फ़ील्ड है; `toggle` बबल नहीं होता।
@@ -270,7 +270,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - इनपुट एक ऐसा कॉम्बोबॉक्स है जिसमें टाइप करके संपादन किया जा सकता है, और जिसके साथ एक लिस्टबॉक्स है। उसका नाम `label` है, चाहे वह दिखाया गया हो या छिपाया गया हो, और प्लेसहोल्डर कभी नहीं। फ़ील्ड उसे कॉम्बोबॉक्स को देता है, जो उसे अपने इनपुट पर रखता है।
 - दिखाया जा रहा सहायक या त्रुटि टेक्स्ट उसका विवरण है, और जब तक फ़ील्ड वैकल्पिक है, `optionalText` भी उसमें जुड़ता है।
 - जो त्रुटि फ़ील्ड में फ़ोकस रहते हुए आती है, उसे एक बार, बिना टोके (polite), पढ़कर सुनाया जाता है।
-- जब तक `error` true है, वह अमान्य के रूप में दिया जाता है; जब तक `requirement` का मान `required` है, ज़रूरी के रूप में; सिर्फ़ पढ़ने के लिए हो तो सिर्फ़ पढ़ने वाले के रूप में; और जब तक उसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
+- जब तक `error` true है, वह अमान्य के रूप में दिया जाता है; जब तक `required` सेट है, ज़रूरी के रूप में; सिर्फ़ पढ़ने के लिए हो तो सिर्फ़ पढ़ने वाले के रूप में; और जब तक उसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
 - लिस्ट खुली रहते फ़ोकस इनपुट में ही रहता है। सक्रिय विकल्प उसका सक्रिय डिसेंडेंट है, इसलिए टाइप करने पर टेक्स्ट का संपादन कभी नहीं रुकता।
 - लिस्ट एक लिस्टबॉक्स है, जिसका नाम लेबल से आता है। हर विकल्प का अपना नाम और अपना विवरण होता है, और यह भी कि वह चुना हुआ है या नहीं, अक्षम है या नहीं, और दिखाए जा रहे विकल्पों के बीच उसकी जगह क्या है। ग्रुप का नाम उसके शीर्षक से आता है।
 - मिलान वेट से चिह्नित होता है, सिर्फ़ रंग से कभी नहीं। लेबल एक ही टेक्स्ट के रूप में पढ़ा जाता है।

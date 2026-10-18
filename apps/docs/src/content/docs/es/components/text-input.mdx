@@ -2,7 +2,7 @@
 title: Entrada de texto
 description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/text-input.mdx
-sourceHash: dc309afa21d548b5273dfcda626d60558fe8e988
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -90,14 +90,14 @@ En la web es `<tanrei-text-input>`. Las demás plataformas todavía no la han im
 Un campo alrededor de una entrada de texto es un campo de texto escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value` y todo lo que tiene que ver con escribir, en la entrada.
 
 ```html
-<tanrei-field label="Correo electrónico" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Correo electrónico" required required-text="Obligatorio"
   supporting-text="Solo lo usamos para iniciar tu sesión.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="Un campo con una entrada de texto dentro: la misma imagen que un campo de texto" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

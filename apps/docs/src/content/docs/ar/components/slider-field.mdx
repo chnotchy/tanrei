@@ -2,7 +2,7 @@
 title: حقل شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، على سلّم، حقلًا كاملًا واحدًا، فيه المسار تحت تسمية، والقيمة بالكلمات في نهاية صف التسمية، وسطر مساعدة، وسبب رفض القيمة.
 translationOf: components/slider-field.mdx
-sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="مطلوب بكلمة المنتج، واختياري، وفي حالة الخطأ، ومعطَّل" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" requirement="required" required-text="مطلوب" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" requirement="optional" optional-text="اختياري" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-text="مطلوب" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" optional optional-text="اختياري" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." error error-text="اختر مستوى أعلى من 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -142,7 +142,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من الحقل | من شريط التمرير |
 | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `value`، `startValue`، `range`، `min`، `max`، `step`، `origin`، `stops`، `size`، `valueIndicator`، `valueText`، `startValueText`، `startLabel`، ثم `endLabel` وهي `label` الخاصة بشريط التمرير |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `value`، `startValue`، `range`، `min`، `max`، `step`، `origin`، `stops`، `size`، `valueIndicator`، `valueText`، `startValueText`، `startLabel`، ثم `endLabel` وهي `label` الخاصة بشريط التمرير |
 | الأحداث | — | `input`، `change` |
 | المنافذ (slots) | `label-icon` | — |
 | رموز التصميم | `comp.field.*` | `comp.slider.*` |
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 لشريط التمرير `disabled` و `orientation` خاصتان به. وليست أيٌّ منهما من خصائص حقل شريط التمرير: فالخاصية `disabled` في الحقل تعطّل شريط التمرير، لتتبعها التسمية ونص القيمة، والمسار يمتد دائمًا في اتجاه السطر: فليس لحقل شريط التمرير اتجاه عمودي.
 
-لشريط التمرير قيمة دائمًا، فالخاصية `requirement` لا تعني هنا «غير فارغ». والنموذج الذي يعلّم كل عنصر تحكم مطلوبًا أو اختياريًّا يعلّم هذا أيضًا؛ وما يرفضه، كمستوى مقداره 0 أو مدى أضيق مما ينبغي، عليك أن تقوله بالخاصيتين `error` و `errorText`. والخطأ لا يغيّر شيئًا في المسار: الكلمات وحالة عدم الصلاحية هما اللتان تحملانه.
+لشريط التمرير قيمة دائمًا، فالخاصية `required` لا تعني هنا «غير فارغ». والنموذج الذي يعلّم كل عنصر تحكم مطلوبًا أو اختياريًّا يعلّم هذا أيضًا؛ وما يرفضه، كمستوى مقداره 0 أو مدى أضيق مما ينبغي، عليك أن تقوله بالخاصيتين `error` و `errorText`. والخطأ لا يغيّر شيئًا في المسار: الكلمات وحالة عدم الصلاحية هما اللتان تحملانه.
 
 ما تفعله المقابض، أي السحب والمفاتيح والدرجات ومؤشر القيمة، في [صفحة شريط التمرير](/ar/components/slider/). وما يفعله الإطار، أي علامة المطلوب ونص القيمة والمساعدة والخطأ وكيف يُعلَن، في [صفحة الحقل](/ar/components/field/).
 

@@ -2,7 +2,7 @@
 title: "一次性验证码输入框"
 description: "接收发送给用户的简短验证码——用于登录或核实身份——它是一个文本值，画成一个个独立的格子，让人看得出验证码有多长、还缺多少，平台也能一步把它填好。"
 translationOf: components/one-time-code-input.mdx
-sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
+sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,7 +45,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-field label="验证码"
         supporting-text="请输入发送到手机的 6 位验证码。"
         error-text="验证码不正确。请核对短信后重试。"
-        requirement="required" required-text="必填">
+        required required-text="必填">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -209,5 +209,5 @@ Web 上的已知差距：
 
 - 给控件一个名称：包着它的字段的标签；可见的标签在别处时，则是它自己的 `label`，措辞与那个标签相同。
 - 用文字说明期望的内容：有几个字符，验证码发到了哪里。格子只向看得见的人显示长度。
-- 用字段的 `errorText`、`supportingText` 和 `requirement` 说明验证码不正确、已过期或必填。颜色绝不是唯一的提示。
+- 用字段的 `errorText`、`supportingText` 和 `required` 说明验证码不正确、已过期或必填。颜色绝不是唯一的提示。
 - 输入验证码的时间有限时，要说明这一点，并让用户可以申请更多时间或新的验证码。

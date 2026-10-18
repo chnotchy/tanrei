@@ -37,7 +37,7 @@ On the web it is `<tanrei-number-field>`. The other platforms have not implement
     ```html
     <form>
       <tanrei-number-field name="quantity" label="Quantity" value="1" min="1" max="99"
-        requirement="required" required-text="Required" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+        required required-text="Required" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
     </form>
 
     <!-- A unit, a step of a quarter, and no upper limit. -->
@@ -77,7 +77,7 @@ On the web it is `<tanrei-number-field>`. The other platforms have not implement
 The same field, written by hand from its two members, is the same picture, and to assistive technology the same spin button with the same name, description and states:
 
 ```html
-<tanrei-field label="Quantity" requirement="required" required-text="Required"
+<tanrei-field label="Quantity" required required-text="Required"
   supporting-text="Up to 99 per order.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Enter a number."
     increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
@@ -85,7 +85,7 @@ The same field, written by hand from its two members, is the same picture, and t
 ```
 
 <DemoFrame label="The same field written by hand: a field with a number input in it" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" requirement="required" required-text="Required" supporting-text="Up to 99 per order.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" required required-text="Required" supporting-text="Up to 99 per order.">
     <tanrei-number-input min="1" max="99" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -116,7 +116,7 @@ What changes one level down is where things are said. `name`, `value`, the limit
 | Part | What it is |
 | --- | --- |
 | Label | The field's: above the container (`stacked`). In `filled` and `outlined` the number input draws it, floating inside the box, and the field draws no label row. It is the accessible name, drawn or hidden with `labelHidden` |
-| Requirement mark | The field's, after the label: the requirement tag in its required form, an asterisk or nothing for `requirement="required"`; the requirement tag in its optional form for `optional`. A floating label takes the asterisk |
+| Requirement mark | The field's, after the label: the requirement tag in its required form, an asterisk or nothing for `required`; the requirement tag in its optional form for `optional`. A floating label takes the asterisk |
 | Input | The number input's: the number as text. What the person typed while they edit; the committed number in the locale's form otherwise. One line, which scrolls |
 | Prefix, suffix | The number input's: fixed text before and after the number, such as a currency sign or a unit. Part of the box, never of the value |
 | Steppers | The number input's: two buttons at the end, the first steps down, the second up. Leave them out with `steppers` false |
@@ -186,7 +186,7 @@ A number beside a slider, under one row title, is the box alone: a [number input
 ### What the web draws differently
 
 - The element's shadow root holds a `<tanrei-field>` with a `<tanrei-number-input>` in it. Importing the number field defines both.
-- The number field is a form-associated element, and the one control its form meets. It takes `name` and submits its value as a plain decimal number (`12.5`) whatever the locale shows. It resets to the `value` attribute, and reports a missing value while `requirement="required"` and it holds none, and a bad input while its text is not a number.
+- The number field is a form-associated element, and the one control its form meets. It takes `name` and submits its value as a plain decimal number (`12.5`) whatever the locale shows. It resets to the `value` attribute, and reports a missing value while `required` and it holds none, and a bad input while its text is not a number.
 - It is a block as wide as its place. In a place that gives no width, a long label makes it wider than its box: give it a width there.
 - Parts are the members', under their own names: `label`, `label-icon`, `requirement-label` and `supporting-text` from the field; `container`, `outline`, `active-indicator`, `input`, `prefix`, `suffix` and `stepper` from the number input. `label` and `requirement-label` reach whichever of the two is drawn; `field-label` and `number-input-label` reach one. The two members are the parts `field` and `number-input`.
 - `entryerror`'s `detail.text` is the input's `invalidText`, empty where none was given. The detail types are the number input's: `TanreiNumberInputInputDetail` and `TanreiNumberInputEntryErrorDetail`.
@@ -237,7 +237,7 @@ A postal code, a card number, a telephone number and a one-time code are digits,
 - The input is a spin button. Its name is `label`, drawn or hidden, and never the placeholder.
 - Its value is the committed number, and its limits are `min` and `max`.
 - The shown supporting or error text is its description, with `optionalText` while the field is optional.
-- It is exposed as invalid while `error` is true or its text is not a number, as required while `requirement` is `required`, and as read-only.
+- It is exposed as invalid while `error` is true or its text is not a number, as required while `required` is set, and as read-only.
 - An error that appears while the field has focus is announced once, politely — a text that is not a number too.
 - The steppers are buttons named by `decrementLabel` and `incrementLabel`; one that nobody named is hidden from assistive technology. They are outside the focus order, because the arrow keys step from the input; a person exploring by touch still finds them.
 - A press on a stepper does not move focus, so it does not raise the on-screen keyboard.

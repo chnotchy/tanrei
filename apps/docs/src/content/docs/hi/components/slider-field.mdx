@@ -2,7 +2,7 @@
 title: स्लाइडर फ़ील्ड
 description: लोगों को किसी स्केल पर एक मान, या मानों की रेंज, चुनने देता है, एक पूरे फ़ील्ड के रूप में — लेबल के नीचे ट्रैक, लेबल की पंक्ति के अंत में शब्दों में मान, सहायता की एक पंक्ति, और वह कारण जिससे कोई मान माना नहीं गया।
 translationOf: components/slider-field.mdx
-sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, त्रुटि में और अक्षम" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="optional" optional-text="वैकल्पिक" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" optional optional-text="वैकल्पिक" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" error error-text="0 से ऊपर का स्तर चुनें।" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -142,7 +142,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | पहलू | फ़ील्ड से | स्लाइडर से |
 | --- | --- | --- |
-| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, और `endLabel`, जो स्लाइडर का `label` है |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, और `endLabel`, जो स्लाइडर का `label` है |
 | इवेंट | — | `input`, `change` |
 | स्लॉट | `label-icon` | — |
 | टोकन | `comp.field.*` | `comp.slider.*` |
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 स्लाइडर के अपने `disabled` और `orientation` होते हैं। दोनों में से कोई स्लाइडर फ़ील्ड की प्रॉपर्टी नहीं है: फ़ील्ड का `disabled` स्लाइडर को अक्षम करता है, ताकि लेबल और मान टेक्स्ट भी साथ बदलें, और ट्रैक हमेशा इनलाइन दिशा में चलता है: स्लाइडर फ़ील्ड का कोई खड़ा ओरिएंटेशन नहीं होता।
 
-स्लाइडर में हमेशा कोई मान होता है, इसलिए यहाँ `requirement` का मतलब "ख़ाली नहीं" नहीं है। जो फ़ॉर्म हर कंट्रोल को ज़रूरी या वैकल्पिक के रूप में चिह्नित करता है, वह इसे भी करता है; वह क्या नहीं मानता, जैसे 0 का स्तर या बहुत सँकरी रेंज, यह `error` और `errorText` से बताना आपका काम है। त्रुटि ट्रैक में कुछ नहीं बदलती: उसे शब्द और अमान्य स्टेट बताते हैं।
+स्लाइडर में हमेशा कोई मान होता है, इसलिए यहाँ `required` का मतलब "ख़ाली नहीं" नहीं है। जो फ़ॉर्म हर कंट्रोल को ज़रूरी या वैकल्पिक के रूप में चिह्नित करता है, वह इसे भी करता है; वह क्या नहीं मानता, जैसे 0 का स्तर या बहुत सँकरी रेंज, यह `error` और `errorText` से बताना आपका काम है। त्रुटि ट्रैक में कुछ नहीं बदलती: उसे शब्द और अमान्य स्टेट बताते हैं।
 
 हैंडल क्या करते हैं, यानी ड्रैग करना, कुंजियाँ, स्टेप, मान इंडिकेटर, यह [स्लाइडर के पेज](/hi/components/slider/) पर है। फ़्रेम क्या करता है, यानी ज़रूरी का निशान, मान टेक्स्ट, सहायता, त्रुटि और वह कैसे पढ़कर सुनाई जाती है, यह [फ़ील्ड के पेज](/hi/components/field/) पर है।
 

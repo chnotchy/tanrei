@@ -2,7 +2,7 @@
 title: सिलेक्ट फ़ील्ड
 description: लोगों को बंद लिस्ट में से एक मान चुनने देता है, फ़ॉर्म के एक पूरे फ़ील्ड के रूप में — एक लेबल जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, एक ट्रिगर जो चुना हुआ विकल्प दिखाता है और विकल्पों की लिस्ट खोलता है, और नीचे सहायता या त्रुटि की एक पंक्ति — जो सहायक तकनीक के लिए आपस में जुड़े हैं और फ़ॉर्म में एक कंट्रोल के रूप में हिस्सा लेते हैं।
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: 6a6f082facd8df680cd2fcc9423d36abeb1057a6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="select-field" />
 
 <DemoFrame label="एक ज़रूरी सिलेक्ट फ़ील्ड, और एक जो ग्रुप में बँटा है और जिसमें फ़ील्ड की पहचान के लिए एक ग्लिफ़ है" column>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" requirement="required" required-text="ज़रूरी" placeholder="देश चुनें" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" placeholder="देश चुनें" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-option value="ca">कनाडा</tanrei-option>
     <tanrei-option value="fr">फ़्रांस</tanrei-option>
     <tanrei-option value="jp">जापान</tanrei-option>
@@ -46,7 +46,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-select-field name="country" label="देश" value="jp" requirement="required" required-text="ज़रूरी"
+      <tanrei-select-field name="country" label="देश" value="jp" required required-text="ज़रूरी"
         supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
         <tanrei-option value="ca">कनाडा</tanrei-option>
         <tanrei-option value="jp">जापान</tanrei-option>
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Option, SelectField } from '@tanrei/react';
 
-    <SelectField label="देश" value={country} requirement="required" requiredText="ज़रूरी" onChange={(event) => setCountry(event.currentTarget.value)}>
+    <SelectField label="देश" value={country} required requiredText="ज़रूरी" onChange={(event) => setCountry(event.currentTarget.value)}>
       <Option value="ca">कनाडा</Option>
       <Option value="jp">जापान</Option>
     </SelectField>
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 वही फ़ील्ड, अपने दोनों सदस्यों से हाथ से लिखा हुआ, वही तस्वीर है और सहायक तकनीक के लिए वही कंट्रोल:
 
 ```html
-<tanrei-field label="देश" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="देश" required required-text="ज़रूरी"
   supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
   <tanrei-select name="country" placeholder="देश चुनें">
     <tanrei-option value="jp">जापान</tanrei-option>
@@ -105,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" requirement="required" required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-select placeholder="देश चुनें">
       <tanrei-option value="jp">जापान</tanrei-option>
       <tanrei-option value="ke">केन्या</tanrei-option>
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="team" supporting-text="असीमित प्रोजेक्ट, साझा भूमिकाएँ">टीम</tanrei-option>
     <tanrei-option value="enterprise" supporting-text="सिंगल साइन-ऑन और ऑडिट लॉग" disabled>एंटरप्राइज़</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="क्षेत्र" requirement="optional" optional-text="वैकल्पिक" placeholder="कोई भी क्षेत्र">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="क्षेत्र" optional optional-text="वैकल्पिक" placeholder="कोई भी क्षेत्र">
     <tanrei-option value="emea">यूरोप, मध्य पूर्व और अफ़्रीका</tanrei-option><tanrei-option value="apac">एशिया और प्रशांत</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" value="ke" error error-text="हम अभी वहाँ डिलीवरी नहीं करते। कोई दूसरा देश चुनें।">
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="देश" value="jp" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="देश" requirement="required" required-text="ज़रूरी">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="देश" required required-text="ज़रूरी">
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select-field>
 </DemoFrame>
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | पहलू | फ़ील्ड से | सिलेक्ट से |
 | --- | --- | --- |
-| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
 | इवेंट | — | `change`, `toggle` |
 | स्लॉट | `label-icon` | `leading-icon`, और विकल्प |
 | टोकन | `comp.field.*` | बॉक्स के लिए `comp.input-box.*`, जिन्हें हर इनपुट बॉक्स पढ़ता है; लिस्ट के लिए `comp.select.*` |
@@ -185,7 +185,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-select>` है, और कुछ नहीं। एलिमेंट को इंपोर्ट करने से दोनों डिफ़ाइन हो जाते हैं।
 - विकल्प `<tanrei-select-field>` के चाइल्ड के रूप में आपके ही रहते हैं। वे कभी हटाकर कहीं और नहीं रखे जाते और कॉपी नहीं किए जाते: वे भीतर के सिलेक्ट तक एक स्लॉट से पहुँचते हैं, और जब वे बदलते हैं तो सिलेक्ट उन्हें दोबारा पढ़ता है। उन्हें हाथ से बदलना (`replaceChildren()`) वैसे ही काम करता है जैसे सिलेक्ट पर।
-- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, सिर्फ़ मान सबमिट करता है (अक्षम रहते कुछ नहीं, और सिर्फ़ पढ़ने के लिए होने पर भी सबमिट करता है), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और मान ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, सिर्फ़ मान सबमिट करता है (अक्षम रहते कुछ नहीं, और सिर्फ़ पढ़ने के लिए होने पर भी सबमिट करता है), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `required` सेट है और मान ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
 - `change` सिलेक्ट का composed और बबल होने वाला इवेंट है। `toggle` सिलेक्ट का CustomEvent है, जिसके साथ `detail.open` और `detail.reason` आते हैं: वह composed है और बबल नहीं होता, इसलिए वह एलिमेंट पर सुना जाता है और `<details>` जैसे किसी पूर्वज एलिमेंट पर कभी नहीं। इनका टार्गेट यही एलिमेंट है, और हर लिसनर में `event.target.value` और `event.target.open` में नए मान होते हैं।
 - भाग: `field` और `select` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`। `label` और `requirement-label` दोनों में से वह हैं जो दिखाया जाता है, यानी फ़ील्ड की पंक्ति या सिलेक्ट का फ़्लोट होता लेबल, और `field-label`, `select-label`, `field-requirement-label` और `select-requirement-label` सिर्फ़ किसी एक सदस्य के भाग के नाम हैं।
 - एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता: `focus()` ट्रिगर पर जाता है, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है। लेबल की पंक्ति पर दबाने से फ़ोकस ट्रिगर पर आता है और कुछ नहीं खुलता; ट्रिगर पर दबाने से लिस्ट खुलती है; सहायता पर दबाने से कुछ नहीं होता।
@@ -219,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### कंपोनेंट क्या सँभालता है
 
 - यह एक ऐसा कॉम्बोबॉक्स है जिसमें टाइप करके संपादन नहीं किया जा सकता, यानी सिलेक्ट का। उसका नाम `label` है, चाहे वह दिखाया गया हो या नहीं; उसका विवरण दिखाया जा रहा सहायक या त्रुटि टेक्स्ट है, और जब तक फ़ील्ड वैकल्पिक है, उसके साथ वैकल्पिक का टेक्स्ट।
-- जब तक `error` true है, वह अमान्य के रूप में दिया जाता है; जब तक `requirement` का मान `required` है, ज़रूरी के रूप में; जब तक `disabled` true है, अक्षम के रूप में; जब तक `readOnly` true है, सिर्फ़ पढ़ने वाले के रूप में; और जब तक उसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
+- जब तक `error` true है, वह अमान्य के रूप में दिया जाता है; जब तक `required` सेट है, ज़रूरी के रूप में; जब तक `disabled` true है, अक्षम के रूप में; जब तक `readOnly` true है, सिर्फ़ पढ़ने वाले के रूप में; और जब तक उसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
 - नाम, विवरण और स्टेट ठीक वैसे ही जोड़े जाते हैं जैसे फ़ील्ड उन्हें अपने भीतर के किसी भी कंट्रोल से जोड़ता है। एक स्तर नीचे, हाथ से लिखा गया फ़ील्ड वही कंट्रोल है।
 - दिखने वाला लेबल, ज़रूरी या वैकल्पिक का निशान और ग्लिफ़ सहायक तकनीक को दूसरी बार नहीं दिए जाते।
 - यह Tab कुंजी के लिए एक ही पड़ाव है। लेबल पर दबाने से फ़ोकस ट्रिगर पर आता है और कुछ नहीं खुलता; सहायता पर दबाने से कुछ नहीं होता।

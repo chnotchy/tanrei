@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe el campo de texto tal como lo define ahora la especificación: una variante `stacked`, la predeterminada, con la etiqueta encima del campo; `filled` y `outlined`, que se conservan solo para los preajustes de Material y cupertino; alturas de 40, 48 y 56; tipos de fecha y hora, con un botón de selector; un campo de varias líneas que sigue a su texto o cuyo tamaño se cambia con un tirador (`resize`); una fecha o una hora que se introducen unidad por unidad, en segmentos; y `requirement`, que marca un campo como obligatorio u opcional y sustituye al indicador `required`. El componente web ya hace todo esto, y las demostraciones también. Un campo también puede contener código (`type="code"`, y `wrap` para sus líneas): la web ya lo ha construido, y ninguna otra plataforma todavía. El campo de texto es un campo alrededor de una entrada de texto, tal como lo describe esta página: la web también lo ha construido ya, y en ella el atributo `required` ha desaparecido. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, outlined de forma predeterminada con alturas de 36 y 40, con un indicador `required` que no dibuja ninguna marca, y sin variante `stacked`, sin tipos de fecha ni de hora, sin botón de selector y sin modos de cambio de tamaño, y sus ejemplos muestran esa revisión.
+Esta página describe el campo de texto tal como lo define ahora la especificación: una variante `stacked`, la predeterminada, con la etiqueta encima del campo; `filled` y `outlined`, que se conservan solo para los preajustes de Material y cupertino; alturas de 40, 48 y 56; tipos de fecha y hora, con un botón de selector; un campo de varias líneas que sigue a su texto o cuyo tamaño se cambia con un tirador (`resize`); una fecha o una hora que se introducen unidad por unidad, en segmentos; y `required` y `optional`, que marcan un campo como obligatorio u opcional. El componente web ya hace todo esto, y las demostraciones también. Un campo también puede contener código (`type="code"`, y `wrap` para sus líneas): la web ya lo ha construido, y ninguna otra plataforma todavía. El campo de texto es un campo alrededor de una entrada de texto, tal como lo describe esta página: la web también lo ha construido ya, y en ella el atributo `required` ha desaparecido. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, outlined de forma predeterminada con alturas de 36 y 40, con un indicador `required` que no dibuja ninguna marca, y sin variante `stacked`, sin tipos de fecha ni de hora, sin botón de selector y sin modos de cambio de tamaño, y sus ejemplos muestran esa revisión.
 :::
 
 <DemoFrame label="Stacked, la predeterminada: un campo obligatorio y una fecha con su botón de selector" column>
-  <tanrei-text-field label="Correo electrónico" type="email" requirement="required" required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión."></tanrei-text-field>
+  <tanrei-text-field label="Correo electrónico" type="email" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión."></tanrei-text-field>
   <tanrei-text-field label="Fecha de inicio" type="date" locale="es-ES" value="2026-09-27" picker picker-label="Elegir fecha de inicio" segment-empty-text="vacío"></tanrei-text-field>
 </DemoFrame>
 
@@ -36,9 +36,9 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="Correo electrónico" type="email" autocomplete="email" requirement="required" required-text="Obligatorio"
+      <tanrei-text-field name="email" label="Correo electrónico" type="email" autocomplete="email" required required-text="Obligatorio"
         supporting-text="Solo lo usamos para iniciar tu sesión."></tanrei-text-field>
-      <tanrei-text-field name="company" label="Empresa" requirement="optional" optional-text="Opcional"></tanrei-text-field>
+      <tanrei-text-field name="company" label="Empresa" optional optional-text="Opcional"></tanrei-text-field>
       <!-- Sigue a su texto de 3 a 8 líneas y después se desplaza. -->
       <tanrei-text-field name="message" label="Mensaje" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- Su tamaño se cambia a mano, con un tirador. -->
@@ -93,7 +93,7 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="Obligatorio"
       error={submitted && !isValid(email)}
       errorText="Introduce una dirección de correo completa."
@@ -205,14 +205,14 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
 El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen y es, para la tecnología de apoyo, el mismo cuadro de texto con el mismo nombre, la misma descripción y los mismos estados:
 
 ```html
-<tanrei-field label="Correo electrónico" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Correo electrónico" required required-text="Obligatorio"
   supporting-text="Solo lo usamos para iniciar tu sesión.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de texto dentro" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -256,9 +256,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="Obligatorio y opcional: los tags y el asterisco" plain column>
-  <tanrei-text-field label="Correo electrónico" type="email" requirement="required" required-text="Obligatorio"></tanrei-text-field>
-  <tanrei-text-field label="Empresa" requirement="optional" optional-text="Opcional"></tanrei-text-field>
-  <tanrei-text-field label="Correo electrónico" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="Correo electrónico" type="email" required required-text="Obligatorio"></tanrei-text-field>
+  <tanrei-text-field label="Empresa" optional optional-text="Opcional"></tanrei-text-field>
+  <tanrei-text-field label="Correo electrónico" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="Varias líneas: sigue al texto, cambia de tamaño con un tirador (hacia abajo y en ambos sentidos) y fijo" plain column>
@@ -296,7 +296,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | Aspecto | Del campo | De la entrada de texto |
 | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | Todas las demás: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, las líneas y el cambio de tamaño, `wrap`, `maxLength`, `counter`, el prefijo y el sufijo, `autocomplete`, y todo lo de una fecha o una hora |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | Todas las demás: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, las líneas y el cambio de tamaño, `wrap`, `maxLength`, `counter`, el prefijo y el sufijo, `autocomplete`, y todo lo de una fecha o una hora |
 | Eventos | — | `input`, `change`, `action`, `pickerRequest`, `entryError` |
 | Slots | `label-icon` | `leading-icon`, `trailing-icon` |
 | Tokens | `comp.field.*` | `comp.input-box.*` para la caja, que leen todas las cajas de entrada; `comp.text-input.*` para lo que solo dibuja una entrada de texto |
@@ -318,12 +318,12 @@ El campo de texto no tiene ningún token propio. Su caja lee los [tokens de la e
 
 - El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-text-input>` dentro, y nada más. Importar el elemento define ambos.
 - El elemento es un bloque que llena su lugar, no una caja en línea tan ancha como el campo de entrada de texto propio del navegador.
-- El elemento está asociado a formularios. Recibe `name` y `form`, envía el valor —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en un campo de una sola línea pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
+- El elemento está asociado a formularios. Recibe `name` y `form`, envía el valor —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en un campo de una sola línea pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
 - `input`, `change`, `action`, `pickerrequest` y `entryerror` son los eventos propios de la entrada de texto. Su destino es el elemento, y `event.target.value` es el nuevo valor en todos los listeners. Los tipos del detalle son los de la entrada: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
 - Partes: `field` y `text-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. `label` y `requirement-label` son las que se dibujan, sea cual sea el miembro que las dibuja; `field-label`, `text-input-label`, `field-requirement-label` y `text-input-requirement-label` nombran las de un solo miembro.
 - El elemento no puede recibir el foco por sí mismo y no tiene rol: `focus()` va a la entrada. Una pulsación en la fila de la etiqueta, en la caja o en una etiqueta flotante da el foco a la entrada. Una pulsación en la ayuda, en el texto de error, en el recuento o en el hueco entre una fila y la caja no hace nada.
 - Dale nombre con `label` —con `label-hidden` donde la etiqueta no deba dibujarse— y nunca con `aria-label`, que aquí no nombra nada.
-- Los atributos son los de los propios miembros: en kebab-case, como `supporting-text`, `error-text`, `min-rows` y `no-wrap`, salvo `readonly`, `maxlength`, `autocomplete`, `min` y `max`. No hay atributo `required`: escribe `requirement="required"`.
+- Los atributos son los de los propios miembros: en kebab-case, como `supporting-text`, `error-text`, `min-rows` y `no-wrap`, salvo `readonly`, `maxlength`, `autocomplete`, `min` y `max`. No hay atributo `required`: escribe `required`.
 - Antes de que el elemento esté definido no tiene tamaño. Reserva su altura.
 
 ## Pautas
@@ -354,7 +354,7 @@ La variante predeterminada es stacked en todos los sistemas, incluidos los preaj
 
 ### Obligatorio y opcional
 
-`requirement` dice qué pide el formulario de un campo: `none` (el valor predeterminado), `required` u `optional`. Es un solo ajuste con tres valores, porque un campo nunca es las dos cosas.
+`required` y `optional` dicen qué pide el formulario de un campo: `required`, que hay que responderlo; `optional`, que se puede dejar vacío. Un campo nunca es las dos cosas: con ambos es obligatorio.
 
 - **Obligatorio** expone el campo como obligatorio y dibuja la marca de obligatorio junto a la etiqueta.
 - **Opcional** dibuja el tag de obligatoriedad en su forma de opcional y añade su texto a la descripción del campo.
@@ -365,7 +365,7 @@ La variante predeterminada es stacked en todos los sistemas, incluidos los preaj
 
 Marca en un formulario lo que sea menos frecuente: donde la mayoría de los campos son obligatorios, marca los opcionales, y viceversa. Si usas el asterisco —y un campo filled u outlined siempre lo usa para un campo obligatorio—, di una vez en el formulario, cerca de su principio, qué significa («* Obligatorio»): un asterisco es una convención, no una palabra, y no todo el mundo la conoce.
 
-`requirement` sustituye al indicador `required` de la revisión anterior. En la web ya no existen ni el atributo `required` ni la propiedad: escribe `requirement="required"`. Un campo que era obligatorio ahora muestra además una marca: define `requiredMark` como `none` donde no quieras ninguna.
+Un campo obligatorio muestra una marca: define `requiredMark` como `none` donde no quieras ninguna.
 
 ### Texto de ayuda y de error
 
@@ -459,7 +459,7 @@ El reloj de un campo es el de su configuración regional: no tiene ajuste de 12 
 - Pon en `prefixText` y `suffixText` el texto fijo que no forma parte del valor: un signo de moneda, una unidad.
 - Pon una acción de borrar o de mostrar la contraseña en el slot final como tu propio Button de solo icono, con su propio nombre. El botón de selector es la única acción que el campo incorpora, y va después de la tuya.
 - Usa `multiline` para un texto que pueda ocupar varias líneas. De forma predeterminada crece de `minRows` a `maxRows` y después se desplaza.
-- Define `requirement` en los campos que pide un formulario y, aun así, di qué falta en `errorText` cuando se envíe el formulario.
+- Define `required` en los campos que pide un formulario y, aun así, di qué falta en `errorText` cuando se envíe el formulario.
 - Usa `type="code"` para un valor que lee una máquina (un patrón, una clave, un fragmento de configuración) y di qué debe ser en la etiqueta y en `supportingText`.
 
 ### Evita
@@ -469,7 +469,7 @@ El reloj de un campo es el de su configuración regional: no tiene ajuste de 12 
 - No mezcles variantes en un mismo formulario.
 - No pongas un campo de texto dentro de un campo. Ya es un campo; una compilación de depuración lo dice. El control que un campo enmarca es la entrada de texto.
 - No uses un campo `text` y tu propio análisis para una fecha. Usa `date`, y con él vienen el orden de la configuración regional, las teclas de los segmentos y el error de entrada.
-- No escribas «(obligatorio)» en la etiqueta además de definir `requirement`. La marca ya lo dice, y un lector de pantalla lo oiría dos veces.
+- No escribas «(obligatorio)» en la etiqueta además de definir `required`. La marca ya lo dice, y un lector de pantalla lo oiría dos veces.
 - No dejes que un campo cuyo tamaño se cambia a mano sea la única forma de ver un texto largo. Dale suficientes `minRows` para que sea útil tal como se abre.
 - No deshabilites un campo solo para mostrar un valor que no puede cambiar. Usa `readOnly`, para que las personas puedan seguir dándole el foco, seleccionándolo y copiándolo.
 - No pongas un tipo de letra de código a un campo de texto desde fuera, con `::part(input)` o con un estilo tuyo, y no añadas `dir` ni `spellcheck` al elemento. Usa `type="code"`: el tipo de letra por sí solo deja un campo que tiene el aspecto correcto y sigue corrigiendo lo que se escribe.
@@ -528,7 +528,7 @@ Carencias conocidas por plataforma:
 - Escribe una etiqueta que nombre el valor, y consérvala aunque la ocultes.
 - Escribe un texto de error que diga cómo corregir el valor, y activa `error` tú. En SwiftUI y React Native, ese texto es la única forma de que el error se oiga. Para un campo de fecha o de hora, escribe también `invalidText` y `unavailableText`, y da `segmentEmptyText`: sin él, un segmento vacío se lee sin ningún valor.
 - Da al botón de selector su `pickerLabel` en el idioma de tu producto, y abre el selector desde `pickerRequest`.
-- Define `requirement` y da `requiredText` y `optionalText`: en el campo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`, como también se pueden dar `resizeLabel` y `segmentEmptyText`. En la web, Tanrei no incluye textos propios; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/). Hasta que SwiftUI, Compose, Flutter y React Native se pongan al día, sus campos no dibujan ninguna marca, y SwiftUI y React Native no anuncian el estado obligatorio: allí, di «obligatorio» en la etiqueta.
+- Define `required` u `optional` y da `requiredText` y `optionalText`: en el campo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`, como también se pueden dar `resizeLabel` y `segmentEmptyText`. En la web, Tanrei no incluye textos propios; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/). Hasta que SwiftUI, Compose, Flutter y React Native se pongan al día, sus campos no dibujan ninguna marca, y SwiftUI y React Native no anuncian el estado obligatorio: allí, di «obligatorio» en la etiqueta.
 - Da nombre al tirador de cambio de tamaño con `resizeLabel`. Sin él, el tirador se dibuja y funciona, y no tiene nombre.
 - Pon una unidad o una moneda en `prefixText` o `suffixText`, no en el valor, para que se lea con el valor y no haya que escribirla.
 - Para un campo de código, di qué debe ser el código en `label` y `supportingText` («Cuerpo del webhook», «JSON») y di qué tiene de incorrecto en `errorText`: el campo no conoce el lenguaje.

@@ -65,7 +65,7 @@ export function extensionsPanel(ctx: Ctx) {
       const result = studio.setDeclaration(ctx.layer(), id, { ...ctx.layer().vocabulary[id], ...patch }) as Json;
       if (!result.problem) ctx.commit(result.layer);
     };
-    const rationale = textField({ label: t.add.rationale.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), value: declaration.rationale, attrs: { requirement: 'required', 'error-text': t.add.rationaleShort, 'data-extension-rationale': true }, oninput: (value) => ((rationale.error = value.trim().length < MIN_REASON), save({ rationale: value })) });
+    const rationale = textField({ label: t.add.rationale.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), value: declaration.rationale, attrs: { required: true, 'error-text': t.add.rationaleShort, 'data-extension-rationale': true }, oninput: (value) => ((rationale.error = value.trim().length < MIN_REASON), save({ rationale: value })) });
     const scale = isAxis && axis === 'size' && typeof (declaration.scale ?? 1) === 'number' ? numberWidget(ctx, { label: t.add.scale, labelHidden: false, value: declaration.scale ?? 1, min: 0.25, max: 4, step: 0.05, unit: '×', onchange: () => scale!.get() && save({ scale: scale!.get() }) }) : null;
     const body = isAxis ? membersTable(ctx, ctx.view(), membersOf(ctx.view(), NS, component, axis, value), { editable: true }) : tokenEditor(ctx, id, { compact: true });
     const details = fold(

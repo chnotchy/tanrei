@@ -2,7 +2,7 @@
 title: Campo numérico
 description: Permite introducir un número como número (escrito en la forma de la configuración regional de la persona o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), como un campo de formulario completo, compuesto por un campo y una entrada numérica.
 translationOf: components/number-field.mdx
-sourceHash: d14b4c010e77328467d20894bf802cdfa9ea87a5
+sourceHash: 3c1eabf6d7a809f831a180497a3ea74c23603162
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ En la web es `<tanrei-number-field>`. Las demás plataformas todavía no lo han 
     ```html
     <form>
       <tanrei-number-field name="quantity" label="Cantidad" value="1" min="1" max="99"
-        requirement="required" required-text="Obligatorio" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+        required required-text="Obligatorio" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
     </form>
 
     <!-- Una unidad, un paso de un cuarto y sin límite superior. -->
@@ -79,7 +79,7 @@ En la web es `<tanrei-number-field>`. Las demás plataformas todavía no lo han 
 El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen y es, para la tecnología de apoyo, el mismo botón de número (spin button) con el mismo nombre, la misma descripción y los mismos estados:
 
 ```html
-<tanrei-field label="Cantidad" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Cantidad" required required-text="Obligatorio"
   supporting-text="Hasta 99 por pedido.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Introduce un número."
     increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
@@ -87,7 +87,7 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 ```
 
 <DemoFrame label="El mismo campo escrito a mano: un campo con una entrada numérica dentro" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" requirement="required" required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" required required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
     <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -118,7 +118,7 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name`, `value`, 
 | Parte | Qué es |
 | --- | --- |
 | Etiqueta | Del campo: encima del contenedor (`stacked`). En `filled` y `outlined` la dibuja la entrada numérica, flotando dentro de la caja, y el campo no dibuja fila de etiqueta. Es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden` |
-| Marca de obligatoriedad | Del campo, después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `requirement="required"`; el tag de obligatoriedad en su forma de opcional con `optional`. Una etiqueta flotante lleva el asterisco |
+| Marca de obligatoriedad | Del campo, después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `required`; el tag de obligatoriedad en su forma de opcional con `optional`. Una etiqueta flotante lleva el asterisco |
 | Entrada | De la entrada numérica: el número como texto. Mientras la persona edita, lo que ha escrito; en los demás casos, el número confirmado en la forma de la configuración regional. Una sola línea, que se desplaza |
 | Prefijo, sufijo | De la entrada numérica: texto fijo antes y después del número, como un signo de moneda o una unidad. Forman parte de la caja, nunca del valor |
 | Botones de paso | De la entrada numérica: dos botones al final; el primero da un paso hacia abajo y el segundo, hacia arriba. Quítalos con `steppers` en false |
@@ -188,7 +188,7 @@ Un número junto a un control deslizante, bajo un mismo título de fila, es la c
 ### Qué dibuja la web de otra manera
 
 - El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-number-input>` dentro. Importar el campo numérico define ambos.
-- El campo numérico es un elemento asociado a formularios, y el único control con el que trata su formulario. Recibe `name` y envía su valor como un número decimal simple (`12.5`), muestre lo que muestre la configuración regional. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras `requirement="required"` y no contiene ninguno, y que la entrada es incorrecta mientras su texto no es un número.
+- El campo numérico es un elemento asociado a formularios, y el único control con el que trata su formulario. Recibe `name` y envía su valor como un número decimal simple (`12.5`), muestre lo que muestre la configuración regional. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras `required` y no contiene ninguno, y que la entrada es incorrecta mientras su texto no es un número.
 - Es un bloque tan ancho como su lugar. En un lugar que no da ningún ancho, una etiqueta larga lo hace más ancho que su caja: dale ahí un ancho.
 - Las partes son las de los miembros, con sus propios nombres: `label`, `label-icon`, `requirement-label` y `supporting-text` del campo; `container`, `outline`, `active-indicator`, `input`, `prefix`, `suffix` y `stepper` de la entrada numérica. `label` y `requirement-label` llegan a la de los dos que se dibuje; `field-label` y `number-input-label` llegan a una sola. Los dos miembros son las partes `field` y `number-input`.
 - El `detail.text` de `entryerror` es el `invalidText` de la entrada, vacío donde no se dio ninguno. Los tipos del detalle son los de la entrada numérica: `TanreiNumberInputInputDetail` y `TanreiNumberInputEntryErrorDetail`.
@@ -239,7 +239,7 @@ Un código postal, un número de tarjeta, un número de teléfono y un código d
 - La entrada es un botón de número (spin button). Su nombre es `label`, tanto si se dibuja como si se oculta, y nunca el marcador de posición.
 - Su valor es el número confirmado, y sus límites son `min` y `max`.
 - El texto de apoyo o de error que se muestra es su descripción, con `optionalText` mientras el campo es opcional.
-- Se expone como no válido mientras `error` es true o su texto no es un número, como obligatorio mientras `requirement` es `required`, y como de solo lectura.
+- Se expone como no válido mientras `error` es true o su texto no es un número, como obligatorio mientras `required` está activado, y como de solo lectura.
 - Un error que aparece mientras el campo tiene el foco se anuncia una vez, de forma cortés; también un texto que no es un número.
 - Los botones de paso son botones que reciben su nombre de `decrementLabel` y de `incrementLabel`; uno al que nadie dio nombre queda oculto para la tecnología de apoyo. Están fuera del orden del foco, porque las teclas de flecha dan los pasos desde la entrada; quien explora la pantalla con el tacto los encuentra igualmente.
 - Una pulsación en un botón de paso no mueve el foco, así que no hace aparecer el teclado en pantalla.

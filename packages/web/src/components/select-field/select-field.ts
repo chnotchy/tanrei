@@ -3,14 +3,14 @@ import { ComposedControl, type ValueMember, composedHost, exported, forward } fr
 import { hiddenHost } from '../../primitives/hidden.js';
 import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
 import { report } from '../../primitives/report.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiSelect, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
 
 // The members' own types are the select field's: it has no detail type and no type for a prop of its own.
-export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
+export type { TanreiFieldRequiredMark, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
 
 /** SEF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * SEF-1: the seven props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
  * they reach the select through its Field's connection.
@@ -41,7 +41,7 @@ const PASSED_SLOTS = ['label-icon', 'leading-icon'];
  * Contract: specs/select-field.spec.json.
  *
  * ```html
- * <tanrei-select-field name="country" label="Country" requirement="required" supporting-text="Where your invoices are addressed.">
+ * <tanrei-select-field name="country" label="Country" required supporting-text="Where your invoices are addressed.">
  *   <tanrei-option value="jp">Japan</tanrei-option>
  *   <tanrei-option value="ke">Kenya</tanrei-option>
  * </tanrei-select-field>
@@ -51,9 +51,9 @@ const PASSED_SLOTS = ['label-icon', 'leading-icon'];
  * else, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,
  * `--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` value reaches the members by inheritance, and one select field is set apart by setting such a property on this
  * element. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,
- * `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the
+ * `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the
  * Field's, every other one the select's. One level down, the same by hand: `<tanrei-field label="Country"
- * requirement="required"><tanrei-select name="country">…options…</tanrei-select></tanrei-field>` — and the box alone,
+ * required><tanrei-select name="country">…options…</tanrei-select></tanrei-field>` — and the box alone,
  * where a label stands elsewhere (a bar, a toolbar, a column of a table), is `<tanrei-select>` with a `label` of its
  * own.
  *
@@ -69,8 +69,8 @@ const PASSED_SLOTS = ['label-icon', 'leading-icon'];
  * ancestor.
  *
  * Form-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is
- * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is
- * `required` and the value is empty.
+ * restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is
+ * set and the value is empty.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the select's trigger, and its name is `label`
  * (with `label-hidden` where it is not drawn), never `aria-label`. A press on the label row focuses the trigger and
@@ -119,7 +119,8 @@ export class TanreiSelectField extends ComposedControl<string> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -164,8 +165,11 @@ export class TanreiSelectField extends ComposedControl<string> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
+  /** @from tanrei-field.required */
+  required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

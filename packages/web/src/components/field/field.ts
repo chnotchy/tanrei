@@ -3,7 +3,6 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldSays, type FieldState, GlyphMirrorController, SystemWatchController, WordsController, compChoice, composedContains, namesItself, report } from '../../primitives/index.js';
 import {
   type FrameRequiredMark,
-  type FrameRequirement,
   SYSTEM_MARKS,
   frameAnnounce,
   frameAnnouncer,
@@ -27,7 +26,6 @@ import { PREFIX, styles } from './field.styles.js';
 const ISOLATED = /\u2068[^\u2069]*\u2069/g;
 
 /** What the form asks of the control: nothing, an answer, or that it may be left out. */
-export type TanreiFieldRequirement = FrameRequirement;
 /** How a required control is marked: the design system's answer (auto), a tag, an asterisk, or nothing. */
 export type TanreiFieldRequiredMark = FrameRequiredMark;
 
@@ -71,9 +69,9 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * has no name of its own), `aria-description`, `aria-invalid`, `aria-required` and, where it has the property,
  * `disabled`. The field takes back exactly what it gave when the element leaves the slot.
  *
- * `requirement="required"` exposes the control as required and draws the required mark beside the label — a small
- * filled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement="optional"` draws the
- * optional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While
+ * `required` exposes the control as required and draws the required mark beside the label — a small filled tag, an
+ * asterisk or nothing, as the design system or `required-mark` says; `optional` draws the optional tag, and is ignored
+ * while `required` is set. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While
  * the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design
  * system whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below
  * it. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while
@@ -128,7 +126,8 @@ export class TanreiField extends LitElement {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -157,8 +156,11 @@ export class TanreiField extends LitElement {
   /** Disables the control and draws the frame as disabled. Disable a framed control here, not on the control, so that its label follows. */
   disabled = false;
 
-  /** What the form asks of the control: `required` exposes it as required and draws the required mark; `optional` draws the optional tag; `none` says and draws nothing. It never validates. */
-  requirement: TanreiFieldRequirement = 'none';
+  /** What the form asks of the control: true exposes it as required and draws the required mark beside the label. It never validates. */
+  required = false;
+
+  /** Draws the optional tag after the label and adds `optional-text` to the control's description; ignored while `required` is true (FLD-32). */
+  optional = false;
 
   /** How this control shows that it is required (`required-mark`): `tag` is a small filled tag with `requiredText`, `asterisk` is "*" after the label, `none` draws nothing and keeps the semantics; `auto` takes the design system's answer (`--tanrei-comp-field-requirement-mark`, which follows `--tanrei-sys-behavior-requirement-mark`). */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -264,7 +266,7 @@ export class TanreiField extends LitElement {
    */
   private givenMark(said: FieldSays): 'asterisk' | 'none' {
     if (!said.drawsLabel) return 'none';
-    const mark = frameMark({ label: this.label, labelHidden: this.labelHidden, requirement: this.requirement, requiredMark: this.requiredMark });
+    const mark = frameMark({ label: this.label, labelHidden: this.labelHidden, required: this.required, optional: this.optional, requiredMark: this.requiredMark });
     const named = mark === 'auto' ? compChoice(this, `${PREFIX}-requirement-mark`, SYSTEM_MARKS) : mark;
     return named === 'none' ? 'none' : 'asterisk';
   }
@@ -363,7 +365,7 @@ export class TanreiField extends LitElement {
     const said = this.said;
     const floats = !!said.drawsLabel;
     // FLD-24: the required word is needed only where the tag would be drawn — not beside a label the control draws.
-    reportFrame(this, this.framed, changed, { unknown: 'FLD-22', words: 'FLD-24' }, this.words, { prefix: PREFIX, row: !floats });
+    reportFrame(this, this.framed, changed, { unknown: 'FLD-22', words: 'FLD-24', both: 'FLD-32' }, this.words, { prefix: PREFIX, row: !floats });
     const labelled = frameLabelled(this) && !floats;
     // FLD-3: the glyph is not drawn while the label is not — hidden, empty, or drawn by the control itself (FLD-25).
     if (!labelled && this.querySelector(':scope > [slot="label-icon"]')) {
@@ -428,7 +430,8 @@ export class TanreiField extends LitElement {
           label: this.label,
           // FLD-25: no label row, glyph or tag where the control draws the label itself.
           labelHidden: this.labelHidden || !!said.drawsLabel,
-          requirement: this.requirement,
+          required: this.required,
+          optional: this.optional,
           requiredMark: this.requiredMark,
           requiredText: framed.requiredText,
           optionalText: framed.optionalText,

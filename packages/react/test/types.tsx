@@ -253,6 +253,21 @@ export function TabsOfEveryKind() {
   );
 }
 
+// What a form asks of a field is two booleans, as HTML says the first: `required`, and `optional` for the optional tag
+// (FLD-4, FGR-4). `requirement` is no prop.
+export const required = (
+  <>
+    <TextField label="Email" required />
+    <NumberField label="Seats" optional />
+    <RadioGroup label="Delivery" required />
+    <FilePicker required />
+    {/* @ts-expect-error required is a boolean */}
+    <TextField label="Email" required="yes" />
+    {/* @ts-expect-error requirement is no prop of a field */}
+    <TextField label="Email" requirement="required" />
+  </>
+);
+
 // The product's words are given through the same package: Tanrei ships none.
 const words: TanreiWords = {};
 setWords(words);

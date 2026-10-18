@@ -6,13 +6,12 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
-import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark, type TanreiFieldGroupRequirement } from '../field-group/field-group.js';
+import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { TanreiRadioButton, type TanreiRadioButtonOwner } from '../radio-button/radio-button.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The field group's own types are the radio group's, under the names it had before it was built from that element.
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
-export type TanreiRadioGroupRequirement = TanreiFieldGroupRequirement;
 /** How a required set is marked: the design system's answer (auto), a tag, an asterisk, or nothing. */
 export type TanreiRadioGroupRequiredMark = TanreiFieldGroupRequiredMark;
 /** A column, or a row that wraps. */
@@ -23,7 +22,7 @@ export interface TanreiRadioGroupChangeDetail {
 }
 
 /** RGP-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with what the host takes from outside (W6). */
-const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
+const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
 
 /** W4: the field group's documented parts, under its own names — the names this element's parts had before it was built from the field group's element. */
 const GROUP_PARTS = exported(TanreiFieldGroup);
@@ -68,7 +67,7 @@ const OTHER_CONTROLS = 'input, button, select, textarea, a[href], [tabindex]:not
  *
  * Form-associated: it submits `value` under `name` — also while the radio button of that value is one the product
  * disabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows
- * `<fieldset disabled>`, and reports `valueMissing` while `requirement="required"` and `value` is empty, in the
+ * `<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the
  * browser's own words for an unanswered set of radio buttons. It never sets `error` itself.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the
@@ -105,7 +104,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -137,8 +137,11 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   /** @from tanrei-field-group.disabled */
   disabled = false;
 
-  /** @from tanrei-field-group.requirement */
-  requirement: TanreiFieldGroupRequirement = 'none';
+  /** @from tanrei-field-group.required */
+  required = false;
+
+  /** @from tanrei-field-group.optional */
+  optional = false;
 
   /** @from tanrei-field-group.requiredMark */
   requiredMark: TanreiFieldGroupRequiredMark = 'auto';
@@ -352,7 +355,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   private syncForm(options = this.options) {
     const off = this.isDisabled;
     this.internals.setFormValue(off || this.value === '' ? null : this.value, this.value);
-    if (!off && this.requirement === 'required' && this.value === '') {
+    if (!off && this.required && this.value === '') {
       // The browser's own words for an unanswered set of radio buttons; where it has none, the product's.
       const message = missingValueMessage('radio', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
       // W6, item 3: anchored on the radio button that is the stop — its own native element, which is what takes focus.

@@ -2,7 +2,7 @@
 title: चिप फ़ील्ड
 description: छोटे टेक्स्ट की एक लिस्ट इकट्ठा करता है — ईमेल पते, टेलीफ़ोन नंबर, कीवर्ड — जो एक ही फ़ील्ड में एक के बाद एक टाइप किए जाते हैं। आपकी जाँच जिस टेक्स्ट को स्वीकार करती है, वह एक चिप बन जाता है जिसे हटाया जा सकता है, या बदलने के लिए टाइप करने वाले भाग में वापस रखा जा सकता है, और यह लिस्ट फ़ील्ड का एक ही मान है।
 translationOf: components/chip-field.mdx
-sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
+sourceHash: 374ab98701cf17cc824c70aaa8d253c2ebe8d4bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,7 +137,7 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 ## स्पेक
 
 <DemoFrame label="ज़रूरी, सिर्फ़ पढ़ने के लिए, अक्षम, और ऐसे कीवर्ड जो सिर्फ़ Enter से बनते हैं" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" requirement="required" required-text="ज़रूरी" remove-label="{entry} को हटाएँ" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" required required-text="ज़रूरी" remove-label="{entry} को हटाएँ" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" readonly remove-label="{entry} को हटाएँ" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" disabled remove-label="{entry} को हटाएँ" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="लेखक" remove-label="{entry} को हटाएँ" supporting-text="हर नाम के बाद Enter दबाएँ।" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -147,7 +147,7 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 
 | पहलू | फ़ील्ड से | टेक्स्ट इनपुट से | चिप फ़ील्ड का अपना |
 | --- | --- | --- | --- |
-| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`, और `inputValue` (टेक्स्ट इनपुट का `value`) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`, और `inputValue` (टेक्स्ट इनपुट का `value`) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
 | इवेंट | — | `input`, `action` | `change`, `check`, `reject` |
 | स्लॉट | `label-icon` | — | — |
 | टोकन | `comp.field.*` | बॉक्स के लिए `comp.input-box.*`; एंट्री की जगह के लिए `comp.text-input.*` | कोई नहीं; एंट्री `comp.chip.*` पढ़ती हैं |
@@ -174,7 +174,7 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 
 - एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-text-input>` है, और टेक्स्ट इनपुट के `entries` स्लॉट में हर एंट्री के लिए एक `<tanrei-chip>`। एलिमेंट को इंपोर्ट करने से तीनों डिफ़ाइन हो जाते हैं।
 - `value` ऐरे वाली प्रॉपर्टी है: उसे बदलने के लिए नया ऐरे असाइन करें। `value` ऐट्रिब्यूट एक बार पढ़ा जाता है, स्ट्रिंग के JSON ऐरे के रूप में, और फ़ॉर्म रीसेट होने पर उसी पर लौटता है। `separators` भी ऐरे है; उसका ऐट्रिब्यूट एक JSON ऐरे है।
-- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह हर एंट्री के लिए `name` से एक मान सबमिट करता है, क्रम से, और जब तक लिस्ट ख़ाली है या फ़ील्ड अक्षम है, कुछ नहीं। टाइप किया गया टेक्स्ट कभी सबमिट नहीं होता। वह अक्षम `<fieldset>` के साथ अक्षम होता है, नेविगेशन पर बहाल होता है, और जब तक `requirement` का मान `required` है और लिस्ट ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह हर एंट्री के लिए `name` से एक मान सबमिट करता है, क्रम से, और जब तक लिस्ट ख़ाली है या फ़ील्ड अक्षम है, कुछ नहीं। टाइप किया गया टेक्स्ट कभी सबमिट नहीं होता। वह अक्षम `<fieldset>` के साथ अक्षम होता है, नेविगेशन पर बहाल होता है, और जब तक `required` सेट है और लिस्ट ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है।
 - `change`, `check` और `reject` CustomEvent हैं, जिन्हें एलिमेंट डिस्पैच करता है: उनका `detail` क्रम से `{ value, added, removed }`, `{ text, values }` और `{ text, reason, message }` है। `check` रद्द किया जा सकता है और उसके लौटते ही पढ़ा जाता है: बाद में दिया गया जवाब नहीं पढ़ा जाता।
 - `input` और `action` टेक्स्ट इनपुट के अपने हैं। `action` सिर्फ़ तब फ़ायर होता है जब टाइप करने वाला भाग ख़ाली हो और Enter दबाई जाए, और तब वह फ़ॉर्म से सबमिट होने को कहता है। टेक्स्ट पर Enter एंट्री बनाती है: कुंजी टेक्स्ट इनपुट के सुनने से पहले रोक ली जाती है, इसलिए बबलिंग फ़ेज़ का `keydown` लिसनर वह दबाना नहीं सुनता।
 - भाग: `field`, `text-input` और `chip` सदस्य हैं। फ़ील्ड और टेक्स्ट इनपुट के अपने भाग अपने नाम रखते हैं (`label`, `supporting-text`, `container`, `input`, `entries` वग़ैरह)। चिप के भाग `entry-container`, `entry-label` और `entry-remove` हैं।

@@ -109,7 +109,7 @@ export function tokenSelect(ctx: Ctx, { label, labelHidden = false, ids, value, 
 /** A mandatory reason or rationale: a required text field, in error once what was typed is too short to count. */
 export function reasonWidget(ctx: Ctx, { label, value = '', placeholder, hint, onchange }: { label: string; value?: string; placeholder?: string; hint: string; onchange: Change }): Widget<string> {
   // The dictionary's label says "(required)" in words; the field says it with its own mark.
-  const field = h('tanrei-text-field', { label: label.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), requirement: 'required', placeholder, 'supporting-text': hint, 'error-text': hint, autocomplete: 'off', 'data-reason': true });
+  const field = h('tanrei-text-field', { label: label.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), required: true, placeholder, 'supporting-text': hint, 'error-text': hint, autocomplete: 'off', 'data-reason': true });
   field.value = value;
   const enough = () => field.value.trim().length >= MIN_REASON;
   let touched = value.length > 0;
