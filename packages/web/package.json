@@ -11,6 +11,7 @@
   },
   "sideEffects": [
     "./dist/index.js",
+    "./dist/m3-like.js",
     "./dist/icons.js",
     "./dist/link.js",
     "./dist/steps.js",
@@ -20,6 +21,7 @@
     "./dist/primitives/field-frame.js",
     "./dist/tanrei.bundle.js",
     "./src/index.ts",
+    "./src/m3-like.ts",
     "./src/icons.ts",
     "./src/link.ts",
     "./src/steps.ts",
@@ -33,6 +35,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./m3-like": {
+      "types": "./dist/m3-like.d.ts",
+      "default": "./dist/m3-like.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",

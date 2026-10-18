@@ -167,6 +167,10 @@
     "accent": null
   },
   "vocabulary": {
+    "tanrei.comp.fab-menu": {"document": "comp/fab-menu.tokens.json", "rationale": "Material 3 opens a short list of related actions from its floating action button (the FAB menu); no product built on Tanrei's own look needs one, so the component lives in this layer, and every system that descends from it has it.", "rules": [
+      {"match": "tanrei.comp.fab-menu.*.hovered.container.elevation", "$value": "{tanrei.sys.elevation.level4}", "reason": "The FAB menu's toggle rises further under a pointer, as the main action button does."},
+      {"match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation", "$value": "{tanrei.sys.elevation.level4}", "reason": "The open toggle rises under a pointer too, as the main action button does."}
+    ]},
     "tanrei.sys.typescale.display-large": {"$type": "typography", "rationale": "Material Design 3 has three display sizes; Tanrei's core has one.", "$value": {"fontFamily": "{tanrei.ref.typeface.brand}", "fontSize": {"value": 57, "unit": "px"}, "fontWeight": 400, "letterSpacing": {"value": -0.25, "unit": "px"}, "lineHeight": 1.1228}, "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 3.5625, "exp": "{tanrei.dial.type.contrast}"}}},
     "tanrei.sys.typescale.display-small": {"$type": "typography", "rationale": "Material Design 3 has three display sizes; Tanrei's core has one.", "$value": {"fontFamily": "{tanrei.ref.typeface.brand}", "fontSize": {"value": 36, "unit": "px"}, "fontWeight": 400, "letterSpacing": {"value": 0, "unit": "px"}, "lineHeight": 1.2222}, "derive": {"fontSize": {"fn": "mul", "of": "{tanrei.dial.type.base}", "by": 2.25, "exp": "{tanrei.dial.type.contrast}"}, "letterSpacing": {"fn": "em", "by": 0.0}}},
     "tanrei.sys.color.background": {"$type": "color", "rationale": "Material 3 still publishes `background` next to `surface`; products migrating from Material 2 bind to it.", "derive": {"fn": "tone", "palette": "neutral", "tone": {"light": [98], "dark": [6]}}, "onRole": "tanrei.sys.color.on-background"},

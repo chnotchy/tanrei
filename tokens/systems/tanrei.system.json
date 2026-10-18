@@ -13,13 +13,6 @@
           "radio-button",
           "button-group"
         ]
-      },
-      "fab-menu": {
-        "reason": "The default system draws no floating action button; its main action opens a sheet of further actions.",
-        "insteadUse": [
-          "main-action-button",
-          "bottom-sheet"
-        ]
       }
     },
     "variants": {

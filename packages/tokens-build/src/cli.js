@@ -10,7 +10,8 @@ import { KOTLIN_PACKAGE, emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitTs } from './emit/ts.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
-import { DEFAULT_SYSTEM, availabilityOf, buildBundle, layerChain, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
+import { DEFAULT_SYSTEM, availabilityOf, buildBundle, heldComponents, layerChain, listSystems, outsideComponents, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
+import { nativeChain } from './layers.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
 import { PRESET_CRITERIA_NOTE, checkInvariants, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
 import { buildIR } from './ir.js';
@@ -78,16 +79,36 @@ function failOn(title, failures) {
   process.exit(1);
 }
 
+const byId = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0);
+
 /**
  * id + type of every token: vocabulary cannot change without a diff in this one file. No total is written: it is
  * Object.keys(tokens).length, and a total on a fixed line would make every two pull requests that add a token conflict.
+ * `layers` holds, per layer, the vocabulary of the components that live in it — an id that moves from the core to a
+ * layer moves from `tokens` to that layer's list, still guarded against a rename or a new type.
  */
-function vocabularyLock(model) {
-  const tokens = Object.values(model.tokens).map((t) => [t.id, t.type]).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  return { $comment: 'Generated. The vocabulary of the default system. A change here is a vocabulary change: it needs the one-product test and maintainer review.', tokens: Object.fromEntries(tokens) };
+function vocabularyLock(model, layers) {
+  const tokens = Object.values(model.tokens).map((t) => [t.id, t.type]).sort(byId);
+  return {
+    $comment: 'Generated. The vocabulary of the default system, and under "layers" the vocabulary of the components that live in a layer. A change here is a vocabulary change: it needs the one-product test and maintainer review.',
+    tokens: Object.fromEntries(tokens),
+    layers: Object.fromEntries(Object.entries(layers).sort(byId).map(([id, entries]) => [id, Object.fromEntries(entries.sort(byId))])),
+  };
 }
 
 const readLayer = (id) => loadSystem(REPO_ROOT, id);
+
+/** Where each component that lives in a layer lives: component → layer id. */
+const held = () => heldComponents(listSystems(REPO_ROOT), readLayer);
+
+/** The model of a system's native outputs (`nativeChain`, layers.js): the system's own when nothing lives outside it. */
+async function nativeModel(id, model) {
+  const chain = layerChain(id, readLayer);
+  const native = nativeChain(chain, held());
+  if (native === chain) return model;
+  const { files } = buildBundle(REPO_ROOT, native);
+  return buildModelFromBundle(files, id, readBundle(files, id));
+}
 
 const checkLayers = () => shippedLayerProblems(REPO_ROOT, readLayer);
 
@@ -120,7 +141,7 @@ function iconSetOf(ir, sets) {
   return set?.id ?? null;
 }
 
-async function generateSystems(outputs, iconSets, systemIconSets) {
+async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
   for (const id of presetIds()) {
     const { files } = buildBundle(REPO_ROOT, layerChain(id, readLayer));
     const bundleDir = `tokens/generated/${id}`;
@@ -133,18 +154,22 @@ async function generateSystems(outputs, iconSets, systemIconSets) {
     failOn(`structural/functional invariant violation(s) in system "${id}" — these fail in every system`, findings.filter((f) => !isCriterionFinding(f)));
     const measurements = findings.filter(isCriterionFinding);
     if (measurements.length) console.log(`ℹ system "${id}": ${measurements.length} contrast measurement(s) below Tanrei's thresholds, recorded as information — ${PRESET_CRITERIA_NOTE}`);
+    const native = await nativeModel(id, model);
     const banner = measurements.length ? `/* ${measurements.length} contrast measurement(s) below Tanrei's thresholds in system "${id}", which do not apply to an imitation preset. See tokens/generated/${id}/a11y-report.json */\n` : '';
     const ir = buildIR(model);
     systemIconSets[id] = iconSetOf(ir, iconSets);
+    // The vocabulary of the components that live in this layer, for the lock: their ids as the layer's own model has them.
+    const own = [...held()].filter(([, layer]) => layer === id).map(([component]) => `${CONFIG.namespace}.comp.${component}.`);
+    if (own.length) lockLayers[id] = Object.values(model.tokens).filter((t) => own.some((prefix) => t.id.startsWith(prefix))).map((t) => [t.id, t.type]);
     const targets = {
       [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements),
       // Exactness, measured against the published system this preset reproduces.
       ...(fidelityMaps(REPO_ROOT).includes(id) ? { [`${bundleDir}/fidelity.json`]: measureFidelity(model, loadFidelityMap(id)) } : {}),
-      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, unavailable: availabilityOf(layerChain(id, readLayer)) }),
+      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, unavailable: availabilityOf(layerChain(id, readLayer)), outside: outsideComponents(layerChain(id, readLayer), held()) }),
       ...designToolExports(model, `design/tokens/${id}`),
       // Native values of the preset, next to the default system's: same vocabulary types, one more value.
       // Opt-in by reference — an app that never names the constant does not carry it.
-      ...nativeSystemFiles(ir, banner),
+      ...nativeSystemFiles(native === model ? ir : buildIR(native), banner),
     };
     for (const [rel, content] of Object.entries(targets)) { write(rel, content); outputs.push(rel); }
     console.log(`✔ system "${id}": ${Object.keys(model.tokens).length} tokens, ${measurements.length} contrast measurement(s) that do not apply`);
@@ -164,26 +189,29 @@ async function generate() {
     process.exit(1);
   }
   const ir = buildIR(model);
+  const nativeIr = buildIR(await nativeModel(DEFAULT_SYSTEM, model));
   // An emitter returns either one file's text (written to the default path) or a map of
   // repo-relative paths → text, when a platform splits its output (vocabulary types + system values).
   const platform = (defaultPath, output) => (typeof output === 'string' ? { [defaultPath]: output } : output);
   const targets = {
-    'packages/web/src/generated/tokens.css': emitCss(model, { unavailable: availabilityOf(layerChain(DEFAULT_SYSTEM, readLayer)) }),
-    ...platform('packages/react-native/src/generated/tokens.ts', emitTs(ir)),
-    ...platform('packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift', emitSwift(ir)),
-    ...platform(`packages/compose/tanrei/src/main/kotlin/${KOTLIN_PACKAGE.replaceAll('.', '/')}/TanreiTokens.kt`, emitKotlin(ir)),
-    ...platform('packages/flutter/lib/src/generated/tokens.g.dart', emitDart(ir)),
+    'packages/web/src/generated/tokens.css': emitCss(model, { unavailable: availabilityOf(layerChain(DEFAULT_SYSTEM, readLayer)), outside: outsideComponents(layerChain(DEFAULT_SYSTEM, readLayer), held()) }),
+    ...platform('packages/react-native/src/generated/tokens.ts', emitTs(nativeIr)),
+    ...platform('packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift', emitSwift(nativeIr)),
+    ...platform(`packages/compose/tanrei/src/main/kotlin/${KOTLIN_PACKAGE.replaceAll('.', '/')}/TanreiTokens.kt`, emitKotlin(nativeIr)),
+    ...platform('packages/flutter/lib/src/generated/tokens.g.dart', emitDart(nativeIr)),
     ...designToolExports(model),
     // The brand marks painted in each scheme's on-surface, and the favicon that follows the reader's scheme.
     ...brandFiles(REPO_ROOT, model.colors),
-    'tokens/vocabulary.lock.json': vocabularyLock(model),
   };
   for (const [rel, content] of Object.entries(targets)) {
     write(rel, content);
     outputs.push(rel);
   }
   const systemIconSets = { [DEFAULT_SYSTEM]: iconSetOf(ir, iconSets) };
-  await generateSystems(outputs, iconSets, systemIconSets);
+  const lockLayers = {};
+  await generateSystems(outputs, iconSets, systemIconSets, lockLayers);
+  write('tokens/vocabulary.lock.json', vocabularyLock(model, lockLayers));
+  outputs.push('tokens/vocabulary.lock.json');
   // The mirrored glyph names of each icon set, and the set of each system: read by the web's icon helper.
   write('packages/web/src/generated/icon-sets.ts', emitIconSetsTs(iconSets, systemIconSets));
   outputs.push('packages/web/src/generated/icon-sets.ts');

@@ -7,6 +7,21 @@ allowBuilds:
   lefthook: false # its postinstall would only run `lefthook install`; the root "prepare" script does that
   rs-module-lexer: false
   workerd: false # wrangler's local runtime; `pages deploy` of a static site never starts it
+# A version is installed only once it has been on the registry for three days (in minutes). Most malicious releases
+# are found and pulled within hours to days; a week would hold back a framework's fixes too long. Set explicitly, the
+# wait is strict: an install fails rather than fall back to a younger version. An urgent fix goes in
+# `minimumReleaseAgeExclude` as `name@version`, never as a bare name.
+minimumReleaseAge: 4320
+# Refuse a version published with weaker trust evidence (no trusted publisher, no provenance) than an earlier release
+# of the same package: the shape of a release made with a stolen token from someone's machine.
+trustPolicy: no-downgrade
+# Each of these is the last release of an old major line, published without provenance after a newer line had it,
+# and each has been on the registry for well over a year (checked against the registry's packument). Exact versions
+# only, so a later release of the same package is checked again.
+trustPolicyExclude:
+  - chokidar@4.0.3 # 2024-12; @astrojs/check
+  - semver@6.3.1 # 2023-07; Babel, istanbul
+  - undici-types@6.21.0 # 2024-11; @types/node 22
 minimumReleaseAgeExclude:
   - '@turbo/darwin-64@2.11.2'
   - '@turbo/darwin-arm64@2.11.2'

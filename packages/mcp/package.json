@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.4.0",
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@terrazzo/parser": "^2.0.0",
     "ajv": "^8.20.0"
   },

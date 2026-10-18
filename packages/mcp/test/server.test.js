@@ -172,13 +172,16 @@ test('list_systems: the shipped systems, and a product’s chain', async () => {
   // Extensions: how many exist in each system, the first few, and the layer that declared each.
   assert.deepEqual(tanrei.extensions, { total: 0, first: [] }, 'the core is what the root declares; it has no extensions');
   for (const system of data.shipped) assert.ok(system.extensions.first.every((e) => e.id && e.declaredBy), system.id);
-  // A preset extends the vocabulary like a product does: m3-like declares single color roles; m3-expressive-like
-  // extends m3-like, inherits those, and adds two button sizes of its own.
-  assert.deepEqual([m3.extensions.total, m3.extensions.byKind], [Object.keys(shippedLayer('m3-like').vocabulary).length, { token: Object.keys(shippedLayer('m3-like').vocabulary).length }]);
-  assert.ok(m3.extensions.total > 0 && m3.extensions.first.every((e) => e.declaredBy === 'm3-like' && /^tanrei\.sys\.(color|typescale)\./.test(e.id)), 'Material’s extra color roles, and its two extra display sizes');
+  // A preset extends the vocabulary like a product does: m3-like declares the whole vocabulary of the component that
+  // lives in it (the FAB menu) and single color roles; m3-expressive-like extends m3-like, inherits those, and adds two
+  // button sizes of its own.
+  const declared = Object.keys(shippedLayer('m3-like').vocabulary).length;
+  assert.deepEqual([m3.extensions.total, m3.extensions.byKind], [declared, { component: 1, token: declared - 1 }]);
+  assert.deepEqual(m3.extensions.first[0], { id: 'tanrei.comp.fab-menu', kind: 'component', declaredBy: 'm3-like' });
+  assert.ok(m3.extensions.first.slice(1).every((e) => e.declaredBy === 'm3-like' && /^tanrei\.sys\.(color|typescale)\./.test(e.id)), 'Material’s extra color roles, and its two extra display sizes');
   assert.equal(expressive.extends, 'm3-like');
   assert.deepEqual(Object.keys(shippedLayer('m3-expressive-like').vocabulary), ['tanrei.comp.button.size.xsmall', 'tanrei.comp.button.size.xlarge']);
-  assert.deepEqual(expressive.extensions.byKind, { token: m3.extensions.total, 'axis-value': 2 }, 'inherited down "extends", plus its own');
+  assert.deepEqual(expressive.extensions.byKind, { component: 1, token: m3.extensions.total - 1, 'axis-value': 2 }, 'inherited down "extends", plus its own');
   assert.ok(expressive.extensions.first.every((e) => e.declaredBy === 'm3-like'), 'inherited extensions stay attributed to the layer that declared them');
   assert.deepEqual([expressive.palettes, expressive.droppedPalettes, expressive.accessibility.measurements], [[], [], 0], 'colors are m3-like\'s');
 
