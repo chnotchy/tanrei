@@ -4328,7 +4328,7 @@ private object M3ExpressiveLikeSystemSource {
         TanreiImagePreviewTokens(
             barButtonVariant = 4f,
             barContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
-            barGap = 4.dp,
+            barGap = 12.dp,
             barHeight = 56.dp,
             barPaddingInline = 8.dp,
             captionColor = TanreiPaint.Role(TanreiColorRole.OnSurface),

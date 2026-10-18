@@ -38957,8 +38957,8 @@
           "button": {
             "variant": {
               "$type": "number",
-              "$value": 4,
-              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only medium Buttons (IMP-8). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+              "$value": 1,
+              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only small Buttons (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
             }
           },
           "container": {
@@ -38980,10 +38980,10 @@
           "gap": {
             "$type": "dimension",
             "$value": {
-              "value": 4,
+              "value": 12,
               "unit": "px"
             },
-            "$description": "Between two controls of the bar. With the Buttons' own targets (BTN-5) it keeps each whole target apart from the next in the default system."
+            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next in the default system: 32 and 12 make sys.target.pointer's 44."
           },
           "height": {
             "$type": "dimension",

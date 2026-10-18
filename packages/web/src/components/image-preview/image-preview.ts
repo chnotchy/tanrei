@@ -1529,12 +1529,13 @@ export class TanreiImagePreview extends LitElement {
     </div>`;
   }
 
+  /** IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium. */
   private control(control: Control, glyph: string, label: string) {
     return html`<tanrei-button
       part=${control}
       exportparts=${BUTTON_PARTS[control].attribute}
       class=${control}
-      size="medium"
+      size=${control === 'previous' || control === 'next' ? 'medium' : 'small'}
       label=${label}
       ?disabled=${this.disabledNow(control)}
       @click=${this.onControl(control)}
