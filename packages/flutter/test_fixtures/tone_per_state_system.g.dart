@@ -7669,6 +7669,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
   ),
   snackbar: TanreiSnackbarTokens(
     actionTonalLayerOpacity: 0.12,
+    breakpointMedium: 600.0,
     closeButtonVariant: 1.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,

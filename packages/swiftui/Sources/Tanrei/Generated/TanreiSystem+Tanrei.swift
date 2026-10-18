@@ -7869,6 +7869,7 @@ private let tanreiSliderTokens = TanreiSliderTokens(
 
 private let tanreiSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0.12,
+  breakpointMedium: 600,
   closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,

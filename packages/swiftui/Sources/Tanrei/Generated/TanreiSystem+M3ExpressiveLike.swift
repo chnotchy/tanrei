@@ -7994,6 +7994,7 @@ private let m3ExpressiveLikeSliderTokens = TanreiSliderTokens(
 
 private let m3ExpressiveLikeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
+  breakpointMedium: 600,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: m3ExpressiveLikeElevation.level3,

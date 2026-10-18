@@ -7963,6 +7963,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
   ),
   snackbar: TanreiSnackbarTokens(
     actionTonalLayerOpacity: 0.0,
+    breakpointMedium: 600.0,
     closeButtonVariant: 4.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,

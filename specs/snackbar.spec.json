@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "snackbar",
   "title": "Snackbar",
-  "summary": "Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), on a raised surface of the scheme or as a bar of the opposite scheme, with at most one action, without taking focus or interrupting their work.",
+  "summary": "Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), on a raised surface of the scheme or as a bar of the opposite scheme, with at most one action, without taking focus or interrupting their work.",
   "category": "communication",
   "level": "base",
   "listing": "default",
@@ -135,6 +135,16 @@
       ],
       "default": "auto",
       "description": "How long the snackbar stays by itself. Auto is short without an action and indefinite with one (WCAG 2.2.1: a person must not be timed out of an action). Short and long close after the snackbar's timeout tokens; indefinite stays until it is closed."
+    },
+    {
+      "name": "placement",
+      "type": "enum",
+      "values": [
+        "bottom",
+        "top-end"
+      ],
+      "default": "bottom",
+      "description": "Where the host places the snackbar in its area. Bottom, the default, is the bottom edge, centred (SNK-13). Top-end is the top edge at the end side: the top right in a left-to-right layout and the top left in a right-to-left one, and across the top of a compact window (SNK-35). A host may be given one placement for all the snackbars it shows; a snackbar that names its own keeps it. It changes where the snackbar stands and the side it enters from (SNK-36, SNK-37), and nothing else: not its size, its form, its order in the queue, its place in the focus order or its announcement."
     }
   ],
   "events": [
@@ -212,7 +222,7 @@
     },
     {
       "id": "SNK-13",
-      "text": "THE host SHALL place the snackbar at the bottom of its area, centred, comp.snackbar.container.margin above the bottom edge and at least comp.snackbar.container.margin from the side edges, inside the safe area and above the on-screen keyboard; it SHALL draw the snackbar above its area's content and below a Tanrei modal dialog and its scrim."
+      "text": "WHILE placement is bottom THE host SHALL place the snackbar at the bottom of its area, centred, comp.snackbar.container.margin above the bottom edge and at least comp.snackbar.container.margin from the side edges, inside the safe area and above the on-screen keyboard; at either placement it SHALL draw the snackbar above its area's content and below a Tanrei modal dialog and its scrim."
     },
     {
       "id": "SNK-14",
@@ -228,7 +238,7 @@
     },
     {
       "id": "SNK-17",
-      "text": "WHEN a snackbar is shown THE snackbar SHALL rise into place from below the bottom edge of its host by its own height plus its margin while fading in, over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes it SHALL fade out in place over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
+      "text": "WHEN a snackbar is shown THE snackbar SHALL rise into place from below the bottom edge of its host by its own height plus its margin while fading in (WHILE placement is bottom; at top-end it descends instead, SNK-36), over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes it SHALL fade out in place over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
     },
     {
       "id": "SNK-18",
@@ -236,7 +246,7 @@
     },
     {
       "id": "SNK-19",
-      "text": "WHILE a snackbar is drawn outside a host (a snapshot harness, a documentation page) THE snackbar SHALL draw in place at its resting position, centred across the width it is given as SNK-13 centres it in a host and at most as tall as the height it is given, which stands for the host's area in SNK-25; it SHALL NOT time out, queue, animate its entrance or announce itself, and SHALL still emit action, dismiss and toggle."
+      "text": "WHILE a snackbar is drawn outside a host (a snapshot harness, a documentation page) THE snackbar SHALL draw in place at its resting position, centred across the width it is given as SNK-13 centres it in a host (or, WHILE placement is top-end, at the end of that width as SNK-35 places it, and across the whole of it where that width is narrower than comp.snackbar.breakpoint.medium) and at most as tall as the height it is given, the width and the height it is given standing for the host's area in SNK-25 and SNK-35; it SHALL NOT time out, queue, animate its entrance or announce itself, and SHALL still emit action, dismiss and toggle."
     },
     {
       "id": "SNK-20",
@@ -257,7 +267,7 @@
     },
     {
       "id": "SNK-24",
-      "text": "WHEN the user activates the expand button by pointer, touch, Enter or Space THE snackbar SHALL toggle expanded, emit toggle with the new value exactly once, keep focus on the expand button and stay open; the bar SHALL grow to its expanded height or shrink back over comp.snackbar.motion.expand-duration with comp.snackbar.motion.expand-easing, keeping its bottom edge in place, and change at once where motion is reduced. The expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides, and SHALL keep expandLabel as its name in both states. WHEN the product sets expanded THE snackbar SHALL change the same way without emitting toggle."
+      "text": "WHEN the user activates the expand button by pointer, touch, Enter or Space THE snackbar SHALL toggle expanded, emit toggle with the new value exactly once, keep focus on the expand button and stay open; the bar SHALL grow to its expanded height or shrink back over comp.snackbar.motion.expand-duration with comp.snackbar.motion.expand-easing, keeping its bottom edge in place WHILE placement is bottom and its top edge at top-end (SNK-37), and change at once where motion is reduced. The expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides, and SHALL keep expandLabel as its name in both states. WHEN the product sets expanded THE snackbar SHALL change the same way without emitting toggle."
     },
     {
       "id": "SNK-25",
@@ -305,6 +315,18 @@
     {
       "id": "SNK-34",
       "text": "WHILE closable is true, and WHILE the expand button is drawn (SNK-23), THE snackbar SHALL draw that button, in the place SNK-15, SNK-16 and SNK-29 give it, as an icon-only Button of the small size showing a glyph of the system's icon set (close; expand_more or expand_less, SNK-23) and named by closeLabel or expandLabel, in the variant comp.snackbar.close-button.variant names and in the tone of the snackbar's form (BTN-45): the form's message color — comp.snackbar.supporting-text.color in the default form, and the token of that name under the form's prefix in every other (SNK-21, SNK-30) — with the form's focus-ring color (SNK-3) for its focus indicator, both given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens for its size, glyph size, corners and state opacities, answers hover, focus and press as any Button does, and keeps its own minimum target (BTN-5). WHEN the snackbar's form changes while it is shown THE snackbar SHALL give the buttons the new form's tone with the new form's colors (SNK-30). THE snackbar SHALL draw no close or expand mark of its own (no path, shape or character of its own), and the expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides (SNK-24)."
+    },
+    {
+      "id": "SNK-35",
+      "text": "WHILE placement is top-end THE host SHALL place the snackbar at the top of its area, at its end side (the right in a left-to-right layout and the left in a right-to-left one, taken from where the host is used as SNK-27 says), comp.snackbar.container.margin below the top edge and comp.snackbar.container.margin from the end edge, inside the safe area and below what the frame keeps over the top of the area (a sticky header's present height, APS-17), so that it never covers a top app bar; WHILE the area is narrower than comp.snackbar.breakpoint.medium (a compact window) it SHALL draw the snackbar across the top of the area instead, as wide as the area less comp.snackbar.container.margin on each side, within comp.snackbar.container.max-width. WHEN the product asks for a snackbar without a placement THE host SHALL give it the placement the host itself is given, and bottom where it is given none. The placement SHALL NOT change the snackbar's layer (SNK-13), its other size bounds (SNK-14), its place in the focus order (SNK-11) or its announcement (SNK-10), and the host SHALL still show one snackbar at a time, in order (SNK-12): at the top as at the bottom, a snackbar asked for while another shows waits for it to close, and no two are stacked."
+    },
+    {
+      "id": "SNK-36",
+      "text": "WHILE placement is top-end, WHEN a snackbar is shown THE snackbar SHALL descend into place from above the top edge of its host by its own height plus its margin while fading in, over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing, as SNK-17 rises at the bottom; WHEN it closes it SHALL fade out in place as SNK-17 says, and WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once where the platform removes every animation."
+    },
+    {
+      "id": "SNK-37",
+      "text": "WHILE placement is top-end, WHEN the bar expands or collapses (SNK-24) THE snackbar SHALL grow downward and shrink back with its top edge in place, so that, its content being aligned to the top (SNK-29), nothing of its first row moves on the screen during the motion or after it; WHILE it is expanded it SHALL be at most as tall as SNK-25 allows, the area's height being measured from below what the frame keeps over its top (SNK-35)."
     }
   ],
   "accessibility": {
@@ -547,6 +569,37 @@
         "expandLabel": "Show full message",
         "expanded": true
       }
+    },
+    {
+      "id": "top-end",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
+    },
+    {
+      "id": "top-end-rtl",
+      "direction": "rtl",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
+    },
+    {
+      "id": "top-end-compact",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
     }
   ],
   "platforms": {
@@ -564,14 +617,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "action",
         "dismiss": "dismiss",
         "toggle": "expandedchange"
       },
-      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar (as the app bar's). `closeLabel`, `statusLabel` and `expandLabel` are the `close-label`, `status-label` and `expand-label` attributes. `inverse` is a property that is `true`, `false` or `null` (the default); the `inverse` attribute sets it: absent is null, present (empty or `true`) is true, and `inverse=\"false\"` is false, the one way to refuse a system whose choice is on. While it is null the snackbar reads `--tanrei-comp-snackbar-container-inverse` from the cascade, which carries the choice's name (SNK-30). The opacities of SNK-21, SNK-31, SNK-32 and SNK-33 are applied to the color of the part they name (a mix of that color with transparent), never as an element's `opacity`, so nothing else fades with it; a status form's edge is a shadow layer of its own before the elevation's, and the tonal layer lies inside the action, under its label. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (SNK-3). The expand and close buttons are `<tanrei-button size=\"small\">` elements in the snackbar's shadow root, given the variant `--tanrei-comp-snackbar-close-button-variant` names and the form's tone through the Button's internal channel (SNK-34); the expand button's expanded state and the text it controls are written on the Button's own native button (`aria-expanded`, and `ariaControlsElements`, since an id cannot be named across the Button's shadow root). `dismiss` is a CustomEvent whose `detail.reason` is the reason. `toggle` is the `expandedchange` CustomEvent, whose `detail.expanded` is the new value, because a popover element already fires a native `toggle` when it is shown and hidden. The host (`<tanrei-snackbar-host>`) queues and places snackbars; `show(options)` takes `title`, `status`, `statusLabel`, `inverse` and `expandLabel` as well; see the accessibility notes. Snapshot harness: each fixture is a `<tanrei-snackbar>` rendered outside a host (SNK-19), on a 400 px wide stage; `expanded-scrolls` on a stage 400 × 240."
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar (as the app bar's). `closeLabel`, `statusLabel` and `expandLabel` are the `close-label`, `status-label` and `expand-label` attributes. `inverse` is a property that is `true`, `false` or `null` (the default); the `inverse` attribute sets it: absent is null, present (empty or `true`) is true, and `inverse=\"false\"` is false, the one way to refuse a system whose choice is on. While it is null the snackbar reads `--tanrei-comp-snackbar-container-inverse` from the cascade, which carries the choice's name (SNK-30). The opacities of SNK-21, SNK-31, SNK-32 and SNK-33 are applied to the color of the part they name (a mix of that color with transparent), never as an element's `opacity`, so nothing else fades with it; a status form's edge is a shadow layer of its own before the elevation's, and the tonal layer lies inside the action, under its label. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (SNK-3). The expand and close buttons are `<tanrei-button size=\"small\">` elements in the snackbar's shadow root, given the variant `--tanrei-comp-snackbar-close-button-variant` names and the form's tone through the Button's internal channel (SNK-34); the expand button's expanded state and the text it controls are written on the Button's own native button (`aria-expanded`, and `ariaControlsElements`, since an id cannot be named across the Button's shadow root). `dismiss` is a CustomEvent whose `detail.reason` is the reason. `toggle` is the `expandedchange` CustomEvent, whose `detail.expanded` is the new value, because a popover element already fires a native `toggle` when it is shown and hidden. The host (`<tanrei-snackbar-host>`) queues and places snackbars; `show(options)` takes `title`, `status`, `statusLabel`, `inverse` and `expandLabel` as well; see the accessibility notes. `placement` is the `placement` attribute of `<tanrei-snackbar>` and of `<tanrei-snackbar-host>`: the host's is the placement of each snackbar whose `show()` options name none (SNK-35). What the frame keeps over the top of the area is `--tanrei-app-shell-scroll-offset` on the document's root, which `<tanrei-app-shell>` sets to its sticky header's height (APS-17) and a product's own frame may set; the safe area is `env(safe-area-inset-*)`. A compact window is one narrower than `--tanrei-comp-snackbar-breakpoint-medium`, read by the stylesheet itself, with no listener. Snapshot harness: each fixture is a `<tanrei-snackbar>` rendered outside a host (SNK-19), on a 400 px wide stage; `expanded-scrolls` on a stage 400 × 240, and `top-end` and `top-end-rtl` on a stage 720 wide, wider than a compact window."
     },
     "swiftui": {
       "status": "lagging",
@@ -587,14 +641,15 @@
         "closeLabel": "closeLabel",
         "expanded": "isExpanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarResult.action",
         "dismiss": "TanreiSnackbarResult.dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default. Not yet: the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "compose": {
       "status": "lagging",
@@ -610,14 +665,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarResult.ActionPerformed",
         "dismiss": "TanreiSnackbarResult.Dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default. Not yet: the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "flutter": {
       "status": "lagging",
@@ -633,14 +689,15 @@
         "closeLabel": "closeIconLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarClosedReason.action",
         "dismiss": "TanreiSnackbarClosedReason",
         "toggle": "onExpandedChanged"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default. Not yet: the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "react-native": {
       "status": "lagging",
@@ -656,14 +713,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "onAction",
         "dismiss": "onDismiss",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice. Not yet: the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     }
   }
 }

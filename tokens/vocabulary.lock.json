@@ -5479,6 +5479,7 @@
     "tanrei.comp.snackbar.action.warning.container.color": "color",
     "tanrei.comp.snackbar.action.warning.content.color": "color",
     "tanrei.comp.snackbar.action.warning.state-layer.color": "color",
+    "tanrei.comp.snackbar.breakpoint.medium": "dimension",
     "tanrei.comp.snackbar.close-button.variant": "number",
     "tanrei.comp.snackbar.container.color": "color",
     "tanrei.comp.snackbar.container.elevation": "shadow",

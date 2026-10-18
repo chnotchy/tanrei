@@ -9678,6 +9678,7 @@ export const cupertino = {
     },
     snackbar: {
       actionTonalLayerOpacity: 0,
+      breakpointMedium: 600,
       closeButtonVariant: 4,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level3",

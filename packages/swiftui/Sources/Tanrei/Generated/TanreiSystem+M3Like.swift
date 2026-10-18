@@ -7962,6 +7962,7 @@ private let m3LikeSliderTokens = TanreiSliderTokens(
 
 private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
+  breakpointMedium: 600,
   closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: m3LikeElevation.level3,

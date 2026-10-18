@@ -6694,6 +6694,7 @@
     --tanrei-comp-snackbar-action-warning-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-snackbar-action-warning-content-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-snackbar-action-warning-state-layer-color: var(--tanrei-comp-snackbar-action-warning-content-color);
+    --tanrei-comp-snackbar-breakpoint-medium: var(--tanrei-sys-breakpoint-medium);
     --tanrei-comp-snackbar-close-button-variant: text;
     --tanrei-comp-snackbar-container-color: var(--tanrei-sys-color-surface-bright);
     --tanrei-comp-snackbar-container-elevation: var(--tanrei-sys-elevation-level3);

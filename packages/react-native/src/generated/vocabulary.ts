@@ -4533,6 +4533,7 @@ export type TanreiSnackbarControls = { readonly [Key in TanreiCoreSnackbarContro
  */
 export interface TanreiSnackbarTokens {
   readonly actionTonalLayerOpacity: number;
+  readonly breakpointMedium: number;
   readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
