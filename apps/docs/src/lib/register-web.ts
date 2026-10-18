@@ -5,8 +5,8 @@
 // entries are in the package's `sideEffects` list, so a bundler keeps them (and each component module they import)
 // even where nothing is used.
 //
-// The docs' link forms hold a plain anchor until their element is defined (link-fallback.ts): it goes first.
-import './link-fallback';
+// The docs' link forms hold a plain anchor until their element is defined: lib/link-fallback.ts takes it away, from
+// the head of every page (components/frame/Head.astro), not from here — a module this one's whole graph holds back.
 import * as tanrei from '@tanrei/web';
 import '@tanrei/web/m3-like';
 

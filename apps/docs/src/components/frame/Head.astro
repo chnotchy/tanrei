@@ -10,6 +10,10 @@
 // The icon family's file is not preloaded. It is small (the families are cut down to the site's glyphs) and is asked
 // for as soon as a glyph is laid out; preloaded, it took the slow line from the stylesheets and the text faces, and the
 // largest paint of a throttled mobile page came 0.7 s later, with the page's load no sooner.
+//
+// And it holds the page's first module script (lib/link-fallback.ts): module scripts run in the order they stand, each
+// once its whole graph has arrived, and this one must be waiting for the link forms' elements before any other defines
+// one.
 import Default from '@astrojs/starlight/components/Head.astro';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
@@ -28,3 +32,7 @@ const files = firstFamilies(stacks).map((family) => {
 
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
 <Default />
+
+<script>
+  import '../../lib/link-fallback';
+</script>
