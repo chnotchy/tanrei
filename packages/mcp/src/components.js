@@ -6,7 +6,7 @@
 // manifest does (`importOf` in @tanrei/tokens-build).
 import fs from 'node:fs';
 import path from 'node:path';
-import { heldComponents, listSystems as layerIds } from '@tanrei/tokens-build/bundle';
+import { heldComponents, listSystems as layerIds, shippedSystems } from '@tanrei/tokens-build/bundle';
 import { REACT_ALL, componentsManifest, manifestFile, readComponentCatalog } from '@tanrei/tokens-build/components-manifest';
 import { loadSystem } from '@tanrei/tokens-build/scheme';
 import { resolveFrom } from '../../tools/src/from.js';
@@ -96,7 +96,7 @@ export function manifestOf({ system, layerFile } = {}) {
   const { reference, chain } = readValidLayers({ system, layerFile });
   if (reference.kind === 'shipped') return { product: false, manifest: shippedManifest(reference.id) };
   held ??= heldComponents(layerIds(REPO_ROOT), (id) => loadSystem(REPO_ROOT, id));
-  return { product: true, manifest: componentsManifest(chain, readSources().catalog, held) };
+  return { product: true, manifest: componentsManifest(chain, readSources().catalog, held, shippedSystems(REPO_ROOT)) };
 }
 
 let entries;
