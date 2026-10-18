@@ -60,7 +60,7 @@ Four tiers with one reference order, `dial < ref < sys < comp`. A token may refe
 | `sys` | `tokens/sys/` | Decisions: color roles, typescale, shape, space, elevation, motion, state, measures, icon style, behaviour |
 | `comp` | `tokens/comp/` | Per-component bindings, including one token per state; aliases and rules only, no literals except container heights |
 
-Every value is one of three kinds: **derived** by a rule in `$extensions["dev.tanrei.derive"]` (usually `mul` — a coefficient on a dial; `pick` gives one value per name of a choice of kind, so that the values that go with a choice follow it), **fixed** with a stated reason, or an **alias**. The rule language is closed (`packages/token-engine/src/rules.js`). Sources stay plain DTCG: the literal `$value` sits next to the rule, and validation requires `rule(default dials) === $value`.
+Every value is one of three kinds: **derived** by a rule in `$extensions["dev.tanrei.derive"]` (usually `mul` — a coefficient on a dial; `pick` gives one value per name of a choice of kind, so that the values that go with a choice follow it; `sub` gives a corner inside another, the outer corner less the inset, never below zero), **fixed** with a stated reason, or an **alias**. The rule language is closed (`packages/token-engine/src/rules.js`). Sources stay plain DTCG: the literal `$value` sits next to the rule, and validation requires `rule(default dials) === $value`.
 
 The **core vocabulary** is what these files declare. It is decided by the one-product test (a core token exists because one product may need that distinction), every group carries a rationale and usage guidance for agents (`dev.tanrei.vocabulary`, `dev.tanrei.llm`), and `tokens/vocabulary.lock.json` lists it so that growth is a visible diff.
 
