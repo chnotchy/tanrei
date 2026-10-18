@@ -60,6 +60,11 @@ const en = {
   availability: 'Availability',
   notShippedIn: 'Not shipped in',
   variantsNotShippedIn: 'Variants not shipped in',
+  // The choice of design system the lists of components show (components/SystemSelect.astro) and the index's line of
+  // what the chosen one does not have; the note an availability block leads with on the page of a component that some
+  // systems do not have (components/ComponentAvailability.astro) — `{systems}`, `{entries}`, `{layer}`, `{components}`
+  // and `{guide}` are where the page writes the names, the entries, the links and the link to the guide.
+  system: { choice: 'Design system', notIn: 'Not in {system}:', insteadUse: '{component} (use {components} instead)', noteTitle: 'Not in every design system', has: 'Shipped by {systems}, registered by {entries}.', lacks: 'Not in {systems}.', livesIn: 'It lives in the {layer} layer, which they do not extend.', leftOutBy: 'The {layer} layer leaves it out.', use: 'Use {components} instead.', take: 'A product on a system without it can still take it: include it in your own layer ({guide}) and import its own module. It is then drawn with your system’s own tokens.', guide: 'Your own design system', layerFile: 'In your layer file', yourCode: 'In your code' },
   name: 'Name',
   status_: 'Status',
   notes: 'Notes',
@@ -284,6 +289,7 @@ const ja: typeof en = {
   availability: '提供状況',
   notShippedIn: '提供しないシステム',
   variantsNotShippedIn: '提供しないバリアント',
+  system: { choice: 'デザインシステム', notIn: '{system} にないもの:', insteadUse: '{component}（代わりに {components}）', noteTitle: 'すべてのデザインシステムにあるわけではありません', has: '{systems} にあり、{entries} が登録します。', lacks: '{systems} にはありません。', livesIn: 'このコンポーネントは {layer} レイヤーにあり、これらのシステムはそのレイヤーを継いでいません。', leftOutBy: '{layer} レイヤーが外しています。', use: '代わりに {components} を使います。', take: 'これを持たないシステムの上のプロダクトでも、自分のレイヤーに取り込み（{guide}）、コンポーネント自身のモジュールを読み込めば使えます。そのときは自分のシステムのトークンで描かれます。', guide: '自分のデザインシステムを作る', layerFile: 'レイヤーのファイルに', yourCode: 'コードに' },
   name: '名前',
   status_: 'ステータス',
   notes: '備考',
@@ -486,6 +492,7 @@ const zh: typeof en = {
   availability: '可用情况',
   notShippedIn: '不提供的系统',
   variantsNotShippedIn: '不提供的变体',
+  system: { choice: '设计系统', notIn: '{system} 中没有：', insteadUse: '{component}（请改用 {components}）', noteTitle: '并非每个设计系统都有', has: '{systems} 提供此组件，由 {entries} 注册。', lacks: '{systems} 中没有此组件。', livesIn: '它位于 {layer} 层，而这些系统并不继承该层。', leftOutBy: '{layer} 层将它排除在外。', use: '请改用 {components}。', take: '基于没有此组件的系统构建的产品仍可使用它：在你自己的层中引入它（{guide}），并导入它自己的模块。这样它会用你的系统自己的令牌绘制。', guide: '你自己的设计系统', layerFile: '在你的层文件中', yourCode: '在你的代码中' },
   name: '名称',
   status_: '状态',
   notes: '备注',
@@ -687,6 +694,7 @@ const es: typeof en = {
   availability: 'Disponibilidad',
   notShippedIn: 'No se incluye en',
   variantsNotShippedIn: 'Variantes que no se incluyen en',
+  system: { choice: 'Sistema de diseño', notIn: 'No está en {system}:', insteadUse: '{component} (usa {components} en su lugar)', noteTitle: 'No está en todos los sistemas de diseño', has: 'Lo incluyen {systems}, registrado por {entries}.', lacks: 'No está en {systems}.', livesIn: 'Vive en la capa {layer}, que esos sistemas no extienden.', leftOutBy: 'La capa {layer} lo deja fuera.', use: 'Usa {components} en su lugar.', take: 'Un producto sobre un sistema que no lo tiene puede usarlo igualmente: inclúyelo en tu propia capa ({guide}) e importa su propio módulo. Entonces se dibuja con los tokens de tu propio sistema.', guide: 'Tu propio sistema de diseño', layerFile: 'En el archivo de tu capa', yourCode: 'En tu código' },
   name: 'Nombre',
   status_: 'Estado',
   notes: 'Notas',
@@ -888,6 +896,7 @@ const hi: typeof en = {
   availability: 'उपलब्धता',
   notShippedIn: 'इनमें शामिल नहीं',
   variantsNotShippedIn: 'वे वेरिएंट जो इनमें शामिल नहीं',
+  system: { choice: 'डिज़ाइन सिस्टम', notIn: '{system} में नहीं:', insteadUse: '{component} (इसके बजाय {components} इस्तेमाल करें)', noteTitle: 'हर डिज़ाइन सिस्टम में नहीं', has: '{systems} में शामिल, {entries} से रजिस्टर होता है।', lacks: '{systems} में नहीं है।', livesIn: 'यह {layer} लेयर में है, जिसे ये सिस्टम आगे नहीं बढ़ाते।', leftOutBy: '{layer} लेयर इसे छोड़ देती है।', use: 'इसके बजाय {components} इस्तेमाल करें।', take: 'जिस सिस्टम में यह नहीं है, उस पर बना प्रोडक्ट भी इसे ले सकता है: इसे अपनी लेयर में शामिल करें ({guide}) और इसका अपना मॉड्यूल इम्पोर्ट करें। तब यह आपके सिस्टम के अपने टोकन से बनता है।', guide: 'आपका अपना डिज़ाइन सिस्टम', layerFile: 'अपनी लेयर फ़ाइल में', yourCode: 'अपने कोड में' },
   name: 'नाम',
   status_: 'स्थिति',
   notes: 'टिप्पणियाँ',
@@ -1089,6 +1098,7 @@ const ar: typeof en = {
   availability: 'التوفر',
   notShippedIn: 'غير متوفر في',
   variantsNotShippedIn: 'أشكال غير متوفرة في',
+  system: { choice: 'نظام التصميم', notIn: 'غير موجود في {system}:', insteadUse: '{component} (استخدم {components} بدلًا منه)', noteTitle: 'ليس في كل أنظمة التصميم', has: 'متوفر في {systems}، وتسجّله {entries}.', lacks: 'غير موجود في {systems}.', livesIn: 'يقع في الطبقة {layer}، وهذه الأنظمة لا توسّعها.', leftOutBy: 'تستبعده الطبقة {layer}.', use: 'استخدم {components} بدلًا منه.', take: 'يمكن لمنتج مبني على نظام لا يتضمّنه أن يستخدمه مع ذلك: أدرجه في طبقتك الخاصة ({guide}) واستورد وحدته الخاصة. عندها يُرسم برموز نظامك الخاص.', guide: 'نظام التصميم الخاص بك', layerFile: 'في ملف طبقتك', yourCode: 'في شيفرتك' },
   name: 'الاسم',
   status_: 'الحالة',
   notes: 'ملاحظات',

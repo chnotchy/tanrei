@@ -4,15 +4,20 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { tanreiStudio } from '@tanrei/studio/vite';
-import { tabsBootstrap } from './src/components/tabs/keys.mjs';
+import { tabsBootstrap, tabsKey } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
-import { listingBootstrap, sidebarSlugs } from './src/lib/listing.mjs';
+import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 // The generated status file: a row for each component, with the address of its page (written from specs/).
 const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json', import.meta.url), 'utf8'));
+// The shipped systems, each of which has its components manifest (tokens/generated/<id>/components.json), and the
+// default one, named by the configuration: the systems the lists of components can show, and the one they show first.
+const generated = new URL('../../tokens/generated/', import.meta.url);
+const systems = fs.readdirSync(generated).filter((id) => fs.existsSync(new URL(`${id}/components.json`, generated))).sort();
+const defaultSystem = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8')).namespace;
 
 // Applies the reader's stored contrast choice before first paint. The attribute
 // lives on <html> because component tokens are resolved at :root.
@@ -66,12 +71,14 @@ export default defineConfig({
         FallbackContentNotice: './src/components/frame/Nothing.astro',
         DraftContentNotice: './src/components/frame/Nothing.astro',
       },
-      // All before first paint: the reader's contrast, the tab they chose before in each shared set of tabs, and
-      // whether the lists of components show everything or what is listed by default (src/lib/listing.mjs).
+      // All before first paint: the reader's contrast, the tab they chose before in each shared set of tabs, whether
+      // the lists of components show everything or what is listed by default, and the design system they show
+      // (src/lib/listing.mjs).
       head: [
         { tag: 'script', content: contrastBootstrap },
         { tag: 'script', content: tabsBootstrap },
         { tag: 'script', content: listingBootstrap },
+        { tag: 'script', content: systemBootstrap(tabsKey(SYSTEM_SYNC_KEY), systems, defaultSystem) },
         // The ICO for a browser that does not read the SVG favicon; `sizes` keeps one that does from choosing the ICO.
         { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
