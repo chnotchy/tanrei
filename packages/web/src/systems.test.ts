@@ -283,10 +283,15 @@ const SUBJECTS = [
 ];
 const button = SUBJECTS[0].spec;
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+// The presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root (the one
+// layer without `extends`, which has no stylesheet of its own) — the rule the CLI and the MCP server offer systems by.
+const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
 const presets = fs
   .readdirSync(path.join(repo, 'tokens/systems'))
-  .map((f) => f.replace('.system.json', ''))
-  .filter((id) => id !== 'tanrei');
+  .filter((f) => f.endsWith('.system.json'))
+  .map((f) => ({ id: f.replace('.system.json', ''), layer: JSON.parse(fs.readFileSync(path.join(repo, 'tokens/systems', f), 'utf8')) }))
+  .filter(({ id, layer }) => id !== namespace && layer.extends)
+  .map(({ id }) => id);
 /**
  * Tanrei's accessibility criteria in axe: the contrast thresholds (AA, and AAA's enhanced one), a link's contrast with
  * the text around it (`link-in-text-block`) and the target size. An

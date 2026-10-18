@@ -103,8 +103,13 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   const DIAL = `${NS}.dial.`;
   const engine = createPaletteEngine(mcu);
   const rootId = Object.values(layers).find((layer) => !layer.extends).id;
+  // The system a new layer extends unless it says otherwise: the default one, named like the namespace.
+  const defaultId = Object.hasOwn(layers, NS) ? NS : rootId;
+  // The systems a layer is offered to extend: the default first, then the presets. The root is every chain's first
+  // layer and has no output of its own, so it is not offered.
   const shippedSystems = Object.values(layers)
-    .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+    .filter((layer) => layer.id !== rootId)
+    .sort((a, b) => Number(a.id !== NS) - Number(b.id !== NS) || a.id.localeCompare(b.id))
     .map((layer) => ({ id: layer.id, name: layer.name ?? layer.id, description: layer.description ?? '' }));
   /** Every system a layer may extend: the shipped ones, then the host's local parents. Mutated in place by `setParents`. */
   const systems = [...shippedSystems];
@@ -175,7 +180,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     }
     return usable.get(id);
   };
-  const baseOf = (layer) => base(find(layer.extends) && computable(layer.extends) ? layer.extends : rootId);
+  const baseOf = (layer) => base(find(layer.extends) && computable(layer.extends) ? layer.extends : defaultId);
 
   /**
    * The local layers a layer may extend, as the host found them: `[{ id, layer }]`. Replaces the previous list.
@@ -298,7 +303,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
 
   // ── edits: layer → layer ─────────────────────────────────────────────────────────────────────
-  function blank(extendsId = rootId) {
+  function blank(extendsId = defaultId) {
     return { id: 'acme', extends: extendsId };
   }
 
@@ -894,7 +899,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   }
 
   return {
-    namespace: NS, rootId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
+    namespace: NS, rootId, defaultId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
     cssVar, roleVar, blank, fromLayer, preview, paletteProperties, base, baseOf,

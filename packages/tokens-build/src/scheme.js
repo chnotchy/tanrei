@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SCHEMES, createPaletteEngine, mergeLayers, resolveNumericTokens } from '@tanrei/token-engine';
 import { CONFIG } from './config.js';
+import { DEFAULT_SYSTEM, layerChain } from './layers.js';
 import { Hct, TonalPalette } from './mcu.js';
 import { assertSystemId } from './pure.js';
 
@@ -20,6 +21,9 @@ export function loadSystem(repoRoot, id = NAMESPACE) {
   assertSystemId(id, 'a shipped system');
   return JSON.parse(fs.readFileSync(path.join(repoRoot, systemPath(id)), 'utf8'));
 }
+
+/** The default system's layers, root first, merged: what tokens/generated/ is generated from. */
+export const loadDefaultSystem = (repoRoot) => mergeLayers(layerChain(DEFAULT_SYSTEM, (id) => loadSystem(repoRoot, id)), { namespace: NAMESPACE });
 
 /** Generated color documents for one system. Returns `{ fileName: dtcgDocument }`. */
 export function colorVocabulary(repoRoot) {

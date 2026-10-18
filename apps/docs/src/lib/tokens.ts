@@ -97,11 +97,15 @@ export interface ShippedSystem {
   /** Resolved tokens, light scheme. */
   tree: Json;
 }
-/** The default system first, then the presets by id. */
+/**
+ * The default system first, then the presets by id. The root layer (the one without `extends`) is the first layer of
+ * every chain and has no output of its own, so it is not one of them.
+ */
 export const shippedSystems: ShippedSystem[] = Object.values(layerFiles)
-  .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+  .filter((layer) => layer.extends)
+  .sort((a, b) => Number(a.id !== ns) - Number(b.id !== ns) || a.id.localeCompare(b.id))
   .map((layer) => {
-    const tree = layer.extends ? Object.entries(systemFiles).find(([file]) => file.split('/').at(-2) === layer.id)?.[1] : contexts.light;
+    const tree = layer.id !== ns ? Object.entries(systemFiles).find(([file]) => file.split('/').at(-2) === layer.id)?.[1] : contexts.light;
     if (!tree) throw new Error(`design/tokens/ has no resolved tokens for the system "${layer.id}". Run pnpm generate.`);
     return { id: layer.id, name: layer.name, extends: layer.extends, tree };
   });

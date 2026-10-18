@@ -105,11 +105,14 @@ const stateIdsOf = (documents) => new Set(expandStateVocabulary(Object.entries(d
  * word. So such a line is a problem, and the message says where the default system's value is set. A declaration
  * under "vocabulary" that is not a color role parts them the same way, and is a problem the same way.
  * @param {Record<string, object>} sources relative file name → DTCG document (the vocabulary with its defaults)
- * @param {object} layer the root layer, as authored
- * @param {{ namespace?: string, sourceDir?: string }} [options] `sourceDir` is what the file names are relative to, for the message
+ * The same holds for every layer the default system is made of — the root and the default system's own layer — so a
+ * caller passes each of them, and `role` names the layer in the message.
+ * @param {object} layer the root layer (or the default system's own layer), as authored
+ * @param {{ namespace?: string, sourceDir?: string, role?: string }} [options] `sourceDir` is what the file names are relative to, for the message; `role` is what the message calls the layer
  * @returns {string[]} one problem per line that cannot be taken: the lines under "tokens" in the layer's order, then its declarations
  */
-export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPACE, sourceDir = 'tokens/' } = {}) {
+export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPACE, sourceDir = 'tokens/', role = 'the root layer' } = {}) {
+  const Role = role[0].toUpperCase() + role.slice(1);
   const index = new Map();
   for (const [file, doc] of Object.entries(sources)) for (const entry of walkTokens(doc)) index.set(entry.id, { ...entry, file });
   const stateIds = stateIdsOf(sources);
@@ -120,7 +123,7 @@ export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPAC
     if (!entry || generatedFrom(id, op, entry.type, { namespace, stateIds })) continue;
     const names = entry.token.$extensions?.[ENUM]?.values;
     const written = names && Number.isInteger(entry.token.$value) ? `"${names[entry.token.$value]}"` : JSON.stringify(entry.token.$value);
-    problems.push(`${id}: the root layer "${layer.id}" cannot set this token. The default system's value of it is the one written in ${sourceDir}${entry.file} (${written}): change it there. The root layer sets what is generated from it — color roles, per-state component tokens, and component colors valued by a color rule; a line for any other token would reach every system that extends "${layer.id}" and never the default system itself.`);
+    problems.push(`${id}: ${role} "${layer.id}" cannot set this token. The default system's value of it is the one written in ${sourceDir}${entry.file} (${written}): change it there. ${Role} sets what is generated from it — color roles, per-state component tokens, and component colors valued by a color rule; a line for any other token would reach every system that extends "${layer.id}" and never the default system itself.`);
   }
   // The other door: a declaration under
   // "vocabulary" is materialised into the documents of a system built from a layer chain, and the default system is
@@ -133,7 +136,7 @@ export function rootLayerProblems(sources, layer, { namespace = DEFAULT_NAMESPAC
     const parent = segments.slice(0, cloned && segments[1] !== 'sys' ? -2 : -1);
     const home = Object.keys(sources).find((file) => groupOf(sources[file], parent));
     const where = home ? `${sourceDir}${home}` : `a document under ${sourceDir}`;
-    problems.push(`${id}: the root layer "${layer.id}" cannot declare this token under "vocabulary". The default system's vocabulary is the documents under ${sourceDir} as they are written: a new core token is written in ${where}, with its one-product rationale. An extension belongs to a layer that extends "${layer.id}"; declared here it would reach every such system and never the default system itself. Only a color role is the root layer's to declare — it is valued into the generated documents.`);
+    problems.push(`${id}: ${role} "${layer.id}" cannot declare this token under "vocabulary". The default system's vocabulary is the documents under ${sourceDir} as they are written: a new core token is written in ${where}, with its one-product rationale. An extension belongs to a layer that extends "${layer.id}"; declared here it would reach every such system and never the default system itself. Only a color role is ${role}'s to declare — it is valued into the generated documents.`);
   }
   return problems;
 }
