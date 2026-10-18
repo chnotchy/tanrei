@@ -942,7 +942,7 @@ export function liveFixture(spec: Spec, fixture: Fixture, options: LiveOptions =
   const fills =
     spec.name === 'divider'
       ? fixture.props.orientation === 'vertical' ? 'block-size: 3rem' : 'inline-size: 10rem'
-      : spec.name === 'progress-indicator' && fixture.props.variant !== 'circular'
+      : (spec.name === 'progress-indicator' || spec.name === 'meter') && fixture.props.variant !== 'circular'
         ? 'inline-size: 10rem'
         : spec.name === 'slider'
           ? fixture.props.orientation === 'vertical' ? 'block-size: 15rem' : 'inline-size: 20rem'
