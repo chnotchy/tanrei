@@ -273,7 +273,7 @@ export const styles = css`
     .container.disabled :is(.capsule, .arc) {
       --_l: GrayText;
     }
-    .container:focus-visible {
+    .container:not(.disabled):focus-visible {
       outline-color: Highlight;
     }
   }
