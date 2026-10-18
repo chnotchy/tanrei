@@ -4316,7 +4316,7 @@ private let cupertinoFileUploadTokens = TanreiFileUploadTokens(
 private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),

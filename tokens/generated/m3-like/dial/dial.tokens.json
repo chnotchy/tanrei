@@ -6239,6 +6239,10 @@
             "tanrei.comp.side-sheet.headline.color": {
               "$value": "{tanrei.sys.color.on-surface-variant}"
             },
+            "tanrei.comp.image-preview.bar.button.variant": {
+              "$value": 4,
+              "reason": "Material 3 draws the actions of a bar over content as standard icon buttons, which are Tanrei's text Button with an icon only. Keeps the preset's look; the change to tonal controls is the default system's."
+            },
             "tanrei.comp.side-sheet.actions.arrangement": {
               "$value": 1,
               "reason": "Material 3's side sheet starts its actions at the start edge, at their own widths."
