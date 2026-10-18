@@ -42,6 +42,7 @@ npm install @tanrei/react @tanrei/web
 
 ```tsx
 import '@tanrei/web/tokens.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -59,6 +60,8 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 ```
 
 Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
+
+`@tanrei/web/words/en` gives a word in plain English for every label and message the components draw or say, such as a required tag's or a close button's; leave it out and give your own with `setWords()` from `@tanrei/react`. See [Words](/foundations/words/).
 
 ## One entry per design system
 

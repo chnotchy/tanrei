@@ -174,7 +174,7 @@ const enumDefaultProblems = (file, props, owner) =>
   props.filter((p) => p.type === 'enum' && !p.values.includes(p.default)).map((p) => `${file}: ${owner} "${p.name}" default "${p.default}" is not one of its values`);
 
 /**
- * Tanrei ships no words: a string prop has no default but the empty one, so no component can say a word the
+ * No component has words of its own: a string prop has no default but the empty one, so no component can say a word the
  * product did not give; and a prop that reads the product's words (`words`) is a string.
  */
 export const wordsProblems = (file, props, owner) => [

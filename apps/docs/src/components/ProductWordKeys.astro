@@ -3,8 +3,10 @@
 // `words` field of the specs' props, and the same one the web's `TanreiWords` type is generated from. Nothing here is
 // a hand-kept copy: a key a spec gains appears in this table when the site is built. A key whose word has places a
 // component fills shows them in the third column, each as the product writes it — `{count}`; a key without
-// places is a whole string, and its cell is empty.
+// places is a whole string, and its cell is empty. The last column is the key's word in the English word pack
+// (`specs/words/en.json`, which `pnpm validate` holds to a word for every key), as the product would read it.
 import wordsData from '../../../../docs/status/words.json';
+import englishPack from '../../../../specs/words/en.json';
 import Table from './Table.astro';
 import { contentLang, localeBase, strings } from '../lib/i18n';
 import { componentHref } from '../lib/repo';
@@ -21,6 +23,7 @@ interface Place {
   required?: boolean;
 }
 const keys = wordsData.keys as { key: string; readers: Reader[]; places?: Place[] }[];
+const english = englishPack.words as Record<string, string>;
 const t = strings(contentLang(Astro)).wordKeys;
 const base = localeBase(Astro);
 ---
@@ -32,6 +35,7 @@ const base = localeBase(Astro);
         <th scope="col">{t.key}</th>
         <th scope="col">{t.readBy}</th>
         <th scope="col">{t.places}</th>
+        <th scope="col">{t.english}</th>
       </tr>
     </thead>
     <tbody>
@@ -63,6 +67,7 @@ const base = localeBase(Astro);
                 </>
               ))}
             </td>
+            <td lang="en">{english[key]}</td>
           </tr>
         ))
       }

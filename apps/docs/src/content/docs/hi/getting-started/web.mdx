@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
+sourceHash: 1c66a25e878944e390c4c6c4d1a0adaa67f19592
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -77,15 +77,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
    ```
 
-4. अपने प्रॉडक्ट के शब्द दें। Tanrei अपना कोई शब्द साथ नहीं देता: ज़रूरी या वैकल्पिक के टैग का टेक्स्ट, बंद करने वाले बटन का नाम और ऐसे दूसरे शब्द आपके हैं। उन्हें हर भाषा के लिए एक बार दें, या हर एलिमेंट पर लिखें।
+4. अपने प्रॉडक्ट के शब्द दें। किसी कंपोनेंट के अपने कोई शब्द नहीं होते: ज़रूरी या वैकल्पिक के टैग का टेक्स्ट, बंद करने वाले बटन का नाम और ऐसे दूसरे शब्द आपके प्रॉडक्ट के हैं। शुरुआत में इन सबके लिए सादी अंग्रेज़ी चाहिए, तो अंग्रेज़ी शब्दों का पैक एक बार import करें:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   इनमें से कोई भी बदलने के लिए, या किसी दूसरी भाषा के शब्द देने के लिए, उसके बाद `setWords()` कॉल करें। आपका दिया शब्द पैक से ऊपर है, और एलिमेंट पर दिया शब्द इन दोनों से ऊपर।
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'ज़रूरी', optionalText: 'वैकल्पिक', closeLabel: 'बंद करें' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'ज़रूरी', optionalText: 'वैकल्पिक', closeLabel: 'बंद करें' }, { lang: 'hi' });
    ```
 
-   शब्द के बिना भी कंपोनेंट काम करता है, और कंसोल में बताता है कि कौन-सा शब्द नहीं मिला। देखें [शब्द](/hi/foundations/words/)।
+   पैक और आपके शब्दों के बिना भी कंपोनेंट काम करता है, और कंसोल में बताता है कि कौन-सा शब्द नहीं मिला। देखें [शब्द](/hi/foundations/words/)।
 
 </Steps>
 

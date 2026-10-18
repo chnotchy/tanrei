@@ -50,7 +50,7 @@ const en = {
   code: { copy: 'Copy', copied: 'Copied', copyFailed: 'Could not copy', highlighted: 'Highlighted', added: 'Added', removed: 'Removed' },
   // The table of the product's words (components/ProductWordKeys.astro; docs/status/words.json). `places`: the
   // column of the places a component fills in a key's sentence, each drawn as the product writes it.
-  wordKeys: { table: 'The keys of the product’s words', key: 'Key', readBy: 'Read by', places: 'Places it fills' },
+  wordKeys: { table: 'The keys of the product’s words', key: 'Key', readBy: 'Read by', places: 'Places it fills', english: 'In the English pack' },
   // A tree of files in a page (components/FileTree.astro), drawn by Tanrei's Tree view: the tree's name where the page
   // gives none. The page that was not found (components/NotFound.astro), drawn by Tanrei's Empty state: its title —
   // the page's heading and the document's title —, its sentence, and its two actions: the link to the language's
@@ -281,7 +281,7 @@ const ja: typeof en = {
   total: '合計',
   generatedFrom: '生成元',
   code: { copy: 'コピー', copied: 'コピーしました', copyFailed: 'コピーできませんでした', highlighted: '強調', added: '追加', removed: '削除' },
-  wordKeys: { table: 'プロダクトの言葉のキー', key: 'キー', readBy: '読み取るプロパティ', places: '埋める場所' },
+  wordKeys: { table: 'プロダクトの言葉のキー', key: 'キー', readBy: '読み取るプロパティ', places: '埋める場所', english: '英語の言葉のパック' },
   fileTree: { label: 'ファイルとフォルダー' },
   notFound: { title: 'このページは存在しません', text: 'アドレスの入力が間違っているか、ページが移動した可能性があります。', home: 'トップページへ', search: 'ドキュメントを検索' },
   availability: '提供状況',
@@ -481,7 +481,7 @@ const zh: typeof en = {
   total: '合计',
   generatedFrom: '生成自',
   code: { copy: '复制', copied: '已复制', copyFailed: '无法复制', highlighted: '高亮', added: '已新增', removed: '已删除' },
-  wordKeys: { table: '产品文字的键', key: '键', readBy: '读取它的属性', places: '填入的位置' },
+  wordKeys: { table: '产品文字的键', key: '键', readBy: '读取它的属性', places: '填入的位置', english: '英语文字包中的文字' },
   fileTree: { label: '文件和文件夹' },
   notFound: { title: '此页面不存在', text: '地址可能输入有误，或者页面已被移走。', home: '前往首页', search: '搜索文档' },
   availability: '可用情况',
@@ -680,7 +680,7 @@ const es: typeof en = {
   total: 'Total',
   generatedFrom: 'Generado a partir de',
   code: { copy: 'Copiar', copied: 'Copiado', copyFailed: 'No se pudo copiar', highlighted: 'Resaltada', added: 'Añadida', removed: 'Eliminada' },
-  wordKeys: { table: 'Las claves de los textos del producto', key: 'Clave', readBy: 'Propiedad que la lee', places: 'Lugares que rellena' },
+  wordKeys: { table: 'Las claves de los textos del producto', key: 'Clave', readBy: 'Propiedad que la lee', places: 'Lugares que rellena', english: 'En el paquete de textos en inglés' },
   fileTree: { label: 'Archivos y carpetas' },
   notFound: { title: 'Esta página no existe', text: 'Puede que la dirección esté mal escrita o que la página se haya movido.', home: 'Ir a la página de inicio', search: 'Buscar en la documentación' },
   availability: 'Disponibilidad',
@@ -879,7 +879,7 @@ const hi: typeof en = {
   total: 'कुल',
   generatedFrom: 'इससे जनरेट किया गया:',
   code: { copy: 'कॉपी करें', copied: 'कॉपी हो गया', copyFailed: 'कॉपी नहीं हो सका', highlighted: 'हाइलाइट की गई', added: 'जोड़ी गई', removed: 'हटाई गई' },
-  wordKeys: { table: 'प्रॉडक्ट के शब्दों की कुंजियाँ', key: 'कुंजी', readBy: 'पढ़ने वाली प्रॉपर्टी', places: 'भरी जाने वाली जगहें' },
+  wordKeys: { table: 'प्रॉडक्ट के शब्दों की कुंजियाँ', key: 'कुंजी', readBy: 'पढ़ने वाली प्रॉपर्टी', places: 'भरी जाने वाली जगहें', english: 'अंग्रेज़ी शब्दों के पैक में' },
   fileTree: { label: 'फ़ाइलें और फ़ोल्डर' },
   notFound: { title: 'यह पेज मौजूद नहीं है', text: 'हो सकता है पता ग़लत टाइप हुआ हो, या पेज कहीं और चला गया हो।', home: 'शुरुआती पेज पर जाएँ', search: 'दस्तावेज़ खोजें' },
   availability: 'उपलब्धता',
@@ -1078,7 +1078,7 @@ const ar: typeof en = {
   total: 'الإجمالي',
   generatedFrom: 'مولَّد من',
   code: { copy: 'نسخ', copied: 'تم النسخ', copyFailed: 'تعذّر النسخ', highlighted: 'مُبرَز', added: 'مضاف', removed: 'محذوف' },
-  wordKeys: { table: 'مفاتيح كلمات المنتج', key: 'المفتاح', readBy: 'تقرؤه', places: 'المواضع التي تُملأ' },
+  wordKeys: { table: 'مفاتيح كلمات المنتج', key: 'المفتاح', readBy: 'تقرؤه', places: 'المواضع التي تُملأ', english: 'في حزمة الكلمات الإنجليزية' },
   fileTree: { label: 'الملفات والمجلدات' },
   notFound: { title: 'هذه الصفحة غير موجودة', text: 'ربما كُتب عنوان الصفحة خطأً، أو نُقلت الصفحة.', home: 'الانتقال إلى الصفحة الرئيسية', search: 'البحث في التوثيق' },
   availability: 'التوفر',
