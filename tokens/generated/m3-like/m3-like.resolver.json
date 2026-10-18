@@ -127,9 +127,6 @@
           "$ref": "comp/navigation-bar.tokens.json"
         },
         {
-          "$ref": "comp/navigation-rail.tokens.json"
-        },
-        {
           "$ref": "comp/navigation-drawer.tokens.json"
         },
         {

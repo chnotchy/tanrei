@@ -173,7 +173,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const pairs = h('div', { class: 'ts-pairs', 'data-pairs': true });
     const total = h('bdi', { 'data-warnings-count': true });
     const warnings = scrollingList(t.a11y.all, { 'data-warnings': true });
-    const notices = h('ul', { class: 'ts-warnings' });
     const refresh = () => {
       if (!last) return;
       pairs.replaceChildren(
@@ -193,11 +192,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       total.textContent = String(count);
       // What the build says is the build's sentence: a run of its own direction inside the list.
       warnings.replaceChildren(...(count ? last.warnings.map((warning: string) => h('li', {}, isolated(warning))) : [h('li', { text: t.a11y.none })]));
-      notices.replaceChildren(...last.notices.map((notice: string) => h('li', {}, isolated(notice))));
     };
     refresh();
     ctx.onUpdate(refresh);
-    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } }, warnings)), notices));
+    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } }, warnings))));
   }
 
   // ── export / save ─────────────────────────────────────────────────────────────────────────────

@@ -55653,14 +55653,6 @@
         },
         "item": {
           "container": {
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
-            },
             "padding-block": {
               "$type": "dimension",
               "$value": {
@@ -55684,14 +55676,6 @@
                 "unit": "px"
               },
               "$description": "The radius of the item container's four corners, at most half its height: full makes the destination's share of the bar a capsule."
-            },
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
             }
           },
           "gap": {
@@ -56956,21 +56940,6 @@
         "collapsed-selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57095,21 +57064,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57234,21 +57188,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57372,22 +57311,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    1,
-                    1,
-                    1
-                  ],
-                  "hex": "#ffffff",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -57516,21 +57439,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57657,21 +57565,6 @@
         "collapsed-unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57796,21 +57689,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -57935,21 +57813,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -58073,22 +57936,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -58217,21 +58064,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -58738,31 +58570,6 @@
           }
         },
         "item": {
-          "badge": {
-            "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 13,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3846
-              },
-              "$description": "Kept for the platforms that still draw a destination's trailing string as a badge, which draw it with this; the current spec reads item.trailing-text.typescale. Dropped once the last platform catches up."
-            }
-          },
           "container": {
             "height": {
               "compact": {
@@ -59204,21 +59011,6 @@
         "selected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59343,21 +59135,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59482,21 +59259,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59620,22 +59382,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    1,
-                    1,
-                    1
-                  ],
-                  "hex": "#ffffff",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -59761,21 +59507,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "hex": "#ffffff",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -59943,21 +59674,6 @@
         "unselected": {
           "disabled": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60082,21 +59798,6 @@
           },
           "focused": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60221,21 +59922,6 @@
           },
           "hovered": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60359,22 +60045,6 @@
             }
           },
           "item": {
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                },
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "container": {
               "color": {
                 "$type": "color",
@@ -60498,21 +60168,6 @@
           },
           "pressed": {
             "item": {
-              "badge": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
               "container": {
                 "color": {
                   "$type": "color",
@@ -60619,859 +60274,6 @@
                 }
               },
               "trailing-text": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "navigation-rail": {
-        "container": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0,
-                0,
-                0
-              ],
-              "hex": "#000000",
-              "alpha": 1
-            }
-          },
-          "elevation": {
-            "$type": "shadow",
-            "$value": []
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
-            },
-            "$description": "Between two destinations."
-          },
-          "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "Above the header (or the first destination) and below the last destination."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 80,
-              "unit": "px"
-            },
-            "$description": "The rail's width, not counting the system inset at its start."
-          }
-        },
-        "disabled": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "focused": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "header": {
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 24,
-              "unit": "px"
-            },
-            "$description": "From the header slot to the first destination."
-          }
-        },
-        "hovered": {
-          "opacity": {
-            "$type": "number",
-            "$value": 1
-          }
-        },
-        "item": {
-          "container": {
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              }
-            },
-            "shape": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
-            },
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$description": "The item container: the active indicator's box behind the icon, which also carries hover, focus and press."
-            }
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 4,
-              "unit": "px"
-            },
-            "$description": "From the item container to the label below it."
-          },
-          "icon": {
-            "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
-              },
-              "$description": "The icon of every destination."
-            }
-          },
-          "label": {
-            "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "system-ui",
-                  "Inter",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 12,
-                  "unit": "px"
-                },
-                "fontWeight": 400,
-                "letterSpacing": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "lineHeight": 1.3333
-              }
-            }
-          }
-        },
-        "motion": {
-          "feedback-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 450,
-              "unit": "ms"
-            },
-            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
-          },
-          "selection-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 350,
-              "unit": "ms"
-            },
-            "$description": "How long the active indicator takes to grow in (and the previous one to fade out), and labels to move, when the selection changes."
-          },
-          "selection-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.27,
-              1.06,
-              0.18,
-              1
-            ]
-          },
-          "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
-            }
-          },
-          "state-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.2,
-              0,
-              0,
-              1
-            ]
-          }
-        },
-        "outline": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                1,
-                1,
-                1
-              ],
-              "alpha": 0.16,
-              "hex": "#ffffff"
-            },
-            "$description": "The rail's end edge."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 1,
-              "unit": "px"
-            }
-          }
-        },
-        "pressed": {
-          "opacity": {
-            "$type": "number",
-            "$value": 0.7
-          }
-        },
-        "selected": {
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "item": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0,
-                  "hex": "#000000"
-                }
-              }
-            },
-            "icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "label": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.298,
-                      0.5569,
-                      1
-                    ],
-                    "hex": "#4c8eff",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          }
-        },
-        "unselected": {
-          "disabled": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      1,
-                      1,
-                      1
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#ffffff"
-                  }
-                }
-              }
-            }
-          },
-          "focused": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "hovered": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              }
-            }
-          },
-          "item": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0,
-                  "hex": "#000000"
-                }
-              }
-            },
-            "icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "label": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "pressed": {
-            "item": {
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0,
-                    "hex": "#000000"
-                  }
-                }
-              },
-              "icon": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "label": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.6235,
-                      0.6157,
-                      0.6235
-                    ],
-                    "hex": "#9f9d9f",
-                    "alpha": 1
-                  }
-                }
-              },
-              "state-layer": {
                 "color": {
                   "$type": "color",
                   "$value": {

@@ -2309,11 +2309,6 @@
               "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
             },
             {
-              "match": "tanrei.comp.navigation-rail.*.disabled.item.container.color",
-              "$value": "{tanrei.comp.navigation-rail.$1.item.container.color}",
-              "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-            },
-            {
               "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",
               "$value": "{tanrei.comp.navigation-drawer.$1.item.container.color}",
               "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
@@ -5622,13 +5617,6 @@
                 "by": 20
               }
             },
-            "tanrei.comp.navigation-bar.item.container.width": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 16
-              }
-            },
             "tanrei.comp.navigation-bar.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"
             },
@@ -5778,22 +5766,6 @@
               },
               "reason": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."
             },
-            "tanrei.comp.navigation-rail.outline.color": {
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0,
-                  0,
-                  0
-                ],
-                "alpha": 0,
-                "hex": "#000000"
-              },
-              "reason": "Material's rail has no edge."
-            },
-            "tanrei.comp.navigation-rail.item.container.shape": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
             "tanrei.comp.navigation-drawer.container.width": {
               "derive": {
                 "fn": "mul",
@@ -5842,10 +5814,6 @@
             },
             "tanrei.comp.navigation-drawer.item.icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}"
-            },
-            "tanrei.comp.navigation-drawer.item.badge.typescale": {
-              "$value": "{tanrei.sys.typescale.label}",
-              "reason": "Material's drawer badge is label-large, which the fidelity map pairs with label."
             },
             "tanrei.comp.navigation-drawer.heading.typescale": {
               "$value": "{tanrei.sys.typescale.heading-6}",

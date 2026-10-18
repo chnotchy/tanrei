@@ -10808,11 +10808,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
   public var containerElevation: [TanreiShadowLayer]
   public var containerHeight: CGFloat
   public var containerPadding: CGFloat
-  public var itemContainerHeight: CGFloat
   public var itemContainerPaddingBlock: CGFloat
   public var itemContainerPaddingInline: CGFloat
   public var itemContainerShape: CGFloat
-  public var itemContainerWidth: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorHeight: CGFloat
   public var itemIconIndicatorShape: CGFloat
@@ -10841,11 +10839,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
     containerElevation: [TanreiShadowLayer],
     containerHeight: CGFloat,
     containerPadding: CGFloat,
-    itemContainerHeight: CGFloat,
     itemContainerPaddingBlock: CGFloat,
     itemContainerPaddingInline: CGFloat,
     itemContainerShape: CGFloat,
-    itemContainerWidth: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorHeight: CGFloat,
     itemIconIndicatorShape: CGFloat,
@@ -10869,11 +10865,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
     self.containerElevation = containerElevation
     self.containerHeight = containerHeight
     self.containerPadding = containerPadding
-    self.itemContainerHeight = itemContainerHeight
     self.itemContainerPaddingBlock = itemContainerPaddingBlock
     self.itemContainerPaddingInline = itemContainerPaddingInline
     self.itemContainerShape = itemContainerShape
-    self.itemContainerWidth = itemContainerWidth
     self.itemGap = itemGap
     self.itemIconIndicatorHeight = itemIconIndicatorHeight
     self.itemIconIndicatorShape = itemIconIndicatorShape
@@ -11015,7 +11009,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
   public var itemSupportingTextColor: TanreiPaint
   public var itemTrailingTextColor: TanreiPaint
   public var itemTrailingIconColor: TanreiPaint
-  public var itemBadgeColor: TanreiPaint
   public var itemStateLayerColor: TanreiPaint
 
   public init(
@@ -11026,7 +11019,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
     itemSupportingTextColor: TanreiPaint,
     itemTrailingTextColor: TanreiPaint,
     itemTrailingIconColor: TanreiPaint,
-    itemBadgeColor: TanreiPaint,
     itemStateLayerColor: TanreiPaint
   ) {
     self.itemContainerColor = itemContainerColor
@@ -11036,7 +11028,6 @@ public struct TanreiNavigationDrawerConditionStateTokens: Sendable, Equatable {
     self.itemSupportingTextColor = itemSupportingTextColor
     self.itemTrailingTextColor = itemTrailingTextColor
     self.itemTrailingIconColor = itemTrailingIconColor
-    self.itemBadgeColor = itemBadgeColor
     self.itemStateLayerColor = itemStateLayerColor
   }
 }
@@ -11261,7 +11252,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var headerTypescale: TanreiTextStyle
   public var headingColor: TanreiPaint
   public var headingTypescale: TanreiTextStyle
-  public var itemBadgeTypescale: TanreiTextStyle
   public var itemContainerShape: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorShape: CGFloat
@@ -11316,7 +11306,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     headerTypescale: TanreiTextStyle,
     headingColor: TanreiPaint,
     headingTypescale: TanreiTextStyle,
-    itemBadgeTypescale: TanreiTextStyle,
     itemContainerShape: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorShape: CGFloat,
@@ -11366,7 +11355,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.headerTypescale = headerTypescale
     self.headingColor = headingColor
     self.headingTypescale = headingTypescale
-    self.itemBadgeTypescale = itemBadgeTypescale
     self.itemContainerShape = itemContainerShape
     self.itemGap = itemGap
     self.itemIconIndicatorShape = itemIconIndicatorShape
@@ -11403,226 +11391,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
   /// `nil` for `enabled`, which navigation-drawer has no group for.
   public subscript(state state: TanreiInteraction) -> TanreiNavigationDrawerStateTokens? {
-    switch state {
-    case .enabled: return nil
-    case .hovered: return hovered
-    case .focused: return focused
-    case .pressed: return pressed
-    case .disabled: return disabled
-    }
-  }
-}
-
-/// A value of navigation-rail's `condition` axis.
-///
-/// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiNavigationRailCondition(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiNavigationRailCondition: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
-  /// The token key of the value, for example `"medium"`.
-  public let rawValue: String
-  public init(rawValue: String) { self.rawValue = rawValue }
-  public var description: String { rawValue }
-
-  public static let unselected = TanreiNavigationRailCondition(rawValue: "unselected")
-  public static let selected = TanreiNavigationRailCondition(rawValue: "selected")
-
-  /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiNavigationRailCondition] = [.unselected, .selected]
-  /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiNavigationRailCondition.unselected
-}
-
-/// How one condition of navigation-rail is drawn in one state.
-public struct TanreiNavigationRailConditionStateTokens: Sendable, Equatable {
-  public var itemContainerColor: TanreiPaint
-  public var itemIconColor: TanreiPaint
-  public var itemLabelColor: TanreiPaint
-  public var itemStateLayerColor: TanreiPaint
-
-  public init(
-    itemContainerColor: TanreiPaint,
-    itemIconColor: TanreiPaint,
-    itemLabelColor: TanreiPaint,
-    itemStateLayerColor: TanreiPaint
-  ) {
-    self.itemContainerColor = itemContainerColor
-    self.itemIconColor = itemIconColor
-    self.itemLabelColor = itemLabelColor
-    self.itemStateLayerColor = itemStateLayerColor
-  }
-}
-
-/// One condition of navigation-rail: a complete set of values per state. A component draws a state from that
-/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
-public struct TanreiNavigationRailConditionTokens: Sendable, Equatable {
-  public var enabled: TanreiNavigationRailConditionStateTokens
-  public var hovered: TanreiNavigationRailConditionStateTokens
-  public var focused: TanreiNavigationRailConditionStateTokens
-  public var pressed: TanreiNavigationRailConditionStateTokens
-  public var disabled: TanreiNavigationRailConditionStateTokens
-
-  public init(
-    enabled: TanreiNavigationRailConditionStateTokens,
-    hovered: TanreiNavigationRailConditionStateTokens,
-    focused: TanreiNavigationRailConditionStateTokens,
-    pressed: TanreiNavigationRailConditionStateTokens,
-    disabled: TanreiNavigationRailConditionStateTokens
-  ) {
-    self.enabled = enabled
-    self.hovered = hovered
-    self.focused = focused
-    self.pressed = pressed
-    self.disabled = disabled
-  }
-
-  /// The tokens of this condition of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  public subscript(state state: TanreiInteraction) -> TanreiNavigationRailConditionStateTokens {
-    switch state {
-    case .enabled: return enabled
-    case .hovered: return hovered
-    case .focused: return focused
-    case .pressed: return pressed
-    case .disabled: return disabled
-    }
-  }
-}
-
-/// The conditions of navigation-rail: named fields for the core values, `extra` for what a design system added.
-/// Read one with `conditions[key]`.
-public struct TanreiNavigationRailConditions: Sendable, Equatable {
-  public var unselected: TanreiNavigationRailConditionTokens
-  public var selected: TanreiNavigationRailConditionTokens
-  /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiNavigationRailCondition: TanreiNavigationRailConditionTokens]
-
-  public init(
-    unselected: TanreiNavigationRailConditionTokens,
-    selected: TanreiNavigationRailConditionTokens,
-    extra: [TanreiNavigationRailCondition: TanreiNavigationRailConditionTokens] = [:]
-  ) {
-    self.unselected = unselected
-    self.selected = selected
-    self.extra = extra
-  }
-
-  /// The tokens of one navigation-rail condition, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiNavigationRailCondition) -> TanreiNavigationRailConditionTokens? {
-    switch key {
-    case .unselected: return unselected
-    case .selected: return selected
-    default: return extra[key]
-    }
-  }
-
-  /// Total lookup: a navigation-rail condition this design system does not have reads the tokens of `unselected`, the
-  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiNavigationRailCondition) -> TanreiNavigationRailConditionTokens {
-    if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no navigation-rail condition \"\(key.rawValue)\"; using \"unselected\"")
-    return unselected
-  }
-
-  /// Every navigation-rail condition of this design system: the core ones, then what it added.
-  public var keys: [TanreiNavigationRailCondition] { TanreiNavigationRailCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
-}
-
-/// Values of navigation-rail that depend on the state but not on the variant.
-public struct TanreiNavigationRailStateTokens: Sendable, Equatable {
-  public var opacity: Double
-
-  public init(
-    opacity: Double
-  ) {
-    self.opacity = opacity
-  }
-}
-
-/// Component tokens of navigation-rail (comp.navigation-rail).
-public struct TanreiNavigationRailTokens: Sendable, Equatable {
-  public var containerColor: TanreiPaint
-  public var containerElevation: [TanreiShadowLayer]
-  public var containerGap: CGFloat
-  public var containerPaddingBlock: CGFloat
-  public var containerWidth: CGFloat
-  public var headerGap: CGFloat
-  public var itemContainerHeight: CGFloat
-  public var itemContainerShape: CGFloat
-  public var itemContainerWidth: CGFloat
-  public var itemGap: CGFloat
-  public var itemIconSize: CGFloat
-  public var itemLabelTypescale: TanreiTextStyle
-  public var motionFeedbackDuration: Double
-  public var motionSelectionDuration: Double
-  public var motionSelectionEasing: TanreiCubicBezier
-  public var motionStateDuration: Double
-  public var motionStateEasing: TanreiCubicBezier
-  public var outlineColor: TanreiPaint
-  public var outlineWidth: CGFloat
-  public var conditions: TanreiNavigationRailConditions
-  /// Values of the hovered state shared by every variant.
-  public var hovered: TanreiNavigationRailStateTokens
-  /// Values of the focused state shared by every variant.
-  public var focused: TanreiNavigationRailStateTokens
-  /// Values of the pressed state shared by every variant.
-  public var pressed: TanreiNavigationRailStateTokens
-  /// Values of the disabled state shared by every variant.
-  public var disabled: TanreiNavigationRailStateTokens
-
-  public init(
-    containerColor: TanreiPaint,
-    containerElevation: [TanreiShadowLayer],
-    containerGap: CGFloat,
-    containerPaddingBlock: CGFloat,
-    containerWidth: CGFloat,
-    headerGap: CGFloat,
-    itemContainerHeight: CGFloat,
-    itemContainerShape: CGFloat,
-    itemContainerWidth: CGFloat,
-    itemGap: CGFloat,
-    itemIconSize: CGFloat,
-    itemLabelTypescale: TanreiTextStyle,
-    motionFeedbackDuration: Double,
-    motionSelectionDuration: Double,
-    motionSelectionEasing: TanreiCubicBezier,
-    motionStateDuration: Double,
-    motionStateEasing: TanreiCubicBezier,
-    outlineColor: TanreiPaint,
-    outlineWidth: CGFloat,
-    conditions: TanreiNavigationRailConditions,
-    hovered: TanreiNavigationRailStateTokens,
-    focused: TanreiNavigationRailStateTokens,
-    pressed: TanreiNavigationRailStateTokens,
-    disabled: TanreiNavigationRailStateTokens
-  ) {
-    self.containerColor = containerColor
-    self.containerElevation = containerElevation
-    self.containerGap = containerGap
-    self.containerPaddingBlock = containerPaddingBlock
-    self.containerWidth = containerWidth
-    self.headerGap = headerGap
-    self.itemContainerHeight = itemContainerHeight
-    self.itemContainerShape = itemContainerShape
-    self.itemContainerWidth = itemContainerWidth
-    self.itemGap = itemGap
-    self.itemIconSize = itemIconSize
-    self.itemLabelTypescale = itemLabelTypescale
-    self.motionFeedbackDuration = motionFeedbackDuration
-    self.motionSelectionDuration = motionSelectionDuration
-    self.motionSelectionEasing = motionSelectionEasing
-    self.motionStateDuration = motionStateDuration
-    self.motionStateEasing = motionStateEasing
-    self.outlineColor = outlineColor
-    self.outlineWidth = outlineWidth
-    self.conditions = conditions
-    self.hovered = hovered
-    self.focused = focused
-    self.pressed = pressed
-    self.disabled = disabled
-  }
-
-  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `enabled`, which navigation-rail has no group for.
-  public subscript(state state: TanreiInteraction) -> TanreiNavigationRailStateTokens? {
     switch state {
     case .enabled: return nil
     case .hovered: return hovered
@@ -18444,10 +18212,6 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _navigationDrawer.value }
     set { _navigationDrawer.value = newValue }
   }
-  public var navigationRail: TanreiNavigationRailTokens {
-    get { _navigationRail.value }
-    set { _navigationRail.value = newValue }
-  }
   public var numberInput: TanreiNumberInputTokens {
     get { _numberInput.value }
     set { _numberInput.value = newValue }
@@ -18622,7 +18386,6 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _modalLayer: TanreiBox<TanreiModalLayerTokens>
   private var _navigationBar: TanreiBox<TanreiNavigationBarTokens>
   private var _navigationDrawer: TanreiBox<TanreiNavigationDrawerTokens>
-  private var _navigationRail: TanreiBox<TanreiNavigationRailTokens>
   private var _numberInput: TanreiBox<TanreiNumberInputTokens>
   private var _oneTimeCodeInput: TanreiBox<TanreiOneTimeCodeInputTokens>
   private var _pageHeader: TanreiBox<TanreiPageHeaderTokens>
@@ -18719,7 +18482,6 @@ public struct TanreiSystem: Sendable, Equatable {
     modalLayer: TanreiModalLayerTokens,
     navigationBar: TanreiNavigationBarTokens,
     navigationDrawer: TanreiNavigationDrawerTokens,
-    navigationRail: TanreiNavigationRailTokens,
     numberInput: TanreiNumberInputTokens,
     oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     pageHeader: TanreiPageHeaderTokens,
@@ -18815,7 +18577,6 @@ public struct TanreiSystem: Sendable, Equatable {
     self._modalLayer = TanreiBox(modalLayer)
     self._navigationBar = TanreiBox(navigationBar)
     self._navigationDrawer = TanreiBox(navigationDrawer)
-    self._navigationRail = TanreiBox(navigationRail)
     self._numberInput = TanreiBox(numberInput)
     self._oneTimeCodeInput = TanreiBox(oneTimeCodeInput)
     self._pageHeader = TanreiBox(pageHeader)

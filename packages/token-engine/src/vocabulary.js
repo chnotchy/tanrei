@@ -167,8 +167,8 @@ function addAxisValue(docs, id, decl) {
   const states = component.$extensions[STATES];
   const values = declared.from === 'states' ? states.variants : declared.values;
   if (!values.includes(decl.from)) throw new SystemError(`${id}: "from" must be an existing ${axis} (${values.join(', ')}), not "${decl.from}"`);
-  // Declarations are unique across a chain, so a value that already exists here was added by core since.
-  if (values.includes(value)) return `${id}: "${value}" is now a core ${axis} of ${componentPath.join('.')}; this declaration can be deleted (values under "tokens" still apply).`;
+  // Declarations are unique across a chain, so a value that already exists here is the core's.
+  if (values.includes(value)) throw new SystemError(`${id}: "${value}" is a core ${axis} of ${componentPath.join('.')}; a layer declares only what the core lacks: delete this declaration (its values under "tokens" stay)`);
   if ((states?.states ?? []).includes(value)) throw new SystemError(`${id}: "${value}" is an interaction state; states are not extensible`);
 
   if (declared.from === 'states') {
@@ -199,7 +199,6 @@ function addAxisValue(docs, id, decl) {
     declared.values = [...declared.values, value];
   }
   (declared.extensions ??= []).push({ value, declaredBy: decl.declaredBy });
-  return null;
 }
 
 /**
@@ -226,8 +225,8 @@ function addGroup(docs, id, decl) {
   const series = home && groupAt(home, segments.slice(0, -1));
   const siblings = series ? Object.keys(series).filter((key) => !key.startsWith('$') && !isToken(series[key])) : [];
   if (!series || !siblings.length) throw new SystemError(`${id}: "${segments.slice(0, -1).join('.')}" is not a series whose steps are groups of tokens (such as ${segments[0]}.sys.motion.spring.standard). A single token is declared with "$type", not "from".`);
-  // Declarations are unique across a chain, so a step that already exists here was added by core since.
-  if (series[name]) return `${id}: "${name}" is now a core step of ${segments.slice(0, -1).join('.')}; this declaration can be deleted (values under "tokens" still apply).`;
+  // Declarations are unique across a chain, so a step that already exists here is the core's.
+  if (series[name]) throw new SystemError(`${id}: "${name}" is a core step of ${segments.slice(0, -1).join('.')}; a layer declares only what the core lacks: delete this declaration (its values under "tokens" stay)`);
   if (!siblings.includes(decl.from)) throw new SystemError(`${id}: "from" must be an existing step of ${segments.slice(0, -1).join('.')} (${siblings.join(', ')}), not "${decl.from}"`);
   if (decl.scale !== undefined) throw new SystemError(`${id}: "scale" does not apply to a cloned step; change its fields under "tokens"`);
   if (Object.entries(series[decl.from]).some(([key, child]) => !key.startsWith('$') && !isToken(child))) throw new SystemError(`${id}: "${decl.from}" is not a step but a group of steps. A cloned step is one named set of tokens, e.g. ${segments.slice(0, -1).join('.')}.${decl.from}.<name>.`);
@@ -235,7 +234,6 @@ function addGroup(docs, id, decl) {
   for (const { token } of tokensUnder(copy)) stamp(token, decl);
   if (decl.description) copy.$description = decl.description;
   series[name] = copy;
-  return null;
 }
 
 function addToken(docs, id, decl, core, system) {
@@ -243,10 +241,8 @@ function addToken(docs, id, decl, core, system) {
   const segments = id.split('.');
   if (core.has(id)) {
     const existing = core.get(id);
-    if (existing.type !== decl.type) throw new SystemError(`${id}: core now has this id as "${existing.type}", not "${decl.type}". Rename the extension.`);
-    const { $value, derive, reason } = decl.definition;
-    if (!system.tokens[id] && ($value !== undefined || derive)) system.tokens[id] = { ...($value !== undefined ? { $value, reason: reason ?? decl.rationale } : {}), ...(derive ? { derive } : {}), layer: decl.declaredBy };
-    return `${id}: now a core token; this declaration can be deleted (its value still applies).`;
+    if (existing.type !== decl.type) throw new SystemError(`${id}: the core has this id as "${existing.type}", not "${decl.type}". Rename the extension.`);
+    throw new SystemError(`${id}: a core token; a layer declares only what the core lacks: delete this declaration, and write its value under "tokens"`);
   }
   if (!decl.type) throw new SystemError(`${id}: a declared token needs "$type"`);
   const namespace = segments[0];
@@ -280,20 +276,18 @@ function addToken(docs, id, decl, core, system) {
   else if ($value !== undefined && !isRef($value)) token.$extensions = { [DERIVE]: { fixed: reason ?? decl.rationale } };
   stamp(token, decl);
   node[segments.at(-1)] = token;
-  return null;
 }
 
 /**
  * Insert a system's extensions into (already cloned) documents. Mutates `docs`; may add `ext/<ns>.tokens.json`.
- * @returns {string[]} notices — declarations that core has since made redundant
+ * A declaration of what the core already has is refused (`SystemError`).
  */
 export function materializeVocabulary(docs, system) {
   const vocabulary = system.vocabulary ?? {};
   const SYS_COLOR = `${system.namespace ?? 'tanrei'}.sys.color.`;
-  const notices = [];
   // A component that lives in a layer first: an extension of the system may add to it (a size, a variant).
   for (const [id, decl] of Object.entries(vocabulary)) if (decl.kind === 'component') addComponent(docs, id, decl, system.namespace ?? 'tanrei');
-  if (!Object.values(vocabulary).some((decl) => decl.kind !== 'component')) return notices;
+  if (!Object.values(vocabulary).some((decl) => decl.kind !== 'component')) return;
   const core = new Map();
   for (const doc of Object.values(docs)) for (const entry of walkTokens(doc)) core.set(entry.id, entry);
   // Tokens (and steps that are groups) first: an axis value may be cloned from, or later re-pointed to, a step declared alongside it.
@@ -301,10 +295,10 @@ export function materializeVocabulary(docs, system) {
   for (const [id, decl] of ordered) {
     if (decl.kind === 'component') continue; // in place above
     if (decl.kind === 'token' && id.startsWith(SYS_COLOR)) continue; // color roles are materialised by the palette engine
-    const notice = decl.kind === 'axis-value' ? addAxisValue(docs, id, decl) : decl.kind === 'group' ? addGroup(docs, id, decl) : addToken(docs, id, decl, core, system);
-    if (notice) notices.push(notice);
+    if (decl.kind === 'axis-value') addAxisValue(docs, id, decl);
+    else if (decl.kind === 'group') addGroup(docs, id, decl);
+    else addToken(docs, id, decl, core, system);
   }
-  return notices;
 }
 
 /** The extensions of a system as a plain list, for bundles, reports and tools. */
