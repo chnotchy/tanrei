@@ -65269,7 +65269,13 @@
               "kind": "method",
               "name": "focusIn",
               "privacy": "private",
-              "description": "POP-19, POP-40: focus in — to the slotted element marked `autofocus`, else to the container."
+              "parameters": [
+                {
+                  "name": "quiet",
+                  "default": "false"
+                }
+              ],
+              "description": "POP-19, POP-40: focus in — to the slotted element marked `autofocus`, else to the container (`quiet`: without its indicator)."
             },
             {
               "kind": "method",
