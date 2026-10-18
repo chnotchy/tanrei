@@ -51795,6 +51795,372 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/meter/meter.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "default": "RANGE_SIZES",
+          "description": "The sizes every design system has; a layer may add more. The variant is not a token axis: the forms are drawn here."
+        },
+        {
+          "kind": "variable",
+          "name": "VARIANTS",
+          "default": "RANGE_VARIANTS"
+        },
+        {
+          "kind": "variable",
+          "name": "STATUSES",
+          "type": {
+            "text": "['default', 'info', 'success', 'warning', 'error']"
+          },
+          "default": "['default', 'info', 'success', 'warning', 'error']",
+          "description": "What the product says the value means (MTR-3, MTR-9): `default` draws the meter's own indicator color."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "description": "MTR-11: a size a layer adds gets its block on demand; one the active system lacks draws medium and is reported."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ rangeTrackStyles(PREFIX, 'var(--_indicator)'), directionProbeStyles, css` /* MTR-3: the indicator (and the stop indicator) in the color of the status; default — and a status the meter does not define (MTR-11) — in comp.meter.indicator.color. */ :host { --_indicator: ${T('indicator-color')}; } ${unsafeCSS( STATUSES.filter((status) => status !== 'default') .map((status) => `:host([status='${status}']) {\\n --_indicator: var(${PREFIX}-${status}-indicator-color);\\n }`) .join('\\n '), )} /* MTR-6: a change of value moves the end, and a change of status changes the color, over value-duration with value-easing — after the first frame only (a transition has nothing to run from on the first). Under reduced motion the end moves at once and the color still fades. */ .determinate .indicator { transition-property: inset-inline-start, inline-size, stroke-dasharray, stroke-dashoffset, background-color, stroke; } .determinate .stop { transition-property: background-color; transition-duration: ${T('motion-value-duration')}; transition-timing-function: ${T('motion-value-easing')}; } @media (prefers-reduced-motion: reduce) { .determinate .indicator, .determinate .stop { transition: background-color ${T('motion-value-duration')} ${T('motion-value-easing')}, stroke ${T('motion-value-duration')} ${T('motion-value-easing')}; } } /* MTR-15: with a person's own forced colors, the track is an edge sys.border.hairline wide and the indicator is filled, both in the text color, whatever the status — the value is still read where the indicator ends. */ @media (forced-colors: active) { .bar .track, .bar .indicator, .bar .stop, circle { forced-color-adjust: none; } .bar .track { background: Canvas; box-shadow: inset 0 0 0 var(--tanrei-sys-border-hairline) CanvasText; } .bar .indicator, .bar .stop { background: CanvasText; } circle.track { stroke: CanvasText; stroke-width: var(--tanrei-sys-border-hairline); } circle.indicator { stroke: CanvasText; } } `, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/meter/meter.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "VARIANTS",
+          "declaration": {
+            "name": "VARIANTS",
+            "module": "src/components/meter/meter.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "STATUSES",
+          "declaration": {
+            "name": "STATUSES",
+            "module": "src/components/meter/meter.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/meter/meter.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/meter/meter.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/meter/meter.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shows where a known value stands in a known range — storage used, a battery's charge, a quota, the strength of a\npassword — as a bar or a ring that looks like the progress indicator, without saying that anything is under way.\n\nContract: specs/meter.spec.json. Drawn as the progress indicator's determinate form is (the two share the drawing,\n`src/primitives/range-track.ts`), from `--tanrei-comp-meter-*` tokens, which by default are the progress\nindicator's; the meter never runs an indeterminate animation. `status` (default, info, success, warning, error)\nchanges the indicator's color and nothing else: the meter has no thresholds of its own, and what the color means is\nsaid in words by `value-text`, `label` or the text beside it (MTR-9).\n\nThe host is the meter (`role=\"meter\"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and\n`aria-valuetext` from `value-text`); never a progressbar, never busy, never focusable, never a live region. A change of\nvalue or status moves the end and fades the color over `motion.value-duration`, from the second frame on; under\n`prefers-reduced-motion: reduce` the end moves at once and the color still fades.",
+          "name": "TanreiMeter",
+          "cssParts": [
+            {
+              "description": "The whole range: the bar's track, or the ring's circle (the form the separation draws).",
+              "name": "track"
+            },
+            {
+              "description": "The part of the range up to the value, in the color of the status.",
+              "name": "indicator"
+            },
+            {
+              "description": "The dot at the end of a bar's track (drawn when its size token is above 0, and not at max).",
+              "name": "stop-indicator"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'meter')"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMeterVariant"
+              },
+              "default": "'linear'",
+              "description": "A bar (`linear`, the default) or a ring (`circular`).",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMeterSize"
+              },
+              "default": "'medium'",
+              "description": "The bar's thickness or the ring's box — the progress indicator's three sizes by default (2 / 4 / 8 and 16 / 24 / 40).",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "separation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMeterSeparation"
+              },
+              "default": "'auto'",
+              "description": "How the indicator is told from the rest of its track. `divider`: drawn on the track, touching it. `gap`:\n`track.gap` of empty space between them (on a ring at both ends of the arc). `auto` takes\n`comp.meter.track.separation`, which follows the progress indicator's and so the design system's. Anything else\nis `auto` (reported in debug builds, MTR-11).",
+              "attribute": "separation",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMeterStatus"
+              },
+              "default": "'default'",
+              "description": "What the product says the value means, in the names the tag and the snackbar use: `default` draws the meter's own\nindicator color, the others that status's. It changes the color only; say what it means in `value-text`. Anything\nelse is `default` (reported in debug builds, MTR-11).",
+              "attribute": "status",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "Where the measured quantity stands, between min and max. Always a number: not a finite number is drawn and exposed as min (MTR-10).",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The low end of the range.",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The high end of the range.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name: what is measured (\"Storage used\"). Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads the value when a percentage is not the natural reading (\"12.4 GB of 15 GB\"); the `value-text` attribute.",
+              "attribute": "value-text"
+            },
+            {
+              "kind": "field",
+              "name": "axes",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new OpenAxesController(this, { component: 'meter', behavior: 'MTR-11', axes: AXES })",
+              "description": "MTR-11: sizes a design system adds, and a size the active system does not have (src/primitives/axes.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "system",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new SystemWatchController(this)",
+              "description": "MTR-4: where a browser has no style queries, the separation is read when it renders — again when the system is switched."
+            },
+            {
+              "kind": "field",
+              "name": "direction",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new DirectionController(this, () => { for (const animation of this.renderRoot.querySelector('.bar')?.getAnimations({ subtree: true }) ?? []) { if (animation instanceof CSSTransition) animation.finish(); } })",
+              "description": "MTR-13: a change of direction is drawn at once. The bar's ends are logical insets, so a flip of direction moves a\nphysical inset from one value to another — which the value's transition would run (the track after a gap goes from\n`right: 0` to its start). When the direction changes, before the frame is painted, the transitions it started are\nfinished."
+            },
+            {
+              "kind": "field",
+              "name": "drawnValue",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "description": "MTR-10: the value as drawn — min while it is not a finite number.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "range",
+              "privacy": "private",
+              "description": "MTR-10: the range and value as drawn and exposed — clamped, and 0 in 0…1 when max is not greater than min.",
+              "readonly": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "TanreiMeterVariant"
+              },
+              "default": "'linear'",
+              "description": "A bar (`linear`, the default) or a ring (`circular`).",
+              "fieldName": "variant"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiMeterSize"
+              },
+              "default": "'medium'",
+              "description": "The bar's thickness or the ring's box — the progress indicator's three sizes by default (2 / 4 / 8 and 16 / 24 / 40).",
+              "fieldName": "size"
+            },
+            {
+              "name": "separation",
+              "type": {
+                "text": "TanreiMeterSeparation"
+              },
+              "default": "'auto'",
+              "description": "How the indicator is told from the rest of its track. `divider`: drawn on the track, touching it. `gap`:\n`track.gap` of empty space between them (on a ring at both ends of the arc). `auto` takes\n`comp.meter.track.separation`, which follows the progress indicator's and so the design system's. Anything else\nis `auto` (reported in debug builds, MTR-11).",
+              "fieldName": "separation"
+            },
+            {
+              "name": "status",
+              "type": {
+                "text": "TanreiMeterStatus"
+              },
+              "default": "'default'",
+              "description": "What the product says the value means, in the names the tag and the snackbar use: `default` draws the meter's own\nindicator color, the others that status's. It changes the color only; say what it means in `value-text`. Anything\nelse is `default` (reported in debug builds, MTR-11).",
+              "fieldName": "status"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "Where the measured quantity stands, between min and max. Always a number: not a finite number is drawn and exposed as min (MTR-10).",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The low end of the range.",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The high end of the range.",
+              "fieldName": "max"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name: what is measured (\"Storage used\"). Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "How assistive technology reads the value when a percentage is not the natural reading (\"12.4 GB of 15 GB\"); the `value-text` attribute.",
+              "fieldName": "valueText"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-meter",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiMeter",
+          "declaration": {
+            "name": "TanreiMeter",
+            "module": "src/components/meter/meter.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-meter",
+          "declaration": {
+            "name": "TanreiMeter",
+            "module": "src/components/meter/meter.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/modal-layer/modal-layer.styles.ts",
       "declarations": [
         {
@@ -65378,33 +65744,26 @@
         {
           "kind": "variable",
           "name": "CORE_SIZES",
-          "type": {
-            "text": "['small', 'medium', 'large']"
-          },
-          "default": "['small', 'medium', 'large']",
+          "default": "RANGE_SIZES",
           "description": "The sizes every design system has; a layer may add more. The variant is not a token axis: the forms are drawn here."
         },
         {
           "kind": "variable",
           "name": "VARIANTS",
-          "type": {
-            "text": "['linear', 'circular']"
-          },
-          "default": "['linear', 'circular']"
+          "default": "RANGE_VARIANTS"
         },
         {
           "kind": "variable",
           "name": "AXES",
-          "type": {
-            "text": "readonly OpenAxis[]"
-          },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-linear-thickness-${value}` }, ]",
           "description": "PRG-12: a size a layer adds gets its block on demand; one the active system lacks draws medium and is reported."
         },
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` :host { /* PRG-3, linear (the default, and what an unknown variant draws — PRG-12): a bar of the size's thickness across the full inline size its layout gives it, in block flow, a flex column or a grid. */ display: block; position: relative; box-sizing: border-box; align-self: stretch; justify-self: stretch; block-size: var(--_bar); } :host([hidden]) { display: none; } /* PRG-17: the separation it draws — its attribute's, else comp.progress-indicator.track.separation's. */ ${separationHost(`${PREFIX}-track-separation`)} ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))} ${unsafeCSS(CORE_SIZES.filter((s) => s !== DEFAULT_SIZE).map((s) => sizeBlock(s, `:host([size='${s}'])`)).join('\\n'))} /* PRG-3, circular: a ring whose outer edge fills the size's square. */ :host([variant='circular']) { display: inline-block; vertical-align: middle; align-self: auto; justify-self: auto; inline-size: var(--_ring); block-size: var(--_ring); } /* ── The bar ─────────────────────────────────────────────────────────────────────────────────────────── */ /* PRG-5, PRG-17: the divider form (the first value of the choice, and so what an unknown name draws) — no gap, the whole track under the indicator. The gap form is at the end of this sheet. */ .bar, .ring { --_gap: 0px; } .track.after { display: none; } .bar { position: relative; inline-size: 100%; block-size: 100%; ${unsafeCSS(cornerRadius(`${PREFIX}-track-shape`))} } /* PRG-4: the ends of the track and of the indicator are rounded by track.shape; the browser clamps a radius to half the thickness. Along the inline axis, so RTL fills from the right (PRG-13). */ .bar .track, .bar .indicator { position: absolute; inset-block: 0; ${unsafeCSS(cornerRadius(`${PREFIX}-track-shape`))} } .bar .track { background: ${unsafeCSS(T('track-color'))}; inset-inline-start: min(calc(var(--_f) * 100% + var(--_gap)), calc(var(--_gap) * 100000)); inset-inline-end: 0; } .bar .indicator { background: ${unsafeCSS(T('indicator-color'))}; inset-inline-start: 0; inline-size: calc(var(--_f) * 100%); } /* PRG-6: a value change moves the indicator's end (and the gap after it) over value-duration with value-easing. */ .determinate .track, .determinate .indicator { transition-property: inset-inline-start, inline-size, stroke-dasharray, stroke-dashoffset; transition-duration: ${unsafeCSS(T('motion-value-duration'))}; transition-timing-function: ${unsafeCSS(T('motion-value-easing'))}; } /* PRG-5: the stop indicator, a dot in the indicator color at the track's end, concentric with its rounded end, and never larger than the bar is thick — under either separation, so its size alone decides whether it shows (0 draws none). At max the indicator covers it, and it is not drawn. */ .bar .stop { --_stop: min(${unsafeCSS(T('stop-indicator-size'))}, var(--_bar)); position: absolute; inset-block-start: calc(50% - var(--_stop) / 2); inset-inline-end: calc(var(--_bar) / 2 - var(--_stop) / 2); inline-size: var(--_stop); block-size: var(--_stop); border-radius: 50%; background: ${unsafeCSS(T('indicator-color'))}; } .bar.full .stop { display: none; } /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to two and a half of its lengths on (the whole track) — so no frame of it lays anything out: an inset would be laid out sixty times a second for as long as the bar is shown. --_way is the inline direction (PRG-13). */ .bar.indeterminate { overflow: hidden; --_way: 1; } :host(:dir(rtl)) .bar.indeterminate { --_way: -1; } .bar.indeterminate .track { inset-inline-start: 0; } .bar.indeterminate .indicator { inline-size: 40%; animation: bar-cross ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } @keyframes bar-cross { from { transform: translateX(calc(var(--_way) * -100%)); } to { transform: translateX(calc(var(--_way) * 250%)); } } /* ── The ring ────────────────────────────────────────────────────────────────────────────────────────── */ /* The circumference of the stroke's center line, and how far a round cap reaches past a dash's end on both ends together: the stroke width — or 0 where track.shape is sys.shape.corner.none (PRG-4: square caps). */ /* How far a round cap reaches past a dash's end, on both ends together: the stroke width — or 0 where track.shape is sys.shape.corner.none (PRG-4: square caps). The circle's geometry and --_c, its circumference, are arcStyles'. */ .ring { --_cap: min(var(--_stroke), calc(${unsafeCSS(T('track-shape'))} * 100000)); position: absolute; inset: 0; } ${arcStyles} /* Round caps are a second drawing of the same dashes, shown only where track.shape is not none: the square-capped drawing underneath is what remains when it is. */ .ring .caps { position: absolute; inset-block-start: 0; inset-inline-start: 0; block-size: 100%; inline-size: min(100%, calc(${unsafeCSS(T('track-shape'))} * 100000)); overflow: hidden; } .ring .caps svg { inline-size: var(--_ring); block-size: var(--_ring); } .ring .caps circle { stroke-linecap: round; } /* A dash is shortened by the caps and moved forward by half of them, so what is drawn — caps included — covers exactly its arc. PRG-5: on a ring the track leaves the gap at both ends of the indicator's arc. */ circle.track { stroke: ${unsafeCSS(T('track-color'))}; stroke-dasharray: max(0px, calc(var(--_c) - var(--_f) * var(--_c) - 2 * var(--_gap) - var(--_cap)), calc(var(--_c) - var(--_gap) * 100000)) var(--_c); stroke-dashoffset: calc(-1 * min(calc(var(--_f) * var(--_c) + var(--_gap) + var(--_cap) / 2), calc(var(--_gap) * 100000))); } circle.indicator { stroke: ${unsafeCSS(T('indicator-color'))}; stroke-dasharray: max(0px, calc(var(--_f) * var(--_c) - var(--_cap))) var(--_c); stroke-dashoffset: calc(var(--_cap) / -2); } /* All done: the indicator is the whole circle, its ends overlapping at the top — shortened by its caps, the two antialiased ends would meet there and leave a seam. */ .ring.full { --_cap: 0px; } /* Nothing done draws no indicator (a zero-length dash would still draw its round caps). */ .empty circle.indicator, .empty .indicator { visibility: hidden; } /* PRG-2, a ring: an arc a quarter of the circle long turns clockwise once per cycle at constant speed. */ .ring.indeterminate circle.indicator { stroke-dasharray: max(0px, calc(var(--_c) / 4 - var(--_cap))) var(--_c); } .ring.indeterminate .spin { animation: ring-turn ${unsafeCSS(T('motion-cycle-duration'))} var(--tanrei-sys-motion-easing-linear) infinite; } .spin { position: absolute; inset: 0; } ${shape} /* PRG-5, PRG-17: the gap form — while determinate, track.gap of empty space between the indicator and the rest of the track while the value lies strictly between min and max (on a ring at both ends of the arc: the track's dashes above). An indeterminate indicator is drawn the same under either separation. */ ${whenGap( ':is(.bar, .ring)', (drawing) => ` ${drawing}.determinate .track.under { display: none; } ${drawing}.determinate .track.after { display: block; } ${drawing}.between { --_gap: ${T('track-gap')}; }`, )} /* PRG-7: under reduced motion a value change shows at once, and the indeterminate form stands still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track that does not move. */ @media (prefers-reduced-motion: reduce) { .determinate .track, .determinate .indicator { transition: none; } .bar.indeterminate .indicator { inset-inline-start: 0; inline-size: 100%; } .ring.indeterminate circle.indicator { stroke-dasharray: none; stroke-dashoffset: 0; } .bar.indeterminate .indicator, .ring.indeterminate circle.indicator { animation: pulse ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } .ring.indeterminate .spin { animation: none; } } /* PRG-14: off screen, nothing runs — over every animation above, the reduced-motion pulse included. */ :host .paused .indicator, :host .paused .spin { animation-play-state: paused; } @media (forced-colors: active) { .bar .track, .bar .indicator, .bar .stop, circle { forced-color-adjust: none; } .bar .track { background: GrayText; } .bar .indicator, .bar .stop { background: Highlight; } circle.track { stroke: GrayText; } circle.indicator { stroke: Highlight; } } `"
+          "type": {
+            "text": "array"
+          },
+          "default": "[ rangeTrackStyles(PREFIX), css` /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to two and a half of its lengths on (the whole track) — so no frame of it lays anything out: an inset would be laid out sixty times a second for as long as the bar is shown. --_way is the inline direction (PRG-13). */ .bar.indeterminate { overflow: hidden; --_way: 1; } :host(:dir(rtl)) .bar.indeterminate { --_way: -1; } .bar.indeterminate .track { inset-inline-start: 0; } .bar.indeterminate .indicator { inline-size: 40%; animation: bar-cross ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } @keyframes bar-cross { from { transform: translateX(calc(var(--_way) * -100%)); } to { transform: translateX(calc(var(--_way) * 250%)); } } /* PRG-2, a ring: an arc a quarter of the circle long turns clockwise once per cycle at constant speed. */ .ring.indeterminate circle.indicator { stroke-dasharray: max(0px, calc(var(--_c) / 4 - var(--_cap))) var(--_c); } .ring.indeterminate .spin { animation: ring-turn ${unsafeCSS(T('motion-cycle-duration'))} var(--tanrei-sys-motion-easing-linear) infinite; } /* PRG-7: under reduced motion (a value change shows at once: the shared drawing) the indeterminate form stands still — the indicator over the whole track, its opacity easing from 1 to 0 and back once per cycle, over a track that does not move. */ @media (prefers-reduced-motion: reduce) { .bar.indeterminate .indicator { inset-inline-start: 0; inline-size: 100%; } .ring.indeterminate circle.indicator { stroke-dasharray: none; stroke-dashoffset: 0; } .bar.indeterminate .indicator, .ring.indeterminate circle.indicator { animation: pulse ${unsafeCSS(T('motion-cycle-duration'))} ${unsafeCSS(T('motion-cycle-easing'))} infinite; } .ring.indeterminate .spin { animation: none; } } /* PRG-14: off screen, nothing runs — over every animation above, the reduced-motion pulse included. */ :host .paused .indicator, :host .paused .spin { animation-play-state: paused; } @media (forced-colors: active) { .bar .track, .bar .indicator, .bar .stop, circle { forced-color-adjust: none; } .bar .track { background: GrayText; } .bar .indicator, .bar .stop { background: Highlight; } circle.track { stroke: GrayText; } circle.indicator { stroke: Highlight; } } `, ]"
         }
       ],
       "exports": [
@@ -65608,60 +65967,6 @@
               "name": "circular",
               "privacy": "private",
               "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "renderBar",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "TemplateResult"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "classes",
-                  "type": {
-                    "text": "Record<string, boolean>"
-                  }
-                },
-                {
-                  "name": "inputs",
-                  "type": {
-                    "text": "ReturnType<typeof styleMap>"
-                  }
-                },
-                {
-                  "name": "determinate",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "renderRing",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "TemplateResult"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "classes",
-                  "type": {
-                    "text": "Record<string, boolean>"
-                  }
-                },
-                {
-                  "name": "inputs",
-                  "type": {
-                    "text": "ReturnType<typeof styleMap>"
-                  }
-                }
-              ]
             }
           ],
           "attributes": [
@@ -65744,10 +66049,6 @@
           },
           "tagName": "tanrei-progress-indicator",
           "customElement": true
-        },
-        {
-          "kind": "variable",
-          "name": "determinate"
         }
       ],
       "exports": [

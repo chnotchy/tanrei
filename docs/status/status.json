@@ -241,9 +241,9 @@
       "builtFrom": [],
       "uses": [],
       "hasSpec": true,
-      "docs": null,
+      "docs": "/components/meter/",
       "platforms": {
-        "web": "planned",
+        "web": "lagging",
         "swiftui": "planned",
         "compose": "planned",
         "flutter": "planned",
@@ -1846,8 +1846,8 @@
   ],
   "totals": {
     "web": {
-      "planned": 1,
-      "lagging": 83,
+      "planned": 0,
+      "lagging": 84,
       "alpha": 7,
       "beta": 0,
       "stable": 0,
