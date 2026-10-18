@@ -363,7 +363,7 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 
 `destructive` is not a variant: it goes with any of them, and keeps that variant's emphasis (see [Destructive actions](#destructive-actions)).
 
-A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
+A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. Every host's close button — a popover's, a side sheet's, a bottom sheet's, a callout's, a snackbar's, an image preview's — is a small icon-only button that takes its host's close-button variant the same way, tonal in the default system. On a colored surface, such as a status callout or an inverse snackbar, it is also drawn in that surface's text color.
 
 ### Do
 
