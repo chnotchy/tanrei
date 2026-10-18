@@ -252,13 +252,18 @@ test.describe('elements', () => {
     await expect.poll(() => messages.find((text) => text.includes('setAvailabilityMode()'))).toBe('[tanrei] setAvailabilityMode(): "loud" is not a mode (warn, error); the mode stays "warn"');
   });
 
-  test('a component that lives in another layer names its stand-in once the system names one (AVL-2)', async ({ page }) => {
-    // No shipped sheet names one for the FAB menu yet: the layer that holds it is to. The list set by hand stands for it.
-    expect(parseReplacements(declared(read('dist/tokens.css'), '--tanrei-unavailable-replacement').join(' ')).has('fab-menu')).toBe(false);
+  test('a component that lives in another layer names the stand-ins the layer that holds it names (AVL-2)', async ({ page }) => {
+    // m3-like, which holds the FAB menu, says what a system without it uses; the default system's manifest and sheet carry it.
+    const layer = JSON.parse(fs.readFileSync(path.join(web, '../../tokens/systems/m3-like.system.json'), 'utf8'));
+    const [, fabMenu] = Object.entries<{ outside: { insteadUse: string[] } }>(layer.vocabulary).find(([key]) => key.endsWith('.comp.fab-menu'))!;
+    const insteadUse = fabMenu.outside.insteadUse;
+    const manifest = JSON.parse(read('dist/systems/tanrei.components.json'));
+    expect(manifest.omitted.find((entry: { name: string }) => entry.name === 'fab-menu').insteadUse).toEqual(insteadUse);
+    expect(parseReplacements(declared(read('dist/tokens.css'), '--tanrei-unavailable-replacement').join(' ')).get('fab-menu')).toEqual(insteadUse);
     const seen = warnings(page);
-    await mount(page, `<div style='--tanrei-unavailable-replacement: "fab-menu=main-action-button"'><tanrei-fab-menu label="Create"></tanrei-fab-menu></div>`);
+    await mount(page, `<tanrei-fab-menu label="Create"></tanrei-fab-menu>`);
     await expect.poll(() => seen.length).toBe(1);
-    expect(seen[0]).toContain(`<tanrei-fab-menu>: fab-menu lives in the layer "m3-like", which the active design system does not extend: its stylesheet has none of the component's tokens. The system uses main-action-button instead;`);
+    expect(seen[0]).toContain(`<tanrei-fab-menu>: fab-menu lives in the layer "m3-like", which the active design system does not extend: its stylesheet has none of the component's tokens. The system uses ${insteadUse.join(' or ')} instead;`);
     expect(await unavailableUses(page)).toEqual(['fab-menu']);
   });
 });

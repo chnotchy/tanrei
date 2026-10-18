@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { DEFAULT_SYSTEM, heldComponents, layerChain, listSystems, shippedSystems } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, heldComponents, layerChain, listSystems, outsideStandIns, shippedSystems } from '../src/bundle.js';
 import { componentCatalog } from '../src/components-catalog.js';
 import { CATALOG_FILE, componentsManifest, manifestFile, readComponentCatalog } from '../src/components-manifest.js';
 import { omittedOf, replacementsOf, sheetAvailability } from '../src/layers.js';
@@ -17,6 +17,7 @@ import { loadSystem } from '../src/scheme.js';
 
 const read = (id) => loadSystem(REPO_ROOT, id);
 const held = heldComponents(listSystems(REPO_ROOT), read);
+const standIns = outsideStandIns(listSystems(REPO_ROOT), read);
 const shipped = shippedSystems(REPO_ROOT);
 const WEB = `${CONFIG.packages.npmScope}/web`;
 const catalog = readComponentCatalog(REPO_ROOT);
@@ -24,6 +25,8 @@ const committed = (id) => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, manife
 const names = (manifest) => manifest.components.map((component) => component.name);
 const find = (manifest, name) => manifest.components.find((component) => component.name === name);
 const omitted = (manifest, name) => manifest.omitted.find((entry) => entry.name === name);
+/** What m3-like, which holds the FAB menu, names for a system without it. */
+const fabMenuOutside = read('m3-like').vocabulary[`${CONFIG.namespace}.comp.fab-menu`].outside;
 /** The manifest of a product's layers in memory, after the checks `tanrei build` runs first. */
 function productManifest(...layers) {
   assert.deepEqual(validateSystem({ layers }), [], 'the product layer is valid');
@@ -57,8 +60,11 @@ test('the default system lists neither the FAB menu nor the segmented button, an
   assert.equal(find(tanrei, 'fab-menu'), undefined);
   assert.equal(find(tanrei, 'segmented-button'), undefined);
   for (const component of tanrei.components) if (component.web.tag) assert.equal(component.web.import, WEB, `${component.name}: the main entry registers the default system’s components`);
-  // The FAB menu is not left out: it lives in m3-like, which the default system does not descend from.
-  assert.deepEqual(omitted(tanrei, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
+  // The FAB menu is not left out: it lives in m3-like, which the default system does not descend from, and m3-like
+  // says what a system without it uses instead.
+  assert.deepEqual(omitted(tanrei, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', ...fabMenuOutside });
+  assert.deepEqual(fabMenuOutside.insteadUse, ['main-action-button', 'bottom-sheet'], 'what the FAB menu’s and the main action button’s pages name');
+  for (const instead of fabMenuOutside.insteadUse) assert.ok(find(tanrei, instead), `${instead}, named instead of the FAB menu, is listed`);
   const segmented = omitted(tanrei, 'segmented-button');
   assert.equal(segmented.omittedBy, DEFAULT_SYSTEM);
   assert.ok(segmented.reason);
@@ -88,7 +94,7 @@ test('m3-like and m3-expressive-like list both; cupertino lists the segmented bu
   const cupertino = committed('cupertino');
   assert.equal(find(cupertino, 'segmented-button').web.import, `${WEB}/cupertino`);
   assert.equal(find(cupertino, 'fab-menu'), undefined);
-  assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
+  assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', ...fabMenuOutside });
 });
 
 test('each name comes from tanrei.config.json and from what the platforms generate', () => {
@@ -144,7 +150,8 @@ test('a product on the default system that includes the FAB menu from m3-like li
   assert.equal(fab.react.import, `${CONFIG.packages.npmScope}/react/all`);
   assert.equal(find(acme, 'button').react.import, `${CONFIG.packages.npmScope}/react/all`);
   assert.equal(find(acme, 'text-input').react.import, `${CONFIG.packages.npmScope}/react/advanced`);
-  assert.equal(omitted(acme, 'fab-menu'), undefined);
+  assert.equal(omitted(acme, 'fab-menu'), undefined, 'a system that has it is told nothing to use instead');
+  assert.ok(acme.omitted.every((entry) => !entry.insteadUse?.includes('fab-menu')));
   assert.equal(find(acme, 'segmented-button'), undefined, 'what the default system leaves out stays out');
   assert.deepEqual(names(acme), [...names(committed(DEFAULT_SYSTEM)), 'fab-menu'].sort());
 });
@@ -174,16 +181,26 @@ test('every stylesheet names what its system uses instead of what it does not ha
     assert.equal(listed(sheetOf(id)), expected, `${id}: declared even when empty, so a preset's list replaces the default system's`);
   }
   const insteadUse = read(DEFAULT_SYSTEM).components.omit['segmented-button'].insteadUse;
-  assert.equal(listed(sheetOf(DEFAULT_SYSTEM)), `segmented-button=${insteadUse.join(',')}`);
+  assert.equal(listed(sheetOf(DEFAULT_SYSTEM)), `fab-menu=${fabMenuOutside.insteadUse.join(',')} segmented-button=${insteadUse.join(',')}`);
   // The same list from the layers alone: what a product's sheet is made from.
   const acme = [...layerChain(DEFAULT_SYSTEM, read), { id: 'acme', extends: DEFAULT_SYSTEM, components: { omit: { carousel: { reason: 'Acme shows one thing at a time.', insteadUse: ['list'] } } } }];
-  assert.deepEqual(sheetAvailability(acme, held).replacements, { carousel: ['list'], 'segmented-button': insteadUse });
-  assert.deepEqual(omittedOf(acme, held).map(({ name }) => name), componentsManifest(acme, catalog, held, shipped).omitted.map(({ name }) => name));
+  assert.deepEqual(sheetAvailability(acme, held, standIns).replacements, { carousel: ['list'], 'fab-menu': fabMenuOutside.insteadUse, 'segmented-button': insteadUse });
+  assert.deepEqual(omittedOf(acme, held, standIns), componentsManifest(acme, catalog, held, shipped).omitted.map(({ title, ...entry }) => entry));
 });
 
 test('a component that lives in another layer is named instead of as soon as its manifest entry names a replacement', () => {
-  // No layer names one yet for a component that lives in a layer the system does not extend; the entry the manifest
-  // would carry stands for it.
   assert.deepEqual(replacementsOf([{ name: 'fab-menu', providedBy: 'm3-like', insteadUse: ['main-action-button'] }, { name: 'carousel', omittedBy: 'acme' }]), { 'fab-menu': ['main-action-button'] });
-  assert.equal(omittedOf(layerChain(DEFAULT_SYSTEM, read), held).find((entry) => entry.name === 'fab-menu').providedBy, 'm3-like');
+  // The layer that holds the FAB menu names what a system without it uses; without those stand-ins the entry says only
+  // where it lives.
+  assert.deepEqual(omittedOf(layerChain(DEFAULT_SYSTEM, read), held, standIns).find((entry) => entry.name === 'fab-menu'), { name: 'fab-menu', providedBy: 'm3-like', ...fabMenuOutside });
+  assert.deepEqual(omittedOf(layerChain(DEFAULT_SYSTEM, read), held).find((entry) => entry.name === 'fab-menu'), { name: 'fab-menu', providedBy: 'm3-like' });
+});
+
+test('a product without the FAB menu that leaves out one of its stand-ins is told only the others', () => {
+  const acme = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.', insteadUse: ['dialog'] } } } });
+  assert.equal(find(acme, 'bottom-sheet'), undefined);
+  assert.deepEqual(omitted(acme, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', reason: fabMenuOutside.reason, insteadUse: ['main-action-button'] });
+  // With none of them, the entry keeps its reason and names nothing.
+  const bare = productManifest({ id: 'acme', name: 'Acme', extends: DEFAULT_SYSTEM, components: { omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.' }, 'main-action-button': { reason: 'Acme has no floating action.' } } } });
+  assert.deepEqual(omitted(bare, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like', reason: fabMenuOutside.reason });
 });

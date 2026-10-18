@@ -92,14 +92,15 @@ export function stringifyLayer(layer) {
  * @param {(layer: object) => string[]} [deps.validateSchema]  JSON-Schema problems of a layer
  * @param {(model: object, options: { scope: string, unavailable?: object, outside?: Record<string, string>, replacements?: Record<string, string[]> }) => string} deps.emitCss   tokens-build's src/emit/css.js (no "@" here: TypeScript would read it as a tag and stop listing deps)
  * @param {(ids: string[], read: (id: string) => object) => Map<string, string>} deps.heldComponents   tokens-build's src/layers.js: where each component that lives in a layer lives
- * @param {(chain: object[], held: Map<string, string>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
+ * @param {(ids: string[], read: (id: string) => object) => Map<string, { reason: string, insteadUse: string[] }>} deps.outsideStandIns   the same module: what a system without a component that lives in a layer uses instead, as that layer says
+ * @param {(chain: object[], held: Map<string, string>, standIns?: Map<string, { reason: string, insteadUse: string[] }>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
  * @param {(model: object) => string[]} deps.checkInvariants                      tokens-build's src/invariants.js
  * @param {(fg: object, bg: object) => number} deps.contrast                      the same module's WCAG ratio
  * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id
  * @param {(color: object) => string} deps.cssColor                              the emitter's way of writing a color (tokens-build's src/pure.js)
  * @param {import('./listing.js').Catalog} [deps.catalog]  what the specs say of each component: level, listing, members (./listing.js, `catalogOf`)
  */
-export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, sheetAvailability, checkInvariants, contrast, idToVar, cssColor, catalog }) {
+export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, contrast, idToVar, cssColor, catalog }) {
   const NS = config.namespace;
   const PREFIX = config.web.cssPrefix;
   const SYS_COLOR = `${NS}.sys.color.`;
@@ -116,6 +117,8 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     .map((layer) => ({ id: layer.id, name: layer.name ?? layer.id, description: layer.description ?? '' }));
   // Where each component that lives in a layer lives, among the shipped layers, as the build reads it for a product's sheet.
   const homes = heldComponents(Object.keys(layers), (id) => layers[id]);
+  // What a system without one of them uses instead, as the layer that holds it says: a product's sheet names it.
+  const standIns = outsideStandIns(Object.keys(layers), (id) => layers[id]);
   /** Every system a layer may extend: the shipped ones, then the host's local parents. Mutated in place by `setParents`. */
   const systems = [...shippedSystems];
 
@@ -234,7 +237,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
         intents,
         // What the system does not have, as `tanrei build` declares it in the product's sheet: an element in the
         // preview reads the layer's lists, not the default system's from `:root`.
-        css: (scope = layer.id) => emitCss(model, { scope, ...sheetAvailability(computed.chain, homes) }),
+        css: (scope = layer.id) => emitCss(model, { scope, ...sheetAvailability(computed.chain, homes, standIns) }),
         valueOf: (id) => model.tokens[id]?.value,
         /** `followers(id)`: every token whose value moves when this one does. */
         followers: (id) => [...(index ??= dependencyIndex(computed.files)).followers(id)],

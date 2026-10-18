@@ -35,6 +35,11 @@ test('the schema rejects what the philosophy forbids', () => {
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x', extends: 'tanrei', thresholds: {} }, 'x').join('\n'), /additional properties/);
   // Extending the vocabulary is allowed — with a reason.
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x', extends: 'tanrei', vocabulary: { 'tanrei.sys.space.space950': { $type: 'dimension' } } }, 'x').join('\n'), /rationale/);
+  // A component that lives in a layer says what a system without it uses: a reason, and at least one component.
+  const holding = (outside) => validateLayerFile(REPO_ROOT, { id: 'x', extends: 'core', vocabulary: { 'tanrei.comp.fab-menu': { document: 'comp/fab-menu.tokens.json', rationale: 'Only this line ships it.', outside } } }, 'x').join('\n');
+  assert.equal(holding({ reason: 'A main action button opens a sheet.', insteadUse: ['main-action-button'] }), '');
+  assert.match(holding({ reason: 'A main action button opens a sheet.', insteadUse: [] }), /fewer than 1 items/);
+  assert.match(holding({ insteadUse: ['main-action-button'] }), /reason/);
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x' }, 'x').join('\n'), /only the root layer/);
   assert.match(validateLayerFile(REPO_ROOT, { id: 'y', extends: 'tanrei' }, 'x').join('\n'), /must equal the file name/);
 });

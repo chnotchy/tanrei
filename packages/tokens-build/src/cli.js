@@ -10,7 +10,7 @@ import { KOTLIN_PACKAGE, emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitTs } from './emit/ts.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
-import { DEFAULT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
+import { DEFAULT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, outsideStandIns, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
 import { nativeChain, sheetAvailability } from './layers.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
 import { PRESET_CRITERIA_NOTE, checkInvariants, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
@@ -116,6 +116,7 @@ const readLayer = (id) => loadSystem(REPO_ROOT, id);
 
 /** Where each component that lives in a layer lives: component → layer id. */
 const held = () => heldComponents(listSystems(REPO_ROOT), readLayer);
+const standIns = () => outsideStandIns(listSystems(REPO_ROOT), readLayer);
 
 /** The model of a system's native outputs (`nativeChain`, layers.js): the system's own when nothing lives outside it. */
 async function nativeModel(id, model) {
@@ -181,7 +182,7 @@ async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
       [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements),
       // Exactness, measured against the published system this preset reproduces.
       ...(fidelityMaps(REPO_ROOT).includes(id) ? { [`${bundleDir}/fidelity.json`]: measureFidelity(model, loadFidelityMap(id)) } : {}),
-      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, ...sheetAvailability(layerChain(id, readLayer), held()) }),
+      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, ...sheetAvailability(layerChain(id, readLayer), held(), standIns()) }),
       ...designToolExports(model, `design/tokens/${id}`),
       // Native values of the preset, next to the default system's: same vocabulary types, one more value.
       // Opt-in by reference — an app that never names the constant does not carry it.
@@ -210,7 +211,7 @@ async function generate() {
   // repo-relative paths → text, when a platform splits its output (vocabulary types + system values).
   const platform = (defaultPath, output) => (typeof output === 'string' ? { [defaultPath]: output } : output);
   const targets = {
-    'packages/web/src/generated/tokens.css': emitCss(model, sheetAvailability(layerChain(DEFAULT_SYSTEM, readLayer), held())),
+    'packages/web/src/generated/tokens.css': emitCss(model, sheetAvailability(layerChain(DEFAULT_SYSTEM, readLayer), held(), standIns())),
     ...platform('packages/react-native/src/generated/tokens.ts', emitTs(nativeIr)),
     ...platform('packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift', emitSwift(nativeIr)),
     ...platform(`packages/compose/tanrei/src/main/kotlin/${KOTLIN_PACKAGE.replaceAll('.', '/')}/TanreiTokens.kt`, emitKotlin(nativeIr)),

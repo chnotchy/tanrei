@@ -696,6 +696,32 @@
           "minLength": 8,
           "description": "Why the component lives in this layer and not in the core: the one-product test it passes here and fails there."
         },
+        "outside": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reason",
+            "insteadUse"
+          ],
+          "description": "What a system that does not have the component uses for its job: every shipped system's and product's components manifest lists the component under `omitted`, with the layer it lives in (`providedBy`), this `reason`, and those of `insteadUse` that the system ships.",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Why a system outside this layer does without the component, and how the components it names do its job."
+            },
+            "insteadUse": {
+              "type": "array",
+              "uniqueItems": true,
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+              },
+              "description": "The components (specs/inventory.json) a system without this one ships for the same job, in order of preference. Each shipped system that does not have the component ships every one of them."
+            }
+          }
+        },
         "rules": {
           "type": "array",
           "items": {

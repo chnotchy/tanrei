@@ -14,7 +14,7 @@ import status from '../../../docs/status/status.json';
 // The build's own emitter and invariants; their filesystem-bound import is swapped by ../vite-plugin.js.
 import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
-import { heldComponents, sheetAvailability } from '@tanrei/tokens-build/layers';
+import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
 import { createStudio } from './core.js';
 import { catalogOf } from './listing.js';
@@ -48,6 +48,7 @@ export const studio = createStudio({
   validateSchema: (layer: object) => (validate(layer) ? [] : (validate.errors ?? []).map((e: Json) => `${e.instancePath || '/'} ${e.message}`)),
   emitCss,
   heldComponents,
+  outsideStandIns,
   sheetAvailability,
   checkInvariants,
   contrast,

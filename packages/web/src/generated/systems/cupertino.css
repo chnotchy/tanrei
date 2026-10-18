@@ -5,7 +5,7 @@
     color-scheme: light dark;
     --tanrei-unavailable: "navigation-bar:filled";
     --tanrei-unavailable-layer: "fab-menu=m3-like";
-    --tanrei-unavailable-replacement: "";
+    --tanrei-unavailable-replacement: "fab-menu=main-action-button,bottom-sheet";
   }
   [data-tanrei-system="cupertino"], [data-tanrei-system="cupertino"] [data-tanrei-contrast] {
     --tanrei-comp-accordion-chevron-size-compact: var(--tanrei-sys-icon-small);

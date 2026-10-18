@@ -202,7 +202,7 @@ test('a product’s stylesheet names what its system uses instead, as its compon
   const listed = /\[data-tanrei-system="acme"\] \{\n[^}]*--tanrei-unavailable-replacement: "([^"]*)";/.exec(read('out/web/acme.css'))?.[1];
   const { omitted } = JSON.parse(read('out/tokens/components.json'));
   assert.equal(listed, omitted.filter((entry) => entry.insteadUse).map((entry) => `${entry.name}=${entry.insteadUse.join(',')}`).join(' '));
-  assert.match(listed, /^carousel=list segmented-button=[a-z,-]+$/, 'its own omit and the default system’s, which it keeps');
+  assert.match(listed, /^carousel=list fab-menu=main-action-button,bottom-sheet segmented-button=[a-z,-]+$/, 'its own omit, the default system’s, which it keeps, and what the layer that holds the FAB menu names');
 });
 
 test('explain, systems, init, help', () => {
