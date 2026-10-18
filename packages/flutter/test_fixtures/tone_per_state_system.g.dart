@@ -6627,7 +6627,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     arrowInset: 8.0,
     arrowVisible: 0.0,
     arrowWidth: 12.0,
-    closeButtonVariant: 4.0,
+    closeButtonVariant: 1.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel2,
     containerGap: 12.0,

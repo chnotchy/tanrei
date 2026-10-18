@@ -952,21 +952,24 @@ test.describe('size and layout', () => {
     await mount(page, `${anchorAt(200, 60)}${popover('headline="Storage" closable close-label="Close storage" data-keep')}`);
     await open(page);
     const button = part(page, 'tanrei-button.close');
-    expect(await token(page, T('close-button-variant'))).toBe('text');
+    expect(await token(page, T('close-button-variant'))).toBe('tonal');
     // No variant attribute: the popover gives it, and the Button draws that variant from its own tokens.
     expect(await button.evaluate((el) => [el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')!.textContent, el.getAttribute('part')])).toEqual(['small', false, 'close', 'close-button']);
     await page.mouse.move(0, 0);
-    expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
-    expect((await rect(button.locator('button'))).height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    // Small: 32 × 32 in the default system, the small Button's own height.
+    const box = await rect(button.locator('button'));
+    expect(box.height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([32, 32]);
     await expect(page.getByRole('button', { name: 'Close storage', exact: true })).toHaveCount(1);
     // It answers as any Button does: hover paints the Button's own hovered container.
     await button.hover();
-    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-hovered-container-color'));
+    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-hovered-container-color'));
     // A system's choice of variant reaches it through the same channel.
     await page.mouse.move(0, 0);
-    await override(page, { [T('close-button-variant')]: 'tonal' });
+    await override(page, { [T('close-button-variant')]: 'text' });
     await set(page, { headline: 'Storage used' });
-    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
     // Activated by pointer, Enter and Space: close, once each, with the reason close.
     await button.click();
     expect(await log(page)).toEqual(['p:close']);
@@ -981,6 +984,17 @@ test.describe('size and layout', () => {
     await expect.poll(() => seen.filter((text) => text.includes('POP-13')).length).toBe(1);
     expect(seen.find((text) => text.includes('POP-13'))).toContain('close-label is empty');
     await expect(button).toHaveCount(1);
+  });
+
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+      await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
+      const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
+      await expect(button, system).toHaveCount(1);
+      expect(await token(page, T('close-button-variant')), system).toBe('text');
+      await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor), system).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    }
   });
 
   test('POP-14: the content inherits comp.popover.content.color and plain text takes the body role; the popover does not lay out or restyle what it holds, which may be anything that takes input', async ({ page }) => {
