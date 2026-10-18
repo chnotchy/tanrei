@@ -1,0 +1,25 @@
+name: Question
+description: Ask how to use Tanrei, or what a spec, a token or a page means
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Issues are for bug reports and questions. Proposals for new components or tokens and pull requests from outside
+        are not accepted; [CONTRIBUTING.md](https://github.com/chnotchy/tanrei/blob/main/CONTRIBUTING.md#outside-contributions-are-not-accepted)
+        says why.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What you are trying to do, and what you read or tried. Link the page or cite the spec (e.g. BTN-3) if there is one.
+    validations: { required: true }
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options: [Web Components, React, SwiftUI, Jetpack Compose, Flutter, React Native, Tokens, Docs]
+  - type: input
+    id: version
+    attributes: { label: Tanrei version }
