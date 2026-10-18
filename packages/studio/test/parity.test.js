@@ -13,13 +13,14 @@ leavesNothingBehind(after); // helpers.build() removes its directory; the file f
 
 // Shipped systems are whatever tokens/systems/ holds — never a list kept here (the page globs the same folder,
 // src/data.ts). A new system is under this comparison the moment its file exists.
-test('every file in tokens/systems/ is a system the Studio offers, and each one is compared below', () => {
+test('every file in tokens/systems/ but the root is a system the Studio offers, and each one is compared below', () => {
   const onDisk = fs.readdirSync(path.join(repoRoot, 'tokens/systems')).filter((file) => file.endsWith('.system.json')).map((file) => file.replace('.system.json', ''));
-  assert.deepEqual(studio.systems.map((system) => system.id).sort(), onDisk.sort());
+  // The root layer is every chain's first and has no output of its own: it is not offered.
+  assert.deepEqual(studio.systems.map((system) => system.id).sort(), onDisk.filter((id) => id !== studio.rootId).sort());
   for (const id of onDisk) assert.equal(shipped[id].id, id, `${id}.system.json declares its own file name as its id`);
-  assert.equal(studio.systems[0].id, studio.rootId, 'the root system comes first');
+  assert.equal(studio.systems[0].id, studio.defaultId, 'the default system comes first');
   // A system on a system (m3-expressive-like on m3-like today) exercises a three-layer chain and a vocabulary a base declared.
-  const stacked = studio.systems.filter(({ id }) => shipped[id].extends && shipped[id].extends !== studio.rootId);
+  const stacked = studio.systems.filter(({ id }) => ![studio.defaultId, studio.rootId].includes(shipped[id].extends));
   assert.ok(stacked.length > 0, 'at least one shipped system extends another preset');
   for (const { id } of stacked) assert.ok(studio.base(id).chain.length >= 3 && studio.base(id).chain.some((layer) => layer.vocabulary), id);
 });

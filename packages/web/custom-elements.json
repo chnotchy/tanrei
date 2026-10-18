@@ -93597,6 +93597,69 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/m3-like.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiFabMenu",
+          "declaration": {
+            "name": "TanreiFabMenu",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuCloseDetail",
+          "declaration": {
+            "name": "TanreiFabMenuCloseDetail",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuCloseReason",
+          "declaration": {
+            "name": "TanreiFabMenuCloseReason",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuItem",
+          "declaration": {
+            "name": "TanreiFabMenuItem",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuSize",
+          "declaration": {
+            "name": "TanreiFabMenuSize",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuToggleDetail",
+          "declaration": {
+            "name": "TanreiFabMenuToggleDetail",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiFabMenuVariant",
+          "declaration": {
+            "name": "TanreiFabMenuVariant",
+            "module": "./components/fab-menu/fab-menu.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/primitives/composed.ts",
       "declarations": [
         {

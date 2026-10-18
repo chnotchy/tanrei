@@ -1,19 +1,19 @@
 ---
 title: 参与贡献
-description: 如何向 Tanrei 报告问题或提出修改，以及规则写在哪里。
+description: Tanrei 为什么不接受外部贡献，如何报告 bug 或提问，以及规则写在哪里。
 translationOf: project/contributing.mdx
-sourceHash: 7795aad349f2be975531197c5bf333ed64f2fb63
+sourceHash: 047c352a18358e9c52169217ade9ae4863801dcc
 ---
 
 import Callout from '../../../../components/Callout.astro';
 
-<Callout title="欢迎提交 issue；目前不接受拉取请求">
-  仓库已在 [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei) 公开。报告 bug、提问或提出修改，请[新建一个 issue](https://github.com/chnotchy/tanrei/issues)。目前不接受拉取请求（Pull Request）：修改由维护者按照下面的规则进行。安全问题请按仓库中 `SECURITY.md` 的说明私下报告，切勿写在 issue 里。
+<Callout title="不接受外部贡献">
+  仓库已在 [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei) 公开，好让任何人都能读到 Tanrei 是怎样做出来的。所有修改都由维护者进行：来自外部的拉取请求（Pull Request）会不经合并直接关闭，也不接受新组件或新令牌的提议。原因在于供应链的安全：Tanrei 是运行在别人产品里的代码，每一个来自外部的修改，都是一条让维护者没有写过的代码进入这些产品的通道；鉴于当前的安全形势，本项目不承担这种风险。报告 bug 或提问，请[新建一个 issue](https://github.com/chnotchy/tanrei/issues)。安全问题请按仓库中 `SECURITY.md` 的说明私下报告，切勿写在 issue 里。
 </Callout>
 
 ## 规则写在哪里
 
-仓库根目录的 `AGENTS.md` 是贡献者（无论是人还是 AI）的权威指南。它很短，先读一遍可以节省时间。每个包和源码目录都可以再放一份嵌套的 `AGENTS.md` 来补充本地规则；以最近的那份为准，但任何一份都不得削弱根目录的规则。根目录的 `CONTRIBUTING.md` 是它的详细版本。
+仓库根目录的 `AGENTS.md` 是修改仓库的人（无论是人还是 AI）的权威指南。它很短，先读一遍可以节省时间。每个包和源码目录都可以再放一份嵌套的 `AGENTS.md` 来补充本地规则；以最近的那份为准，但任何一份都不得削弱根目录的规则。根目录的 `CONTRIBUTING.md` 是它的详细版本。
 
 篇幅更长的资料放在仓库的 `docs/` 目录下：架构概览，以及说明谁决定什么的治理规则。
 
@@ -26,7 +26,7 @@ import Callout from '../../../../components/Callout.astro';
 3. **如实反映各平台的状态。** 如果某个平台没能完成，就让它的状态保持真实情况。状态矩阵由仓库生成，不得声称比实际存在的更多。
 4. **添加 changeset。** 凡是用户看得到的修改都要添加，并使用 Conventional Commits（`feat(web): …`、`fix(tokens): …`、`docs: …`）。
 
-## 不会被接受的修改
+## 任何修改都不得包含的内容
 
 - 在组件内部硬编码颜色、半径、字体排印、间距、动效或不透明度。
 - 为了让测试通过而更新快照基准图。

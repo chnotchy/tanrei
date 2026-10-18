@@ -4,7 +4,10 @@ import { config } from './repo';
 type Json = Record<string, any>;
 
 const files = import.meta.glob<Json>('../../../../design/tokens/*.tokens.json', { eager: true, import: 'default' });
-const sources = import.meta.glob<Json>('../../../../tokens/{sys,comp,ref}/*.tokens.json', { eager: true, import: 'default' });
+// The core's documents, and those of the components that live in a layer (tokens/systems/<layer>/comp/).
+const sources = import.meta.glob<Json>(['../../../../tokens/{sys,comp,ref}/*.tokens.json', '../../../../tokens/systems/*/comp/*.tokens.json'], { eager: true, import: 'default' });
+// Each preset's resolved permutations (design/tokens/<id>/), for a component that lives in its layer.
+const presetFiles = import.meta.glob<Json>('../../../../design/tokens/*/*.tokens.json', { eager: true, import: 'default' });
 
 /** Context id → resolved token tree. Ids look like `light`, `dark`, `light-high`. */
 export const contexts: Record<string, Json> = Object.fromEntries(
@@ -39,9 +42,14 @@ function at(tree: Json, dotted: string): Json | undefined {
   return dotted.split('.').reduce<Json | undefined>((node, key) => node?.[key], tree);
 }
 
-/** All tokens under a dotted group (e.g. `tanrei.sys.color`) in one context. */
-export function tokensIn(group: string, context = 'light'): Token[] {
-  const tree = contexts[context];
+/**
+ * All tokens under a dotted group (e.g. `tanrei.sys.color`) in one context — of the default system, or of `system`: a
+ * component that lives in a layer has its tokens only in the systems that descend from it, and is read in that layer's.
+ */
+export function tokensIn(group: string, context = 'light', system?: string): Token[] {
+  const preset = system && system !== ns && system !== 'core' ? Object.entries(presetFiles).find(([file]) => file.endsWith(`/${system}/${ns}.${context}.tokens.json`))?.[1] : undefined;
+  if (system && system !== ns && system !== 'core' && !preset) throw new Error(`design/tokens/${system}/ has no "${context}" context. Run pnpm generate.`);
+  const tree = preset ?? contexts[context];
   if (!tree) throw new Error(`design/tokens/ has no "${context}" context. Run pnpm generate.`);
   const node = at(tree, group);
   const out: Token[] = [];
@@ -97,11 +105,15 @@ export interface ShippedSystem {
   /** Resolved tokens, light scheme. */
   tree: Json;
 }
-/** The default system first, then the presets by id. */
+/**
+ * The default system first, then the presets by id. The root layer (the one without `extends`) is the first layer of
+ * every chain and has no output of its own, so it is not one of them.
+ */
 export const shippedSystems: ShippedSystem[] = Object.values(layerFiles)
-  .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+  .filter((layer) => layer.extends)
+  .sort((a, b) => Number(a.id !== ns) - Number(b.id !== ns) || a.id.localeCompare(b.id))
   .map((layer) => {
-    const tree = layer.extends ? Object.entries(systemFiles).find(([file]) => file.split('/').at(-2) === layer.id)?.[1] : contexts.light;
+    const tree = layer.id !== ns ? Object.entries(systemFiles).find(([file]) => file.split('/').at(-2) === layer.id)?.[1] : contexts.light;
     if (!tree) throw new Error(`design/tokens/ has no resolved tokens for the system "${layer.id}". Run pnpm generate.`);
     return { id: layer.id, name: layer.name, extends: layer.extends, tree };
   });

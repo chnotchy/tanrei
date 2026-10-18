@@ -22,6 +22,8 @@ type Json = Record<string, any>;
 
 const tokenFiles = import.meta.glob<Json>('../../../tokens/{dial,ref,sys,comp}/*.tokens.json', { eager: true, import: 'default' });
 const layerFiles = import.meta.glob<Json>('../../../tokens/systems/*.system.json', { eager: true, import: 'default' });
+// The documents of the components that live in a layer, read by the systems that have them.
+const heldFiles = import.meta.glob<Json>('../../../tokens/systems/*/comp/*.tokens.json', { eager: true, import: 'default' });
 
 // The hand-authored sources the default resolver names, keyed exactly as the build keys them.
 const byRef = Object.fromEntries(Object.entries(tokenFiles).map(([file, doc]) => [file.split('/tokens/').pop()!, doc]));
@@ -31,6 +33,7 @@ const sources = Object.fromEntries(
     .filter((ref: string) => !ref.startsWith('generated/'))
     .map((ref: string) => [ref, byRef[ref]]),
 );
+for (const [file, doc] of Object.entries(heldFiles)) sources[file.split('/tokens/').pop()!] = doc;
 const layers = Object.fromEntries(Object.values(layerFiles).map((layer) => [layer.id, layer]));
 
 export const studio = createStudio({
