@@ -23,6 +23,7 @@ import {
   watchEscape,
 } from '../../primitives/index.js';
 import { styles } from './dialog.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
 export type TanreiDialogClosedBy = 'any' | 'none' | 'closerequest';
@@ -97,7 +98,7 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * @fires {CustomEvent<TanreiDialogDismissDetail>} cancel - Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back` or `scrim`. Cancelable: `preventDefault()` keeps it open.
  * @fires close - The dialog closed, whatever closed it.
  */
-export class TanreiDialog extends LitElement implements VariantHost {
+export class TanreiDialog extends TanreiElement implements VariantHost {
   private readonly availability = new AvailabilityController(this, 'dialog');
   /**
    * DLG-22: the glyph in the icon slot is marked when the icon set mirrors its name in right-to-left, or the product's
@@ -515,6 +516,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
       <dialog
         part="container"
         class="container"
+        data-tanrei-appear
         role=${this.alert ? 'alertdialog' : 'dialog'}
         aria-labelledby=${headline ? 'headline' : nothing}
         aria-describedby=${supporting ? 'supporting' : nothing}

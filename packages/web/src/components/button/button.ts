@@ -31,6 +31,7 @@ import {
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import { AXES, WIDTHS, styles } from './button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants, plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonVariant = keyof TanreiButtonVariantRegistry;
@@ -99,7 +100,7 @@ export interface TanreiButtonChangeDetail {
  * @fires click - The button was activated by pointer, touch, keyboard or assistive technology. A link button fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  * @fires {CustomEvent<TanreiButtonChangeDetail>} change - A toggle was activated; fired after its `click`. `detail.selected` (and the element's `selected`) is the new value.
  */
-export class TanreiButton extends LitElement {
+export class TanreiButton extends TanreiElement {
   /** BTN-29: one of its form's controls, for its form owner and for a disabled fieldset (BTN-32). */
   static formAssociated = true;
 

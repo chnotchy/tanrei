@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import {
   AvailabilityController,
   PressController,
@@ -18,6 +18,7 @@ import { DRAWN_WIDTH } from '../../primitives/glyph.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionDensityRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core looks (plain, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAccordionVariant = keyof TanreiAccordionVariantRegistry;
@@ -230,7 +231,7 @@ let descriptions = 0;
  * @tag tanrei-accordion
  * @slot - The items: native `<details>` elements, each with a `<summary>` first. They are children in the document, not slotted nodes: the element has no shadow root.
  */
-export class TanreiAccordion extends ReactiveElement {
+export class TanreiAccordion extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'accordion');
 
   static override properties: PropertyDeclarations = {

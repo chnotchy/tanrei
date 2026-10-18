@@ -105,8 +105,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-accordion",
           "customElement": true
@@ -512,8 +512,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-app-bar",
           "customElement": true
@@ -792,8 +792,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-app-shell",
           "customElement": true
@@ -1152,8 +1152,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-avatar",
           "customElement": true
@@ -1315,8 +1315,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-avatar-group",
           "customElement": true
@@ -1466,8 +1466,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-badge",
           "customElement": true
@@ -1858,8 +1858,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-bottom-sheet",
           "customElement": true
@@ -2044,8 +2044,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-breadcrumbs",
           "customElement": true
@@ -2228,8 +2228,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button-group",
           "customElement": true
@@ -2643,8 +2643,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button-with-menu",
           "customElement": true
@@ -3363,8 +3363,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-button",
           "customElement": true
@@ -3879,8 +3879,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-calendar",
           "customElement": true
@@ -4253,8 +4253,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-callout",
           "customElement": true
@@ -4590,8 +4590,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-card",
           "customElement": true
@@ -5300,8 +5300,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-carousel-item",
           "customElement": true
@@ -5789,8 +5789,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-carousel",
           "customElement": true
@@ -7792,8 +7792,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-checkbox",
           "customElement": true
@@ -9175,8 +9175,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-chip",
           "customElement": true
@@ -10151,8 +10151,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-code-block",
           "customElement": true
@@ -11418,8 +11418,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-color-input",
           "customElement": true
@@ -13555,8 +13555,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-combobox",
           "customElement": true
@@ -13838,8 +13838,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-copy-button",
           "customElement": true
@@ -14833,8 +14833,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-date-time-picker",
           "customElement": true
@@ -14962,8 +14962,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-description-list",
           "customElement": true
@@ -15235,8 +15235,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-dialog",
           "customElement": true
@@ -15589,8 +15589,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-divider",
           "customElement": true
@@ -15919,8 +15919,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-drop-zone",
           "customElement": true
@@ -16522,8 +16522,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-embedded-text-input",
           "customElement": true
@@ -16775,8 +16775,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-empty-state",
           "customElement": true
@@ -16958,8 +16958,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-fab-menu-item",
           "customElement": true
@@ -17160,8 +17160,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-fab-menu",
           "customElement": true
@@ -17606,8 +17606,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-field-group",
           "customElement": true
@@ -17987,8 +17987,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-field",
           "customElement": true
@@ -18192,8 +18192,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-figure",
           "customElement": true
@@ -18924,8 +18924,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-file-item",
           "customElement": true
@@ -19324,8 +19324,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-file-picker",
           "customElement": true
@@ -20841,8 +20841,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-handle",
           "customElement": true
@@ -21034,8 +21034,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-image-preview-item",
           "customElement": true
@@ -21488,8 +21488,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-image-preview",
           "customElement": true
@@ -21778,8 +21778,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-keyboard-shortcut",
           "customElement": true
@@ -22070,8 +22070,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-link-card",
           "customElement": true
@@ -22376,8 +22376,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list-row",
           "customElement": true
@@ -22687,8 +22687,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list-item",
           "customElement": true
@@ -23096,8 +23096,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-list",
           "customElement": true
@@ -23357,8 +23357,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-loading-indicator",
           "customElement": true
@@ -23652,8 +23652,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-main-action-button",
           "customElement": true
@@ -23946,10 +23946,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -25597,8 +25596,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menu-group",
           "customElement": true
@@ -25808,8 +25807,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menu",
           "customElement": true
@@ -26188,8 +26187,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar-menu",
           "customElement": true
@@ -26343,8 +26342,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar-item",
           "customElement": true
@@ -26452,8 +26451,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-menubar",
           "customElement": true
@@ -26802,8 +26801,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-meter",
           "customElement": true
@@ -26965,8 +26964,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-modal-layer",
           "customElement": true
@@ -27589,8 +27588,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-bar",
           "customElement": true
@@ -28758,8 +28757,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-drawer-section",
           "customElement": true
@@ -29355,8 +29354,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-navigation-drawer",
           "customElement": true
@@ -31268,8 +31267,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-number-input",
           "customElement": true
@@ -33233,8 +33232,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-one-time-code-input",
           "customElement": true
@@ -33383,8 +33382,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-option",
           "customElement": true
@@ -33425,8 +33424,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-option-group",
           "customElement": true
@@ -33629,8 +33628,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-page-header",
           "customElement": true
@@ -34115,8 +34114,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-pagination",
           "customElement": true
@@ -34659,8 +34658,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-popover",
           "customElement": true
@@ -34939,8 +34938,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-progress-indicator",
           "customElement": true
@@ -35273,8 +35272,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-radio-button",
           "customElement": true
@@ -35945,8 +35944,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-search-suggestion",
           "customElement": true
@@ -36170,10 +36169,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -37264,8 +37262,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-search",
           "customElement": true
@@ -37574,8 +37572,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-segment",
           "customElement": true
@@ -37721,8 +37719,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-segmented-button",
           "customElement": true
@@ -39173,8 +39171,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-select",
           "customElement": true
@@ -39497,8 +39495,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-side-sheet",
           "customElement": true
@@ -39611,8 +39609,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-skeleton",
           "customElement": true
@@ -41149,8 +41147,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-slider",
           "customElement": true
@@ -41648,8 +41646,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-snackbar",
           "customElement": true
@@ -41727,8 +41725,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-snackbar-host",
           "customElement": true
@@ -42006,8 +42004,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-stepper-step",
           "customElement": true
@@ -42205,8 +42203,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-stepper",
           "customElement": true
@@ -42488,8 +42486,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-swatch",
           "customElement": true
@@ -42832,8 +42830,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-switch",
           "customElement": true
@@ -43151,8 +43149,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab-view",
           "customElement": true
@@ -43422,8 +43420,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-table-of-contents",
           "customElement": true
@@ -43771,8 +43769,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-table",
           "customElement": true
@@ -44164,8 +44162,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab",
           "customElement": true
@@ -44288,8 +44286,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tab-panel",
           "customElement": true
@@ -44556,8 +44554,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tabs",
           "customElement": true
@@ -44768,8 +44766,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tag-group",
           "customElement": true
@@ -45064,8 +45062,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tag",
           "customElement": true
@@ -48049,8 +48047,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-text-input",
           "customElement": true
@@ -48243,8 +48241,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-toolbar",
           "customElement": true
@@ -48727,8 +48725,8 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tooltip",
           "customElement": true
@@ -49278,8 +49276,8 @@
             }
           ],
           "superclass": {
-            "name": "ReactiveElement",
-            "package": "lit"
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           },
           "tagName": "tanrei-tree-view",
           "customElement": true
@@ -49350,10 +49348,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         },
         {
           "kind": "class",
@@ -49805,10 +49802,9 @@
             }
           ],
           "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
         }
       ],
       "exports": [
@@ -49818,6 +49814,50 @@
           "declaration": {
             "name": "NavigationDestination",
             "module": "src/primitives/destination.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/primitives/element.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles.",
+          "name": "TanreiElement",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "description": "An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`).",
+          "name": "TanreiLightElement",
+          "superclass": {
+            "name": "ReactiveElement",
+            "package": "lit"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiElement",
+          "declaration": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiLightElement",
+          "declaration": {
+            "name": "TanreiLightElement",
+            "module": "src/primitives/element.ts"
           }
         }
       ]

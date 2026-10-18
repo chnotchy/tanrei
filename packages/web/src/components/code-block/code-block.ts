@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, OpenAxesController, report, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import type { TanreiCodeBlockSizeRegistry, TanreiCodeBlockVariantRegistry } from '../../registry.js';
@@ -9,6 +9,7 @@ import type { TanreiCopyButtonCopiedDetail, TanreiCopyButtonCopyFailedDetail } f
 import { CODE_BLOCK_CSS, CODE_BLOCK_DRAWN, SYNTAX_ROLES, roleRule } from './code-block.light.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { AXES, styles } from './code-block.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCodeBlockVariant = keyof TanreiCodeBlockVariantRegistry;
@@ -242,7 +243,7 @@ function pieces(node: Node): Node[] {
  * @fires {CustomEvent<TanreiCodeBlockCopiedDetail>} copied - The code was copied by the block's copy button; `detail.text` is the text that was copied.
  * @fires {CustomEvent<TanreiCodeBlockCopyFailedDetail>} copyfailed - The platform refused the copy asked for by the block's copy button; `detail.reason` is its reason, where it gave one.
  */
-export class TanreiCodeBlock extends LitElement {
+export class TanreiCodeBlock extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'code-block');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);

@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
@@ -27,6 +27,7 @@ import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import { ARROW_PROPERTY, CHOICE, INVERSE_PROPERTY, styles } from './tooltip.styles.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, type TooltipSide, placeTooltip } from './tooltip-placement.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export { type TanreiTooltipPlacement, type TooltipArrow, type TooltipBox, type TooltipPlace, type TooltipSide, placeTooltip } from './tooltip-placement.js';
 
@@ -113,7 +114,7 @@ function warmFor(duration: number) {
  * @csspart shortcut - The `<tanrei-keyboard-shortcut>` that writes a plain tooltip's shortcut after its text.
  * @fires {CustomEvent<TanreiTooltipToggleDetail>} toggle - The tooltip opened or closed by itself (hover, focus, long-press, Escape, the touch timeout, another tooltip opening): `detail.open` (and the element's `open`) is the new value.
  */
-export class TanreiTooltip extends LitElement {
+export class TanreiTooltip extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tooltip');
   static override styles = [styles, hiddenHost];
 
@@ -896,7 +897,7 @@ export class TanreiTooltip extends LitElement {
         @mousedown=${this.swallow}
         @pointerup=${this.swallow}
       >
-        <div class="motion">
+        <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
           <div part="container" class=${keys.length ? 'bubble keyed' : 'bubble'} data-tanrei-shape>
             ${title ? html`<span part="title" class="title">${title}</span>` : nothing}

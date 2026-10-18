@@ -1,8 +1,9 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiDescriptionListDensityRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
@@ -147,7 +148,7 @@ function mark(element: Element, name: string, value: string | null) {
  * @tag tanrei-description-list
  * @slot - The native `<dl>`: one `<div>` per fact around a `<dt>` and its `<dd>`s. It is a child in the document, not a slotted node: the element has no shadow root.
  */
-export class TanreiDescriptionList extends ReactiveElement {
+export class TanreiDescriptionList extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'description-list');
 
   static override properties: PropertyDeclarations = {

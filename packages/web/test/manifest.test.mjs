@@ -68,7 +68,7 @@ test('the analyzer\'s sources are written once: in its configuration, which the 
   // Written twice — in the script and, as an argument list, in the drift check — a source added to one alone would
   // make the check regenerate another manifest than the committed one.
   const config = (await import('../custom-elements-manifest.config.mjs')).default;
-  assert.deepEqual(config.globs, ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts']);
+  assert.deepEqual(config.globs, ['src/components/**/*.ts', 'src/primitives/element.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts']);
   assert.deepEqual(config.exclude, ['**/*.test.ts']);
   assert.equal(config.outdir, '.');
   assert.equal(config.litelement, true);
@@ -79,9 +79,9 @@ test('the analyzer\'s sources are written once: in its configuration, which the 
   assert.equal(drift.length, 1, 'the drift check runs the analyzer');
   assert.deepEqual(drift[0][2], ['analyze'], 'and neither does the drift check');
   assert.deepEqual(drift[0][3], ['packages/web/custom-elements.json'], 'and compares the manifest the configuration writes');
-  // What the configuration names is what the manifest holds: every module is a component's, or one of the two
-  // primitives that hold a base class (a navigation destination's; a composed element's).
-  for (const module of manifest.modules) assert.ok(module.path.startsWith('src/components/') || ['src/primitives/destination.ts', 'src/primitives/composed.ts'].includes(module.path), module.path);
+  // What the configuration names is what the manifest holds: every module is a component's, or one of the three
+  // primitives that hold a base class (every element's; a navigation destination's; a composed element's).
+  for (const module of manifest.modules) assert.ok(module.path.startsWith('src/components/') || ['src/primitives/element.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts'].includes(module.path), module.path);
   assert.ok(!manifest.modules.some((module) => module.path.endsWith('.test.ts')));
 });
 

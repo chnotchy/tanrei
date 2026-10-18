@@ -1,9 +1,10 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { type FrameProps, type FrameRequiredMark, frameAnnounce, frameRequirement, frameWithWords, reportFrame, syncFrameMark } from '../../primitives/field-frame.js';
 import { GROUP_ORIENTATIONS, type GroupOrientation, type GroupSemantics, groupDescribedBy, groupOrientation, groupRows } from '../../primitives/field-group-frame.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, OpenAxesController, WordsController, report } from '../../primitives/index.js';
 import type { TanreiFieldGroupSpacingRegistry } from '../../registry.js';
 import { AXES, CORE_SPACINGS, PREFIX, styles } from './field-group.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What the form asks of the set: nothing, an answer, or that it may be left out. */
 /** How a required set is marked: the design system's answer (auto), a tag, an asterisk, or nothing. */
@@ -72,7 +73,7 @@ const PLAIN_ERROR_CONDITION = 'input[type="checkbox"], [role="checkbox"]';
  * @csspart supporting-text - The description under the label.
  * @csspart error-text - The error text below the controls.
  */
-export class TanreiFieldGroup extends LitElement {
+export class TanreiFieldGroup extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'field-group');
   static override styles = styles;
 

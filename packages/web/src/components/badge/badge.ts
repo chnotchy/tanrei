@@ -1,6 +1,7 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { AvailabilityController, report } from '../../primitives/index.js';
 import { styles } from './badge.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** A larger count shows as `max` followed by a plus sign. */
 const DEFAULT_MAX = 999;
@@ -29,7 +30,7 @@ const ownDescriptions = new WeakMap<Element, string | null>();
  * @csspart container - The dot, or the pill that holds the count (hidden from assistive technology).
  * @csspart label - The count, or the capped count followed by a plus sign.
  */
-export class TanreiBadge extends LitElement {
+export class TanreiBadge extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'badge');
   static override styles = styles;
 

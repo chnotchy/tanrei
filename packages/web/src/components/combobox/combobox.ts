@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
   DismissController,
@@ -42,6 +42,7 @@ import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INSET, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
@@ -198,7 +199,7 @@ function matchRun(folded: Folded, query: string): [string, string, string] | nul
  * @fires {CustomEvent<TanreiComboboxToggleDetail>} toggle - The list was opened or closed by the person, or closed by having nothing left to show; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` or `empty`. After a choice it follows `change`. Composed and not bubbling, as the platform's own `toggle`: heard on the element, and on an element composed around it, and by no ancestor. Never fired when the product sets `open`.
  * @fires {CustomEvent<TanreiComboboxChangeDetail>} action - The person pressed Enter with no option active and the text was committed; after any `change` it caused. Cancelable: unless it is cancelled, the form the combobox stands in is then asked to submit.
  */
-export class TanreiCombobox extends LitElement {
+export class TanreiCombobox extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'combobox');
   static override styles = styles;
 

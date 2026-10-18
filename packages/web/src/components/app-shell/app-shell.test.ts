@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, propertyOf, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
 import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { allSettled } from '../../../test/settled.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -1486,6 +1487,10 @@ test.describe('the element and its stylesheet', () => {
     const listeners = await page.evaluate(() => (window as unknown as { __listeners: string[] }).__listeners);
     expect(listeners.filter((entry) => entry.startsWith('media:') && /37\.5rem|64rem/.test(entry)).sort()).toEqual(['media:(min-width: 37.5rem)', 'media:(min-width: 64rem)']);
     expect(listeners.filter((entry) => /resize|scroll/.test(entry))).toEqual([]);
+    // Once it has drawn its first frames — every element settles over two frame callbacks after it is connected
+    // (MOT-3, src/primitives/element.ts) — it asks for none.
+    await allSettled(page);
+    await page.evaluate(() => ((window as unknown as { __frames: number }).__frames = 0));
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => (window as unknown as { __frames: number }).__frames)).toBe(0);
   });

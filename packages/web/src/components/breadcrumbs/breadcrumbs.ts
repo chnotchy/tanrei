@@ -22,6 +22,7 @@ import '../menu/menu.js';
 import type { TanreiMenuCloseDetail } from '../menu/menu.js';
 import { styles } from './breadcrumbs.styles.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What a trail longer than its width does (BRC-9, BRC-15): fold its middle behind the overflow button, or run over several lines. */
 export type TanreiBreadcrumbsOverflow = 'collapse' | 'wrap';
@@ -146,7 +147,7 @@ function takenOut(count: number, out: number): Set<number> {
  * @csspart overflow-button - The button that stands for the levels taken out of the trail and opens their menu.
  * @csspart overflow-icon - The overflow button's glyph.
  */
-export class TanreiBreadcrumbs extends LitElement {
+export class TanreiBreadcrumbs extends TanreiElement {
   static override styles = styles;
 
   // Each level stands in a list item of its own, so the element assigns each child to that item's slot (BRC-1).

@@ -30,6 +30,7 @@ import type { TanreiTabsSizeRegistry, TanreiTabsVariantRegistry } from '../../re
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (primary, secondary, tonal), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsVariant = keyof TanreiTabsVariantRegistry | (string & {});
@@ -245,7 +246,7 @@ const SLIDE = 'tanrei-tabs-slide';
  * @csspart active-indicator - The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).
  * @csspart underline - The underline's piece on the tab's bottom edge, clipped to where the underline is (hidden from assistive technology).
  */
-export class TanreiTab extends LitElement {
+export class TanreiTab extends TanreiElement {
   static override styles = [tabStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -681,7 +682,7 @@ export class TanreiTab extends LitElement {
  * @tag tanrei-tab-panel
  * @slot - The view.
  */
-export class TanreiTabPanel extends LitElement {
+export class TanreiTabPanel extends TanreiElement {
   static override styles = panelStyles;
 
   static override properties: PropertyDeclarations = {
@@ -783,7 +784,7 @@ export class TanreiTabPanel extends LitElement {
  * @csspart divider - The line along the bottom of the whole row.
  * @fires {CustomEvent<TanreiTabsChangeDetail>} change - The user selected another tab: `detail.value` (and the row's `value`) is its value.
  */
-export class TanreiTabs extends LitElement {
+export class TanreiTabs extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tabs');
   static override styles = [tabsStyles, hiddenHost];
 

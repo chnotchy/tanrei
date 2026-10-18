@@ -98,7 +98,8 @@ test.describe('one-time-code field', () => {
         text: [...root.childNodes, ...frame.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim() !== '').length,
         parts: [frame.getAttribute('part'), control.getAttribute('part')],
         exported: [frame.getAttribute('exportparts'), control.getAttribute('exportparts')],
-        // Its own sheet: the host's display and the hidden rule. No token is read and no size, gap or color is named.
+        // Its own sheet: the host's display and the hidden rule, and the rule every element has that starts no transition
+        // while it settles (MOT-3, src/styles/motion.ts), which draws nothing. No token is read and no size, gap or color is named.
         sheet: [...root.adoptedStyleSheets].flatMap((sheet) => [...sheet.cssRules].map((rule) => rule.cssText.replace(/\s+/g, ' '))),
         display: getComputedStyle(el).display,
         widths: [box(el.parentElement!).width - 32, box(el).width, box(frame).width, box(control).width],
@@ -110,7 +111,7 @@ test.describe('one-time-code field', () => {
     expect(made).toMatchObject({ frame: true, control: true, text: 0, parts: ['field', 'one-time-code-input'], display: 'block', delegates: false });
     expect(made.exported).toEqual(['label, label-icon, requirement-label, supporting-text, error-text', 'input, cell, character, caret, separator']);
     expect(made.sheet.join(' ')).not.toContain('--');
-    expect(made.sheet.every((rule) => /^:host(\(.*\))? \{ display: (block|none); \}$/.test(rule)), made.sheet.join(' | ')).toBe(true);
+    expect(made.sheet.every((rule) => /^:host(\(.*\))? \{ display: (block|none); \}$/.test(rule) || /^:host\(\[data-tanrei-settling\][^{]* \{ transition-property: none !important; \}$/.test(rule)), made.sheet.join(' | ')).toBe(true);
     // As wide as its place, the frame as wide as it, and the control filling the frame; as tall as its Field.
     expect(new Set(made.widths).size, `widths ${made.widths.join(', ')}`).toBe(1);
     expect(made.height[0]).toBe(made.height[1]);

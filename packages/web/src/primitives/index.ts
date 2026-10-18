@@ -121,6 +121,8 @@
 //                 value shown, exit() resolved by its transitions), AnimatedSize (a box whose size follows its content,
 //                 anchored, clipped, MOT-5), Settle with settleStyles / settleRule() (styles/motion.ts: no transition in
 //                 an element's first frames, MOT-3)
+//   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
+//                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet
 //   dismiss     — DismissController: Escape (the topmost surface alone, after everything inside heard the key), a press
 //                 outside and focus leaving ask the host to close (POP-21, POP-23); registerOverlay() and
 //                 logicalAncestors(): an overlay opened from inside a surface is that surface's own (POP-24)
@@ -203,6 +205,7 @@ export {
   documentPainted,
 } from './motion.js';
 export { APPEARING, SETTLING, settleRule, settleStyles } from '../styles/motion.js';
+export { TanreiElement, TanreiLightElement } from './element.js';
 export { DismissController, type DismissOptions, type DismissReason, type OverlayEntry, logicalAncestors, overlayDepth, registerOverlay } from './dismiss.js';
 export { type OverlayTabOptions, focusOverlay, keepOverlayFocusAfterPress, quietFocus, returnOverlayFocus, tabThroughOverlay, watchInput } from './overlay-focus.js';
 export { hostAria } from './host-aria.js';

@@ -21,6 +21,7 @@ import type { TanreiChipSizeRegistry, TanreiChipVariantRegistry } from '../../re
 import { AXES, styles } from './chip.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What the chip does: a button (action), an on / off toggle (filter) or an item the user entered and can remove (input). A closed set. */
 export type TanreiChipKind = 'action' | 'filter' | 'input';
@@ -82,7 +83,7 @@ const REMOVE_GLYPH = 'cancel';
  * @fires {CustomEvent<TanreiChipChangeDetail>} change - A filter chip was activated; fired after its `click`, as a native checkbox does. `detail.selected` (and the element's `selected`) is the new value.
  * @fires remove - The user asked to remove an input chip, with its remove action or with Backspace or Delete. The chip stays until the page removes it.
  */
-export class TanreiChip extends LitElement {
+export class TanreiChip extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'chip');
   static override styles = [styles, hiddenHost];
 

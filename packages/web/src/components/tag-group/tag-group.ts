@@ -1,7 +1,8 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { AvailabilityController, OpenAxesController, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core spacings (tags, chips), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagGroupSpacing = keyof TanreiTagGroupSpacingRegistry;
@@ -62,7 +63,7 @@ function holdsFocus(member: Element): boolean {
  * @tag tanrei-tag-group
  * @slot - The members: `<tanrei-tag>` and `<tanrei-chip>` elements. Anything else is still laid out, and reported in debug builds (TGR-11).
  */
-export class TanreiTagGroup extends LitElement {
+export class TanreiTagGroup extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tag-group');
   static override styles = styles;
 
