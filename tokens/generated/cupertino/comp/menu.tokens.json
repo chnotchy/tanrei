@@ -132,7 +132,13 @@
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.small}",
-            "$description": "The corners of an item's row, which the state layer fills."
+            "$description": "The corners of an item's row, which the state layer fills: the sheet's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.menu.surface.shape}",
+                "inset": "{tanrei.comp.menu.surface.padding-inline}"
+              }
+            }
           },
           "height": {
             "$type": "dimension",

@@ -45,3 +45,36 @@ test('an annotated inner corner that is not its outer corner less the inset is r
   const broken = { ...model, tokens: { ...model.tokens, [INNER]: { ...model.tokens[INNER], concentric: { outer: `{${OUTER}}` } } } };
   assert.deepEqual(checkInvariants(broken).filter((f) => f.includes('dev.tanrei.concentric names')).length, 1);
 });
+
+// The rows of the menu family stand inside their sheet at its inline padding: in the default system each row's corner
+// is the sheet's less that padding (8 − 4 = 4, where it was 6 and bulged past the sheet's curve). The presets keep the
+// corners they drew.
+const ROWS = [
+  ['tanrei.comp.menu.container.shape', OUTER, INSET],
+  ['tanrei.comp.select.option.shape', 'tanrei.comp.select.list.shape', 'tanrei.comp.select.list.padding-inline'],
+  ['tanrei.comp.combobox.option.shape', 'tanrei.comp.combobox.list.shape', 'tanrei.comp.combobox.list.padding-inline'],
+  ['tanrei.comp.search.suggestion.container.shape', 'tanrei.comp.search.view.container.shape', 'tanrei.comp.search.view.padding-inline'],
+];
+
+test('the rows of a menu, a select, a combobox and a search view are concentric with their sheet in the default system', async () => {
+  const model = await buildModel();
+  for (const [inner, outer, inset] of ROWS) {
+    const token = model.tokens[inner];
+    assert.deepEqual(token.concentric, { outer: `{${outer}}`, inset: `{${inset}}` }, `${inner} names its pair`);
+    assert.deepEqual(token.derive, { fn: 'sub', of: `{${outer}}`, by: `{${inset}}` }, `${inner} is derived from it`);
+    assert.deepEqual(token.value, { value: 4, unit: 'px' }, inner);
+  }
+  assert.deepEqual(checkInvariants(model).filter((f) => f.includes('an inner corner is its outer corner less the inset')), []);
+  const css = emitCss(model);
+  for (const [inner, outer, inset] of ROWS) assert.ok(css.includes(`${cssVar(inner)}: max(0px, calc(var(${cssVar(outer)}) - var(${cssVar(inset)})));`), inner);
+});
+
+test('the presets keep the corners their rows had', async () => {
+  const corners = async (system) => {
+    const { tokens } = await (await resolveSystem({ system })).model();
+    return Object.fromEntries(ROWS.map(([inner]) => [inner.split('.').slice(2).join('.'), tokens[inner].value.value]));
+  };
+  assert.deepEqual(await corners('m3-like'), { 'menu.container.shape': 0, 'select.option.shape': 0, 'combobox.option.shape': 0, 'search.suggestion.container.shape': 8 });
+  assert.deepEqual(await corners('m3-expressive-like'), await corners('m3-like'));
+  assert.deepEqual(await corners('cupertino'), { 'menu.container.shape': 8, 'select.option.shape': 8, 'combobox.option.shape': 8, 'search.suggestion.container.shape': 8 });
+});

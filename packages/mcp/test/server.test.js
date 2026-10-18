@@ -355,10 +355,10 @@ test('explain_token: rationale, the layers that touch it, and the legal operatio
   assert.deepEqual(corner.howToChange.map((o) => o.op), ['scale', 're-point alias', 'derive', 'pin $value']);
   assert.deepEqual(corner.howToChange[0].write, { tokens: { 'tanrei.sys.shape.corner.small': { scale: 1.5 } } }, 'every `write` is a fragment of a layer');
   const usedBy = (await server.call('explain_token', { token: 'tanrei.sys.shape.corner.small' })).data.usedBy;
-  // `usedBy.first` shows eight ids in alphabetical order, and the menu is not among
-  // them; the menu's own alias chain says the same thing whatever else aliases the step.
-  const menuShape = (await server.call('explain_token', { token: 'tanrei.comp.menu.container.shape' })).data;
-  assert.ok(usedBy.total >= 1 && JSON.stringify(menuShape.aliasChain ?? []).includes('tanrei.sys.shape.corner.small'), 'in the root system the menu aliases this step; m3-like re-points it');
+  // `usedBy.first` shows eight ids in alphabetical order; whatever else aliases the step, the menu bar's own alias chain
+  // says it is one of them. (A menu's row is not: its corner is its sheet's less the inset, a `sub` rule.)
+  const menubarShape = (await server.call('explain_token', { token: 'tanrei.comp.menubar.container.shape' })).data;
+  assert.ok(usedBy.total >= 1 && JSON.stringify(menubarShape.aliasChain ?? []).includes('tanrei.sys.shape.corner.small'), 'in the root system the menu bar aliases this step');
   assert.ok(!usedBy.first.includes('tanrei.comp.button.container.shape'), 'every button is fully rounded');
   // What `usedBy` means, held from the tokens and not from a list every new component joins: under m3-like every
   // token whose alias reaches the step, directly or through another token, is counted, and the first eight are shown.

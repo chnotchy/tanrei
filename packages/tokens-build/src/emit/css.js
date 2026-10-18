@@ -129,14 +129,20 @@ function declarations(token) {
 // a circle. CSS cannot tell a box its radius was clamped, but the build knows which shape tokens are the full step: every
 // comp token whose alias chain reaches `sys.shape.corner.*` gets a companion `<name>-pill` — 1 when the chain passes
 // through `corner.full`, else 0 — which the web's one corner rule reads to draw that box round whatever the smoothing.
+// A corner derived by `sub` (one inside another, less the inset) is not the full step, and neither is a token that
+// aliases one: 0.
 const CORNER = `${CONFIG.namespace}.sys.shape.corner.`;
 const FULL = `${CORNER}full`;
 function cornerCompanion(token, tokens) {
-  if (token.path[0] !== 'comp' || token.type !== 'dimension' || !token.alias) return [];
+  if (token.path[0] !== 'comp' || token.type !== 'dimension') return [];
+  const name = `${idToVar(token.id)}-pill`;
+  if (token.derive?.fn === 'sub') return [[name, '0']];
+  if (!token.alias) return [];
   const chain = [];
   for (let id = token.alias; id && !chain.includes(id); id = tokens[id]?.alias) chain.push(id);
+  if (chain.some((id) => tokens[id]?.derive?.fn === 'sub')) return [[name, '0']];
   if (!chain.some((id) => id.startsWith(CORNER))) return [];
-  return [[`${idToVar(token.id)}-pill`, chain.includes(FULL) ? '1' : '0']];
+  return [[name, chain.includes(FULL) ? '1' : '0']];
 }
 
 // A ring drawn inside (SPB-26): an elevation's ring — the layer with no offset, no blur and a positive spread — is cast

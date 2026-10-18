@@ -171,8 +171,13 @@
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.none}",
-            "$description": "The corners of an option's row.",
-            "$extensions": {}
+            "$description": "The corners of an option's row: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.select.list.shape}",
+                "inset": "{tanrei.comp.select.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
             "$type": "dimension",

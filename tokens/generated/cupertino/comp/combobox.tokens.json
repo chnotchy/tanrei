@@ -455,9 +455,15 @@
             }
           },
           "shape": {
-            "$description": "The corners of a row's highlight and of its state layer.",
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.small}"
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The corners of a row's highlight and of its state layer: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.combobox.list.shape}",
+                "inset": "{tanrei.comp.combobox.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
             "$description": "Padding at each end of a row.",

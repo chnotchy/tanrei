@@ -62,6 +62,8 @@ Four tiers with one reference order, `dial < ref < sys < comp`. A token may refe
 
 Every value is one of three kinds: **derived** by a rule in `$extensions["dev.tanrei.derive"]` (usually `mul` — a coefficient on a dial; `pick` gives one value per name of a choice of kind, so that the values that go with a choice follow it; `sub` gives a corner inside another, the outer corner less the inset, never below zero), **fixed** with a stated reason, or an **alias**. The rule language is closed (`packages/token-engine/src/rules.js`). Sources stay plain DTCG: the literal `$value` sits next to the rule, and validation requires `rule(default dials) === $value`.
 
+**Concentric corners.** A corner inside another — a row inside a menu's sheet, an option inside a list — is the outer corner less the inset between them, never below zero (`sub`, with `dev.tanrei.concentric` naming the pair, which `pnpm validate` holds in the default system); a pill, whose corner its height sets, is exempt, since rounded to its container it would no longer be a pill.
+
 The **core vocabulary** is what these files declare. It is decided by the one-product test (a core token exists because one product may need that distinction), every group carries a rationale and usage guidance for agents (`dev.tanrei.vocabulary`, `dev.tanrei.llm`), and `tokens/vocabulary.lock.json` lists it so that growth is a visible diff.
 
 A token's value also depends on a **context**: `scheme` = theme (light, dark) × contrast (standard, medium, high), six in all, resolved through `tokens/tanrei.resolver.json`.
