@@ -2207,14 +2207,19 @@ test.describe('compact window', () => {
     await expect.poll(() => isAnchored(page)).toBe(true);
     await settle(page);
     await page.locator('#in').focus();
+    // No motion: no transition starts in the popover's tree at either switch.
+    await watchTransitions(host(page));
     await page.setViewportSize(COMPACT);
     await expect.poll(() => isSheet(page)).toBe(true);
-    expect(await sheet(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    await settle(page);
+    expect(await transitionsRun(host(page))).toEqual([]);
     await expect(page.locator('#in')).toBeFocused();
+    await watchTransitions(host(page));
     await page.setViewportSize(WIDE);
     await expect.poll(() => isAnchored(page)).toBe(true);
     await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
-    expect(await surface(page).locator('> .motion').evaluate((el) => el.getAnimations().length)).toBe(0);
+    await settle(page);
+    expect((await transitionsRun(host(page))).filter((run) => run.on.includes('motion') || run.on.includes('sheet'))).toEqual([]);
     await expect(page.locator('#in')).toBeFocused();
     expect(await log(page)).toEqual([]);
     // Focus on the opener (Shift+Tab from the popover's first element leaves it open): the sheet takes it in.
@@ -2239,7 +2244,9 @@ test.describe('compact window', () => {
     await page.locator('#a').click();
     await expect.poll(() => isOpen(page)).toBe(false);
     await mount(page, `${page320('initial-focus="anchor"')}`, COMPACT);
-    await page.locator('#a').click();
+    // (By the keyboard: a press does not focus a button in WebKit.)
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
     await expect.poll(() => isAnchored(page)).toBe(true);
     await expect(page.locator('#a')).toBeFocused();
     await page.locator('#a').click();
