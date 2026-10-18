@@ -40,8 +40,10 @@ function shadow(token) {
 // Runtime dials: a `mul` rule is emitted as the same arithmetic in CSS, so overriding a
 // `--tanrei-dial-*` property moves every derived token live. Rounding mirrors the build (0.25px, 1ms),
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
-// so colors stay build-time values.
+// so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
+// follows an outer one a product sets at runtime; both of its terms are already on the build's step.
 function derivedExpression(rule, type) {
+  if (rule?.fn === 'sub') return `max(${type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px'}, calc(${ref(rule.of.slice(1, -1))} - ${ref(rule.by.slice(1, -1))}))`;
   if (!rule || rule.fn !== 'mul') return null;
   const of = ref(rule.of.slice(1, -1));
   if (rule.by === 1 && rule.exp === undefined) return of;
