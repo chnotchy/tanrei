@@ -97,7 +97,7 @@ test('a layer that invents a color role is told to declare a palette', () => {
 
 test('what a system does not ship is worked out down its chain, and every system stylesheet carries it', () => {
   const read = (id) => loadSystem(REPO_ROOT, id);
-  assert.ok(availabilityOf(layerChain('tanrei', read)).components.includes('fab-menu'));
+  assert.ok(availabilityOf(layerChain('tanrei', read)).components.includes('segmented-button'));
   // m3-expressive-like says nothing of its components, so it ships what m3-like ships (Material's bar has no filled
   // form; its tabs have no tonal kind).
   assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
@@ -106,4 +106,7 @@ test('what a system does not ship is worked out down its chain, and every system
   const css = (unavailable) => emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { scope: 'b', unavailable });
   assert.match(css({ components: ['fab-menu'], variants: { 'text-field': ['filled'] } }), /--tanrei-unavailable: "fab-menu text-field:filled";/);
   assert.match(css({ components: [], variants: {} }), /--tanrei-unavailable: "";/);
+  // What lives in a layer the system does not extend is said apart, with that layer.
+  const sheet = emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { unavailable: { components: [], variants: {} }, outside: { 'fab-menu': 'm3-like' } });
+  assert.match(sheet, /--tanrei-unavailable-layer: "fab-menu=m3-like";/);
 });

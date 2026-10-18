@@ -322,7 +322,9 @@ const primitiveBasesOnly = {
 export default {
   // The components, and the primitives that hold an element's base class (NavigationDestination; the composed
   // elements' ComposedElement and ComposedControl).
-  globs: ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts'],
+  // `src/m3-like.ts`: the entry of the components that live in the m3-like layer — the manifest lists their exports
+  // under that module's path, so a reader sees which entry registers them.
+  globs: ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts', 'src/m3-like.ts'],
   exclude: ['**/*.test.ts'],
   outdir: '.',
   litelement: true,

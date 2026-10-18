@@ -135,6 +135,8 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 
 The docs site is deployed by its own workflow (`.github/workflows/deploy-docs.yml`, outside ci.yml so that a release never deploys it): a pull request gets a preview and a push to `main` deploys production, when the Docs row's paths change. `gh workflow run deploy-docs.yml --ref main` deploys by hand — for a site that is behind, or after a change outside those paths.
 
+Known vulnerabilities in the locked dependencies are checked by their own workflow (`.github/workflows/osv-scanner.yml`, OSV-Scanner). A pull request that changes `pnpm-lock.yaml` is scanned on its base and on its head, and fails only on a vulnerability it brings in; a draft is held, as in CI. Every Monday (and on `gh workflow run osv-scanner.yml --ref main`) `main` is scanned whole: that run does not fail, and its findings go to the repository's Security tab (Code scanning), where what is already locked is dealt with.
+
 Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
 
 ### Native CI is paused
@@ -144,7 +146,7 @@ The jobs of the four native platforms are **paused** until each platform catches
 - **The switch** is one file, [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json): the names of the paused platforms. CI's changes job reads it, and so do the root `pnpm build`, `pnpm test` and `pnpm check` (`scripts/run-unpaused.mjs`), so a fresh clone checks what CI checks. Every run that pauses something says so in a notice.
 - **A green run says nothing about a paused platform.** Whoever changes a native's code runs that platform's suite on their own machine and says what it showed.
 - **A paused platform's status is not raised and nothing of it is published** (`release.yml` refuses).
-- **It ends per platform**, in the commit that brings the platform up to the current specs: that commit takes the platform's name out of `paused-platforms.json`.
+- **It ends per platform**, in the commit that brings the platform up to the current specs: that commit takes the platform's name out of `paused-platforms.json`, and the platform's rules out of `renovate.json` (see [Dependency updates](#dependency-updates)).
 
 ### A draft is held
 
@@ -195,6 +197,21 @@ It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_
 3. Repeat the reason in the changeset.
 
 To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/README.md`; Flutter and Compose — a Linux machine or VM with the versions above.
+
+### Dependency updates
+
+Renovate (the GitHub App) opens the dependency updates, as `renovate.json` says:
+
+- **Once a week, grouped**: on Monday (Asia/Tokyo), one pull request for the npm packages' minor and patch updates (pnpm catalog entries and the `packageManager` field included), one for the fonts, and one for the GitHub Actions, which stay pinned to a commit SHA with the version in a comment.
+- **Three days after a release**: Renovate raises a version only once it has been on the registry for three days, the age `minimumReleaseAge` in `pnpm-workspace.yaml` requires of every install (the lockfile Renovate writes included). A fix for a known vulnerability (from GitHub's Dependabot alerts) skips Renovate's schedule and wait, but not pnpm's: a fix younger than three days goes in `minimumReleaseAgeExclude` as `name@version`, on its branch.
+- **Approved on the Dependency Dashboard** (an issue Renovate keeps open) before Renovate opens anything: a major update; Playwright, because its browsers draw the baselines — its npm packages and the image in `ci.yml` and `record-baselines.yml` move in one pull request, and the baselines are re-recorded on it; and `@terrazzo/parser`, whose patch in `patches/` has to be made again for a new version.
+- **Left alone**: the paused native platforms (Gradle, SwiftPM and pub, React Native's npm packages, and the actions, JDK and Flutter versions only their CI jobs use), since no CI job would test the update; and the runner images, which move only on purpose (see [What runs when](#what-runs-when)).
+
+**An update opens as a draft**, so it is held like any draft ([A draft is held](#a-draft-is-held)): neither CI nor the docs preview deploy runs on it, so nothing installs the lockfile Renovate wrote in a job that holds the Cloudflare token until someone has read it. To take one in:
+
+1. Read what it changes (Renovate's description links each package's release notes).
+2. If it changes a released package's manifest, push a changeset to its branch (`pnpm changeset`, or `pnpm changeset --empty`): the Changeset job requires one. Once anyone else pushes to a Renovate branch, Renovate stops updating it until it is asked to rebase (the checkbox in the pull request's description).
+3. Mark it **ready for review**: the full run starts, and the docs preview deploys.
 
 ## What blocks you, by design
 

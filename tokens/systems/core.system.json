@@ -2187,16 +2187,6 @@
       "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
     },
     {
-      "match": "tanrei.comp.fab-menu.*.hovered.container.elevation",
-      "$value": "{tanrei.sys.elevation.level4}",
-      "reason": "The FAB menu's toggle rises further under a pointer, as the main action button does."
-    },
-    {
-      "match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation",
-      "$value": "{tanrei.sys.elevation.level4}",
-      "reason": "The open toggle rises under a pointer too, as the main action button does."
-    },
-    {
       "match": "tanrei.comp.slider.*.disabled.container.color",
       "$value": "{tanrei.comp.slider.$1.container.color}",
       "reason": "The round state layer is not a fill; disabled, it stays invisible."

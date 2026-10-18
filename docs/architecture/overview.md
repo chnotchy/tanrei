@@ -73,7 +73,7 @@ A design system is a layer file, `tokens/systems/<id>.system.json`, validated by
 ```
 core.system.json              the root layer: palettes, the role → tone table, the per-state rules; leaves nothing out
   ├─ tanrei.system.json         the default system: the components and variants it leaves out
-  ├─ m3-like.system.json        extends core
+  ├─ m3-like.system.json        extends core; holds the FAB menu (m3-like/comp/fab-menu.tokens.json)
   │    └─ m3-expressive-like.system.json   extends m3-like
   └─ cupertino.system.json      extends core
 (a product's own <id>.system.json extends any of them but the root, in the product's repository)
@@ -81,14 +81,16 @@ core.system.json              the root layer: palettes, the role → tone table,
 
 The root has no output of its own — no stylesheet, bundle or native constant — and is not offered where a system is chosen; it is the first layer of every chain. The default system is the documents under `tokens/` as written plus what is generated from its layers, so neither the root nor the default system's own layer may set any other token (`pnpm validate` names the document that holds it). The presets extend the root, not the default system: they inherit none of its choices of components, and each says for itself what it leaves out.
 
+**A component lives in the layer every system that ships it descends from.** Most live in the root. One that a single line of systems ships lives in that line's root — the FAB menu in `m3-like` — which declares the component's whole vocabulary (its document, kept next to the layer, and the rules that value its states). Only the systems that descend from that layer have the component; a platform's main entry does not register it (`@tanrei/web/m3-like` does), and the other systems' stylesheets say where it lives. The spec and the inventory row say `"layer": "<layer>"`. A product on another line takes it with `components.include: [{ "name": "fab-menu", "from": "m3-like" }]`, and draws it with its own tokens: the component's aliases resolve against the product's sys tokens, and none of m3-like's values come along. The native platforms type every system with the whole vocabulary, so a system's native outputs value such a component the same way until each platform decides how it packages it.
+
 | Layer key | Does |
 |---|---|
 | `extends` | names the parent; values, palettes, rules and extensions are inherited down the chain |
 | `palettes` | declares palettes (from a seed or a hue and chroma, with single tones fixed where a reference publishes them); each yields a four-role intent set with its contrast checks; `null` drops an inherited declared palette |
 | `tokens` | per token id: set `$value` (fixed or alias, with a `reason`), replace `derive`, or `scale` the inherited definition |
 | `rules` | pattern rules, chiefly how per-state component tokens are valued (state-layer mix, explicit color, dim, nothing) |
-| `vocabulary` | **extends the vocabulary**: a step in a series, a value on a component axis, or tokens in the layer's own namespace — additive only, each with a `rationale` |
-| `components` | which components and `variant` values the system ships, as a change to what its parent ships: `omit` (each with a `reason` and what to use instead, `insteadUse`), `include` (bring back what an ancestor left out), `variants` (`omit` / `include` per component). An ancestor's choice stays unless a layer undoes it by name: a product on the default system brings back a component the default leaves out with one `include`, and draws it with the tokens every system values |
+| `vocabulary` | **extends the vocabulary**: a step in a series, a value on a component axis, tokens in the layer's own namespace, or the whole vocabulary of a component that lives in the layer — additive only, each with a `rationale` |
+| `components` | which components and `variant` values the system ships, as a change to what its parent ships: `omit` (each with a `reason` and what to use instead, `insteadUse`), `include` (bring back what an ancestor left out; or, as `{ name, from }`, take a component that lives in a layer the system does not extend), `variants` (`omit` / `include` per component). An ancestor's choice stays unless a layer undoes it by name: a product on the default system brings back a component the default leaves out with one `include`, and draws it with the tokens every system values |
 
 Legal operations per token are computed by `packages/token-engine/src/operations.js`; the tools below offer only those.
 

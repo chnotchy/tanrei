@@ -9,7 +9,7 @@
 // build's own emitter and the warnings by the build's own invariants (both injected: they live in
 // @tanrei/tokens-build), so what the Studio shows is what `tanrei build` will generate. The tests build Studio
 // layers with the real pipeline and compare whole sheets.
-import { SCHEMES, argbToColor, createPaletteEngine, dependencyIndex, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
+import { SCHEMES, argbToColor, componentDocumentPath, createPaletteEngine, dependencyIndex, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
 import { composeStack, inferredGeneric, parseStack } from './fonts.js';
 import { buildModel } from './model.js';
 
@@ -83,7 +83,8 @@ export function stringifyLayer(layer) {
 /**
  * @param {object} deps
  * @param {{ namespace: string, web: { cssPrefix: string, tagPrefix: string } }} deps.config   tanrei.config.json
- * @param {Record<string, object>} deps.sources     tokens/ source documents keyed by path relative to tokens/
+ * @param {Record<string, object>} deps.sources     tokens/ source documents keyed by path relative to tokens/: the ones
+ *   the default resolver names, and the documents of the components that live in a layer (`systems/<layer>/comp/…`)
  * @param {object} deps.vocabulary                  tokens/sys/color.vocabulary.json
  * @param {object} deps.resolver                    tokens/tanrei.resolver.json
  * @param {Record<string, object>} deps.layers      shipped system layers by id
@@ -142,11 +143,15 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
   /** Layers → documents → model → CSS and warnings: the build's pipeline, in memory. Throws what the engine throws. */
   function compute(layer) {
     const chain = chainOf(layer);
-    const system = mergeLayers(chain);
+    // `lend`: the layer that holds a component a layer of the chain includes from it.
+    const system = mergeLayers(chain, { lend: find });
     const documents = resolveNumericTokens(sources, system);
     const generated = engine.generateColorFiles(system, { sourcePath: `tokens/systems/${system.id}.system.json`, vocabulary, documents });
     const files = { ...documents, ...Object.fromEntries(Object.entries(generated).map(([name, doc]) => [`generated/${name}`, doc])) };
-    const model = buildModel(files, { id: system.id, namespace: NS, resolver });
+    // A component that lives in a layer is one more component document of the systems that have it, as in the build's bundle.
+    const held = Object.values(system.vocabulary).filter((decl) => decl.kind === 'component').map((decl) => ({ $ref: componentDocumentPath(decl.component) }));
+    const own = held.length ? { ...resolver, sets: { ...resolver.sets, comp: { ...resolver.sets.comp, sources: [...resolver.sets.comp.sources, ...held] } } } : resolver;
+    const model = buildModel(files, { id: system.id, namespace: NS, resolver: own });
     return { chain, system, files, model, warnings: checkInvariants(model), notices: system.notices ?? [] };
   }
 

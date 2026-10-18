@@ -145,9 +145,6 @@
           "$ref": "comp/button-with-menu.tokens.json"
         },
         {
-          "$ref": "comp/fab-menu.tokens.json"
-        },
-        {
           "$ref": "comp/toolbar.tokens.json"
         },
         {
