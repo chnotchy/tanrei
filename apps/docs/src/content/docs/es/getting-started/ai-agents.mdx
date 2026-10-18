@@ -2,7 +2,7 @@
 title: Usar Tanrei con agentes de IA
 description: Conecta el servidor MCP de Tanrei, dale a un agente de programación las reglas de interfaz de tu producto en AGENTS.md y mantenlo dentro de los componentes y los valores del sistema predeterminado.
 translationOf: getting-started/ai-agents.mdx
-sourceHash: 69822916c84d74d567d7d17629f7fa8dc91ac991
+sourceHash: c935a7deeaca4967e9fa87be2ccfbbb5877a389b
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -91,7 +91,7 @@ El servidor también le da al agente sus reglas al conectarse: no usar ningún c
 
 Muchos agentes de programación leen `AGENTS.md` en la raíz de un repositorio. Cursor lo hace. Claude Code lo lee cuando el repositorio no tiene `CLAUDE.md`; si lo tiene, añade a ese archivo una línea `@AGENTS.md` y Claude Code leerá los dos. Copia esta sección en tu `AGENTS.md`:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -107,7 +107,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 Las reglas están en inglés, el idioma de los nombres del código; tradúcelas si tu equipo escribe sus reglas en otro idioma. Si tu producto tiene su propia capa, sustituye la regla «Stay on the default system» por estas dos, con el nombre y el archivo de tu capa:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```

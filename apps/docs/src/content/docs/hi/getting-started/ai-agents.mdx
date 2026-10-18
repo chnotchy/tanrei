@@ -2,7 +2,7 @@
 title: AI एजेंट के साथ Tanrei का इस्तेमाल
 description: Tanrei का MCP सर्वर जोड़ें, कोडिंग एजेंट को AGENTS.md में अपने प्रॉडक्ट के UI के नियम दें, और उसे डिफ़ॉल्ट सिस्टम के कंपोनेंट और मानों तक रखें।
 translationOf: getting-started/ai-agents.mdx
-sourceHash: 69822916c84d74d567d7d17629f7fa8dc91ac991
+sourceHash: c935a7deeaca4967e9fa87be2ccfbbb5877a389b
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -91,7 +91,7 @@ VS Code `.vscode/mcp.json` पढ़ता है, जिसमें सर्�
 
 कई कोडिंग एजेंट रिपॉज़िटरी के रूट पर `AGENTS.md` पढ़ते हैं। Cursor पढ़ता है। Claude Code इसे तब पढ़ता है जब रिपॉज़िटरी में `CLAUDE.md` न हो; अगर हो, तो उसमें `@AGENTS.md` वाली एक लाइन जोड़ें, और Claude Code दोनों पढ़ेगा। यह हिस्सा अपनी `AGENTS.md` में कॉपी करें:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -107,7 +107,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 नियम अंग्रेज़ी में हैं, उसी भाषा में जिसमें कोड के नाम हैं; अगर आपकी टीम अपने नियम किसी और भाषा में लिखती है, तो इनका अनुवाद कर लें। अगर आपके प्रॉडक्ट की अपनी लेयर है, तो "Stay on the default system" वाले नियम की जगह ये दो नियम रखें, अपनी लेयर के नाम और फ़ाइल के साथ:
 
-```text title="AGENTS.md" wrap
+```text headline="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```

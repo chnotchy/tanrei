@@ -472,7 +472,7 @@
       "props": {
         "variant": "variant",
         "text": "text",
-        "title": "title",
+        "title": "headline",
         "shortcut": "shortcut",
         "placement": "placement",
         "offset": "offset",

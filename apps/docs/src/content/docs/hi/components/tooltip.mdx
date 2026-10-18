@@ -2,7 +2,7 @@
 title: टूलटिप
 description: जब व्यक्ति किसी एलिमेंट पर पॉइंटर ले जाता है, उसे कीबोर्ड से फ़ोकस करता है या देर तक दबाता है, तब उसे कुछ शब्दों में बताता है, बिना फ़ोकस लिए और बिना किसी चीज़ को रोके।
 translationOf: components/tooltip.mdx
-sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+sourceHash: 2b972a7725e59cfd5626b6954517b45a3d297218
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tooltip text="ट्रैश में डालें" no-describe>
     <tanrei-button variant="text" label="ट्रैश में डालें"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="bottom">
+  <tanrei-tooltip variant="rich" headline="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="bottom">
     <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -57,7 +57,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
       <tanrei-button variant="text" label="फ़िल्टर"><span slot="icon">filter_list</span></tanrei-button>
     </tanrei-tooltip>
 
-    <tanrei-tooltip id="storage" variant="rich" title="स्टोरेज" placement="bottom"
+    <tanrei-tooltip id="storage" variant="rich" headline="स्टोरेज" placement="bottom"
                     text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।">
       <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
     </tanrei-tooltip>
@@ -89,7 +89,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     </Tooltip>
     <Tooltip
       variant="rich"
-      title="स्टोरेज"
+      headline="स्टोरेज"
       text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।"
       placement="bottom"
       touchTimeout={4000} // देर तक दबाने के बाद कुछ वाक्य पढ़ने में ज़्यादा समय लगता है
@@ -178,7 +178,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     // open इसे आपके कोड से दिखाता है और कुछ एमिट नहीं करता; onOpenChange वह सुनता है जो यह ख़ुद करता है।
     <Tooltip
       variant="rich"
-      title="स्टोरेज"
+      headline="स्टोरेज"
       text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।"
       placement="bottom"
       open={showHint}
@@ -215,7 +215,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 | वेरिएंट | यह क्या है | किसके लिए |
 | --- | --- | --- |
-| Plain | एक छोटा वाक्यांश, डिफ़ॉल्ट रूप से इनवर्स सरफ़ेस पर। यह `title` को अनदेखा करता है, और अपने टेक्स्ट के बाद कीबोर्ड शॉर्टकट दिखा सकता है। | यह बताना कि आइकन क्या करता है: "ट्रैश में डालें", "शेयर करें"। |
+| Plain | एक छोटा वाक्यांश, डिफ़ॉल्ट रूप से इनवर्स सरफ़ेस पर। यह `headline` को अनदेखा करता है, और अपने टेक्स्ट के बाद कीबोर्ड शॉर्टकट दिखा सकता है। | यह बताना कि आइकन क्या करता है: "ट्रैश में डालें", "शेयर करें"। |
 | Rich | कुछ वाक्यों के ऊपर एक वैकल्पिक शीर्षक, डिफ़ॉल्ट रूप से उठी हुई सरफ़ेस पर। यह `shortcut` को अनदेखा करता है। | किसी शब्द या सेटिंग को समझाना: "स्टोरेज" और उसमें क्या गिना जाता है। |
 
 वेरिएंट संरचना का चुनाव है, टोकन का कोई अक्ष नहीं। डिज़ाइन सिस्टम दोनों रूपों की स्टाइल बदल सकता है, पर मानों के ज़रिए तीसरा रूप नहीं जोड़ सकता।
@@ -263,7 +263,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-tooltip text="तारीख़ या मालिक के अनुसार फ़िल्टर करें" placement="bottom-start" arrow>
     <tanrei-button variant="text" label="फ़िल्टर"><span slot="icon">filter_list</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="end" arrow>
+  <tanrei-tooltip variant="rich" headline="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="end" arrow>
     <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -279,8 +279,8 @@ Web और React के उदाहरण मौजूदा स्पेक �
 <DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: हर रूप इनवर्स और सरफ़ेस पर" plain>
   <tanrei-tooltip text="उलटी स्कीम के रंग" inverse><tanrei-button variant="outlined" size="small">Plain, इनवर्स</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="स्कीम की एक उठी हुई सरफ़ेस" inverse="false"><tanrei-button variant="outlined" size="small">Plain, सरफ़ेस</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="सरफ़ेस पर" text="स्कीम की एक उठी हुई सरफ़ेस, अपने एलिवेशन के साथ।" inverse="false"><tanrei-button variant="outlined" size="small">Rich, सरफ़ेस</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="इनवर्स" text="उलटी स्कीम के रंग, बिना शैडो के।" inverse><tanrei-button variant="outlined" size="small">Rich, इनवर्स</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="सरफ़ेस पर" text="स्कीम की एक उठी हुई सरफ़ेस, अपने एलिवेशन के साथ।" inverse="false"><tanrei-button variant="outlined" size="small">Rich, सरफ़ेस</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="इनवर्स" text="उलटी स्कीम के रंग, बिना शैडो के।" inverse><tanrei-button variant="outlined" size="small">Rich, इनवर्स</tanrei-button></tanrei-tooltip>
 </DemoFrame>
 
 दोनों में से कोई भी रूप इनवर्स बनाया जा सकता है, यानी उलटी स्कीम के रंगों में, या स्कीम की उठी हुई सरफ़ेस पर।
@@ -383,7 +383,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 - SwiftUI, Compose, Flutter और React Native अभी `showDelay`, `hideDelay` या `touchTimeout` नहीं लेते, और गैप को होवर के रूप में नहीं गिनते: वहाँ हर टूलटिप सिस्टम की देरी लेता है, और पॉइंटर छिपाने की देरी के भीतर गैप पार करता है। उनके पास बीच में रखे सिर्फ़ चार स्थान हैं (`top`, `bottom`, `start`, `end`), और `offset`, `crossOffset`, `arrow`, `inverse` या `shortcut` नहीं हैं; उनके टूलटिप बिना बढ़े और बिना सफ़र किए फ़ेड होते हैं।
 - Web: टच से देर तक दबाना टूलटिप सिर्फ़ वहाँ खोलता है जहाँ ब्राउज़र उसे कॉन्टेक्स्ट मेन्यू के रूप में रिपोर्ट करता है। iOS Safari ऐसा नहीं करता, इसलिए वहाँ टूलटिप टच से नहीं खुलता।
-- Web: `<tanrei-tooltip>` अपना `title` ऐट्रिब्यूट पढ़ता और हटा देता है, ताकि ब्राउज़र ऐंकर के ऊपर अपना नेटिव टूलटिप भी न बनाए। `title` प्रॉपर्टी मान बनाए रखती है।
+- Web: रिच टूलटिप का शीर्षक `headline` ऐट्रिब्यूट है। `<tanrei-tooltip>` पर `title` ऐट्रिब्यूट ब्राउज़र का अपना है, और ब्राउज़र उसके लिए अपना नेटिव टूलटिप बनाता है: इसे न लगाएँ।
 - SwiftUI में टूलटिप का कोई रोल नहीं है। विवरण ऐंकर का एक्सेसिबिलिटी हिंट है।
 - iOS पर SwiftUI: फ़ोकस वाले ऐंकर पर Return या Space टूलटिप को बंद नहीं करती, और Escape उसे सिर्फ़ तब बंद करती है जब ऐंकर पर फ़ोकस हो। जो ऐंकर टैप से फ़ोकस लेता है, जैसे टेक्स्ट फ़ील्ड, वह अपना टूलटिप खोल देता है। जो ऐंकर पारदर्शी कर दिया गया हो या ढक गया हो, वह छिपा हुआ नहीं माना जाता।
 - SwiftUI टूलटिप उस लेयर में बनाता है जो `.tanreiTheme(_:)` और Tanrei का डायलॉग देते हैं। जो कॉन्टेंट SwiftUI अलग से प्रस्तुत करता है, जैसे आपका अपना `.sheet` या `.popover`, उसे अपने टूलटिप दिखाने के लिए `.tanreiTooltipLayer()` चाहिए।

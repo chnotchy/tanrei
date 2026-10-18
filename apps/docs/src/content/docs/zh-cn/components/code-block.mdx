@@ -2,7 +2,7 @@
 title: "代码块"
 description: "供人阅读、比较和复制的多行代码，使用代码字体，在自身内部滚动或换行，可带页眉、行号、带标记的行、提示符和复制按钮。给出代码和它的语言，它就会自己为代码做语法高亮。"
 translationOf: components/code-block.mdx
-sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
+sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="标题、语言标签和复制按钮；代码根据它的语言高亮" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -62,7 +62,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -93,7 +93,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     import '@tanrei/web/code.css';
 
     {/* 元素会把代码排成一行一行，所以让它拥有代码：把文本传给它。 */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="复制" copiedLabel="已复制" copyFailedLabel="无法复制" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="复制" copiedLabel="已复制" copyFailedLabel="无法复制" />
     ```
   </TabItem>
 </Tabs>
@@ -104,11 +104,11 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 <DemoFrame label="Filled 和 outlined，medium 和 small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="示例"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="行号、一行高亮，以及新增和删除的行" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="高亮" removed-lines="4" added-lines="5" removed-label="已删除" added-label="已新增" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="高亮" removed-lines="4" added-lines="5" removed-label="已删除" added-label="已新增" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="长行在代码块内部滚动，或者换行" plain column>
@@ -118,7 +118,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 <DemoFrame label="提示符，以及显示行数的上限" plain column>
   <tanrei-code-block style="inline-size: 100%" label="安装" prompt="$" language="sh" language-label="Shell" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **两种外观。** `filled` 是柔和的填充，用于页面上的代码。`outlined` 没有填充，只有一道细线围着，用于已有填充的卡片或面板里的代码。
@@ -157,7 +157,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 | 空、`text`、`plain`、`plaintext` | 普通文本。不报告任何内容。 |
 | 其他任何值 | 普通文本。调试构建会报告一次这个未知的语言。 |
 
-代码块绝不猜测语言：不根据代码，不根据 `title`，也不根据 `language-label`。简短的代码有歧义，猜错了就会给代码上错颜色。
+代码块绝不猜测语言：不根据代码，不根据 `headline`，也不根据 `language-label`。简短的代码有歧义，猜错了就会给代码上错颜色。
 
 **关闭高亮。** `highlight="false"` 为单个代码块关闭它自己的语法高亮器。你提供的片段仍然会绘制。
 
@@ -264,7 +264,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### 推荐
 
-- 给可以滚动的代码块加上 `title` 或 `label`。滚动的主体是一个焦点停靠点，需要名称。
+- 给可以滚动的代码块加上 `headline` 或 `label`。滚动的主体是一个焦点停靠点，需要名称。
 - 在卡片或面板里使用 `outlined`，在页面上和有颜色的容器上使用 `filled`。
 - 一组需要用户输入的命令用提示符。提示符不会被复制。
 - 给每个代码块指定 `language`。没有语法的文本用 `language="text"`。
@@ -282,7 +282,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### 组件负责的部分
 
-- 代码是 `code` 元素，位于一个由 `title` 或 `label` 命名的组里。
+- 代码是 `code` 元素，位于一个由 `headline` 或 `label` 命名的组里。
 - 可以滚动的主体是焦点顺序中的一个停靠点，排在复制按钮之后，用方向键滚动。放得下的主体不是停靠点，所以满是简短示例的页面不会增加任何停靠点。
 - 行号、符号、竖条和提示符对辅助技术隐藏。带标记的行之前有用文字写出的标签。
 - 在 320 宽和两倍文本大小下，页面都绝不会因为代码块而横向滚动。

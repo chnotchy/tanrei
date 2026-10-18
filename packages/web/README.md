@@ -5202,7 +5202,7 @@ without taking focus or blocking anything (`specs/tooltip.spec.json`, TIP-1…29
 <tanrei-tooltip text="Move to trash">
   <tanrei-button variant="text" label="Delete"><span slot="icon">delete</span></tanrei-button>
 </tanrei-tooltip>
-<tanrei-tooltip variant="rich" title="Storage" text="Trash still counts toward storage." placement="bottom">
+<tanrei-tooltip variant="rich" headline="Storage" text="Trash still counts toward storage." placement="bottom">
   <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
 </tanrei-tooltip>
 <!-- The text repeats the anchor's name: do not read it twice. -->
@@ -5221,7 +5221,7 @@ without taking focus or blocking anything (`specs/tooltip.spec.json`, TIP-1…29
 |---|---|---|---|
 | `variant` | `plain` \| `rich` | `plain` | plain: one phrase, by default on the inverse surface; rich: an optional title and a few sentences, by default on a raised surface. A structure drawn by code, not a token axis (anything else is plain); reflected |
 | `text` | string | `""` | the description; required — without it the tooltip never opens and describes nothing (reported, TIP-16) |
-| `title` | string | `""` | a rich tooltip's heading; a plain one ignores it (reported). **The attribute is read and removed from the element**, so the browser does not draw its own `title` tooltip over the anchor as well; the property keeps the value |
+| `headline` | string | `""` | the spec's `title`: a rich tooltip's heading; a plain one ignores it (reported). A `title` attribute is the browser's own (it draws a native tooltip), and the element does not read it |
 | `shortcut` | string[] | `[]` | the keys of the anchor's command, in `<tanrei-keyboard-shortcut>`'s key names, one chord per string; the attribute holds the chords separated by spaces (`shortcut="mod+k mod+c"`). A plain tooltip writes them after its text; a rich one ignores them (reported). It does not make the keys work (TIP-27) |
 | `placement` | `top` \| `top-start` \| `top-end` \| `bottom` \| `bottom-start` \| `bottom-end` \| `start` \| `start-top` \| `start-bottom` \| `end` \| `end-top` \| `end-bottom` \| `auto` | `top` | the side it prefers and how it lines up along it: alone, centred on the anchor; with `-start` / `-end` (above or below) or `-top` / `-bottom` (beside), that edge on the anchor's. `auto` is the first of top, bottom, end, start with room. Start and end follow the layout direction. Anything else is `top` (reported, TIP-22); reflected |
 | `offset` | number \| `null` | `null` | CSS pixels between the anchor's edge and the tooltip (its arrow's tip while it has one); `0` lets them touch; `null` takes the token `offset`. A negative or non-finite value, or an empty attribute, takes the token (reported, TIP-24) |
@@ -6606,7 +6606,7 @@ the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
   <tanrei-button slot="header-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>
   <tanrei-main-action-button slot="main-action" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <span slot="header">Mail</span>
-  <tanrei-navigation-drawer-section heading="Mail">
+  <tanrei-navigation-drawer-section headline="Mail">
     <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24" badge badge-count="3" badge-label="3 unread"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="sent" label="Sent" icon="send"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer-section>
@@ -6656,7 +6656,7 @@ the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
 
 | `<tanrei-navigation-drawer-section>` | Type | Default | |
 |---|---|---|---|
-| `heading` | string | `""` | a heading row above its items; empty draws none |
+| `headline` | string | `""` | the spec's `title`: a heading row above its items; empty draws none |
 | `divider` | boolean | `false` | a `<tanrei-divider>` before the section; reflected |
 | `headingLevel` / `heading-level` | number | `2` | web only: the heading's level |
 
@@ -9578,7 +9578,7 @@ element is defined; one module, `@tanrei/web/highlight`, is the highlighter the 
 
 <p>Run <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> first.</p>
 
-<tanrei-code-block title="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
+<tanrei-code-block headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
   <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
 </tanrei-code-block>
 
