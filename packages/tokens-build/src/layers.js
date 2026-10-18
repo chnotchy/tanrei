@@ -128,6 +128,47 @@ export function availabilityOf(chain) {
 }
 
 /**
+ * The manifest's `omitted`: the components the system a chain makes does not have, by name — each a component a layer
+ * left out (`omittedBy`, with its `reason` and what to use instead, `insteadUse`), or one that lives in a layer the
+ * chain does not descend from (`providedBy`). Needs no catalog, so the stylesheets read the same list the manifest
+ * gives (`replacementsOf`).
+ * @param {object[]} chain layers, root first
+ * @param {Map<string, string>} held `heldComponents`
+ * @returns {Array<{ name: string, omittedBy?: string, providedBy?: string, reason?: string, insteadUse?: string[] }>}
+ */
+export function omittedOf(chain, held) {
+  const { components: left } = componentChoices(chain);
+  return [
+    ...[...left].map(([name, { layer, reason, insteadUse }]) => ({ name, omittedBy: layer, ...(reason ? { reason } : {}), ...(insteadUse ? { insteadUse } : {}) })),
+    ...Object.entries(outsideComponents(chain, held)).map(([name, layer]) => ({ name, providedBy: layer })),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * What a system uses instead of each component it does not have, from its manifest's `omitted` (`omittedOf`):
+ * component → the components named in its `insteadUse`, in order. Every entry that names one counts, whatever the
+ * reason it is omitted, so a component that lives in another layer is listed as soon as its entry names a replacement.
+ * The stylesheets carry it as `--tanrei-unavailable-replacement` (emit/css.js), which an element names in its report.
+ * @param {Array<{ name: string, insteadUse?: string[] }>} omitted
+ * @returns {Record<string, string[]>}
+ */
+export function replacementsOf(omitted) {
+  return Object.fromEntries(omitted.filter((entry) => entry.insteadUse?.length).map((entry) => [entry.name, [...entry.insteadUse]]));
+}
+
+/**
+ * What a system's stylesheet says of what the system does not have (emit/css.js `emitCss` options): the components and
+ * variant values it leaves out, the components that live in a layer it does not extend, and what it uses instead —
+ * the same for a shipped system's sheet, a product's, and Theme Studio's preview of a product.
+ * @param {object[]} chain layers, root first
+ * @param {Map<string, string>} held `heldComponents`
+ * @returns {{ unavailable: { components: string[], variants: Record<string, string[]> }, outside: Record<string, string>, replacements: Record<string, string[]> }}
+ */
+export function sheetAvailability(chain, held) {
+  return { unavailable: availabilityOf(chain), outside: outsideComponents(chain, held), replacements: replacementsOf(omittedOf(chain, held)) };
+}
+
+/**
  * Problems of what the last layer of a chain says about its components, judged against what its parent ships.
  * @param {object[]} chain layers, root first; the last one is judged
  * @param {{ inventory: Set<string>, variantsOf: (component: string) => { values: string[], default?: string } | undefined, held?: Map<string, string> }} catalog

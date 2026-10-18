@@ -19,7 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG } from './config.js';
-import { DEFAULT_SYSTEM, availabilityOf, componentChoices, outsideComponents } from './layers.js';
+import { DEFAULT_SYSTEM, componentChoices, omittedOf, outsideComponents } from './layers.js';
 
 /** The catalog of every component, relative to the repository (or to the vocabulary the published CLI carries). */
 export const CATALOG_FILE = 'packages/tokens-build/generated/component-catalog.json';
@@ -71,46 +71,6 @@ function addedValues(chain, axis) {
       .filter(([id, entry]) => id.startsWith(prefix) && !id.slice(prefix.length).includes('.') && entry && typeof entry === 'object' && 'from' in entry && !('document' in entry))
       .map(([id]) => id.slice(prefix.length)),
   );
-}
-
-/**
- * The manifest's `omitted`: the components the system a chain makes does not have, by name — each a component a layer
- * left out (`omittedBy`, with its `reason` and what to use instead, `insteadUse`), or one that lives in a layer the
- * chain does not descend from (`providedBy`). Needs no catalog, so the stylesheets read the same list the manifest
- * gives (`replacementsOf`).
- * @param {object[]} chain layers, root first
- * @param {Map<string, string>} held `heldComponents`
- * @returns {Array<{ name: string, omittedBy?: string, providedBy?: string, reason?: string, insteadUse?: string[] }>}
- */
-export function omittedOf(chain, held) {
-  const { components: left } = componentChoices(chain);
-  return [
-    ...[...left].map(([name, { layer, reason, insteadUse }]) => ({ name, omittedBy: layer, ...(reason ? { reason } : {}), ...(insteadUse ? { insteadUse } : {}) })),
-    ...Object.entries(outsideComponents(chain, held)).map(([name, layer]) => ({ name, providedBy: layer })),
-  ].sort((a, b) => a.name.localeCompare(b.name));
-}
-
-/**
- * What a system uses instead of each component it does not have, from its manifest's `omitted` (`omittedOf`):
- * component → the components named in its `insteadUse`, in order. Every entry that names one counts, whatever the
- * reason it is omitted, so a component that lives in another layer is listed as soon as its entry names a replacement.
- * The stylesheets carry it as `--tanrei-unavailable-replacement` (emit/css.js), which an element names in its report.
- * @param {Array<{ name: string, insteadUse?: string[] }>} omitted
- * @returns {Record<string, string[]>}
- */
-export function replacementsOf(omitted) {
-  return Object.fromEntries(omitted.filter((entry) => entry.insteadUse?.length).map((entry) => [entry.name, [...entry.insteadUse]]));
-}
-
-/**
- * What a system's stylesheet says of what the system does not have (emit/css.js `emitCss` options): the components and
- * variant values it leaves out, the components that live in a layer it does not extend, and what it uses instead —
- * the same for a shipped system's sheet and a product's.
- * @param {object[]} chain layers, root first
- * @param {Map<string, string>} held `heldComponents`
- */
-export function sheetAvailability(chain, held) {
-  return { unavailable: availabilityOf(chain), outside: outsideComponents(chain, held), replacements: replacementsOf(omittedOf(chain, held)) };
 }
 
 /** The names of the catalog's components the system a chain makes ships. */

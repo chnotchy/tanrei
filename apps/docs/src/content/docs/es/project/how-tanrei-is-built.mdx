@@ -2,7 +2,7 @@
 title: Cómo se construye Tanrei
 description: Dos fuentes de verdad, un flujo de trabajo con la especificación primero y comprobaciones de desviaciones que mantienen de acuerdo cinco plataformas, la documentación y la matriz de estado.
 translationOf: project/how-tanrei-is-built.mdx
-sourceHash: 3547dbe4350a1a06ebf6d102e3f0b187fd2b011e
+sourceHash: 84670c51e764e9115a091fe0fba8e6fa168dc5fb
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -38,7 +38,7 @@ Cada requisito tiene un id como `BTN-1`, y las pruebas de todas las plataformas 
 
 <Steps>
 
-1. **Proponer.** Escribe o cambia la especificación, y los tokens si hace falta. Los componentes nuevos y los cambios incompatibles empiezan como una incidencia, y deciden los mantenedores.
+1. **Proponer.** Escribe o cambia la especificación, y los tokens si hace falta. Los componentes nuevos y los cambios incompatibles los deciden los mantenedores, antes de que cambie la especificación.
 2. **Validar.** `pnpm validate` comprueba los esquemas, analiza los tokens y verifica los invariantes de contraste para cada tema y cada nivel de contraste.
 3. **Generar.** `pnpm generate` reconstruye las salidas de tokens, los andamiajes de código y la matriz de estado.
 4. **Implementar** en cada plataforma que enumera la especificación, con pruebas unitarias, de instantáneas y de accesibilidad.

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT_SYSTEM, heldComponents, listSystems, shippedSystems } from './bundle.js';
-import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog, sheetAvailability } from './components-manifest.js';
+import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
 import { emitKotlin } from './emit/kotlin.js';
@@ -14,7 +14,7 @@ import { emitTs } from './emit/ts.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
-import { nativeChain } from './layers.js';
+import { nativeChain, sheetAvailability } from './layers.js';
 import { CONFIG, GENERATED_HEADER, REPO_ROOT, pascal } from './model.js';
 import { LAYER_SUFFIX, LayerProblems, chainDigest, localLayerFile, readSystemChain, resolveChain, resolveSystem, systemIdOf, validateSystem } from './resolve.js';
 import { loadSystem } from './scheme.js';
