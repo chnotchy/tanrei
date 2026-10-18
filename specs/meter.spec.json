@@ -333,7 +333,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-meter",
       "props": {
         "variant": "variant",

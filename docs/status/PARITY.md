@@ -57,6 +57,29 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `reorderable-single-item` | <img src="../../packages/web/snapshots/list/reorderable-single-item.png" alt="web reorderable-single-item" width="160"> |
 | `reorderable-wrap` | <img src="../../packages/web/snapshots/list/reorderable-wrap.png" alt="web reorderable-wrap" width="160"> |
 
+## Meter
+
+| Fixture | Web Components |
+| --- | --- |
+| `linear` | <img src="../../packages/web/snapshots/meter/linear.png" alt="web linear" width="160"> |
+| `linear-info` | <img src="../../packages/web/snapshots/meter/linear-info.png" alt="web linear-info" width="160"> |
+| `linear-success` | <img src="../../packages/web/snapshots/meter/linear-success.png" alt="web linear-success" width="160"> |
+| `linear-warning` | <img src="../../packages/web/snapshots/meter/linear-warning.png" alt="web linear-warning" width="160"> |
+| `linear-error` | <img src="../../packages/web/snapshots/meter/linear-error.png" alt="web linear-error" width="160"> |
+| `linear-small` | <img src="../../packages/web/snapshots/meter/linear-small.png" alt="web linear-small" width="160"> |
+| `linear-large` | <img src="../../packages/web/snapshots/meter/linear-large.png" alt="web linear-large" width="160"> |
+| `linear-empty` | <img src="../../packages/web/snapshots/meter/linear-empty.png" alt="web linear-empty" width="160"> |
+| `linear-full` | <img src="../../packages/web/snapshots/meter/linear-full.png" alt="web linear-full" width="160"> |
+| `linear-range` | <img src="../../packages/web/snapshots/meter/linear-range.png" alt="web linear-range" width="160"> |
+| `linear-gap` | <img src="../../packages/web/snapshots/meter/linear-gap.png" alt="web linear-gap" width="160"> |
+| `linear-divider` | <img src="../../packages/web/snapshots/meter/linear-divider.png" alt="web linear-divider" width="160"> |
+| `linear-on-container-highest` | <img src="../../packages/web/snapshots/meter/linear-on-container-highest.png" alt="web linear-on-container-highest" width="160"> |
+| `linear-rtl` | <img src="../../packages/web/snapshots/meter/linear-rtl.png" alt="web linear-rtl" width="160"> |
+| `circular` | <img src="../../packages/web/snapshots/meter/circular.png" alt="web circular" width="160"> |
+| `circular-warning` | <img src="../../packages/web/snapshots/meter/circular-warning.png" alt="web circular-warning" width="160"> |
+| `circular-small` | <img src="../../packages/web/snapshots/meter/circular-small.png" alt="web circular-small" width="160"> |
+| `circular-large` | <img src="../../packages/web/snapshots/meter/circular-large.png" alt="web circular-large" width="160"> |
+
 ## Modal layer
 
 | Fixture | Web Components |
