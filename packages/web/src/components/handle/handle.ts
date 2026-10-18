@@ -6,9 +6,9 @@ import type { TanreiHandleSizeRegistry } from '../../registry.js';
 import { AXES, AXES_OF_RESIZE, CORNERS, styles } from './handle.styles.js';
 
 /** Which size the handle changes: a height (`vertical`), a width (`horizontal`), or both at once at a corner. */
-export type TanreiHandleAxis = (typeof AXES_OF_RESIZE)[number];
+export type TanreiHandleAxis = 'vertical' | 'horizontal' | 'both';
 /** The corner an arc bows toward, in logical terms: `end` is the right in a left-to-right layout, the left in a right-to-left one. */
-export type TanreiHandleCorner = (typeof CORNERS)[number];
+export type TanreiHandleCorner = 'bottom-end' | 'bottom-start' | 'top-end' | 'top-start';
 /** The core sizes, plus any a design system's generated `.d.ts` registers. */
 export type TanreiHandleSize = keyof TanreiHandleSizeRegistry;
 
