@@ -40249,6 +40249,15 @@
         },
         {
           "kind": "variable",
+          "name": "BUTTON_TONE",
+          "type": {
+            "text": "Tone"
+          },
+          "default": "{ color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' }",
+          "description": "SNK-34, BTN-45: the tone the snackbar gives its expand and close Buttons, the same words in every form: each form's\nblock above sets the two custom properties on the bar, and a Button reads them where it is drawn, so a change of form\n(SNK-30) recolors it at once. The names are the snackbar's own and no Button's."
+        },
+        {
+          "kind": "variable",
           "name": "styles"
         },
         {
@@ -40292,6 +40301,14 @@
         },
         {
           "kind": "js",
+          "name": "BUTTON_TONE",
+          "declaration": {
+            "name": "BUTTON_TONE",
+            "module": "src/components/snackbar/snackbar.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "styles",
           "declaration": {
             "name": "styles",
@@ -40314,7 +40331,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as\ninformation, a warning, an error or a success), with at most one action, without taking focus or interrupting their\nwork.\n\nContract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which\nqueues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in\nplace, at rest: no timeout, queue, entrance or announcement (SNK-19); it still fires `action`, `dismiss` and\n`expandedchange`.\n\nIt is drawn on a raised surface of the scheme or, `inverse`, as a bar of the opposite scheme; left unset, the system\nchooses (`--tanrei-comp-snackbar-container-inverse`, off in the default system). That and its `status` make its form,\none of ten, and the form changes colors only (SNK-30).\n\nThe action, the expand button and the close button are the snackbar's own controls, drawn from\n`--tanrei-comp-snackbar-action-*` and `-close-*` tokens per state and form; the bar from\n`--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The keyboard\nfocus indicator's outer stroke is the form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar\n(SNK-29).\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the bar.",
+          "description": "Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as\ninformation, a warning, an error or a success), with at most one action, without taking focus or interrupting their\nwork.\n\nContract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which\nqueues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in\nplace, at rest: no timeout, queue, entrance or announcement (SNK-19); it still fires `action`, `dismiss` and\n`expandedchange`.\n\nIt is drawn on a raised surface of the scheme or, `inverse`, as a bar of the opposite scheme; left unset, the system\nchooses (`--tanrei-comp-snackbar-container-inverse`, off in the default system). That and its `status` make its form,\none of ten, and the form changes colors only (SNK-30).\n\nThe action is the snackbar's own control, drawn from `--tanrei-comp-snackbar-action-*` tokens per state and form; the\nbar from `--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The\nexpand and close buttons are icon-only `<tanrei-button>`s of the small size (SNK-34), in the variant\n`--tanrei-comp-snackbar-close-button-variant` names and in the form's tone: its message color and its focus color,\nwhich they draw their glyph, their circle and their states in (BTN-45). The keyboard focus indicator's outer stroke is\nthe form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar (SNK-29).\n\n`title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the bar.",
           "name": "TanreiSnackbar",
           "cssParts": [
             {
@@ -40342,11 +40359,11 @@
               "name": "action"
             },
             {
-              "description": "The expand button, while the text is longer than its collapsed limit.",
+              "description": "The expand button, while the text is longer than its collapsed limit: a `<tanrei-button>` (its own parts are `container` and `icon`).",
               "name": "expand"
             },
             {
-              "description": "The close button.",
+              "description": "The close button: a `<tanrei-button>` (its own parts are `container` and `icon`).",
               "name": "close"
             }
           ],

@@ -200,7 +200,8 @@ test('the repository as it is today: which components are put together and which
   // named no component before, is the fifty-third that names another; the image preview, the search and the
   // date-time picker, which named others already, are built from it too.
   // The list row is a single part that uses the Tooltip for a cut text: the fifty-fourth that names another component.
-  assert.equal(specs.filter((each) => namedComponents(each).length).length, 54);
+  // The snackbar is a single part that uses the Button for its expand and close buttons: the fifty-fifth.
+  assert.equal(specs.filter((each) => namedComponents(each).length).length, 55);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button']);
   assert.deepEqual(specs.find((each) => each.name === 'file-upload').builtFrom, ['file-picker', 'file-item']);

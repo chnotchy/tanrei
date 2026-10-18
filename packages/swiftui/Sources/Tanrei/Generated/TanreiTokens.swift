@@ -14555,10 +14555,9 @@ public struct TanreiSnackbarControl: RawRepresentable, Hashable, Sendable, Custo
   public var description: String { rawValue }
 
   public static let action = TanreiSnackbarControl(rawValue: "action")
-  public static let close = TanreiSnackbarControl(rawValue: "close")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiSnackbarControl] = [.action, .close]
+  public static let core: [TanreiSnackbarControl] = [.action]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiSnackbarControl.action
 }
@@ -14698,17 +14697,14 @@ public struct TanreiSnackbarControlTokens: Sendable, Equatable {
 /// Read one with `controls[key]`.
 public struct TanreiSnackbarControls: Sendable, Equatable {
   public var action: TanreiSnackbarControlTokens
-  public var close: TanreiSnackbarControlTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiSnackbarControl: TanreiSnackbarControlTokens]
 
   public init(
     action: TanreiSnackbarControlTokens,
-    close: TanreiSnackbarControlTokens,
     extra: [TanreiSnackbarControl: TanreiSnackbarControlTokens] = [:]
   ) {
     self.action = action
-    self.close = close
     self.extra = extra
   }
 
@@ -14716,7 +14712,6 @@ public struct TanreiSnackbarControls: Sendable, Equatable {
   public func value(for key: TanreiSnackbarControl) -> TanreiSnackbarControlTokens? {
     switch key {
     case .action: return action
-    case .close: return close
     default: return extra[key]
     }
   }
@@ -14747,6 +14742,7 @@ public struct TanreiSnackbarStateTokens: Sendable, Equatable {
 /// Component tokens of snackbar (comp.snackbar).
 public struct TanreiSnackbarTokens: Sendable, Equatable {
   public var actionTonalLayerOpacity: Double
+  public var closeButtonVariant: Double
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
   public var containerGap: CGFloat
@@ -14762,7 +14758,6 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var controlsGap: CGFloat
   public var controlsHeight: CGFloat
-  public var controlsIconSize: CGFloat
   public var controlsLabelTypescale: TanreiTextStyle
   public var controlsPaddingInline: CGFloat
   public var controlsShape: CGFloat
@@ -14853,6 +14848,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
 
   public init(
     actionTonalLayerOpacity: Double,
+    closeButtonVariant: Double,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
     containerGap: CGFloat,
@@ -14868,7 +14864,6 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
     containerShape: CGFloat,
     controlsGap: CGFloat,
     controlsHeight: CGFloat,
-    controlsIconSize: CGFloat,
     controlsLabelTypescale: TanreiTextStyle,
     controlsPaddingInline: CGFloat,
     controlsShape: CGFloat,
@@ -14955,6 +14950,7 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
     pressed: TanreiSnackbarStateTokens
   ) {
     self.actionTonalLayerOpacity = actionTonalLayerOpacity
+    self.closeButtonVariant = closeButtonVariant
     self.containerColor = containerColor
     self.containerElevation = containerElevation
     self.containerGap = containerGap
@@ -14970,7 +14966,6 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.controlsGap = controlsGap
     self.controlsHeight = controlsHeight
-    self.controlsIconSize = controlsIconSize
     self.controlsLabelTypescale = controlsLabelTypescale
     self.controlsPaddingInline = controlsPaddingInline
     self.controlsShape = controlsShape

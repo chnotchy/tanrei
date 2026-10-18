@@ -1,4 +1,4 @@
-// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id (SNK-1…30) is
+// <tanrei-snackbar> and <tanrei-snackbar-host>, driven by specs/snackbar.spec.json: every behaviour id (SNK-1…34) is
 // cited by a test title, every fixture has a baseline (drawn in place, SNK-19), and every value is read back from the
 // tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -62,7 +62,7 @@ const STATUSES = ['info', 'warning', 'error', 'success'] as const;
 const formOf = (props: Fixture['props']) => [props.inverse === true ? 'inverse' : '', props.status && props.status !== 'default' ? String(props.status) : ''].filter(Boolean).join('-');
 /** A bar part's token in a form (`inverse-info-container-color`), and a control part's (`action-inverse-info-content-color`). */
 const barToken = (form: string, name: string) => T(`${form ? `${form}-` : ''}${name}`);
-const controlToken = (control: 'action' | 'close', form: string, name: string, state = '') => T([control, state, form, name].filter(Boolean).join('-'));
+const controlToken = (control: 'action', form: string, name: string, state = '') => T([control, state, form, name].filter(Boolean).join('-'));
 /**
  * SNK-21, SNK-30: a fixture draws its bar, title, message, glyph and controls at rest from its own form's tokens. Colors
  * are read with motion reduced, so a control is not caught between two schemes' colors.
@@ -75,13 +75,45 @@ async function readsForm(page: P, id: string, props: Fixture['props'], at: strin
   if (props.title) expect(await css(part(page, id, 'title'), 'color'), `${at} title`).toBe(await resolveColor(page, barToken(form, 'title-color')));
   // The glyph: its form's icon color at icon.opacity (SNK-21).
   if (props.status && props.status !== 'default') expectFaded(await css(part(page, id, 'status'), 'color'), await resolveColor(page, barToken(form, 'icon-color')), await opacityToken(page, 'icon-opacity'), `${at} glyph`);
-  for (const [name, control, shown] of [['action', 'action', !!props.action], ['close', 'close', !!props.closable], ['expand', 'close', await part(page, id, 'expand').count() > 0]] as const) {
+  if (props.action) {
+    const c = part(page, id, 'action');
+    expect(await css(c, 'background-color'), `${at} action container`).toBe(await resolveColor(page, controlToken('action', form, 'container-color')));
+    expect(await css(c, 'color'), `${at} action content`).toBe(await resolveColor(page, controlToken('action', form, 'content-color')));
+  }
+  // SNK-34: the expand and close Buttons in the form's tone — the glyph its message color, the circle that color at
+  // comp.button.tone.container.opacity.
+  for (const [name, shown] of [['close', !!props.closable], ['expand', (await part(page, id, 'expand').count()) > 0]] as const) {
     if (!shown) continue;
-    const c = part(page, id, name);
-    expect(await css(c, 'background-color'), `${at} ${name} container`).toBe(await resolveColor(page, controlToken(control, form, 'container-color')));
-    expect(await css(c, 'color'), `${at} ${name} content`).toBe(await resolveColor(page, controlToken(control, form, 'content-color')));
+    const [circle, glyph] = await toned(page, form, ['rest', 'tone']);
+    expect(await css(inner(page, id, name), 'background-color'), `${at} ${name} circle`).toBe(circle);
+    expect(await css(inner(page, id, name), 'color'), `${at} ${name} glyph`).toBe(glyph);
   }
 }
+/** SNK-34: an expand or close Button's own container — the native button it draws in its shadow root, where its colors, its ring and its press are. */
+const inner = (page: P, id: string, name: 'expand' | 'close') => part(page, id, name).locator('[part="container"]');
+/**
+ * SNK-34, BTN-45: what an expand or close Button draws in `form`'s tone, as the page computes it — `tone`, the form's
+ * message color (the glyph); `rest`, the tonal circle (that color at comp.button.tone.container.opacity); and each state,
+ * the circle with that color laid over it at the system's state-layer opacity. Written as the Button writes them, so the
+ * engine serializes both the same way.
+ */
+const toned = (page: P, form: string, which: readonly ('tone' | 'rest' | 'hover' | 'focus' | 'pressed')[]) =>
+  page.evaluate(
+    ([tone, list]) => {
+      const rest = `color-mix(in srgb, var(${tone}) calc(var(--tanrei-comp-button-tone-container-opacity) * 100%), transparent)`;
+      const expression = (name: string) => (name === 'tone' ? `var(${tone})` : name === 'rest' ? rest : `color-mix(in srgb, ${rest}, var(${tone}) calc(var(--tanrei-sys-state-${name}-state-layer-opacity) * 100%))`);
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden';
+      document.body.appendChild(probe);
+      const values = list.map((name) => {
+        probe.style.backgroundColor = expression(name);
+        return getComputedStyle(probe).backgroundColor;
+      });
+      probe.remove();
+      return values;
+    },
+    [barToken(form, 'supporting-text-color'), which] as const,
+  );
 /** Each scheme in turn, the fixtures mounted in it with motion reduced. */
 async function eachScheme(page: P, options: Parameters<typeof mountFixtures>[2], run: (scheme: string) => Promise<void>) {
   for (const { theme, contrast } of SCHEMES) {
@@ -645,9 +677,11 @@ test.describe('the bar', () => {
     expect((await bounds(part(page, 'wide', 'bar'))).width).toBeCloseTo(maxW, 0);
   });
 
-  test('SNK-15: the message in its role and its form’s color, the controls container.gap after it and controls.gap apart, centred on its first line; the action a tonal button in its form’s colors — its height, padding and label; the close square and glyph; their corners', async ({ page }) => {
+  test('SNK-15, SNK-34: the message in its role and its form’s color, the controls container.gap after it and controls.gap apart, centred on its first line; the action a tonal button in its form’s colors — its height, padding, label and corners; the expand and close buttons small Buttons, as tall as the action', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    const [gap, cgap, h, pad, icon] = await Promise.all(['container-gap', 'controls-gap', 'controls-height', 'controls-padding-inline', 'controls-icon-size'].map((n) => resolveToken(page, T(n))));
+    const [gap, cgap, h, pad, small] = await Promise.all([T('container-gap'), T('controls-gap'), T('controls-height'), T('controls-padding-inline'), '--tanrei-comp-button-container-height-small'].map((n) => resolveToken(page, n)));
+    // One row, one height: the action is as tall as the small Buttons beside it.
+    expect(h).toBe(small);
     const m = part(page, 'action-closable', 'message');
     expect(await css(m, 'color')).toBe(await resolveColor(page, T('supporting-text-color')));
     expect(await css(m, 'font-size')).toBe(`${await resolveToken(page, T('supporting-text-typescale-font-size'))}px`);
@@ -667,27 +701,39 @@ test.describe('the bar', () => {
     expect(Number.parseFloat(await css(a, 'padding-left'))).toBe(pad);
     expect(await css(a, 'font-size')).toBe(`${await resolveToken(page, T('controls-label-typescale-font-size'))}px`);
     expect(await css(a, 'color')).toBe(await resolveColor(page, T('action-content-color')));
-    expect(await css(part(page, 'closable', 'close'), 'color')).toBe(await resolveColor(page, T('close-content-color')));
-    const glyph = part(page, 'closable', 'icon');
-    expect(await css(glyph, 'font-size')).toBe(`${icon}px`);
-    expect((await css(glyph, '--tanrei-icon-fill')).trim()).toBe(await token(page, '--tanrei-sys-icon-fill-unselected'));
-    await expect(glyph).toHaveAttribute('aria-hidden', 'true');
-    for (const c of [a, part(page, 'closable', 'close')]) expect(Number.parseFloat(await css(c, 'border-top-left-radius'))).toBe(await resolveToken(page, T('controls-shape')));
+    expect(Number.parseFloat(await css(a, 'border-top-left-radius'))).toBe(await resolveToken(page, T('controls-shape')));
     // The action is a tonal button: its own container color at rest.
     expect(await css(a, 'background-color')).toBe(await resolveColor(page, T('action-container-color')));
-    // The expand button: an icon-only button with the close button's tokens, a controls.height square, its glyph at
-    // controls.icon.size, between the action and the close button, controls.gap from each.
+    // SNK-34: the expand and close buttons are icon-only Tanrei Buttons of the small size — a square as tall as the
+    // action, in the variant comp.snackbar.close-button.variant names, drawn from Button's own tokens (its glyph size,
+    // its corners) in the form's tone — the expand button between the action and the close button, controls.gap from
+    // each. The snackbar draws no glyph or shape of its own for them.
+    const variant = await token(page, T('close-button-variant'));
+    expect(variant).toBe('tonal');
     const expand = part(page, 'collapsed', 'expand');
     const [e, c] = await Promise.all([bounds(expand), bounds(part(page, 'collapsed', 'close'))]);
-    expect([e.width, e.height]).toEqual([expect.closeTo(h, 0), expect.closeTo(h, 0)]);
     expect(c.x - (e.x + e.width)).toBeCloseTo(cgap, 0);
-    expect(await css(expand, 'background-color')).toBe(await resolveColor(page, T('close-container-color')));
-    expect(await css(expand, 'color')).toBe(await resolveColor(page, T('close-content-color')));
-    expect(Number.parseFloat(await css(expand, 'border-top-left-radius'))).toBe(await resolveToken(page, T('controls-shape')));
-    const expandGlyph = expand.locator('.icon');
-    await expect(expandGlyph).toHaveText('expand_more');
-    expect(await css(expandGlyph, 'font-size')).toBe(`${icon}px`);
-    expect((await css(expandGlyph, '--tanrei-icon-fill')).trim()).toBe(await token(page, '--tanrei-sys-icon-fill-unselected'));
+    const [glyphSize, buttonShape] = await Promise.all(['--tanrei-comp-button-icon-size-without-label-small', '--tanrei-comp-button-container-shape'].map((n) => resolveToken(page, n)));
+    for (const [id, name, glyph] of [['closable', 'close', 'close'], ['collapsed', 'close', 'close'], ['collapsed', 'expand', 'expand_more']] as const) {
+      const button = part(page, id, name);
+      expect(await button.evaluate((el) => el.localName), `${id} ${name}`).toBe('tanrei-button');
+      await expect(button, `${id} ${name}`).toHaveAttribute('size', 'small');
+      expect(await button.getAttribute('variant'), `${id} ${name}: the variant is given, not set`).toBeNull();
+      await expect(inner(page, id, name), `${id} ${name}`).toHaveAttribute('data-host-variant', variant);
+      await expect(inner(page, id, name), `${id} ${name}`).toHaveAttribute('data-tone', '');
+      const box = await bounds(inner(page, id, name));
+      expect([box.width, box.height], `${id} ${name}`).toEqual([expect.closeTo(small, 0), expect.closeTo(small, 0)]);
+      expect(Number.parseFloat(await css(inner(page, id, name), 'border-top-left-radius')), `${id} ${name}`).toBe(buttonShape);
+      const mark = button.locator('.glyph');
+      await expect(mark, `${id} ${name}`).toHaveText(glyph);
+      expect(await css(mark, 'font-size'), `${id} ${name}`).toBe(`${glyphSize}px`);
+      expect((await css(mark, '--tanrei-icon-fill')).trim(), `${id} ${name}`).toBe(await token(page, '--tanrei-sys-icon-fill-unselected'));
+      expect(await button.evaluate((el) => el.shadowRoot!.querySelector('[part="container"]')!.getAttribute('aria-label')), `${id} ${name}`).toBe(name === 'close' ? 'Close' : 'Show full message');
+      const [circle, tone] = await toned(page, '', ['rest', 'tone']);
+      expect(await css(inner(page, id, name), 'background-color'), `${id} ${name} circle`).toBe(circle);
+      expect(await css(inner(page, id, name), 'color'), `${id} ${name} glyph`).toBe(tone);
+    }
+    expect(await bar(page, 'closable').evaluate((el) => el.shadowRoot!.querySelectorAll('svg, path').length), 'no mark of its own').toBe(0);
     const all3 = await Promise.all(['action', 'expand', 'close'].map((n) => bounds(part(page, 'expanded-scrolls', n))));
     expect(all3[2].x - (all3[1].x + all3[1].width)).toBeCloseTo(cgap, 0);
     // With a title, the controls are centred on the title's first line.
@@ -695,14 +741,16 @@ test.describe('the bar', () => {
     const titleLine = Number.parseFloat(await css(title, 'line-height'));
     const [t0, undo] = await Promise.all([bounds(title), bounds(part(page, 'title', 'action'))]);
     expect(undo.y + undo.height / 2).toBeCloseTo(t0.y + titleLine / 2, 0);
-    // Each form's message, action and close colors are its own: a status form's and the two inverse ones' (SNK-21, SNK-30).
+    // Each form's message, action and close colors are its own: a status form's and the two inverse ones' (SNK-21, SNK-30,
+    // SNK-34).
     for (const id of ['error', 'inverse', 'inverse-error']) {
       const form = formOf(fixture(id).props);
       // Under a title (error, inverse-error) the message is drawn at the opacity SNK-32 gives it.
       expectFaded(await css(part(page, id, 'message'), 'color'), await resolveColor(page, barToken(form, 'supporting-text-color')), fixture(id).props.title ? await opacityToken(page, 'supporting-text-under-title-opacity') : 1, id);
       expect(await css(part(page, id, 'action'), 'background-color'), id).toBe(await resolveColor(page, controlToken('action', form, 'container-color')));
       expect(await css(part(page, id, 'action'), 'color'), id).toBe(await resolveColor(page, controlToken('action', form, 'content-color')));
-      expect(await css(part(page, id, 'close'), 'color'), id).toBe(await resolveColor(page, controlToken('close', form, 'content-color')));
+      expect(await css(inner(page, id, 'close'), 'color'), id).toBe(await resolveColor(page, barToken(form, 'supporting-text-color')));
+      expect(await css(inner(page, id, 'close'), 'background-color'), id).toBe((await toned(page, form, ['rest']))[0]);
     }
     // A tonal action sits on its bar (SNK-33): its container is the bar's own color, the tonal layer over it sets it one
     // quiet step off the bar — in every form, quieter than the label by far — and its label is the strongest thing in it
@@ -767,7 +815,7 @@ test.describe('the bar', () => {
     expect(g.x).toBeGreaterThan(t.x);
     expect(t.x).toBeGreaterThan(x.x);
     for (const [id, name] of [['info', 'status'], ['info', 'close'], ['collapsed', 'expand']] as const) {
-      const glyph = name === 'status' ? part(page, id, 'status') : part(page, id, name).locator('.icon');
+      const glyph = name === 'status' ? part(page, id, 'status') : part(page, id, name).locator('.glyph');
       expect(await css(glyph, 'direction'), `${id} ${name}`).toBe('ltr');
       expect(await css(glyph, 'transform'), `${id} ${name}`).toBe('none');
       expect(await css(glyph, 'scale'), `${id} ${name}`).toBe('none');
@@ -869,8 +917,8 @@ test.describe('the bar', () => {
       await expect(title).toHaveText(LONG);
     }
     await override(page, { '--tanrei-dial-type-base': '' });
-    await expect(part(page, 'collapsed', 'expand').locator('.icon')).toHaveText('expand_more');
-    await expect(part(page, 'expanded', 'expand').locator('.icon')).toHaveText('expand_less');
+    await expect(part(page, 'collapsed', 'expand').locator('.glyph')).toHaveText('expand_more');
+    await expect(part(page, 'expanded', 'expand').locator('.glyph')).toHaveText('expand_less');
     // Expanded: the whole title and message.
     const whole = part(page, 'expanded', 'message');
     expect(await whole.evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
@@ -888,9 +936,12 @@ test.describe('the bar', () => {
     await override(page, { [T('motion-expand-duration')]: '1s' });
     const s = bar(page, 'collapsed');
     const button = part(page, 'collapsed', 'expand');
-    await expect(button).toHaveAttribute('aria-expanded', 'false');
-    await expect(button).toHaveAttribute('aria-controls', 'text');
-    expect(await button.evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-controls')!)?.classList.contains('text'))).toBe(true);
+    // SNK-34: the state and what it controls are on the native button the expand Button draws — what is focused and read
+    // — and the text it controls, in the snackbar's shadow root, is named as an element (an id cannot reach across the
+    // Button's shadow root).
+    const native = inner(page, 'collapsed', 'expand');
+    await expect(native).toHaveAttribute('aria-expanded', 'false');
+    expect(await native.evaluate((el) => ((el as unknown as { ariaControlsElements?: Element[] }).ariaControlsElements ?? []).map((c) => c.className))).toEqual(['text']);
     await expect(page.locator('[data-fixture="collapsed"]').getByRole('button', { name: 'Show full message' })).toHaveCount(1);
     const before = await bounds(part(page, 'collapsed', 'bar'));
     // Keyboard first (WebKit does not focus a button on click): Enter expands, Space collapses, a click expands again.
@@ -913,8 +964,8 @@ test.describe('the bar', () => {
     const motion = await page.evaluate(() => (window as any).grown as { duration: number; from: number } | null);
     expect(motion).toEqual({ duration: await resolveToken(page, T('motion-expand-duration'), 'duration'), from: expect.closeTo(before.height, 0) });
     expect(motion!.duration).toBe(1000);
-    await expect(button).toHaveAttribute('aria-expanded', 'true');
-    await expect(button.locator('.icon')).toHaveText('expand_less');
+    await expect(native).toHaveAttribute('aria-expanded', 'true');
+    await expect(button.locator('.glyph')).toHaveText('expand_less');
     await expect(page.locator('[data-fixture="collapsed"]').getByRole('button', { name: 'Show full message', expanded: true })).toHaveCount(1);
     expect(await focusedPart(s)).toBe('expand');
     await expect(s).toHaveJSProperty('expanded', true);
@@ -925,7 +976,7 @@ test.describe('the bar', () => {
     await expect(s).toBeVisible();
     // The product sets it: the same change, no event.
     await s.evaluate((el: any) => (el.expanded = false));
-    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await expect(native).toHaveAttribute('aria-expanded', 'false');
     expect(await log(page)).toHaveLength(3);
     await expect.poll(async () => (await bounds(part(page, 'collapsed', 'bar'))).height).toBeCloseTo(before.height, 0);
     // Where motion is reduced it changes at once.
@@ -1026,7 +1077,7 @@ test.describe('the bar', () => {
     await mountFixtures(page, spec, { fixtures: [fixture('info'), fixture('collapsed')] });
     await withoutIconFont(page);
     const size = await resolveToken(page, T('icon-size'));
-    const glyphs = [part(page, 'info', 'status'), part(page, 'info', 'close').locator('.icon'), part(page, 'collapsed', 'expand').locator('.icon')];
+    const glyphs = [part(page, 'info', 'status'), part(page, 'info', 'close').locator('.glyph'), part(page, 'collapsed', 'expand').locator('.glyph')];
     for (const glyph of glyphs) {
       await expect(glyph).not.toHaveAttribute('data-drawn');
       await expect(glyph).toHaveCSS('visibility', 'hidden');
@@ -1261,11 +1312,12 @@ test.describe('status colors: the edge, the glyph, the description and the actio
       const opacities = await bar(page, id).evaluate((el) => [el, ...el.shadowRoot!.querySelectorAll('.bar, .status, .text, .title, .message, .control, .hold')].map((part) => getComputedStyle(part).opacity));
       expect(new Set(opacities), id).toEqual(new Set(['1']));
       await tabTo(page, part(page, id, 'close'));
-      const ring = await css(part(page, id, 'close'), 'outline-color');
+      // The close Button's ring, in the focus color of the form's tone (SNK-34).
+      const ring = await css(inner(page, id, 'close'), 'outline-color');
       expect(ring, id).toBe(await resolveColor(page, barToken(formOf(fixture(id).props), 'focus-ring-color')));
       expect(rgba(ring).a, id).toBe(1);
-      // The indicator is the control's own outline: the control is inside the bar, whose shadow the edge is.
-      expect(await part(page, id, 'close').evaluate((el) => el.parentElement!.classList.contains('bar') && getComputedStyle(el).outlineStyle !== 'none'), id).toBe(true);
+      // The indicator is the Button's own outline: the Button is inside the bar, whose shadow the edge is.
+      expect(await part(page, id, 'close').evaluate((el) => el.parentElement!.classList.contains('bar') && getComputedStyle(el.shadowRoot!.querySelector('[part="container"]')!).outlineStyle !== 'none'), id).toBe(true);
     }
   });
 
@@ -1356,8 +1408,11 @@ test.describe('status colors: the edge, the glyph, the description and the actio
       // A click on the layer is a click on the action.
       await page.mouse.move(0, 0);
     }
-    // Not on the expand or the close button.
-    for (const [id, name] of [['action-closable', 'close'], ['collapsed', 'expand'], ['inverse-expanded', 'expand'], ['error', 'close']] as const) expect((await tonalLayer(part(page, id, name))).drawn, `${id} ${name}`).toBe(false);
+    // Not on the expand or the close button: they are Buttons, drawn in their tone with no layer of the snackbar's.
+    for (const [id, name] of [['action-closable', 'close'], ['collapsed', 'expand'], ['inverse-expanded', 'expand'], ['error', 'close']] as const) {
+      expect(await part(page, id, name).evaluate((el) => el.localName), `${id} ${name}`).toBe('tanrei-button');
+      expect(await bar(page, id).evaluate((el, n) => el.shadowRoot!.querySelectorAll(`.${n} .hold, .${n}::before`).length, name), `${id} ${name}`).toBe(0);
+    }
     // It does not change the action's size, and at 0 it draws nothing: the action is its container alone.
     const size = await bounds(part(page, 'action', 'action'));
     await override(page, { [T('action-tonal-layer-opacity')]: '0' });
@@ -1517,10 +1572,14 @@ test.describe('inverse', () => {
     expect(appeared).toEqual({ moving: [], container: m3Inverse, action: await resolveColor(page, T('action-inverse-content-color')) });
   });
 
-  test('SNK-30: each inverse form draws its bar, title, message, glyph, controls and focus indicator from its own tokens, in every scheme', async ({ page }) => {
-    test.setTimeout(120_000);
-    const inverse = ['inverse', ...STATUSES.map((status) => `inverse-${status}`), 'inverse-expanded'];
-    await eachScheme(page, {}, async (scheme) => {
+  // One test for each scheme: each reads the five inverse forms and four keyboard stops on its own mount, so its cost
+  // does not grow with the number of schemes.
+  for (const { theme, contrast } of SCHEMES) {
+    const scheme = `${theme}${contrast ? `-${contrast}` : ''}`;
+    test(`SNK-30, SNK-34: each inverse form draws its bar, title, message, glyph, controls and focus indicator from its own tokens, in ${scheme}`, async ({ page }) => {
+      const inverse = ['inverse', ...STATUSES.map((status) => `inverse-${status}`), 'inverse-expanded'];
+      await mountFixtures(page, spec, { icons: true, theme, reducedMotion: true });
+      if (contrast) await page.evaluate((c) => document.documentElement.setAttribute('data-tanrei-contrast', c), contrast);
       for (const id of inverse) {
         const props = fixture(id).props;
         await readsForm(page, id, props, `${scheme} ${id}`);
@@ -1528,13 +1587,17 @@ test.describe('inverse', () => {
         expect(form.startsWith('inverse'), id).toBe(true);
         expect(await bar(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.bar')!).getPropertyValue('--_focus') !== ''), id).toBe(true);
       }
-      // The focus indicator, where it is drawn: on a control of the inverse form and of an inverse status.
+      // The focus indicator, where it is drawn: on a control of the inverse form and of an inverse status — the action's,
+      // and the close Button's through its tone (SNK-34).
       for (const id of ['inverse', 'inverse-error']) {
+        const color = await resolveColor(page, barToken(formOf(fixture(id).props), 'focus-ring-color'));
         await tabTo(page, part(page, id, 'action'));
-        expect(await css(part(page, id, 'action'), 'outline-color'), `${scheme} ${id}`).toBe(await resolveColor(page, barToken(formOf(fixture(id).props), 'focus-ring-color')));
+        expect(await css(part(page, id, 'action'), 'outline-color'), `${scheme} ${id}`).toBe(color);
+        await tabTo(page, part(page, id, 'close'));
+        expect(await css(inner(page, id, 'close'), 'outline-color'), `${scheme} ${id} close`).toBe(color);
       }
     });
-  });
+  }
 
   // One test for each contrast level: each reads its two themes' eight forms through some two hundred inputs, and the
   // three levels in one test took longer than its time where every input waits (harsh mode).
@@ -1549,6 +1612,8 @@ test.describe('inverse', () => {
         props: { title: 'Draft deleted', message: 'The draft was moved to the bin.', action: 'Undo', closable: true, closeLabel: 'Close', status: form.replace('inverse-', ''), statusLabel: 'Status', ...(form.startsWith('inverse-') ? { inverse: true } : {}) },
       }));
       const controls = ['action', 'close'] as const;
+      /** Where a control is drawn: the action itself, the close Button's own container (SNK-34). */
+      const drawnAt = (id: string, name: 'action' | 'close') => (name === 'action' ? part(page, id, name) : inner(page, id, name));
       /** A control as drawn: its container, its content, the opacity its state gives it, and the action's tonal layer. */
       const control = async (c: Locator, name: string) => ({
         container: await css(c, 'background-color'),
@@ -1556,17 +1621,27 @@ test.describe('inverse', () => {
         opacity: await css(c, 'opacity'),
         layer: name === 'action' ? (await tonalLayer(c)).color : null,
       });
-      /** The tokens of a control's state in a form, as that control is drawn in it. */
-      const stateTokens = async (name: string, form: string, state: string) => ({
-        container: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'container-color', state)),
-        content: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'content-color', state)),
-        opacity: state ? await token(page, T(`${state}-opacity`)) : '1',
-      });
-      /** Waits until the control is drawn in `state` (its form's tokens of that state), then reads it as drawn. */
-      const inState = async (id: string, name: string, form: string, state: string, at: string) => {
-        const c = part(page, id, name);
+      const LAYER = { '': 'rest', hovered: 'hover', focused: 'focus', pressed: 'pressed' } as const;
+      /**
+       * What a control's state in a form draws: the action's tokens of that state; the close Button's tone of that form,
+       * with that state's layer (SNK-34), its opacity its own.
+       */
+      const stateTokens = async (name: 'action' | 'close', form: string, state: keyof typeof LAYER) => {
+        if (name === 'close') {
+          const [container, content] = await toned(page, form, [LAYER[state], 'tone']);
+          return { container, content };
+        }
+        return {
+          container: await resolveColor(page, controlToken(name, form, 'container-color', state)),
+          content: await resolveColor(page, controlToken(name, form, 'content-color', state)),
+          opacity: state ? await token(page, T(`${state}-opacity`)) : '1',
+        };
+      };
+      /** Waits until the control is drawn in `state` (its form's tokens, or tone, of that state), then reads it as drawn. */
+      const inState = async (id: string, name: 'action' | 'close', form: string, state: keyof typeof LAYER, at: string) => {
+        const c = drawnAt(id, name);
         const want = await stateTokens(name, form, state);
-        await expect.poll(async () => { const d = await control(c, name); return { container: d.container, content: d.content, opacity: d.opacity }; }, `${at} ${name} ${state || 'at rest'}`).toEqual(want);
+        await expect.poll(async () => { const d = await control(c, name); return name === 'close' ? { container: d.container, content: d.content } : { container: d.container, content: d.content, opacity: d.opacity }; }, `${at} ${name} ${state || 'at rest'}`).toEqual(want);
         return control(c, name);
       };
       /** Everything a form draws, read from its elements in the page's scheme. */
@@ -1585,8 +1660,8 @@ test.describe('inverse', () => {
         for (const name of controls) {
           await tabTo(page, part(page, id, name));
           drawn[`${name} focused`] = await inState(id, name, form, 'focused', at);
-          drawn[`${name} focus indicator`] = await css(part(page, id, name), 'outline-color');
-          expect(await css(part(page, id, name), 'outline-style'), `${at} ${name}: the indicator is drawn`).toBe('solid');
+          drawn[`${name} focus indicator`] = await css(drawnAt(id, name), 'outline-color');
+          expect(await css(drawnAt(id, name), 'outline-style'), `${at} ${name}: the indicator is drawn`).toBe('solid');
         }
         return drawn;
       };
@@ -1668,7 +1743,7 @@ test.describe('inverse', () => {
           elevation: layers,
           opacities: { glyph: colorOf('.status'), message: colorOf('.message'), title: colorOf('.title'), tonalLayer: colorOf('.action .hold', '::before') },
           corner: style.borderTopLeftRadius,
-          parts: [...root.querySelectorAll('.status, .title, .message, .control, .icon')].map((part) => {
+          parts: [...root.querySelectorAll('.status, .title, .message, .control, .expand, .close, .glyph')].map((part) => {
             const box = part.getBoundingClientRect();
             const own = getComputedStyle(part);
             return [part.className, part.textContent!.trim(), box.x - origin.x, box.y - origin.y, box.width, box.height, own.font, own.borderTopLeftRadius].join(' | ');
@@ -1764,66 +1839,79 @@ test.describe('controls: states, press, corners and focus style', () => {
     };
   };
 
-  test('SNK-2: the expand button renders from the close button’s tokens in each state; every control renders each state from its form’s tokens — a status’s, the inverse form’s and an inverse status’s', async ({ page }) => {
+  /** SNK-34: where an expand or close Button draws its state, and what it draws: its form's tone with the state's layer. */
+  const LAYER = { '': 'rest', hovered: 'hover', focused: 'focus', pressed: 'pressed' } as const;
+  const drawnButton = (c: Locator) => c.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
+  const expectedButton = async (page: P, state: keyof typeof LAYER = '', form = '') => {
+    const [bg, color] = await toned(page, form, [LAYER[state], 'tone']);
+    return { bg, color };
+  };
+
+  test('SNK-2, SNK-34: the action renders each state from its form’s tokens, and the expand and close Buttons in their form’s tone — a status’s, the inverse form’s and an inverse status’s', async ({ page }) => {
     test.setTimeout(120_000);
-    // [fixture, control, the tokens it reads, the form's prefix]
+    // [fixture, control, the form's prefix]
     const cases = [
-      ['collapsed', 'expand', 'close', ''],
-      ['error', 'action', 'action', 'error'],
-      ['error', 'close', 'close', 'error'],
-      ['info', 'close', 'close', 'info'],
-      ['warning', 'action', 'action', 'warning'],
-      ['inverse', 'action', 'action', 'inverse'],
-      ['inverse', 'close', 'close', 'inverse'],
-      ['inverse-expanded', 'expand', 'close', 'inverse'],
-      ['inverse-error', 'action', 'action', 'inverse-error'],
-      ['inverse-info', 'close', 'close', 'inverse-info'],
-      ['inverse-success', 'action', 'action', 'inverse-success'],
+      ['collapsed', 'expand', ''],
+      ['error', 'action', 'error'],
+      ['error', 'close', 'error'],
+      ['info', 'close', 'info'],
+      ['warning', 'action', 'warning'],
+      ['inverse', 'action', 'inverse'],
+      ['inverse', 'close', 'inverse'],
+      ['inverse-expanded', 'expand', 'inverse'],
+      ['inverse-error', 'action', 'inverse-error'],
+      ['inverse-info', 'close', 'inverse-info'],
+      ['inverse-success', 'action', 'inverse-success'],
     ] as const;
-    // Each form's states are tokens of its own: an inverse form's hovered action is not the surface form's.
+    // Each form's states are its own: an inverse form's hovered action is not the surface form's, nor its close Button.
     expect(await resolveColor(page, T('action-hovered-inverse-container-color'))).not.toBe(await resolveColor(page, T('action-hovered-container-color')));
+    expect((await expectedButton(page, 'hovered', 'inverse')).bg).not.toBe((await expectedButton(page, 'hovered')).bg);
+    const read = (id: string, control: 'action' | 'expand' | 'close') => (control === 'action' ? drawn(part(page, id, control)) : drawnButton(inner(page, id, control)));
+    const want = (control: 'action' | 'expand' | 'close', state: keyof typeof LAYER, form: string) => (control === 'action' ? expected(page, 'action', state, form) : expectedButton(page, state, form));
     // Each case on a page of its own fixture alone: Tab reaches its control in a press or two, not across every fixture.
-    for (const [id, control, tokens, status] of cases) {
+    for (const [id, control, form] of cases) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture(id)] });
       await tabTo(page, part(page, id, control));
-      await expect.poll(() => drawn(part(page, id, control)), `${id} ${control} focused`).toEqual(await expected(page, tokens, 'focused', status));
+      await expect.poll(() => read(id, control), `${id} ${control} focused`).toEqual(await want(control, 'focused', form));
     }
-    for (const [id, control, tokens, status] of cases) {
+    for (const [id, control, form] of cases) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture(id)] });
       await logPresses(page);
       const c = part(page, id, control);
       await page.mouse.move(0, 0);
-      await expect.poll(() => drawn(c), `${id} ${control}`).toEqual(await expected(page, tokens, '', status));
+      await expect.poll(() => read(id, control), `${id} ${control}`).toEqual(await want(control, '', form));
       await c.hover();
-      await expect.poll(() => drawn(c), `${id} ${control} hovered`).toEqual(await expected(page, tokens, 'hovered', status));
+      await expect.poll(() => read(id, control), `${id} ${control} hovered`).toEqual(await want(control, 'hovered', form));
       await notePress(page, `down: ${id} ${control}`);
       await page.mouse.down();
-      await expect.poll(() => drawn(c), `${id} ${control} pressed`).toEqual(await expected(page, tokens, 'pressed', status));
+      await expect.poll(() => read(id, control), `${id} ${control} pressed`).toEqual(await want(control, 'pressed', form));
       await page.mouse.up();
     }
   });
 
-  test('SNK-2: each control renders from that state’s tokens of its own; pointer focus is not the focused state (default system)', async ({ page }) => {
+  test('SNK-2, SNK-34: the action renders from that state’s tokens of its own, the close Button from its tone; pointer focus is not the focused state (default system)', async ({ page }) => {
+    const read = (control: 'action' | 'close') => (control === 'action' ? drawn(part(page, 'action-closable', control)) : drawnButton(inner(page, 'action-closable', control)));
+    const want = (control: 'action' | 'close', state: keyof typeof LAYER = '') => (control === 'action' ? expected(page, control, state) : expectedButton(page, state));
     // Keyboard focus first: WebKit does not move focus with Tab after a press and a new page (as in TIP-6's test).
-    for (const control of ['action', 'close']) {
+    for (const control of ['action', 'close'] as const) {
       await mountFixtures(page, spec, { icons: true });
       await tabTo(page, part(page, 'action-closable', control));
-      await expect.poll(() => drawn(part(page, 'action-closable', control)), `${control} focused`).toEqual(await expected(page, control, 'focused'));
+      await expect.poll(() => read(control), `${control} focused`).toEqual(await want(control, 'focused'));
     }
-    for (const control of ['action', 'close']) {
+    for (const control of ['action', 'close'] as const) {
       await mountFixtures(page, spec, { icons: true });
       await logPresses(page);
       const c = part(page, 'action-closable', control);
       await page.mouse.move(0, 0);
-      await expect.poll(() => drawn(c), control).toEqual(await expected(page, control));
+      await expect.poll(() => read(control), control).toEqual(await want(control));
       await c.hover();
-      await expect.poll(() => drawn(c), `${control} hovered`).toEqual(await expected(page, control, 'hovered'));
+      await expect.poll(() => read(control), `${control} hovered`).toEqual(await want(control, 'hovered'));
       await notePress(page, `down: ${control}`);
       await page.mouse.down();
-      await expect.poll(() => drawn(c), `${control} pressed`).toEqual(await expected(page, control, 'pressed'));
+      await expect.poll(() => read(control), `${control} pressed`).toEqual(await want(control, 'pressed'));
       await page.mouse.up();
       await page.mouse.move(0, 0);
-      await expect.poll(() => drawn(c), `${control} pointer focus`).toEqual(await expected(page, control));
+      await expect.poll(() => read(control), `${control} pointer focus`).toEqual(await want(control));
     }
   });
 
@@ -1844,20 +1932,21 @@ test.describe('controls: states, press, corners and focus style', () => {
     await page.keyboard.up('Space');
   });
 
-  test('SNK-3: keyboard focus shows the ring around the control, without animation; pointer focus does not', async ({ page }) => {
+  test('SNK-3, SNK-34: keyboard focus shows the ring around the action, and the expand and close Buttons their own, without animation; pointer focus does not', async ({ page }) => {
     for (const [id, name] of [['closable', 'close'], ['collapsed', 'expand'], ['action', 'action']] as const) {
       await mountFixtures(page, spec, { icons: true });
-      const c = part(page, id, name);
-      await c.click();
+      const stop = part(page, id, name);
+      const c = name === 'action' ? stop : inner(page, id, name);
+      await stop.click();
       await expect(c, name).toHaveCSS('outline-style', 'none');
-      await tabTo(page, c);
+      await tabTo(page, stop);
       await expect(c, name).toHaveCSS('outline-style', 'solid');
       expect(Number.parseFloat(await css(c, 'outline-offset')), name).toBeGreaterThanOrEqual(0);
       expect(await css(c, 'transition-property'), name).not.toContain('outline');
     }
   });
 
-  test('SNK-3: the indicator’s outer stroke is the form’s focus-ring color — on the action, the close and expand buttons and the scrolling text, in the default, a status, the inverse and an inverse status form — at the system’s widths and offset, and 3:1 or more against that form’s bar in every scheme', async ({ page }) => {
+  test('SNK-3, SNK-34: the indicator’s outer stroke is the form’s focus-ring color — on the action, the close and expand buttons (through their tone) and the scrolling text, in the default, a status, the inverse and an inverse status form — at the system’s widths and offset, and 3:1 or more against that form’s bar in every scheme', async ({ page }) => {
     test.setTimeout(180_000);
     // The four kinds of form, each with every control and a text that scrolls (expanded-scrolls' content on its stage).
     const scrolling = fixture('expanded-scrolls').props;
@@ -1873,7 +1962,7 @@ test.describe('controls: states, press, corners and focus style', () => {
       for (const form of forms) await expect(part(page, form.id, 'text')).toHaveAttribute('tabindex', '0');
     };
     await mount();
-    const [outer, inner, offset] = await Promise.all(['outer-width', 'inner-width', 'offset'].map((n) => resolveToken(page, `--tanrei-sys-focus-${n}`)));
+    const [outer, innerWidth, offset] = await Promise.all(['outer-width', 'inner-width', 'offset'].map((n) => resolveToken(page, `--tanrei-sys-focus-${n}`)));
     const system = await resolveColor(page, '--tanrei-sys-color-focus-ring');
     const seen = new Set<string>();
     for (const form of forms) {
@@ -1882,14 +1971,15 @@ test.describe('controls: states, press, corners and focus style', () => {
       for (const name of ['text', 'action', 'expand', 'close']) {
         const stop = part(page, form.id, name);
         await tabTo(page, stop);
-        // The scrolling text's indicator is drawn by the box over it, which does not scroll with the text.
-        const c = name === 'text' ? part(page, form.id, 'focus') : stop;
+        // The scrolling text's indicator is drawn by the box over it, which does not scroll with the text; a Button's by
+        // its own container.
+        const c = name === 'text' ? part(page, form.id, 'focus') : name === 'action' ? stop : inner(page, form.id, name as 'expand' | 'close');
         const at = `${form.id} ${name}`;
         await expect(c, at).toHaveCSS('outline-style', 'solid');
         expect(await css(c, 'outline-color'), at).toBe(color);
         // The widths and the offset stay the system's: around a control after the offset, inside the scrolling text.
         expect(Number.parseFloat(await css(c, 'outline-width')), at).toBe(outer);
-        expect(Number.parseFloat(await css(c, 'outline-offset')), at).toBe(name === 'text' ? -outer : offset + inner);
+        expect(Number.parseFloat(await css(c, 'outline-offset')), at).toBe(name === 'text' ? -outer : offset + innerWidth);
         // The inner stroke, where the system draws one, is the system's own color.
         expect(await css(c, 'border-top-color', '::after'), at).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring-inner'));
       }
@@ -1904,9 +1994,11 @@ test.describe('controls: states, press, corners and focus style', () => {
     await tabTo(page, part(page, 'scrolls-inverse', 'text'));
     expect(await css(part(page, 'scrolls-inverse', 'focus'), 'outline-color')).toBe('rgb(1, 2, 3)');
     await tabTo(page, part(page, 'scrolls-default', 'close'));
-    expect(await css(part(page, 'scrolls-default', 'close'), 'outline-color')).toBe('rgb(4, 5, 6)');
+    expect(await css(inner(page, 'scrolls-default', 'close'), 'outline-color')).toBe('rgb(4, 5, 6)');
+    await tabTo(page, part(page, 'scrolls-inverse', 'close'));
+    expect(await css(inner(page, 'scrolls-inverse', 'close'), 'outline-color')).toBe('rgb(1, 2, 3)');
     await tabTo(page, part(page, 'scrolls-status', 'close'));
-    expect(await css(part(page, 'scrolls-status', 'close'), 'outline-color')).toBe(await resolveColor(page, T('error-focus-ring-color')));
+    expect(await css(inner(page, 'scrolls-status', 'close'), 'outline-color')).toBe(await resolveColor(page, T('error-focus-ring-color')));
     // 3:1 or more against the form's own bar, in every scheme and all ten forms (the token build holds the same).
     await eachScheme(page, {}, async (scheme) => {
       for (const form of ['', ...STATUSES, 'inverse', ...STATUSES.map((status) => `inverse-${status}`)]) {
@@ -1918,8 +2010,9 @@ test.describe('controls: states, press, corners and focus style', () => {
     await mount({ system: 'acme', systemCss: await acmeSystemCss(), reducedMotion: false });
     for (const [id, name] of [['scrolls-inverse', 'action'], ['scrolls-inverse-status', 'close'], ['scrolls-inverse', 'text']] as const) {
       await tabTo(page, part(page, id, name));
-      // The scrolling text's halo is drawn by the box over it, which does not scroll with the text.
-      const c = part(page, id, name === 'text' ? 'focus' : name);
+      // The scrolling text's halo is drawn by the box over it, which does not scroll with the text; a Button's by its own
+      // container.
+      const c = name === 'close' ? inner(page, id, name) : part(page, id, name === 'text' ? 'focus' : name);
       const color = await resolveColor(page, barToken(formOf(forms.find((x) => x.id === id)!.props), 'focus-ring-color'));
       expect(await css(c, 'outline-color'), `${id} ${name}`).toBe('rgba(0, 0, 0, 0)');
       const halo = await css(c, 'box-shadow', '::after');
@@ -1928,27 +2021,33 @@ test.describe('controls: states, press, corners and focus style', () => {
     }
   });
 
-  test('SNK-4: each control’s hit area is at least the minimum target, pointer and touch, without changing its size', async ({ page, browserName }) => {
-    await override(page, { [T('controls-height')]: '16px' });
+  test('SNK-4, SNK-34: the action’s hit area is at least the minimum target, pointer and touch, without changing its size; the expand and close Buttons keep their own', async ({ page, browserName }) => {
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
-    for (const [id, name] of [['action-closable', 'action'], ['action-closable', 'close'], ['collapsed', 'expand']] as const) {
-      const c = part(page, id, name);
-      const hit = await c.evaluate((el) => {
+    const hitOf = (c: Locator) =>
+      c.evaluate((el) => {
         const s = getComputedStyle(el, '::before');
         return [Number.parseFloat(s.width), Number.parseFloat(s.height)];
       });
-      expect(hit[1], name).toBeCloseTo(pointer, 1);
+    // The Buttons: a small Button's target, at least the minimum on both axes, around its own box (BTN-5).
+    for (const [id, name] of [['action-closable', 'close'], ['collapsed', 'expand']] as const) {
+      const hit = await hitOf(inner(page, id, name));
+      expect(hit[1], name).toBeGreaterThanOrEqual(pointer - 0.5);
       expect(hit[0], name).toBeGreaterThanOrEqual(pointer - 0.5);
     }
-    // The visual size is unchanged: the close and expand squares are controls.height.
-    expect((await bounds(part(page, 'action-closable', 'close'))).height).toBeCloseTo(16, 0);
-    expect((await bounds(part(page, 'collapsed', 'expand'))).height).toBeCloseTo(16, 0);
+    await override(page, { [T('controls-height')]: '16px' });
+    const action = part(page, 'action-closable', 'action');
+    const hit = await hitOf(action);
+    expect(hit[1]).toBeCloseTo(pointer, 1);
+    expect(hit[0]).toBeGreaterThanOrEqual(pointer - 0.5);
+    // The visual size is the token's, or its label's line where that is taller: the hit area adds nothing to it.
+    const line = Number.parseFloat(await css(action.locator('.hold'), 'line-height'));
+    expect((await bounds(action)).height).toBeCloseTo(Math.max(16, line), 0);
     if (browserName !== 'chromium') return;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    await expect.poll(() => part(page, 'action-closable', 'close').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBeCloseTo(touch, 1);
+    await expect.poll(() => action.evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBeCloseTo(touch, 1);
   });
 
   test('SNK-5: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
@@ -1958,8 +2057,6 @@ test.describe('controls: states, press, corners and focus style', () => {
       ['action', 'action', 'Enter', () => page.keyboard.press('Enter')],
       ['action', 'action', 'Space', () => page.keyboard.press('Space')],
       ['action', 'action', 'click', () => clickCentre(page, part(page, 'action', 'action'))],
-      ['collapsed', 'expand', 'expand Enter', () => page.keyboard.press('Enter')],
-      ['collapsed', 'expand', 'expand click', () => clickCentre(page, part(page, 'collapsed', 'expand'))],
     ] as const) {
       await mountFixtures(page, spec, { icons: true });
       await part(page, id, control).focus();

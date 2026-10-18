@@ -1161,6 +1161,48 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.snackbar.close",
+      "notFollowedBy": "-button",
+      "since": "2026-10-18",
+      "reason": "the snackbar's close and expand buttons are small Tanrei Buttons, drawn from Button's tokens in the tone the snackbar gives them, not from colors of the snackbar's own",
+      "replacedBy": "comp.snackbar.close-button.variant, and each form's supporting-text.color and focus-ring.color as the Buttons' tone",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-snackbar-close",
+      "notFollowedBy": "-button",
+      "since": "2026-10-18",
+      "reason": "the custom properties of the snackbar's own close button went with its tokens",
+      "replacedBy": "--tanrei-comp-snackbar-close-button-variant, and the Button's own custom properties",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.snackbar.controls.icon",
+      "since": "2026-10-18",
+      "reason": "the close and expand glyphs are the small Button's, at its own glyph size",
+      "replacedBy": "comp.button.icon.size-without-label.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-snackbar-controls-icon",
+      "since": "2026-10-18",
+      "reason": "the custom property of the snackbar's own glyph size went with its token",
+      "replacedBy": "--tanrei-comp-button-icon-size-without-label-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

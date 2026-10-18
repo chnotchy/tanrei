@@ -21049,10 +21049,9 @@ class TanreiSliderTokens {
 /// active system does not have renders as [action].
 extension type const TanreiSnackbarControl(String name) {
   static const action = TanreiSnackbarControl('action');
-  static const close = TanreiSnackbarControl('close');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiSnackbarControl> core = <TanreiSnackbarControl>[action, close];
+  static const List<TanreiSnackbarControl> core = <TanreiSnackbarControl>[action];
 }
 
 /// What one control of snackbar looks like in one interaction state.
@@ -21263,14 +21262,11 @@ class TanreiSnackbarControlTokens {
 class TanreiSnackbarControls {
   const TanreiSnackbarControls({
     required this.action,
-    required this.close,
     this.extra = const <TanreiSnackbarControl, TanreiSnackbarControlTokens>{},
   });
 
   /// `comp.snackbar` control `action`
   final TanreiSnackbarControlTokens action;
-  /// `comp.snackbar` control `close`
-  final TanreiSnackbarControlTokens close;
 
   /// The controls a design system added to the core vocabulary.
   final Map<TanreiSnackbarControl, TanreiSnackbarControlTokens> extra;
@@ -21279,11 +21275,9 @@ class TanreiSnackbarControls {
   /// those with the same key): a copy never loses a value the design system added.
   TanreiSnackbarControls copyWith({
     TanreiSnackbarControlTokens? action,
-    TanreiSnackbarControlTokens? close,
     Map<TanreiSnackbarControl, TanreiSnackbarControlTokens>? extra,
   }) => TanreiSnackbarControls(
         action: action ?? this.action,
-        close: close ?? this.close,
         extra: extra == null ? this.extra : <TanreiSnackbarControl, TanreiSnackbarControlTokens>{...this.extra, ...extra},
       );
 
@@ -21293,7 +21287,6 @@ class TanreiSnackbarControls {
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
   TanreiSnackbarControlTokens operator [](TanreiSnackbarControl control) => switch (control.name) {
         'action' => action,
-        'close' => close,
         _ => extra[control] ?? _fallback(control),
       };
 
@@ -21335,6 +21328,7 @@ class TanreiSnackbarStateTokens {
 class TanreiSnackbarTokens {
   const TanreiSnackbarTokens({
     required this.actionTonalLayerOpacity,
+    required this.closeButtonVariant,
     required this.containerColor,
     required this.containerElevation,
     required this.containerGap,
@@ -21350,7 +21344,6 @@ class TanreiSnackbarTokens {
     required this.containerShape,
     required this.controlsGap,
     required this.controlsHeight,
-    required this.controlsIconSize,
     required this.controlsLabelTypescale,
     required this.controlsPaddingInline,
     required this.controlsShape,
@@ -21439,6 +21432,8 @@ class TanreiSnackbarTokens {
 
   /// `comp.snackbar.action-tonal-layer-opacity`
   final double actionTonalLayerOpacity;
+  /// `comp.snackbar.close-button-variant`
+  final double closeButtonVariant;
   /// `comp.snackbar.container-color`
   final TanreiPaint containerColor;
   /// `comp.snackbar.container-elevation`
@@ -21469,8 +21464,6 @@ class TanreiSnackbarTokens {
   final double controlsGap;
   /// `comp.snackbar.controls-height`
   final double controlsHeight;
-  /// `comp.snackbar.controls-icon-size`
-  final double controlsIconSize;
   /// `comp.snackbar.controls-label-typescale`
   final TanreiTextStyle controlsLabelTypescale;
   /// `comp.snackbar.controls-padding-inline`
@@ -21643,6 +21636,7 @@ class TanreiSnackbarTokens {
   /// A copy with the given tokens replaced.
   TanreiSnackbarTokens copyWith({
     double? actionTonalLayerOpacity,
+    double? closeButtonVariant,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
     double? containerGap,
@@ -21658,7 +21652,6 @@ class TanreiSnackbarTokens {
     double? containerShape,
     double? controlsGap,
     double? controlsHeight,
-    double? controlsIconSize,
     TanreiTextStyle? controlsLabelTypescale,
     double? controlsPaddingInline,
     double? controlsShape,
@@ -21745,6 +21738,7 @@ class TanreiSnackbarTokens {
     TanreiSnackbarStateTokens? pressed,
   }) => TanreiSnackbarTokens(
         actionTonalLayerOpacity: actionTonalLayerOpacity ?? this.actionTonalLayerOpacity,
+        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
         containerGap: containerGap ?? this.containerGap,
@@ -21760,7 +21754,6 @@ class TanreiSnackbarTokens {
         containerShape: containerShape ?? this.containerShape,
         controlsGap: controlsGap ?? this.controlsGap,
         controlsHeight: controlsHeight ?? this.controlsHeight,
-        controlsIconSize: controlsIconSize ?? this.controlsIconSize,
         controlsLabelTypescale: controlsLabelTypescale ?? this.controlsLabelTypescale,
         controlsPaddingInline: controlsPaddingInline ?? this.controlsPaddingInline,
         controlsShape: controlsShape ?? this.controlsShape,
