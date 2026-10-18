@@ -15,8 +15,9 @@
 #
 # Each platform job uploads only the files that changed under its baseline directories; the commit job adds only
 # those directories, so nothing else can reach the branch. A push made with GITHUB_TOKEN starts no push or
-# pull_request workflow, so after pushing, the commit job starts CI on the branch itself (`gh workflow run ci.yml`, a
-# workflow_dispatch run: its checks attach to the new head commit and show on the pull request). How-to:
+# pull_request workflow. The commit job starts CI on the branch only when `start_ci` is set (`gh workflow run ci.yml`, a
+# workflow_dispatch run: all three engines, about 38 jobs). By default it does not: a branch's three-engine run comes
+# with the merge train it joins, and one run per recording would fill the account's runners. How-to:
 # CONTRIBUTING.md#recording-baselines.
 name: Record baselines
 
@@ -40,6 +41,11 @@ on:
         required: false
         type: string
         default: ""
+      start_ci:
+        description: "Start a three-engine CI run on the branch after committing (off: the merge train runs it)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -311,11 +317,12 @@ jobs:
           # merge-multiple a lone artifact is extracted without its own folder, and a per-artifact layout breaks.)
           merge-multiple: true
           path: ${{ runner.temp }}/in
-      - name: Commit each platform's baselines, push, and start CI on the branch
+      - name: Commit each platform's baselines, push, and (with start_ci) start CI on the branch
         env:
           GH_TOKEN: ${{ github.token }}
           REASON: ${{ inputs.reason }}
           BRANCH: ${{ github.ref_name }}
+          START_CI: ${{ inputs.start_ci }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -358,10 +365,15 @@ jobs:
           git pull --rebase origin "$BRANCH"
           git push origin "HEAD:$BRANCH"
           # A push by GITHUB_TOKEN starts no push or pull_request workflow; a workflow_dispatch it sends does start one.
-          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
+          if [ "$START_CI" = true ]; then
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
+            ci_note="CI was started on \`$BRANCH\` (a workflow_dispatch run of ci.yml; its checks show on the pull request)."
+          else
+            ci_note="CI was not started: the branch's three-engine run comes with its merge train (set start_ci to start one here)."
+          fi
           {
             echo "### Baselines committed to \`$BRANCH\`"
             git log -n "$made" --format='- %h %s'
             echo
-            echo "CI was started on \`$BRANCH\` (a workflow_dispatch run of ci.yml; its checks show on the pull request). Look at every image in these commits."
+            echo "$ci_note Look at every image in these commits."
           } >> "$GITHUB_STEP_SUMMARY"
