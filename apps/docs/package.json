@@ -19,7 +19,7 @@
     "fixtures": "node scripts/fixture-documents.mjs"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.0",
+    "@astrojs/starlight": "^0.42.6",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/material-symbols-outlined": "^5.3.7",
     "@fontsource-variable/material-symbols-rounded": "^5.3.7",
@@ -28,13 +28,13 @@
     "@fontsource-variable/roboto-mono": "^5.3.0",
     "@tanrei/studio": "workspace:*",
     "@tanrei/web": "workspace:*",
-    "astro": "^7.3.0",
-    "sharp": "^0.35.0"
+    "astro": "^7.3.8",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "^1.63.0",
     "typescript": "^6.0.3",
-    "wrangler": "4.131.2"
+    "wrangler": "4.151.0"
   }
 }
