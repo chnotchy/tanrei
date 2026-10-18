@@ -1,11 +1,14 @@
 // Registers every Tanrei custom element for live demos (browser only).
 //
-// Importing the package's entry defines every element: the entry is in the package's `sideEffects`
-// list, so a bundler keeps it (and each component module it imports) even where nothing is used.
+// Importing the package's entries defines every element: the main entry the core's components, and a layer's entry
+// those that live in that layer (`@tanrei/web/m3-like`: the FAB menu, whose demos draw under that system). The
+// entries are in the package's `sideEffects` list, so a bundler keeps them (and each component module they import)
+// even where nothing is used.
 //
 // The docs' link forms hold a plain anchor until their element is defined (link-fallback.ts): it goes first.
 import './link-fallback';
 import * as tanrei from '@tanrei/web';
+import '@tanrei/web/m3-like';
 
 declare global {
   interface Window {

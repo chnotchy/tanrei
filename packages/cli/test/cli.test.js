@@ -48,7 +48,7 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
   const { run, read, dir } = product(acme);
   const result = run(['build']);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /"acme" \(tanrei → acme\): \d+ tokens → tokens, web,/);
+  assert.match(result.stdout, /"acme" \(core → tanrei → acme\): \d+ tokens → tokens, web,/);
 
   const css = read('out/web/acme.css');
   assert.match(css, /\[data-tanrei-system="acme"\]/);
@@ -71,7 +71,7 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
 
   // The shared artifact is plain DTCG 2025.10, with the recipe inside.
   const dial = JSON.parse(read('out/tokens/dial/dial.tokens.json'));
-  assert.deepEqual(dial.$extensions['dev.tanrei.system'].chain, ['tanrei', 'acme']);
+  assert.deepEqual(dial.$extensions['dev.tanrei.system'].chain, ['core', 'tanrei', 'acme']);
   // Larger type alone no longer fits the small button, nor the segmented button and the button with menu that share its 32px:
   // the product is told, in the log and in the report. Other components whose heights 18px type outgrows are reported the same way; how many they are
   // follows the components that exist, so the test holds the kind of every warning and these three, not a count.
@@ -148,7 +148,7 @@ test('a product can stack its own layers and start from a shipped preset', () =>
   fs.writeFileSync(path.join(dir, 'design/acme-base.system.json'), JSON.stringify({ id: 'acme-base', name: 'Acme base', extends: 'cupertino', tokens: {} }));
   const result = run(['build']);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /tanrei → cupertino → acme-base → acme-kids/);
+  assert.match(result.stdout, /core → cupertino → acme-base → acme-kids/);
   assert.match(result.stderr, /accessibility\/structure warning\(s\)/, 'a product layer on a preset is warned about what it inherits: reported, not hidden');
   assert.match(read('out/web/acme-kids.css'), /--tanrei-dial-shape-unit: 6px;/);
 });
@@ -156,13 +156,14 @@ test('a product can stack its own layers and start from a shipped preset', () =>
 test('explain, systems, init, help', () => {
   const { run, dir } = product(acme, { web: 'out/web' });
   assert.match(run(['explain', 'tanrei.comp.button.container.gap.medium']).stdout, /acme:\n\s+\{"\$value":"\{tanrei\.sys\.space\.space50\}"\}/);
-  assert.match(run(['explain', 'tanrei.comp.button.filled.hovered.container.color']).stdout, /tanrei:\n\s+✔ rule tanrei\.comp\.\*\.\*\.hovered\.container\.color .*\(wins: fewest wildcards \(2\)\)/);
+  assert.match(run(['explain', 'tanrei.comp.button.filled.hovered.container.color']).stdout, /core:\n\s+✔ rule tanrei\.comp\.\*\.\*\.hovered\.container\.color .*\(wins: fewest wildcards \(2\)\)/);
   assert.match(run(['systems']).stdout, /cupertino[\s\S]*m3-like[\s\S]*tanrei/);
   const help = run(['--help']).stdout;
   assert.match(help, /tanrei build/);
   // The help names every system this version ships, the default first, and each of them is one `init` takes
   // (the list was a literal and fell behind tokens/systems/).
-  const shipped = fs.readdirSync(path.resolve(pkg, '../../tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => f.replace('.system.json', '')).sort();
+  // The root layer `core` is in tokens/systems/ for every chain to start from; it has no output of its own and is not offered.
+  const shipped = fs.readdirSync(path.resolve(pkg, '../../tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => f.replace('.system.json', '')).filter((id) => id !== 'core').sort();
   const offered = /tanrei init <id> \[--extends ([^\]]+)\]/.exec(help)?.[1].split('|') ?? [];
   assert.ok(shipped.length > 1, 'more than the default system ships');
   assert.deepEqual([...offered].sort(), shipped);
@@ -192,7 +193,7 @@ test('fonts: build and systems list the named families a system references; vali
   const warned = bare.run(['validate']);
   assert.equal(warned.status, 0, 'a warning, not a failure');
   assert.match(warned.stderr, /⚠ typeface "brand": the font stack \["Acme Sans"\] has no system or generic fallback/);
-  assert.match(warned.stdout, /is a valid layer \(tanrei → acme\)/);
+  assert.match(warned.stdout, /is a valid layer \(core → tanrei → acme\)/);
   assert.match(bare.run(['build']).stderr, /⚠ typeface "brand": the font stack/);
 
   const listed = run(['systems']).stdout;

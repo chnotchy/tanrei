@@ -283,10 +283,16 @@ const SUBJECTS = [
 ];
 const button = SUBJECTS[0].spec;
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+// The presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root (the one
+// layer without `extends`, which has no stylesheet of its own) — the rule the CLI and the MCP server offer systems by.
+// A layer's folder (tokens/systems/m3-like/, the documents of the components that live in it) is no layer.
+const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
 const presets = fs
   .readdirSync(path.join(repo, 'tokens/systems'))
-  .map((f) => f.replace('.system.json', ''))
-  .filter((id) => id !== 'tanrei');
+  .filter((f) => f.endsWith('.system.json'))
+  .map((f) => ({ id: f.replace('.system.json', ''), layer: JSON.parse(fs.readFileSync(path.join(repo, 'tokens/systems', f), 'utf8')) }))
+  .filter(({ id, layer }) => id !== namespace && layer.extends)
+  .map(({ id }) => id);
 /**
  * Tanrei's accessibility criteria in axe: the contrast thresholds (AA, and AAA's enhanced one), a link's contrast with
  * the text around it (`link-in-text-block`) and the target size. An
@@ -298,6 +304,8 @@ const presets = fs
  */
 const CRITERIA = ['color-contrast', 'color-contrast-enhanced', 'link-in-text-block', 'target-size'];
 const sheet = (id: string) => fs.readFileSync(path.join(repo, `packages/web/dist/systems/${id}.css`), 'utf8');
+/** The components a system does not have: they live in a layer it does not extend (`--tanrei-unavailable-layer`). */
+const outside = (id: string) => new Set((/--tanrei-unavailable-layer: "([^"]*)";/.exec(sheet(id))?.[1] ?? '').split(/\s+/).filter(Boolean).map((pair) => pair.split('=')[0]));
 const inner = (page: Page, fixture: string) => fixtureHost(page, button, fixture).locator('button');
 const style = (page: Page, fixture: string, property: string) => inner(page, fixture).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 
@@ -488,7 +496,8 @@ for (const system of presets) {
       expect(box!.height).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-medium'));
     });
 
-    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, ...scope } of SUBJECTS) {
+    // A component that lives in a layer this system does not extend is not drawn under it: the system has none of its tokens.
+    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, ...scope } of SUBJECTS.filter((s) => !outside(system).has(s.spec.name))) {
       for (const unit of axeUnits({ spec, ...scope })) {
         test(`${unit.name}: ${system} passes axe's functional rules at standard contrast (not its contrast or target-size criteria)`, async ({ page }) => {
           await axe(page, spec, unit.name, system, undefined, icons, unit.fixtures);

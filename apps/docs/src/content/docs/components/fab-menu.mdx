@@ -13,8 +13,8 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[Not in the Tanrei system]
-The default Tanrei system does not ship the FAB menu, and neither does cupertino, because Apple has no floating action button; the Material presets do. In Tanrei, use a [Main Action Button](/components/main-action-button/) that opens a [bottom sheet](/components/bottom-sheet/) of actions. The component still works under every system, with a warning in development where the system leaves it out. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
+:::note[A component of the m3-like layer]
+The FAB menu lives in the `m3-like` layer: only the systems that descend from it — `m3-like` and `m3-expressive-like` — have it, and its tokens are in their stylesheets alone. `@tanrei/web` does not register it; `@tanrei/web/m3-like` does. The default Tanrei system and cupertino do not have it, because neither draws a floating action button: use a [Main Action Button](/components/main-action-button/) that opens a [bottom sheet](/components/bottom-sheet/) of actions. Used under one of them, it says so in development. A product on another system that wants it includes it from the layer in its own layer — `"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }` — and draws it with its own tokens. The demos on this page are drawn under `m3-like`.
 :::
 
 <DemoFrame label="Closed and open" system="m3-like">
@@ -59,7 +59,8 @@ The toggle is drawn as a collapsed [main action button](/components/main-action-
     </style>
 
     <script type="module">
-      import '@tanrei/web/components/fab-menu';
+      // The FAB menu lives in the m3-like layer: that layer's entry registers it, next to the main one.
+      import '@tanrei/web/m3-like';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // The toggle asks to open or close; you set open.
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));

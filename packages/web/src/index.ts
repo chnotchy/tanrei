@@ -203,15 +203,6 @@ export {
   type TanreiDividerLineStyle,
   type TanreiDividerOrientation,
 } from './components/divider/divider.js';
-export {
-  TanreiFabMenu,
-  type TanreiFabMenuCloseDetail,
-  type TanreiFabMenuCloseReason,
-  TanreiFabMenuItem,
-  type TanreiFabMenuSize,
-  type TanreiFabMenuToggleDetail,
-  type TanreiFabMenuVariant,
-} from './components/fab-menu/fab-menu.js';
 export { TanreiFigure, type TanreiFigureSeparation, type TanreiFigureVariant } from './components/figure/figure.js';
 export { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from './components/file-item/file-item.js';
 export {
