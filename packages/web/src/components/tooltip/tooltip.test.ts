@@ -1720,6 +1720,8 @@ test.describe('motion', () => {
       expect(await isOpen(page, 'b'), dismiss).toBe(false);
       await page.clock.runFor(1);
       expect(await isOpen(page, 'b'), dismiss).toBe(true);
+      // The next page is mounted on a running clock (the mount waits for its first paint), and the clock held after it.
+      await page.clock.resume();
     }
     // Reduced motion keeps the warm time (TIP-18): it is a waiting time.
     await page.emulateMedia({ reducedMotion: 'reduce' });

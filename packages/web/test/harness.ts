@@ -2366,8 +2366,88 @@ export function glyphsSpelled(families: string[]): string[] {
   return spelled;
 }
 
-/** Render every fixture of a spec in the page, and wait until the components and their faces are drawn. */
-export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & { reducedMotion?: boolean } = {}) {
+/** How a document is mounted, beyond what it is made of. */
+export interface MountOptions {
+  /** Emulates reduced motion (or its absence) from this mount on; left out, the page keeps what it had. */
+  reducedMotion?: boolean;
+  /**
+   * Return before the document has been painted as the components count it (`documentPainted()`,
+   * src/primitives/motion.ts), instead of after (`painted()` below). For the two cases that must:
+   * - a test of what is placed before the first paint — a surface told to open then is there at once, with no
+   *   entrance (MOT-4): it acts right after the mount;
+   * - a page whose clock the test holds (`page.clock` installed and paused before the mount): its frame callbacks wait
+   *   for the test, so the components count the document painted only once the test has run the clock two frames on.
+   * Without it, a mount on a held clock fails at once and says so.
+   */
+  beforePaint?: boolean;
+}
+
+/**
+ * Render every fixture of a spec in the page, and wait until the components and their faces are drawn and the document
+ * has been painted as the components count it — so a surface the test opens plays its entrance (MOT-4), however late the
+ * machine draws the page's first frames. `beforePaint` returns before that.
+ */
+export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & MountOptions = {}) {
+  await mountDocument(page, spec, given);
+  if (!given.beforePaint) await painted(page);
+}
+
+/** How many frames the page draws without running a frame callback before its clock is taken to be held. */
+const HELD_FRAMES = 30;
+
+/**
+ * Resolves once the bundle's `documentPainted()` (src/primitives/motion.ts) is true in the page `mountFixtures` wrote.
+ *
+ * It reads the same clock the bundle does, after it: the bundle's module runs while the document is parsed and asks
+ * for two frame callbacks at `DOMContentLoaded` (or counts the page painted at once, where an earlier document in the
+ * window was painted); `page.setContent()` resolves at `load`, after that; and two frame callbacks asked for now run
+ * after the bundle's — in the same frames at the earliest, where they run in the order they were asked for. So the
+ * second of them comes after the bundle's second, which is when it counts the document painted.
+ *
+ * Frame callbacks run on the page's clock. Where a test installed `page.clock` they are its fakes, which run while that
+ * clock runs; where it holds that clock they wait for the test, and so would this: the page's real frames are counted
+ * too (a box that grows on the document timeline, which no page clock holds), and HELD_FRAMES of them with the page's
+ * time standing still fail the mount with what to do, instead of waiting out the test's timeout.
+ */
+export async function painted(page: Page): Promise<void> {
+  const verdict = await page.evaluate((held) => {
+    const twoFrames = new Promise<'painted'>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve('painted'))));
+    // A clock of the page's own (Playwright's) replaces the native function; without one there is nothing to watch.
+    if (/\[native code\]/.test(Function.prototype.toString.call(requestAnimationFrame))) return twoFrames;
+    const box = document.createElement('div');
+    box.setAttribute('aria-hidden', 'true');
+    box.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: clip; pointer-events: none; contain: strict;';
+    const mover = document.createElement('div');
+    mover.style.cssText = 'inline-size: 0; block-size: 1px;';
+    box.append(mover);
+    document.documentElement.append(box);
+    const growing = mover.animate([{ inlineSize: '0px' }, { inlineSize: '1000000px' }], { duration: 1_000_000, fill: 'forwards' });
+    const stop = () => {
+      watch.disconnect();
+      growing.cancel();
+      box.remove();
+    };
+    // Held is the page's time standing still while the page draws frames; a clock that runs is waited for.
+    const start = performance.now();
+    let drawn = 0;
+    let tell!: (verdict: 'held') => void;
+    const stalled = new Promise<'held'>((resolve) => (tell = resolve));
+    const watch = new ResizeObserver(() => {
+      if (performance.now() !== start) stop();
+      else if (++drawn >= held) tell('held');
+    });
+    watch.observe(mover);
+    return Promise.race([twoFrames, stalled]).finally(stop);
+  }, HELD_FRAMES);
+  if (verdict === 'held') {
+    throw new Error(
+      `mountFixtures: the page drew ${HELD_FRAMES} frames and ran no frame callback — its clock is held (page.clock paused before the mount), so the components will not count the document painted until the test runs the clock. Pass \`beforePaint: true\` to mount on a held clock, or hold the clock after the mount.`,
+    );
+  }
+}
+
+/** Writes the document of a spec's fixtures into the page, and waits until the components and their faces are drawn. */
+async function mountDocument(page: Page, spec: Spec, given: DocumentOptions & MountOptions) {
   const options = drawnUnder(spec, given);
   const tag = spec.platforms.web.name;
   // Only when asked: a test that emulated reduced motion itself keeps it across mounts.
@@ -2441,7 +2521,7 @@ const stagePlaces = new Map<string, Promise<Record<string, number>>>();
  * that part of a pixel above it (`lead`). The pictures are the same to the pixel (compared in Chromium, every fixture
  * of the text input, the tabs, the combobox, the select and the number input and every sixth of the Field's).
  */
-export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixture, options: DocumentOptions & { reducedMotion?: boolean } = {}) {
+export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixture, options: DocumentOptions & MountOptions = {}) {
   const key = `${spec.name} ${JSON.stringify(options, (name, value) => (name === 'assets' ? undefined : value))}`;
   let places = stagePlaces.get(key);
   if (!places) {
