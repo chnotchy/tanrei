@@ -6,9 +6,9 @@ import { type CSSResult, type TemplateResult, html, nothing, svg, unsafeCSS } fr
 // while an arrow is drawn the painted box gives up its shadow and the same layers are drawn by an SVG filter over the
 // box and the arrow together.
 //
-// The markup the styles expect, inside the placed box (`surface`):
+// The markup the styles expect, inside the placed box (`surface`), which the filter is set on (`shadeOn()`):
 //
-//   <div class="motion">                         what the filter is set on (`filter: url(#shade)`, by the script)
+//   <div class="motion">                         what fades and grows (its own filter is the appearance's blur)
 //     <span class="arrow" aria-hidden="true">    the triangle
 //     <div class="…">                            the painted box (`box`)
 //   </div>
@@ -69,6 +69,18 @@ export function shadeFilter(layers: readonly ShadowLayer[]): TemplateResult | ty
         </feMerge>
       </filter>
     </svg>`;
+}
+
+/**
+ * Sets the elevation's filter on the placed box while its arrow is shaded (`data-arrow='shaded'`), and takes it off
+ * otherwise. On the placed box, not on what moves inside it: there the filter is the appearance's blur
+ * (`appearStyles()`, src/primitives/motion.ts), and an inline filter would hold it. The filter is drawn round what the
+ * box holds as it is drawn — faded and grown with it. It is named from the element's own style, so that the name is
+ * looked up in its shadow root.
+ */
+export function shadeOn(surface: HTMLElement): void {
+  const filter = surface.dataset.arrow === 'shaded' ? 'url(#shade)' : '';
+  if (surface.style.filter !== filter) surface.style.filter = filter;
 }
 
 /** What `arrowStyles()` is told: the selectors of the markup above, and the values the arrow is drawn from. */

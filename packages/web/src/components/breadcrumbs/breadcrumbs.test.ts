@@ -10,6 +10,7 @@ import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, missingWords, 
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
+import { motionEnded } from '../../../test/motions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('breadcrumbs');
@@ -545,6 +546,9 @@ test.describe('one line, and what is folded away', () => {
     await expect.poll(() => focusedRow(page)).toMatchObject({ row: 'Design tokens', focus: 'tanrei-menu-item', href: null });
     await page.keyboard.press('Enter');
     await page.keyboard.press('Space');
+    // A forced press does not wait for the row to stand still (a disabled row is not one Playwright would press), so
+    // the menu's entrance has ended first: the press is on that row, and not on where another row passes meanwhile.
+    await motionEnded(surface);
     await rows(page, 'places').nth(1).click({ force: true });
     await settled(page);
     expect(await heard(page)).toMatchObject({ clicks: [], hashes: 0, hash: '' });
@@ -1567,6 +1571,8 @@ test.describe('accessibility', () => {
       await expect(menu(page, id).locator('.surface')).toBeVisible();
       await expect.poll(() => focusedRow(page)).toMatchObject({ focus: 'a', role: 'menuitem' });
       expect(await rows(page, id).evaluateAll((items) => items.filter((item) => item.shadowRoot!.querySelector('a[role="menuitem"][href]')).length), id).toBeGreaterThan(0);
+      // The menu as it rests: in the middle of its entrance its rows are still fading in, and their contrast is not theirs.
+      await motionEnded(menu(page, id).locator('.surface'));
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`), id).toEqual([]);
       await page.keyboard.press('Escape');

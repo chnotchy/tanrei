@@ -59,8 +59,8 @@ export const styles = css`
     offset: T('offset'),
     margin: T('window-margin'),
     arrow: { width: T('arrow-width'), height: T('arrow-height'), inset: T('arrow-inset') },
-    open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
-    close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
   /* POP-6, POP-7, POP-8: the container — its color, its elevation and its corners (eased by the smoothing); as wide as
@@ -328,7 +328,7 @@ export const styles = css`
     .divider {
       background: CanvasText;
     }
-    .motion {
+    .surface {
       filter: none !important;
     }
   }

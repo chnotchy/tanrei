@@ -1009,21 +1009,21 @@
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the sheet takes to fade in and grow from the anchor's side."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the sheet takes to fade out."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "submenu-delay": {
             "$type": "duration",

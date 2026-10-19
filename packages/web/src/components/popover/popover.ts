@@ -473,7 +473,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       // row or a column, so that the width the decision is made for does not depend on what was decided before.
       container.style.removeProperty('--_actions-row');
       const { changed, natural } = this.placement$.measure(actions, arrangement === 'end' ? 'packed' : 'fill');
-      if (changed) this.assign();
+      // Turned to a column or back to a row, the actions are assigned again — which WebKit draws the surface anew for.
+      if (changed) this.anchored.keep(() => this.assign());
       const style = getComputedStyle(actions);
       container.style.setProperty('--_actions-row', `${natural + (Number.parseFloat(style.paddingInlineStart) || 0) + (Number.parseFloat(style.paddingInlineEnd) || 0)}px`);
     } else if (container.style.getPropertyValue('--_actions-row')) container.style.removeProperty('--_actions-row');

@@ -10,6 +10,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -147,6 +150,8 @@ const pressOn = async (target: Locator) => {
 };
 const focusSelect = (page: P, id: string) => host(page, id).evaluate((el) => (el as HTMLElement).focus());
 const shownList = (page: P, id: string) => expect.poll(async () => (await read(page, id)).shown);
+/** The list has come to rest: until its entrance ends it is still growing toward the container's edge (SEL-30). */
+const arrived = (page: P, id: string) => motionEnded(part(page, id, '.motion'));
 const closedList = async (page: P, id: string) => {
   await expect.poll(async () => (await read(page, id)).open).toBe(false);
   await expect.poll(() => part(page, id, '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
@@ -906,6 +911,7 @@ test.describe('behavior: the list', () => {
     await listen(page, 'one');
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
+    await arrived(page, 'one');
     const offset = await token(page, 'list-offset');
     let [c, l] = [await box(container(page, 'one')), await box(part(page, 'one', '.list'))];
     near(l.y - (c.y + c.height), offset, 'list.offset below');
@@ -1065,8 +1071,8 @@ test.describe('behavior: the list', () => {
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
     const [placed, sheet] = [await box(part(page, 'one', '.surface')), await box(part(page, 'one', '.list'))];
-    expect(sheet.height, 'the sheet has not grown to the press yet').toBeLessThan(placed.height - 8);
-    await page.mouse.click(placed.x + placed.width / 2, placed.y + placed.height - 4);
+    expect(sheet.height, 'the sheet has not grown to the press yet').toBeLessThan(placed.height - 4);
+    await page.mouse.click(placed.x + placed.width / 2, placed.y + placed.height - 2);
     expect(await read(page, 'one')).toMatchObject({ focused: true, open: true, value: 'b' });
     expect(await page.evaluate(() => document.activeElement?.localName)).toBe(TAG);
   });
@@ -1218,7 +1224,22 @@ test.describe('behavior: the list', () => {
     expect(await select.evaluate((el) => el.shadowRoot!.querySelectorAll('.list [popover], .list [aria-haspopup], .list a, .list button').length)).toBe(0);
   });
 
-  test('SEL-30: the list fades in and grows from the edge that faces the container over motion.open-*, fades out over motion.close-*, and appears and disappears at once where motion is reduced; closed or closing it takes no pointer input; the value and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('SEL-30: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'fr' })], { reducedMotion: false });
+    const opening = await sampleFrames(host(page, 'one'), () => container(page, 'one').click(), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(String(opening.frames[0]!.probe.origin)).toMatch(/ 0px$/);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const closing = await sampleFrames(host(page, 'one'), () => page.keyboard.press('Escape'), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+  });
+
+  test('SEL-30: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closed or closing it takes no pointer input; the value and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'fr' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are
@@ -1229,7 +1250,7 @@ test.describe('behavior: the list', () => {
     const arrive = () => motion.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, el.style.transformOrigin.endsWith(' 0px') || el.style.transformOrigin.endsWith(' 0')])).toEqual(['opacity, transform', '40s, 40s', true]);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter, display, overlay', '40s', true]);
     expect(Number(await css(motion, 'opacity')), 'still fading in').toBeLessThan(1);
     await arrive();
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
@@ -1250,13 +1271,13 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await read(page, 'one')).open).toBe(false);
     await arrive();
     await closedList(page, 'one');
-    // Reduced motion: at once.
+    // Reduced motion: only a fade, over role.reduced — no scale, no distance.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await container(page, 'one').click();
-    expect(await css(motion, 'transition-duration')).toBe('0s');
-    expect(Number(await css(motion, 'opacity'))).toBe(1);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity, display, overlay', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
+    await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
     await page.keyboard.press('Escape');
-    expect(await part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    await expect.poll(() => part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 
   test('SEL-31: the opening list makes the chosen option active, or the first that is not disabled where none is chosen; Down and Up Arrow move by one across groups and stop at the ends, Home and End go to the first and last, Page Down and Page Up move by ten; a disabled option is reached like any other, a title never; nothing here changes the value, and the active option is scrolled into view', async ({ page }) => {
@@ -2149,6 +2170,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await focusSelect(page, 'one');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'one').toBe(true);
+    await arrived(page, 'one');
     await page.keyboard.press('ArrowDown');
     const right = (b: { x: number; width: number }) => b.x + b.width;
     let [c, list, chevron] = [await box(container(page, 'one')), await box(part(page, 'one', '.list')), await box(part(page, 'one', '.chevron'))];

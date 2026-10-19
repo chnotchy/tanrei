@@ -2,7 +2,7 @@
 title: Popover
 description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página.
 translationOf: components/popover.mdx
-sourceHash: 8401685d4c1523557e31a4d9a93cbc8f6cf76796
+sourceHash: f9906ec3c79edf05de52fdc0d19ab96b89bd2ae4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ Una acción sin `variant` toma `comp.popover.actions.variant` (tonal en el siste
 
 ### Movimiento
 
-El popover aparece con un fundido mientras crece desde el borde que da al ancla, y desaparece con un fundido. Un movimiento que se interrumpe da la vuelta desde donde está. Donde el movimiento está reducido, aparece y desaparece de inmediato.
+El popover aparece como aparece toda superficie en Tanrei: con un fundido mientras crece un poco (desde el 96 % en el sistema predeterminado) desde el centro del borde que da al ancla, y se va por el mismo camino, algo más rápido. Un movimiento que se interrumpe da la vuelta desde donde está. Donde el movimiento está reducido, solo se funde. Con el preset m3-like, en cambio, se despliega desde ese borde, como los menús de Material. Un popover escrito con open en el marcado de la página está ahí desde el primer fotograma, sin movimiento.
 
 <ComponentSpecs name="popover" />
 

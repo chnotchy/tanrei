@@ -27898,7 +27898,7 @@
           "close-duration": {
             "$type": "duration",
             "$value": {
-              "value": 100,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the list takes to go."
@@ -27908,8 +27908,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "feedback-duration": {
@@ -27923,7 +27923,7 @@
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long the list takes to appear."
@@ -27931,9 +27931,9 @@
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -50560,7 +50560,7 @@
           "close-duration": {
             "$type": "duration",
             "$value": {
-              "value": 100,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the sheet takes to fade out."
@@ -50570,8 +50570,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "feedback-duration": {
@@ -50585,7 +50585,7 @@
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long the sheet takes to fade in and grow from the anchor's side."
@@ -50593,9 +50593,9 @@
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -62099,34 +62099,34 @@
           "close-duration": {
             "$type": "duration",
             "$value": {
-              "value": 100,
+              "value": 250,
               "unit": "ms"
             },
-            "$description": "How long the container takes to fade out. The menu's."
+            "$description": "How long the container takes to leave the way it came: an anchored surface's exit."
           },
           "close-easing": {
             "$type": "cubicBezier",
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
-            "$description": "How long the container takes to fade in and grow from the anchor's side. The menu's."
+            "$description": "How long the container takes to appear from the anchor's side: an anchored surface's entrance."
           },
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           }
@@ -68957,7 +68957,7 @@
           "close-duration": {
             "$type": "duration",
             "$value": {
-              "value": 100,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the list takes to go."
@@ -68967,8 +68967,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "feedback-duration": {
@@ -68982,7 +68982,7 @@
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long the list takes to appear."
@@ -68990,9 +68990,9 @@
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },

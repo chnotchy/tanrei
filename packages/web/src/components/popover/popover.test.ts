@@ -5,7 +5,9 @@
 // `open` set from the opener's press, and set to false from `close`.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -64,9 +66,9 @@ function warnings(page: P) {
  * else `anchor`, names) toggles `open`, and `close` sets it to false — unless the popover carries `data-keep`, a product
  * that declines. Every `close` is recorded as `<id>:<reason>`, and a menu's as `<id>:menu:<reason>`.
  */
-async function mount(page: P, html: string, { width = 800, height = 600, reducedMotion = true, dir }: { width?: number; height?: number; reducedMotion?: boolean; dir?: 'ltr' | 'rtl' } = {}) {
+async function mount(page: P, html: string, { width = 800, height = 600, reducedMotion = true, dir, system }: { width?: number; height?: number; reducedMotion?: boolean; dir?: 'ltr' | 'rtl'; system?: string } = {}) {
   await page.setViewportSize({ width, height });
-  await mountFixtures(page, spec, { icons: true, fixtures: [], reducedMotion, dir });
+  await mountFixtures(page, spec, { icons: true, fixtures: [], reducedMotion, dir, system });
   await page.evaluate((markup) => {
     const main = document.querySelector('main') as HTMLElement;
     main.style.display = 'block';
@@ -201,61 +203,121 @@ test.describe('presentation', () => {
     expect(await container(page).evaluate((el) => getComputedStyle(el).cursor)).toBe('auto');
   });
 
-  test('POP-26: opening fades the container in and grows it from the edge that faces the anchor, fixed where an arrow would point, over the open motion; closing fades it out over the close motion; with motion reduced both happen at once, and the placed box never moves', async ({ page }) => {
+  test('POP-26: opening, the container appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown from the middle of the edge that faces the anchor, over the open motion on its curve; closing, it leaves the same way back over the close motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and the placed box never moves', async ({ page }) => {
     await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: false });
-    const motion = part(page, '.motion');
-    const style = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), transform: getComputedStyle(el).transform, origin: el.style.transformOrigin, running: el.getAnimations().length }));
-    // The transitions of the moving part itself, kept as the engine announces them: a motion of the token's length
-    // that is asked for a round trip after `open` is set may be over where a frame takes longer than it.
-    const timing = async () => (await transitionsRun(motion)).filter((run) => run.own && run.pseudo === '').map(({ property, duration, easing }) => ({ property, duration, easing }));
-    await watchTransitions(motion);
-    await set(page, { open: true });
-    await expect.poll(async () => (await timing()).map((t) => t.property).sort()).toEqual(['opacity', 'transform']);
-    const opening = await timing();
-    for (const t of opening) expect(t.duration).toBeCloseTo(await resolveToken(page, T('motion-open-duration'), 'duration'), 0);
-    // It grows along the line to the anchor (below it: its height), from the point where an arrow would point.
-    const placedAt = await rect(surface(page));
-    const anchor = await rect(page.locator('#a'));
-    const origin = (await style()).origin.split(' ');
-    expect(Number.parseFloat(origin[0])).toBeCloseTo(centerX(anchor) - placedAt.x, 0);
-    expect(Number.parseFloat(origin[1])).toBe(0);
-    expect(await surface(page).evaluate((el) => getComputedStyle(el).transform)).toBe('none');
-    await motion.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
-    expect(await style()).toMatchObject({ opacity: 1, transform: 'none' });
-    // The place and the room are those of the popover at rest: the box did not move while it grew.
-    expect(await rect(surface(page))).toEqual(placedAt);
-    await watchTransitions(motion);
-    // Its size is read in the task that closes it, as the fade begins and half way through it: read three questions
-    // later, the fade of the token's length is over where the answers are slow, and what is read is the closed pose.
-    const sizes = await host(page).evaluate(async (el) => {
-      (el as unknown as { open: boolean }).open = false;
-      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-      const moving = el.shadowRoot!.querySelector('.motion')!;
-      const fading = moving.getAnimations();
-      const read = [getComputedStyle(moving).transform];
-      for (const animation of fading) {
-        animation.pause();
-        animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
-      }
-      read.push(getComputedStyle(moving).transform);
-      for (const animation of fading) animation.play();
-      return { fading: fading.length, read };
-    });
-    expect(sizes.fading).toBe(1);
-    await expect.poll(async () => (await timing()).map((t) => t.property)).toEqual(['opacity']);
-    const closing = await timing();
-    expect(closing[0].duration).toBeCloseTo(await resolveToken(page, T('motion-close-duration'), 'duration'), 0);
-    // It only fades: its size stays.
-    for (const transform of sizes.read) expect(transform).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
-    await motion.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    // The first frame, where it starts: the default system's appearance (sys.motion.appear.*), from the top edge's middle.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    const width = (await rect(part(page, '.motion'))).width;
+    expect(String(opening.frames[0]!.probe.origin)).toBe(`${width / 2}px 0px`);
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const motions = (seen: Frames) => seen.motions.filter((motion) => motion.on === 'div.motion' && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of motions(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-open-easing')));
+    }
+    expect(motions(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    // The place and the room are those of the popover at rest: the placed box did not move while it grew.
+    const placed = await rect(surface(page));
+    expect(await surface(page).evaluate((el) => [getComputedStyle(el).transform, getComputedStyle(el).scale])).toEqual(['none', 'none']);
+
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    // The same way back, to where it started.
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    expectAnimated(closing, 'opacity');
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    // The default system leaves on standard-accelerate.
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    for (const motion of motions(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expect(motions(closing).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+    // Out of the top layer once its exit has played; it drew where it was placed throughout.
     await expect.poll(() => surface(page).evaluate((el) => el.matches(':popover-open'))).toBe(false);
-    // Reduced: at once, both ways.
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
     await set(page, { open: true });
     await expect.poll(() => isShown(page)).toBe(true);
-    expect(await style()).toMatchObject({ opacity: 1, transform: 'none', running: 0 });
-    await set(page, { open: false });
+    expect(await rect(surface(page))).toEqual(placed);
+  });
+
+  test('POP-26: placed above its anchor it grows from its bottom edge, beside it from the edge that faces it, and over its anchor from its centre; where appear.origin is center it grows from its centre on every side', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 400)}${popover('label="Storage"')}`, { reducedMotion: false });
+    const originAt = async (placement: string) => {
+      await set(page, { placement, open: true });
+      await expect.poll(() => isShown(page)).toBe(true);
+      // Against its box at rest (a box measured while it grows is the grown one).
+      const [x, y, width, height] = await part(page, '.motion').evaluate((el: HTMLElement) => [...getComputedStyle(el).transformOrigin.split(' ').map(Number.parseFloat), el.offsetWidth, el.offsetHeight]);
+      await close(page);
+      return [Math.round((x! / width!) * 100) / 100, Math.round((y! / height!) * 100) / 100];
+    };
+    expect(await originAt('top')).toEqual([0.5, 1]);
+    expect(await originAt('bottom')).toEqual([0.5, 0]);
+    expect(await originAt('start')).toEqual([1, 0.5]);
+    expect(await originAt('end')).toEqual([0, 0.5]);
+    // appear.origin: center — read with a style query on the custom property.
+    await rootTokens(page, { '--tanrei-sys-motion-appear-origin': 'center' });
+    expect(await originAt('top')).toEqual([0.5, 0.5]);
+    expect(await originAt('end')).toEqual([0.5, 0.5]);
+  });
+
+  test('POP-26: under the unfold appearance (m3-like) the container unfolds from the edge that faces the anchor at its full width, on the emphasized curves the system keeps, and folds back the same way', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: false, system: 'm3-like' });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    // A style query on the custom property picks the axis that leaves the anchor: the height, from the top edge.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0, axis: 'y' });
+    expect(String(opening.frames[0]!.probe.origin).split(' ')[1]).toBe('0px');
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const opacity = opening.motions.find((motion) => motion.on === 'div.motion' && motion.name === 'opacity')!;
+    expect(opacity.easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-emphasized-decelerate'));
+    expect(opacity.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short4', 'duration'));
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sy: 0 });
+    const out = closing.motions.find((motion) => motion.on === 'div.motion' && motion.name === 'opacity')!;
+    expect(out.easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-emphasized-accelerate'));
+    expect(out.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short2', 'duration'));
+  });
+
+  test('POP-26: where motion is reduced the container only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: true });
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on === 'div.motion').map((motion) => [motion.name, motion.duration]);
+    expect(own(opening)).toEqual([['opacity', reduced]]);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1 });
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    expect(own(closing)).toEqual([['opacity', reduced]]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
     await expect.poll(() => surface(page).evaluate((el) => el.matches(':popover-open'))).toBe(false);
+  });
+
+  test('POP-26: a popover in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}`, { reducedMotion: false });
+    // Mounted open after the document was painted: it enters.
+    const main = page.locator('main');
+    const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-popover id="late" anchor="a" label="Storage" open>Trash counts.</tanrei-popover>')), { probe: appearProbe });
+    expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs (every transition that
+    // starts in a shadow root is counted from before the first element is made).
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + event.propertyName)); return root; };</script>`;
+    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}${anchorAt(300, 200)}${popover('label="Storage" open')}` });
+    await page.route('http://popover.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://popover.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-popover'));
+    await settle(page);
+    expect(await isShown(page)).toBe(true);
+    expect(await part(page, '.motion').evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
+    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-popover motion'))).toEqual([]);
   });
 
   test('POP-27: a motion that is turned round goes on from the opacity and the size it has reached; closed or closing the popover takes no pointer and no focus, and closed it takes no room, draws nothing and exposes nothing', async ({ page }) => {
@@ -264,7 +326,11 @@ test.describe('presentation', () => {
     });
     await override(page, { [T('motion-open-duration')]: '600ms', [T('motion-close-duration')]: '600ms' });
     const motion = part(page, '.motion');
-    const reached = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), scale: new DOMMatrixReadOnly(getComputedStyle(el).transform).d }));
+    // Its opacity and its scale along the line to the anchor (below it: the height), as drawn.
+    const reached = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), scale: getComputedStyle(el).scale === 'none' ? 1 : Number(getComputedStyle(el).scale.split(' ').at(-1)) }));
+    // The motions of the appearance that draw something here: its opacity and its scale (the distance and the blur
+    // are 0 under the default system, and move nothing).
+    const DRAWN = ['opacity', 'scale'];
     // A turn is read where the motion is HELD, not where a clock has let it get to: the browser shortens a motion that
     // turns round to the part it had covered, and the opening motion starts fast — a turn at a fifth of the way is over
     // in 120 ms, and one taken in the opening's first frame in 30 (which is how this test once read 0 in WebKit on a
@@ -277,7 +343,7 @@ test.describe('presentation', () => {
           animation.pause();
           animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) * part;
         }
-        return running.length;
+        return running.filter((animation) => ['opacity', 'scale'].includes((animation as CSSTransition).transitionProperty)).length;
       }, at);
     /** Sets `open` and reads the motion in the same task, before a frame has passed: the place the turn starts from. */
     const turn = (open: boolean, held: boolean) =>
@@ -289,7 +355,8 @@ test.describe('presentation', () => {
           const running = moving.getAnimations();
           if (keep) for (const animation of running) animation.pause();
           const style = getComputedStyle(moving);
-          return { opacity: Number(style.opacity), scale: new DOMMatrixReadOnly(style.transform).d, moving: running.length };
+          const drawn = running.filter((animation) => ['opacity', 'scale'].includes((animation as CSSTransition).transitionProperty));
+          return { opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number(style.scale.split(' ').at(-1)), moving: drawn.length };
         },
         [open, held] as const,
       );
@@ -303,18 +370,19 @@ test.describe('presentation', () => {
         animation.pause();
         animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) * 0.5;
       }
-      return running.length;
+      return running.map((animation) => (animation as CSSTransition).transitionProperty).filter((property) => ['opacity', 'scale'].includes(property)).sort();
     });
-    expect(begun).toBe(2);
+    expect(begun).toEqual(DRAWN);
     const opening = await reached();
+    const start = Number(await token(page, '--tanrei-sys-motion-appear-scale'));
     expect(opening.opacity).toBeGreaterThan(0);
     expect(opening.opacity).toBeLessThan(1);
-    expect(opening.scale).toBeGreaterThan(0);
+    expect(opening.scale).toBeGreaterThan(start);
     expect(opening.scale).toBeLessThan(1);
-    // Told to close while opening: from where it is, never from the end of the opening motion — the opacity it had
-    // reached, and the size it had reached, which stays (a closing surface only fades).
+    // Told to close while opening: from where it is, never from the end of the opening motion — the opacity and the
+    // size it had reached, from which it goes back the way it came.
     const turned = await turn(false, true);
-    expect(turned.moving).toBe(1);
+    expect(turned.moving).toBe(2);
     expect(turned.opacity).toBeCloseTo(opening.opacity, 2);
     expect(turned.scale).toBeCloseTo(opening.scale, 2);
     // Closing: no pointer and no focus — a press reaches what lies under it.
@@ -322,15 +390,17 @@ test.describe('presentation', () => {
     await page.evaluate(() => document.querySelector('#under')!.addEventListener('click', () => (window as unknown as { __log: string[] }).__log.push('under')));
     await page.mouse.click(380, 275);
     expect(await log(page)).toEqual(['under']);
-    // Told to open while closing, half-way through the fade: on from the opacity it had, without first going to nothing.
-    expect(await hold(0.5)).toBe(1);
+    // Told to open while closing, half-way through it: on from the opacity and the size it had, without first going to
+    // nothing or to its start.
+    expect(await hold(0.5)).toBe(2);
     const before = await reached();
     expect(before.opacity).toBeGreaterThan(0);
     expect(before.opacity).toBeLessThan(turned.opacity);
     const back = await turn(true, false);
     expect(back.opacity).toBeGreaterThanOrEqual(before.opacity - 0.05);
+    expect(back.scale).toBeCloseTo(before.scale, 2);
     expect(back.opacity).toBeLessThan(1);
-    expect(back.scale).toBeCloseTo(turned.scale, 2);
+    expect(back.scale).toBeGreaterThan(start);
     expect(await surface(page).evaluate((el) => [el.matches(':popover-open'), el.inert])).toEqual([true, false]);
     // The rest takes no longer than the whole motion it turned to.
     const left = await motion.evaluate((el) => Math.max(0, ...el.getAnimations().map((animation) => Number(animation.effect!.getComputedTiming().endTime) - Number(animation.currentTime ?? 0))));
@@ -848,9 +918,11 @@ test.describe('size and layout', () => {
     expect(tri.y - bottom(anchor)).toBeCloseTo(await resolveToken(page, T('offset')), 1);
     // It points at the middle of the anchor's edge (the container, start-aligned and wider, stands beside all of it).
     expect(centerX(tri)).toBeCloseTo(centerX(anchor), 1);
-    // One shape, one elevation: the container gives up its own shadow for the filter round both, in the container's color.
+    // One shape, one elevation: the container gives up its own shadow for the filter round both, in the container's color
+    // — set on the placed box, which draws what moves inside it: what moves keeps its own filter for the appearance's blur.
     expect(await css(container(page), 'box-shadow')).toBe('none');
-    expect(await part(page, '.motion').evaluate((el) => [el.style.filter.includes('#shade'), !!el.parentElement!.querySelector('filter#shade feMerge')])).toEqual([true, true]);
+    expect(await surface(page).evaluate((el) => [el.style.filter.includes('#shade'), !!el.querySelector('filter#shade feMerge')])).toEqual([true, true]);
+    expect(await part(page, '.motion').evaluate((el) => [el.style.filter, getComputedStyle(el).filter])).toEqual(['', 'none']);
     expect(await css(arrow, 'background-color')).toBe(await resolveColor(page, T('container-color')));
     expect(await arrow.evaluate((el) => [el.getAttribute('aria-hidden'), getComputedStyle(el).clipPath.startsWith('polygon')])).toEqual(['true', true]);
     // Off the corners: a narrow anchor at the container's end keeps the base arrow.inset (or the radius) from the end.

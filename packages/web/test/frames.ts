@@ -638,7 +638,7 @@ function premultiplied(value: string): number[] | null {
  * Nothing flickers: no value leaves its way from start to end, no motion is finished in one jump, nothing blinks. A
  * colour is compared as premultiplied channels, as it is interpolated: a fade to `transparent` (whose channels are 0)
  * is continuous, and is no flicker. A box that stops being laid out at the end (a closed popup, `display: none`) is
- * no end-jump. Endless motions are left out; `ignore` leaves out a finding.
+ * no end-jump, and its way ends where it was last laid out. Endless motions are left out; `ignore` leaves out a finding.
  */
 export function expectNoFlicker(seen: Frames, { ignore }: { ignore?: (flicker: Flicker) => boolean } = {}): void {
   const series = seen.complete ? [...seen.frames, seen.rest] : seen.frames;
@@ -669,7 +669,11 @@ export function expectNoFlicker(seen: Frames, { ignore }: { ignore?: (flicker: F
       if (changes.length >= 3 && total > least && last > 0.35 * total && !(closed && AXES.includes(property as (typeof AXES)[number])))
         found.push({ key, property, kind: 'end-jump', frames: at([lastAt]), values: [v(idx[idx.indexOf(lastAt) - 1]!), v(lastAt)] });
     };
-    AXES.forEach((axis, i) => numeric(axis, states.map((s) => s?.rect?.[i] ?? null), 2, 4));
+    // A box that is not laid out in a frame (0 × 0 at the origin: `display: none`, or not in the top layer yet) has no
+    // place on its way there: its way runs from where it was first laid out to where it was last — a surface that
+    // appears the frame after it was put in the top layer, or leaves the way it came and is then taken out of it.
+    const laidOut = states.map((s) => (s?.rect?.every((value) => value === 0) ? null : s));
+    AXES.forEach((axis, i) => numeric(axis, laidOut.map((s) => s?.rect?.[i] ?? null), 2, 4));
     const style = (property: string) => states.map((s) => s?.style[property] ?? null);
     for (const property of ['opacity', 'border-top-width']) if (states.some((s) => s && property in s.style)) numeric(property, style(property).map((value) => (value === null ? null : Number.parseFloat(value))), 0.04, 0.1);
     for (const property of ['background-color', 'color', 'border-top-color']) {
