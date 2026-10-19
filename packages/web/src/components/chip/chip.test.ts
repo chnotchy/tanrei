@@ -9,6 +9,8 @@ import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkAct
 import { opticalSize } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { simulateMacClickFocus } from '../../../test/click-focus.js';
 
 const spec = loadSpec('chip');
 type P = Page;
@@ -858,6 +860,54 @@ test.describe('behavior', () => {
       await expect(inner(page, 'input-avatar'), key).toBeFocused();
     }
   });
+
+  // Safari on macOS gives a pressed button no focus and hands the press to the first part a click focuses, which the
+  // remove action (tabindex="-1") would be; the other engines focus the pressed button. The second run simulates the
+  // Mac's rule (test/click-focus.ts), so that the defect fails this test in every engine, on Linux too.
+  for (const mac of [false, true]) {
+    test(`CHP-39: a press on an input chip anywhere but its remove action never gives the remove action focus — focus is where the same press puts it on an action chip, Enter on the chip then emits click, and the Tab order is unchanged${mac ? ' (the click focus of Safari on macOS, simulated)' : ''}`, async ({ page }) => {
+      if (mac) await simulateMacClickFocus(page);
+      // The page's timers held: what puts the remove action's tabindex back must not be a timer that a busy engine runs
+      // after the next key (input runs first).
+      await holdClock(page);
+      const away = () => page.locator('body').click({ position: { x: 1, y: 1 } });
+      const removeHoldsFocus = (id: string) => host(page, id).evaluate((el) => el.shadowRoot!.activeElement?.classList.contains('remove') ?? false);
+      const buttonHoldsFocus = (id: string) => host(page, id).evaluate((el) => el.shadowRoot!.activeElement?.classList.contains('container') ?? false);
+      // Where this engine puts the focus of a press on a chip: its button, or — where a pressed button takes none — nowhere.
+      await away();
+      await labelOf(page, 'action-outlined').click();
+      const pressFocuses = await buttonHoldsFocus('action-outlined');
+      const presses = [
+        ['input', 'the label', () => labelOf(page, 'input').click()],
+        ['input-avatar', 'the avatar', () => host(page, 'input-avatar').locator('.avatar').click()],
+        ['input', 'the inline-start padding', async () => inner(page, 'input').click({ position: { x: 3, y: (await bounds(inner(page, 'input'))).height / 2 } })],
+      ] as const;
+      for (const [id, where, press] of presses) {
+        await away();
+        await listen(host(page, id));
+        await press();
+        expect(await removeHoldsFocus(id), `${where}: the remove action`).toBe(false);
+        expect(await buttonHoldsFocus(id), `${where}: the chip's button, as an action chip's`).toBe(pressFocuses);
+        await host(page, id).focus();
+        await page.keyboard.press('Enter');
+        expect(await events(page), `${where}: the press, then Enter`).toMatchObject({ click: 2, remove: 0 });
+        await tab(page);
+        expect(await removeHoldsFocus(id), `${where}: Tab after the press passes the remove action`).toBe(false);
+      }
+      // The remove action still takes focus from a press of its own, and from focus() — as assistive technology moves it.
+      await away();
+      await removeOf(page, 'input').click();
+      expect(await removeHoldsFocus('input'), 'a press on the remove action').toBe(true);
+      await away();
+      await removeOf(page, 'input').focus();
+      expect(await removeHoldsFocus('input'), 'focus() on the remove action').toBe(true);
+      // With no key and no press after it, the tabindex is back once the press's task has passed.
+      await away();
+      await labelOf(page, 'input').click();
+      await releaseClock(page);
+      await expect(removeOf(page, 'input')).toHaveAttribute('tabindex', '-1');
+    });
+  }
 
   test('CHP-24: colors and elevation change over motion.state-duration with motion.state-easing, and at once where motion is reduced', async ({ page }) => {
     const id = 'action-elevated';

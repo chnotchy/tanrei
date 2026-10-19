@@ -269,7 +269,38 @@ export class TanreiChip extends TanreiElement {
       },
       { capture: true },
     );
+    this.addEventListener('mousedown', this.onMouseDown);
   }
+
+  /**
+   * CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that
+   * gives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first
+   * element of the shadow root that a click focuses, which is one with a tabindex (HTML, "click focusable") — the remove
+   * action, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses
+   * nothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back
+   * once the press has placed focus — in the next task, or at the next key or press if it comes first: a busy engine
+   * runs input before timers, and Tab moves focus in its keydown — so the Tab order (CHP-23) is as it was. Focus moved
+   * to the remove action by assistive technology or by script needs no tabindex. It is the mouse event, not the
+   * pointer's, that focuses: a touch's compatibility `mousedown` comes after the touch has ended.
+   */
+  private readonly onMouseDown = (event: MouseEvent) => {
+    this.restoreRemoveStop?.();
+    const remove = this.removeButton;
+    if (!remove || !this.removes || event.composedPath().includes(remove)) return;
+    remove.removeAttribute('tabindex');
+    const restore = () => {
+      if (this.restoreRemoveStop !== restore) return;
+      this.restoreRemoveStop = null;
+      window.removeEventListener('keydown', restore, true);
+      remove.setAttribute('tabindex', '-1');
+    };
+    this.restoreRemoveStop = restore;
+    window.addEventListener('keydown', restore, true);
+    setTimeout(restore);
+  };
+
+  /** CHP-39: puts the remove action's tabindex back after a press elsewhere on the chip took it away; null when it is there. */
+  private restoreRemoveStop: (() => void) | null = null;
 
   /** `element.click()` activates the chip as a person would — through its native button, or its anchor, so a link is followed — and does nothing while disabled. */
   override click() {
