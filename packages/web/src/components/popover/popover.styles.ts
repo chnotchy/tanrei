@@ -4,11 +4,13 @@ import {
   anchoredSurfaceStyles,
   arrowOutlineStyles,
   arrowStyles,
+  compactProbeStyles,
   cornerRadius,
   dividerVisibilityHost,
   focusRing,
   quietFocus,
   shape,
+  sheetLookStyles,
   whenChosen,
   whenScroll,
 } from '../../primitives/index.js';
@@ -305,6 +307,38 @@ export const styles = css`
   /* POP-10: the arrow — a triangle on the container's edge that faces the anchor, in the container's color, its tip
      where the placement says. The elevation is drawn round the container and the arrow as one shape. */
   ${arrowStyles({ surface: '.surface', box: '.container', width: T('arrow-width'), height: T('arrow-height'), fill: T('container-color'), elevation: T('container-elevation') })}
+
+  /* POP-39: the resolved compact.window-width, which the script matches the window against. */
+  ${compactProbeStyles('.probe', `${PREFIX}-compact-window-width`)}
+
+  /* POP-39, POP-40, POP-41: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over
+     the keyboard), as wide as the window up to the bottom sheet's greatest width, its color, elevation and top corners,
+     square at the bottom — over the bottom sheet's scrim, sliding up and down with its motion (src/primitives/
+     compact-sheet.ts). Its parts keep their own tokens and layout; none of the browser's dialog box. (The host's
+     selector outweighs the anchored container's width rules, which a sheet ignores.) */
+  :host dialog.container.sheet {
+    border: 0;
+    padding: 0;
+    overflow: visible;
+    color: ${t('content-color')};
+  }
+  ${sheetLookStyles({ sheet: ':host dialog.container.sheet' })}
+  :host dialog.container.sheet:not([open]) {
+    display: none;
+  }
+  :host dialog.container.sheet[open] {
+    display: flex;
+  }
+  :host dialog.container.sheet.instant,
+  :host dialog.container.sheet.instant::backdrop {
+    transition: none;
+  }
+  .container.sheet .clip,
+  .container.sheet .focus.whole {
+    ${unsafeCSS(cornerRadius('--tanrei-comp-bottom-sheet-container-shape'))}
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
 
   /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */
   .shade {

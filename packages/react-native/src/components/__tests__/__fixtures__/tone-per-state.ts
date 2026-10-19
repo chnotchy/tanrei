@@ -11007,6 +11007,7 @@ export const tonePerState = {
       arrowVisible: 0,
       arrowWidth: 12,
       closeButtonVariant: 1,
+      compactWindowWidth: 600,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level2",
       containerGap: 12,

@@ -6784,6 +6784,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     arrowVisible: 0.0,
     arrowWidth: 12.0,
     closeButtonVariant: 1.0,
+    compactWindowWidth: 600.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel2,
     containerGap: 12.0,

@@ -3800,6 +3800,7 @@ export interface TanreiPopoverTokens {
   readonly arrowVisible: number;
   readonly arrowWidth: number;
   readonly closeButtonVariant: number;
+  readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerGap: number;

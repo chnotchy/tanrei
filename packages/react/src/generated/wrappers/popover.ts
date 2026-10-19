@@ -13,7 +13,7 @@ import { TanreiPopover as TanreiPopoverElement, type TanreiPopoverCloseDetail } 
  * - `actions` — Tanrei Buttons, each marked `confirming` or `dismissive` where it is one. The popover places them and gives those without a `variant` its own; it never restyles them.
  *
  * Events:
- * - `onClose` (`close`) — The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
+ * - `onClose` (`close`) — The popover asks to be closed: `detail.reason` is `escape`, `outside` (as a sheet, a press on its scrim), `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
  */
 export const Popover = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-popover',

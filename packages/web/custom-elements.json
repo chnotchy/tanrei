@@ -34241,11 +34241,11 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays\nwith it, without dimming or blocking the rest of the page.\n\nContract: specs/popover.spec.json. The product owns the control: `anchor` is the id of the element the popover stands\nbeside, in the popover's own tree (`anchorElement` for an element an id cannot reach), and that element is also the\nopener — the one that carries `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls` and takes focus back —\nunless `opener` / `openerElement` names another (a field that anchors the surface, with a button inside it that\nopens it). The product sets `open` when the opener is pressed, and to false when the popover fires `close`: the\npopover never opens or closes by itself, on hover, on focus or after a time.\n\nThe drawn popover is a `popover=\"manual\"` element in the shadow root, in the top layer (above an open modal\n`<dialog>` the element stands in), holding a `role=\"dialog\"` container that is not modal: no scrim, no focus trap,\nnothing behind it inert. It is placed against the anchor by script — the side and the alignment `placement` names,\n`offset` away and moved along the side by `crossOffset`; flipped to the opposite side, limited to the room where\nneither side has enough (its content then scrolls between the header and the actions), shifted along the side and,\nin a window smaller than its least size, moved back over the anchor — and follows the anchor while open. When\nnothing of the anchor can be seen it fires `close` with the reason `anchor-hidden`.\n\nFocus: opening moves focus to the slotted element marked `autofocus`, else to the container (`initialFocus=\"anchor\"`\nleaves it where it is). The popover stands in the focus order directly after its opener wherever it is in the\ndocument: Tab on the opener enters it, Shift+Tab from its first element returns to the opener, Tab from its last\nelement moves on to what follows the opener. Escape, a press outside, focus leaving, the close button and the\nanchor going out of sight each fire `close` once, with the reason; an action never does. An overlay opened from an\nelement inside it (a menu, a tooltip, another popover, a dialog) is its own: a press or focus in it is not outside,\nEscape closes it first, and it closes with the popover. Closing returns focus to the opener if it was inside.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive` where it is one,\nplaced as a Button group places them; a Button without a `variant` attribute takes the popover's\n(`comp.popover.actions.variant`). `arrow` draws a triangle that points at the anchor, one shape with the container\n(unset, the system's `comp.popover.arrow.visible` decides).\n\nContent taller than the room scrolls between the header and the actions, with a divider below the header and one above\nthe actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only\nwhile content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).\n\nEvery visual value comes from `--tanrei-comp-popover-*` tokens.",
+          "description": "Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays\nwith it, without dimming or blocking the rest of the page.\n\nContract: specs/popover.spec.json. The product owns the control: `anchor` is the id of the element the popover stands\nbeside, in the popover's own tree (`anchorElement` for an element an id cannot reach), and that element is also the\nopener — the one that carries `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-controls` and takes focus back —\nunless `opener` / `openerElement` names another (a field that anchors the surface, with a button inside it that\nopens it). The product sets `open` when the opener is pressed, and to false when the popover fires `close`: the\npopover never opens or closes by itself, on hover, on focus or after a time.\n\nThe drawn popover is a `popover=\"manual\"` element in the shadow root, in the top layer (above an open modal\n`<dialog>` the element stands in), holding a `role=\"dialog\"` container that is not modal: no scrim, no focus trap,\nnothing behind it inert. It is placed against the anchor by script — the side and the alignment `placement` names,\n`offset` away and moved along the side by `crossOffset`; flipped to the opposite side, limited to the room where\nneither side has enough (its content then scrolls between the header and the actions), shifted along the side and,\nin a window smaller than its least size, moved back over the anchor — and follows the anchor while open. When\nnothing of the anchor can be seen it fires `close` with the reason `anchor-hidden`.\n\nFocus: opening moves focus to the slotted element marked `autofocus`, else to the container (`initialFocus=\"anchor\"`\nleaves it where it is). The popover stands in the focus order directly after its opener wherever it is in the\ndocument: Tab on the opener enters it, Shift+Tab from its first element returns to the opener, Tab from its last\nelement moves on to what follows the opener. Escape, a press outside, focus leaving, the close button and the\nanchor going out of sight each fire `close` once, with the reason; an action never does. An overlay opened from an\nelement inside it (a menu, a tooltip, another popover, a dialog) is its own: a press or focus in it is not outside,\nEscape closes it first, and it closes with the popover. Closing returns focus to the opener if it was inside.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive` where it is one,\nplaced as a Button group places them; a Button without a `variant` attribute takes the popover's\n(`comp.popover.actions.variant`). `arrow` draws a triangle that points at the anchor, one shape with the container\n(unset, the system's `comp.popover.arrow.visible` decides).\n\nContent taller than the room scrolls between the header and the actions, with a divider below the header and one above\nthe actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only\nwhile content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).\n\nIn a window narrower than `comp.popover.compact.window-width` (600 in the default system) it takes the bottom\nsheet's appearance instead (POP-39 to POP-42): a native `<dialog>` opened with `showModal()`, docked to the window's\nbottom edge in the bottom sheet's color, elevation and top corners, sliding up over the bottom sheet's scrim — a modal\ndialog, with everything behind it inert and focus kept in; Escape, a press on the scrim and the close button fire\n`close`. `compact-presentation=\"own\"` keeps it beside its anchor in every window, as `initial-focus=\"anchor\"` always\ndoes. Crossing the width while open changes the presentation at once, focus kept.\n\nEvery visual value comes from `--tanrei-comp-popover-*` tokens, and as a sheet from `--tanrei-comp-bottom-sheet-*`.",
           "name": "TanreiPopover",
           "cssParts": [
             {
-              "description": "The raised surface: its color, corners and elevation. It is the dialog.",
+              "description": "The raised surface: its color, corners and elevation. It is the dialog (a native `<dialog>` while it is a sheet).",
               "name": "container"
             },
             {
@@ -34365,6 +34365,18 @@
               "default": "'content'",
               "description": "`content`: as wide as its content, between its least and greatest width. `anchor`: as wide as the anchor. Anything else is `content` (POP-37). Reflected.",
               "attribute": "width",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "compactPresentation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiPopoverCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.popover.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, as a modal dialog; `own` beside its anchor, as in every other\nwindow. `initial-focus=\"anchor\"` always keeps it beside its anchor. Anything else is `sheet` (POP-43). The attribute\nis `compact-presentation`; reflected.",
+              "attribute": "compact-presentation",
               "reflects": true
             },
             {
@@ -34508,7 +34520,7 @@
               "type": {
                 "text": "CustomEvent<TanreiPopoverCloseDetail>"
               },
-              "description": "The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false."
+              "description": "The popover asks to be closed: `detail.reason` is `escape`, `outside` (as a sheet, a press on its scrim), `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false."
             }
           ],
           "attributes": [
@@ -34565,6 +34577,15 @@
               "default": "'content'",
               "description": "`content`: as wide as its content, between its least and greatest width. `anchor`: as wide as the anchor. Anything else is `content` (POP-37). Reflected.",
               "fieldName": "width"
+            },
+            {
+              "name": "compact-presentation",
+              "type": {
+                "text": "TanreiPopoverCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.popover.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, as a modal dialog; `own` beside its anchor, as in every other\nwindow. `initial-focus=\"anchor\"` always keeps it beside its anchor. Anything else is `sheet` (POP-43). The attribute\nis `compact-presentation`; reflected.",
+              "fieldName": "compactPresentation"
             },
             {
               "name": "no-inset",

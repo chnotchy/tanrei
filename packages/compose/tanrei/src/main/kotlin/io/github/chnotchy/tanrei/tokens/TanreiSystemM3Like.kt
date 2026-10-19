@@ -6445,6 +6445,7 @@ private object M3LikeSystemSource {
             arrowVisible = 0f,
             arrowWidth = 12.dp,
             closeButtonVariant = 4f,
+            compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level2,
             containerGap = 12.dp,

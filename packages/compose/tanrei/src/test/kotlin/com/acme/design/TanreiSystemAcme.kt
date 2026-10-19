@@ -6511,6 +6511,7 @@ private object AcmeSystemSource {
             arrowVisible = 0f,
             arrowWidth = 12.dp,
             closeButtonVariant = 1f,
+            compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level2,
             containerGap = 12.dp,

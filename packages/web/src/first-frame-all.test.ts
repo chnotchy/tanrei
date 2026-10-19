@@ -36,7 +36,7 @@ import { fileURLToPath } from 'node:url';
 import { type BrowserContext, type BrowserContextOptions, type Page, type Route, test as base, expect } from '@playwright/test';
 import { appearAgain, mountForAppearing } from '../test/first-frame.js';
 import { type Frames, type Probe, expectFirstFrameAtRest } from '../test/frames.js';
-import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, itemsStagedInScript, loadSpec, pickerWindow } from '../test/harness.js';
+import { type Fixture, type Spec, appShellWindow, dialogWindow, drawerWindow, itemsStagedInScript, loadSpec, pickerWindow, popoverWindow } from '../test/harness.js';
 import { MISSING } from '../test/pictures.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -47,8 +47,10 @@ const specs: Spec[] = inventory.components
   .map((c) => loadSpec(c.name));
 
 /** The windows the specs' verifies draw some fixtures in: a responsive drawer or an app shell is what the window's width makes it. */
-const WINDOWS: Record<string, (fixture: Fixture) => { width: number; height: number }> = {
+const WINDOWS: Record<string, (fixture: Fixture) => { width: number; height: number } | undefined> = {
   dialog: (f) => dialogWindow(f.id),
+  // POP-39: a popover's compact- fixtures are the real overlay in a compact window; the others are drawn on the stage.
+  popover: (f) => (f.id.startsWith('compact') ? popoverWindow : undefined),
   'date-time-picker': pickerWindow,
   'navigation-drawer': (f) => drawerWindow(f.id),
   'app-shell': (f) => appShellWindow(f.id),
@@ -64,6 +66,8 @@ const ENTERS: Record<string, Pick> = {
   'image-preview': opened,
   'modal-layer': opened,
   'navigation-drawer': (f) => f.id === 'modal' || f.id === 'responsive-narrow',
+  // POP-26, POP-41: the compact- fixtures are the real overlay (the others are drawn in place, whole at once).
+  popover: (f) => opened(f) && f.id.startsWith('compact'),
   search: (f) => f.props.expanded === true && (f.props.presentation === 'full-screen' || f.props.presentation === 'dialog'),
   tooltip: opened,
 };
