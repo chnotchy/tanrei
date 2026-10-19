@@ -14,10 +14,14 @@
 // And it holds the page's first module script (lib/link-fallback.ts): module scripts run in the order they stand, each
 // once its whole graph has arrived, and this one must be waiting for the link forms' elements before any other defines
 // one.
+//
+// A component's page also names its version in Markdown, in English, in every language (src/lib/llms.ts):
+// `<link rel="alternate" type="text/markdown">`, for a program that reads the page.
 import Default from '@astrojs/starlight/components/Head.astro';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
 import { firstFamilies } from '../../lib/first-faces.mjs';
+import { markdownAlternate } from '../../lib/llms';
 import { ns, tokensIn } from '../../lib/tokens';
 
 const FILES: Record<string, string> = { Inter: inter, 'Roboto Mono': robotoMono };
@@ -28,9 +32,12 @@ const files = firstFamilies(stacks).map((family) => {
   if (!file) throw new Error(`Head.astro: the tokens set text in "${family}", and no file of it is preloaded. Add its Latin file.`);
   return file;
 });
+const markdown = markdownAlternate(Astro.locals.starlightRoute.id);
+const english = Astro.locals.starlightRoute.lang === 'en';
 ---
 
 {files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
+{markdown && <link rel="alternate" type="text/markdown" href={markdown} hreflang={english ? undefined : 'en'} />}
 <Default />
 
 <script>
