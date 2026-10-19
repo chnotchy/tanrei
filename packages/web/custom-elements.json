@@ -43925,6 +43925,15 @@
         },
         {
           "kind": "variable",
+          "name": "ORIENTATIONS",
+          "type": {
+            "text": "['horizontal', 'vertical']"
+          },
+          "default": "['horizontal', 'vertical']",
+          "description": "TAB-51, TAB-60: the directions the tabs run. The first is the default, and what an unknown value draws."
+        },
+        {
+          "kind": "variable",
           "name": "TRANSITION_CHOICE",
           "type": {
             "text": "['slide', 'none']"
@@ -44026,6 +44035,14 @@
         },
         {
           "kind": "js",
+          "name": "ORIENTATIONS",
+          "declaration": {
+            "name": "ORIENTATIONS",
+            "module": "src/components/tabs/tabs.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "TRANSITION_CHOICE",
           "declaration": {
             "name": "TRANSITION_CHOICE",
@@ -44108,7 +44125,7 @@
               "name": "active-indicator"
             },
             {
-              "description": "The underline's piece on the tab's bottom edge, clipped to where the underline is (hidden from assistive technology).",
+              "description": "The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).",
               "name": "underline"
             }
           ],
@@ -44365,7 +44382,7 @@
               "name": "tablist"
             },
             {
-              "description": "The box that lays the tabs out and scrolls them sideways when they do not fit; it is also the track.",
+              "description": "The box that lays the tabs out and scrolls them sideways (up and down in a vertical row) when they do not fit; it is also the track.",
               "name": "scroller"
             },
             {
@@ -44373,7 +44390,7 @@
               "name": "track"
             },
             {
-              "description": "The line along the bottom of the whole row.",
+              "description": "The line along the bottom of the whole row (along its end edge in a vertical row).",
               "name": "divider"
             }
           ],
@@ -44439,6 +44456,18 @@
               "default": "false",
               "description": "False (hug, the default) sizes each tab to its content, never truncating its label, and scrolls the row sideways when\nthe tabs do not fit; true (fill) divides the row's width equally among the tabs and truncates a label that does not\nfit its share, showing it whole in a tooltip (for two to five short labels).",
               "attribute": "full-width",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "orientation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTabsOrientation"
+              },
+              "default": "'horizontal'",
+              "description": "The direction the tabs run. `horizontal` (the default) is a row above the views. `vertical` stacks the tabs in a\ncolumn at the start edge, beside the views — the categories of a settings page or a dialog — every tab as wide as\nthe column, its icon before its label; Down and Up Arrow move between them, the tabs scroll up and down when they\ndo not fit the row's height, and `fullWidth` does not apply. It switches views of one subject, as a row does; moving\nbetween the destinations of an app is the navigation drawer's. Any other value is horizontal.",
+              "attribute": "orientation",
               "reflects": true
             },
             {
@@ -44569,6 +44598,15 @@
               "default": "false",
               "description": "False (hug, the default) sizes each tab to its content, never truncating its label, and scrolls the row sideways when\nthe tabs do not fit; true (fill) divides the row's width equally among the tabs and truncates a label that does not\nfit its share, showing it whole in a tooltip (for two to five short labels).",
               "fieldName": "fullWidth"
+            },
+            {
+              "name": "orientation",
+              "type": {
+                "text": "TanreiTabsOrientation"
+              },
+              "default": "'horizontal'",
+              "description": "The direction the tabs run. `horizontal` (the default) is a row above the views. `vertical` stacks the tabs in a\ncolumn at the start edge, beside the views — the categories of a settings page or a dialog — every tab as wide as\nthe column, its icon before its label; Down and Up Arrow move between them, the tabs scroll up and down when they\ndo not fit the row's height, and `fullWidth` does not apply. It switches views of one subject, as a row does; moving\nbetween the destinations of an app is the navigation drawer's. Any other value is horizontal.",
+              "fieldName": "orientation"
             },
             {
               "name": "value",
