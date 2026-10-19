@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import {
   AvailabilityController,
   DIRECTION_PROBE,
@@ -17,6 +17,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiMeterSizeRegistry } from '../../registry.js';
 import { AXES, STATUSES, VARIANTS, styles } from './meter.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiMeterVariant = 'linear' | 'circular';
@@ -47,7 +48,7 @@ export type TanreiMeterSize = keyof TanreiMeterSizeRegistry;
  * @csspart indicator - The part of the range up to the value, in the color of the status.
  * @csspart stop-indicator - The dot at the end of a bar's track (drawn when its size token is above 0, and not at max).
  */
-export class TanreiMeter extends LitElement {
+export class TanreiMeter extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'meter');
   static override styles = styles;
 

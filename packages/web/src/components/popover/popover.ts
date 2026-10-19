@@ -43,6 +43,7 @@ import {
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { ARRANGEMENTS, ARROW_PROPERTY, CHOICE, PREFIX, styles } from './popover.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * Where the popover prefers to stand (POP-2): a side of the anchor (`top`, `bottom`, `start`, `end`), alone to centre it
@@ -129,7 +130,7 @@ let ids = 0;
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiPopoverCloseDetail>} close - The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
  */
-export class TanreiPopover extends LitElement implements VariantHost, PlacingGroup {
+export class TanreiPopover extends TanreiElement implements VariantHost, PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'popover');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -659,7 +660,7 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     // POP-19: a value the popover does not define moves focus in (POP-37).
     return html`
       <div class="surface" popover=${this.inline ? nothing : 'manual'} role="none">
-        <div class="motion">
+        <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
           <div
             part="container"

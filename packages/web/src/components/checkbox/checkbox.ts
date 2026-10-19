@@ -14,6 +14,7 @@ import {
 import { styles } from './checkbox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** CHK-12: the glyphs of the icon set the checkbox draws — the spec's names, not values. */
 const CHECK_GLYPH = 'check';
@@ -72,7 +73,7 @@ const NO_VALUE = 'on';
  * @fires input - The user switched it; `checked` is already the new value.
  * @fires {CustomEvent<TanreiCheckboxChangeDetail>} change - The user switched it; `detail.checked` (and the element's `checked`) is the new value.
  */
-export class TanreiCheckbox extends LitElement {
+export class TanreiCheckbox extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'checkbox');
   static override styles = [styles, hiddenHost];
 

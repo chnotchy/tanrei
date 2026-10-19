@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -8,6 +8,7 @@ import type { TanreiListItemFrame } from '../list/list.js';
 import '../tooltip/tooltip.js';
 import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, styles } from './list-row.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
 export type TanreiListRowDensity = keyof TanreiListRowDensityRegistry;
@@ -72,7 +73,7 @@ function hearEscape() {
  * @csspart trailing - The box of the trailing slot.
  * @csspart trailing-icon - The glyph `trailing-icon` names.
  */
-export class TanreiListRow extends LitElement {
+export class TanreiListRow extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'list-row');
   static override styles = styles;
 

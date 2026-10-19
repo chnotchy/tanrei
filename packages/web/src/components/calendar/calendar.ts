@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -50,6 +50,7 @@ import {
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { PROGRESS, styles } from './calendar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** single: one date (`value`). range: one contiguous span (`start` … `end`, inclusive). */
 export type TanreiCalendarMode = 'single' | 'range';
@@ -246,7 +247,7 @@ const dropFrame: (handle: number) => void = typeof cancelAnimationFrame === 'fun
  * @csspart year - A year of the year view (a button, `data-year` holds it).
  * @fires {CustomEvent<TanreiCalendarChangeDetail>} change - The person chose a day that changes the choice. `value`, `start` and `end` are already the new ones (end empty after a start alone); `detail` holds them too.
  */
-export class TanreiCalendar extends LitElement {
+export class TanreiCalendar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'calendar');
   private readonly system = new SystemWatchController(this);
   /** CAL-35: the product's words, read where the instance gives none (src/primitives/words.ts). */

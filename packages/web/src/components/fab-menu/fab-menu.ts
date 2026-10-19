@@ -19,6 +19,7 @@ import type { TanreiFabMenuSizeRegistry, TanreiFabMenuVariantRegistry } from '..
 import type { TanreiMenuCloseReason } from '../menu/menu.js';
 import { AXES, itemStyles, menuStyles } from './fab-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** FBM-11: the glyph of the system's icon set the open toggle draws — the spec's name, not a value. */
 const CLOSE_GLYPH = 'close';
@@ -64,7 +65,7 @@ interface ItemContext {
  * @csspart label - The item's text.
  * @fires click - The item was activated by pointer, touch, keyboard or assistive technology; it bubbles. The FAB menu then emits `close` with the reason `item`.
  */
-export class TanreiFabMenuItem extends LitElement {
+export class TanreiFabMenuItem extends TanreiElement {
   static override styles = [itemStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -247,7 +248,7 @@ export function placeFabMenu(input: { toggle: { x: number; y: number; width: num
  * @fires {CustomEvent<TanreiFabMenuToggleDetail>} toggle - The toggle asks to open or close the menu: `detail.open` is the value asked for. Set `open` to it.
  * @fires {CustomEvent<TanreiFabMenuCloseDetail>} close - The menu asks to be closed: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export class TanreiFabMenu extends LitElement {
+export class TanreiFabMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'fab-menu');
   static override styles = [menuStyles, hiddenHost];
 

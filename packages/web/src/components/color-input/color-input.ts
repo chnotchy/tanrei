@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle } from '../../primitives/index.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
@@ -12,6 +12,7 @@ import { AXES, INSET, styles } from './color-input.styles.js';
 import { PICKER_START, given, picked, read, readCommitted } from './color-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box that draws no label (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiColorInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -123,7 +124,7 @@ function deepActiveElement(): Element | null {
  * @fires {CustomEvent<TanreiColorInputPickerRequestDetail>} pickerrequest - The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
  * @fires {CustomEvent<TanreiColorInputEntryErrorDetail>} entryerror - The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
  */
-export class TanreiColorInput extends LitElement {
+export class TanreiColorInput extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'color-input');
   static override styles = styles;
 

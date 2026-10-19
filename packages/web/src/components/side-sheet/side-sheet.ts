@@ -30,6 +30,7 @@ import {
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { AXES, styles } from './side-sheet.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiSideSheetVariant = 'standard' | 'modal' | (string & {});
@@ -110,7 +111,7 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiSideSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `close` (its close button), or for a modal sheet `scrim`, `escape`, `back` or `drag`. Set `open` to false.
  */
-export class TanreiSideSheet extends LitElement implements VariantHost {
+export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private readonly availability = new AvailabilityController(this, 'side-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -639,6 +640,7 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
       return html`<dialog
         part="container"
         class="sheet"
+        data-tanrei-appear
         aria-label=${label}
         tabindex="-1"
         data-tanrei-shape

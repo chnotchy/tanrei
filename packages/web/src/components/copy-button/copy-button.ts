@@ -7,6 +7,7 @@ import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES as BUTTON_AXES } from '../button/button.styles.js';
 import { styles } from './copy-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The Button variant it is drawn as: the Button's own values. */
 export type TanreiCopyButtonVariant = keyof TanreiButtonVariantRegistry;
@@ -72,7 +73,7 @@ const DEFAULT_SIZE = 'medium';
  * @fires {CustomEvent<TanreiCopyButtonCopiedDetail>} copied - The browser confirmed that the text is on the clipboard; `detail.text` is the text.
  * @fires {CustomEvent<TanreiCopyButtonCopyFailedDetail>} copyfailed - The browser refused the copy or has no clipboard to write to; `detail.reason` is its reason, where it gave one.
  */
-export class TanreiCopyButton extends LitElement {
+export class TanreiCopyButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'copy-button');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);

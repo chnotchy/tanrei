@@ -1262,7 +1262,7 @@ export class OptionListController implements ReactiveController {
     // The placed box is only a box: without `role="none"` a popover element with no role is exposed as an unnamed group
     // around the list box.
     return html`<div class="surface" popover=${inline ? nothing : 'manual'} role="none" @mousedown=${this.onMouseDown} @toggle=${this.onSurfaceToggle}>
-      <div class="motion">
+      <div class="motion" data-tanrei-appear>
         <div
           part="list"
           class=${classMap({ list: true, tail: !!tail, bare: !!tail && size === 0 })}

@@ -5,6 +5,7 @@ import { AvailabilityController, PressController, SelectionController, markCondi
 import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What `change` carries: the value of the option that became selected. */
 export interface TanreiRadioButtonChangeDetail {
@@ -53,7 +54,7 @@ const STEPS: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1
  * @fires input - The user selected this option; `checked` is already true.
  * @fires {CustomEvent<TanreiRadioButtonChangeDetail>} change - The user selected this option; `detail.value` is its value.
  */
-export class TanreiRadioButton extends LitElement {
+export class TanreiRadioButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'radio-button');
   /** Disabled under the focus it holds, its stop keeps its `tabindex` for one frame, as the platform's own control keeps focus (src/primitives/disabled-while-focused.ts). */
   private readonly stop = new FocusedStop(this);

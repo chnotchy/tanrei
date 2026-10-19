@@ -4,6 +4,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { AvailabilityController, OpenAxesController, PressController, TOUCH_SLOP, report, syncFocusStyle } from '../../primitives/index.js';
 import type { TanreiHandleSizeRegistry } from '../../registry.js';
 import { AXES, AXES_OF_RESIZE, CORNERS, styles } from './handle.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Which size the handle changes: a height (`vertical`), a width (`horizontal`), or both at once at a corner. */
 export type TanreiHandleAxis = 'vertical' | 'horizontal' | 'both';
@@ -92,7 +93,7 @@ interface Drag {
  * @fires {CustomEvent<TanreiHandleStepDetail>} step - A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.
  * @fires {CustomEvent} activate - Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows.
  */
-export class TanreiHandle extends LitElement {
+export class TanreiHandle extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'handle');
   static override styles = [styles, hiddenHost];
 

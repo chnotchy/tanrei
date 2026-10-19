@@ -540,6 +540,24 @@ export class AnimatedSize implements ReactiveController {
 
 // ── The first frames (Settle) ─────────────────────────────────────────────────────────────────────────────────────────
 
+// Every element settles, so the hosts that ask in one frame are let go by one pair of frame callbacks between them: a
+// page that draws two thousand elements asks for two frames, not four thousand callbacks.
+let settlingNow: (() => void)[] | null = null;
+const afterTwoFrames = (done: () => void) => {
+  if (typeof requestAnimationFrame !== 'function') return done();
+  if (!settlingNow) {
+    const batch: (() => void)[] = [];
+    settlingNow = batch;
+    requestAnimationFrame(() => {
+      settlingNow = null;
+      requestAnimationFrame(() => {
+        for (const settled of batch) settled();
+      });
+    });
+  }
+  settlingNow.push(done);
+};
+
 /**
  * MOT-3: the host carries `data-tanrei-settling` from each time it is connected until two frames after its first
  * update there — the frame its first render is drawn in, and the one after it, where a state it measured in a frame
@@ -566,9 +584,7 @@ export class Settle implements ReactiveController {
       this.host.removeAttribute(SETTLING);
     };
     void this.host.updateComplete.then(() => {
-      if (connection !== this.connection) return;
-      if (typeof requestAnimationFrame !== 'function') settled();
-      else requestAnimationFrame(() => requestAnimationFrame(settled));
+      if (connection === this.connection) afterTwoFrames(settled);
     });
   }
 

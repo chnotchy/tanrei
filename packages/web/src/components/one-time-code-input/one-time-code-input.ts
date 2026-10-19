@@ -9,6 +9,7 @@ import { styles } from './one-time-code-input.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { COMPOSITION_INPUT_TYPES, CompositionEnd } from '../../primitives/composition-end.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What a cell takes: the digits 0 to 9, or those and the letters A to Z, held in upper case. */
 export type TanreiOneTimeCodeInputType = CodeType;
@@ -67,7 +68,7 @@ const REMOVES_FORWARD_RUN = new Set(['deleteWordForward', 'deleteSoftLineForward
  * @fires {CustomEvent<TanreiOneTimeCodeInputDetail>} complete - A change by the person left the value `length` characters long. After that change's input, once.
  * @fires {CustomEvent<TanreiOneTimeCodeInputDetail>} action - The person pressed Enter. Cancel it to keep the enclosing form from being submitted.
  */
-export class TanreiOneTimeCodeInput extends LitElement {
+export class TanreiOneTimeCodeInput extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'one-time-code-input');
   static override styles = styles;
 

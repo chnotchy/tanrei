@@ -19,6 +19,7 @@ import type { TanreiButtonWithMenuSizeRegistry, TanreiButtonWithMenuVariantRegis
 import { TanreiMenu, type TanreiMenuCloseDetail, type TanreiMenuCloseReason } from '../menu/menu.js';
 import { AXES, TRAILING_WIDTHS, styles } from './button-with-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, tonal, elevated, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonWithMenuVariant = keyof TanreiButtonWithMenuVariantRegistry;
@@ -106,7 +107,7 @@ class JoinedHalf extends GroupItemController {
  * @fires {CustomEvent<TanreiButtonWithMenuToggleDetail>} toggle - The trailing half asks to open or close the menu — by a press, a key or, with `hover-open`, a hover: `detail.open` is the value asked for. Set `open` to it.
  * @fires {CustomEvent<TanreiButtonWithMenuCloseDetail>} close - The menu asks to be closed: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export class TanreiButtonWithMenu extends LitElement {
+export class TanreiButtonWithMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'button-with-menu');
   static override styles = [styles, hiddenHost];
 

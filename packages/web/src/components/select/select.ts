@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
   DismissController,
@@ -38,6 +38,7 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { AXES, INSET, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of the Field that frames it (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiSelectVariant = keyof TanreiInputBoxVariantRegistry;
@@ -132,7 +133,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * @fires change - The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  * @fires {CustomEvent<TanreiSelectToggleDetail>} toggle - The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
  */
-export class TanreiSelect extends LitElement {
+export class TanreiSelect extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'select');
   /** Disabled under the focus it holds, its stop keeps its `tabindex` for one frame, as the platform's own control keeps focus (src/primitives/disabled-while-focused.ts). */
   private readonly stop = new FocusedStop(this);

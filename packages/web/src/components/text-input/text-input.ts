@@ -57,6 +57,7 @@ import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { CompositionEnd, isCompositionInput } from '../../primitives/composition-end.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { wordPlaces } from '../../generated/words.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -307,7 +308,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @fires {CustomEvent<TanreiTextInputPickerRequestDetail>} pickerrequest - The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
  * @fires {CustomEvent<TanreiTextInputEntryErrorDetail>} entryerror - The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  */
-export class TanreiTextInput extends LitElement {
+export class TanreiTextInput extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'text-input');
   /**
    * TXI-35: the glyphs in the leading-icon and trailing-icon slots are marked when the icon set mirrors

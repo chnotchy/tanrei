@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 
@@ -2570,6 +2571,9 @@ test.describe('a tone a host gives (BTN-45)', () => {
     // Not part of the public surface: nothing on the element itself says it — its attributes are those of the same
     // Button outside a host, and it carries no style of its own.
     await outside(page, 'plain-tonal', 'variant="tonal"');
+    // The Button just put in the page settles for two frames (data-tanrei-settling, MOT-3): what it carries at rest is
+    // compared, as the toned one is.
+    await allSettled(page);
     const own = (selector: string) => page.locator(selector).evaluate((el) => [el.getAttributeNames().filter((name) => name !== 'id').sort(), (el as HTMLElement).style.length]);
     expect(await own('test-tone-host #tonal')).toEqual(await own('#plain-tonal'));
     expect(await inner(page, 'tonal').getAttribute('data-tone')).toBe('');

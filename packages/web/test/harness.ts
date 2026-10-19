@@ -184,6 +184,11 @@ const fixtureTag = (spec: Spec, id: string): string => {
   const fixture = spec.fixtures.find((f) => f.id === id);
   return (fixture && STAGING[spec.name]?.tag?.(fixture)) || spec.platforms.web.name;
 };
+/**
+ * Whether a fixture's items are handed over by a step in script after it is mounted (`Staging.itemsInScript`): its
+ * markup alone draws it without them, so what its markup draws when it appears again is not the fixture.
+ */
+export const itemsStagedInScript = (spec: Spec, fixture: Fixture): boolean => !!STAGING[spec.name]?.itemsInScript?.(fixture);
 
 /** The chip's `input-avatar` fixture image: one neutral grey pixel (React Native's is the same one). */
 const FIXTURE_AVATAR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOYN28eAAO4AdvqohIbAAAAAElFTkSuQmCC';

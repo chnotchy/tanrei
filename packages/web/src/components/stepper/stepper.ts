@@ -15,6 +15,7 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import { type StepCondition, stepStyles, stepperStyles } from './stepper.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How the steps are laid out (SPR-4, SPR-5, SPR-6). A closed set: anything else is horizontal. */
 export type TanreiStepperLayout = 'horizontal' | 'vertical' | 'compact';
@@ -73,7 +74,7 @@ const STEP_UPDATE = 'tanrei-stepper-step-update';
  * @csspart description - The step's description, where it has one.
  * @csspart connector - The line to the next step's marker (not drawn after the last; hidden from assistive technology).
  */
-export class TanreiStepperStep extends LitElement {
+export class TanreiStepperStep extends TanreiElement {
   static override styles = stepStyles;
 
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
@@ -280,7 +281,7 @@ export class TanreiStepperStep extends LitElement {
  * @csspart position - The compact form's position ("Step 2 of 5").
  * @fires {CustomEvent<TanreiStepperSelectDetail>} select - The person pressed a step to go to it: `detail.value` is its value. The stepper does not change `value`.
  */
-export class TanreiStepper extends LitElement {
+export class TanreiStepper extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'stepper');
   static override styles = stepperStyles;
 

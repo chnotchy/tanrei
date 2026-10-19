@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -18,6 +18,7 @@ import {
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, styles } from './snackbar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How long a snackbar stays by itself: auto is short without an action and indefinite with one (WCAG 2.2.1). */
 export type TanreiSnackbarDuration = 'auto' | 'short' | 'long' | 'indefinite';
@@ -112,7 +113,7 @@ const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el
  * @fires {CustomEvent<TanreiSnackbarDismissDetail>} dismiss - The snackbar closed without its action: `detail.reason` is `close`, `escape`, `timeout` or `host`.
  * @fires {CustomEvent<TanreiSnackbarExpandedChangeDetail>} expandedchange - The person expanded or collapsed the text with the expand button: `detail.expanded` is the new value. Not fired when the product sets `expanded`.
  */
-export class TanreiSnackbar extends LitElement {
+export class TanreiSnackbar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'snackbar');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -534,7 +535,7 @@ interface Request {
  * @tag tanrei-snackbar-host
  * @slot - The snackbar being shown (the host puts it there).
  */
-export class TanreiSnackbarHost extends LitElement {
+export class TanreiSnackbarHost extends TanreiElement {
   static override styles = [hostStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {

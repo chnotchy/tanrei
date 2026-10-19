@@ -134,7 +134,7 @@ export interface SampleOptions {
 /** The in-page side, on `window.__tanreiFrames` while it runs. */
 interface Sampler {
   go(): Promise<(Frames & { failure?: undefined }) | { failure: string }>;
-  release(): void;
+  release(keep?: boolean): void;
 }
 
 interface InPage {
@@ -417,7 +417,9 @@ function install(root: Element, o: InPage): void {
     observer.observe(mark);
   });
 
-  const release = () => {
+  // Released by a failure (`keep`), the sampler stays on the page until `go()` is asked: a failure found while the
+  // test still acts (a motion that began and ended between two frames) is then what `go()` answers.
+  const release = (keep = false) => {
     if (released) return;
     released = true;
     phase = 'done';
@@ -433,10 +435,10 @@ function install(root: Element, o: InPage): void {
     // What is still held runs on at the machine's pace.
     for (const a of held.keys()) if (a.playState === 'paused') a.play();
     held.clear();
-    if (w.__tanreiFrames === sampler) delete w.__tanreiFrames;
+    if (!keep && w.__tanreiFrames === sampler) delete w.__tanreiFrames;
   };
   const fail = (failure: string) => {
-    release();
+    release(true);
     resolve({ failure });
   };
 
@@ -493,6 +495,7 @@ function install(root: Element, o: InPage): void {
   const sampler: Sampler = {
     go: () => {
       if (phase === 'act') phase = o.freeze ? 'frozen' : 'motion';
+      else if (phase === 'done' && w.__tanreiFrames === sampler) delete w.__tanreiFrames;
       return done;
     },
     release,
