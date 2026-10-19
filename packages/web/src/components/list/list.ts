@@ -56,6 +56,10 @@ const GAPS: readonly TanreiListGap[] = ['none', 'small', 'medium', 'large'];
 export type TanreiListSelection = 'none' | 'single' | 'multiple';
 const SELECTIONS: readonly TanreiListSelection[] = ['none', 'single', 'multiple'];
 
+/** Whether a List row keeps the room of a leading glyph it does not draw (LST-50): the menu's and the tree view's values. A closed set. */
+export type TanreiListIconSpace = 'auto' | 'always' | 'never';
+const ICON_SPACES: readonly TanreiListIconSpace[] = ['auto', 'always', 'never'];
+
 /** What `move` carries: the index the item had when the move began and the index it is to have, both from 0. */
 export interface TanreiListMoveDetail {
   from: number;
@@ -91,6 +95,8 @@ interface ItemContext {
   orientation: TanreiListOrientation;
   /** LST-3: where the item draws the divider between it and the item before it; none for the first. */
   divider: 'none' | 'block' | 'inline';
+  /** LST-50: a List row of the item keeps the room of a leading glyph where it draws no leading part. */
+  leadingRoom: boolean;
   /** LST-32, LST-33, LST-47: the handle's name and description and the four move words; empty where nobody gave them. */
   handleLabel: string;
   handleHint: string;
@@ -109,18 +115,23 @@ export interface TanreiListItemFrame {
   selected: boolean;
   /** The item is a disabled action, link or option (LST-15). */
   disabled: boolean;
+  /** The list asks the element to keep the room of a leading glyph where it draws no leading part (LST-50). */
+  leadingRoom: boolean;
 }
 
 /**
  * LST-48, LST-49: an element that fits itself to the item it is the direct child of — a `<tanrei-list-row>`. The item
  * sets `listItemFrame` (null once the element is no longer its child), and reads the item's name and description from it.
- * The element fires `tanrei-list-item-content` (bubbling) when it is first defined and whenever its name or description
- * changes, so that the item tells it the frame and the list hears the new name.
+ * The element fires `tanrei-list-item-content` (bubbling) when it is first defined and whenever its name, its
+ * description or whether it draws a leading glyph changes, so that the item tells it the frame and the list hears the
+ * new name and decides the room of a leading glyph again (LST-50).
  */
 export interface TanreiListItemContent extends HTMLElement {
   listItemFrame: TanreiListItemFrame | null;
   readonly listItemName: string;
   readonly listItemDescription: string;
+  /** LST-50: the element draws a glyph as its leading part — not the content of a leading slot. */
+  readonly listItemGlyph: boolean;
 }
 
 /** Whether a child of an item fits itself to the item (LST-48). */
@@ -223,7 +234,7 @@ export class TanreiListItem extends TanreiElement {
   download: string | null = null;
 
   /** What the list says about this item. */
-  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', handleLabel: '', handleHint: '', moves: NO_MOVES };
+  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', leadingRoom: false, handleLabel: '', handleHint: '', moves: NO_MOVES };
 
   /** LST-33: whether the move menu is open, and whether it has been drawn yet (it is drawn the first time it opens). */
   private menuOpen = false;
@@ -293,6 +304,11 @@ export class TanreiListItem extends TanreiElement {
     return [...this.children].filter(fitsItem);
   }
 
+  /** @internal LST-50: whether a List row of the item draws a glyph as its leading part. */
+  get drawsGlyph(): boolean {
+    return this.fitted.some((child) => child.listItemGlyph);
+  }
+
   /** LST-49: the name the item's List rows give it: their headlines. */
   private get contentName(): string {
     return spoken(
@@ -321,7 +337,13 @@ export class TanreiListItem extends TanreiElement {
   /** LST-48: tells each child that fits itself to the item what the item is, and a child that left that it stands alone. */
   private tellContent() {
     const mode = this.mode;
-    const frame: TanreiListItemFrame = { boxed: mode !== 'static', handled: this.context.reorder, selected: this.selected, disabled: mode !== 'static' && this.disabled };
+    const frame: TanreiListItemFrame = {
+      boxed: mode !== 'static',
+      handled: this.context.reorder,
+      selected: this.selected,
+      disabled: mode !== 'static' && this.disabled,
+      leadingRoom: this.context.leadingRoom,
+    };
     const key = JSON.stringify(frame);
     const now = new Set(this.fitted);
     for (const child of this.framed) {
@@ -753,6 +775,7 @@ export class TanreiList extends TanreiElement {
     wrap: { type: Boolean, reflect: true },
     gap: { type: String, reflect: true },
     dividers: { type: Boolean, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     selection: { type: String, reflect: true },
     label: { type: String },
     value: { type: String },
@@ -780,6 +803,13 @@ export class TanreiList extends TanreiElement {
 
   /** Draws a hairline between every two neighbouring items. Read only while `wrap` is false (LST-3). */
   dividers = false;
+
+  /**
+   * Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws none, so that
+   * the headlines start on one line (LST-50): `auto` keeps it while another item's row draws a glyph (`leading-icon`),
+   * `always` in every row, `never` only in a row that draws one. A leading slot's avatar or picture does not count.
+   */
+  iconSpace: TanreiListIconSpace = 'auto';
 
   /** Whether people choose items: `none` shows or opens things; `single` chooses one; `multiple` any number. */
   selection: TanreiListSelection = 'none';
@@ -946,6 +976,9 @@ export class TanreiList extends TanreiElement {
       null;
     const orientation = this.axis;
     const divider: ItemContext['divider'] = this.dividers && !this.wrap ? (orientation === 'vertical' ? 'block' : 'inline') : 'none';
+    // LST-50: the list is one run — its rows keep a glyph's room while one of them draws a glyph (auto), always, or never.
+    const space: TanreiListIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
+    const leadingRoom = space === 'always' || (space === 'auto' && items.some((item) => item.drawsGlyph));
     items.forEach((item, index) =>
       item.setListContext({
         selectable,
@@ -956,6 +989,7 @@ export class TanreiList extends TanreiElement {
         reorder,
         orientation,
         divider: index === 0 ? 'none' : divider,
+        leadingRoom,
         handleLabel: reorder ? this.handleName : '',
         handleHint: reorder ? this.handleHintText : '',
         moves: reorder ? this.moveNames : NO_MOVES,
@@ -1842,6 +1876,7 @@ export class TanreiList extends TanreiElement {
     if (changed.has('selection') && !SELECTIONS.includes(this.selection)) report(this, 'LST-6', `selection "${this.selection}" is not a value the list defines; it is drawn as "none"`);
     if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) report(this, 'LST-6', `orientation "${this.orientation}" is not a value the list defines; it is drawn as "vertical"`);
     if (changed.has('gap') && !GAPS.includes(this.gap)) report(this, 'LST-6', `gap "${this.gap}" is not a value the list defines; it is drawn as "none"`);
+    if (changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) report(this, 'LST-50', `iconSpace "${this.iconSpace}" is not a value the list defines; it is drawn as "auto"`);
     // LST-35, LST-40: the product changed what the list is while an item was carried: it goes back.
     if (this.carry && (changed.has('reorderable') || changed.has('selection'))) {
       const keyboard = this.carry.by === 'keyboard';

@@ -22185,7 +22185,7 @@
               "name": "container"
             },
             {
-              "description": "The box of the leading part.",
+              "description": "The box of the leading part: the slot's content, the glyph, or — where the List asks for it (its `icon-space`, LRW-16) — a glyph's room, empty.",
               "name": "leading"
             },
             {
@@ -22781,6 +22781,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiListIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws none, so that\nthe headlines start on one line (LST-50): `auto` keeps it while another item's row draws a glyph (`leading-icon`),\n`always` in every row, `never` only in a row that draws one. A leading slot's avatar or picture does not count.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "selection",
               "privacy": "public",
               "type": {
@@ -22988,6 +23000,15 @@
               "default": "false",
               "description": "Draws a hairline between every two neighbouring items. Read only while `wrap` is false (LST-3).",
               "fieldName": "dividers"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiListIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws none, so that\nthe headlines start on one line (LST-50): `auto` keeps it while another item's row draws a glyph (`leading-icon`),\n`always` in every row, `never` only in a row that draws one. A leading slot's avatar or picture does not count.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "selection",

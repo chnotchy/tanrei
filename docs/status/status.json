@@ -355,7 +355,8 @@
       "builtFrom": [],
       "uses": [
         "button",
-        "menu"
+        "menu",
+        "list-row"
       ],
       "hasSpec": true,
       "docs": "/components/list/",
