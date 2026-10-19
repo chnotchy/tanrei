@@ -66,7 +66,10 @@
 //                 across shadow roots, the platform's, one page-wide watcher; the chords' attribute converter; and the
 //                 internal event a keyboard shortcut tells its host with (KBS-12, a menu item's aria-keyshortcuts)
 //   item-update — notifyItemUpdate(): an item tells its container a prop it reads changed, an internal event kept out of
-//                 the manifest (segment, list item, menu item, suggestion, tab)
+//                 the manifest (segment, list item, menu item, suggestion, tab); CoalescedSync, the container's side: one
+//                 re-read of its items per turn, however many said they changed (a build of N items is O(N), not O(N²))
+//   work-count  — countWork(): a debug build counts a piece of work on globalThis.__tanreiCounts, for the performance
+//                 tests to hold as a count
 //   group-item  — the internal channel between a button group and its Buttons and icon buttons: GroupItemController
 //                 (where the item sits), groupItemStyles() (its corners, width and hit area in the group), GROUP_PLACE;
 //                 a toolbar's items are `row` items of it, their hit areas capped at the measured half-gaps (TBR-9);
@@ -343,7 +346,8 @@ export {
 } from './link.js';
 export { layoutSize, naturalHeight } from './natural-height.js';
 export { parseValues } from './values.js';
-export { notifyItemUpdate } from './item-update.js';
+export { CoalescedSync, notifyItemUpdate } from './item-update.js';
+export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';
 export {
   ACTION_COLUMN,
