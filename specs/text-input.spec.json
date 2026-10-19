@@ -667,8 +667,8 @@
     },
     {
       "id": "TXI-65",
-      "text": "WHILE the entries slot holds content THE text input SHALL treat itself as not empty for its label: a filled or outlined input floats it (TXI-13), and its placeholder is not shown.",
-      "verify": "The Field's fixtures entries-email-filled (floated) and entries-email-filled-empty (resting)."
+      "text": "WHILE the entries slot holds content THE text input SHALL treat itself as not empty for its label: a filled or outlined input floats it (TXI-13), and its placeholder is not shown. WHEN the input first appears holding entries it SHALL draw its label floated in its first frame, without the motion of TXI-14: appearing is no change of the label's place.",
+      "verify": "The Field's fixtures entries-email-filled (floated) and entries-email-filled-empty (resting). The Field's entries-email-filled and entries-email-outlined, and the Chip field's email-filled and email-outlined, inserted into a page that is already drawn: their first frame is the state they rest in, the label floated above the chips."
     },
     {
       "id": "TXI-66",
