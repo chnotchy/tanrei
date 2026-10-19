@@ -472,6 +472,16 @@ jobs:
           repeat=()
           if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
           pnpm --filter @tanrei/web exec playwright test ${{ matrix.projects }} --shard=${{ matrix.shard }}/${{ matrix.shards }} ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
+      # A failed test's trace from its first attempt (playwright.config.ts: retain-on-failure on CI), its screenshots and
+      # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
+      # carries the same files into the merged report; this one is the shard's own, without merging.
+      - if: ${{ failure() && steps.playwright.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-results-${{ matrix.engine }}-${{ matrix.shard }}
+          path: packages/web/test-results
+          retention-days: 7
+          if-no-files-found: ignore
       # What needs no browser runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
       # here never costs a shard its Playwright results): the web package's Node tests — the links build helper and the
       # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests, which read both
