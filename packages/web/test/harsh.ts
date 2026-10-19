@@ -46,6 +46,12 @@ export interface Harsh {
  *   8×, 2 in 3 at 4×). Throttling is there for a race of another shape: TANREI_HARSH_CPU=4.
  * - Not caught: a read in the frame before a transition starts, which reads the old value exactly (the old LKC-34
  *   passed 4 in 4, and 6 in 6 at 12× CPU): nothing here delays a frame against the page's tasks.
+ * - Not caught: a box read in the task after the motions the page can list have ended, while one it cannot list still
+ *   moves for a frame or two — the height of a `<details>` element's content, which Chromium turns back a frame later
+ *   than the chevron that turns with it. Whether the read lands in that frame is the round trip's length against the
+ *   frame's: the old ACC-13 passed 3 in 3 here, 3 in 3 at TANREI_HARSH_MOTION=4 and 10 in 10 in scripts/ci-like.sh,
+ *   though the first frame without a listed motion showed the height short in 7 of 10 runs at TANREI_HARSH_CPU=6.
+ *   Read such a box with `boxAtRest` (test/at-rest.ts).
  */
 export const HARSH_DEFAULTS: Harsh = { before: 300, after: 300, cpu: 1, motion: 0.2 };
 
