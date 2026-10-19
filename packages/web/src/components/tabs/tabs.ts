@@ -3,6 +3,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   GlyphMirrorController,
   OpenAxesController,
   PressController,
@@ -14,6 +15,7 @@ import {
   answersPress,
   choiceAttribute,
   compChoice,
+  countWork,
   findInteractive,
   hostAria,
   keepInPlace,
@@ -194,6 +196,18 @@ function composedContains(ancestor: Element, node: Node): boolean {
   return false;
 }
 const px = (n: number) => `${Math.round(n * 100) / 100}px`;
+/**
+ * Whether `element` is laid out right to left, asked of the document (`:dir()`, answered from the `dir` attributes
+ * around it) and not of the cascade, so that asking styles nothing; an engine that cannot answer is asked for the
+ * computed value.
+ */
+function rtlOf(element: Element): boolean {
+  try {
+    return element.matches(':dir(rtl)');
+  } catch {
+    return getComputedStyle(element).direction === 'rtl';
+  }
+}
 const num = (n: number) => Math.round(n * 100) / 100;
 
 /** A tab's box and its plain content's box within it, as the row read them, in the row's own pixels. */
@@ -223,6 +237,19 @@ function pieces(pill: Box, line: { x: number; w: number }, { size, content }: Ta
     plain: `path(evenodd, "M-99999 -99999H99999V99999H-99999Z M${num(x + r)} ${num(y)}H${num(x + w - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w)} ${num(y + r)}V${num(y + h - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w - r)} ${num(y + h)}H${num(x + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x)} ${num(y + h - r)}V${num(y + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + r)} ${num(y)}Z")`,
     underline: `inset(0 ${px(size.w - line.x - line.w)} 0 ${px(line.x)} round var(--_us) var(--_us) 0 0)`,
   };
+}
+
+/**
+ * What the row has read of its layout in one go (`TanreiTabs.reading`): every box it asked for once, the strip's box,
+ * computed style and scale, the indicator's timing and its corner. Nothing the row writes in between moves a box — a
+ * clip, the visibility of a copy, an animation — except what `boxes()` writes and a scroll, after which it is read
+ * afresh.
+ */
+interface Reading {
+  rects: Map<Element, DOMRect>;
+  strip?: { rect: DOMRect; style: CSSStyleDeclaration; scale: Scale };
+  motion?: { duration: number; easing: string };
+  radius?: number;
 }
 
 /** The slide's own name on every animation of it: the row's clock on the strip, and each tab's pieces (TAB-17). */
@@ -519,7 +546,7 @@ export class TanreiTab extends TanreiElement {
     });
   }
 
-  /** @internal The indicator's corner as drawn on this tab, in px (TAB-16). */
+  /** @internal The indicator's corner as drawn on this tab, in px (TAB-16). The row reads it once for each reading. */
   get indicatorRadius(): number {
     const plate = this.renderRoot?.querySelector('.plate');
     return plate ? Number.parseFloat(getComputedStyle(plate).borderTopLeftRadius) || 0 : 0;
@@ -548,6 +575,19 @@ export class TanreiTab extends TanreiElement {
 
   private get tooltip(): TanreiTooltip | null {
     return this.renderRoot?.querySelector<TanreiTooltip>('.tip') ?? null;
+  }
+
+  /**
+   * TAB-14, TAB-25: whether what the row told the tab may cut its label anew: the first the tab is told, its structure
+   * (secondary), whether the row fills — or, in a row that fills, its selection, whose heavier weight (TAB-50) may not
+   * fit the share where the lighter one did. A row that hugs never cuts a label, so a selection that moves along it
+   * measures none.
+   */
+  private labelRoomChanged(changed: PropertyValues<this>): boolean {
+    if (!changed.has('context' as keyof TanreiTab)) return false;
+    const before = changed.get('context' as keyof TanreiTab) as TabContext | undefined;
+    const now = this.context;
+    return !before || before.secondary !== now.secondary || before.fill !== now.fill || (now.fill && before.selected !== now.selected);
   }
 
   /** TAB-1: Enter activates on key-down and Space on key-up, as a native button does; the activation is a click. */
@@ -611,7 +651,7 @@ export class TanreiTab extends TanreiElement {
     if (!label) this.truncated = false;
     else if (reported) {
       // Measured in the coming frame.
-    } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (changed.has('context' as keyof TanreiTab) && !this.labelDeferred)) this.measureTruncation();
+    } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (this.labelRoomChanged(changed) && !this.labelDeferred)) this.measureTruncation();
     const { selected, tabStop, position, size } = this.context;
     // TAB-2, TAB-12, TAB-13: the tab role, its selection, position and name; one Tab stop per row; a disabled tab takes
     // no focus at all, so a pointer cannot focus it either.
@@ -908,7 +948,7 @@ export class TanreiTabs extends TanreiElement {
     if (offset) this.cancelDrag(false);
     // TAB-26: no motion of their own — a running slide (TAB-17) ends where the offset puts them.
     this.stopSliding();
-    this.draw(this.at(this.selectedTab));
+    this.readOnce(() => this.draw(this.at(this.selectedTab)));
   }
 
   /** TAB-13, TBV-9: the Tab view linked to this row, whose panels take the place of the row's own. */
@@ -921,7 +961,26 @@ export class TanreiTabs extends TanreiElement {
   private readonly axes = new OpenAxesController(this, { component: 'tabs', behavior: 'TAB-7', axes: AXES });
 
   private readonly keys = new RovingKeys({ wrap: true });
-  private readonly children$ = new MutationObserver(() => this.sync());
+  /**
+   * The re-read of the tabs and panels (`sync()`), once per turn however many of them said they changed in it: a row of
+   * N tabs built, or N labels changed at once, re-reads its N tabs once — not once per tab, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the tabs' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
+  /**
+   * TAB-14, TAB-16: whether what the tabs' containers are sized from may have changed since the row last sized them —
+   * a tab, a panel, the row's own props, its link — so that the next re-read sizes them again. A new selection alone
+   * changes no tab's size (TAB-50), and is not re-sized: what does change a size later (a font, the text size) is seen
+   * by the resize observer.
+   */
+  private reshaped = true;
+  /** A tab or a panel said it changed, or the children did: the row re-reads them, and sizes them again. */
+  private readonly itemsChanged = () => {
+    this.reshaped = true;
+    this.syncs.request();
+  };
+  private readonly children$ = new MutationObserver(this.itemsChanged);
   /**
    * TAB-15, TAB-17: a change of size or place (a font arriving, the text size, the row resizing) puts things back at
    * once. One observer for every row (TAB-41): the rows that changed in a frame are told together, so that they are
@@ -983,13 +1042,15 @@ export class TanreiTabs extends TanreiElement {
 
   constructor() {
     super();
+    // Before every handler below: a tab that changed in this task is read as it is now.
+    for (const type of ['keydown', 'click', 'pointerdown', 'focusin']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('click', this.onClickCapture, { capture: true });
     this.addEventListener('click', this.onClick);
     this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('lostpointercapture', this.onLostCapture);
     this.addEventListener('focusin', this.onFocusIn);
-    this.addEventListener('tanrei-tab-update', () => this.sync());
+    this.addEventListener('tanrei-tab-update', this.itemsChanged);
   }
 
   override connectedCallback() {
@@ -1001,7 +1062,8 @@ export class TanreiTabs extends TanreiElement {
     if (this.hasUpdated) this.observe(null, this.strip, this.scroller);
     // TAB-36, TAB-39: a row that enters the document joins its group and takes its choice before it is drawn.
     this.followGroup();
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   override disconnectedCallback() {
@@ -1025,7 +1087,8 @@ export class TanreiTabs extends TanreiElement {
   linkView(view: LinkedTabView) {
     if (this.linked === view) return;
     this.linked = view;
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** @internal TBV-16: the Tab view that draws this row as its own (null: none); it announces the row's selections (TBV-18). */
@@ -1037,7 +1100,8 @@ export class TanreiTabs extends TanreiElement {
   unlinkView(view: LinkedTabView) {
     if (this.linked !== view) return;
     this.linked = null;
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** @internal The linked Tab view, if it is connected. */
@@ -1052,7 +1116,8 @@ export class TanreiTabs extends TanreiElement {
 
   /** @internal The panels changed in the linked view: the tabs control them anew (TAB-13). */
   relink() {
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** The row's tabs, in order. */
@@ -1125,7 +1190,7 @@ export class TanreiTabs extends TanreiElement {
     if (group) group.choice = value;
     this.value = value;
     this.known = value;
-    if (now) this.sync();
+    if (now) this.syncs.now();
     // TAB-40: the followers' panels have changed in this task; where `hold` is now is read with everything else the
     // followers read, once, before the frame is drawn. (The row acted on is drawn first: a Tab view that starts its
     // switch measures itself, and does so before anything else is written.)
@@ -1211,7 +1276,7 @@ export class TanreiTabs extends TanreiElement {
   private followNow(together: Following[]) {
     if (!this.adopt() || !this.hasUpdated) return;
     this.following = together;
-    this.sync();
+    this.syncs.now();
     this.following = null;
     this.followed = this.value;
   }
@@ -1278,8 +1343,7 @@ export class TanreiTabs extends TanreiElement {
   private placing(selected: TanreiTab | null, measured: boolean): () => void {
     const scroller = this.scroller;
     const scrolls = measured && this.scrolls;
-    const draw = this.drawing(this.at(selected));
-    const to = this.revealing(selected);
+    const [draw, to] = this.readOnce(() => [this.drawing(this.at(selected)), this.revealing(selected)] as const);
     return () => {
       if (measured) scroller?.classList.toggle('scrolls', scrolls);
       draw();
@@ -1303,7 +1367,7 @@ export class TanreiTabs extends TanreiElement {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const tab = this.tabOf(event);
     if (!tab || event.composedPath()[0] !== tab) return;
-    const rtl = getComputedStyle(this).direction === 'rtl';
+    const rtl = rtlOf(this);
     const keys: Record<string, string> = { ArrowRight: rtl ? 'ArrowUp' : 'ArrowDown', ArrowLeft: rtl ? 'ArrowDown' : 'ArrowUp', Home: 'Home', End: 'End' };
     const key = keys[event.key];
     if (!key) return;
@@ -1316,15 +1380,24 @@ export class TanreiTabs extends TanreiElement {
     if (target === null) return;
     event.preventDefault();
     const next = tabs[target];
-    // The focus moves without the browser's own jump; the row brings the tab into view over its motion (TAB-15).
-    next.focus({ preventScroll: true });
+    // The focus moves without the browser's own jump; the row brings the tab into view over its motion (TAB-15) — as it
+    // draws the selection the move makes, from the same reading of the row, where the move selects another tab.
+    this.selecting = next === this.selectedTab ? null : next;
+    try {
+      next.focus({ preventScroll: true });
+    } finally {
+      this.selecting = null;
+    }
     this.select(next);
   };
+
+  /** TAB-12, TAB-15: the tab a key moves focus to and is about to select: its selection brings it into view. */
+  private selecting: TanreiTab | null = null;
 
   /** TAB-15: a tab that receives keyboard focus is brought into view. */
   private readonly onFocusIn = (event: FocusEvent) => {
     const tab = this.tabOf(event);
-    if (tab && tab.matches(':focus-visible')) this.reveal(tab, true);
+    if (tab && tab !== this.selecting && tab.matches(':focus-visible')) this.reveal(tab, true);
   };
 
   /**
@@ -1333,6 +1406,7 @@ export class TanreiTabs extends TanreiElement {
    */
   private sync() {
     if (!this.hasUpdated) return;
+    countWork('tabs.sync');
     this.syncChoices();
     // TAB-36: a row that gained a tab of its group's choice, or had one enabled, has it selected in this frame.
     this.adopt();
@@ -1351,11 +1425,16 @@ export class TanreiTabs extends TanreiElement {
 
     const selected = this.selectedTab;
     if (this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
-    const values = tabs.map((tab) => tab.value);
-    for (const tab of tabs) if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
-    for (const value of new Set(values.filter(Boolean))) {
-      if (values.filter((each) => each === value).length > 1) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
+    // Each value's first tab and first panel, looked up once each: a row of N tabs is read in O(N), never a search of
+    // every tab for each tab or panel.
+    const tabOfValue = new Map<string, TanreiTab>();
+    const repeated = new Set<string>();
+    for (const tab of tabs) {
+      if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
+      else if (tabOfValue.has(tab.value)) repeated.add(tab.value);
+      else tabOfValue.set(tab.value, tab);
     }
+    for (const value of repeated) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
@@ -1375,7 +1454,9 @@ export class TanreiTabs extends TanreiElement {
     // TAB-13: where a Tab view is linked, each tab controls the view's panel of its value, and the row's own panels are
     // all hidden (TBV-15: the view reports them).
     const view = this.linkedView;
-    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panels.find((panel) => panel.value === tab.value) : undefined);
+    const panelOfValue = new Map<string, TanreiTabPanel>();
+    for (const panel of panels) if (!panelOfValue.has(panel.value)) panelOfValue.set(panel.value, panel);
+    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panelOfValue.get(tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
     const appearing: TanreiTab[] = [];
     tabs.forEach((tab, index) => {
@@ -1389,7 +1470,7 @@ export class TanreiTabs extends TanreiElement {
     // TAB-13: the selected tab's panel, named by its tab; the others hidden; a panel with nothing focusable is a Tab stop.
     const shown = selected && !view ? ownPanelOf(selected) : undefined;
     for (const panel of panels) {
-      const tab = tabs.find((each) => each.value && each.value === panel.value);
+      const tab = panel.value ? tabOfValue.get(panel.value) : undefined;
       const focusable = [...panel.children].some((child) => findInteractive(child));
       hostAria(panel, {
         role: 'tabpanel',
@@ -1401,6 +1482,8 @@ export class TanreiTabs extends TanreiElement {
     const changed = selected !== this.shownTab;
     const from = this.shownTab;
     this.shownTab = selected;
+    const reshaped = this.reshaped;
+    this.reshaped = false;
     // TAB-38: the row follows its group's choice, or one restored from storage: no slide, no color motion, and the
     // tab in view at once. (A drag of its own that the choice ends returns as TAB-30 says.)
     const follows = this.atOnce && changed && !returns;
@@ -1415,8 +1498,10 @@ export class TanreiTabs extends TanreiElement {
       this.following.push({ row: this, tabs, from, selected });
     }
     // TAB-16, TAB-17: once the tabs have drawn what they are now, the indicator slides to a newly selected tab, or is put
-    // on the selected one at once (the row appearing, a tab or the variant changing).
-    else {
+    // on the selected one at once (the row appearing, a tab or the variant changing). A re-read that changed neither the
+    // selection nor what the tabs are sized from — the update that follows a selection the row drew already — draws
+    // nothing again.
+    else if (changed || reshaped || returns) {
       void Promise.all(tabs.map((tab) => tab.updateComplete)).then(() => {
         const watched = this.observed.size;
         for (const tab of tabs) this.observeTab(tab);
@@ -1433,12 +1518,16 @@ export class TanreiTabs extends TanreiElement {
           this.awaitsObserver = true;
           return;
         }
-        this.boxes();
-        // TAB-26: a selection made while the indicator is drawn at an offset is placed at once, without a slide.
-        if (!follows && changed && from && selected && from.isConnected && this.mark && this.offset === 0) this.slide(from, selected);
-        else if (returns && selected && this.mark && this.offset === 0) this.slide(null, selected);
-        else this.place();
-        if (changed && selected) this.reveal(selected, !!from && !follows);
+        // TAB-12, TAB-17: a new selection is drawn from one reading of the row — the indicator's slide and the scroll
+        // that brings its tab into view read every box once between them.
+        this.readOnce(() => {
+          if (reshaped) this.boxes();
+          // TAB-26: a selection made while the indicator is drawn at an offset is placed at once, without a slide.
+          if (!follows && changed && from && selected && from.isConnected && this.mark && this.offset === 0) this.slide(from, selected);
+          else if (returns && selected && this.mark && this.offset === 0) this.slide(null, selected);
+          else this.place(false);
+          if (changed && selected) this.reveal(selected, !!from && !follows);
+        });
       });
     }
     // TBV-1, TBV-2: a linked view follows the row's selection — at once where the row itself follows (TBV-20).
@@ -1505,8 +1594,56 @@ export class TanreiTabs extends TanreiElement {
 
   /** The indicator's timing (TAB-15, TAB-17): the tokens, read through real properties — 0 where motion is reduced. */
   private motion(): { duration: number; easing: string } {
+    if (this.reading?.motion) return this.reading.motion;
     const style = getComputedStyle(this.scroller ?? this);
-    return { duration: (Number.parseFloat(style.animationDuration) || 0) * 1000, easing: style.animationTimingFunction || 'ease' };
+    const motion = { duration: (Number.parseFloat(style.animationDuration) || 0) * 1000, easing: style.animationTimingFunction || 'ease' };
+    if (this.reading) this.reading.motion = motion;
+    return motion;
+  }
+
+  /**
+   * TAB-12, TAB-16, TAB-17: what the row reads of its layout while `run` runs is read once — each box, the strip's style
+   * and scale, the indicator's timing and corner — however many of its steps ask for it (a slide measures its two tabs,
+   * then every tab, then the scroll the tab it goes to; each used to read them again). Nested, it is the outer one.
+   */
+  private readOnce<T>(run: () => T): T {
+    if (this.reading) return run();
+    this.reading = { rects: new Map() };
+    try {
+      return run();
+    } finally {
+      this.reading = null;
+    }
+  }
+
+  /** The reading going on now (`readOnce`), or null: everything is read when it is asked for. */
+  private reading: Reading | null = null;
+
+  /** `element`'s box on the page — once for each reading. */
+  private rect(element: Element): DOMRect {
+    const reading = this.reading;
+    if (!reading) return element.getBoundingClientRect();
+    let rect = reading.rects.get(element);
+    if (!rect) reading.rects.set(element, (rect = element.getBoundingClientRect()));
+    return rect;
+  }
+
+  /** The strip's box on the page, its computed style and the scale it is drawn at (`layoutScale`), once for each reading. */
+  private stripReading(): { rect: DOMRect; style: CSSStyleDeclaration; scale: Scale } | null {
+    const strip = this.strip;
+    if (!strip) return null;
+    const reading = this.reading;
+    if (reading?.strip) return reading.strip;
+    const rect = this.rect(strip);
+    const style = getComputedStyle(strip);
+    const read = { rect, style, scale: layoutScale(strip, rect, style) };
+    if (reading) reading.strip = read;
+    return read;
+  }
+
+  /** Something the row wrote may have moved a box (`boxes()`, a scroll): what the reading holds is read afresh. */
+  private readAgain() {
+    if (this.reading) this.reading = { rects: new Map() };
   }
 
   /**
@@ -1518,9 +1655,11 @@ export class TanreiTabs extends TanreiElement {
     // is read once more, in the same frame.
     const sizes = this.readBoxes();
     if (!sizes) return;
+    this.readAgain();
     if (this.writeBoxes(sizes)) this.writeBoxes(this.readBoxes());
     const scroller = this.scroller;
     scroller?.classList.toggle('scrolls', this.scrolls);
+    this.readAgain();
   }
 
   /** The reading half of `boxes()`: what every tab says of its container now, or null while the row is drawn flat. */
@@ -1553,8 +1692,7 @@ export class TanreiTabs extends TanreiElement {
    * reports the end of a transform, so the row never keeps a box measured in the page's pixels.
    */
   private scale(): Scale {
-    const strip = this.strip;
-    const scale = strip ? layoutScale(strip) : UNSCALED;
+    const scale = this.stripReading()?.scale ?? UNSCALED;
     this.watchScale(scale);
     return scale.x && scale.y ? scale : UNSCALED;
   }
@@ -1601,8 +1739,7 @@ export class TanreiTabs extends TanreiElement {
    * is seen, so nothing is written; `watchScale()` places the indicator once it is not flat.
    */
   private flat(): boolean {
-    const strip = this.strip;
-    const scale = strip ? layoutScale(strip) : UNSCALED;
+    const scale = this.stripReading()?.scale ?? UNSCALED;
     if (scale.x && scale.y) return false;
     this.watchScale(scale);
     return true;
@@ -1624,9 +1761,9 @@ export class TanreiTabs extends TanreiElement {
     const strip = this.strip;
     const parts = tab.indicatorParts;
     if (!strip || !parts || !tab.isConnected || this.flat()) return null;
-    const origin = strip.getBoundingClientRect();
+    const origin = this.rect(strip);
     const scale = this.scale();
-    const [whole, box, content] = [parts.tab.getBoundingClientRect(), parts.box.getBoundingClientRect(), parts.content.getBoundingClientRect()];
+    const [whole, box, content] = [this.rect(parts.tab), this.rect(parts.box), this.rect(parts.content)];
     const wide = parts.tab.classList.contains('wide');
     return {
       pill: { x: (box.left - origin.left) / scale.x, y: (box.top - origin.top) / scale.y, w: box.width / scale.x, h: box.height / scale.y },
@@ -1660,13 +1797,13 @@ export class TanreiTabs extends TanreiElement {
   private frames(): { read: ({ tab: TanreiTab; x: number; y: number } & TabFrame)[]; radius: number } {
     const strip = this.strip;
     if (!strip) return { read: [], radius: 0 };
-    const origin = strip.getBoundingClientRect();
+    const origin = this.rect(strip);
     const scale = this.scale();
-    const radius = this.selectedTab?.indicatorRadius ?? 0;
+    const radius = this.radius();
     const read = this.tabs.flatMap((tab) => {
       const parts = tab.indicatorParts;
       if (!parts) return [];
-      const [box, content] = [parts.tab.getBoundingClientRect(), parts.content.getBoundingClientRect()];
+      const [box, content] = [this.rect(parts.tab), this.rect(parts.content)];
       return [
         {
           tab,
@@ -1678,6 +1815,15 @@ export class TanreiTabs extends TanreiElement {
       ];
     });
     return { read, radius };
+  }
+
+  /** The selected tab's indicator corner (TAB-16), once for each reading. */
+  private radius(): number {
+    const reading = this.reading;
+    if (reading?.radius !== undefined) return reading.radius;
+    const radius = this.selectedTab?.indicatorRadius ?? 0;
+    if (reading) reading.radius = radius;
+    return radius;
   }
 
   /** The tab the indicator was last put on at rest (no offset, no slide, no drag), or null. */
@@ -1707,8 +1853,12 @@ export class TanreiTabs extends TanreiElement {
    * TAB-17, TAB-26: puts the indicator on the selected tab (at the current offset) at once — or, while it slides, sends
    * the slide there; while a drag carries it (TAB-28), it stays where the pointer is.
    */
-  private place() {
-    this.boxes();
+  private place(sized = true) {
+    this.readOnce(() => this.placeNow(sized));
+  }
+
+  private placeNow(sized: boolean) {
+    if (sized) this.boxes();
     if (this.drag?.state === 'taken') {
       this.follow(this.drag);
       return;
@@ -1743,7 +1893,7 @@ export class TanreiTabs extends TanreiElement {
     return this.tabs
       .filter((tab) => !tab.disabled)
       .map((tab) => {
-        const box = tab.getBoundingClientRect();
+        const box = this.rect(tab);
         return { tab, left: box.left, right: box.right };
       })
       .sort((a, b) => a.left - b.left);
@@ -1790,6 +1940,10 @@ export class TanreiTabs extends TanreiElement {
    * From anywhere else it goes straight to the tab, each edge interpolated.
    */
   private slide(old: TanreiTab | null, tab: TanreiTab) {
+    this.readOnce(() => this.slideNow(old, tab));
+  }
+
+  private slideNow(old: TanreiTab | null, tab: TanreiTab) {
     const to = this.measure(tab);
     const resting = !!old && !this.sliding && this.markTab === old;
     const from = resting ? (this.measure(old) ?? this.mark) : this.mark;
@@ -1965,6 +2119,10 @@ export class TanreiTabs extends TanreiElement {
    * while the drag carries it toward an end of the track.
    */
   private follow(drag: RowDrag) {
+    this.readOnce(() => this.followPointer(drag));
+  }
+
+  private followPointer(drag: RowDrag) {
     const place = this.placeAt(drag.x);
     if (!place) return;
     drag.place = place;
@@ -1982,13 +2140,14 @@ export class TanreiTabs extends TanreiElement {
     const scroller = this.scroller;
     const strip = this.strip;
     if (!scroller || !strip || !this.scrolls) return;
-    const view = scroller.getBoundingClientRect();
+    const view = this.rect(scroller);
     // The mark is in the row's own pixels and the view on the page; the scroll is the row's own again.
     const scale = this.scale();
-    const left = strip.getBoundingClientRect().left + place.mark.pill.x * scale.x;
+    const left = this.rect(strip).left + place.mark.pill.x * scale.x;
     const right = left + place.mark.pill.w * scale.x;
     const beyond = (right > view.right ? right - view.right : left < view.left ? left - view.left : 0) / scale.x;
     if (beyond) scroller.scrollLeft += Math.sign(beyond) * Math.min(Math.abs(beyond), DRAG_SCROLL_SPEED * elapsed);
+    this.readAgain();
   }
 
   /**
@@ -2134,6 +2293,7 @@ export class TanreiTabs extends TanreiElement {
     const { duration, easing } = this.motion();
     if (!animate || duration <= 0 || typeof KeyframeEffect === 'undefined') {
       scroller.scrollLeft = to;
+      this.readAgain();
       return;
     }
     // No fill: once finished it leaves the scroller's animations, and its progress (null) reads as the end.
@@ -2157,15 +2317,15 @@ export class TanreiTabs extends TanreiElement {
     // The whole tab, with the track's padding beside it: the space its focus ring is drawn in (TAB-4), and what brings
     // the first and the last tab to the track's very ends.
     // (What an end tab reaches into the inset is not padding any more, TAB-34: each side has its own.)
-    const strip = this.strip;
-    const inset = strip ? getComputedStyle(strip) : null;
+    const inset = this.stripReading()?.style ?? null;
     // The boxes are read on the page, where the row may be drawn scaled; the padding and the scroll are its own pixels.
     const scale = this.scale();
     const [padLeft, padRight] = [inset ? (Number.parseFloat(inset.paddingLeft) || 0) * scale.x : 0, inset ? (Number.parseFloat(inset.paddingRight) || 0) * scale.x : 0];
-    const bounds = scroller.getBoundingClientRect();
+    const bounds = this.rect(scroller);
     const view = { left: bounds.left + padLeft, right: bounds.right - padRight, width: bounds.width - padLeft - padRight };
-    const box = tab.getBoundingClientRect();
-    const rtl = getComputedStyle(this).direction === 'rtl';
+    // The tab's own box (its host's: the host lays out nothing else), read once with the indicator's.
+    const box = this.rect(tab.indicatorParts?.tab ?? tab);
+    const rtl = rtlOf(this);
     let delta = 0;
     if (box.width >= view.width) delta = rtl ? box.right - view.right : box.left - view.left;
     else if (box.left < view.left) delta = box.left - view.left;
@@ -2337,8 +2497,9 @@ export class TanreiTabs extends TanreiElement {
         this.reveal(this.selectedTab, false);
       }
     }
-    // TAB-13: the tab list, named by the row's label.
-    this.sync();
+    // TAB-13: the tab list, named by the row's label. Anything but a new value may change what the tabs are sized from.
+    if ([...changed.keys()].some((key) => key !== 'value')) this.reshaped = true;
+    this.syncs.now();
     if (changed.has('fullWidth') && changed.get('fullWidth') !== undefined) void this.selectedTab?.updateComplete.then(() => this.reveal(this.selectedTab, false));
   }
 

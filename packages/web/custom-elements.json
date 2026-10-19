@@ -44559,6 +44559,14 @@
           },
           "tagName": "tanrei-tabs",
           "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "style"
+        },
+        {
+          "kind": "variable",
+          "name": "rect"
         }
       ],
       "exports": [
