@@ -407,9 +407,10 @@ export class AnchoredSurfaceController implements ReactiveController {
   /**
    * POP-1, POP-26, POP-27: into the top layer — the newest in it, so above a dialog opened since — placed, and
    * appearing from the anchor's side: from where it had got to if it was still closing. Returns whether it is shown
-   * (no surface, no anchor in the page: it is not).
+   * (no surface, no anchor in the page: it is not). `instant`: whole at once, with no entrance — for a surface drawn
+   * anew in another presentation while it is open (POP-42).
    */
-  show(): boolean {
+  show(instant = false): boolean {
     const surface = this.options.surface();
     const motion = this.options.motion();
     if (!surface || !motion || !this.host.isConnected || !this.options.anchor()?.isConnected) return false;
@@ -440,8 +441,8 @@ export class AnchoredSurfaceController implements ReactiveController {
     // surface still closing goes on from where it is.
     if (!leaving) this.appear.drawAtOnce();
     surface.classList.add('open');
-    // Drawn in place, it is whole at once.
-    this.appear.enter(inline);
+    // Drawn in place, or asked to be, it is whole at once.
+    this.appear.enter(inline || instant);
     return true;
   }
 

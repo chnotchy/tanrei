@@ -116,6 +116,8 @@
 //                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice
 //   arrow       — arrowStyles(), shadowLayers(), shadeFilter() and shadeOn(): the arrow of an anchored surface, one shape with it
 //                 under one elevation (TIP-25, POP-10); arrowOutlineStyles(): its outline in forced colors (POP-32)
+//   compact-sheet — CompactWindow, compactProbeStyles() and sheetLookStyles(): a compact window, and the bottom sheet's
+//                 appearance a popover and a dialog take there (POP-39, POP-41, DLG-17, DLG-18)
 //   anchored    — AnchoredSurfaceController and anchoredSurfaceStyles(): a surface presented in the top layer, placed
 //                 beside its anchor, limited to the room, following it, with its open and close motion (POP-1…5,
 //                 POP-7, POP-8, POP-26, POP-27, POP-36); what a select, a combobox and a color field stand on
@@ -190,6 +192,7 @@ export {
   usableLength,
 } from './placement.js';
 export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadeOn, shadowLayers } from './arrow.js';
+export { CompactWindow, type SheetLookOptions, compactProbeStyles, sheetLookStyles } from './compact-sheet.js';
 export { type AnchoredStyleOptions, AnchoredSurfaceController, type AnchoredSurfaceOptions, anchoredSurfaceStyles } from './anchored.js';
 export {
   AnimatedSize,
