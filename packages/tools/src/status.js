@@ -4,6 +4,7 @@ import { ROOT_SYSTEM } from '../../tokens-build/src/layers.js';
 import { systemAvailability } from './checks.js';
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { LEVELS, LISTINGS, levelCounts, listingCounts } from './levels.js';
+import { readmeFiles } from './readme.js';
 import { wordsFiles } from './words.js';
 
 const ICON = { planned: '·', lagging: '◌', alpha: '◔', beta: '◑', stable: '●', deprecated: '✕' };
@@ -141,6 +142,8 @@ export function statusFiles() {
     'docs/status/PARITY.md': paritySheet(),
     // The keys of the product's words and the web's type of them, from the specs' `words` fields.
     ...wordsFiles(),
+    // The status block of each README (readme.js): what is released, and what each platform has.
+    ...readmeFiles(status),
   };
 }
 

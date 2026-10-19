@@ -1,6 +1,10 @@
 # @tanrei/mcp
 
-> **Pre-release.** Nothing has been released: `@tanrei/mcp` is not on npm yet, so `npx -y @tanrei/mcp` works only after the first release. Until then build and install it from source: <https://tanrei.chnotchy.com/getting-started/your-design-system/>.
+<!-- tanrei:status -->
+<!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/mcp@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
+
+<!-- /tanrei:status -->
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server for [Tanrei](https://github.com/chnotchy/tanrei). It lets an AI agent working in **your product's repository** write UI with **only the components your design system has**, discover the token vocabulary, see where a value comes from, and write a **valid** edit to your design system's layer file — a changed value, or an extension of the vocabulary. It works from the two ideals Tanrei holds together:
 
