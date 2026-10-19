@@ -6,6 +6,7 @@ import {
   GlyphDrawnController,
   PressController,
   WordsController,
+  countWork,
   fillPlaces,
   hostAria,
   notifyItemUpdate,
@@ -454,6 +455,7 @@ export class TanreiStepper extends TanreiElement {
 
   /** Tells every step what it is now (SPR-1, SPR-9, SPR-11, SPR-19), and reports what a debug build should (SPR-11, SPR-21). */
   private sync(steps: TanreiStepperStep[], compact: boolean) {
+    countWork('stepper.sync');
     const current = this.currentIndex(steps);
     const mode = this.pressableName;
     const vertical = this.layoutName === 'vertical';
@@ -478,12 +480,16 @@ export class TanreiStepper extends TanreiElement {
     if (!this.label.trim()) this.reportOnce(seen, 'SPR-21', 'label is empty, so the stepper has no accessible name; give it one ("Checkout progress")');
     if (steps.length < 2) this.reportOnce(seen, 'SPR-21', `it holds ${steps.length} step${steps.length === 1 ? '' : 's'}; a stepper is made for two or more`);
     if (this.value && current < 0 && steps.length) this.reportOnce(seen, 'SPR-21', `the value "${this.value}" names no step; no step is current`);
-    const values = steps.map((step) => step.value);
+    // The values given more than once, in the order of their second step: one pass, as every other read of the steps here.
+    const values = new Set<string>();
+    const repeats = new Set<string>();
     steps.forEach((step, index) => {
       if (!step.value) this.reportOnce(seen, 'SPR-21', `step ${index + 1} ("${step.label}") has an empty value; give every step a unique value`);
       if (!step.label.trim()) this.reportOnce(seen, 'SPR-21', `step ${index + 1} (value "${step.value}") has an empty label; give it one`);
+      if (step.value && values.has(step.value)) repeats.add(step.value);
+      values.add(step.value);
     });
-    for (const repeated of new Set(values.filter((v, i) => v && values.indexOf(v) !== i))) {
+    for (const repeated of repeats) {
       this.reportOnce(seen, 'SPR-21', `the value "${repeated}" is given to more than one step; the first of them is the one it names`);
     }
     if (current >= 0 && steps[current].disabled) this.reportOnce(seen, 'SPR-11', `the current step ("${steps[current].label}") is disabled; it is drawn current`);
