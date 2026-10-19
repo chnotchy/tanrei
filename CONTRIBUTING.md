@@ -112,7 +112,7 @@ Status meanings: `alpha` implemented + tested, API may change · `beta` API froz
 
 ### What runs when
 
-On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (the first push of a branch has no such commit, and a force push may have dropped it: either way the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)). The full run before anything is published is the release's.
+On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (the first push of a branch has no such commit, and a force push may have dropped it: either way the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)) — except a dispatch given a `grep`, which is a [targeted run](#a-targeted-run). The full run before anything is published is the release's.
 
 **The web runs what a change can affect** (`packages/tools/src/affected.js`). The changes job traces the changed paths to components — a component's directory, spec, comp tokens or baselines, a component drawn by a stylesheet — and widens them to the components built from or using them (`builtFrom`, `uses`) and to every module and test of `packages/web/src` and `packages/web/test` that imports what changed. A change to a component's own tests or baselines alone selects that component and nothing more. The web job then runs those tests: **on a pull request in Chromium alone, on a push to `main` in all three engines**, in as many shards as the selection needs. A change it cannot trace — the Playwright config, a generator, a token below comp, the lockfile — runs every test (on a pull request every Chromium test). A change to `ci.yml` alone runs one component's tests, to show the jobs still start. Firefox and WebKit therefore first see a change on `main`; dispatch CI on a branch (`gh workflow run ci.yml --ref <branch>`) to run everything before a merge that warrants it. `node packages/tools/src/affected.js <base>` prints what a branch selects.
 
@@ -170,6 +170,22 @@ To iterate on a web component against the docs preview without paying for the ot
 - **CI result fails on purpose**, so the pull request cannot merge with platforms nobody checked.
 
 The label is read when a run starts; adding or removing it does not start a run by itself — push, or **Re-run all jobs**. It never applies to `main`, a dispatched run or a release. A change to `specs/` or `tokens/` still fails `validate` (spec ↔ implementation parity) until every platform that claims a status implements it — the label does not bypass that.
+
+### A targeted run
+
+When CI fails on a few web tests, show that the fix holds on CI's own machines before running everything again: dispatch CI on the branch with a Playwright pattern, a repeat count and the engines to run in.
+
+```
+gh workflow run ci.yml --ref <branch> -f grep='CMB-45' -f repeat=30 -f engines=webkit
+```
+
+- **`grep`** is passed to `playwright test --grep`: it matches each test's file and titles (a behaviour id such as `CMB-45`, a component's file name, or several joined with `|`). Empty, the dispatch is the full run.
+- **`repeat`** (default 1) runs each matching test that many times (`--repeat-each`).
+- **`engines`** is a comma list of `chromium`, `firefox` and `webkit` (`firefox` includes `firefox-no-style-queries`); empty, all three. An engine the pattern matches nothing in runs no shard (Firefox and WebKit run no `snapshot:` test).
+
+The run is the web job alone, as CI runs it — the same Playwright image, `CI=1`, the same workers and retries — in as few shards as it needs: the changes job counts the matching tests per engine and gives each engine one shard per about 400 test runs (matches × `repeat`), at most the full run's 8, 6 and 8. Validate runs first, as always; the core suites, the web package's Node tests, the React bindings, the docs and the native platforms do not run, since no Playwright pattern reaches them. `repeat` or `engines` without `grep` is refused, and so is a pattern that matches no test.
+
+**A targeted run never stands for the full run.** It is named `CI targeted · <grep> · ×<repeat> · <engines>`, its web jobs `Web · targeted (…)`, and its result check `CI result (targeted)` — never `CI result`, the check a branch requires. It has a concurrency group of its own, so it neither cancels nor is cancelled by the full run on the same branch. When it is green, run the whole CI again (`gh workflow run ci.yml --ref <branch>`, no inputs): only that run's **CI result** says the branch is green.
 
 ### Recording baselines
 
