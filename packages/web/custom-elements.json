@@ -15014,7 +15014,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks\neverything behind it and always offers at least one answer, until one is chosen or the dialog is dismissed.\n\nContract: specs/dialog.spec.json. A native `<dialog>` in the shadow root, opened with `showModal()` while `open` is\ntrue: in the top layer over `::backdrop` (the scrim, `comp.dialog.scrim.color`), with everything else inert and the page\nheld from scrolling. Focus goes to the slotted element marked `autofocus`, or to the dialog itself, stays inside it\n(Tab wraps), and returns where it was when the dialog closes. It is an operated modal overlay.\nCentred in the window, or at the bottom of a window narrower than `comp.dialog.compact.window-width` (DLG-17).\n\nWhile `closedby` is not `none`, Escape, the platform's back and a press on the scrim fire `cancel`, whose\n`detail.reason` says which (`escape`, `back`, `scrim`). It is cancelable: the dialog then closes itself unless you\ncall `preventDefault()`, as a native `<dialog>` does. Actions never close it: close it from their handlers with\n`open = false`. `close` follows every close.\n\nA dialog has no close button (DLG-28): it asks for a decision, and its way out without one is a dismissive action\n(Cancel, or Close where there is nothing to cancel). Content that needs only a way out belongs in a side sheet or a\nbottom sheet. `width` is `content` (the default: as wide as its widest part, between the minimum and maximum width)\nor `small`, `medium` or `large` (`comp.dialog.width.*`), never wider than the window less its margins; a compact\nwindow places every width alike.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed as a\nfull-width button group places them: dismissive at the start and confirming at the end of a row, confirming on top of\na column when they do not fit in a row. Focus and assistive technology follow that order. A Button without a\n`variant` attribute takes the dialog's (`comp.dialog.actions.variant`, tonal in the default system).\n\nWhen the parts do not fit, the supporting text and the content scroll between the header and the actions, with a\ndivider below the header and one above the actions (DLG-11): for as long as that part scrolls while\n`divider-visibility` is `always` (the default system's), only while content lies beyond each line while it is\n`scroll`; `auto` takes `comp.dialog.divider.visibility` (DLG-24).\n\nEvery visual value comes from `--tanrei-comp-dialog-*` tokens.",
+          "description": "Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks\neverything behind it and always offers at least one answer, until one is chosen or the dialog is dismissed.\n\nContract: specs/dialog.spec.json. A native `<dialog>` in the shadow root, opened with `showModal()` while `open` is\ntrue: in the top layer over `::backdrop` (the scrim, `comp.dialog.scrim.color`), with everything else inert and the page\nheld from scrolling. Focus goes to the slotted element marked `autofocus`, or to the dialog itself, stays inside it\n(Tab wraps), and returns where it was when the dialog closes. It is an operated modal overlay.\nCentred in the window, or — in a window narrower than `comp.dialog.compact.window-width` — with the bottom sheet's\nappearance at its bottom edge (DLG-17, DLG-18): docked to the edge, as wide as the window up to the bottom sheet's\ngreatest width, in its color, elevation and top corners, square at the bottom, sliding up with its motion; still a\nmodal dialog, with no drag. `compact-presentation=\"own\"` keeps it centred in every window.\n\nWhile `closedby` is not `none`, Escape, the platform's back and a press on the scrim fire `cancel`, whose\n`detail.reason` says which (`escape`, `back`, `scrim`). It is cancelable: the dialog then closes itself unless you\ncall `preventDefault()`, as a native `<dialog>` does. Actions never close it: close it from their handlers with\n`open = false`. `close` follows every close.\n\nA dialog has no close button (DLG-28): it asks for a decision, and its way out without one is a dismissive action\n(Cancel, or Close where there is nothing to cancel). Content that needs only a way out belongs in a side sheet or a\nbottom sheet. `width` is `content` (the default: as wide as its widest part, between the minimum and maximum width)\nor `small`, `medium` or `large` (`comp.dialog.width.*`), never wider than the window less its margins; a compact\nwindow places every width alike.\n\nThe actions are `<tanrei-button slot=\"actions\">` children, each marked `confirming` or `dismissive`, placed as a\nfull-width button group places them: dismissive at the start and confirming at the end of a row, confirming on top of\na column when they do not fit in a row. Focus and assistive technology follow that order. A Button without a\n`variant` attribute takes the dialog's (`comp.dialog.actions.variant`, tonal in the default system).\n\nWhen the parts do not fit, the supporting text and the content scroll between the header and the actions, with a\ndivider below the header and one above the actions (DLG-11): for as long as that part scrolls while\n`divider-visibility` is `always` (the default system's), only while content lies beyond each line while it is\n`scroll`; `auto` takes `comp.dialog.divider.visibility` (DLG-24).\n\nEvery visual value comes from `--tanrei-comp-dialog-*` tokens.",
           "name": "TanreiDialog",
           "cssParts": [
             {
@@ -15151,6 +15151,18 @@
               "description": "What decides the container's width outside a compact window: `content` (the default) is as wide as its widest\npart, between `comp.dialog.container.min-width` and `max-width`; `small`, `medium` and `large` are\n`comp.dialog.width.*`, whatever it holds. Never wider than the window less its margins. Reflected.",
               "attribute": "width",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "compactPresentation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiDialogCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.dialog.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, `own` centred as in every other window. Anything else is\n`sheet` (DLG-17). The attribute is `compact-presentation`; reflected.",
+              "attribute": "compact-presentation",
+              "reflects": true
             }
           ],
           "events": [
@@ -15232,6 +15244,15 @@
               "default": "'content'",
               "description": "What decides the container's width outside a compact window: `content` (the default) is as wide as its widest\npart, between `comp.dialog.container.min-width` and `max-width`; `small`, `medium` and `large` are\n`comp.dialog.width.*`, whatever it holds. Never wider than the window less its margins. Reflected.",
               "fieldName": "width"
+            },
+            {
+              "name": "compact-presentation",
+              "type": {
+                "text": "TanreiDialogCompactPresentation"
+              },
+              "default": "'sheet'",
+              "description": "How it is presented in a window narrower than `comp.dialog.compact.window-width`: `sheet` (the default) with the\nbottom sheet's appearance at the window's bottom edge, `own` centred as in every other window. Anything else is\n`sheet` (DLG-17). The attribute is `compact-presentation`; reflected.",
+              "fieldName": "compactPresentation"
             }
           ],
           "superclass": {

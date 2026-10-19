@@ -3423,7 +3423,6 @@ private object TanreiSystemSource {
             iconSize = 24.dp,
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
-            motionEnterOffset = 32.dp,
             motionEnterScale = 0.95f,
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),

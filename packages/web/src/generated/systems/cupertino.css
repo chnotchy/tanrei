@@ -2830,7 +2830,6 @@
     --tanrei-comp-dialog-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-dialog-motion-enter-duration: var(--tanrei-comp-modal-layer-motion-enter-duration);
     --tanrei-comp-dialog-motion-enter-easing: var(--tanrei-comp-modal-layer-motion-enter-easing);
-    --tanrei-comp-dialog-motion-enter-offset: var(--tanrei-sys-space-space400);
     --tanrei-comp-dialog-motion-enter-scale: 0.95;
     --tanrei-comp-dialog-motion-exit-duration: var(--tanrei-comp-modal-layer-motion-exit-duration);
     --tanrei-comp-dialog-motion-exit-easing: var(--tanrei-comp-modal-layer-motion-exit-easing);
