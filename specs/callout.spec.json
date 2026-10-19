@@ -468,7 +468,7 @@
         "status": "info",
         "title": "Experimental"
       },
-      "content": "This behaviour may change before the first release.",
+      "content": "This behaviour may change in a later version.",
       "slots": {
         "icon": "science"
       }
@@ -649,9 +649,9 @@
       "props": {
         "size": "large",
         "status": "warning",
-        "title": "Pre-release: not published yet"
+        "title": "Back up before you migrate"
       },
-      "content": "The package is not available on the registry yet. The install steps below show how it will work after the first release."
+      "content": "The migration rewrites the database in place. The steps below show how to keep a copy you can restore."
     },
     {
       "id": "docs-danger",

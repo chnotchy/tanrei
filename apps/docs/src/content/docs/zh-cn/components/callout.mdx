@@ -2,7 +2,7 @@
 title: "提示块（Callout）"
 description: "属于内容的一部分、并一直留在那里的通知——一条说明、一条注意事项、某件事的原因，或者对出错之处的汇总。外观是柔和填充或轮廓，采用语义状态的颜色和字形，可带标题、操作和关闭按钮。"
 translationOf: components/callout.mdx
-sourceHash: 45990ea481aa7ae5b0e2f8995548890f5b3b36af
+sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="一条说明、一条带标题的注意事项，以及一条带操作和关闭按钮的通知" column>
   <tanrei-callout status="info" status-label="信息" style="inline-size: min(100%, 34rem)">Web 绘制的是这一版，其他平台随后跟进。</tanrei-callout>
-  <tanrei-callout status="warning" headline="预发布：尚未发布" style="inline-size: min(100%, 34rem)">这个包还不能从注册表获取。下面的安装步骤展示的是首次发布之后的用法。</tanrei-callout>
+  <tanrei-callout status="warning" headline="迁移前请先备份" style="inline-size: min(100%, 34rem)">迁移会就地改写数据库。下面的步骤展示如何保留一份可以恢复的副本。</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="此页面有更新的版本" closable close-label="关闭" style="inline-size: min(100%, 34rem)">重新加载即可阅读。你输入的内容不会丢失。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">重新加载</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">再次显示最后一条</tanrei-button>
 </DemoFrame>
@@ -52,9 +52,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- 长篇内容用长文排版，尺寸与提示块一致，不限制行长。 -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">预发布：尚未发布</h3>
+      <h3 slot="title">迁移前请先备份</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>这个包还没有发布到注册表。<a href="/zh-cn/status/">查看状态</a>。</p>
+        <p>迁移会就地改写数据库。<a href="#restore">查看如何从副本恢复</a>。</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="标题、你自己的字形、操作、关闭按钮，以及 large 尺寸" plain column>
   <tanrei-callout headline="小贴士" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>让操作保持可用，在用户使用它时再说明还缺什么。</tanrei-callout>
-  <tanrei-callout status="info" headline="实验性" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>这项行为在首次发布之前可能会变。</tanrei-callout>
+  <tanrei-callout status="info" headline="实验性" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>这项行为在以后的版本中可能会变。</tanrei-callout>
   <tanrei-callout status="warning" headline="磁盘上的文件已更改" style="inline-size: min(100%, 34rem)">你在这里的修改不在那个文件里。在你做出选择之前，不会覆盖任何内容。<tanrei-button slot="actions" variant="outlined">从磁盘重新加载</tanrei-button><tanrei-button slot="actions" variant="text">保留我的修改</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="搜索现已涵盖发行说明" closable close-label="关闭" style="inline-size: min(100%, 34rem)">按下关闭按钮：提示块立刻消失，焦点回到原来的位置。</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">再次显示</tanrei-button>
@@ -209,7 +209,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 推荐
 
-- 用文字说出语义状态。“警告：尚未发布”无需更多说明；警告上的“无障碍”则需要 `status-label="警告"`。
+- 用文字说出语义状态。“警告：请先备份”无需更多说明；警告上的“无障碍”则需要 `status-label="警告"`。
 - 按语义状态在各处的含义来使用它们。建议不是成功。
 - 把一组要点放进一个提示块，而不是连续放几个提示块。
 
