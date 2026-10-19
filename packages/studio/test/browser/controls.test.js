@@ -15,9 +15,11 @@ const natives = (page) => page.evaluate(() => [...document.querySelectorAll('but
 
 /**
  * Everything of the Studio's own that holds code — a text field, or the text input alone where no row
- * of a Field would be drawn — by what tells one from another: on many lines or one, and its own mark.
+ * of a Field would be drawn — by what tells one from another: on many lines or one, and its own mark. An element's
+ * `data-tanrei-settling` (its first two frames, MOT-3) is no mark of its own: a fold that writes its text field when it
+ * opens can be read in them.
  */
-const codes = (page) => page.evaluate(() => [...document.querySelectorAll('tanrei-text-field[type="code"], tanrei-text-input[type="code"]')].filter((el) => !el.closest('[data-scope]')).map((el) => `${el.multiline ? 'lines' : 'line'}${[...el.attributes].filter((a) => a.name.startsWith('data-')).map((a) => `[${a.name}]`).join('')}`));
+const codes = (page) => page.evaluate(() => [...document.querySelectorAll('tanrei-text-field[type="code"], tanrei-text-input[type="code"]')].filter((el) => !el.closest('[data-scope]')).map((el) => `${el.multiline ? 'lines' : 'line'}${[...el.attributes].filter((a) => a.name.startsWith('data-') && a.name !== 'data-tanrei-settling').map((a) => `[${a.name}]`).join('')}`));
 
 studioTest('no control is hand-made: at every level, with the folds open, the only native control of the Studio’s own is the Source editor, and what holds JSON is a text field that holds code', { layer }, async ({ page, level }) => {
   const seen = {};
@@ -27,6 +29,8 @@ studioTest('no control is hand-made: at every level, with the folds open, the on
     await page.waitForSelector(`[data-studio][data-level="${name}"]`);
     // Open what is drawn on opening: «specVersion and attribution», the import, a rule's row is there already.
     for (const selector of ['[data-about-more] > summary', '.ts-import > summary']) for (const fold of await page.locator(selector).all()) await fold.click();
+    // (A fold writes what it holds at its `toggle` event, a task after the press.)
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-about-more], .ts-import')].every((fold) => !fold.open || fold.children.length > 1));
     if (name === 'tokens') {
       await page.locator('[data-search] input').fill('button.container.height.medium');
       await page.locator('[data-token="tanrei.comp.button.container.height.medium"] > span').click();

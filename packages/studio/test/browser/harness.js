@@ -121,7 +121,15 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
     darkPane: scope.locator('.ts-pane').nth(1),
     /** One of a radio group's options, or one of a row of tabs: a person presses it, and so does this. */
     choose,
-    level: (name) => choose(page.locator('[data-levels]'), name),
+    /**
+     * Go to a level, and wait until all of it is drawn: Groups draws what the window shows first and the rest soon
+     * after (the root says `data-drawing` meanwhile), and a test reads the whole level. (test/browser/groups-switch.test.js
+     * is about that order itself.)
+     */
+    level: async (name) => {
+      await choose(page.locator('[data-levels]'), name);
+      await page.waitForSelector('[data-studio]:not([data-drawing])', { state: 'attached' });
+    },
     /** Choose an option of a `<tanrei-select>`, a `<tanrei-combobox>` or a `<tanrei-combobox-field>` as a person does: open it, type towards the option, press it. */
     pick: async (host, label) => {
       const typed = host.locator('input[role="combobox"]');

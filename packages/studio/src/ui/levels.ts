@@ -482,9 +482,12 @@ export function essentialsLevel(ctx: Ctx): HTMLElement[] {
   return [basePanel(ctx), brandPanel(ctx), feelPanel(ctx), h('p', { class: 'ts-more' }, rich((at) => t.sentences(t.essentials.more, t.listed(t.listed(at(linkButton(t.levels.groups, () => ctx.setLevel('groups'))), at(linkButton(t.levels.tokens, () => ctx.setLevel('tokens')))), at(linkButton(t.levels.source, () => ctx.setLevel('source')))))))];
 }
 
+/** The panels of Groups, in their order, each drawn when it is called. `extensionsPanel` is null until the layer has declared something of its own. */
+export function groupsPanels(ctx: Ctx): (() => HTMLElement | null)[] {
+  return [basePanel, dialsPanel, colorPanel, typefacesPanel, iconsPanel, shapePanel, behaviourPanel, componentsPanel, extensionsPanel, addPanel, aboutPanel].map((make) => () => make(ctx));
+}
 export function groupsLevel(ctx: Ctx): HTMLElement[] {
-  // `extensionsPanel` is null until the layer has declared something of its own.
-  return [basePanel(ctx), dialsPanel(ctx), colorPanel(ctx), typefacesPanel(ctx), iconsPanel(ctx), shapePanel(ctx), behaviourPanel(ctx), componentsPanel(ctx), extensionsPanel(ctx), addPanel(ctx), aboutPanel(ctx)].filter(Boolean) as HTMLElement[];
+  return groupsPanels(ctx).map((make) => make()).filter(Boolean) as HTMLElement[];
 }
 
 export { button };
