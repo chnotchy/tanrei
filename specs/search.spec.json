@@ -199,6 +199,17 @@
       "type": "string",
       "default": "",
       "description": "The status row's text, in the product's language, announced to assistive technology when it changes: the count (\"12 results for tokens\"), that nothing was found (\"No results for tokne\"), the failure (\"Search is unavailable\"); while loading, the loading indicator's name (\"Searching\"). Empty draws no status row unless status is loading."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether a row of the view — a suggestion, a result, a result group's linked heading — keeps the room of the leading icon column where it has no icon, so that the headlines of the view start on one line. auto: every row keeps the column while any suggestion or result of the view has a leading icon, and none while none has. always: every row keeps it. never: only a row that has an icon has the column. The view is decided as a whole. The menu's iconSpace, with the same values and default (SRC-52)."
     }
   ],
   "items": [
@@ -448,7 +459,7 @@
     },
     {
       "id": "SRC-16",
-      "text": "THE search SHALL lay out each suggestion as one row, at least comp.search.suggestion.container.height tall and at least sys.target.touch tall for touch input and sys.target.pointer for fine pointers (rows that touch cannot extend a hit area over each other): comp.search.suggestion.container.padding-inline from each edge, the leading icon column WHILE any suggestion has a leading icon (kept in every row, so that headlines align), then the headline with the supporting text under it, comp.search.suggestion.container.gap after the icon column, padded by comp.search.suggestion.container.padding-block above and below. It SHALL draw the headline in comp.search.suggestion.headline.typescale and the supporting text in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut; the leading icon at comp.search.suggestion.leading-icon.size with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the row's highlight rounded by comp.search.suggestion.container.shape. Right-to-left layouts SHALL mirror the row, and the whole row SHALL be the suggestion's hit area."
+      "text": "THE search SHALL lay out each suggestion as one row, at least comp.search.suggestion.container.height tall and at least sys.target.touch tall for touch input and sys.target.pointer for fine pointers (rows that touch cannot extend a hit area over each other): comp.search.suggestion.container.padding-inline from each edge, the leading icon column as SRC-52 says, then the headline with the supporting text under it, comp.search.suggestion.container.gap after the icon column, padded by comp.search.suggestion.container.padding-block above and below. It SHALL draw the headline in comp.search.suggestion.headline.typescale and the supporting text in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut; the leading icon at comp.search.suggestion.leading-icon.size with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the row's highlight rounded by comp.search.suggestion.container.shape. Right-to-left layouts SHALL mirror the row, and the whole row SHALL be the suggestion's hit area."
     },
     {
       "id": "SRC-17",
@@ -561,7 +572,7 @@
     },
     {
       "id": "SRC-42",
-      "text": "THE search SHALL lay out a result as a suggestion's row is laid out (SRC-16), from the same tokens: the leading icon column, then the headline in comp.search.suggestion.headline.typescale with the excerpt under it in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut, the row at least comp.search.suggestion.container.height tall and at least the minimum target, and the whole row the result's hit area. The leading icon column SHALL be kept in every row of the view WHILE any suggestion or result has a leading icon, so that suggestions and results align. WHILE a result is hovered, focused or pressed THE search SHALL render its row from the suggestion tokens of that state (comp.search.standard.suggestion.container.color and the leading icon, headline and supporting-text colors, the excerpt taking the supporting-text color) with the precedence, the focus ring inside the row and the press answer that SRC-17, SRC-19 and SRC-20 give a suggestion, focused standing where active stands there."
+      "text": "THE search SHALL lay out a result as a suggestion's row is laid out (SRC-16), from the same tokens: the leading icon column, then the headline in comp.search.suggestion.headline.typescale with the excerpt under it in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut, the row at least comp.search.suggestion.container.height tall and at least the minimum target, and the whole row the result's hit area. The leading icon column SHALL be kept as SRC-52 says, the suggestions and the results of the view decided together, so that they align. WHILE a result is hovered, focused or pressed THE search SHALL render its row from the suggestion tokens of that state (comp.search.standard.suggestion.container.color and the leading icon, headline and supporting-text colors, the excerpt taking the supporting-text color) with the precedence, the focus ring inside the row and the press answer that SRC-17, SRC-19 and SRC-20 give a suggestion, focused standing where active stands there."
     },
     {
       "id": "SRC-43",
@@ -601,6 +612,11 @@
     {
       "id": "SRC-51",
       "text": "THE search SHALL NOT run a query, fetch, wait, debounce, cache, sort or filter anything itself: it emits input once per change (SRC-4) and draws the suggestions, the results, the status and the statusText the product gives it, replacing them when the product does, at once and without a motion of its own. WHEN the result that has focus is removed or replaced THE search SHALL move focus to the input rather than let it fall out of the view; WHEN the product sets results or status while the view is collapsed THE search SHALL keep them for the next time it opens and SHALL NOT expand."
+    },
+    {
+      "id": "SRC-52",
+      "text": "THE search SHALL decide the leading icon column for its view as a whole — its suggestions, its results and the linked headings of its result groups (SRC-16, SRC-42, SRC-44) — as iconSpace says. WHILE iconSpace is auto every row SHALL keep the column, empty where it has no icon, WHERE any suggestion or result of the view has a leading icon, so that the headlines of the view start on one line, and no row SHALL keep it WHERE none has one; WHILE iconSpace is always every row SHALL keep the column, whether or not any has an icon; WHILE iconSpace is never a row SHALL have the column only where it has a leading icon itself. The column kept is comp.search.suggestion.leading-icon.size wide with comp.search.suggestion.container.gap after it, draws nothing and is nothing to assistive technology. WHEN a suggestion or a result is added or removed, or its leadingIcon changes, THE search SHALL decide again; WHEN iconSpace names a value the search does not define THE search SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto: the suggestions invoices and invoice template have the glyph history and Invoices has none, so Invoices' headline starts where theirs do. Fixture icon-space-always: the same. Fixture icon-space-never: Invoices' headline starts at the row's padding. Test a view whose suggestions have no icon (auto: none keeps the column; always: every row keeps it), the results of a view keeping the column of its suggestions' icons, a leadingIcon given and taken away, and an unknown value (auto, reported)."
     }
   ],
   "accessibility": {
@@ -1167,6 +1183,116 @@
           }
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages"
+          }
+        }
+      ]
     }
   ],
   "platforms": {
@@ -1186,7 +1312,8 @@
         "shortcut": "shortcut",
         "bindShortcut": "bindShortcut",
         "status": "status",
-        "statusText": "statusText"
+        "statusText": "statusText",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "input",
@@ -1250,7 +1377,8 @@
         "shortcut": "shortcut",
         "bindShortcut": "bindsShortcut",
         "status": "status",
-        "statusText": "statusText"
+        "statusText": "statusText",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "text",
@@ -1258,7 +1386,7 @@
         "select": "onSelect",
         "toggle": "isExpanded"
       },
-      "notes": "`TanreiSearch(_ label:, text: Binding<String>, isExpanded: Binding<Bool>, presentation:, prompt:, clearLabel:, backLabel:, onSubmit:, onSelect:) { suggestions } leading: { … } trailing: { … } content: { … }`. Every edit writes the text binding, which is the input event; opening and closing write `isExpanded`, which is toggle (the reason is passed to an optional `onToggle`). SwiftUI's `.searchable` is not used: its field and suggestions cannot take the tokens. The docked view is drawn in an overlay above the window's content, anchored to the bar, not with `.popover`, which is modal at compact widths and would take focus from the field (SRC-8). The full-screen view is presented with `.fullScreenCover`, with the system transition off, as the dialog is. The input has the search-field trait. `disabled` follows `.disabled(_:)`. Snapshot harness: renders the bar and the open view in place, as the menu and the dialog do. Without an installed icon font it strokes the search and back glyphs as shapes of its own (`TanreiSearchMagnifierShape`, `TanreiSearchBackArrowShape`) instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut` (where `bindsShortcut` would be `.keyboardShortcut` on the trigger), `status`, `statusText` and the result kinds.",
+      "notes": "`TanreiSearch(_ label:, text: Binding<String>, isExpanded: Binding<Bool>, presentation:, prompt:, clearLabel:, backLabel:, onSubmit:, onSelect:) { suggestions } leading: { … } trailing: { … } content: { … }`. Every edit writes the text binding, which is the input event; opening and closing write `isExpanded`, which is toggle (the reason is passed to an optional `onToggle`). SwiftUI's `.searchable` is not used: its field and suggestions cannot take the tokens. The docked view is drawn in an overlay above the window's content, anchored to the bar, not with `.popover`, which is modal at compact widths and would take focus from the field (SRC-8). The full-screen view is presented with `.fullScreenCover`, with the system transition off, as the dialog is. The input has the search-field trait. `disabled` follows `.disabled(_:)`. Snapshot harness: renders the bar and the open view in place, as the menu and the dialog do. Without an installed icon font it strokes the search and back glyphs as shapes of its own (`TanreiSearchMagnifierShape`, `TanreiSearchBackArrowShape`) instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut` (where `bindsShortcut` would be `.keyboardShortcut` on the trigger), `status`, `statusText`, `iconSpace` (SRC-52: it keeps the leading icon column in every row while any suggestion has an icon) and the result kinds.",
       "items": {
         "suggestion": {
           "name": "TanreiSearchSuggestion",
@@ -1314,7 +1442,8 @@
         "shortcut": "shortcut",
         "bindShortcut": "bindShortcut",
         "status": "status",
-        "statusText": "statusText"
+        "statusText": "statusText",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onValueChange",
@@ -1322,7 +1451,7 @@
         "select": "onSelect",
         "toggle": "onExpandedChange"
       },
-      "notes": "Compose idiom, as Material's `SearchBar` with its input field: `TanreiSearch(value, onValueChange, expanded, onExpandedChange, label, modifier, presentation, placeholder, enabled, clearLabel, backLabel, onSearch, onSelect, leading, trailing) { suggestions and content }`. State hoisting: the caller keeps `value` and `expanded` and moves them from `onValueChange` and `onExpandedChange`, which receives the new value and the reason. `enabled` is the inverse flag. Built on `BasicTextField` with the search IME action. The docked view is a `Popup` that does not take focus; the full-screen view is a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off, as the dialog's. Compose has no combobox or listbox role: the suggestions are buttons in a column with collection semantics. Snapshot harness: renders the bar and the open view in place. Without an installed icon font it strokes the clear button's close as a vector of its own (`TanreiDrawnGlyph`), and draws search and arrow_back as their names in the platform font, clipped to the box (`TanreiNamedGlyph`), instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a key handler on the window's root, where a hardware keyboard exists), `status`, `statusText` and the result kinds.",
+      "notes": "Compose idiom, as Material's `SearchBar` with its input field: `TanreiSearch(value, onValueChange, expanded, onExpandedChange, label, modifier, presentation, placeholder, enabled, clearLabel, backLabel, onSearch, onSelect, leading, trailing) { suggestions and content }`. State hoisting: the caller keeps `value` and `expanded` and moves them from `onValueChange` and `onExpandedChange`, which receives the new value and the reason. `enabled` is the inverse flag. Built on `BasicTextField` with the search IME action. The docked view is a `Popup` that does not take focus; the full-screen view is a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off, as the dialog's. Compose has no combobox or listbox role: the suggestions are buttons in a column with collection semantics. Snapshot harness: renders the bar and the open view in place. Without an installed icon font it strokes the clear button's close as a vector of its own (`TanreiDrawnGlyph`), and draws search and arrow_back as their names in the platform font, clipped to the box (`TanreiNamedGlyph`), instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a key handler on the window's root, where a hardware keyboard exists), `status`, `statusText`, `iconSpace` (SRC-52: it keeps the leading icon column in every row while any suggestion has an icon) and the result kinds.",
       "items": {
         "suggestion": {
           "name": "TanreiSearchSuggestion",
@@ -1378,7 +1507,8 @@
         "shortcut": "shortcut",
         "bindShortcut": "bindShortcut",
         "status": "status",
-        "statusText": "statusText"
+        "statusText": "statusText",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onChanged",
@@ -1386,7 +1516,7 @@
         "select": "onSelected",
         "toggle": "onExpandedChanged"
       },
-      "notes": "Flutter idiom, as Material's `SearchAnchor` and `SearchController` but without Material: `TanreiSearch(controller: TanreiSearchController, semanticLabel:, presentation:, hintText:, enabled:, clearLabel:, backLabel:, onChanged:, onSubmitted:, onSelected:, onExpandedChanged:, leading:, trailing: [...], suggestions: [...], child:)`. `TanreiSearchController` is a `TextEditingController` that also holds `isExpanded` with `expand()` and `collapse()`; the search updates it itself and calls `onExpandedChanged` with the value and the reason. The input is `EditableText` with `TextInputAction.search` and `SemanticsInputType.search` (Flutter 3.32, the oldest version supported, asserts on `SemanticsRole.searchBox`). The docked view is drawn through an `OverlayPortal`; the full-screen view is a modal route that scopes semantics, as the dialog's. Snapshot harness: a golden of the bar and the open view. Lagging behind SRC-30: it writes the built-in glyphs as Material Symbols code points (`tanreiSearchGlyph`, `tanreiCloseGlyph`, `tanreiArrowBackGlyph`), and without the icon font it draws whatever the fallback face has at those code points instead of nothing. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a `HardwareKeyboard` handler), `status`, `statusText` and the result kinds.",
+      "notes": "Flutter idiom, as Material's `SearchAnchor` and `SearchController` but without Material: `TanreiSearch(controller: TanreiSearchController, semanticLabel:, presentation:, hintText:, enabled:, clearLabel:, backLabel:, onChanged:, onSubmitted:, onSelected:, onExpandedChanged:, leading:, trailing: [...], suggestions: [...], child:)`. `TanreiSearchController` is a `TextEditingController` that also holds `isExpanded` with `expand()` and `collapse()`; the search updates it itself and calls `onExpandedChanged` with the value and the reason. The input is `EditableText` with `TextInputAction.search` and `SemanticsInputType.search` (Flutter 3.32, the oldest version supported, asserts on `SemanticsRole.searchBox`). The docked view is drawn through an `OverlayPortal`; the full-screen view is a modal route that scopes semantics, as the dialog's. Snapshot harness: a golden of the bar and the open view. Lagging behind SRC-30: it writes the built-in glyphs as Material Symbols code points (`tanreiSearchGlyph`, `tanreiCloseGlyph`, `tanreiArrowBackGlyph`), and without the icon font it draws whatever the fallback face has at those code points instead of nothing. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a `HardwareKeyboard` handler), `status`, `statusText`, `iconSpace` (SRC-52: it keeps the leading icon column in every row while any suggestion has an icon) and the result kinds.",
       "items": {
         "suggestion": {
           "name": "TanreiSearchSuggestion",
@@ -1442,7 +1572,8 @@
         "shortcut": "shortcut",
         "bindShortcut": "bindShortcut",
         "status": "status",
-        "statusText": "statusText"
+        "statusText": "statusText",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onChangeText",
@@ -1450,7 +1581,7 @@
         "select": "onSelect",
         "toggle": "onExpandedChange"
       },
-      "notes": "Controlled, in `TextInput`'s idiom: `<Search value onChangeText expanded onExpandedChange accessibilityLabel placeholder presentation clearLabel backLabel onSubmitEditing onSelect suggestions={[…]} leading trailing insets>{content}</Search>`; the caller moves `value` and `expanded` from `onChangeText` and `onExpandedChange`, which receives the new value and the reason. The input is a `TextInput` with `returnKeyType=\"search\"` and `accessibilityRole=\"search\"`. The docked view is on the overlay layer that `TanreiProvider` renders, not a `Modal` (which would take focus from the field); the full-screen view is a transparent `Modal` with `statusBarTranslucent` and `navigationBarTranslucent`, its insets from the `insets` prop or `TanreiProvider`'s. Android's back button (`BackHandler`) closes the view. Snapshot harness: renders the bar and the open view in place. Lagging behind SRC-30: without the icon font the built-in glyphs print their ligature names. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `status`, `statusText` and the result kinds; `bindShortcut` does nothing where there is no hardware keyboard event to listen to, and the README says so.",
+      "notes": "Controlled, in `TextInput`'s idiom: `<Search value onChangeText expanded onExpandedChange accessibilityLabel placeholder presentation clearLabel backLabel onSubmitEditing onSelect suggestions={[…]} leading trailing insets>{content}</Search>`; the caller moves `value` and `expanded` from `onChangeText` and `onExpandedChange`, which receives the new value and the reason. The input is a `TextInput` with `returnKeyType=\"search\"` and `accessibilityRole=\"search\"`. The docked view is on the overlay layer that `TanreiProvider` renders, not a `Modal` (which would take focus from the field); the full-screen view is a transparent `Modal` with `statusBarTranslucent` and `navigationBarTranslucent`, its insets from the `insets` prop or `TanreiProvider`'s. Android's back button (`BackHandler`) closes the view. Snapshot harness: renders the bar and the open view in place. Lagging behind SRC-30: without the icon font the built-in glyphs print their ligature names. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `status`, `statusText`, `iconSpace` (SRC-52: it keeps the leading icon column in every row while any suggestion has an icon) and the result kinds; `bindShortcut` does nothing where there is no hardware keyboard event to listen to, and the README says so.",
       "items": {
         "suggestion": {
           "name": "SearchSuggestion",
