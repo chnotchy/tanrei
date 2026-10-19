@@ -36,8 +36,14 @@ export default defineConfig({
   updateSnapshots: 'none',
   expect: { ...(harsh ? { timeout: 15_000 } : {}), toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
   // On CI only a retry is traced (in the blob report, so in the merged HTML report): a trace of a harness page is large,
-  // and tracing every attempt runs a shard out of disk.
-  use: { deviceScaleFactor: 2, colorScheme: 'light', trace: process.env.CI ? 'on-first-retry' : 'off' },
+  // and tracing every attempt runs a shard out of disk and about doubles its time (measured: Chromium shards of 26–40
+  // minutes took 56 to more than 60). A targeted run (ci.yml sets TANREI_TRACE=first-failure: a few tests, repeated)
+  // traces every attempt and keeps the trace of each one that fails (retain-on-failure), the first attempt included.
+  use: {
+    deviceScaleFactor: 2,
+    colorScheme: 'light',
+    trace: !process.env.CI ? 'off' : process.env.TANREI_TRACE === 'first-failure' ? 'retain-on-failure' : 'on-first-retry',
+  },
   projects: [
     // Chromium runs everything, and is the only engine the pixel baselines are recorded and compared in.
     { name: 'chromium', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 2 } },
