@@ -26,7 +26,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // A flake is not a root cause, and a test that passes only on its retry still fails the run (failOnFlakyTests). On
-  // CI the retry exists to record evidence: a second attempt, traced like the first.
+  // CI the retry exists to record evidence: the retry of a failed test is traced.
   retries: process.env.CI ? 1 : 0,
   failOnFlakyTests: !!process.env.CI,
   // CI runs in shards: each writes a blob report (ci.yml uploads it, and the web-report job merges every shard's into
@@ -35,11 +35,15 @@ export default defineConfig({
   // A missing baseline is a failure, not something to write silently. Record with `pnpm test:update`.
   updateSnapshots: 'none',
   expect: { ...(harsh ? { timeout: 15_000 } : {}), toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
-  // On CI every attempt is traced and the trace kept only when the attempt fails (retain-on-failure), so a failure's
-  // first attempt has its trace — a flake that passes on its retry is still caught — and a passing test leaves nothing:
-  // keeping every trace of a harness page would run a shard out of disk. The traces are in test-results/ (ci.yml uploads
-  // it from a failed shard) and in the blob report, so in the merged HTML report.
-  use: { deviceScaleFactor: 2, colorScheme: 'light', trace: process.env.CI ? 'retain-on-failure' : 'off' },
+  // On CI only a retry is traced (in the blob report, so in the merged HTML report): a trace of a harness page is large,
+  // and tracing every attempt runs a shard out of disk and about doubles its time (measured: Chromium shards of 26–40
+  // minutes took 56 to more than 60). A targeted run (ci.yml sets TANREI_TRACE=first-failure: a few tests, repeated)
+  // traces every attempt and keeps the trace of each one that fails (retain-on-failure), the first attempt included.
+  use: {
+    deviceScaleFactor: 2,
+    colorScheme: 'light',
+    trace: !process.env.CI ? 'off' : process.env.TANREI_TRACE === 'first-failure' ? 'retain-on-failure' : 'on-first-retry',
+  },
   projects: [
     // Chromium runs everything, and is the only engine the pixel baselines are recorded and compared in.
     { name: 'chromium', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 2 } },

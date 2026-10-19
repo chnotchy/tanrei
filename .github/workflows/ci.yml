@@ -463,16 +463,19 @@ jobs:
           [ "$have" = "$want" ] || { echo "::error::playwright.config.ts has the projects '$have'; ci.yml shards '$want'"; exit 1; }
       # WEB_GREP is the selection, or a targeted run's pattern (empty: every test). Playwright matches it against each
       # test's file and titles, and a project's own grep (firefox-no-style-queries) still applies on top of it.
-      # WEB_REPEAT is a targeted run's `repeat` (1 otherwise: each test once).
+      # WEB_REPEAT is a targeted run's `repeat` (1 otherwise: each test once). TANREI_TRACE=first-failure, in a targeted
+      # run only, keeps the trace of every failed attempt, the first included (playwright.config.ts); every other run
+      # traces only a retry, since tracing every test about doubles a shard's time.
       - id: playwright
         env:
           WEB_GREP: ${{ needs.changes.outputs.web-grep }}
           WEB_REPEAT: ${{ needs.changes.outputs.web-repeat }}
+          TANREI_TRACE: ${{ needs.changes.outputs.targeted == 'true' && 'first-failure' || '' }}
         run: |
           repeat=()
           if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
           pnpm --filter @tanrei/web exec playwright test ${{ matrix.projects }} --shard=${{ matrix.shard }}/${{ matrix.shards }} ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
-      # A failed test's trace from its first attempt (playwright.config.ts: retain-on-failure on CI), its screenshots and
+      # A failed test's traces (its retry's; in a targeted run every failed attempt's, the first included), screenshots and
       # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
       # carries the same files into the merged report; this one is the shard's own, without merging.
       - if: ${{ failure() && steps.playwright.outcome == 'failure' }}
