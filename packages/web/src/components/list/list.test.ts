@@ -1108,24 +1108,24 @@ test.describe('a List row as an item’s content', () => {
       icons: true,
       fixtures: [
         fixture('static', {}, [[ROW('Wi-Fi')], [`<div>${ROW('Nested')}</div>`]]),
-        fixture('options', { selection: 'single', label: 'Networks', value: 'a' }, [[ROW('Home'), { value: 'a' }], [ROW('Office'), { value: 'b', disabled: true }]]),
+        fixture('options', { selection: 'single', label: 'Networks', value: 'a' }, [[ROW('Home'), { value: 'a' }], [ROW('Office'), { value: 'b', disabled: true, leadingRoom: true }]]),
         fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[ROW('Home')], [ROW('Office')]]),
       ],
     });
-    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true });
     expect(await item(page, 'static', 1).evaluate((el) => (el.querySelector('tanrei-list-row') as any).listItemFrame)).toBeNull();
-    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false });
-    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true });
-    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false });
+    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false, leadingRoom: true });
+    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true, leadingRoom: true });
+    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false, leadingRoom: true });
     // Every change is told at once: the item becomes interactive, the selection moves, the list stops being reorderable.
     await page.evaluate(() => {
       document.querySelector('[data-fixture="static"] tanrei-list-item')!.setAttribute('interactive', '');
       (document.querySelector('[data-fixture="options"] tanrei-list') as HTMLElement & { value: string }).value = 'b';
       document.querySelector('[data-fixture="reorder"] tanrei-list')!.removeAttribute('reorderable');
     });
-    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
-    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
-    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true });
+    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true });
+    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true });
     // A row moved out of the item is told that it stands alone.
     await page.evaluate(() => {
       const row = document.querySelector('[data-fixture="static"] tanrei-list-row')!;
@@ -1162,6 +1162,87 @@ test.describe('a List row as an item’s content', () => {
     // A new headline is the item's new name at once.
     await page.evaluate(() => document.querySelector('[data-fixture="actions"] tanrei-list-row')!.setAttribute('headline', 'Wireless'));
     await expect.poll(() => box(0).getAttribute('aria-label')).toBe('Wireless');
+  });
+});
+
+test.describe('iconSpace', () => {
+  const PLAIN = (headline: string, more = '') => `<tanrei-list-row headline="${headline}" ${more}></tanrei-list-row>`;
+  const GLYPH = (headline: string) => `<tanrei-list-row leading-icon="wifi" headline="${headline}"></tanrei-list-row>`;
+  const AVATAR = (headline: string) => `<tanrei-list-row headline="${headline}"><span slot="leading">MO</span></tanrei-list-row>`;
+  const R = (name: string) => `--tanrei-comp-list-row-${name}`;
+  /** Where the headline of the row of item n starts, from the item's start edge. */
+  const start = async (page: P, id: string, n: number) => (await bounds(item(page, id, n).locator('tanrei-list-row .headline'))).x - (await bounds(item(page, id, n))).x;
+  const room = (page: P, id: string, n: number) => item(page, id, n).locator('tanrei-list-row .leading-room');
+
+  test('LST-50: auto keeps a glyph’s room, empty, in a row without a leading part while another item’s row draws a glyph, and none in a list without glyphs; always in every row; never only where a row draws one; a leading slot’s content does not count; decided again on every change; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spaced,
+        fixture('plain', {}, [[PLAIN('Apples')], [PLAIN('Bananas')]]),
+        fixture('plain-always', { iconSpace: 'always' }, [[PLAIN('Apples')], [PLAIN('Bananas')]]),
+        fixture('avatar', {}, [[AVATAR('Mira')], [PLAIN('About')]]),
+        fixture('odd', { iconSpace: 'sometimes' } as Fixture['props'], [[GLYPH('Wi-Fi')], [PLAIN('About')]]),
+      ],
+    });
+    const pad = await resolveToken(page, R('container-padding-inline-start'));
+    const size = await resolveToken(page, R('leading-icon-size'));
+    const gap = await resolveToken(page, R('container-gap'));
+    const none = pad;
+    const kept = pad + size + gap;
+    expect(await list(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto and always: About, which draws no glyph, starts its headline where Wi-Fi and Bluetooth start theirs.
+    for (const id of ['icon-space-auto', 'icon-space-always']) {
+      for (const n of [0, 1, 2]) expect(await start(page, id, n), `${id} ${n}`).toBeCloseTo(kept, 1);
+      await expect(room(page, id, 2)).toHaveAttribute('aria-hidden', 'true');
+      expect((await bounds(room(page, id, 2))).width).toBeCloseTo(size, 1);
+      await expect(room(page, id, 0)).toHaveCount(0);
+    }
+    // never: About starts at the row's start padding.
+    expect(await start(page, 'icon-space-never', 2)).toBeCloseTo(none, 1);
+    expect(await start(page, 'icon-space-never', 1)).toBeCloseTo(kept, 1);
+    await expect(room(page, 'icon-space-never', 2)).toHaveCount(0);
+    // The range is the list: a list whose rows draw no glyph keeps no room (auto), and every row keeps it (always).
+    for (const n of [0, 1]) {
+      expect(await start(page, 'plain', n)).toBeCloseTo(none, 1);
+      expect(await start(page, 'plain-always', n)).toBeCloseTo(kept, 1);
+    }
+    // An avatar in the leading slot does not count, and its row keeps no room beside it.
+    expect(await start(page, 'avatar', 1)).toBeCloseTo(none, 1);
+    await expect(room(page, 'avatar', 0)).toHaveCount(0);
+    // A value the list does not define is auto, reported.
+    expect(await start(page, 'odd', 1)).toBeCloseTo(kept, 1);
+    await expect.poll(() => seen.filter((w) => w.includes('iconSpace "sometimes" is not a value the list defines') && w.includes('(LST-50)')).length).toBe(1);
+    // Decided again: a glyph given to a row, then taken away; an item with a glyph added; iconSpace changed while shown.
+    await item(page, 'plain', 0).locator('tanrei-list-row').evaluate((el) => el.setAttribute('leading-icon', 'wifi'));
+    await expect.poll(() => start(page, 'plain', 1)).toBeCloseTo(kept, 1);
+    await item(page, 'plain', 0).locator('tanrei-list-row').evaluate((el) => el.removeAttribute('leading-icon'));
+    await expect.poll(() => start(page, 'plain', 1)).toBeCloseTo(none, 1);
+    await list(page, 'avatar').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-list-item><tanrei-list-row leading-icon="wifi" headline="Wi-Fi"></tanrei-list-row></tanrei-list-item>'));
+    await expect.poll(() => start(page, 'avatar', 1)).toBeCloseTo(kept, 1);
+    await expect(room(page, 'avatar', 0)).toHaveCount(0);
+    await list(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => start(page, 'icon-space-auto', 2)).toBeCloseTo(none, 1);
+    await list(page, 'icon-space-never').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => start(page, 'icon-space-never', 2)).toBeCloseTo(kept, 1);
+  });
+
+  test('LST-50: the room is kept in every mode of the list — in actions, options and a reorderable list, after the handle', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('actions', {}, [[GLYPH('Wi-Fi'), { interactive: true }], [PLAIN('About'), { interactive: true }]]),
+        fixture('options', { selection: 'single', label: 'Networks' }, [[GLYPH('Home'), { value: 'a' }], [PLAIN('Office'), { value: 'b' }]]),
+        fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[GLYPH('Home')], [PLAIN('Office')]]),
+      ],
+    });
+    for (const id of ['actions', 'options', 'reorder']) {
+      const glyph = (await bounds(item(page, id, 0).locator('tanrei-list-row .headline'))).x;
+      expect((await bounds(item(page, id, 1).locator('tanrei-list-row .headline'))).x, id).toBeCloseTo(glyph, 1);
+    }
   });
 });
 

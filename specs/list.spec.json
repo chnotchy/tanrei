@@ -8,7 +8,8 @@
   "listing": "default",
   "uses": [
     "button",
-    "menu"
+    "menu",
+    "list-row"
   ],
   "anatomy": [
     {
@@ -92,6 +93,17 @@
       "type": "boolean",
       "default": false,
       "description": "Draws a hairline between every two neighbouring items. Read only while wrap is false: the lines of a grid are told apart by their gap."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws no leading part, so that the headlines of the list start on one line. auto: a row keeps the room while the row of another item draws a glyph (leadingIcon), so that a list whose rows have no glyph starts their texts at the row's start. always: every such row keeps it. never: only a row that draws a glyph has it. An avatar, a picture or a control in a row's leading slot does not count and keeps no room beside it. The menu's, the tree view's and the navigation drawer's iconSpace, with the same values and default (LST-50)."
     },
     {
       "name": "selection",
@@ -255,6 +267,7 @@
     {
       "name": "list-item",
       "summary": "One item of the list: a box around the product's content. It is static, interactive, a link or, in a selectable list, an option.",
+      "container": true,
       "props": [
         {
           "name": "label",
@@ -314,6 +327,49 @@
         {
           "name": "click",
           "description": "The interactive item or the link item was activated by pointer, touch, keyboard or assistive technology. A link item emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (LST-26)."
+        }
+      ]
+    },
+    {
+      "name": "list-row",
+      "summary": "A List row as an item's content: the List row component, as it is drawn anywhere else, which the item tells what it is (LST-48) and the list whether it keeps the room of a leading glyph (LST-50).",
+      "component": "list-row",
+      "props": [
+        {
+          "name": "headline",
+          "type": "string",
+          "default": "",
+          "description": "The row's name; the item is named by it where it has no label (LST-49)."
+        },
+        {
+          "name": "overline",
+          "type": "string",
+          "default": "",
+          "description": "A short line above the headline."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "The text under the headline."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "A glyph of the system's icon set at the row's start; a row that draws one makes the other rows keep its room while iconSpace is auto (LST-50)."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "A short value at the row's end."
+        },
+        {
+          "name": "trailingIcon",
+          "type": "string",
+          "default": "",
+          "description": "A glyph of the system's icon set at the row's very end."
         }
       ]
     }
@@ -528,13 +584,18 @@
     },
     {
       "id": "LST-48",
-      "text": "WHERE an element that fits itself to its item (a List row, list-row) is a direct child of an item THE list SHALL tell it what the item is — whether it is an action, a link or an option, which pads its content (LST-8); whether it draws the handle of a reorderable list before its content (LST-32); whether it is a selected option; whether it is a disabled action, link or option — before that element is first drawn in the item and again WHEN any of these changes (selection, interactive, href, disabled, or the list becoming reorderable or not), so that the element draws itself to fit the item in every arrangement and mode of the list. An element that is not a direct child of the item SHALL be told nothing and SHALL draw itself as it stands alone.",
+      "text": "WHERE an element that fits itself to its item (a List row, list-row) is a direct child of an item THE list SHALL tell it what the item is — whether it is an action, a link or an option, which pads its content (LST-8); whether it draws the handle of a reorderable list before its content (LST-32); whether it is a selected option; whether it is a disabled action, link or option; whether it keeps the room of a leading glyph (LST-50) — before that element is first drawn in the item and again WHEN any of these changes (selection, interactive, href, disabled, the list becoming reorderable or not, or what LST-50 decides), so that the element draws itself to fit the item in every arrangement and mode of the list. An element that is not a direct child of the item SHALL be told nothing and SHALL draw itself as it stands alone.",
       "verify": "Move a List row from a static item to an interactive item, an option and an item of a reorderable list, select and disable its option: each time the row draws or drops its own paddings and its selected colors at once (LRW-8, LRW-9)."
     },
     {
       "id": "LST-49",
       "text": "WHERE an item's label is empty and its content holds a List row as a direct child THE list SHALL take the item's name from that row's headline in place of the text of its content — for the accessible name of an action, a link or an option, the handle's name, typeahead and every announcement — and SHALL describe an action, a link or an option by the row's overline, supporting text and trailing text, in that order, before the description of a link that opens a new context (LST-28); WHEN the row's texts change THE list SHALL take the new name and description at once. An item with a label keeps it as its name and is still described by the row.",
       "verify": "On the web: an interactive item holding a row with headline Wi-Fi and supporting text Connected is a button named Wi-Fi and described Connected; in a reorderable list its handle is named with Wi-Fi; typing W moves focus to it."
+    },
+    {
+      "id": "LST-50",
+      "text": "THE list SHALL decide for all its items together whether a List row that is an item's direct child (LST-48) keeps the room of a leading glyph where it draws no leading part (LRW-16). WHILE iconSpace is auto THE list SHALL tell every such row to keep the room WHERE an item of the list holds a List row whose leading part is a glyph — its leadingIcon, its leading slot empty —, so that the headlines of the rows with a glyph and of the rows without one start on one line, and SHALL tell none to keep it WHERE no item does, so that a list without glyphs starts its texts at the row's start; WHILE iconSpace is always THE list SHALL tell every such row to keep it, whether or not any row draws a glyph; WHILE iconSpace is never THE list SHALL tell none to keep it, so that only a row that draws a glyph has its room. The content of a row's leading slot (an avatar, a picture, a control) SHALL NOT count, because its size is the product's and differs from row to row, so that a room kept for it would line up nothing. The list is one run of items: its rows are decided together whatever its orientation, wrap, gap, dividers, selection and reorderable are. WHEN an item is added, removed or moved, or a row's leadingIcon or the content of its leading slot changes, THE list SHALL decide again; WHEN iconSpace names a value the list does not define THE list SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto: the rows Wi-Fi and Bluetooth draw a glyph and About none, so About's headline starts where Bluetooth's does, after an empty box of comp.list-row.leading-icon.size and comp.list-row.container.gap. Fixture icon-space-always: the same. Fixture icon-space-never: About's headline starts at the row's start padding. Test a list whose rows draw no glyph (auto: every headline at the start padding; always: every headline after the room), a row with an avatar in its leading slot (it does not count, and keeps no room beside it), a leadingIcon given to the only row without one and taken away again, iconSpace changed while shown, and an unknown value (auto, reported)."
     }
   ],
   "accessibility": {
@@ -1164,6 +1225,155 @@
           "content": "Photo 5"
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "dividers": true
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Wi-Fi",
+                "leadingIcon": "wifi",
+                "supportingText": "Connected"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Bluetooth",
+                "leadingIcon": "bluetooth",
+                "supportingText": "Two devices"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "About",
+                "supportingText": "Version 2.4"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "dividers": true,
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Wi-Fi",
+                "leadingIcon": "wifi",
+                "supportingText": "Connected"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Bluetooth",
+                "leadingIcon": "bluetooth",
+                "supportingText": "Two devices"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "About",
+                "supportingText": "Version 2.4"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "dividers": true,
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Wi-Fi",
+                "leadingIcon": "wifi",
+                "supportingText": "Connected"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Bluetooth",
+                "leadingIcon": "bluetooth",
+                "supportingText": "Two devices"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "About",
+                "supportingText": "Version 2.4"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "platforms": {
@@ -1175,6 +1385,7 @@
         "wrap": "wrap",
         "gap": "gap",
         "dividers": "dividers",
+        "iconSpace": "iconSpace",
         "selection": "selection",
         "label": "label",
         "value": "value",
@@ -1210,6 +1421,17 @@
             "click": "click"
           },
           "notes": "A child element of `tanrei-list`; its children are its content, in its default slot. Its host has the role listitem or option; an interactive item draws a shadow element with role button and tabindex, as the interactive card does, and fires `click`; with `href` the shadow root holds an `<a>` in its place, inside the host's list item. `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation. In a reorderable list the item draws its handle, a `tanrei-button`, in its shadow root before the slot."
+        },
+        "list-row": {
+          "name": "tanrei-list-row",
+          "props": {
+            "headline": "headline",
+            "overline": "overline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "trailingIcon": "trailingIcon"
+          }
         }
       },
       "notes": "`tanrei-list` holds `tanrei-list-item` children. It sets its own `value` or `values` (an array property; the `values` attribute is not reflected) before firing `change`, as a native control does. Focus moves among actionable items by a roving tabindex. Each item is a separate element, so the list sets `aria-posinset` and `aria-setsize` on them. Words: the attributes `drag-handle-label`, `drag-handle-hint`, `move-to-start-label`, `move-before-label`, `move-after-label`, `move-to-end-label`, `lifted-text`, `moved-text` and `cancelled-text`, and the same keys of `setWords()`. `move` is a `CustomEvent` whose `detail` is `{ from, to }`; it bubbles, is not cancelable, and the list moves no element: the product reorders the `tanrei-list-item` children (or its framework does), and the list sees it as a change of its children. The move menu is one `tanrei-menu` in the list's shadow root, placed against the handle that opened it. A dragged item and its neighbours are moved by transforms, so the product's elements never change place under it; the item carries `touch-action: pan-x pan-y` and the handle `touch-action: none`, and a long press is told from a swipe by a non-passive `touchmove` listener that is cancelled only once the item is lifted. The live region is one visually hidden `role=\"status\"` element in the list's shadow root. Before the element is defined (no script) the items are plain children in the order written and nothing can be moved."
@@ -1222,6 +1444,7 @@
         "wrap": "wraps",
         "gap": "spacing",
         "dividers": "dividers",
+        "iconSpace": "iconSpace",
         "selection": "selection",
         "label": "label",
         "value": "selection",
@@ -1257,6 +1480,17 @@
             "click": "action"
           },
           "notes": "`TanreiListItem(label:, action:) { content }` with a view builder for the content, tagged with `.tag(value)`; `destination: URL` in place of `action:` makes it a SwiftUI `Link`."
+        },
+        "list-row": {
+          "name": "TanreiListRow",
+          "props": {
+            "headline": "headline",
+            "overline": "overline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "trailingIcon": "trailingIcon"
+          }
         }
       },
       "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(axis: .vertical, wraps:, spacing:) { … }` laid out by a custom `Layout` (a flow layout while wrapping); `onMove: (from, to)` makes it reorderable — the handle with a `Menu` of the four moves, the whole row draggable through `onDrag`/`onDrop` or a long-press gesture, the moves also exposed as accessibility custom actions, and the sentences posted as accessibility announcements."
@@ -1269,6 +1503,7 @@
         "wrap": "wrap",
         "gap": "gap",
         "dividers": "dividers",
+        "iconSpace": "iconSpace",
         "selection": "selectionMode",
         "label": "contentDescription",
         "value": "selectedValue",
@@ -1304,6 +1539,17 @@
             "click": "onClick"
           },
           "notes": "`TanreiListItem(label = …, onClick = …) { content }` in the list's content lambda; `enabled` is the inverse flag."
+        },
+        "list-row": {
+          "name": "TanreiListRow",
+          "props": {
+            "headline": "headline",
+            "overline": "overline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "trailingIcon": "trailingIcon"
+          }
         }
       },
       "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(orientation, wrap, gap) { … }` — a `Column`, a `Row` or a `FlowRow`/`FlowColumn` while wrapping — with `onMove: (from: Int, to: Int) -> Unit` making it reorderable: the handle opens a `DropdownMenu` of the four moves, the whole item is dragged after a long press (`detectDragGesturesAfterLongPress`) and at once from the handle, the moves are also `customActions` of the item's semantics, and the announcement is a polite live region node. Items need stable keys for the motion of LST-41."
@@ -1316,6 +1562,7 @@
         "wrap": "wrap",
         "gap": "spacing",
         "dividers": "dividers",
+        "iconSpace": "iconSpace",
         "selection": "selectionMode",
         "label": "semanticLabel",
         "value": "selected",
@@ -1351,6 +1598,17 @@
             "click": "onTap"
           },
           "notes": "`TanreiListItem<T>(value:, onTap:, child:)` widgets in the list's `children:`."
+        },
+        "list-row": {
+          "name": "TanreiListRow",
+          "props": {
+            "headline": "headline",
+            "overline": "overline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "trailingIcon": "trailingIcon"
+          }
         }
       },
       "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(direction: Axis.vertical, wrap:, spacing:, children:)` — a `Flex` or a `Wrap` — with `onMove: (int from, int to)` making it reorderable: the handle opens a `MenuAnchor` of the four moves, the whole item is a `LongPressDraggable` (a `Draggable` from the handle), the moves are also semantics custom actions, and the sentences go through `SemanticsService.announce`. `to` is the index the item has after the move, not the insertion index of the framework's reorderable list."
@@ -1363,6 +1621,7 @@
         "wrap": "wrap",
         "gap": "gap",
         "dividers": "dividers",
+        "iconSpace": "iconSpace",
         "selection": "selectionMode",
         "label": "accessibilityLabel",
         "value": "value",
@@ -1398,6 +1657,17 @@
             "click": "onPress"
           },
           "notes": "The element type of the list's `items` array: `{ key, label?, value?, disabled?, onPress?, href?, content }`, where `content` is an element."
+        },
+        "list-row": {
+          "name": "ListRow",
+          "props": {
+            "headline": "headline",
+            "overline": "overline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "trailingIcon": "trailingIcon"
+          }
         }
       },
       "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `<List items orientation wrap gap onMove>` — a flex container with `flexWrap` — the handle opening a menu of the four moves, the whole item dragged after a long press through a gesture responder, the moves also `accessibilityActions` of the item, and the sentences announced through `AccessibilityInfo.announceForAccessibility`."
