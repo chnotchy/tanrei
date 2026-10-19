@@ -809,6 +809,82 @@ test.describe('opening and closing', () => {
     expect(await resolved(T('motion-disclosure-easing'))).toBe(await resolved('--tanrei-comp-navigation-drawer-motion-disclosure-easing'));
   });
 
+  test('ACC-8, ACC-13: content of paragraphs, whose first and last have margins, is held whole by the item — the margins are inside it, with the space under the content below them, and none reaches out of the item where that space is 0 — and opens and closes with no jump at either end: in every frame the height is where the motion is, from the height the item rests at to the one it rests at after', async ({ page }) => {
+    const own = raw('margins', {}, `<details id="m"><summary>Item</summary><p>The first paragraph.</p><p>The last paragraph.</p></details><details id="n"><summary>After</summary>after</details>`);
+    await mountFixtures(page, spec, { icons: true, fixtures: [own] });
+    // A linear curve: the height at a moment of the motion is a straight line from where it starts to where it ends.
+    await override(page, { [T('motion-disclosure-duration')]: '2000ms', [T('motion-disclosure-easing')]: 'linear' });
+    const duration = await resolveToken(page, T('motion-disclosure-duration'), 'duration');
+    const details = page.locator('#m');
+    /** The margins of the content's first and last parts, and where the item, its header and those parts are. */
+    const layout = () =>
+      details.evaluate((el) => {
+        const [first, last] = [el.querySelector('p:first-of-type')!, el.querySelector('p:last-of-type')!];
+        return {
+          margins: [Number.parseFloat(getComputedStyle(first).marginBlockStart), Number.parseFloat(getComputedStyle(last).marginBlockEnd)],
+          above: first.getBoundingClientRect().top - el.querySelector('summary')!.getBoundingClientRect().bottom,
+          below: el.getBoundingClientRect().bottom - last.getBoundingClientRect().bottom,
+        };
+      });
+    /**
+     * Every frame of the next change, from the click until the item's clock (accordion.css) has ended and its height has
+     * stood still for three frames: the height, and how far the motion is — the clock's own time, which starts with the
+     * change and runs as the height's transition does (that one is listed by no engine: test/at-rest.ts). Read in the
+     * page, frame by frame: a question from here answers a frame or more late.
+     */
+    const change = () =>
+      details.evaluate(
+        (el) =>
+          new Promise<{ height: number; time: number | null }[]>((resolve) => {
+            const frames: { height: number; time: number | null }[] = [];
+            let began = false;
+            let still = 0;
+            const frame = () => {
+              const clock = el.getAnimations().find((a) => (a as CSSTransition).transitionProperty === '--_acc-open');
+              const height = el.getBoundingClientRect().height;
+              began ||= !!clock;
+              still = frames.length && frames.at(-1)!.height === height ? still + 1 : 0;
+              frames.push({ height, time: clock ? Number(clock.currentTime) : null });
+              if (began && !clock && still >= 3) resolve(frames);
+              else requestAnimationFrame(frame);
+            };
+            el.querySelector('summary')!.click();
+            requestAnimationFrame(frame);
+          }),
+      );
+    /** Each frame whose height is not where the motion from `from` to `to` is at that moment — or, once it is over, not `to`. */
+    const jumps = (frames: { height: number; time: number | null }[], from: number, to: number, slack: number) =>
+      frames
+        .map(({ height, time }) => ({ height, at: time === null ? to : from + ((to - from) * Math.min(time, duration)) / duration }))
+        .filter(({ height, at }) => Math.abs(height - at) > slack)
+        .map(({ height, at }) => `${height.toFixed(1)} where the motion is at ${at.toFixed(1)}`);
+    const closed = (await boxAtRest(details)).height;
+    const opening = await change();
+    const opened = await layout();
+    const open = (await boxAtRest(details)).height;
+    // The paragraphs have margins of their own, and the item holds them: the first under its header, the last above the
+    // space under the content.
+    expect(opened.margins[0]).toBeGreaterThan(4);
+    expect(opened.margins[1]).toBeGreaterThan(4);
+    near(opened.above, opened.margins[0]!);
+    near(opened.below, opened.margins[1]! + (await resolveToken(page, T('content-padding-block-end-regular'))));
+    expect(open).toBeGreaterThan(closed + opened.margins[0]! + opened.margins[1]!);
+    // A jump is a frame a margin away from where the motion is; a frame that comes a frame early or late is
+    // (open - closed) / duration × 16 ms away, under a pixel here. Half a margin tells the two apart.
+    const slack = opened.margins[0]! / 2;
+    const heights = (frames: { height: number }[]) => frames.map((frame) => frame.height.toFixed(1)).join(', ');
+    expect(jumps(opening, closed, open, slack), `opening: ${heights(opening)}`).toEqual([]);
+    const closing = await change();
+    expect(jumps(closing, open, closed, slack), `closing: ${heights(closing)}`).toEqual([]);
+    near((await boxAtRest(details)).height, closed);
+    // Where the space under the content is 0, the last paragraph's margin is still the item's: it does not reach past
+    // the item's lower edge, between it and the item after it.
+    await override(page, { [T('content-padding-block-end-regular')]: '0px' });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await details.locator('> summary').click();
+    near((await layout()).below, opened.margins[1]!);
+  });
+
   test('ACC-14: in a page 600 high, with the first item of an exclusive accordion open and the third header at 400 from the top, activating the third header leaves it at 400 while the first closes; an item that opens is not scrolled into view', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
     const tall = raw(
