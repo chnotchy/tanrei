@@ -37126,6 +37126,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSearchIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon\ncolumn where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or\nresult of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -37354,6 +37366,15 @@
               "default": "''",
               "description": "The status row's text, in the product's language, announced to assistive technology when it changes\n(`status-text`): the count (\"12 results for tokens\"), that nothing was found, the failure; while loading, the\nloading indicator's name (\"Searching\"). Empty draws no status row unless `status` is `loading`.",
               "fieldName": "statusText"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiSearchIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon\ncolumn where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or\nresult of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).",
+              "fieldName": "iconSpace"
             },
             {
               "name": "inline",

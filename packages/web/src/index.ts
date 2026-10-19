@@ -345,6 +345,7 @@ export {
   TanreiSearchResultGroup,
   TanreiSearchRow,
   type TanreiSearchSelectDetail,
+  type TanreiSearchIconSpace,
   type TanreiSearchStatus,
   type TanreiSearchSubmitDetail,
   TanreiSearchSuggestion,
