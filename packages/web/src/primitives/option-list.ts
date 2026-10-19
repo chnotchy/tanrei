@@ -732,11 +732,8 @@ export interface OptionListOptions {
   chosen: () => OptionData | null;
   /** The person confirmed `option` — a press, Enter or Space; never a disabled option. */
   choose: (option: OptionData, event: Event) => void;
-  /**
-   * The field's iconSpace, read as a value it defines (SEL-66): which options keep the leading icon column, section by
-   * section. A field that gives none keeps the column in every option while any option it draws has an icon.
-   */
-  iconSpace?: () => OptionIconSpace;
+  /** The field's iconSpace, read as a value it defines (SEL-66, CMB-67): which options keep the leading icon column, section by section. */
+  iconSpace: () => OptionIconSpace;
   /**
    * The option that becomes the active one when the active one is no longer drawn, or while none is; the one an
    * opening list has when left out (SEL-36). A combobox names the first that is not disabled, or none where Enter
@@ -1200,9 +1197,8 @@ export class OptionListController implements ReactiveController {
     const model = this.options.model();
     const chosen = this.options.chosen();
     const size = model.options.length;
-    // SEL-66: which rows keep the leading icon column — by section, as the field's iconSpace says.
-    const space = this.options.iconSpace?.();
-    const column = space ? iconColumns(model, space) : () => model.hasIcons;
+    // SEL-66, CMB-67: which rows keep the leading icon column — by section of what is drawn, as the field's iconSpace says.
+    const column = iconColumns(model, this.options.iconSpace());
     // A long list draws the rows near the box that scrolls; what it skips is room of the rows' heights.
     const windowed = this.drawn ? this.windowOf(model) : null;
     this.windowed = !!windowed;

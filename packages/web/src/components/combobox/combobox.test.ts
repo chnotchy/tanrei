@@ -1669,7 +1669,7 @@ test.describe('behavior: the list', () => {
     expect(await regions()).toEqual({ polite: 'No matches', assertive: '', busy: null });
   });
 
-  test('CMB-34: an option is one row — option.padding-inline from each edge, the leading icon column while any option has one, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is its target', async ({ page }) => {
+  test('CMB-34: an option is one row — option.padding-inline from each edge, the leading icon column as CMB-67 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is its target', async ({ page }) => {
     await mountSpec(page, ['stacked-open', 'open-icons', 'open-supporting-text', 'open-long-options'], { reducedMotion: true });
     const plain = row(page, 'stacked-open', 'Kyoto');
     const b = await box(plain);
@@ -2034,6 +2034,55 @@ test.describe('behavior: the list', () => {
     const exit = await resolveEasing(page, T('motion-close-easing'));
     expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
     expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+  });
+
+  test('CMB-67: iconSpace — auto keeps the leading icon column, empty, in a section where another shown option has an icon, and none in a section without icons; an option the filter hides does not count; always in every option; never only in an option that has an icon; a section is a group or a run of options outside any group; decided again when an option changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    const auto = spaced[0];
+    await mount(page, [
+      ...spaced,
+      // Typing leaves Copy link alone in its group: Mail and Messages, which have the icons, are hidden.
+      { ...auto, id: 'typed', props: { ...auto.props, value: '', inputValue: 'link' } },
+      fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
+      fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
+    ]);
+    const [pad, gap, size] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-leading-icon-size')];
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where an option's label starts, from its row's start edge. */
+    const at = async (id: string, label: string) => (await box(row(page, id, label).locator('.option-label'))).x - (await box(row(page, id, label))).x;
+    const expectStarts = async (id: string, starts: Record<string, number>) => {
+      for (const [label, start] of Object.entries(starts)) near(await at(id, label), start, `${id}: ${label}`);
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto: the group Apps keeps the column on Copy link; the group Files has no icon and keeps none.
+    await expectStarts('icon-space-auto', { Mail: kept, Messages: kept, 'Copy link': kept, Print: none, 'Save as PDF': none });
+    await expect(row(page, 'icon-space-auto', 'Copy link').locator('.row-column.leading[aria-hidden="true"]')).toHaveCount(1);
+    await expect(row(page, 'icon-space-auto', 'Print').locator('.row-column.leading')).toHaveCount(0);
+    const titles = part(page, 'icon-space-auto', '.group-title');
+    near((await box(titles.nth(0))).x, (await box(titles.nth(1))).x, 'the titles start alike');
+    await expectStarts('icon-space-always', { Mail: kept, 'Copy link': kept, Print: kept, 'Save as PDF': kept });
+    await expectStarts('icon-space-never', { Mail: kept, Messages: kept, 'Copy link': none, Print: none, 'Save as PDF': none });
+    // The options the filter hides do not count: Copy link, alone in its group, keeps no column.
+    await expect(rows(page, 'typed')).toHaveCount(1);
+    await expectStarts('typed', { 'Copy link': none });
+    // Options outside any group are a section of their own, each run apart from the next.
+    await expectStarts('runs', { A: kept, B: kept, C: none, D: none, E: none });
+    // An unknown value is auto, reported.
+    await expectStarts('odd', { A: kept, B: kept, C: none });
+    await expect.poll(() => seen.some((w) => w.includes('(CMB-67)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to Print keeps the column on Save as PDF; taken away, the group keeps none.
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.setAttribute('leading-icon', 'print'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(kept, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(none, 0);
+    // iconSpace changed while the list is shown.
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 'Copy link')).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
   test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
@@ -3177,7 +3226,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label where its look has one, the text, the glyphs and — where it is open — the list, the rows and the status row the spec gives it, and with no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(49);
+    expect(spec.fixtures).toHaveLength(52);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     const folded = (text: string) => text.normalize('NFKD').toLowerCase();
     for (const f of spec.fixtures) {

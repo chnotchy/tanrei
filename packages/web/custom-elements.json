@@ -12181,6 +12181,18 @@
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`)."
             },
             {
+              "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "attribute": "icon-space",
+              "reflects": true,
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
+            },
+            {
               "kind": "method",
               "name": "select",
               "description": "Selects the text in the input, as the combobox's `select()` does."
@@ -12632,6 +12644,15 @@
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`)."
             },
             {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "fieldName": "iconSpace",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
+            },
+            {
               "name": "name",
               "type": {
                 "text": "string"
@@ -12667,6 +12688,14 @@
           "name": "TanreiComboboxFilter",
           "declaration": {
             "name": "TanreiComboboxFilter",
+            "module": "src/components/combobox-field/combobox-field.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiComboboxIconSpace",
+          "declaration": {
+            "name": "TanreiComboboxIconSpace",
             "module": "src/components/combobox-field/combobox-field.ts"
           }
         },
@@ -13214,6 +13243,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -13543,6 +13584,15 @@
               "default": "'auto'",
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`).",
               "fieldName": "separation"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiComboboxIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "inline",

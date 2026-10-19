@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 3d2000f72170dfe9e1dc6d6b288b0ec7b57e8ffb
+sourceHash: e283b3d07c42a3f20dea3f6217380b566a820839
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -172,6 +172,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **错误**是 `error`，由你来设置：方框画成错误状态，并暴露为无效。组合框没有错误文本。请在它旁边用文字说明哪里不对，或者用字段框住它。
 - **必填**要由字段来说明。单独使用的组合框没有必填设置：表单需要回答的地方，请自己校验。
 - **不对应任何选项的文本**在用户离开时会被放弃，除非设置了 `allowCustomValue`。它绝不是组合框自己的错误。
+
+### 列表中的字形
+
+选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
 
 <ComponentSpecs name="combobox" />
 

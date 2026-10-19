@@ -161,6 +161,7 @@ export {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
   type TanreiComboboxFilter,
+  type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
   type TanreiComboboxSize,
   type TanreiComboboxStatus,
