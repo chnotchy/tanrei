@@ -9,7 +9,7 @@
 // build's own emitter and the warnings by the build's own invariants (both injected: they live in
 // @tanrei/tokens-build), so what the Studio shows is what `tanrei build` will generate. The tests build Studio
 // layers with the real pipeline and compare whole sheets.
-import { SCHEMES, argbToColor, componentDocumentPath, createPaletteEngine, dependencyIndex, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
+import { SCHEMES, argbToColor, componentDocumentPath, createPaletteEngine, dependencyIndex, evaluateNumeric, extensionRecipes, legalOperations, mergeLayers, resolveNumericTokens, tokenKind } from '@tanrei/token-engine';
 import { composeStack, inferredGeneric, parseStack } from './fonts.js';
 import { buildModel } from './model.js';
 
@@ -98,9 +98,10 @@ export function stringifyLayer(layer) {
  * @param {(fg: object, bg: object) => number} deps.contrast                      the same module's WCAG ratio
  * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id
  * @param {(color: object) => string} deps.cssColor                              the emitter's way of writing a color (tokens-build's src/pure.js)
+ * @param {(token: object) => string[][]} [deps.declarations]                    the emitter's declarations of one token; without it a dial's drag is computed
  * @param {import('./listing.js').Catalog} [deps.catalog]  what the specs say of each component: level, listing, members (./listing.js, `catalogOf`)
  */
-export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, contrast, idToVar, cssColor, catalog }) {
+export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, contrast, idToVar, cssColor, declarations, catalog }) {
   const NS = config.namespace;
   const PREFIX = config.web.cssPrefix;
   const SYS_COLOR = `${NS}.sys.color.`;
@@ -278,17 +279,36 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     }
     return palettes;
   }
+  /** A dial's entry as `setDial` writes it — a value and its reason — or none: what a slider moves. */
+  const dialPin = (op) => op === undefined || (Boolean(op) && typeof op === 'object' && '$value' in op && !isRef(op.$value) && Object.keys(op).every((key) => key === '$value' || key === 'reason'));
+  /** A layer, but for what a drag moves: the sources of its palettes, and the values of its dials. */
+  function unmoved(layer) {
+    const tokens = Object.fromEntries(Object.entries(layer.tokens ?? {}).filter(([id, op]) => !(id.startsWith(DIAL) && dialPin(op))));
+    return JSON.stringify({ ...layer, palettes: undefined, tokens: Object.keys(tokens).length ? tokens : undefined });
+  }
+
   /**
-   * While a palette's color is dragged: what changes in the sheet of `view` when its layer becomes `layer`, worked out
-   * by the palette engine alone — `{ '--tanrei-ref-palette-primary-40': '#…', … }`, the custom properties of the tones
-   * the view's sheet declares, each written as the emitter writes it. `null` when that is not the whole difference, and
-   * the layer must be computed: it differs from the view's in anything but the sources of its palettes, or a changed
-   * palette reaches the sheet some other way (`reachOf`). The test suite holds the two to the same sheet.
+   * While a value is dragged — a palette's color, a dial — what changes in the sheet of `view` when its layer becomes
+   * `layer`, worked out without computing the layer: `{ '--tanrei-ref-palette-primary-40': '#…',
+   * '--tanrei-dial-shape-unit': '3px', … }`, custom properties the view's sheet declares, each written as the emitter
+   * writes it. `null` when that is not the whole difference, and the layer must be computed: it differs from the
+   * view's in anything else, or a moved value reaches the sheet some other way (`toneProperties`, `dialProperties`). The
+   * test suite holds the two to the same sheet.
    */
-  function paletteProperties(view, layer) {
+  function liveProperties(view, layer) {
     if (!view?.model || !view.ok) return null;
-    const rest = (l) => JSON.stringify({ ...l, palettes: undefined });
-    if (rest(view.layer) !== rest(layer)) return null;
+    if (unmoved(view.layer) !== unmoved(layer)) return null;
+    const tones = toneProperties(view, layer);
+    const dials = tones && dialProperties(view, layer);
+    return dials ? { ...tones, ...dials } : null;
+  }
+
+  /**
+   * A palette's new source, by the palette engine alone: the tones of each changed palette that the view's sheet
+   * declares. `null` when a palette differs in anything but its source, or a changed one reaches the sheet other than
+   * as its tones (`reachOf`).
+   */
+  function toneProperties(view, layer) {
     const [before, after] = [palettesOf(view.layer), palettesOf(layer)];
     const names = Object.keys(after);
     if (!same(Object.keys(before).sort(), [...names].sort())) return null;
@@ -312,6 +332,102 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
         if (!id.startsWith(prefix)) continue;
         properties[idToVar(id)] = cssColor(argbToColor(palette.tone(Number(id.slice(prefix.length)))));
       }
+    }
+    return properties;
+  }
+
+  /**
+   * Of the tokens that move with the dials, those the browser follows by itself: the rules the emitter writes as CSS
+   * arithmetic (`derivedExpression`), `mul`, and `sub` held at zero (an inner corner). A `pick` follows a choice of kind
+   * and is written as the value it picks: of these types it is valued again, as a text style's tracking is.
+   */
+  const LIVE_RULES = new Set(['mul', 'sub']);
+  const NUMERIC = new Set(['dimension', 'number', 'duration']);
+  /**
+   * How the sheet of a view follows its dials: a token that moves with them is written as an alias or as the same
+   * arithmetic in CSS (`calc(var(--tanrei-dial-…) * …)`), which the browser follows by itself — except a text style's,
+   * whose tracking the emitter writes as a number, its letter spacing over its size (`letterSpacing` pinned in px, or
+   * rounded by the engine). Those are listed, to be valued again; `null` when some other token moves with the dials
+   * and is written as a value (a shadow, a rule the emitter cannot write as CSS). Kept per view and set of dials.
+   */
+  const follows = new WeakMap();
+  function followingOf(view, ids) {
+    if (!follows.has(view)) follows.set(view, new Map());
+    const byDials = follows.get(view);
+    const key = [...ids].sort().join(' ');
+    if (!byDials.has(key)) {
+      const moving = new Set(ids.flatMap((id) => view.followers(id)));
+      const texts = [];
+      const picks = [];
+      let live = true;
+      for (const id of moving) {
+        const token = view.model.tokens[id];
+        if (!token || token.alias) continue;
+        if (token.type === 'typography' && token.derive && !('fixed' in token.derive)) texts.push(token);
+        else if (token.derive?.fn === 'pick' && NUMERIC.has(token.type)) picks.push(token);
+        else if (token.type === 'typography' || !LIVE_RULES.has(token.derive?.fn)) live = false;
+      }
+      byDials.set(key, live ? { moving, texts, picks } : null);
+    }
+    return byDials.get(key);
+  }
+  /**
+   * While a dial's slider is dragged: the dial's own custom property, and the text styles' declarations that move
+   * with it (`followingOf`), valued by the engine's own arithmetic (`evaluateNumeric`) and written by the emitter's
+   * `declarations`. `{}` when no dial moved; `null` when the emitter's `declarations` were not given, or a token that
+   * moves with the dials is written as a value.
+   */
+  function dialProperties(view, layer) {
+    const norm = (v) => (typeof v === 'number' ? { value: v } : v);
+    const moved = new Map();
+    for (const dial of baseOf(layer).dials) {
+      const op = layer.tokens?.[dial.id];
+      if (!dialPin(op)) continue; // written some other way: the same in both layers (`unmoved`)
+      const token = view.model.tokens[dial.id];
+      if (!token) return null;
+      const value = op ? op.$value : dial.type === 'number' ? dial.value : { value: dial.value, unit: dial.unit };
+      const [now, was] = [norm(value), norm(token.value)];
+      if (now?.value !== was?.value || now?.unit !== was?.unit) moved.set(dial.id, value);
+    }
+    if (!moved.size) return {};
+    if (!declarations) return null;
+    const following = followingOf(view, [...moved.keys()]);
+    if (!following) return null;
+    const properties = {};
+    for (const [id, value] of moved) for (const [name, written] of declarations({ ...view.model.tokens[id], value })) properties[name] = written;
+    if (!following.texts.length && !following.picks.length) return properties;
+    const values = new Map([...moved].map(([id, value]) => [id, norm(value)]));
+    /** A token's value with the dials moved, as `resolveNumericTokens` values it. */
+    const valueAt = (id) => {
+      if (!values.has(id)) {
+        const token = view.model.tokens[id];
+        if (!token) throw new Error(`${id}: not in the view`);
+        let value = token.value;
+        if (following.moving.has(id) && token.alias) value = valueAt(token.alias);
+        else if (following.moving.has(id)) {
+          const result = evaluateNumeric(token.derive, valueAt, { type: token.type });
+          value = token.type === 'number' ? result.value : result;
+        }
+        // A choice of kind is its index, with its names: what a `pick` reads to choose.
+        values.set(id, token.enum ? { value, names: token.enum.values } : norm(value));
+      }
+      return values.get(id);
+    };
+    try {
+      for (const token of following.texts) {
+        const value = { ...token.value };
+        if (token.derive.fontSize) value.fontSize = evaluateNumeric(token.derive.fontSize, valueAt, { type: 'dimension' });
+        if (token.derive.letterSpacing) value.letterSpacing = evaluateNumeric(token.derive.letterSpacing, valueAt, { type: 'dimension', fontSize: value.fontSize.value });
+        const before = new Map(declarations(token));
+        for (const [name, written] of declarations({ ...token, value })) if (before.get(name) !== written) properties[name] = written;
+      }
+      for (const token of following.picks) {
+        const result = evaluateNumeric(token.derive, valueAt, { type: token.type });
+        const before = new Map(declarations(token));
+        for (const [name, written] of declarations({ ...token, value: token.type === 'number' ? result.value : result })) if (before.get(name) !== written) properties[name] = written;
+      }
+    } catch {
+      return null; // a value the engine cannot work out alone: computing the layer says why
     }
     return properties;
   }
@@ -916,7 +1032,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     namespace: NS, rootId, defaultId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
-    cssVar, roleVar, blank, fromLayer, preview, paletteProperties, base, baseOf,
+    cssVar, roleVar, blank, fromLayer, preview, liveProperties, base, baseOf,
     setMeta, setBase, dials, setDial, essentials, setEssential,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
