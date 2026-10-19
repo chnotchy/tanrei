@@ -97,6 +97,10 @@
     {
       "name": "separation",
       "from": "select.separation"
+    },
+    {
+      "name": "iconSpace",
+      "from": "select.iconSpace"
     }
   ],
   "items": [
@@ -2940,7 +2944,8 @@
         "requiredText": "requiredText",
         "optionalText": "optionalText",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "change",
@@ -2989,7 +2994,8 @@
         "requiredText": "requiredText",
         "optionalText": "optionalText",
         "open": "isPresented",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "selection",
@@ -3038,7 +3044,8 @@
         "requiredText": "requiredText",
         "optionalText": "optionalText",
         "open": "expanded",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onValueChange",
@@ -3087,7 +3094,8 @@
         "requiredText": "requiredText",
         "optionalText": "optionalText",
         "open": "controller",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onChanged",
@@ -3136,7 +3144,8 @@
         "requiredText": "requiredText",
         "optionalText": "optionalText",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onValueChange",
