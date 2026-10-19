@@ -75,7 +75,8 @@ const lookBlock = (look: keyof typeof LOOKS, selector: string) =>
  * translucent tone instead. The tone is known only here, so each state is computed here as the core rules compute a
  * state from a resting color: the tone laid over the resting container at the system's state-layer opacity of the
  * state, and disabled the tone at the system's disabled opacities. (A state token valued at the root holds the root's
- * colors: overriding the resting color here would not move it.) A toggle and a destructive button keep their looks;
+ * colors: overriding the resting color here would not move it.) A toggle and a destructive button keep their looks,
+ * and a link (the anchor), which has no destructive look (BTN-43), takes the tone as the same link without it does;
  * the size, shape, elevation and opacity are the button's own in every case.
  */
 const toneOf = (opacity: string) => `color-mix(in srgb, var(--_tone) calc(var(${opacity}) * 100%), transparent)`;
@@ -99,7 +100,8 @@ const toneBlock = `
     --_tone-edge: ${toneOf('--tanrei-comp-button-tone-container-opacity')};
     --_tone-edge-d: var(--_tone-edge);
   }
-  :host(:not([destructive])) button[data-tone]:not([aria-pressed]) {
+  :host(:not([destructive])) button[data-tone]:not([aria-pressed]),
+  a[data-tone] {
     --_c: var(--_tone-rest);
 ${Object.entries(TONE_LAYERS)
   .map(([suffix, state]) => `    --_c${suffix}: color-mix(in srgb, var(--_tone-rest), var(--_tone) calc(var(--tanrei-sys-state-${state}-state-layer-opacity) * 100%));`)
@@ -166,8 +168,9 @@ const buttonStyles = css`
   ${unsafeCSS(lookBlock('plain', 'button'))}
   ${unsafeCSS(lookBlock('unselected', 'button[aria-pressed]'))}
   ${unsafeCSS(lookBlock('selected', "button[aria-pressed='true']"))}
-  /* BTN-40, BTN-41: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its own. */
-  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed])'))}
+  /* BTN-40, BTN-41, BTN-43: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its
+     own, and a link (the anchor, a) the plain parts of its variant: it only leads somewhere, and deletes nothing. */
+  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed], a)'))}
   /* BTN-45: the plain look on the tone a host gives (above). */
   ${unsafeCSS(toneBlock)}
 

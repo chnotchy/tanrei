@@ -2435,15 +2435,7 @@ test.describe('destructive', () => {
     expect(outlined.shadow).toContain(await resolveColor(page, T('outlined-disabled-outline-color')));
   });
 
-  test('BTN-40: a link button, and a dialog’s action that takes the dialog’s variant, take destructive as any Button does', async ({ page }) => {
-    await mountFixtures(page, spec, {
-      fixtures: [
-        { id: 'link', props: { variant: 'outlined', destructive: true, href: '/somewhere/' }, content: 'Delete' },
-        { id: 'plain', props: { variant: 'outlined', destructive: true }, content: 'Delete' },
-      ],
-    });
-    expect(await inner(page, 'link').evaluate((el) => el.tagName)).toBe('A');
-    expect(await look(page, 'link')).toEqual(await look(page, 'plain'));
+  test('BTN-40: a dialog’s action that takes the dialog’s variant takes destructive as any Button does', async ({ page }) => {
     // In a dialog an action without a variant takes the dialog's (DLG-20), and keeps its destructive.
     const drawn = await page.evaluate(async () => {
       await customElements.whenDefined('tanrei-dialog');
@@ -2490,6 +2482,85 @@ test.describe('destructive', () => {
     expect(await attributes('destructive')).toEqual(await attributes('plain'));
     expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="plain"]').ariaSnapshot());
     await expect(page.locator(button('destructive')).getByRole('button', { name: 'Delete project' })).toHaveCount(1);
+  });
+
+  // BTN-43: a link only leads somewhere; the action that deletes is the one at its destination. Each link with
+  // destructive has a twin, the same link without it, and is compared with that twin rather than with a token, so
+  // the test says "drawn as the link of its variant" in every engine and under every system.
+  const LINKS = VARIANTS.flatMap((variant) => [
+    { id: `${variant}-link-destructive`, props: { variant, destructive: true, href: '#delete-account' }, content: 'Delete account' },
+    { id: `${variant}-link`, props: { variant, href: '#delete-account' }, content: 'Delete account' },
+  ]);
+
+  test('BTN-43: a link ignores destructive — in each variant it is drawn as the same link without it, and its anchor carries the same attributes — and a debug build reports it once per button', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { fixtures: LINKS });
+    const attributes = (id: string) => inner(page, id).evaluate((el) => el.getAttributeNames().filter((name) => !['class', 'style'].includes(name)).sort().map((name) => `${name}=${el.getAttribute(name)}`));
+    for (const variant of VARIANTS) {
+      const id = `${variant}-link-destructive`;
+      expect(await inner(page, id).evaluate((el) => el.tagName), id).toBe('A');
+      expect(await look(page, id), id).toEqual(await look(page, `${variant}-link`));
+      // Not the destructive parts: in the default system each variant's destructive container or label is another color.
+      const drawn = await look(page, id);
+      const destructive = await Promise.all(['container', 'label'].map((part) => resolveColor(page, T(`${variant}-destructive-${part}-color`))));
+      expect([drawn.background, drawn.color], id).not.toEqual(destructive);
+      expect(await attributes(id), id).toEqual(await attributes(`${variant}-link`));
+    }
+    expect(await page.locator('[data-fixture="filled-link-destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="filled-link"]').ariaSnapshot());
+    await expect.poll(() => seen.filter((w) => w.includes('(BTN-43)')).length).toBe(VARIANTS.length);
+    expect(seen.find((w) => w.includes('(BTN-43)'))).toContain('a link only leads somewhere');
+    // Drawn again — its label, then its destination changed — it says nothing more: once per button.
+    const host = page.locator(button('filled-link-destructive'));
+    await host.evaluate(async (el: HTMLElement & { label: string; href: string; updateComplete: Promise<unknown> }) => {
+      el.label = 'Delete your account';
+      await el.updateComplete;
+      el.href = '#delete-account-now';
+      await el.updateComplete;
+    });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(seen.filter((w) => w.includes('(BTN-43)')).length).toBe(VARIANTS.length);
+  });
+
+  test('BTN-43, BTN-3: hovered, pressed and keyboard-focused, a link with destructive renders from the plain parts of that state', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: LINKS });
+    for (const variant of ['outlined', 'filled'] as const) {
+      const id = `${variant}-link-destructive`;
+      const target = page.locator(button(id));
+      // A press is let go where it began, and its click cancelled: nothing is followed.
+      await target.evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
+      const bg = () => css(page, id, 'background-color');
+      await page.mouse.move(1, 1);
+      await target.hover();
+      await expect.poll(bg, `${id} hovered`).toBe(await resolveColor(page, T(`${variant}-hovered-container-color`)));
+      expect(await css(page, id, 'color'), `${id} hovered`).toBe(await resolveColor(page, T(`${variant}-hovered-label-color`)));
+      await page.mouse.down();
+      await expect.poll(bg, `${id} pressed`).toBe(await resolveColor(page, T(`${variant}-pressed-container-color`)));
+      await page.mouse.up();
+      await page.mouse.move(1, 1);
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+      await tabTo(page, target);
+      await expect.poll(bg, `${id} focused`).toBe(await resolveColor(page, T(`${variant}-focused-container-color`)));
+      expect(await css(page, id, 'color'), `${id} focused`).toBe(await resolveColor(page, T(`${variant}-focused-label-color`)));
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+    }
+  });
+
+  test('BTN-43, BTN-26: a destructive button whose href is refused is no link, and is drawn as a destructive button; a disabled destructive link as a disabled link', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { id: 'refused', props: { variant: 'outlined', destructive: true, href: 'javascript:void(0)' }, content: 'Delete' },
+        { id: 'plain', props: { variant: 'outlined', destructive: true }, content: 'Delete' },
+        { id: 'disabled-link-destructive', props: { variant: 'filled', destructive: true, href: '#delete-account', disabled: true }, content: 'Delete account' },
+        { id: 'disabled-link', props: { variant: 'filled', href: '#delete-account', disabled: true }, content: 'Delete account' },
+      ],
+    });
+    expect(await inner(page, 'refused').evaluate((el) => el.tagName)).toBe('BUTTON');
+    expect(await look(page, 'refused')).toEqual(await look(page, 'plain'));
+    expect(await look(page, 'disabled-link-destructive')).toEqual(await look(page, 'disabled-link'));
+    // The disabled link is still a link, and is told so; the refused address is no link, and is told nothing of BTN-43.
+    await expect.poll(() => seen.filter((w) => w.includes('(BTN-43)')).length).toBe(1);
+    expect(seen.filter((w) => w.includes('(BTN-26)')).length).toBe(1);
   });
 });
 
@@ -2649,6 +2720,15 @@ test.describe('a tone a host gives (BTN-45)', () => {
     await toned(page, 'tonal').evaluate((el) => document.querySelector('main')!.append(el));
     const moved = page.locator('main > tanrei-button#tonal [part="container"]');
     await expect.poll(() => moved.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await token('tonal-container-color'));
+  });
+
+  test('BTN-43, BTN-45: a link with destructive is drawn on the tone, as the same link without it is', async ({ page }) => {
+    const link = (id: string, attributes: string) => `<tanrei-button id="${id}" variant="tonal" size="small" href="#account" label="Account" ${attributes}><span slot="icon">manage_accounts</span></tanrei-button>`;
+    await mount(page, link('link', '') + link('link-destructive', 'destructive'));
+    expect(await inner(page, 'link-destructive').evaluate((el) => el.tagName)).toBe('A');
+    expect(await css(page, 'link-destructive', 'background-color')).toBe(await color(page, REST));
+    expect(await glyph(page, 'link-destructive')).toBe(await color(page, T));
+    expect(await css(page, 'link-destructive', 'background-color')).toBe(await css(page, 'link', 'background-color'));
   });
 
   test('BTN-45: in forced colors a toned button is drawn as any button is — in the system’s colors, with its border', async ({ page, browserName }) => {
