@@ -2,7 +2,7 @@
 title: "标签页"
 description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
 translationOf: components/tabs.mdx
-sourceHash: 9622d64edcd8882b89abdeea2bf71b3de048a306
+sourceHash: d368aab60d4b9745a5455d089dd82418841dd49f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -345,6 +345,26 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 
 本站的标签页就是一个例子：每一组平台示例都是同属一个组的[标签页视图](/zh-cn/components/tab-view/)。
 
+### 垂直标签页
+
+把 `orientation` 设为 `vertical`，标签页会在起始边排成一列，放在它们所切换的视图旁边：设置页或对话框的分类、一条记录的各个部分。其他方面都是同一个组件：一个选中的标签页，一个会滑动、可拖动的指示器，面板，以及共享的选择。
+
+<DemoFrame label="放在面板旁的垂直标签页">
+  <tanrei-tabs orientation="vertical" value="general" label="设置" style="inline-size: 30rem">
+    <tanrei-tab value="general" label="通用" icon="settings"></tanrei-tab>
+    <tanrei-tab value="notifications" label="通知" icon="notifications"></tanrei-tab>
+    <tanrei-tab value="privacy" label="隐私" icon="lock"></tanrei-tab>
+    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">语言、地区和起始页。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">邮件、推送通知和每周摘要。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">谁可以查看你的个人资料。</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+- **这一列。** 在每种变体、每种尺寸下，每个标签页都和最宽的那个一样宽，图标在标签之前，位于起始边。标签页上下彼此相接，所以每个至少有最小目标那么高：小尺寸一列中的标签页高 44（触摸输入时为 48），而不是 32。要让这一列更宽，请使用 `::part(tablist)`。如果这一列比最宽的标签页还窄，标签会被截断，并在工具提示中完整显示。
+- **指示器与轨道。** 指示器是标签页四边各减去轨道内边距后的大小。轨道的圆角等于指示器的圆角加上这段内边距，因此无论这一列多高，两者在两端都保持同心。在选中标签页下方画线的设计系统，会把这条线画在这一列的末端边上、靠近面板的一侧，分隔线也沿这条边延伸。
+- **按键。** 下箭头和上箭头移到下一个和上一个标签页并选中它，Home 和 End 移到两端。右箭头和左箭头不起作用，因此仍归页面使用。辅助技术会被告知这个标签列表是垂直的。
+- **滚动。** 给这一行设定高度后，放不下的标签页会在轨道内上下滚动。触摸用于滚动；只有鼠标或手写笔可以拖动指示器。`fullWidth` 不适用于一列。
+
 ### 图标
 
 - 一行里的标签页要么都带图标，要么都不带。图标在未选中时以轮廓样式绘制，选中时以填充样式绘制。
@@ -359,6 +379,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 - 保持标签页的顺序稳定，让用户能在原来的位置找到视图。
 - 把次要标签页放在主要标签页的某个视图里，而不是反过来。
 - 有时不可用的标签页要留在原位并禁用，这样这一行的形状不会改变。
+- 同一主题的视图很多或标签较长时，使用垂直标签页：设置页的分类、一条记录的各个部分。
 
 ### 避免
 
@@ -366,6 +387,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 - 不要让标签页打开对话框、启动操作或离开当前屏幕。标签页没有自己的目标地址：要在页面之间移动，请使用链接、导航栏或导航抽屉。
 - 不要嵌套两行同一变体的标签页。
 - 不要在同一行里混用带图标和不带图标的标签页。
+- 不要用垂直标签页来选择在应用中去哪里。由目的地组成的一列是导航抽屉的职责：它的项目是链接，选择其中一个会改变地址。
 
 ## 无障碍
 

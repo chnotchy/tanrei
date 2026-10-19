@@ -90,6 +90,16 @@
       "description": "False (hug, the default) sizes each tab to its content, never truncating its label, and scrolls the tabs sideways inside the track when they do not fit; the active indicator's width then follows the selected tab's content. True (fill) divides the row's width equally among the tabs and truncates a label that does not fit its share (for two to five short labels); the active indicator's width is then the tab's, the same on every tab."
     },
     {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical"
+      ],
+      "default": "horizontal",
+      "description": "The direction the tabs run. Horizontal (the default) is a row above the views it switches. Vertical stacks the tabs in a column at the start edge, beside the views — the categories of a settings page or of a dialog, the sections of one record — with every tab as wide as the column and its icon before its label (TAB-51). It switches views of one subject as a row does; it is not navigation between the destinations of an app, which is the navigation drawer's. fullWidth does not apply to a column (TAB-56)."
+    },
+    {
       "name": "value",
       "type": "string",
       "default": null,
@@ -235,7 +245,7 @@
     },
     {
       "id": "TAB-12",
-      "text": "THE tabs SHALL be one Tab stop, the selected tab; WHILE a tab has keyboard focus Right Arrow and Left Arrow SHALL move focus to the next and previous enabled tab, wrapping at the ends, and Home and End to the first and last enabled tab, and each move SHALL also select the tab it reaches and emit change (automatic activation); in a right-to-left layout Left Arrow SHALL move to the next tab and Right Arrow to the previous; Tab SHALL move focus from the selected tab into its panel, or, WHERE the row has no panel (TAB-42), to whatever follows the row."
+      "text": "THE tabs SHALL be one Tab stop, the selected tab; WHILE orientation is horizontal and a tab has keyboard focus Right Arrow and Left Arrow SHALL move focus to the next and previous enabled tab, wrapping at the ends, and Home and End to the first and last enabled tab, and each move SHALL also select the tab it reaches and emit change (automatic activation); in a right-to-left layout Left Arrow SHALL move to the next tab and Right Arrow to the previous; WHILE orientation is vertical the arrow keys SHALL move and select as TAB-54 says; in either orientation Tab SHALL move focus from the selected tab into its panel, or, WHERE the row has no panel (TAB-42), to whatever follows the row."
     },
     {
       "id": "TAB-13",
@@ -274,7 +284,7 @@
     },
     {
       "id": "TAB-21",
-      "text": "WHEN the layout direction is right-to-left THE tabs SHALL order the tabs from the right, start the track and a row of tabs that hug their content at the right edge, truncate a label at the end of the label's own direction (TAB-33: a right-to-left label at its left end, a left-to-right label at its right end), and mirror the slide of the active indicator and the underline; a drag (TAB-28) SHALL still carry them to where the pointer is."
+      "text": "WHEN the layout direction is right-to-left THE tabs SHALL order the tabs from the right, start the track and a row of tabs that hug their content at the right edge, truncate a label at the end of the label's own direction (TAB-33: a right-to-left label at its left end, a left-to-right label at its right end), and mirror the slide of the active indicator and the underline; a drag (TAB-28) SHALL still carry them to where the pointer is; WHILE orientation is vertical the column SHALL still run from top to bottom, its start edge being its right one: each tab's icon and label SHALL start at the tab's right edge, and the divider and the underline SHALL lie on the column's left edge (TAB-53)."
     },
     {
       "id": "TAB-22",
@@ -402,6 +412,61 @@
       "id": "TAB-50",
       "text": "THE tabs SHALL draw the three variants alike in everything but their tokens: the same parts in the same places, the same sizes, the same keyboard model, and the same roles, names and states told to assistive technology; a variant says how much the selection weighs, not what the row is. Each variant SHALL read its own parts (comp.tabs.primary.selected.active-indicator.color, comp.tabs.secondary.selected.active-indicator.color, comp.tabs.tonal.selected.active-indicator.color, and so on for every part TAB-3, TAB-6, TAB-11 and TAB-24 name). WHERE an active indicator's color is translucent — the default system's tonal indicator is a layer of the selected tab's content color — THE tabs SHALL draw it once, at that opacity, over the track or the surface beneath it, with the selected tab's state layer (TAB-18) over it; SHALL NOT let two drawings of it overlap and darken while it slides, resizes or is dragged; and SHALL draw the covered label and icon (TAB-24) over it at their own opacity. A tonal tab's label and icon are comp.tabs.tonal.label.color and comp.tabs.tonal.icon.color where the indicator does not cover them and comp.tabs.tonal.selected.covered-label.color and comp.tabs.tonal.selected.covered-icon.color on the selected tab once the indicator has landed, so that in the default system a tonal row tells its selection by the layer and by the darker label together. THE selected tab's label SHALL be drawn, in both of its copies, at the weight of comp.tabs.label.typescale plus comp.tabs.primary.selected.label.emphasis, comp.tabs.secondary.selected.label.emphasis or comp.tabs.tonal.selected.label.emphasis by variant, so that a selection drawn by a faint indicator is also told by something other than color; every other tab's label SHALL keep the typescale's weight, and every tab SHALL keep the width its label needs at the heavier weight whether it is selected or not, so that nothing in the row moves or wraps when the selection does. The weight SHALL change with the label's color (TAB-23), at once where the colors do. A tonal tab with an icon and a drawn label SHALL place the icon before the label at every size (TAB-18).",
       "verify": "Test the fixtures tonal and tonal-no-track in the default system: the selected tab's indicator is comp.tabs.tonal.selected.state-layer.color at sys.state.selected-state-layer-opacity (16 %) over what is beneath it, its label is sys.color.on-secondary-container and the other labels sys.color.on-surface-variant; hover the selected tab: the hover layer shows over the indicator. The selected tonal label is 100 heavier than the typescale's weight and the others are at it, and moving the selection changes no tab's width; in `primary` and `secondary` every label keeps the typescale's weight. Press Settings and sample the indicator in the middle of the slide: its opacity is the same as at rest. The roles, names and states of primary, secondary and tonal are the same."
+    },
+    {
+      "id": "TAB-51",
+      "text": "WHILE orientation is vertical THE tabs SHALL stack the tabs from top to bottom in the order given, in a column at the start edge of the row beside its panels, every tab as wide as the column: the widest tab's content plus the padding of the row's size on each side (comp.tabs.container.padding-inline.medium for medium, comp.tabs.container.padding-inline.small for small; TAB-44), or the width the product gives the tab list where that is wider, and never wider than the space the row has. Each tab's icon SHALL stand before its label in every variant and at every size, comp.tabs.container.gap apart, both at the tab's start edge, and each tab SHALL be at least the container height of the row's size tall and, because the tabs touch their neighbours above and below, at least the minimum target tall in layout (sys.target.touch for touch input, sys.target.pointer for fine pointers; TAB-5). TAB-51 to TAB-61 SHALL hold in place of what TAB-5, TAB-14, TAB-16, TAB-18, TAB-20, TAB-27, TAB-28, TAB-34 and TAB-35 say of a horizontal row's widths, heights, insets and edges; every other behaviour holds in both orientations.",
+      "verify": "Under the default system, in `vertical` (five tabs with icons, in a stage 360 wide): the tabs are one above another in their order, all as wide as the widest of them, each 48 tall, every icon before its label at the tab's left edge; the column is narrower than the stage. In `vertical-small` each tab is the minimum target tall (44 with a fine pointer, 48 with touch input), not 32."
+    },
+    {
+      "id": "TAB-52",
+      "text": "WHILE orientation is vertical THE tabs SHALL draw the selected tab's active indicator, and every tab's container (TAB-18), as the tab's box less comp.tabs.track.padding on every side: as wide as the column less the inset on each side and as tall as the tab less the inset above and below, whatever the tab holds, never a circle, its corners rounded by the variant's active-indicator shape, each at most half its height (TAB-16); and SHALL slide and resize it from one tab to another along the column over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, as TAB-17 says, the covered label and icon following it as TAB-24 says.",
+      "verify": "Under the default system, in `vertical`: the indicator is 4 in from the track's left, right and top edges on the first tab and 40 tall; Down Arrow slides it down to the next tab over the indicator motion, the first and the last frame of the slide being its box on the one tab and on the other."
+    },
+    {
+      "id": "TAB-53",
+      "text": "WHILE orientation is vertical THE tabs SHALL draw the divider (TAB-20) as a line of comp.tabs.divider.thickness in comp.tabs.divider.color along the column's end edge, the side of the panels, the full height of the column, and the selected tab's underline (TAB-16) as a line of the variant's underline thickness on that edge, above the divider and as tall as the selected tab in every variant, its corners that face away from the divider rounded by the variant's underline shape; in a right-to-left layout both SHALL lie on the column's left edge.",
+      "verify": "Under `m3-like`, whose underline and divider are drawn: in `vertical` the underline is a 3 wide line on the column's right edge, as tall as the selected tab, and the divider runs down the whole right edge; in `vertical-rtl` both are on the left edge."
+    },
+    {
+      "id": "TAB-54",
+      "text": "WHILE orientation is vertical and a tab has keyboard focus, Down Arrow and Up Arrow SHALL move focus to the next and previous enabled tab, wrapping at the ends, and Home and End to the first and last enabled tab, each move also selecting the tab it reaches and emitting change (automatic activation, TAB-12); Right Arrow and Left Arrow SHALL do nothing, in either layout direction, and are left to the page.",
+      "verify": "In `vertical`, with General selected and focused: Down Arrow selects and focuses Notifications and emits one change; Up Arrow twice wraps to Accessibility; Home and End go to the first and the last tab; Right Arrow and Left Arrow change neither the selection nor focus and emit nothing, in left-to-right and right-to-left."
+    },
+    {
+      "id": "TAB-55",
+      "text": "WHILE orientation is vertical THE tabs SHALL expose the tab list as vertical (aria-orientation on the web, the platform's equivalent where it has one) and every other role, name, state and relation as TAB-13 and TAB-42 say; WHILE it is horizontal THE tabs SHALL expose the tab list's orientation as the platform's default for a tab list, which is horizontal.",
+      "verify": "The web: the tab list of `vertical` has aria-orientation vertical, and the one of `primary` has none."
+    },
+    {
+      "id": "TAB-56",
+      "text": "WHILE orientation is vertical and the tabs are taller than the space the row has, THE tabs SHALL scroll them vertically inside the track, keeping the track still and the tabs clipped to its shape (TAB-27), and SHALL bring a tab into view along the column as TAB-15 says; WHILE orientation is vertical fullWidth SHALL be ignored, and WHERE it is true a debug build SHALL report it.",
+      "verify": "`vertical-scroll` holds twelve tabs in a row 240 tall, the eleventh selected: the track is 240 tall, the tabs scroll inside it, and the selected tab is wholly in view when the row first appears; End brings the last tab into view over the indicator motion. Setting fullWidth on `vertical` changes nothing drawn and a debug build reports it."
+    },
+    {
+      "id": "TAB-57",
+      "text": "WHILE orientation is vertical THE tabs SHALL take a drag (TAB-28 to TAB-30) only from a mouse or a pen moved past the slop further up or down than sideways, carrying the active indicator and the underline along the column as TAB-28 says along the row, and SHALL leave every touch to scroll the tabs or whatever holds the row, and every drag that goes sideways first to the page.",
+      "verify": "In `vertical`: a mouse pressed on General and moved 60 down carries the indicator toward Notifications, and its release there selects it with one change; a touch moved 60 down selects nothing and scrolls what holds the row; a mouse moved 60 sideways is not taken."
+    },
+    {
+      "id": "TAB-58",
+      "text": "WHILE orientation is vertical THE tabs SHALL round each corner of the track by the smaller of comp.tabs.track.shape and the active indicator's corner radius (the variant's active-indicator shape, at most half the indicator's height) plus comp.tabs.track.padding, so that the track's corners are concentric with the indicator's on the first and the last tab however tall the column is.",
+      "verify": "Under the default system (track and indicator fully rounded, track padding 4) the track of `vertical` has a corner of 24, the indicator's 20 plus 4, and not half the column's width; at 200 % text, where the tabs are taller, the corner grows with the indicator's. Under a system whose track shape is smaller than that sum the track keeps its own."
+    },
+    {
+      "id": "TAB-59",
+      "text": "WHILE orientation is vertical and the row is linked to a Tab view (TBV-17) THE tabs SHALL draw indicatorOffset (TAB-26) along the column, between the selected tab and the enabled tab below it (above 0) or above it (below 0); the row a Tab view draws itself (TBV-16) is horizontal.",
+      "verify": "A Tab view linked to `vertical` and swiped halfway toward the next panel draws the indicator halfway down between General and Notifications."
+    },
+    {
+      "id": "TAB-60",
+      "text": "WHEN orientation names a value the tabs do not define THE tabs SHALL lay the tabs out horizontally, and in debug builds report the value.",
+      "verify": "A row with orientation \"diagonal\" is drawn as `primary` is and a debug build reports \"diagonal\"."
+    },
+    {
+      "id": "TAB-61",
+      "text": "WHILE orientation is vertical and a tab's label is wider than its tab less the padding of the row's size on each side (and, beside an icon, less the icon and comp.tabs.container.gap) — a column narrower than its widest tab — THE tabs SHALL truncate the label at the end of its own direction (TAB-33) with an ellipsis, on one line, and SHALL show it whole as TAB-25 says.",
+      "verify": "`vertical` in a tab list 120 wide: the longer labels end in an ellipsis, each tab is 120 wide, and hovering one shows its whole label in a tooltip."
     }
   ],
   "accessibility": {
@@ -413,7 +478,11 @@
       },
       {
         "keys": "Right Arrow / Left Arrow",
-        "action": "Moves focus to the next or previous enabled tab, wrapping, and selects it (mirrored in right-to-left layouts)."
+        "action": "Horizontal: moves focus to the next or previous enabled tab, wrapping, and selects it (mirrored in right-to-left layouts). Vertical: does nothing."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow",
+        "action": "Vertical: moves focus to the next or previous enabled tab, wrapping, and selects it. Horizontal: does nothing (the page scrolls)."
       },
       {
         "keys": "Home / End",
@@ -450,7 +519,8 @@
       "The selected tab is told to assistive technology as a state, and to sight by the indicator and by its label. A tonal row's indicator is a quiet mark on purpose: in the default system a layer about 1.4:1 from what it lies on, the same step on the track and on any surface, with the selected label darker than the others. It is not held to 3:1 against its ground, as the selected destination of a navigation drawer is not. A person who needs more has the system's medium and high contrast and the platform's forced colors, where the indicator is a filled highlight (TAB-45); a product that cannot accept the quiet mark uses secondary or primary, which are filled.",
       "Without its track (TAB-49) a row has no ground of its own: its labels are held on every surface role of the system, and a product that places a row on a color of its own checks the labels against it, as it does for text.",
       "A small row (TAB-44) is 32 tall and still pressed over the minimum target (TAB-5, WCAG 2.5.8): its hit area reaches above and below it, which a header or a toolbar has room for. Directly over content that answers a press at its top edge, that content wins the overlap; a product that stacks a small row tight against such content uses the medium size.",
-      "transition none (TAB-43) takes away the motion the row plays by itself when the selection changes, in every motion setting; it takes away no way of selecting, and a drag across the row still carries the indicator under the finger. Where motion is reduced every row is drawn that way, and the state colors then change at once too (TAB-23), a ripple appearing whole (TAB-9)."
+      "transition none (TAB-43) takes away the motion the row plays by itself when the selection changes, in every motion setting; it takes away no way of selecting, and a drag across the row still carries the indicator under the finger. Where motion is reduced every row is drawn that way, and the state colors then change at once too (TAB-23), a ripple appearing whole (TAB-9).",
+      "A vertical tab list (orientation vertical) is still tabs: one subject's views, the categories of a settings page or the sections of one record, with the arrow keys of its axis (Down and Up). It is not a menu of destinations — moving between the pages of an app belongs to the navigation drawer, whose items are links. A column never wraps a label: a column narrower than its widest tab truncates the label, which stays the tab's whole name, and shows it whole in a tooltip (TAB-61)."
     ]
   },
   "tokens": "comp.tabs",
@@ -3114,6 +3184,411 @@
           }
         }
       ]
+    },
+    {
+      "id": "vertical",
+      "props": {
+        "variant": "primary",
+        "orientation": "vertical",
+        "value": "general",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-small",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "orientation": "vertical",
+        "value": "general",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-scroll",
+      "props": {
+        "variant": "primary",
+        "orientation": "vertical",
+        "value": "november",
+        "label": "Month"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "january",
+            "label": "January"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "february",
+            "label": "February"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "march",
+            "label": "March"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "april",
+            "label": "April"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "may",
+            "label": "May"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "june",
+            "label": "June"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "july",
+            "label": "July"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "august",
+            "label": "August"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "september",
+            "label": "September"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "october",
+            "label": "October"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "november",
+            "label": "November"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "december",
+            "label": "December"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-rtl",
+      "props": {
+        "variant": "primary",
+        "orientation": "vertical",
+        "value": "notifications",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "vertical-disabled-tab",
+      "props": {
+        "variant": "primary",
+        "orientation": "vertical",
+        "value": "general",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-secondary",
+      "props": {
+        "variant": "secondary",
+        "orientation": "vertical",
+        "value": "notifications",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-no-track",
+      "props": {
+        "variant": "tonal",
+        "orientation": "vertical",
+        "track": false,
+        "value": "notifications",
+        "label": "Settings"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "general",
+            "label": "General",
+            "icon": "settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "privacy",
+            "label": "Privacy",
+            "icon": "lock"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "appearance",
+            "label": "Appearance",
+            "icon": "palette"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "accessibility",
+            "label": "Accessibility",
+            "icon": "accessibility_new"
+          }
+        }
+      ]
     }
   ],
   "platforms": {
@@ -3125,6 +3600,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
+        "orientation": "orientation",
         "value": "value",
         "indicatorOffset": "indicatorOffset",
         "transition": "transition",
@@ -3158,6 +3634,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
+        "orientation": "orientation",
         "value": "selection",
         "indicatorOffset": "link",
         "transition": "transition",
@@ -3191,6 +3668,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
+        "orientation": "orientation",
         "value": "selectedValue",
         "indicatorOffset": "link",
         "transition": "transition",
@@ -3224,6 +3702,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "isScrollable",
+        "orientation": "direction",
         "value": "value",
         "indicatorOffset": "link",
         "transition": "transition",
@@ -3257,6 +3736,7 @@
         "size": "size",
         "track": "track",
         "fullWidth": "fullWidth",
+        "orientation": "orientation",
         "value": "value",
         "indicatorOffset": "link",
         "transition": "transition",
