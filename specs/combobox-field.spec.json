@@ -145,6 +145,10 @@
     {
       "name": "separation",
       "from": "combobox.separation"
+    },
+    {
+      "name": "iconSpace",
+      "from": "combobox.iconSpace"
     }
   ],
   "slots": [
@@ -268,7 +272,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "input",
@@ -328,7 +333,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "text",
@@ -388,7 +394,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
@@ -448,7 +455,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputChanged",
@@ -508,7 +516,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
