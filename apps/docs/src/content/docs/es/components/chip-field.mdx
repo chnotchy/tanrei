@@ -2,7 +2,7 @@
 title: Campo de chips
 description: Recoge una lista de textos cortos (direcciones de correo electrónico, números de teléfono, palabras clave) que se escriben uno tras otro en un solo campo. Cada texto que tu comprobación acepta se convierte en un chip que se puede quitar, o devolver a la parte donde se escribe para cambiarlo, y la lista es el único valor del campo.
 translationOf: components/chip-field.mdx
-sourceHash: 374ab98701cf17cc824c70aaa8d253c2ebe8d4bf
+sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -152,7 +152,7 @@ Baja a ese nivel para una organización que el campo de chips no ofrezca, como e
 | Slots | `label-icon` | — | — |
 | Tokens | `comp.field.*` | `comp.input-box.*` para la caja; `comp.text-input.*` para el lugar de los elementos | Ninguno; los elementos leen `comp.chip.*` |
 
-- **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor.
+- **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor. Sus acciones de quitar son simples, como las de un chip de forma predeterminada: un elemento quitado se puede volver a escribir.
 - **El marcador de posición** solo se muestra mientras la lista está vacía.
 - **De solo lectura**: se puede llegar a los elementos y leerlos, y se envían. No se puede crear ni quitar ninguno, ni devolverlo a la parte donde se escribe, y cada chip se dibuja sin su acción de quitar. El campo termina con su última línea de chips: no reserva espacio para escribir. Un campo deshabilitado conserva ese espacio, para que tenga la misma forma cuando se vuelva a habilitar.
 - **Deshabilitado**: el campo, la caja y todos los chips están deshabilitados, y no se envía nada.

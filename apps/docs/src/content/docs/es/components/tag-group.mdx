@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
+sourceHash: 73d00d225e6da4964ae9ab6d241a9e6e1ea07f85
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -178,6 +178,8 @@ El grupo no guarda ningún valor. Cada chip de filtro guarda su propio `selected
 ### Quitar un chip
 
 Un chip pide que lo quiten y tú lo quitas. Si el foco estaba en ese chip o en su acción de quitar, el grupo pone el foco en el chip que lo seguía, o en el anterior cuando no lo sigue ninguno. Una persona que quita varios elementos seguidos continúa desde donde estaba.
+
+La acción de quitar de un chip es simple salvo que actives `destructiveRemove` en ese chip, y el grupo no la cambia. Actívalo solo donde quitar haga perder algo que no se recupera en un paso, como un archivo adjunto; un filtro aplicado o un término de búsqueda vuelve en un paso.
 
 Dos cosas siguen siendo tuyas:
 

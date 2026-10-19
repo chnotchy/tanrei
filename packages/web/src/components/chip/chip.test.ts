@@ -282,11 +282,11 @@ test.describe('behavior', () => {
     // A selected chip has no border, and disabled it grows none; an outlined chip keeps no fill.
     expect(await resolveColor(page, T('outlined-disabled-selected-outline-color'))).toBe('rgba(0, 0, 0, 0)');
     expect(await resolveColor(page, T('outlined-disabled-container-color'))).toBe('rgba(0, 0, 0, 0)');
-    // The remove action (destructive by default, CHP-27): its glyph reads as disabled content; its round container stays
-    // invisible — as a plain remove action's does.
+    // The remove action (plain by default, CHP-27): its glyph reads as disabled content; its round container stays
+    // invisible — as a destructive remove action's does.
     const remove = await removeOf(page, 'input-disabled').evaluate((el) => { const s = getComputedStyle(el); return [s.backgroundColor, s.color]; });
-    expect(remove).toEqual([await resolveColor(page, T('outlined-disabled-destructive-remove-container-color')), await resolveColor(page, T('outlined-disabled-destructive-remove-icon-color'))]);
     expect(remove).toEqual([await resolveColor(page, T('outlined-disabled-remove-container-color')), await resolveColor(page, T('outlined-disabled-remove-icon-color'))]);
+    expect(remove).toEqual([await resolveColor(page, T('outlined-disabled-destructive-remove-container-color')), await resolveColor(page, T('outlined-disabled-destructive-remove-icon-color'))]);
     expect(remove[0]).toBe('rgba(0, 0, 0, 0)');
     expect(remove[1]).toMatch(/0\.38\)$/);
     expect(Number(await style(host(page, 'input-avatar-disabled').locator('.avatar'), 'opacity'))).toBe(Number(await token(page, '--tanrei-sys-state-disabled-content-opacity')));
@@ -470,8 +470,8 @@ test.describe('behavior', () => {
     // Colors: the icon and the check take the look's icon color, the remove glyph that of the parts CHP-20 / CHP-27 name.
     expect(await style(checkOf(page, 'filter-selected'), 'color')).toBe(await resolveColor(page, T('outlined-selected-icon-color')));
     expect(await style(iconOf(page, 'action-elevated'), 'color')).toBe(await resolveColor(page, T('elevated-icon-color')));
-    expect(await style(removeOf(page, 'input'), 'color')).toBe(await resolveColor(page, T('outlined-destructive-remove-icon-color')));
-    expect(await style(removeOf(page, 'input-plain-remove'), 'color')).toBe(await resolveColor(page, T('outlined-remove-icon-color')));
+    expect(await style(removeOf(page, 'input'), 'color')).toBe(await resolveColor(page, T('outlined-remove-icon-color')));
+    expect(await style(removeOf(page, 'input-destructive-remove'), 'color')).toBe(await resolveColor(page, T('outlined-destructive-remove-icon-color')));
   });
 
   test('CHP-15: an input chip draws its avatar in the leading position at the size’s avatar size, clipped to avatar.shape, hidden from assistive technology', async ({ page }) => {
@@ -695,10 +695,11 @@ test.describe('behavior', () => {
 
   test('CHP-20: under ripple (m3-like) a press of the remove action grows within its round container — from the center for a press outside it — and the chip’s container stays', async ({ page }) => {
     await mountFixtures(page, spec, { system: 'm3-like' });
-    const remove = removeOf(page, 'input');
-    await host(page, 'input').scrollIntoViewIfNeeded();
+    const id = 'input-destructive-remove';
+    const remove = removeOf(page, id);
+    await host(page, id).scrollIntoViewIfNeeded();
     const box = await bounds(remove);
-    const chipBefore = await drawn(page, 'input');
+    const chipBefore = await drawn(page, id);
     const [mx, my] = [Math.round(box.x + box.width / 2 + 2), Math.round(box.y + box.height / 2 + 1)]; // a pointer lands on whole pixels
     await page.mouse.move(mx, my);
     await page.mouse.down();
@@ -709,8 +710,8 @@ test.describe('behavior', () => {
     expect(layer.width).toBeCloseTo(box.width, 3);
     expect(layer.radius).toBeGreaterThanOrEqual(box.width / 2);
     expect(layer.x).toBeCloseTo(mx - box.x, 0);
-    expect(await inner(page, 'input').locator('.ripple').count()).toBe(0);
-    expect((await drawn(page, 'input')).bg).toBe(chipBefore.bg);
+    expect(await inner(page, id).locator('.ripple').count()).toBe(0);
+    expect((await drawn(page, id)).bg).toBe(chipBefore.bg);
     await page.mouse.move(0, 0);
     await page.mouse.up();
     await expect(ripple).toHaveCount(0);
@@ -929,29 +930,33 @@ test.describe('behavior', () => {
     expect(seen.find((w) => w.includes('CHP-7'))).toMatch(/kind "toggle" is not a kind of chip; it is drawn and behaves as "action"/);
   });
 
-  test('CHP-27: destructiveRemove is a property that defaults to true; its attribute is the inverse no-destructive-remove', async ({ page }) => {
+  test('CHP-27: destructiveRemove is a property that defaults to false, reflected as the destructive-remove attribute', async ({ page }) => {
     const [on, off] = [host(page, 'input-destructive-remove'), host(page, 'input-plain-remove')];
-    expect(await host(page, 'input').evaluate((el) => (el as any).destructiveRemove)).toBe(true);
-    await expect(host(page, 'input')).not.toHaveAttribute('no-destructive-remove');
+    expect(await host(page, 'input').evaluate((el) => (el as any).destructiveRemove)).toBe(false);
+    await expect(host(page, 'input')).not.toHaveAttribute('destructive-remove');
     expect(await on.evaluate((el) => (el as any).destructiveRemove)).toBe(true);
+    await expect(on).toHaveAttribute('destructive-remove', '');
     expect(await off.evaluate((el) => (el as any).destructiveRemove)).toBe(false);
-    await expect(off).toHaveAttribute('no-destructive-remove', '');
-    await on.evaluate((el) => ((el as any).destructiveRemove = false));
-    await expect(on).toHaveAttribute('no-destructive-remove', '');
-    await on.evaluate((el) => el.removeAttribute('no-destructive-remove'));
-    expect(await on.evaluate((el) => (el as any).destructiveRemove)).toBe(true);
+    await expect(off).not.toHaveAttribute('destructive-remove');
+    // The attribute that turned it off while it defaulted to true is gone: it is an unknown attribute now.
+    await off.evaluate((el) => el.setAttribute('no-destructive-remove', ''));
+    expect(await off.evaluate((el) => (el as any).destructiveRemove)).toBe(false);
+    await off.evaluate((el) => ((el as any).destructiveRemove = true));
+    await expect(off).toHaveAttribute('destructive-remove', '');
+    await off.evaluate((el) => el.removeAttribute('destructive-remove'));
+    expect(await off.evaluate((el) => (el as any).destructiveRemove)).toBe(false);
   });
 
   test('CHP-27: under acme, with destructiveRemove true and false the remove action renders alike at rest and disabled, and differs hovered, focused and pressed — each from its own parts', async ({ page }) => {
     const input = { kind: 'input', label: 'Ada Lovelace', removeLabel: 'Remove Ada Lovelace' } as const;
-    await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss(), fixtures: [...spec.fixtures, fixture('input-plain-disabled', { ...input, destructiveRemove: false, disabled: true })] });
+    await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss(), fixtures: [...spec.fixtures, fixture('input-destructive-disabled', { ...input, destructiveRemove: true, disabled: true })] });
     const paint = (id: string) => removeOf(page, id).evaluate(async (el) => { await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined))); const s = getComputedStyle(el); return [s.backgroundColor, s.color]; });
     const want = async (parts: string, state: string) => [await resolveColor(page, T(`outlined-${state}${parts}-container-color`)), await resolveColor(page, T(`outlined-${state}${parts}-icon-color`))];
     // At rest and while disabled the two look alike.
     expect(await paint('input-destructive-remove')).toEqual(await paint('input-plain-remove'));
     expect(await paint('input-destructive-remove')).toEqual(await want('destructive-remove', ''));
-    expect(await paint('input-disabled')).toEqual(await paint('input-plain-disabled'));
-    expect(await paint('input-disabled')).toEqual(await want('destructive-remove', 'disabled-'));
+    expect(await paint('input-disabled')).toEqual(await paint('input-destructive-disabled'));
+    expect(await paint('input-destructive-disabled')).toEqual(await want('destructive-remove', 'disabled-'));
     const seen: Record<string, Record<string, string[]>> = {};
     for (const [id, parts] of [['input-destructive-remove', 'destructive-remove'], ['input-plain-remove', 'remove']] as const) {
       const remove = removeOf(page, id);
@@ -993,24 +998,40 @@ test.describe('behavior', () => {
         expect(await resolveColor(page, T(`${variant}-${state}destructive-remove-container-color`)), `${variant} ${state}`).not.toBe(await resolveColor(page, T(`${variant}-${state}remove-container-color`)));
       }
     }
-    const id = 'input';
-    await removeOf(page, id).hover();
-    await expect.poll(() => style(removeOf(page, id), 'color')).toBe(error);
-    await removeOf(page, 'input-plain-remove').hover();
-    await expect.poll(() => style(removeOf(page, 'input-plain-remove'), 'color')).toBe(await resolveColor(page, T('outlined-hovered-remove-icon-color')));
+    // Scrolled into view first, so that the pointer stays on the remove action it was moved to.
+    await host(page, 'input-destructive-remove').scrollIntoViewIfNeeded();
+    await removeOf(page, 'input-destructive-remove').hover();
+    await expect.poll(() => style(removeOf(page, 'input-destructive-remove'), 'color')).toBe(error);
+    // By default the remove action is plain: hovered, focused and pressed, its glyph and its round container never take
+    // the error color.
+    const plain = async (state: string) => [await resolveColor(page, T(`outlined-${state}remove-container-color`)), await resolveColor(page, T(`outlined-${state}remove-icon-color`))];
+    const paint = async () => { await motionEnded(removeOf(page, 'input')); return removeOf(page, 'input').evaluate((el) => { const s = getComputedStyle(el); return [s.backgroundColor, s.color]; }); };
+    await host(page, 'input').scrollIntoViewIfNeeded();
+    await removeOf(page, 'input').hover();
+    await expect.poll(paint).toEqual(await plain('hovered-'));
+    expect((await paint())[1]).not.toBe(error);
+    await page.mouse.down();
+    await expect.poll(paint).toEqual(await plain('pressed-'));
+    expect((await paint())[1]).not.toBe(error);
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await keyFocusRemove(page, 'input');
+    await expect.poll(paint).toEqual(await plain('focused-'));
+    expect((await paint())[1]).not.toBe(error);
   });
 
   test('CHP-27: a chip that is not an input chip ignores destructiveRemove', async ({ page }) => {
     await mountFixtures(page, spec, {
       fixtures: [
-        fixture('action-on', { kind: 'action', label: 'Go' }, 'event'),
-        fixture('action-off', { kind: 'action', destructiveRemove: false, label: 'Go' }, 'event'),
-        fixture('filter-on', { kind: 'filter', selected: true, label: 'Go' }),
-        fixture('filter-off', { kind: 'filter', selected: true, destructiveRemove: false, label: 'Go' }),
+        fixture('action-default', { kind: 'action', label: 'Go' }, 'event'),
+        fixture('action-flagged', { kind: 'action', destructiveRemove: true, label: 'Go' }, 'event'),
+        fixture('filter-default', { kind: 'filter', selected: true, label: 'Go' }),
+        fixture('filter-flagged', { kind: 'filter', selected: true, destructiveRemove: true, label: 'Go' }),
       ],
     });
-    for (const [on, off] of [['action-on', 'action-off'], ['filter-on', 'filter-off']]) {
-      await expect(host(page, off)).toHaveAttribute('no-destructive-remove', '');
+    for (const [on, off] of [['action-default', 'action-flagged'], ['filter-default', 'filter-flagged']]) {
+      await expect(host(page, off)).toHaveAttribute('destructive-remove', '');
       expect(await drawn(page, off), off).toEqual(await drawn(page, on));
       expect(await bounds(inner(page, off)), off).toMatchObject({ width: (await bounds(inner(page, on))).width, height: (await bounds(inner(page, on))).height });
       expect(await host(page, off).ariaSnapshot(), off).toBe(await host(page, on).ariaSnapshot());
