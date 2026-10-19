@@ -32776,7 +32776,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "A window narrower than this is compact: the dialog sits at the bottom of it instead of its centre (DLG-17). 0 keeps the dialog centred in every window."
+            "$description": "A window narrower than this is compact: the dialog takes the bottom sheet's appearance at the bottom of it instead of standing at its centre (DLG-17). 0 keeps the dialog centred in every window."
           }
         },
         "container": {
@@ -32791,7 +32791,8 @@
               ],
               "hex": "#2b2930",
               "alpha": 1
-            }
+            },
+            "$description": "The centred container's fill; in a compact window the dialog takes the bottom sheet's (DLG-17)."
           },
           "elevation": {
             "$type": "shadow",
@@ -32854,7 +32855,8 @@
                 },
                 "inset": false
               }
-            ]
+            ],
+            "$description": "The centred container's lift; in a compact window the dialog takes the bottom sheet's (DLG-17)."
           },
           "gap": {
             "$type": "dimension",
@@ -32870,7 +32872,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The least distance between the container and the edges of the window's safe area (and the on-screen keyboard), centred or at the bottom. It wins over min-width on a narrow window."
+            "$description": "The least distance between the centred container and the edges of the window's safe area (and the on-screen keyboard). It wins over min-width on a narrow window."
           },
           "max-width": {
             "$type": "dimension",
@@ -32878,7 +32880,7 @@
               "value": 560,
               "unit": "px"
             },
-            "$description": "The widest a dialog draws, centred or at the bottom; longer text wraps and wider content scrolls or wraps."
+            "$description": "The widest a centred dialog draws; longer text wraps and wider content scrolls or wraps. In a compact window the bottom sheet's greatest width applies (DLG-17)."
           },
           "min-width": {
             "$type": "dimension",
@@ -32902,7 +32904,7 @@
               "value": 28,
               "unit": "px"
             },
-            "$description": "Every corner of the container, centred or at the bottom of a compact window."
+            "$description": "Every corner of the centred container. In a compact window the dialog takes the bottom sheet's corners (DLG-17)."
           }
         },
         "content": {
@@ -33036,14 +33038,6 @@
               0.1,
               1
             ]
-          },
-          "enter-offset": {
-            "$type": "dimension",
-            "$value": {
-              "value": 32,
-              "unit": "px"
-            },
-            "$description": "How far below its place a container at the bottom of a compact window starts as it rises in, and sinks as it leaves. 0 fades without moving."
           },
           "enter-scale": {
             "$type": "number",

@@ -8,7 +8,7 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a dialog reads: the scrim behind it; the container's color, elevation, corner shape, padding, gap, minimum and maximum width, the three fixed widths a product may choose instead, and its margin to the window; the window width below which it sits at the bottom; the header (where the icon sits and its gap to the headline); the icon, headline, supporting text and content colors and text styles; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the enter and exit motion, centred and from the bottom.",
+            "usage": "Everything a dialog reads: the scrim behind it; the container's color, elevation, corner shape, padding, gap, minimum and maximum width, the three fixed widths a product may choose instead, and its margin to the window; the window width below which it takes the bottom sheet's appearance (whose container and motion tokens it then reads); the header (where the icon sits and its gap to the headline); the icon, headline, supporting text and content colors and text styles; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the enter and exit motion of the centred dialog.",
             "rules": [
               "Every dialog has at least one action. The actions are Tanrei Buttons, marked confirming or dismissive; the dialog places them as a full-width Button group and gives a Button without a variant the one comp.dialog.actions.variant names (tonal in the default system). It never changes a variant the product set.",
               "Choose another look for every dialog of a product by re-valuing comp.dialog.actions.variant and comp.dialog.actions.arrangement in its layer; set a Button's variant for one action only.",
@@ -34,16 +34,18 @@
           "color": {
             "$type": "color",
             "$value": "{tanrei.sys.color.surface-container-high}",
+            "$description": "The centred container's fill; in a compact window the dialog takes the bottom sheet's (DLG-17).",
             "$extensions": {}
           },
           "elevation": {
             "$type": "shadow",
-            "$value": "{tanrei.sys.elevation.level3}"
+            "$value": "{tanrei.sys.elevation.level3}",
+            "$description": "The centred container's lift; in a compact window the dialog takes the bottom sheet's (DLG-17)."
           },
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.large}",
-            "$description": "Every corner of the container, centred or at the bottom of a compact window."
+            "$description": "Every corner of the centred container. In a compact window the dialog takes the bottom sheet's corners (DLG-17)."
           },
           "padding": {
             "$type": "dimension",
@@ -76,7 +78,7 @@
               "value": 270,
               "unit": "px"
             },
-            "$description": "The widest a dialog draws, centred or at the bottom; longer text wraps and wider content scrolls or wraps.",
+            "$description": "The widest a centred dialog draws; longer text wraps and wider content scrolls or wraps. In a compact window the bottom sheet's greatest width applies (DLG-17).",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
@@ -88,17 +90,17 @@
           "margin": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space200}",
-            "$description": "The least distance between the container and the edges of the window's safe area (and the on-screen keyboard), centred or at the bottom. It wins over min-width on a narrow window."
+            "$description": "The least distance between the centred container and the edges of the window's safe area (and the on-screen keyboard). It wins over min-width on a narrow window."
           }
         },
         "compact": {
           "window-width": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space0}",
-            "$description": "A window narrower than this is compact: the dialog sits at the bottom of it instead of its centre (DLG-17). 0 keeps the dialog centred in every window.",
+            "$description": "A window narrower than this is compact: the dialog takes the bottom sheet's appearance at the bottom of it instead of standing at its centre (DLG-17). 0 keeps the dialog centred in every window.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product decides below which window width its dialogs move within reach of the thumb, and a product whose dialogs stay centred everywhere sets 0."
+                "rationale": "One product decides below which window width its dialogs become sheets at the bottom of the window, within reach of the thumb, as its popovers do, and a product whose dialogs stay centred everywhere sets 0."
               }
             }
           }
@@ -325,16 +327,6 @@
             "$extensions": {
               "dev.tanrei.derive": {
                 "fixed": "A proportion of the dialog's own size; no dial scales it."
-              }
-            }
-          },
-          "enter-offset": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space400}",
-            "$description": "How far below its place a container at the bottom of a compact window starts as it rises in, and sinks as it leaves. 0 fades without moving.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product tunes how far a dialog travels when it comes up from the bottom edge: far enough to say where it came from, short enough not to read as a sheet."
               }
             }
           },
