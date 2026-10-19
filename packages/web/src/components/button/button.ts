@@ -156,7 +156,9 @@ export class TanreiButton extends TanreiElement {
    * keeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in
    * its tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error
    * color. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says
-   * what is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).
+   * what is destroyed (BTN-42). Ignored on a toggle (BTN-41), and on a link — while `href` is not empty — which only
+   * leads somewhere and deletes nothing (BTN-43); both are reported in debug builds. The action at the link's
+   * destination is the one that deletes, and the one to mark destructive.
    */
   destructive = false;
 
@@ -628,6 +630,10 @@ export class TanreiButton extends TanreiElement {
     // BTN-41: a toggle has no destructive look; the styles draw it as the toggle it is.
     if ((changed.has('destructive') || changed.has('toggle')) && this.destructive && this.toggle) {
       report(this, 'BTN-41', 'a toggle has no destructive look: destructive is ignored while toggle is true');
+    }
+    // BTN-43: a link deletes nothing; the styles draw it as the link of its variant.
+    if ((changed.has('destructive') || changed.has('href') || changed.has('toggle')) && this.destructive && this.link.form) {
+      report(this, 'BTN-43', 'a link only leads somewhere and does not itself delete anything: destructive is ignored while href is not empty. The action that deletes is the one at its destination; mark that one destructive');
     }
     if (changed.has('type') || changed.has('toggle') || changed.has('href')) {
       this.watch();

@@ -2837,7 +2837,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).",
+              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle (BTN-41), and on a link — while `href` is not empty — which only\nleads somewhere and deletes nothing (BTN-43); both are reported in debug builds. The action at the link's\ndestination is the one that deletes, and the one to mark destructive.",
               "attribute": "destructive",
               "reflects": true
             },
@@ -3196,7 +3196,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).",
+              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle (BTN-41), and on a link — while `href` is not empty — which only\nleads somewhere and deletes nothing (BTN-43); both are reported in debug builds. The action at the link's\ndestination is the one that deletes, and the one to mark destructive.",
               "fieldName": "destructive"
             },
             {
