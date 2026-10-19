@@ -4,18 +4,18 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
 import { report } from '../../primitives/report.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
-import { TanreiSelect, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
+import { TanreiSelect, type TanreiSelectIconSpace, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
 
 // The members' own types are the select field's: it has no detail type and no type for a prop of its own.
-export type { TanreiFieldRequiredMark, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
+export type { TanreiFieldRequiredMark, TanreiSelectIconSpace, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
 
 /** SEF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
- * SEF-1: the seven props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
+ * SEF-1: the eight props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
  * they reach the select through its Field's connection.
  */
-const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation'] as const;
+const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation', 'iconSpace'] as const;
 
 /**
  * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
@@ -131,6 +131,7 @@ export class TanreiSelectField extends ComposedControl<string> {
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
   };
 
   /**
@@ -222,6 +223,9 @@ export class TanreiSelectField extends ComposedControl<string> {
 
   /** @from tanrei-select.separation */
   separation: TanreiSelectSeparation = 'auto';
+
+  /** @from tanrei-select.iconSpace */
+  iconSpace: TanreiSelectIconSpace = 'auto';
 
   protected override readonly hostNameSentence = 'SEF-1';
 

@@ -1479,7 +1479,7 @@ test.describe('behavior: the list', () => {
     expect(await heard(page)).toEqual([]);
   });
 
-  test('SEL-37: an option is one row — option.padding-inline from each edge, the leading icon column while any option has one, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is the hit area', async ({ page }) => {
+  test('SEL-37: an option is one row — option.padding-inline from each edge, the leading icon column as SEL-66 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is the hit area', async ({ page }) => {
     await mountSpec(page, ['stacked-open', 'open-icons', 'open-supporting-text', 'open-long-options']);
     const [pad, gap, mark, block] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-mark-size'), await token(page, 'option-padding-block')];
     const r = row(page, 'stacked-open', 'Canada');
@@ -1825,6 +1825,50 @@ test.describe('behavior: the list', () => {
     expect(await drawn('open-groups-divider'), 'the attribute wins').toEqual({ dividers: 2, gaps: 0, places: 2 });
     expect(await drawn('odd'), 'an unknown value is auto').toEqual({ dividers: 0, gaps: 1, places: 1 });
     await expect.poll(() => seen.some((w) => w.includes('SEL-45') && w.includes('sometimes'))).toBe(true);
+  });
+
+  test('SEL-66: iconSpace — auto keeps the leading icon column, empty, in a section where another option has an icon, and none in a section without icons; always in every option; never only in an option that has an icon; a section is a group or a run of options outside any group; decided again when an option changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    await mount(page, [
+      ...spaced,
+      fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
+      fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
+    ]);
+    const [pad, gap, size] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-leading-icon-size')];
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where an option's label starts, from its row's start edge. */
+    const at = async (id: string, label: string) => (await box(row(page, id, label).locator('.option-label'))).x - (await box(row(page, id, label))).x;
+    const expectStarts = async (id: string, starts: Record<string, number>) => {
+      for (const [label, start] of Object.entries(starts)) near(await at(id, label), start, `${id}: ${label}`);
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto: the group Apps keeps the column on Copy link; the group Files has no icon and keeps none.
+    await expectStarts('icon-space-auto', { Mail: kept, Messages: kept, 'Copy link': kept, Print: none, 'Save as PDF': none });
+    await expect(row(page, 'icon-space-auto', 'Copy link').locator('.row-column.leading[aria-hidden="true"]')).toHaveCount(1);
+    await expect(row(page, 'icon-space-auto', 'Print').locator('.row-column.leading')).toHaveCount(0);
+    // A group's title keeps its own place whatever its section keeps (SEL-44).
+    const titles = part(page, 'icon-space-auto', '.group-title');
+    near((await box(titles.nth(0))).x, (await box(titles.nth(1))).x, 'the titles start alike');
+    await expectStarts('icon-space-always', { Mail: kept, 'Copy link': kept, Print: kept, 'Save as PDF': kept });
+    await expectStarts('icon-space-never', { Mail: kept, Messages: kept, 'Copy link': none, Print: none, 'Save as PDF': none });
+    // Options outside any group are a section of their own, each run apart from the next.
+    await expectStarts('runs', { A: kept, B: kept, C: none, D: none, E: none });
+    // An unknown value is auto, reported.
+    await expectStarts('odd', { A: kept, B: kept, C: none });
+    await expect.poll(() => seen.some((w) => w.includes('(SEL-66)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to Print keeps the column on Save as PDF; taken away, the group keeps none.
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.setAttribute('leading-icon', 'print'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(kept, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(none, 0);
+    // iconSpace changed while the list is shown.
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 'Copy link')).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 });
 
@@ -2849,7 +2893,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label, the value or the placeholder, the glyphs and — where it is open — the list the spec gives it, and no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(45);
+    expect(spec.fixtures).toHaveLength(48);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();

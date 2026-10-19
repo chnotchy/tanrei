@@ -38182,6 +38182,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectIconSpace"
+              },
+              "default": "'auto'",
+              "attribute": "icon-space",
+              "reflects": true,
+              "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one."
+            },
+            {
+              "kind": "field",
               "name": "name",
               "privacy": "public",
               "type": {
@@ -38540,6 +38552,15 @@
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-select-separation`)."
             },
             {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiSelectIconSpace"
+              },
+              "default": "'auto'",
+              "fieldName": "iconSpace",
+              "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one."
+            },
+            {
               "name": "name",
               "type": {
                 "text": "string"
@@ -38567,6 +38588,14 @@
           "name": "TanreiFieldRequiredMark",
           "declaration": {
             "name": "TanreiFieldRequiredMark",
+            "module": "src/components/select-field/select-field.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiSelectIconSpace",
+          "declaration": {
+            "name": "TanreiSelectIconSpace",
             "module": "src/components/select-field/select-field.ts"
           }
         },
@@ -38992,6 +39021,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -39222,6 +39263,15 @@
               "default": "'auto'",
               "description": "How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-select-separation`).",
               "fieldName": "separation"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiSelectIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "inline",
