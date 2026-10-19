@@ -292,6 +292,21 @@ test.describe('appearStyles and AppearController', () => {
     expect(await runs(host)).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
   });
 
+  test('appear.blur of 0 (every shipped system) is no filter at all: the surface has none closed or open, and no transition of filter runs; a blur a layer sets is drawn closed', async ({ page }) => {
+    // WebKit (Playwright's build on Linux) crashes or stalls a page while a transition of `filter` runs, blur(0px) to
+    // none included: a popover opened and closed in a loop lost its page within 150 rounds in 8 runs of 8.
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear></div><div id="blurred" style="--tanrei-sys-motion-appear-blur: 4px"><x-appear id="b"></x-appear></div>');
+    await painted(page);
+    const host = page.locator('#a');
+    await expect(host.locator('.motion')).toHaveCSS('filter', 'none');
+    await host.evaluate((el) => void ((el as HTMLElement & { open: boolean }).open = true));
+    await expect(host.locator('.motion')).toHaveCSS('opacity', '1');
+    await expect(host.locator('.motion')).toHaveCSS('filter', 'none');
+    expect(await runs(host)).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
+    expect(await runs(host)).not.toContain('motion:filter');
+    await expect(page.locator('#b .motion')).toHaveCSS('filter', 'blur(4px)');
+  });
+
   test('MOT-2: an entrance turned round goes on from the value shown, and back again; the exit that was turned round resolves false', async ({ page, browserName }) => {
     // Firefox starts a transition that replaces one a script holds (paused and set to a time) from the held one's value
     // at the timeline's time, not at the time it was held at: held at 40 % of a linear fade drawn at 0.4, the fade that

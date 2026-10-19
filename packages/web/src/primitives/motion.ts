@@ -177,13 +177,16 @@ export function appearStyles(options: AppearOptions): CSSResult {
     }
   }
   // Where it starts from. A sheet: its own size toward its edge, whole and unfaded.
+  // The blur is a filter only where there is one to draw: closed with no blur, the surface has no filter, as it has none
+  // open, so no transition of `filter` runs. WebKit (Playwright's build on Linux) crashes or stalls the page while one
+  // runs — blur(0px) to none included, which draws nothing — and every shipped system starts from no blur.
   const start = sheet
-    ? `--_appear-opacity: 1; --_appear-scale: 1; --_appear-distance: 100%; --_appear-blur: 0px;`
-    : `--_appear-opacity: var(${from}-opacity); --_appear-scale: var(${from}-scale); --_appear-distance: var(${from}-distance); --_appear-blur: var(${from}-blur);`;
+    ? `--_appear-opacity: 1; --_appear-scale: 1; --_appear-distance: 100%; --_appear-blur: 0px; --_appear-filter: none;`
+    : `--_appear-opacity: var(${from}-opacity); --_appear-scale: var(${from}-scale); --_appear-distance: var(${from}-distance); --_appear-blur: var(${from}-blur); --_appear-filter: blur(var(--_appear-blur));`;
   const closed = `opacity: var(--_appear-opacity);
     scale: var(--_appear-sx) var(--_appear-sy);
     translate: calc(var(--_appear-dx) * var(--_appear-distance)) calc(var(--_appear-dy) * var(--_appear-distance));
-    filter: blur(var(--_appear-blur));`;
+    filter: var(--_appear-filter);`;
   const whole = 'opacity: 1; scale: none; translate: none; filter: none;';
   const timing = (t: AppearTiming, properties = MOVED, behaviour = BEHAVIOUR) =>
     `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing}; transition-behavior: ${behaviour};`;
@@ -201,6 +204,7 @@ export function appearStyles(options: AppearOptions): CSSResult {
     ${unfolds.join('\n    ')}
   }
   ${centred.length ? `@container style(${from}-origin: center) {\n    ${centred.join('\n    ')}\n  }` : ''}
+  ${sheet ? '' : `@container style(${from}-blur: 0px) {\n    :is(${motion}) { --_appear-filter: none; }\n  }`}
   ${open} {
     ${whole}
     ${timing(enter)}
