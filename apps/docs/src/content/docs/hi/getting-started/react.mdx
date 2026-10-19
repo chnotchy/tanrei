@@ -2,23 +2,29 @@
 title: React
 description: Tanrei के Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।
 translationOf: getting-started/react.mdx
-sourceHash: 6f9902925cc0646f01425a6a04db14d8ef3e627f
+sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react`, `@tanrei/web` के हर कस्टम एलिमेंट को एक असली React कंपोनेंट में लपेटता है, जिसकी प्रॉपर्टी और इवेंट हैंडलर टाइप किए हुए हैं। ये रैपर कस्टम एलिमेंट मैनिफ़ेस्ट से जनरेट होते हैं, इसलिए वे हमेशा उन एलिमेंट से मेल खाते हैं जिन्हें वे लपेटते हैं।
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## इंस्टॉल करें
 
 React 18 या उसके बाद का वर्शन ज़रूरी है।
 
+### npm से
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### सोर्स से
 
-[Web पैकेज](/hi/getting-started/web/) की तरह (Git, Node 22.12 या उसके बाद का वर्शन, pnpm 12): रिपॉज़िटरी के क्लोन में दोनों पैकेज बिल्ड करें और उन्हें पैक करें,
+`main` पर मौजूद सोर्स इस्तेमाल करने के लिए [Web पैकेज](/hi/getting-started/web/) की तरह (Git, Node 22.12 या उसके बाद का वर्शन, pnpm 12): रिपॉज़िटरी के क्लोन में दोनों पैकेज बिल्ड करें और उन्हें पैक करें,
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -32,12 +38,6 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 
 ```sh
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
-```
-
-### पहली रिलीज़ के बाद
-
-```sh
-npm install @tanrei/react @tanrei/web
 ```
 
 ## इस्तेमाल

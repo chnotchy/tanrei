@@ -2,18 +2,16 @@
 title: はじめに
 description: Tanrei が提供するもの、その全体像、そしてお使いのプラットフォームでの始め方。
 translationOf: getting-started/index.mdx
-sourceHash: 2405cef34d01a59b719543a9f949c4c861cc6922
+sourceHash: 4047de815b86a5425d5a3c8912e2fffd4fe11c22
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import { CardGrid, LinkCard } from '../../../../components/cards';
 import { Tabs, TabItem } from '../../../../components/tabs';
 
 Tanrei は、各プラットフォームのネイティブなライブラリとして提供されるデザインシステムです。特別なランタイムやクロスプラットフォームのフレームワークを導入する必要はありません。いま開発に使っているプラットフォーム向けのパッケージを追加するだけで、ほかのすべてのプラットフォームと同じトークン、コンポーネント、アクセシビリティの振る舞いが手に入ります。
 
-<Callout type="caution" title="プレリリース">
-  Tanrei は現在開発中で、**まだ何もリリースしていません**。どのパッケージもレジストリにはありません。各プラットフォームのガイドでは、いまソースからビルドする方法と、最初のリリース後のインストール方法を示しています。ガイドに示す API は現時点の仕様とソースを反映したもので、リリースまでに変わる可能性があります。いま実際に何があるかは、[ステータスページ](/ja/status/)で正確に確認できます。Web と React のパッケージはソースからビルドできます。SwiftUI、Compose、Flutter、React Native は現在の仕様に追従しておらず、まだビルドできません。
-</Callout>
+<ReleaseNotice />
 
 ## プラットフォームを選ぶ
 

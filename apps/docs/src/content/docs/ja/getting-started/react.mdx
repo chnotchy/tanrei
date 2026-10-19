@@ -2,23 +2,29 @@
 title: React
 description: Tanrei の Web Components から生成した、型付きの React コンポーネント。
 translationOf: getting-started/react.mdx
-sourceHash: 6f9902925cc0646f01425a6a04db14d8ef3e627f
+sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` は、`@tanrei/web` の各カスタム要素を、型付きのプロパティとイベントハンドラーを持つ本物の React コンポーネントでラップします。ラッパーはカスタム要素のマニフェストから生成されるので、ラップしている要素と常に一致します。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## インストール
 
 React 18 以降が必要です。
 
+### npm から
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### ソースから
 
-[Web のパッケージ](/ja/getting-started/web/)と同じく（Git、Node 22.12 以降、pnpm 12）、リポジトリのクローンで 2 つのパッケージをビルドしてパックします。
+`main` のソースを使うには、[Web のパッケージ](/ja/getting-started/web/)と同じく（Git、Node 22.12 以降、pnpm 12）、リポジトリのクローンで 2 つのパッケージをビルドしてパックします。
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -32,12 +38,6 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 
 ```sh
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
-```
-
-### 最初のリリース後
-
-```sh
-npm install @tanrei/react @tanrei/web
 ```
 
 ## 使い方

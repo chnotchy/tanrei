@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
+import { release } from './release.js';
 
 export const BEGIN = '<!-- tanrei:status -->';
 export const END = '<!-- /tanrei:status -->';
@@ -44,12 +45,6 @@ const PACKAGES = {
 };
 
 const repositoryFile = (rel) => `https://github.com/${CONFIG.repository.public}/blob/main/${rel}`;
-
-/** The version's release: `{ version, prerelease, tag, release }` — "0.1.0-next.0" is a prerelease of 0.1.0 under the dist-tag `next`. */
-export function release(version = CONFIG.version) {
-  const [base, pre] = version.split(/-(.*)/s);
-  return { version, prerelease: Boolean(pre), tag: pre ? pre.split('.')[0] : 'latest', release: base };
-}
 
 /** "7 alpha · 83 lagging": a platform's components by status, the most finished first, none of a count of 0. */
 export function counts(totals) {

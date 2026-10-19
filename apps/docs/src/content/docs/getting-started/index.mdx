@@ -3,15 +3,13 @@ title: Getting started
 description: What Tanrei ships, how the pieces fit together, and where to start on your platform.
 ---
 
-import Callout from '../../../components/Callout.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 import { CardGrid, LinkCard } from '../../../components/cards';
 import { Tabs, TabItem } from '../../../components/tabs';
 
 Tanrei is a design system delivered as native libraries. You do not adopt a runtime or a cross-platform framework; you add the package for the platform you already build on and get the same tokens, components and accessibility behaviour as every other platform.
 
-<Callout type="caution" title="Pre-release">
-  Tanrei is in active development and **nothing has been released yet**: no package is on a registry. Each platform's guide shows how to build it from the source today, and how installing will work after the first release. The API shown in these guides reflects the current specs and source, and can change before then. The [status page](/status/) shows exactly what exists today. The Web and React packages build from source; SwiftUI, Compose, Flutter and React Native have not caught up with the current specs and do not build yet.
-</Callout>
+<ReleaseNotice />
 
 ## Pick your platform
 

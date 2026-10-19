@@ -2,23 +2,29 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: d7a902eae657f6f6948c5db7f205778e61104046
+sourceHash: b795991094209ca4e3878521a44be6737c299786
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` には 2 つのものが入っています。デザイントークンを CSS カスタムプロパティとして収めたスタイルシートと、Lit で作った標準準拠のカスタム要素です。特定のフレームワークは必要ありません。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## インストール
 
+### npm から
+
+```sh
+npm install @tanrei/web
+```
+
 ### ソースから
 
-Git、Node 22.12 以降、pnpm 12 が必要です（`corepack enable` で、リポジトリが固定しているバージョンが使えます）。リポジトリのクローンでパッケージをビルドしてパックし、パックしたファイルをプロジェクトにインストールします。
+公開される前の `main` のソースを使うには、Git、Node 22.12 以降、pnpm 12 が必要です（`corepack enable` で、リポジトリが固定しているバージョンが使えます）。リポジトリのクローンでパッケージをビルドしてパックし、パックしたファイルをプロジェクトにインストールします。
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -34,12 +40,6 @@ npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
 パックしたファイルには、リリースで公開するものがそのまま入っているので、以下の手順はすべて同じように動きます。ソースの新しい状態を取り込むには、pull してからビルドとパックをやり直し、新しいファイルをインストールします。
-
-### 最初のリリース後
-
-```sh
-npm install @tanrei/web
-```
 
 ## 使い方
 
