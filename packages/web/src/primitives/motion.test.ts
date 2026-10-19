@@ -265,6 +265,33 @@ test.describe('appearStyles and AppearController', () => {
     expect((await runs(page.locator('#a'))).filter((run) => run.startsWith('row:'))).toEqual([]);
   });
 
+  test('an entrance begun at the end of a task that outlasts it starts in the first frame drawn after that task: none of it is over before it is drawn', async ({ page }) => {
+    // WebKit dates a transition from the frame drawn last, which stands still while a task runs: a combobox's list,
+    // opened by a key whose task rendered its rows for 200–340 ms on a two-core runner, had its 300 ms entrance over
+    // before its first frame, dropped without a transition event. The task here is held for longer than the entrance
+    // (modal: 350 ms under the default system) and the first frame after it is read in its frame callback, as drawn.
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear></div>');
+    await painted(page);
+    const host = page.locator('#a');
+    const first = await host.evaluate(async (el) => {
+      const appear = el as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+      const motion = el.shadowRoot!.querySelector('.motion')!;
+      appear.open = true;
+      await appear.updateComplete;
+      const end = performance.now() + 500;
+      while (performance.now() < end);
+      return new Promise<{ opacity: number; scale: string }>((resolve) =>
+        requestAnimationFrame(() => {
+          const style = getComputedStyle(motion);
+          resolve({ opacity: Number(style.opacity), scale: style.scale });
+        }),
+      );
+    });
+    expect(first, 'the first frame after the task draws the entrance at its start').toEqual({ opacity: 0, scale: '0.96' });
+    await expect(host.locator('.motion')).toHaveCSS('opacity', '1');
+    expect(await runs(host)).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
+  });
+
   test('MOT-2: an entrance turned round goes on from the value shown, and back again; the exit that was turned round resolves false', async ({ page, browserName }) => {
     // Firefox starts a transition that replaces one a script holds (paused and set to a time) from the held one's value
     // at the timeline's time, not at the time it was held at: held at 40 % of a linear fade drawn at 0.4, the fade that

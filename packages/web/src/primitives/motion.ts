@@ -235,6 +235,32 @@ const appearing = (element: Element) =>
   element.getAnimations().filter((animation) => APPEAR_PROPERTIES.has((animation as CSSTransition).transitionProperty ?? '') && animation.playState !== 'finished');
 
 /**
+ * The entrance that the open state just started on `element` begins in the first frame drawn after it, in every
+ * engine. WebKit dates a transition from the timeline's time, which is the time of the frame drawn last and stands
+ * still while a task runs: a surface opened at the end of a long task has that much of its entrance over before its
+ * first frame, and none of it where the task outlasted the entrance — the transition is then dropped at that frame,
+ * without a transition event, and the surface is drawn whole at once. (A combobox's list, its rows rendered in the
+ * task that opens it, took 200–340 ms there on a two-core Linux runner, against an entrance of 300 ms.) Played again
+ * in the same task it is dated the same way; so it is held at its start, which the next frame draws, and played from
+ * that frame's callback, where the timeline has that frame's time. Called in the task that wrote the open state, so
+ * every transition of the appearance on `element` began in it. One that is no longer held there — replaced or
+ * cancelled (closed again), or held elsewhere by a script — is left as it is. A hidden document draws no frame, and
+ * shows nothing, until it is shown: its entrance is left to the engine.
+ */
+function fromNextFrame(element: HTMLElement) {
+  if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
+  const started = appearing(element).filter((animation) => animation.playState === 'running');
+  if (!started.length) return;
+  for (const animation of started) {
+    animation.pause();
+    animation.currentTime = 0;
+  }
+  requestAnimationFrame(() => {
+    for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) animation.play();
+  });
+}
+
+/**
  * Draws `element` in the style it has now with no transition into it: none starts, and one that had started is
  * finished at its end. The element's own inline transition is put back as it was, and changes no value.
  */
@@ -340,6 +366,7 @@ export class AppearController implements ReactiveController {
     if (!motion || !this.opened) return;
     motion.setAttribute(APPEARING, '');
     if (this.instant || !documentPainted() || !motion.isConnected) atOnce(motion);
+    else fromNextFrame(motion);
   }
 
   /**
