@@ -116,6 +116,11 @@
 //   anchored    — AnchoredSurfaceController and anchoredSurfaceStyles(): a surface presented in the top layer, placed
 //                 beside its anchor, limited to the room, following it, with its open and close motion (POP-1…5,
 //                 POP-7, POP-8, POP-26, POP-27, POP-36); what a select, a combobox and a color field stand on
+//   motion      — docs/architecture/motion.md in code: appearStyles() and AppearController (the one appearance of a
+//                 surface, its entrance skipped before the first paint — documentPainted(), MOT-4 — turned round from the
+//                 value shown, exit() resolved by its transitions), AnimatedSize (a box whose size follows its content,
+//                 anchored, clipped, MOT-5), Settle with settleStyles / settleRule() (styles/motion.ts: no transition in
+//                 an element's first frames, MOT-3)
 //   dismiss     — DismissController: Escape (the topmost surface alone, after everything inside heard the key), a press
 //                 outside and focus leaving ask the host to close (POP-21, POP-23); registerOverlay() and
 //                 logicalAncestors(): an overlay opened from inside a surface is that surface's own (POP-24)
@@ -181,6 +186,23 @@ export {
 } from './placement.js';
 export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadowLayers } from './arrow.js';
 export { type AnchoredStyleOptions, AnchoredSurfaceController, type AnchoredSurfaceOptions, anchoredSurfaceStyles } from './anchored.js';
+export {
+  AnimatedSize,
+  type AnimatedSizeOptions,
+  type AppearControllerOptions,
+  AppearController,
+  type AppearOptions,
+  type AppearOrigin,
+  type AppearRole,
+  type AppearTiming,
+  type SizeAnchor,
+  type SizeAxis,
+  Settle,
+  afterFirstPaint,
+  appearStyles,
+  documentPainted,
+} from './motion.js';
+export { APPEARING, SETTLING, settleRule, settleStyles } from '../styles/motion.js';
 export { DismissController, type DismissOptions, type DismissReason, type OverlayEntry, logicalAncestors, overlayDepth, registerOverlay } from './dismiss.js';
 export { type OverlayTabOptions, focusOverlay, keepOverlayFocusAfterPress, quietFocus, returnOverlayFocus, tabThroughOverlay, watchInput } from './overlay-focus.js';
 export { hostAria } from './host-aria.js';
