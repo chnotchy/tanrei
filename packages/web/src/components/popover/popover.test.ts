@@ -6,7 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { appearProbe, bezierOf, documentPainted, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
@@ -72,6 +72,8 @@ function warnings(page: P) {
 async function mount(page: P, html: string, { width = 800, height = 600, reducedMotion = true, dir, system }: { width?: number; height?: number; reducedMotion?: boolean; dir?: 'ltr' | 'rtl'; system?: string } = {}) {
   await page.setViewportSize({ width, height });
   await mountFixtures(page, spec, { icons: true, fixtures: [], reducedMotion, dir, system });
+  // Painted as the popover counts it: one told to open before then appears at once (MOT-4).
+  await documentPainted(page);
   await page.evaluate((markup) => {
     const main = document.querySelector('main') as HTMLElement;
     main.style.display = 'block';

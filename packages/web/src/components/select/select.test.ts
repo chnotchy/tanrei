@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { appearProbe, bezierOf, documentPainted, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -99,7 +99,11 @@ const setField = (page: P, id: string, props: Record<string, unknown>) =>
     const select = el.querySelector('tanrei-select') as HTMLElement & { updateComplete: Promise<unknown> };
     for (let round = 0; round < 3; round++) await Promise.all([(el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete, select.updateComplete]);
   }, props);
-const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, fixtures, ...options });
+/** Mounts `fixtures`, and waits until the document is painted as the list counts it: a list opened before then appears at once (MOT-4). */
+const mount = async (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => {
+  await mountFixtures(page, spec, { icons: true, fixtures, ...options });
+  await documentPainted(page);
+};
 const mountSpec = (page: P, ids: string[], options: Parameters<typeof mountFixtures>[2] = {}) => mount(page, spec.fixtures.filter((f) => ids.includes(f.id)), options);
 const set = async (page: P, id: string, props: Record<string, unknown>) => {
   await host(page, id).evaluate(async (el, p) => {

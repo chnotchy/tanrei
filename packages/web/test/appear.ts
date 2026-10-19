@@ -2,6 +2,7 @@
 // what its entrance and its exit must draw: the claims every overlay that adopts the one appearance is held to, so
 // that a menu, a tooltip, a dialog, a sheet and a snackbar prove them alike.
 //
+//   await mountFixtures(page, spec, { … }); await documentPainted(page);   // or no entrance is played (MOT-4)
 //   const seen = await sampleFrames(page, () => open(), { probe: appearProbe });
 //   expectAppearStart(seen.frames[0], { opacity: 0, scale: 0.96 });      // or freezeFirstFrame(…).frame
 //   expectNoFlicker(seen);
@@ -12,6 +13,19 @@
 // controller sets on it) in the root, through shadow roots — so a test names no part of a component's shadow root.
 import { type Page, expect } from '@playwright/test';
 import type { Frame, Frames, Probe } from './frames.js';
+
+/**
+ * Resolves once the document has been painted as a surface that appears counts it (`documentPainted()`,
+ * src/primitives/motion.ts): from the second frame callback after the bundle ran. A surface told to open before then
+ * appears at once, without its entrance (MOT-4), so a test that opens one right after mounting reads a first frame
+ * already at rest wherever the page's first frames come late: WebKit draws the second frame of a document just written
+ * about 90 ms after its first even on an idle Mac, and a combobox test that mounted, focused and pressed a key at once
+ * pressed it only some 70 ms after that frame. The two frames asked for here come no earlier than the bundle's own two,
+ * which it asked for while the page was mounted. Wait before holding the page clock: a held clock holds
+ * `requestAnimationFrame` too.
+ */
+export const documentPainted = (page: Page): Promise<void> =>
+  page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
 /**
  * The motion element of the first surface in `root` (through shadow roots): its opacity, its scale on each axis, its
