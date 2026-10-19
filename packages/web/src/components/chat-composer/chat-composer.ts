@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, type TemplateResult, ht
 import { repeat } from 'lit/directives/repeat.js';
 import {
   BUTTON_VARIANTS,
+  CoalescedSync,
   FieldControlController,
   FieldProviderController,
   type FieldState,
@@ -11,6 +12,7 @@ import {
   SystemWatchController,
   WordsController,
   compChoice,
+  countWork,
   giveAttributes,
   giveVariant,
   report,
@@ -470,6 +472,16 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   private watched: Element[] = [];
   /** What the product's own Buttons in the slots were given, to take back (CCM-10, CCM-26). */
   private readonly lent = new Set<Element>();
+
+  /**
+   * The re-read of the product's File items (`readItems()`), once per turn however many items said they changed in it:
+   * a chat composer of N items built, or N items changed at once, re-reads its N items once — not once per item, which
+   * made the build O(N²). It runs in a microtask, before the next frame. What a handler decides from the items (whether
+   * it can be sent, CCM-9) it reads from the items themselves, never from this re-read.
+   */
+  private readonly itemSyncs = new CoalescedSync(() => {
+    if (this.isConnected) this.readItems();
+  });
 
   /** CCM-43, CCM-25, CCM-3: a child that comes or goes — a File item, a Button in a slot — is drawn at once. */
   private readonly children$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.childrenChanged(records));
@@ -979,11 +991,12 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (event.target === this) return;
     event.stopPropagation();
     if (this.attaches !== 'given') return;
-    this.readItems();
+    this.itemSyncs.request();
   };
 
   /** The product's File items were added to, removed from, or changed: drawn at once, said once. */
   private readItems() {
+    countWork('chat-composer.sync');
     const items = this.givenItems;
     this.count = items.length;
     this.tellItems();
@@ -995,7 +1008,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     this.adopt();
     for (const record of records) for (const node of record.removedNodes) if (node instanceof Element && node.localName === ITEM) giveFileItem(node, null);
     const before = this.stood;
-    this.readItems();
+    this.itemSyncs.now();
     this.stood = this.givenItems;
     this.afterLeave(before, records);
   }
