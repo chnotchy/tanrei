@@ -2692,6 +2692,9 @@ export class TanreiNavigationDrawer extends LitElement {
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
         this.presented = true;
+        // A drawer that appears open never showed its column: it is drawn open at its full width, scrim and all, from
+        // its first frame, and does not widen from the column (`@starting-style`) as one that opens does.
+        if (!this.hasUpdated) this.drawAtOnce();
       }
     }
   }
