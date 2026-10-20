@@ -7498,7 +7498,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people turn one independent choice on or off, show a parent choice that is only partly on, and mark a required\nchoice left unmade.\n\nContract: specs/checkbox.spec.json. Every visual value comes from `--tanrei-comp-checkbox-*` tokens, one set per\ncondition (unselected, selected, indeterminate and their `error-` forms) and state: how a state looks is the active\ndesign system's decision. How a press is answered and how keyboard focus is drawn are the system's choices of kind\n(`--tanrei-sys-behavior-*`), read from the cascade.\n\nForm-associated: with a `name` it submits `value` (default \"on\") while checked, resets to its `checked` attribute,\nhonours `required` and a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` (and clears\n`indeterminate`) before it fires `input` and `change`. The semantics are a native checkbox in the shadow root, named\nby `label`; a click on the visible label toggles it.\n\nInside a `<tanrei-checkbox-group>` (CHK-23) it is a choice of that set: its `checked` is the group's — whether the\ngroup's list holds its `value` —, it submits nothing itself whatever `name` it carries, `required` is not read, and\nit fires no `input` and no `change`: the group fires one `change` with the list. A checkbox that carries no `value`\nhas none there (the \"on\" a bare checkbox submits is not read). Taken out of the group it is as it is anywhere.",
+          "description": "Lets people turn one independent choice on or off, show a parent choice that is only partly on, and mark a required\nchoice left unmade.\n\nContract: specs/checkbox.spec.json. Every visual value comes from `--tanrei-comp-checkbox-*` tokens, one set per\ncondition (unselected, selected, indeterminate and their `error-` forms) and state: how a state looks is the active\ndesign system's decision. How a press is answered and how keyboard focus is drawn are the system's choices of kind\n(`--tanrei-sys-behavior-*`), read from the cascade.\n\nForm-associated: with a `name` it submits `value` (default \"on\") while checked, resets to its `checked` attribute,\nhonours `required` and a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` (and clears\n`indeterminate`) before it fires `input` and `change`. The semantics are a native checkbox in the shadow root, named\nby `label`; a click on the visible label toggles it.\n\nRead-only (`readonly`, CHK-24): it stays focusable and submitted, and a person cannot switch it — HTML's `readonly`\ndoes not apply to a checkbox, so the element cancels the native checkbox's activation itself and says `aria-readonly`\non it. It is drawn as an enabled checkbox without the hover and press answers; keyboard focus still shows.\n\nInside a `<tanrei-checkbox-group>` (CHK-23) it is a choice of that set: its `checked` is the group's — whether the\ngroup's list holds its `value` —, it submits nothing itself whatever `name` it carries, `required` is not read, and\nit fires no `input` and no `change`: the group fires one `change` with the list. A checkbox that carries no `value`\nhas none there (the \"on\" a bare checkbox submits is not read). Taken out of the group it is as it is anywhere.",
           "name": "TanreiCheckbox",
           "cssParts": [
             {
@@ -7582,6 +7582,18 @@
               "default": "false",
               "description": "Prevents interaction and removes the checkbox from the focus order.",
               "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the choice and keeps it (CHK-24): focusable, submitted with its form, not switched by a person. The `readonly`\nattribute. `disabled` wins over it.",
+              "attribute": "readonly",
               "reflects": true
             },
             {
@@ -7744,6 +7756,15 @@
               "default": "false",
               "description": "Prevents interaction and removes the checkbox from the focus order.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the choice and keeps it (CHK-24): focusable, submitted with its form, not switched by a person. The `readonly`\nattribute. `disabled` wins over it.",
+              "fieldName": "readOnly"
             },
             {
               "name": "label",
@@ -35120,7 +35141,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people choose exactly one option from a small group shown all at once.\n\nContract: specs/radio-button.spec.json. Every visual value comes from `--tanrei-comp-radio-button-*` tokens, one set\nper condition (unselected, selected) and state: how a state looks is the active design system's decision.\n\nA group is the options with one `name` in the same form — or, outside any form, in the same document or shadow root —\nas for a native radio. The options keep it themselves: selecting one clears the others (RAD-3), the arrow keys move\nthrough the enabled ones and select as they go (RAD-4), and the group has one tab stop (RAD-5). Put the options in an\nelement with `role=\"radiogroup\"` and a name (`aria-labelledby`), or in a `<fieldset>` with a `<legend>` (RAD-16).\n\nForm-associated: while selected it submits `value` under `name`, resets to its `checked` attribute and follows a\ndisabled `<fieldset>`. It selects itself before it fires `input` and `change`; the option it replaced fires nothing.",
+          "description": "Lets people choose exactly one option from a small group shown all at once.\n\nContract: specs/radio-button.spec.json. Every visual value comes from `--tanrei-comp-radio-button-*` tokens, one set\nper condition (unselected, selected) and state: how a state looks is the active design system's decision.\n\nA group is the options with one `name` in the same form — or, outside any form, in the same document or shadow root —\nas for a native radio. The options keep it themselves: selecting one clears the others (RAD-3), the arrow keys move\nthrough the enabled ones and select as they go (RAD-4), and the group has one tab stop (RAD-5). Put the options in an\nelement with `role=\"radiogroup\"` and a name (`aria-labelledby`), or in a `<fieldset>` with a `<legend>` (RAD-16).\n\nForm-associated: while selected it submits `value` under `name`, resets to its `checked` attribute and follows a\ndisabled `<fieldset>`. It selects itself before it fires `input` and `change`; the option it replaced fires nothing.\n\nRead-only (`readonly`, or a read-only radio group around it: RAD-28): it stays focusable and reached by the arrow\nkeys, and nothing a person does selects it — HTML's `readonly` does not apply to a radio button, so the option cancels\nthe native radio's activation itself. The radio role has no read-only state: the group says it. It is drawn as an\nenabled option without the hover and press answers; keyboard focus still shows.",
           "name": "TanreiRadioButton",
           "cssParts": [
             {
@@ -35203,6 +35224,18 @@
               "default": "false",
               "description": "Prevents interaction; the option is skipped by the focus order and by the arrow keys.",
               "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "A person cannot select this option (RAD-28): it is still focused, read and reached by the arrow keys. The `readonly`\nattribute. A read-only radio group makes each of its options so without changing this. `disabled` wins over it.",
+              "attribute": "readonly",
               "reflects": true
             },
             {
@@ -35357,6 +35390,15 @@
               "fieldName": "disabled"
             },
             {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "A person cannot select this option (RAD-28): it is still focused, read and reached by the arrow keys. The `readonly`\nattribute. A read-only radio group makes each of its options so without changing this. `disabled` wins over it.",
+              "fieldName": "readOnly"
+            },
+            {
               "name": "error",
               "type": {
                 "text": "boolean"
@@ -35417,7 +35459,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Asks one question that has exactly one answer among a few options shown all at once. Built from a field group\n(`<tanrei-field-group>`) and radio buttons (`<tanrei-radio-button>`): the field group itself, in its radio-group\nkind — its label, requirement, description and one error — around the product's own radio buttons, whose chosen\nvalue the group holds under one name.\n\nContract: specs/radio-group.spec.json. `<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\">\n<tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`: the radio\nbuttons are the element's children and stay in the product's light DOM; inside the group they need no `name`\n(RAD-25).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element, with\n`kind=\"radio-group\"` and `spacing=\"controls\"`, around a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-radio-button-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the field\ngroup's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group kind=\"radio-group\"\nlabel=\"Delivery\"><tanrei-radio-button name=\"delivery\" value=\"standard\" label=\"Standard\"></tanrei-radio-button>…\n</tanrei-field-group>` — the same picture and the same radio group, without the one value, the one `change` and the\nplace in a form as one control.\n\nIt holds one value. `value` decides which radio button is selected; a person's selection sets `value` and fires\n`input` and one `change`, and the radio buttons inside it fire nothing of their own. The arrow keys move through the\nenabled radio buttons, wrapping, and select as they go; the group is one stop in the focus order — the selected\nradio button, or the first enabled one.\n\nForm-associated: it submits `value` under `name` — also while the radio button of that value is one the product\ndisabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows\n`<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the\nbrowser's own words for an unanswered set of radio buttons. It never sets `error` itself.\n\nThe element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the\nradio group that assistive technology is told of — its name, its description and its required, invalid and disabled\nstates and its orientation — is the field group's own element (`label`, never `aria-label` on this one).",
+          "description": "Asks one question that has exactly one answer among a few options shown all at once. Built from a field group\n(`<tanrei-field-group>`) and radio buttons (`<tanrei-radio-button>`): the field group itself, in its radio-group\nkind — its label, requirement, description and one error — around the product's own radio buttons, whose chosen\nvalue the group holds under one name.\n\nContract: specs/radio-group.spec.json. `<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\">\n<tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`: the radio\nbuttons are the element's children and stay in the product's light DOM; inside the group they need no `name`\n(RAD-25).\n\nComposed (`src/primitives/composed.ts`): its shadow root holds the field group's own element, with\n`kind=\"radio-group\"` and `spacing=\"controls\"`, around a slot, so it draws nothing of its own and has no token — every\n`--tanrei-comp-field-group-*` and `--tanrei-comp-radio-button-*` value reaches the members by inheritance, and one\ninstance is set apart by setting such a property on this element. Each of the eleven props of the frame is the field\ngroup's, set on it unchanged. One level down, the same by hand: `<tanrei-field-group kind=\"radio-group\"\nlabel=\"Delivery\"><tanrei-radio-button name=\"delivery\" value=\"standard\" label=\"Standard\"></tanrei-radio-button>…\n</tanrei-field-group>` — the same picture and the same radio group, without the one value, the one `change` and the\nplace in a form as one control.\n\nIt holds one value. `value` decides which radio button is selected; a person's selection sets `value` and fires\n`input` and one `change`, and the radio buttons inside it fire nothing of their own. The arrow keys move through the\nenabled radio buttons, wrapping, and select as they go; the group is one stop in the focus order — the selected\nradio button, or the first enabled one.\n\nForm-associated: it submits `value` under `name` — also while the radio button of that value is one the product\ndisabled by itself — returns to its `value` attribute when the form is reset, is restored on navigation, follows\n`<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the\nbrowser's own words for an unanswered set of radio buttons. It never sets `error` itself.\n\nRead-only (`readonly`, RGP-20): it is still entered at its stop and the arrow keys still move focus among the enabled\nradio buttons, but nothing a person does changes `value` — each radio button is read-only while the group is (RAD-28)\n—, it is submitted, reports no missing value, and its radiogroup says `aria-readonly`.\n\nThe element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the\nradio group that assistive technology is told of — its name, its description and its required, invalid and disabled\nstates and its orientation — is the field group's own element (`label`, never `aria-label` on this one).",
           "name": "TanreiRadioGroup",
           "cssParts": [
             {
@@ -35549,6 +35591,18 @@
               "attribute": "disabled",
               "reflects": true,
               "description": "Disables every control of the set and draws the frame as disabled."
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the answer and keeps it (RGP-20): the group is focused and read and its value submitted, but a person cannot\nchange it. The `readonly` attribute. `disabled` wins over it.",
+              "attribute": "readonly",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -35822,6 +35876,15 @@
               "default": "false",
               "fieldName": "disabled",
               "description": "Disables every control of the set and draws the frame as disabled."
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the answer and keeps it (RGP-20): the group is focused and read and its value submitted, but a person cannot\nchange it. The `readonly` attribute. `disabled` wins over it.",
+              "fieldName": "readOnly"
             },
             {
               "name": "required",
@@ -42739,7 +42802,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.\n\nContract: specs/switch.spec.json. Every visual value comes from `--tanrei-comp-switch-*` tokens, one set per condition\n(unselected, selected) and state — the handle's color, size and elevation included: how a state looks is the active\ndesign system's decision. The handle travels to the inline end when on (the left in right-to-left layouts).\n\nA tap switches it. A drag along the track (touch, pen or mouse; from the track, the handle or the target around them,\nnot from the label) carries the handle with the pointer, and every part that differs between off and on is drawn at\nthe handle's progress between the two, with no threshold. `checked`, the form value and the exposed state change\nwhen the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;\nEscape, a cancelled pointer, `disabled` or a `checked` set meanwhile return the handle and fire nothing.\n\nForm-associated: while checked it submits `value` (default \"on\") under `name`, resets to its `checked` attribute and\nfollows a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` before it fires `input` and\n`change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on\nthe visible label toggles it.",
+          "description": "Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.\n\nContract: specs/switch.spec.json. Every visual value comes from `--tanrei-comp-switch-*` tokens, one set per condition\n(unselected, selected) and state — the handle's color, size and elevation included: how a state looks is the active\ndesign system's decision. The handle travels to the inline end when on (the left in right-to-left layouts).\n\nA tap switches it. A drag along the track (touch, pen or mouse; from the track, the handle or the target around them,\nnot from the label) carries the handle with the pointer, and every part that differs between off and on is drawn at\nthe handle's progress between the two, with no threshold. `checked`, the form value and the exposed state change\nwhen the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;\nEscape, a cancelled pointer, `disabled` or a `checked` set meanwhile return the handle and fire nothing.\n\nForm-associated: while checked it submits `value` (default \"on\") under `name`, resets to its `checked` attribute and\nfollows a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` before it fires `input` and\n`change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on\nthe visible label toggles it.\n\nRead-only (`readonly`, SWT-25): it stays focusable and submitted, and a person can neither switch it nor drag its\nhandle — HTML's `readonly` does not apply to a checkbox, so the element cancels the native checkbox's activation\nitself and says `aria-readonly` on it. It is drawn as an enabled switch without the hover and press answers; keyboard\nfocus still shows.",
           "name": "TanreiSwitch",
           "cssParts": [
             {
@@ -42803,6 +42866,18 @@
               "default": "false",
               "description": "Prevents interaction and removes the switch from the focus order.",
               "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the setting and keeps it (SWT-25): focusable, submitted with its form, neither switched nor dragged by a\nperson. The `readonly` attribute. `disabled` wins over it.",
+              "attribute": "readonly",
               "reflects": true
             },
             {
@@ -42957,6 +43032,15 @@
               "default": "false",
               "description": "Prevents interaction and removes the switch from the focus order.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Shows the setting and keeps it (SWT-25): focusable, submitted with its form, neither switched nor dragged by a\nperson. The `readonly` attribute. `disabled` wins over it.",
+              "fieldName": "readOnly"
             },
             {
               "name": "label",

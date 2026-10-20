@@ -1,4 +1,4 @@
-// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id (RGP-1…19) is cited by a test title,
+// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id (RGP-1…20) is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the field group's tokens — the radio group
 // has none of its own — never from a number written here.
 //
@@ -726,7 +726,7 @@ test.describe('behavior', () => {
     expect(await g.evaluate((el) => (el as HTMLElement & { value: string }).value)).toBe('');
   });
 
-  test('RGP-9: the value is the group’s — it is still submitted while the radio button of that value is one the product disabled by itself (RGP-7), and not while the group is disabled; a group that was disabled, required and unanswered reports the missing value again once it is enabled, anchored on the radio button that is then the stop; RGP-7: the group has no read-only state', async ({ page }) => {
+  test('RGP-9: the value is the group’s — it is still submitted while the radio button of that value is one the product disabled by itself (RGP-7), and not while the group is disabled; a group that was disabled, required and unanswered reports the missing value again once it is enabled, anchored on the radio button that is then the stop', async ({ page }) => {
     await mountSpec(page, 'default');
     await form(
       page,
@@ -755,8 +755,6 @@ test.describe('behavior', () => {
     expect(await asked.evaluate((el) => (el as HTMLElement & { reportValidity(): boolean }).reportValidity())).toBe(false);
     expect(await page.evaluate(() => (window as unknown as { invalid: string[] }).invalid)).toEqual(['asked']);
     await expect.poll(() => asked.locator('tanrei-radio-button').evaluateAll((all) => all.findIndex((el) => el === document.activeElement || el.matches(':focus-within')))).toBe(0);
-    // No read-only state: neither a property nor an attribute of the group's.
-    expect(await g.evaluate((el) => ['readOnly' in el, 'readonly' in el, (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.some((name) => /read-?only/i.test(name))])).toEqual([false, false, false]);
   });
 
   test('RGP-6: focus asked of the group itself goes to the radio button that is the stop, and blur() takes it from the one that has it; a page’s label for the group moves focus there; the group is not focusable and does not delegate focus; while no radio button is enabled focus goes nowhere', async ({ page }) => {
@@ -1192,6 +1190,67 @@ test.describe('behavior', () => {
     // An instance's own prop wins.
     expect(await drawn('own')).toEqual({ tag: 'Needed', asterisk: false });
     expect((await group(page, 'own-optional')).described).toEqual(['If you like']);
+  });
+});
+
+test.describe('read-only', () => {
+  test('RGP-20: a read-only group is entered at its selected radio button; the arrow keys move focus among the enabled ones and select nothing; a click on a radio button or its label, Space and element.click() select nothing; the group emits nothing and keeps value', async ({ page }) => {
+    await mount(page, [fx('ro', { readOnly: true, value: 'express' }, [radio('standard', 'Standard'), radio('express', 'Express'), radio('pickup', 'Pick up'), radio('later', 'Later', { disabled: true })])]);
+    const id = 'ro';
+    await listen(page, id);
+    expect(await stops(page, id)).toEqual([false, true, false, false]);
+    await tabTo(page, option(page, id, 1));
+    expect(await focused(page, id)).toBe(1);
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page, id)).toBe(2);
+    await page.keyboard.press('ArrowDown'); // the disabled one is passed over, and the keys wrap
+    expect(await focused(page, id)).toBe(0);
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page, id)).toBe(2);
+    await page.keyboard.press('Space');
+    await option(page, id, 0).locator('.container').click();
+    await option(page, id, 0).locator('.label').click();
+    await option(page, id, 2).evaluate((el) => (el as HTMLElement).click());
+    await settled(page, id);
+    expect([await value(page, id), await checked(page, id), await heard(page, '')]).toEqual(['express', [false, true, false, false], []]);
+    // The stop is still the selected one: Tab out and back lands there.
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, option(page, id, 1));
+    expect(await focused(page, id)).toBe(1);
+  });
+
+  test('RGP-20: it is exposed as read-only beside its other states, and each radio button as an enabled radio with its checked state; its frame and radio buttons are drawn from their enabled tokens; disabled wins over read-only', async ({ page }) => {
+    await mount(page, [fx('ro', { readOnly: true, value: 'express', required: true, supportingText: 'You can change this until the order ships.' }), fx('both', { readOnly: true, disabled: true, value: 'express' })]);
+    await expect(host(page, 'ro').locator('[role="radiogroup"]')).toHaveAttribute('aria-readonly', 'true');
+    expect(await group(page, 'ro')).toMatchObject({ required: true, disabled: false });
+    // aria-readonly is a state of the radiogroup role: nothing for the accessibility checks to report.
+    const results = await new AxeBuilder({ page }).include('.stage').analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
+    await expect(options(page, 'ro').nth(1).getByRole('radio', { checked: true, disabled: false })).toHaveCount(1);
+    expect(await options(page, 'ro').evaluateAll((all) => all.map((el) => [el.hasAttribute('readonly'), el.shadowRoot!.querySelector('.root')!.hasAttribute('data-readonly')]))).toEqual([[false, true], [false, true], [false, true]]);
+    expect(await css(part(page, 'ro', '.label'), 'color')).toBe(await color(page, 'standard-label-color'));
+    expect(await css(part(page, 'ro', '.label'), 'color')).not.toBe(await color(page, 'standard-disabled-label-color'));
+    expect(await css(part(page, 'ro', '.supporting-text'), 'color')).toBe(await color(page, 'standard-supporting-text-color'));
+    await expect(host(page, 'both').locator('[role="radiogroup"]')).not.toHaveAttribute('aria-readonly');
+    expect((await group(page, 'both')).disabled).toBe(true);
+    expect(await stops(page, 'both')).toEqual([false, false, false]);
+    // Taken back: the attribute goes, the radio buttons are their own again, and an arrow key selects.
+    await set(page, 'ro', { readOnly: false });
+    await expect(host(page, 'ro').locator('[role="radiogroup"]')).not.toHaveAttribute('aria-readonly');
+    await tabTo(page, option(page, 'ro', 1));
+    await page.keyboard.press('ArrowDown');
+    await settled(page, 'ro');
+    expect(await value(page, 'ro')).toBe('pickup');
+  });
+
+  test('RGP-20: a read-only group is submitted with its form, and a required one left empty reports no missing value', async ({ page }) => {
+    await mountSpec(page, 'default');
+    await form(page, `<tanrei-radio-group id="g" label="Delivery" name="delivery" value="express" readonly>${DELIVERY}</tanrei-radio-group><tanrei-radio-group id="asked" label="Size" name="size" required readonly>${DELIVERY}</tanrei-radio-group>`);
+    expect(await entries(page)).toEqual(['delivery=express']);
+    const valid = () => page.evaluate(() => document.querySelector<HTMLFormElement>('#form')!.checkValidity());
+    expect(await valid()).toBe(true);
+    await page.locator('#asked').evaluate((el) => ((el as HTMLElement & { readOnly: boolean }).readOnly = false));
+    await expect.poll(valid).toBe(false);
   });
 });
 

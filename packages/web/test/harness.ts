@@ -419,6 +419,11 @@ const selectProps = ({ readOnly, inline, ...props }: Fixture['props']): Fixture[
   ...(readOnly !== undefined ? { readonly: readOnly } : {}),
   ...(props.open && inline !== false ? { inline: true } : {}),
 });
+/**
+ * A selection control's props as its attributes: `readOnly` keeps HTML's attribute name on the web (`readonly`), as a
+ * select's does — the checkbox, the radio button, the radio group and the switch.
+ */
+const readOnlyProps = ({ readOnly, ...props }: Fixture['props']): Fixture['props'] => ({ ...props, ...(readOnly !== undefined ? { readonly: readOnly } : {}) });
 /** A text input's icons, which a spec names in `content` as `leading-icon=<glyph> trailing-icon=<glyph>`: each a glyph of the system's icon set in that slot. */
 const textInputIcons = (content: string) =>
   content
@@ -1128,8 +1133,11 @@ const STAGING: Record<string, Staging> = {
   // (RAD-3). Each fixture is its own group — its own form — so that one fixture's selection does not clear another's,
   // named as a product names it (RAD-16).
   'radio-button': {
-    wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}">${element}</div></form>`,
+    wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}"${f.props.readOnly ? ' aria-readonly="true"' : ''}>${element}</div></form>`,
+    props: readOnlyProps,
   },
+  checkbox: { props: readOnlyProps },
+  switch: { props: readOnlyProps },
   // A list is 360 wide (LST-1's verify). An item's content is the product's own: the content of a static item stands for
   // a box of the product's — a tile with a fill, padded and with small corners, in the body text style, as a product's
   // card or file item would be — so that the arrangement, the gap and the dividers show; an action, a link or an option
@@ -1932,6 +1940,7 @@ const STAGING: Record<string, Staging> = {
   'radio-group': {
     css: () => `.stage > tanrei-radio-group { inline-size: 320px; }`,
     wrap: (element, f) => framedLanguage(element, f, 'tanrei-radio-group'),
+    props: readOnlyProps,
   },
   // A checkbox group is as wide as its layout gives it (CKG-1): 320, the width its twins — the field group's fixtures —
   // are drawn at, so that the two are the same picture. Its checkboxes are the fixture's items, the

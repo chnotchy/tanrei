@@ -40,9 +40,11 @@ export function conditionBlock(prefix: string, condition: string, parts: Record<
  * Where each state is read (for `stateRules()`): hover is the whole `.root` — the label is part of the hit area — focus
  * and disabled are the native input's, and pressed is `data-pressed` on the container (`PressController`). `:where()`
  * keeps every state rule at the resting rule's specificity, so the order `stateRules()` writes them in is the precedence.
+ * A read-only control (`data-readonly` on `.root`: CHK-24, RAD-28, SWT-25) is not hovered — a press changes nothing, so
+ * nothing answers the pointer; it is never pressed either, because its `PressController` treats it as disabled.
  */
 export const selectionState = (state: string) =>
-  state === ':hover' ? '.root:where(:hover)' : `.root:where(:has(${state.startsWith('[') ? '.container' : 'input'}${state}))`;
+  state === ':hover' ? '.root:where(:hover:not([data-readonly]))' : `.root:where(:has(${state.startsWith('[') ? '.container' : 'input'}${state}))`;
 
 /**
  * The state rules of a component whose conditions are its state variants: each state sets, on `root`, the
@@ -115,6 +117,10 @@ export function selectionLabel(prefix: string, block: string): CSSResult {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     transition: opacity var(${prefix}-motion-state-duration) var(${prefix}-motion-state-easing);
+  }
+  /* A read-only control is not something to press (CHK-24, RAD-28, SWT-25). */
+  .root[data-readonly] {
+    cursor: default;
   }
   .control {
     position: relative;

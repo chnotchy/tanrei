@@ -1,4 +1,4 @@
-// <tanrei-switch>, driven by specs/switch.spec.json: every behaviour id (SWT-1…21) is cited by a test title, every
+// <tanrei-switch>, driven by specs/switch.spec.json: every behaviour id (SWT-1…25) is cited by a test title, every
 // fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from a
 // number written here. A drag (SWT-19…21) is dispatched in the page, each event stamped with the time the pointer was
 // there, so a release's velocity is the test's own; one test drives the real mouse, for the click that follows it.
@@ -1201,6 +1201,107 @@ const expectLook = async (page: P, id: string, p: number, state: string, what: s
   if (d.glyph.on !== null) expect(d.glyph.on, `${what}: the selected glyph`).toBeCloseTo(p, digits);
   return d;
 };
+
+test.describe('read-only', () => {
+  test.beforeEach(async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('before', { label: 'Before' }), ...spec.fixtures.filter((f) => f.id === 'read-only-selected'), fixture('ro-off', { readOnly: true, label: 'Bluetooth' })] });
+    await page.mouse.move(0, 0);
+  });
+
+  test('SWT-25: a read-only switch is in the focus order, and no click on the track or the label, no Space, no element.click() and no dispatched click switches it or emits input or change', async ({ page }) => {
+    for (const id of ['read-only-selected', 'ro-off']) {
+      const target = host(page, id);
+      const before = await isOn(target);
+      await listen(target);
+      await trackOf(page, id).click({ force: true });
+      await labelOf(page, id).click();
+      await target.evaluate((el) => {
+        (el as HTMLElement).click();
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+      });
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+      await tabTo(page, target);
+      await expect(input(page, id), id).toBeFocused();
+      await page.keyboard.press('Space');
+      const seen = await events(page);
+      expect({ input: seen.input, change: seen.change }, id).toEqual({ input: 0, change: 0 });
+      expect(await isOn(target), id).toBe(before);
+      await expect(target.getByRole('switch', { checked: before }), id).toHaveCount(1);
+    }
+    await tabTo(page, host(page, 'before'));
+    await tab(page);
+    await expect(input(page, 'read-only-selected')).toBeFocused();
+  });
+
+  test('SWT-25: a drag along the track of a read-only switch is not taken: the handle stays, nothing is pressed and nothing is emitted', async ({ page }) => {
+    const id = 'ro-off';
+    await listen(host(page, id));
+    await drag(page, id, 0, slow(0, 0.9), { up: null });
+    expect(await dragging(page, id)).toBe(false);
+    expect(await written(page, id)).toBeNull();
+    expect(await pressed(page, id)).toBeNull();
+    await dragOn(page, id, [], { up: 16 });
+    await settle(page, id);
+    expect(await progress(page, id)).toBe(0);
+    expect(await isOn(host(page, id))).toBe(false);
+    const seen = await events(page);
+    expect({ input: seen.input, change: seen.change }).toEqual({ input: 0, change: 0 });
+  });
+
+  test('SWT-25: it is exposed as read-only beside on or off, and not as disabled; disabled wins over it; the product may still set checked', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [...spec.fixtures.filter((f) => f.id === 'read-only-selected'), fixture('both', { readOnly: true, disabled: true, label: 'Both' })] });
+    const ro = host(page, 'read-only-selected');
+    await expect(ro.getByRole('switch', { checked: true, disabled: false })).toHaveCount(1);
+    await expect(input(page, 'read-only-selected')).toHaveAttribute('aria-readonly', 'true');
+    await expect(host(page, 'both').getByRole('switch', { disabled: true })).toHaveCount(1);
+    await expect(input(page, 'both')).not.toHaveAttribute('aria-readonly');
+    await expect(ro).toHaveAttribute('readonly', '');
+    await ro.evaluate((el) => ((el as any).checked = false));
+    await expect(input(page, 'read-only-selected')).not.toBeChecked();
+    await settle(page, 'read-only-selected');
+    await page.mouse.move(0, 0);
+    await matches(page, 'read-only-selected', 'unselected');
+    await ro.evaluate((el) => ((el as any).readOnly = false));
+    await expect(input(page, 'read-only-selected')).not.toHaveAttribute('aria-readonly');
+    await trackOf(page, 'read-only-selected').click({ force: true });
+    expect(await isOn(ro)).toBe(true);
+  });
+
+  test('SWT-25: it is drawn from the resting tokens of its condition — the enabled ones — with no hovered and no pressed state and no pressed handle size; keyboard focus shows the focused state', async ({ page }) => {
+    const id = 'read-only-selected';
+    await matches(page, id, 'selected');
+    expect((await expected(page, 'selected')).track).not.toBe((await expected(page, 'selected', 'disabled')).track);
+    await container(page, id).hover();
+    await matches(page, id, 'selected');
+    expect(await css(rootOf(page, id), 'cursor')).toBe('default');
+    await page.mouse.down();
+    expect(await pressed(page, id)).toBeNull();
+    await matches(page, id, 'selected');
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, host(page, id));
+    await matches(page, id, 'selected', 'focused');
+    await page.keyboard.down('Space');
+    expect(await pressed(page, id)).toBeNull();
+    await page.keyboard.up('Space');
+    await matches(page, id, 'selected', 'focused');
+  });
+
+  test('SWT-25: a named read-only switch is submitted as it is drawn', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('wifi', { label: 'Wi-Fi', name: 'wifi', checked: true, readOnly: true }), fixture('bt', { label: 'Bluetooth', name: 'bt', readOnly: true })] });
+    await page.evaluate(() => {
+      const form = document.createElement('form');
+      const main = document.querySelector('main')!;
+      form.append(...main.querySelectorAll('.stage'));
+      main.replaceWith(form);
+    });
+    const data = () => page.evaluate(() => [...new FormData(document.querySelector('form')!).entries()].map(([k, v]) => `${k}=${v}`));
+    expect(await data()).toEqual(['wifi=on']);
+    await host(page, 'wifi').click();
+    expect(await data()).toEqual(['wifi=on']);
+  });
+});
 
 test.describe('drag', () => {
   test.beforeEach(async ({ page }) => {
