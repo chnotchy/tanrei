@@ -2,6 +2,7 @@
 // what its entrance and its exit must draw: the claims every overlay that adopts the one appearance is held to, so
 // that a menu, a tooltip, a dialog, a sheet and a snackbar prove them alike.
 //
+//   await mountFixtures(page, spec, { … });   // returns once the page counts itself painted: what opens now enters (MOT-4)
 //   const seen = await sampleFrames(page, () => open(), { probe: appearProbe });
 //   expectAppearStart(seen.frames[0], { opacity: 0, scale: 0.96 });      // or freezeFirstFrame(…).frame
 //   expectNoFlicker(seen);
