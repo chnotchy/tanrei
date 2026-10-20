@@ -757,12 +757,15 @@
     {
       "name": "toolbar",
       "title": "Toolbar",
-      "category": "navigation",
+      "category": "actions",
       "level": "base",
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "button-with-menu",
+        "divider",
+        "menu"
       ],
       "hasSpec": true,
       "docs": "/components/toolbar/",

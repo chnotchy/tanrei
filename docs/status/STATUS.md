@@ -46,7 +46,7 @@ Listing: 84 default · 8 advanced. A component of the first value is shown where
 | Button group | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Button with menu | composed: Menu | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | FAB menu | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Toolbar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Toolbar | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Carousel | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Calendar | base | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | DateTimePicker | composed: Calendar, Modal layer | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
