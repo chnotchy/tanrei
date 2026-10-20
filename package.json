@@ -20,7 +20,7 @@
     "check": "pnpm validate && pnpm generate && pnpm drift && node scripts/check-format.mjs && pnpm build && pnpm test",
     "docs:dev": "pnpm --filter @tanrei/docs dev",
     "changeset": "changeset",
-    "version-packages": "changeset version && node packages/tools/src/cli.js sync-versions",
+    "version-packages": "changeset version && node packages/tools/src/cli.js sync-versions && node packages/tools/src/npm-metadata.js",
     "prepare": "lefthook install"
   },
   "devDependencies": {
