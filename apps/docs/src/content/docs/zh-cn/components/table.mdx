@@ -2,7 +2,7 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: 342eb55fba43c105691f8ba6eaa252107e81be12
+sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -512,7 +512,7 @@ export function rehypeTanreiTable() {
 
 ### 放不下的时候
 
-- 表格在自己的框内滚动，而不是让页面滚动。框的某条边上的一道细线，表示这条边之外还有列。
+- 表格在自己的框内滚动，而不是让页面滚动。框的某条边上的一道细线，表示这条边之外还有列。 表格外面不需要再套[滚动区域](/zh-cn/components/scroll-area/)：它自己会标示边缘。
 - `sticky-first-column` 让第一列始终可见，其余各列在它下面滚动。当它会占去框的一半以上时，它会自行放开，所以手机屏幕绝不会被固定的那一列占满。
 - `sticky-header` 让表头行在各行滚动时始终可见。它在你的布局限制了表格高度的地方起作用（元素上的 `max-block-size`）；它不跟随页面。
 - 如果表格位于页面表面之外的另一种表面上（卡片、对话框），并且让表头行或第一列始终可见，或者带有状态行，请把 `--tanrei-comp-table-sticky-container-color` 设为那个表面的颜色。这些部分用这个颜色填充，这样从它们下面经过的行和列才不会透出来。

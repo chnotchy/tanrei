@@ -1,0 +1,196 @@
+---
+title: スクロールエリア
+description: 内容をプラットフォーム自身のスクロールでスクロールさせる枠です。見張る端ごとに、その先にまだ内容があることを、サーフェスの色の帯、内容のフェード、線、ぼかしのいずれかで示します。大きさは変えず、内容も動かしません。
+translationOf: components/scroll-area.mdx
+sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+## 概要
+
+<ComponentAvailability name="scroll-area" />
+
+<DemoFrame label="高さの決まった枠の中のリスト">
+  <tanrei-scroll-area label="メッセージ" style="inline-size: min(100%, 20rem); block-size: 16rem">
+    <tanrei-list-row headline="Ada" supporting-text="下書きのレビューをお願いします"></tanrei-list-row>
+    <tanrei-list-row headline="Grace" supporting-text="会議を木曜日に移しました"></tanrei-list-row>
+    <tanrei-list-row headline="Alan" supporting-text="旅行の写真"></tanrei-list-row>
+    <tanrei-list-row headline="Hedy" supporting-text="数字を確認してもらえますか？"></tanrei-list-row>
+    <tanrei-list-row headline="Katherine" supporting-text="6 時に着きます"></tanrei-list-row>
+    <tanrei-list-row headline="Edsger" supporting-text="今日のメモ"></tanrei-list-row>
+    <tanrei-list-row headline="Barbara" supporting-text="新しい計画を添付しました"></tanrei-list-row>
+    <tanrei-list-row headline="Donald" supporting-text="第 3 章、2 回目の見直し"></tanrei-list-row>
+    <tanrei-list-row headline="Margaret" supporting-text="準備はすべて整いました"></tanrei-list-row>
+    <tanrei-list-row headline="Rosalind" supporting-text="研究室からの新しい写真"></tanrei-list-row>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+内容が収まっているあいだ、エリアは何も描きません。スクロールしてみてください。下にまだ内容があるあいだは下端が、上に何かがスクロールして隠れると上端が示されます。
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は予定段階で、スクロールエリアはまだ提供されていません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 大きさはレイアウトが与えます。既定では上端と下端を示します。 -->
+    <tanrei-scroll-area label="メッセージ" style="block-size: 20rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- filled のカードの上では、影をカードの色にして、リストがカードに沈み込むようにします。 -->
+    <tanrei-scroll-area label="検索結果" style="--tanrei-comp-scroll-area-shadow-color: var(--tanrei-comp-card-filled-container-color); block-size: 16rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- 画像や動画の上では、内容そのものをフェードさせ、色は描きません。 -->
+    <tanrei-scroll-area scroll-edge="fade" label="字幕">…</tanrei-scroll-area>
+
+    <!-- 横にスクロールする列では、始端と終端を示します。 -->
+    <tanrei-scroll-area edges="start end" label="写真">…</tanrei-scroll-area>
+
+    <script type="module">
+      import '@tanrei/web/components/scroll-area';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ScrollArea } from '@tanrei/react';
+
+    <ScrollArea label="メッセージ" style={{ blockSize: '20rem' }}>
+      {messages}
+    </ScrollArea>
+
+    {/* filled のカードの上では、影をカードの色にします。 */}
+    <ScrollArea
+      label="検索結果"
+      style={{ '--tanrei-comp-scroll-area-shadow-color': 'var(--tanrei-comp-card-filled-container-color)', blockSize: '16rem' } as React.CSSProperties}
+    >
+      {results}
+    </ScrollArea>
+
+    <ScrollArea scrollEdge="fade" label="字幕">{captions}</ScrollArea>
+    <ScrollArea edges={['start', 'end']} label="写真">{photos}</ScrollArea>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="スクロールエッジ：shadow（既定のシステムの選択）、fade、line、blur、none" plain>
+  <tanrei-scroll-area scroll-edge="shadow" label="影" style="inline-size: 9rem; block-size: 10rem">
+    <p>影。エリアが置かれたサーフェスの色の帯で、端でいちばん濃く、端から 24 の位置で消えます。スクロールすると上端にも表示されます。内容がサーフェスに沈み込むように見えます。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="fade" label="フェード" style="inline-size: 9rem; block-size: 10rem">
+    <p>フェード。内容そのものが端に向かって薄れ、色は描かれないので、エリアの背後にあるものが透けて見えます。スクロールすると上端にも表示されます。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="line" label="線" style="inline-size: 9rem; block-size: 10rem">
+    <p>線。先に内容があるあいだ、端に沿って区切り線の色の細い線が引かれます。スクロールすると上端にも線が現れ、下端の線は消えます。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="blur" label="ぼかし" style="inline-size: 9rem; block-size: 10rem">
+    <p>ぼかし。深さ 48 の帯の中で内容がぼけます。端でいちばん強く、帯の内側の端ではぼけません。スクロールすると上端にも表示されます。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="none" label="なし" style="inline-size: 9rem; block-size: 10rem">
+    <p>なし。端には何も描かれず、内容が続くことを伝えるのはプラットフォームのスクロールバーだけです。スクロールして、ほかと比べてみてください。</p>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+<ComponentSpecs name="scroll-area" />
+
+## ガイドライン
+
+### 使う場面
+
+レイアウトが画面の一部に決まった大きさを与え、その内容がそれより長くなりうる場所で使います。会話の横のメッセージの一覧、検索フィールドの下の検索結果、ペインの中の長いフォーム、横にスクロールする画像の列などです。エリアは内容を置いた場所に保ち、見張る端ごとに、その先にまだ内容があることを示します。
+
+[テーブル](/ja/components/table/)、ダイアログの内容、シートのように自分でスクロールするコンポーネントの周りには要りません。ページの周りにも要りません。ページ自身のスクロールには、示すべき端がないからです。ダイアログ、シート、ポップオーバー、アプリバーは、固定された部分とスクロールする内容が接する場所に、自分で線を描きます。
+
+### スクロールエッジの選び方
+
+| 形 | 用途 |
+| --- | --- |
+| `shadow` | 不透明なサーフェス。内容がサーフェスに沈み込みます。帯は、独自のグレーではなく、エリアが置かれたサーフェスの色で描かれます。既定のシステムの選択です。 |
+| `fade` | 背後が透明なサーフェス、画像、動画の場合。内容そのものが薄れ、色は描かれないので、背後にあるものが透けて見えます。 |
+| `line` | 端を線で示すプロダクトや、帯が内容を覆いすぎる密度の高いレイアウト。線は区切り線の色の細い線です。 |
+| `blur` | バーや端が半透明のプロダクト。内容が端でやわらかくぼけます。描画のコストがいちばん高い形です（後述）。 |
+| `none` | スクロールバーが常に表示されていてそれで足りる場合のように、端をそのままにしておける枠。 |
+
+端はそれぞれ別に、その先に内容があるあいだだけ描かれます。リストの先頭では、示されるのは下端だけです。状態が変わると端の表示はフェードで現れたり消えたりし、動きを減らす設定のときはすぐに切り替わります。表示がエリアの大きさを変えたり、内容を動かしたりすることはありません。
+
+見張る端は `edges` で指定します。既定は `top` と `bottom` で、横にスクロールする列には `start` と `end` を使います。start は、左から右のレイアウトでは左、右から左のレイアウトでは右です。
+
+### 影はサーフェスの色をとる
+
+影は、サーフェス自身の色の帯を、端でいちばん濃くして内容の上に重ねたものです。その色が指すサーフェスの上では、継ぎ目なくサーフェスになじみます。ほかのサーフェスの上では、違う色のにじみに見えます。`comp.scroll-area.shadow.color` の既定値は、基本のサーフェス（`sys.color.surface`）です。カード、シート、コンテナの色など、別のサーフェスにエリアを置くときは、その値をそのサーフェスの色にします。そこに置くすべてのスクロールエリアならレイヤで、1 つだけならそのインスタンスで設定します。Web では、要素かその祖先に設定する `--tanrei-comp-scroll-area-shadow-color` カスタムプロパティです。
+
+半透明のパネル、画像、動画のように、エリアの背後に不透明なものがない場合は、どの色も正しくありません。そこでは `fade` を選びます。
+
+### ぼかしは描画のコストが高い
+
+ぼかしは、スクロールのフレームごとに、帯の中の内容をぼかしてもう一度描きます。半径を段階的に変えた `comp.scroll-area.blur.layers` 枚のレイヤです（既定のシステムでは 4 枚、端での半径は最大 8、帯の深さは 48）。プロダクトの見た目が求める場所で使い、**ぼかした端は 1 つの画面に 2 つまで**にします。すべてのペインではなく、1 つのリストの上端と下端です。プラットフォームが帯の背後をぼかせない場合（背景フィルターのないブラウザー、Android 12 より前、プロダクトがぼかしのビューを渡していない React Native）、エリアは代わりに `shadow` を描きます。ぼかしを選ぶ場合でも、影の色を設定しておきます。
+
+### システム全体で 1 つの選択
+
+スクロールする枠の端を何で示すかは、プロダクトとして一度だけ決める種類の選択です。リスト、フォーム、ペインがそれぞれ違う方法で端を示すべきではありません。
+
+<BehaviorChoice choice="scroll-edge" />
+
+スクロールエリアはこれを自身のトークン `comp.scroll-area.scroll-edge` を通して読むので、デザインシステムはスクロールエリアだけをシステムの選択と変えられます。1 つのインスタンスは `scrollEdge`（Web では `scroll-edge`）で独自に設定します。既定値の `auto` はトークンに従います。既定のシステムは `shadow` を描きます。`m3-like` は `line`、`cupertino` は `blur` を描き、それぞれの元のデザインがスクロールする端を示す方法に合わせています。
+
+<SystemValues tokens={['sys.behavior.scroll-edge']} />
+
+### スクロールエッジと区切り線の表示
+
+システムの選択のうち、スクロールにかかわるものは 2 つあり、答える問いが違います。
+
+- `sys.behavior.divider-visibility` は、**固定された領域の線をいつ引くか**を決めます。アプリバーの端、ダイアログのヘッダーとアクション、シートのヘッダーなど、内容がその下をスクロールするあいだ動かない部分の線です。常に引くか、その先に何かがスクロールしているあいだだけ引くかを選びます。
+- `sys.behavior.scroll-edge` は、**スクロールする枠の端を何で示すか**を決めます。その端の先に内容があるあいだ、影、フェード、線、ぼかしのどれで示すかです。
+
+2 つは別々に設定できます。ヘッダーの線がスクロールに従うダイアログの横に、サーフェスに沈み込むリストを置くこともできます。
+
+### プラットフォームのスクロールをそのまま使う
+
+スクロールエリアは、プラットフォーム自身のスクロールする枠に、端の表示を重ねて描いたものです。ホイール、トラックパッド、タッチ、キーボード、支援技術、プラットフォームのスクロールバーは、ほかの枠と同じように動き、スクロールバーの見た目もプラットフォームのままです。エリアは独自のスクロール、スナップ、スクロールバーを加えません。中のレイアウトもせず、塗り、縁、角も持ちません。内容は、ほかの場所と同じようにスタイルを付けます。
+
+### 推奨
+
+- エリアの大きさはレイアウトで与えます。高さ、グリッドの割り当て、ヘッダーとフッターが残す余白などです。エリアは与えられた大きさをとります。
+- エリアが基本のサーフェスでない場所に置かれるときは、影の色をそのサーフェスの色にします。
+- 何が入っているかを表すラベルを付けます。「メッセージ」「検索結果」「写真」などです。
+
+### 非推奨
+
+- スクロールする端に、自前の区切り線、縁、グラデーションを描かない。スクロールエッジを選べば、端の先に内容があるあいだだけ現れ、プロダクトのほかの場所ともそろいます。
+- 画像、動画、半透明のサーフェスの上で影を使わない。フェードを使います。
+- 1 つの画面に、ぼかした端を 3 つ以上置かない。
+- 同じ方向にスクロールするスクロールエリアを入れ子にしない。スワイプでどちらが動くのか、利用者には分かりません。
+- 表示のための場所を空けようとして、プラットフォームのスクロールバーを隠さない。表示は続きがあることを伝え、スクロールバーはそれがどれだけあるかを伝えます。スクロールバーはそれ自体が操作部品でもあります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="scroll-area" />
+
+### コンポーネントが担うこと
+
+- 内容が収まらず、中にキーボードフォーカスを受け取るものがないあいだは、枠そのものがフォーカス順の 1 つの停止位置になり、`label` を名前とするリージョンとして公開されます。キーボードでスクロールできるようにするためです（WCAG 2.1.1）。矢印キー、Page Up、Page Down、Home、End、Space で、プラットフォームがほかの枠をスクロールするのと同じようにスクロールします。
+- 中の何かがフォーカスを受け取るあいだや、内容が収まっているあいだは、枠はフォーカスの停止位置にならず、ロールも公開しません。キーボードは内容にたどり着き、内容はフォーカスされるとスクロールして表示されます。
+- フォーカスインジケーターは枠の内側に、どの端の表示よりも上に描かれ、表示に薄められることはありません。キーボードによるフォーカスのときだけ表示されます。
+- 端の表示は支援技術から隠され、その上での押下、ホバー、スクロールは、すべて下の内容に届きます。
+- 端の表示は短い時間でフェードして現れ、消えます。これは動きではなく不透明度の変化ですが、動きを減らす設定のときはすぐに現れます。
+- 強制カラーモードでは、どの形もテキストの色の線として描かれます。
+- 自分の言葉を持ちません。枠がフォーカスの停止位置になっているときの空のラベル、未知の `scrollEdge` や `edges` の値は、デバッグビルドで報告されます。
+
+### 利用者側で行うこと
+
+- 何が入っているかを表す `label` を付けます。Tab キーで枠に来た人には、その名前が聞こえます。名前がなければ、リージョンがあることしか伝わりません。
+- 帯の下の内容は、その場所でではなく、スクロールして表示されたときに読まれるものと考えます。影やフェードは、意図して、下にある内容のコントラストを下げます。ただしそれは帯の中だけで、その内容が端に向かってスクロールされているあいだだけです。スクロールして表示されれば、内容は本来のコントラストに戻ります。
+- 自然に変わる内容（ライブで更新される一覧、新しいメッセージ）は、ほかの場所と同じ方法で知らせます。エリアは、スクロールして現れたものを読み上げません。
