@@ -464,7 +464,7 @@
     },
     {
       "id": "MNU-4",
-      "text": "WHEN the menu opens THE menu SHALL fade its surface in and grow it from the edge that faces the anchor over comp.menu.motion.open-duration with comp.menu.motion.open-easing, and WHEN it closes fade it out over comp.menu.motion.close-duration with comp.menu.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once."
+      "text": "WHEN the menu opens THE menu SHALL fade its surface in and grow it from the edge that faces the anchor over comp.menu.motion.open-duration with comp.menu.motion.open-easing, and WHEN it closes fade it out over comp.menu.motion.close-duration with comp.menu.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. WHEN it is mounted with open true THE menu SHALL draw its surface, and the surface of every submenu open in it (MNU-50), without that motion while the document has not yet been first painted, and with it when it is mounted after that."
     },
     {
       "id": "MNU-5",

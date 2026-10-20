@@ -24,6 +24,7 @@ import {
   compChoice,
   countWork,
   deepActive,
+  documentPainted,
   hostAria,
   linkAttributes,
   layoutSize,
@@ -1821,7 +1822,8 @@ export class TanreiMenu extends TanreiElement {
         const changed = submenu.present(own, !!this.bar?.quick);
         if (own === 'overlay' && changed) {
           this.placeSubmenu(submenu);
-          if (!this.bar?.quick) submenu.enter();
+          // MOT-4: a submenu written open in a menu the page's markup opens is there at once, before the first paint.
+          if (!this.bar?.quick && documentPainted()) submenu.enter();
           this.following.request();
         }
         walk(submenu, own);
@@ -2506,8 +2508,9 @@ export class TanreiMenu extends TanreiElement {
     this.following.start();
     document.addEventListener('pointerdown', this.onOutsidePress, true);
     surface.classList.remove('entering');
-    // MBR-29: no open motion where it takes the place of another menu of a menubar.
-    if (!this.bar?.quick) {
+    // MBR-29: no open motion where it takes the place of another menu of a menubar. MOT-4: none for a menu the page's
+    // markup opens, before the document's first paint — there is nothing it could have grown from.
+    if (!this.bar?.quick && documentPainted()) {
       void surface.offsetWidth; // restart the animation
       surface.classList.add('entering');
     }
