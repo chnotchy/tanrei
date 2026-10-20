@@ -86,6 +86,12 @@ test('build: one layer in, every platform out, and the philosophy’s three edit
   // follows the components that exist, so the test holds the kind of every warning and these three, not a count.
   const report = JSON.parse(read('out/tokens/a11y-report.json'));
   assert.equal(report.count, report.warnings.length);
+  // What was checked, in each of the six schemes: the totals are the sums of the schemes'.
+  const schemes = Object.values(report.checked.schemes);
+  assert.equal(schemes.length, 6);
+  assert.ok(schemes.every((n) => n.rolePairs > 0 && n.componentPairs > 0), 'both kinds of pair are counted in every scheme');
+  assert.equal(report.checked.rolePairs, schemes.reduce((sum, n) => sum + n.rolePairs, 0));
+  assert.equal(report.checked.componentPairs, schemes.reduce((sum, n) => sum + n.componentPairs, 0));
   for (const warning of report.warnings) assert.match(warning, /^tanrei\.comp\.[a-z0-9-]+\.container\.height\.[a-z0-9-]+: [\d.]+px cannot hold its content/, 'the larger type is all this layer is warned about');
   for (const component of ['button', 'button-with-menu', 'segmented-button']) {
     assert.ok(report.warnings.some((w) => w.startsWith(`tanrei.comp.${component}.container.height.small: 32px cannot hold its content`)), component);

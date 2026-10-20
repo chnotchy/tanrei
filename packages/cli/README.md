@@ -79,6 +79,6 @@ The vocabulary *types* always come from the library; a build only writes your sy
 
 ## Accessibility
 
-Contrast thresholds and structural checks are constants. In your layer a violation is a **warning**, never silent: it is printed, written to `a11y-report.json`, and stamped at the top of every generated file.
+Contrast thresholds and structural checks are constants. In your layer a violation is a **warning**, never silent: it is printed, written to `a11y-report.json`, and stamped at the top of every generated file. The report also records how many contrast pairs were checked in each scheme (`checked`): the pairs of color roles, and the pairs of a component's own colors.
 
 The shipped imitation presets (`m3-like`, `m3-expressive-like`, `cupertino`) are held to fidelity to the systems they imitate, not to Tanrei's accessibility criteria, in every contrast scheme: what the fixed ruler measures in a preset is recorded as information, not as a warning. Your layer is a product layer, whatever it extends, so a layer built on a preset is warned about what it inherits from it too.

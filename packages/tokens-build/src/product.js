@@ -11,6 +11,7 @@ import { emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitShadcnTheme, emitTailwindTheme } from './emit/theme-exports.js';
 import { emitTs } from './emit/ts.js';
+import { checkedPairs } from './invariants.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
@@ -85,7 +86,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const resolved = await resolveSystem(input);
   const { id, chain, files: bundle } = resolved;
   const model = await resolved.model();
-  const warnings = await resolved.warnings();
+  const { failures: warnings, checked } = await resolved.audit();
   const sourceName = layerFile ? path.basename(layerFile) : `${id}${LAYER_SUFFIX}`;
 
   const previous = [...GENERATED_HEADER];
@@ -103,7 +104,7 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
     const note = warnings.length ? `⚠ ${warnings.length} accessibility/structure warning(s) in system "${id}" — see a11y-report.json in the tokens output.` : null;
     const flat = (emitted) => Object.fromEntries(Object.entries(emitted).map(([file, text]) => [path.basename(file), note ? `// ${note}\n${text}` : text]));
     const all = {
-      tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
+      tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', checked: checkedPairs(checked), count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
       // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
       // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
       web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id) }),
