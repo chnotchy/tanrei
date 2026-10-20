@@ -91,6 +91,9 @@ jobs:
       (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))))
     runs-on: ubuntu-24.04
     timeout-minutes: 15 # the build takes about 1–2 minutes, the upload a few more
+    # No Actions cache in or out: a cache is written by another run, an input nobody reviewed, and this job holds the
+    # Cloudflare token and publishes the site (cache poisoning). The pnpm store is installed from scratch.
+    cache-mode: none
     permissions:
       contents: read
       pull-requests: write # the preview URL is commented on the pull request
@@ -102,7 +105,7 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          package-manager-cache: false # see cache-mode above
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @tanrei/web build
       - run: pnpm --filter @tanrei/docs build
