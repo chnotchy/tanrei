@@ -35,9 +35,13 @@ round in the middle of either goes back from where it is.
 
 How long a change takes is decided by what moves — its **role** — not by a step of the duration scale. A component's
 duration token aliases its role (`tanrei.comp.menu.motion.…` → `tanrei.sys.motion.role.appear.anchored.enter`), so
-every component of one role keeps one pace, and a product re-times a role in one line of its layer. Most component
-tokens still alias a step of the duration scale or a curve of the scale; a component token that is added or changed
-aliases its role. The roles follow
+every component of one role keeps one pace, and a product re-times a role in one line of its layer. Every component
+duration and curve that a role describes aliases it; a state duration may follow the component's size
+(`tanrei.comp.button.motion.state-duration.small` → `role.state.compact`). What no role describes keeps a step of the
+scale: a cycle (a loading indicator's turn, a skeleton's pulse), a progress bar moving to its value, a scroll, a zoom
+or a page that slides into place, and a wait (a
+delay, a repeat interval). A preset that keeps another design system's motion pins a component token, with its reason,
+where that system times the component otherwise than its role. The roles follow
 `tanrei.dial.motion.unit`, so the dial still re-times everything.
 
 | Role | Default system | What moves |

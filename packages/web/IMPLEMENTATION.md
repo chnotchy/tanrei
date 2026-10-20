@@ -3983,7 +3983,7 @@ offset, a narrow window).
 `box-shadow` in either form and while it changes between them, never clipped by the element (nothing between it and the
 page has `overflow` or `contain`); give its own container room for it if that container clips. In the default system it
 rests at level3, rises to level4 under hover, keeps level3 under focus and press, and is flat when disabled. The colors,
-the elevation and the opacity change over `comp.main-action-button.motion.state-duration` with `motion.state-easing`, at
+the elevation and the opacity change over `comp.main-action-button.motion.state-duration.<size>` with `motion.state-easing`, at
 once under reduced motion.
 
 **Everything else is Button's**: a native `<button>` named by its content, the state precedence, the minimum target (the
