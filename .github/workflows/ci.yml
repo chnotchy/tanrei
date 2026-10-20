@@ -413,7 +413,11 @@ jobs:
         if: matrix.browser
         run: pnpm --filter @tanrei/studio exec playwright install --with-deps chromium
       - name: Tests of the ${{ matrix.suite }}
-        run: pnpm ${{ matrix.packages }} test
+        env:
+          PACKAGES: ${{ matrix.packages }} # through the environment: a matrix value is never spliced into the script
+        run: |
+          read -ra packages <<< "$PACKAGES"
+          pnpm "${packages[@]}" test
 
   # Visual baselines are recorded and verified on Linux, inside Microsoft's Playwright image pinned to the exact
   # @playwright/test of the lockfile: the same browsers, system libraries and fallback fonts on every run and in the
@@ -476,10 +480,14 @@ jobs:
           WEB_GREP: ${{ needs.changes.outputs.web-grep }}
           WEB_REPEAT: ${{ needs.changes.outputs.web-repeat }}
           TANREI_TRACE: ${{ needs.changes.outputs.targeted == 'true' && 'first-failure' || '' }}
+          # The matrix values reach the script through the environment, never spliced into it.
+          PROJECTS: ${{ matrix.projects }}
+          SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
         run: |
+          read -ra projects <<< "$PROJECTS"
           repeat=()
           if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
-          pnpm --filter @tanrei/web exec playwright test ${{ matrix.projects }} --shard=${{ matrix.shard }}/${{ matrix.shards }} ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
+          pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --shard="$SHARD" ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
       # A failed test's traces (its retry's; in a targeted run every failed attempt's, the first included), screenshots and
       # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
       # carries the same files into the merged report; this one is the shard's own, without merging.
@@ -672,10 +680,12 @@ jobs:
           ")
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
       - name: Dynamic Type has one scaling (macOS has no Dynamic Type, so this runs on the simulator)
+        env:
+          SIM_UDID: ${{ steps.sim.outputs.udid }} # through the environment: a step output is never spliced into the script
         run: >
           xcodebuild test
           -scheme Tanrei
-          -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
+          -destination "platform=iOS Simulator,id=$SIM_UDID"
           -only-testing:TanreiTests/TanreiDynamicTypeTests
           -derivedDataPath "$RUNNER_TEMP/tanrei-derived"
           -resultBundlePath "$RUNNER_TEMP/dynamic-type.xcresult"
@@ -792,14 +802,19 @@ jobs:
               print(f'  {t}', file=sys.stderr)
           print('args=' + ' '.join(args))
           PY
-      - run: >
-          xcodebuild test
-          -project packages/swiftui/Gallery/TanreiGallery.xcodeproj
-          -scheme TanreiGallery
-          -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
-          -derivedDataPath "$RUNNER_TEMP/gallery-derived"
-          -resultBundlePath "$RUNNER_TEMP/gallery.xcresult"
-          ${{ steps.tests.outputs.args }}
+      # The step outputs reach the script through the environment, never spliced into it.
+      - env:
+          SIM_UDID: ${{ steps.sim.outputs.udid }}
+          TEST_ARGS: ${{ steps.tests.outputs.args }}
+        run: |
+          read -ra args <<< "$TEST_ARGS"
+          xcodebuild test \
+            -project packages/swiftui/Gallery/TanreiGallery.xcodeproj \
+            -scheme TanreiGallery \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
+            -derivedDataPath "$RUNNER_TEMP/gallery-derived" \
+            -resultBundlePath "$RUNNER_TEMP/gallery.xcresult" \
+            "${args[@]}"
       # The log of a UI test run is longer than what an API client can read back (the tail is kept); the failures are
       # printed last, from the result bundle, and the bundle is kept.
       - name: Failed tests
