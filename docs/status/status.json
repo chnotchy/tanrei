@@ -1877,7 +1877,7 @@
       "hasSpec": true,
       "docs": "/components/scroll-area/",
       "platforms": {
-        "web": "lagging",
+        "web": "alpha",
         "swiftui": "planned",
         "compose": "planned",
         "flutter": "planned",
@@ -1888,8 +1888,8 @@
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 84,
-      "alpha": 9,
+      "lagging": 83,
+      "alpha": 10,
       "beta": 0,
       "stable": 0,
       "deprecated": 0

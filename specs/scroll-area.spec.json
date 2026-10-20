@@ -154,7 +154,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-scroll-area",
       "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
       "notes": "`<tanrei-scroll-area scroll-edge edges=\"top bottom\" label>`; `edges` is a space-separated attribute and an array property. Whether content lies beyond an edge is read from one `IntersectionObserver` on four thin sentinels at the ends of the content (SCA-8): no scroll listener, no layout read while scrolling. Not CSS scroll-driven animations: they are not in every engine, and they tie the mark to the distance scrolled rather than fading it over the state motion. shadow is a gradient band per edge in `--tanrei-comp-scroll-area-shadow-color`; set that custom property on the element, or on an ancestor, to the surface it stands on. fade is a `mask-image` on the scroll box, one gradient per axis, moved by `mask-position` and `mask-size` (no registered custom property), so the browser's scroll bar fades with the content at a faded edge. blur is `blur.layers` layers inside each band, each with `backdrop-filter: blur(r × i / n)` and a `mask-image` gradient; `@supports not (backdrop-filter: blur(1px))` draws shadow (SCA-9). Every mark is `pointer-events: none` and `aria-hidden`. A fixture fills the slot with enough lines (or a row wide enough) to scroll, in a box of a fixed size, scrolled to the middle."
