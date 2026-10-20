@@ -2438,7 +2438,6 @@ private object TonePerStateSystemSource {
             labelTypescale = typescale.body,
             markSize = 20.dp,
             markWeight = 500f,
-            markWidth = 2.dp,
             motionFeedbackDuration = 450,
             motionMarkEnterScale = 0.5f,
             motionMarkScaleDuration = 350,

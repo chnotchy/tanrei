@@ -1429,7 +1429,6 @@ export interface TanreiCheckboxTokens {
   readonly labelTypescale: TanreiTypescaleRole;
   readonly markSize: number;
   readonly markWeight: number;
-  readonly markWidth: number;
   readonly motionFeedbackDuration: number;
   readonly motionMarkEnterScale: number;
   readonly motionMarkScaleDuration: number;

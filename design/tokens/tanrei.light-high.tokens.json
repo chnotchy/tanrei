@@ -22540,14 +22540,6 @@
             "$type": "number",
             "$value": 500,
             "$description": "The weight the check and the dash are drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, heavier than its icons in the default system. The glyph box (mark.size) does not change with it; only the stroke does."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 2,
-              "unit": "px"
-            },
-            "$description": "The stroke of the check and the dash drawn as paths. No behaviour of the current spec reads it: the mark is a glyph of the icon set (CHK-12). It stays only so that the platforms that still draw them as paths keep building; remove it in the commit that brings the last of them up to date."
           }
         },
         "motion": {

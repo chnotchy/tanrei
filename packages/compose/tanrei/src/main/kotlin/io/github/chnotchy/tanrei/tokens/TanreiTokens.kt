@@ -2842,7 +2842,6 @@ public data class TanreiCheckboxTokens(
     public val labelTypescale: TanreiTextStyle,
     public val markSize: Dp,
     public val markWeight: Float,
-    public val markWidth: Dp,
     public val motionFeedbackDuration: Int,
     public val motionMarkEnterScale: Float,
     public val motionMarkScaleDuration: Int,
