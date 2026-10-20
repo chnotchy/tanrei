@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, conditionBlock, focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -448,9 +448,10 @@ export const drawerStyles = css`
       translate: var(--_away) 0;
     }
   }
+  ${scrimFilter('dialog.drawer', T('scrim-blur'))}
   dialog.drawer::backdrop {
     background: ${t('scrim-color')};
-    backdrop-filter: blur(${t('scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};

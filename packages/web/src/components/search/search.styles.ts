@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -562,9 +562,10 @@ export const styles = css`
   }
   /* SRC-40, SRC-41: the scrim over the whole window behind it, fading with it — the dialog's backdrop, or an element
      of its own where the view is drawn in place. */
+  ${scrimFilter('.full.hung', T('view-scrim-blur'))}
   .full.hung::backdrop {
     background: ${t('view-scrim-color')};
-    backdrop-filter: blur(${t('view-scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-close-duration')};
@@ -581,11 +582,12 @@ export const styles = css`
       opacity: 0;
     }
   }
+  ${scrimFilter('.scrim', T('view-scrim-blur'))}
   .scrim {
     position: absolute;
     inset: 0;
     background: ${t('view-scrim-color')};
-    backdrop-filter: blur(${t('view-scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
   }
   /* SRC-40: its header — the back button header.padding-inline from the start edge (as the full-screen header has it,
      in the search glyph's place), the input and the clear button, container.gap apart, the last ending
