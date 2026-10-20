@@ -2,7 +2,7 @@
 title: मोडल लेयर
 description: हर मोडल सरफ़ेस के नीचे की लेयर। यह जिसे पेश करती है, उसके पीछे की विंडो को धुँधला करती है, वहाँ की हर चीज़ को निष्क्रिय कर देती है, फ़ोकस को भीतर ले जाकर वहीं रखती है और फिर लौटा देती है, और Escape, प्लैटफ़ॉर्म के बैक या स्क्रिम पर दबाने पर बंद होने का अनुरोध करती है। इसकी स्टाइल एक बार बदलें, और हर मोडल सरफ़ेस उसके पीछे चलती है।
 translationOf: components/modal-layer.mdx
-sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
+sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -106,13 +106,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "हमारी मोडल सरफ़ेस अपने पीछे की चीज़ों को फ़्रॉस्टेड काँच जैसा धुँधला कर देती हैं।" },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "हमारी मोडल सरफ़ेस अपने पीछे की चीज़ों को फ़्रॉस्टेड काँच जैसा धुँधला कर देती हैं।" }
   }
 }
 ```
 
-स्क्रिम की अपारदर्शिता उसके रंग का अल्फ़ा है: उसे हल्का या गहरा करने के लिए रंग बदलें, या सिस्टम का `scrim` रोल। किसी एक सरफ़ेस को अलग रखने के लिए उसकी जगह उसी सरफ़ेस का अपना टोकन सेट करें (`comp.dialog.scrim.color`, `comp.side-sheet.motion.enter-duration`)। जब तक आप ऐसा नहीं करते, वह लेयर के टोकन की ओर इशारा करता है।
+स्क्रिम की अपारदर्शिता उसके रंग का अल्फ़ा है: उसे हल्का या गहरा करने के लिए रंग बदलें, या सिस्टम का `scrim` रोल। किसी एक सरफ़ेस को अलग रखने के लिए उसकी जगह उसी सरफ़ेस का अपना टोकन सेट करें (`comp.dialog.scrim.color`, `comp.dialog.motion.enter-duration`)। जब तक आप ऐसा नहीं करते, वह लेयर के टोकन की ओर इशारा करता है।
 
 ## स्पेक
 

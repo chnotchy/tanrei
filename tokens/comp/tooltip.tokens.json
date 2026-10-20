@@ -352,12 +352,12 @@
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.hint.enter}",
             "$description": "How long the tooltip takes to fade in, grow and travel to its place."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "enter-scale": {
             "$type": "number",
@@ -386,12 +386,12 @@
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.appear.hint.exit}",
             "$description": "How long the tooltip takes to fade out, shrink and travel back."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "timeout": {

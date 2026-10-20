@@ -836,39 +836,39 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a state change takes, and how long the item containers take to change color when the selection changes."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "How long an icon indicator takes to grow in (and the previous one to fade out), and short labels to appear and disappear, when the selection changes. The item container does not use it: it changes color in place over state-duration.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -879,7 +879,7 @@
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of selection-duration.",
@@ -889,7 +889,7 @@
           },
           "expand-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
             "$description": "How long the drawer takes to widen from the icon column to its full width, or to narrow back, with every part that changes on the way (the edge, the labels, the active indicator, the header).",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -900,7 +900,7 @@
           },
           "expand-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of expand-duration.",
@@ -910,7 +910,7 @@
           },
           "disclosure-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.disclosure}",
             "$description": "How long a group takes to open or close: its destinations revealed or hidden, the rows below moving, and its chevron turning.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -921,7 +921,7 @@
           },
           "disclosure-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of disclosure-duration.",

@@ -2,7 +2,7 @@
 title: Capa modal
 description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Escape, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
 translationOf: components/modal-layer.mdx
-sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
+sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -106,13 +106,12 @@ Un producto define los tokens de la capa en su archivo de capa, y todas las supe
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "Nuestras superficies modales esmerilan lo que queda detrás de ellas." },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "Nuestras superficies modales esmerilan lo que queda detrás de ellas." }
   }
 }
 ```
 
-La opacidad del velo es el alfa de su color: cambia el color, o el rol `scrim` del sistema, para hacerlo más claro o más oscuro. Para diferenciar una sola superficie, define en su lugar el token propio de esa superficie (`comp.dialog.scrim.color`, `comp.side-sheet.motion.enter-duration`). Apunta al de la capa hasta que lo hagas.
+La opacidad del velo es el alfa de su color: cambia el color, o el rol `scrim` del sistema, para hacerlo más claro o más oscuro. Para diferenciar una sola superficie, define en su lugar el token propio de esa superficie (`comp.dialog.scrim.color`, `comp.dialog.motion.enter-duration`). Apunta al de la capa hasta que lo hagas.
 
 ## Especificaciones
 

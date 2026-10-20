@@ -202,7 +202,7 @@
     },
     {
       "id": "CHP-9",
-      "text": "WHILE pressed THE chip SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.chip.motion.feedback-duration with comp.chip.motion.state-easing, fades over comp.chip.motion.state-duration with comp.chip.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "text": "WHILE pressed THE chip SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.chip.motion.feedback-duration with comp.chip.motion.state-easing, fades over the state duration of its size (comp.chip.motion.state-duration.small or .medium) with comp.chip.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
       "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
     },
     {
@@ -264,7 +264,7 @@
     },
     {
       "id": "CHP-24",
-      "text": "WHEN the elevation or the colors of the chip change between states THE chip SHALL animate the change over comp.chip.motion.state-duration with comp.chip.motion.state-easing, and SHALL change them at once where motion is reduced."
+      "text": "WHEN the elevation or the colors of the chip change between states THE chip SHALL animate the change over the state duration of its size (comp.chip.motion.state-duration.small or .medium) with comp.chip.motion.state-easing, and SHALL change them at once where motion is reduced."
     },
     {
       "id": "CHP-25",

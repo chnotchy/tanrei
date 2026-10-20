@@ -911,7 +911,7 @@ test.describe('behavior', () => {
 
   test('CHP-24: colors and elevation change over motion.state-duration with motion.state-easing, and at once where motion is reduced', async ({ page }) => {
     const id = 'action-elevated';
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const easing = await resolveAs(page, 'transition-timing-function', T('motion-state-easing'));
     expect(await css(page, id, 'transition-property')).toBe('background-color, color, box-shadow, opacity');
     expect((await css(page, id, 'transition-duration')).split(', ').map((d) => Number.parseFloat(d) * 1000)).toEqual([duration, duration, duration, duration]);
@@ -1234,7 +1234,7 @@ test.describe('press, feedback, corners and focus style', () => {
     expect(layer.color).toBe(await resolveColor(page, T('elevated-pressed-container-color')));
     expect(layer.inset).toBeCloseTo(await resolveToken(page, T('outline-width')), 1);
     expect(layer.grow).toBe(await resolveToken(page, T('motion-feedback-duration'), 'duration'));
-    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration'), 'duration'));
+    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration-medium'), 'duration'));
     expect(await css(page, id, 'background-color')).toBe(hovered);
     expect(await css(page, id, 'color')).toBe('rgb(0, 0, 255)');
     expect(await style(iconOf(page, id), 'color')).toBe('rgb(0, 128, 0)');

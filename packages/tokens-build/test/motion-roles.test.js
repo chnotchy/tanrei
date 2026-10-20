@@ -145,7 +145,7 @@ test('m3-like’s roles are the durations its components draw, so a component th
   const tokens = await tokensOf({ system: 'm3-like' });
   const drawn = {
     'state.compact': 'tanrei.comp.checkbox.motion.state-duration',
-    'state.default': 'tanrei.comp.button.motion.state-duration',
+    'state.default': 'tanrei.comp.button.motion.state-duration.medium',
     'state.large': 'tanrei.comp.list.motion.state-duration',
     'selection.mark': 'tanrei.comp.checkbox.motion.selection-duration',
     'selection.travel': 'tanrei.comp.switch.motion.selection-duration',

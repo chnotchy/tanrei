@@ -39,6 +39,7 @@ const SIZE_MEMBERS = {
   'icon-alone': 'icon-size-without-label',
   gap: 'container-gap',
   'outline-width': 'outline-width',
+  'state-duration': 'motion-state-duration',
 } as const;
 
 const PREFIX = '--tanrei-comp-button';
@@ -210,7 +211,7 @@ const buttonStyles = css`
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition-property: background-color, color, box-shadow, opacity, border-radius;
-    transition-duration: var(--tanrei-comp-button-motion-state-duration);
+    transition-duration: var(--_state-duration);
     transition-timing-function: var(--tanrei-comp-button-motion-state-easing);
   }
 
@@ -300,7 +301,7 @@ const buttonStyles = css`
     color: '--_c-p',
     inset: '--_outline-width',
     grow: '--tanrei-comp-button-motion-feedback-duration',
-    fade: '--tanrei-comp-button-motion-state-duration',
+    fade: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
 
@@ -357,7 +358,7 @@ const buttonStyles = css`
   ${iconGlyph('.icon', {
     size: '--_glyph',
     selected: "button[aria-pressed='true']",
-    duration: '--tanrei-comp-button-motion-state-duration',
+    duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
   .icon {
@@ -389,7 +390,7 @@ const buttonStyles = css`
   ${iconGlyph('.mark', {
     size: '--_icon',
     selected: "button[aria-pressed='true']",
-    duration: '--tanrei-comp-button-motion-state-duration',
+    duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
 

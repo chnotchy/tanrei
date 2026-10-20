@@ -315,7 +315,7 @@ test.describe('press, feedback, corners and focus style', () => {
     // It grows over comp.button.motion.feedback-duration with motion.state-easing, and will fade over motion.state-duration.
     const motion = await ripple.evaluate((el) => { const s = getComputedStyle(el); return { grow: Number.parseFloat(s.animationDuration) * 1000, curve: s.animationTimingFunction, fade: Number.parseFloat(s.transitionDuration) * 1000, fades: s.transitionProperty }; });
     const easing = await inner(page, 'filled-medium').evaluate((el) => getComputedStyle(el).transitionTimingFunction.split(/,\s*(?=cubic|ease|linear)/)[0]);
-    expect(motion).toEqual({ grow: await resolveToken(page, '--tanrei-comp-button-motion-feedback-duration', 'duration'), curve: easing, fade: await resolveToken(page, '--tanrei-comp-button-motion-state-duration', 'duration'), fades: 'opacity' });
+    expect(motion).toEqual({ grow: await resolveToken(page, '--tanrei-comp-button-motion-feedback-duration', 'duration'), curve: easing, fade: await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration'), fades: 'opacity' });
     // …clipped to the container shape, under the label, and the container itself does not switch at once.
     expect(layer.radius).toBeGreaterThanOrEqual(box.height / 2 - 1);
     expect(layer).toMatchObject({ hidden: 'true', behindLabel: '-1' });
@@ -330,11 +330,11 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('BTN-9 ripple: the COMPONENT token decides the growth; the fade starts when the press and press-hold are over, not when the growth is', async ({ page }) => {
     await mountFixtures(page, spec, { system: 'm3-like' });
-    // A growth far longer than any press below — set where a design system sets it. sys.motion.duration.long1, which
+    // A growth far longer than any press below — set where a design system sets it. sys.motion.role.feedback, which
     // the token aliases by default, is moved the other way to prove the component does not read it.
     await rootTokens(page, {
       '--tanrei-comp-button-motion-feedback-duration': '40000ms',
-      '--tanrei-sys-motion-duration-long1': '1ms',
+      '--tanrei-sys-motion-role-feedback': '1ms',
       // Long enough for the driver to send the release before the hold, which counts from the press, is over.
       '--tanrei-sys-motion-duration-press-hold': '4000ms',
     });

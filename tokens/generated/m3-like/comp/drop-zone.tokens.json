@@ -136,12 +136,12 @@
         "motion": {
           "duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long the overlay takes to fade in when a drag of files enters the zone, and to fade out when it leaves, ends or drops; and how long a change between taking and refusing takes."
           },
           "easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$value": "{tanrei.sys.motion.easing.state}",
             "$description": "The curve of that fade."
           }
         }

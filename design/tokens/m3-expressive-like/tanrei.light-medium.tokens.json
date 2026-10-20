@@ -2966,7 +2966,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -2983,7 +2983,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the modal layer's."
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -10434,10 +10434,40 @@
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "xlarge": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "xsmall": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -22999,7 +23029,7 @@
               0.34,
               1
             ],
-            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is an effects curve."
+            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is the curve of a change of state."
           },
           "state-duration": {
             "$type": "duration",
@@ -25984,10 +26014,19 @@
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -45545,10 +45584,26 @@
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -53384,10 +53439,26 @@
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -60194,7 +60265,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+            "$description": "How long the scrim takes to fade in as a modal surface opens: the modal role's entrance. The enter duration of each modal surface that takes the modal role (dialog, modal picker, image preview) aliases this one, so that it arrives with its scrim; a sheet takes the sheet role, and its scrim fades in step with it."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -60204,7 +60275,7 @@
               0.1,
               1
             ],
-            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+            "$description": "The curve of the scrim's fade in: the entrance curve. The enter easing of each modal surface that takes the modal role aliases it."
           },
           "exit-duration": {
             "$type": "duration",
@@ -60212,7 +60283,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+            "$description": "How long the scrim takes to fade out as a modal surface closes: the modal role's exit. The exit duration of each modal surface that takes the modal role (dialog, modal picker, image preview) aliases this one, so that it leaves with its scrim; a sheet takes the sheet role, and its scrim fades out in step with it."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -60222,7 +60293,7 @@
               0.8,
               0.15
             ],
-            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+            "$description": "The curve of the scrim's fade out: the exit curve. The exit easing of each modal surface that takes the modal role aliases it."
           }
         },
         "scrim": {
@@ -64618,7 +64689,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -64635,7 +64706,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -73482,10 +73553,26 @@
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -77515,7 +77602,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -77532,7 +77619,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the role of a sheet's exit, so that every sheet of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -86438,7 +86525,7 @@
               0.34,
               1
             ],
-            "$description": "The reduced-motion crossfade's easing: an effects curve, which never overshoots."
+            "$description": "The reduced-motion crossfade's easing: the curve of a change of state, which never overshoots."
           },
           "switch-duration": {
             "$type": "duration",
