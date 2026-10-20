@@ -81,6 +81,12 @@
       "description": "Whether a filter chip is on. Ignored unless kind is filter."
     },
     {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "What a component that holds the selection of a set of filter chips names this chip by: the Tag group's value and values (TGR-17). Unique within the set. Not drawn and not exposed; the chip itself does nothing with it."
+    },
+    {
       "name": "disabled",
       "type": "boolean",
       "default": false,
@@ -260,7 +266,7 @@
     },
     {
       "id": "CHP-23",
-      "text": "THE chip SHALL be one tab stop — an input chip too: its remove action is not a stop (CHP-18), and Backspace or Delete on the chip removes it (CHP-19) — unless the component that holds it gives its set one stop and the keys to reach each chip (the chip field, CHF-11) — and SHALL NOT handle arrow keys; moving between chips with arrow keys, choosing one or several filter chips of a set, and wrapping or scrolling a row belong to the layout that holds the chips."
+      "text": "THE chip SHALL be one tab stop — an input chip too: its remove action is not a stop (CHP-18), and Backspace or Delete on the chip removes it (CHP-19) — unless the component that holds it gives its set one stop and the keys to reach each chip (the chip field, CHF-11; a tag group that holds a selection, TGR-20) — and SHALL NOT handle arrow keys; moving between chips with arrow keys, choosing one or several filter chips of a set, and wrapping or scrolling a row belong to the layout that holds the chips."
     },
     {
       "id": "CHP-24",
@@ -357,7 +363,7 @@
     "notes": [
       "A filter chip is a button with a pressed state (aria-pressed on the web, the selected trait on Apple platforms, a toggleable state on Android), as a toggle Button is, not a checkbox.",
       "An input chip is two elements on every platform: the chip (role button) and its remove action (role button, named by removeLabel). On the web the remove action is a second `<button>` in the shadow root; on the other platforms it is its own accessibility element with its own hit area. It is one Tab stop: the remove action stays out of the Tab order, as the delete icon of MUI's Chip, the remove button of React Aria's TagGroup and the dismiss of Fluent's Tag do, and the keyboard removes the chip with Backspace or Delete on the chip itself, as a person who removes several entries in a row expects — one press each, without a second stop per chip to pass.",
-      "The chip does not group itself. A row of chips is laid out in wrapping lines, exposed as one list and given focus after a removal by the Tag group (TGR-1, TGR-7, TGR-9), or by the layout that holds the chips; one Tab stop with arrow keys is a Toolbar's, and single or multiple selection among filter chips is the product's.",
+      "The chip does not group itself. A row of chips is laid out in wrapping lines, exposed as one list and given focus after a removal by the Tag group (TGR-1, TGR-7, TGR-9), or by the layout that holds the chips; one Tab stop with arrow keys, and single or multiple selection among filter chips, are a Tag group's that holds a selection (TGR-17 to TGR-21), or a Toolbar's.",
       "destructiveRemove adds a color, never a meaning: the name removeLabel, the cancel glyph and the button role already say what the action does, so a person who cannot tell the error color from the resting one loses nothing (WCAG 1.4.1). The error glyph is a graphical object and keeps at least 3:1 against the chip's container in every scheme of the default system: the error role is held to 4.5:1 on every surface role by the token invariants, and the outlined chip shows a surface through its clear container while the elevated one is surface-container-lowest; under the state layer the lowest ratio is 3.98:1 (light scheme, on surface-container-highest, at the focus and pressed opacity).",
       "The label does not wrap; at 200% text size the chip grows in height and the layout that holds a row lets it wrap to the next line or scroll.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
@@ -582,6 +588,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "disabled",
         "label": "label",
         "removeLabel": "removeLabel",
@@ -606,6 +613,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "isSelected",
+        "value": "value",
         "disabled": "disabled",
         "label": "title",
         "removeLabel": "removeLabel",
@@ -630,6 +638,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "enabled",
         "label": "label",
         "removeLabel": "removeContentDescription",
@@ -654,6 +663,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "isEnabled",
         "label": "label",
         "removeLabel": "removeSemanticLabel",
@@ -678,6 +688,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "disabled",
         "label": "label",
         "removeLabel": "removeAccessibilityLabel",

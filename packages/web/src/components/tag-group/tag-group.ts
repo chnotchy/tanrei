@@ -1,11 +1,21 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, OpenAxesController, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, parseValues, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** The core spacings (tags, chips), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagGroupSpacing = keyof TanreiTagGroupSpacingRegistry;
+
+/** Whether the group holds the selection of its filter chips, and how many may be on (TGR-17). A closed set. */
+export type TanreiTagGroupSelection = 'none' | 'single' | 'multiple';
+
+/** What `change` carries: the group's `value` after the change (single), or its `values` (multiple). */
+export type TanreiTagGroupChangeDetail = { value: string | null } | { values: string[] };
+
+const SELECTIONS: readonly string[] = ['none', 'single', 'multiple'];
+/** The kind of chip that holds a selection (CHP-11). */
+const FILTER = 'filter';
 
 /** The members a tag group is for (TGR-11). */
 const MEMBERS = ['tanrei-tag', 'tanrei-chip'];
@@ -29,6 +39,13 @@ const sameOrder = (a: readonly Node[], b: readonly Node[]) => a.length === b.len
  */
 const takesItemRole = (member: Element) => !member.hasAttribute('role') && (member.localName.includes('-') || GENERIC.includes(member.localName));
 
+type ChipLike = HTMLElement & { kind?: string; value?: string; selected?: boolean; disabled?: boolean };
+/** A chip's kind and value, read from the element where it is defined and from its attributes where it is not yet. */
+const kindOf = (chip: ChipLike) => chip.kind ?? chip.getAttribute('kind') ?? 'action';
+const valueOf = (chip: ChipLike) => (typeof chip.value === 'string' ? chip.value : (chip.getAttribute('value') ?? ''));
+/** TGR-20: a chip takes focus unless it is disabled. */
+const takesFocus = (chip: ChipLike) => !(chip.disabled ?? chip.hasAttribute('disabled'));
+
 /** Whether focus is on `member` or inside it, its shadow root included: what its own tree calls the active element. */
 function holdsFocus(member: Element): boolean {
   const active = (member.getRootNode() as Document | ShadowRoot).activeElement;
@@ -41,8 +58,9 @@ function holdsFocus(member: Element): boolean {
  * Contract: specs/tag-group.spec.json. It reads four tokens (`--tanrei-comp-tag-group-gap-*` and `-row-gap-*`, one pair
  * per `spacing`) and draws nothing of its own: no container, no fill, no edge, no padding, and not its `label`. Its
  * members are `<tanrei-tag>` and `<tanrei-chip>` children, which stay in your DOM where you wrote them, drawn from
- * their own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group takes no
- * focus, handles no key, keeps no selection, does not make filter chips exclusive and fires no event.
+ * their own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group itself never
+ * takes focus. With the default `selection="none"` it handles no key, keeps no selection, does not make filter chips
+ * exclusive and fires no event.
  *
  * It is a list (TGR-7): the shadow root holds one element with the list role, named by `label`, around the slot, and
  * each member is given `role="listitem"` while it is in the group — the attribute is written on your element where it
@@ -58,9 +76,18 @@ function holdsFocus(member: Element): boolean {
  * the element out. When the last member that takes focus has gone the group has nowhere to put it; move it yourself to
  * the control the set belongs to. A group with no member draws nothing, takes no space and exposes nothing (TGR-8).
  *
+ * `selection="single"` or `"multiple"` makes the group hold the selection of its filter chips (TGR-17 to TGR-21), named
+ * by each chip's `value`: `value` is the one that is on (single; `null` for none), `values` the ones that are on
+ * (multiple). The group sets each filter chip's `selected` from them, and when a person switches a chip it sets `value`
+ * or `values`, stops the chip's own `change` and fires its own. A single selection can be emptied by switching its chip
+ * off, because each chip is a toggle. The set is then one Tab stop — the chip that last had focus, else the first chip
+ * that is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between
+ * its chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.
+ *
  * It supplies no words: the name of the set is yours, in `label`.
  *
  * @tag tanrei-tag-group
+ * @fires {CustomEvent<TanreiTagGroupChangeDetail>} change - While `selection` is single or multiple, a person switched a filter chip: `detail.value` (single) or `detail.values` (multiple) after the change, which the group already holds. The chip's own `change` stops at the group.
  * @slot - The members: `<tanrei-tag>` and `<tanrei-chip>` elements. Anything else is still laid out, and reported in debug builds (TGR-11).
  */
 export class TanreiTagGroup extends TanreiElement {
@@ -70,6 +97,9 @@ export class TanreiTagGroup extends TanreiElement {
   static override properties: PropertyDeclarations = {
     spacing: { type: String, reflect: true },
     label: { type: String },
+    selection: { type: String, reflect: true },
+    value: { type: String },
+    values: { attribute: 'values', converter: { fromAttribute: parseValues } },
     empty: { state: true },
   };
 
@@ -86,6 +116,20 @@ export class TanreiTagGroup extends TanreiElement {
    */
   label = '';
 
+  /**
+   * Whether the group holds the selection of its filter chips (TGR-17): `none` (each filter chip holds its own
+   * `selected`), `single` (at most one on, named by `value`) or `multiple` (any number, named by `values`). While it is
+   * single or multiple the set is one Tab stop and the arrow keys move between its chips (TGR-20). A value the group
+   * does not have is `none`, reported in debug builds.
+   */
+  selection: TanreiTagGroupSelection = 'none';
+
+  /** The value of the filter chip that is on while `selection` is single; `null` for none. The group sets it when a chip is switched. */
+  value: string | null = null;
+
+  /** The values of the filter chips that are on while `selection` is multiple. Assign a new array to change it; the group assigns one when a chip is switched. */
+  values: string[] = [];
+
   /** TGR-8: whether the group holds nothing. */
   protected empty = true;
 
@@ -101,6 +145,19 @@ export class TanreiTagGroup extends TanreiElement {
   /** TGR-7: the members the group gave the list item role, so that it takes back only what it gave. */
   private readonly given = new Set<Element>();
 
+  /** TGR-20: the chips the group took out of the Tab order, so that it gives back only what it took. */
+  private readonly unstopped = new Set<HTMLElement>();
+
+  /** TGR-20: the chip that last had focus while the group held a selection: the set's stop while it is here. */
+  private stop: HTMLElement | null = null;
+
+  /** TGR-17, TGR-21: a chip whose value, kind or disabled changes is selected and stopped again. */
+  private readonly members$ = new MutationObserver((records) => {
+    if (!records.some((record) => record.target.parentNode === this)) return;
+    this.select();
+    this.check();
+  });
+
   /** TGR-9: the member focus is on or inside, as the last `focusin` said. */
   private focused: Element | null = null;
 
@@ -111,6 +168,7 @@ export class TanreiTagGroup extends TanreiElement {
   private readonly children$ = new MutationObserver((records) => {
     const before = this.content;
     this.read();
+    this.select();
     this.afterLeave(before, records);
   });
 
@@ -148,7 +206,134 @@ export class TanreiTagGroup extends TanreiElement {
   /** TGR-9: which member has focus. The listeners are on the host: a member's events pass it, and the group handles none of them (TGR-6). */
   private readonly onFocusIn = (event: FocusEvent) => {
     this.focused = this.memberOf(event.target);
+    // TGR-20, TGR-21: the chip that has focus is the set's stop.
+    if (this.selecting && this.focused?.localName === CHIP) {
+      this.stop = this.focused as HTMLElement;
+      this.placeStop();
+    }
   };
+
+  /** TGR-17: the selection the group holds, or null while it holds none. */
+  private get selecting(): 'single' | 'multiple' | null {
+    return this.selection === 'single' || this.selection === 'multiple' ? this.selection : null;
+  }
+
+  /** The chips of the group, in the order given (TGR-3). */
+  private get chips(): ChipLike[] {
+    return [...this.children].filter((child): child is ChipLike => child.localName === CHIP);
+  }
+
+  /** TGR-17, TGR-18: the filter chips the selection holds — those with a value. */
+  private get held(): ChipLike[] {
+    return this.chips.filter((chip) => kindOf(chip) === FILTER && valueOf(chip) !== '');
+  }
+
+  /**
+   * TGR-19: a person switched a filter chip the group holds. The chip has already switched its own `selected`; the
+   * group takes the selection from it, puts the others right, stops the chip's `change` — this listener is the host's
+   * first, added when the element was made — and fires its own. The group's own `change` passes.
+   */
+  private readonly onChange = (event: Event) => {
+    const mode = this.selecting;
+    if (!mode || event.target === this) return;
+    const chip = event.target as ChipLike;
+    if (chip.parentNode !== this || !this.held.includes(chip)) return;
+    event.stopImmediatePropagation();
+    const value = valueOf(chip);
+    const on = !!(event as CustomEvent<{ selected?: boolean }>).detail?.selected;
+    if (mode === 'single') this.value = on ? value : null;
+    else {
+      const rest = (this.values ?? []).filter((each) => each !== value);
+      this.values = on ? [...rest, value] : rest;
+    }
+    this.select();
+    const detail: TanreiTagGroupChangeDetail = mode === 'single' ? { value: this.value } : { values: [...this.values] };
+    this.dispatchEvent(new CustomEvent<TanreiTagGroupChangeDetail>('change', { bubbles: true, detail }));
+  };
+
+  /**
+   * TGR-20: the keys among the chips while the group holds a selection. Each arrow moves the way it points; Home and
+   * End go to the ends; nothing is switched or removed here, and focus does not wrap. Up and Down do nothing: the
+   * chips are one row in their order. Space, Enter, Backspace and Delete are the chip's own.
+   */
+  private readonly onKeyDown = (event: KeyboardEvent) => {
+    if (!this.selecting || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    const chip = this.memberOf(event.target);
+    if (!chip || chip.localName !== CHIP) return;
+    const chips = this.chips;
+    const at = chips.indexOf(chip as ChipLike);
+    const rtl = getComputedStyle(this).direction === 'rtl';
+    let candidates: ChipLike[];
+    switch (event.key) {
+      case rtl ? 'ArrowLeft' : 'ArrowRight':
+        candidates = chips.slice(at + 1);
+        break;
+      case rtl ? 'ArrowRight' : 'ArrowLeft':
+        candidates = chips.slice(0, at).reverse();
+        break;
+      case 'Home':
+        candidates = chips;
+        break;
+      case 'End':
+        candidates = [...chips].reverse();
+        break;
+      case 'ArrowUp':
+      case 'ArrowDown':
+        event.preventDefault();
+        return;
+      default:
+        return;
+    }
+    event.preventDefault();
+    this.focusFirst(candidates.filter(takesFocus));
+  };
+
+  /**
+   * TGR-17: each filter chip the group holds shows the group's selection — on while `value` is its value (single) or
+   * `values` holds it (multiple). Chips that share a value go on and off together (TGR-18). Then the stop (TGR-20).
+   */
+  private select() {
+    const mode = this.selecting;
+    if (mode) {
+      const chosen = new Set(mode === 'multiple' ? (this.values ?? []) : this.value === null || this.value === undefined ? [] : [this.value]);
+      for (const chip of this.held) {
+        const on = chosen.has(valueOf(chip));
+        if (chip.selected !== on) chip.selected = on;
+      }
+    }
+    this.placeStop();
+  }
+
+  /**
+   * TGR-20, TGR-21: while the group holds a selection the set is one stop — the chip that last had focus while it is
+   * here and takes focus, else the first filter chip that is on, else the first chip that takes focus — and every other
+   * chip is out of the Tab order: a host that delegates focus with a negative tabindex takes its shadow root with it,
+   * remove action and all. A chip that has a tabindex of its own keeps it. Without a selection every chip has its stop
+   * back (TGR-6).
+   */
+  private placeStop() {
+    const chips = this.chips;
+    for (const chip of this.unstopped) {
+      if (chip.parentNode === this && this.selecting) continue;
+      if (chip.getAttribute('tabindex') === '-1') chip.removeAttribute('tabindex');
+      this.unstopped.delete(chip);
+    }
+    if (!this.selecting) return;
+    const focusable = chips.filter(takesFocus);
+    const stop =
+      (this.stop && focusable.includes(this.stop) ? this.stop : null) ??
+      focusable.find((chip) => kindOf(chip) === FILTER && chip.selected && valueOf(chip) !== '') ??
+      focusable[0] ??
+      null;
+    for (const chip of chips) {
+      if (chip === stop) {
+        if (this.unstopped.delete(chip) && chip.getAttribute('tabindex') === '-1') chip.removeAttribute('tabindex');
+      } else if (!this.unstopped.has(chip) && !chip.hasAttribute('tabindex')) {
+        chip.setAttribute('tabindex', '-1');
+        this.unstopped.add(chip);
+      }
+    }
+  }
 
   /**
    * TGR-9: focus that leaves a member which is still here has gone elsewhere, by the person's doing. An engine that
@@ -166,21 +351,32 @@ export class TanreiTagGroup extends TanreiElement {
   override connectedCallback() {
     super.connectedCallback();
     this.children$.observe(this, { childList: true });
+    this.members$.observe(this, { subtree: true, attributes: true, attributeFilter: ['value', 'kind', 'disabled'] });
     this.addEventListener('focusin', this.onFocusIn);
+    this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('focusout', this.onFocusOut);
     // A group put back in the page — or upgraded after its members — reads them again.
     this.read();
+    this.select();
     if (this.hasUpdated) this.watchLines();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.children$.disconnect();
+    this.members$.disconnect();
     this.lines$?.disconnect();
     this.observed = null;
     this.removeEventListener('focusin', this.onFocusIn);
     this.removeEventListener('focusout', this.onFocusOut);
+    this.removeEventListener('keydown', this.onKeyDown);
     this.focused = null;
+  }
+
+  constructor() {
+    super();
+    // TGR-19: the host's first listener for `change`, so that the chip's own stops before any of the product's.
+    this.addEventListener('change', this.onChange);
   }
 
   /** The child of the group that `target` is, or is inside. */
@@ -232,6 +428,18 @@ export class TanreiTagGroup extends TanreiElement {
         const item = this.given.has(node as Element) ? 'it is laid out and exposed as an item' : 'it is laid out, but keeps its own role and is not an item of the list — wrap it in a <span>';
         report(this, 'TGR-11', `it holds <${name}>, which is not a <tanrei-tag> or a <tanrei-chip>; ${item}`);
       }
+    }
+    // TGR-17: a selection the group does not have is none.
+    if (!SELECTIONS.includes(this.selection)) report(this, 'TGR-17', `selection "${this.selection}" is not none, single or multiple; the group holds no selection`);
+    if (!this.selecting || !members.length) return;
+    // TGR-18: a filter chip without a value is left out; two with one value are one.
+    const seen = new Set<string>();
+    for (const chip of this.chips) {
+      if (kindOf(chip) !== FILTER) continue;
+      const value = valueOf(chip);
+      if (!value) report(this, 'TGR-18', `the filter chip "${chip.getAttribute('label') ?? ''}" has no value, so the selection leaves it out; give each filter chip a value`);
+      else if (seen.has(value)) report(this, 'TGR-18', `two filter chips have the value "${value}"; they go on and off together — give each its own value`);
+      seen.add(value);
     }
   }
 
@@ -291,6 +499,11 @@ export class TanreiTagGroup extends TanreiElement {
     this.watchLines();
     // TGR-4: a set of chips under `tags` is reported when the spacing says so too, not only when a chip arrives.
     if (changed.has('spacing')) this.check();
+    // TGR-17, TGR-20: the chips show the selection the group now holds, and the set has its stop. Nothing is fired.
+    if (changed.has('selection') || changed.has('value') || changed.has('values')) {
+      this.select();
+      if (changed.has('selection')) this.check();
+    }
   }
 
   protected override render() {

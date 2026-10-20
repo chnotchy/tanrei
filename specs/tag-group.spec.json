@@ -37,6 +37,35 @@
       "type": "string",
       "default": "",
       "description": "The accessible name of the set (\"Tags\", \"Filters\", \"Suggested fonts\"). It is not drawn: a set that needs a visible name stands under the product's own heading or text, and still takes this. Optional where the set is plain from what surrounds it, recommended for a set of chips."
+    },
+    {
+      "name": "selection",
+      "type": "enum",
+      "values": [
+        "none",
+        "single",
+        "multiple"
+      ],
+      "default": "none",
+      "description": "Whether the group holds the selection of its filter chips. none: it holds none, and each filter chip holds its own selected, as alone. single: at most one filter chip is on at a time, named by value. multiple: any number are on, named by values. While it is single or multiple the set is one Tab stop and the arrow keys move between its chips."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": null,
+      "description": "The value of the filter chip that is on while selection is single; null puts none on. The group sets it when a person switches a chip and emits change; the product may also set it."
+    },
+    {
+      "name": "values",
+      "type": "strings",
+      "default": [],
+      "description": "The values of the filter chips that are on while selection is multiple: a list of strings (the platforms take a set). An empty list puts none on."
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "While selection is single or multiple, a person switched a filter chip of the set: carries value (single) or values (multiple) after the change, which the group now holds. In place of the chip's own change, which stops at the group (TGR-19)."
     }
   ],
   "items": [
@@ -129,7 +158,13 @@
           "name": "selected",
           "type": "boolean",
           "default": false,
-          "description": "Whether a filter chip is on, as the Chip's selected. The chip holds it; the group does not."
+          "description": "Whether a filter chip is on, as the Chip's selected. While selection is none the chip holds it; while selection is single or multiple the group sets it from value or values (TGR-17)."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What the group's value and values name a filter chip by, as the Chip's value. Unique within the set; needed while selection is single or multiple."
         },
         {
           "name": "disabled",
@@ -163,7 +198,7 @@
         },
         {
           "name": "change",
-          "description": "A filter chip was switched, as the Chip's change."
+          "description": "A filter chip was switched, as the Chip's change. While selection is single or multiple it stops at the group, whose own change carries the selection (TGR-19)."
         },
         {
           "name": "remove",
@@ -201,7 +236,7 @@
     },
     {
       "id": "TGR-6",
-      "text": "THE tag group SHALL NOT restyle its members: each SHALL render from its own tokens at its own size, answer hover, focus and press itself, hold its own state (a filter chip its selected), emit its own events and keep its own role and name inside the item the group exposes it as (TGR-7). Each chip SHALL be its own Tab stop — an input chip one, the chip itself, whose remove action is not a stop and which Backspace or Delete removes (CHP-18, CHP-19, CHP-23) — in the order of TGR-3; the tag group itself SHALL NOT take focus, SHALL NOT handle arrow keys, Home or End, SHALL keep no selection of its own, SHALL NOT make its filter chips exclusive, and SHALL emit no event. The tag group has no size of its own: members of different sizes on one line are centred on it (TGR-1)."
+      "text": "THE tag group SHALL NOT restyle its members: each SHALL render from its own tokens at its own size, answer hover, focus and press itself, hold its own state (a filter chip its selected, which the group sets WHILE selection is single or multiple, TGR-17), emit its own events (but the change of a filter chip the group holds, TGR-19) and keep its own role and name inside the item the group exposes it as (TGR-7). WHILE selection is none each chip SHALL be its own Tab stop — an input chip one, the chip itself, whose remove action is not a stop and which Backspace or Delete removes (CHP-18, CHP-19, CHP-23) — in the order of TGR-3, and the tag group SHALL NOT handle arrow keys, Home or End, SHALL keep no selection of its own, SHALL NOT make its filter chips exclusive, and SHALL emit no event; what a selection changes is TGR-17 to TGR-21. The tag group itself SHALL NOT take focus, whatever its selection. The tag group has no size of its own: members of different sizes on one line are centred on it (TGR-1)."
     },
     {
       "id": "TGR-7",
@@ -246,6 +281,30 @@
     {
       "id": "TGR-16",
       "text": "WHEN spacing names a value that the active design system does not have THE tag group SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "TGR-17",
+      "text": "WHILE selection is single or multiple THE tag group SHALL hold the selection of its filter chips by their value: it SHALL set each filter chip's selected to whether value equals the chip's value (single) or values holds it (multiple) WHEN selection, value or values changes, WHEN a filter chip arrives and WHEN a chip's value or kind changes, so that what each chip shows and exposes as its pressed state (CHP-11) is always the group's selection. A chip that is not a filter chip, a tag and other content take no part in it, and are laid out, reached and exposed as WHILE selection is none. WHEN value or values names no member THE tag group SHALL put nothing on for that name and report nothing, because a filter whose chip was taken away is not a mistake; WHEN a member leaves THE tag group SHALL leave value and values as they are and emit nothing. WHEN selection becomes none THE tag group SHALL leave each chip's selected as it then is and hold it no longer. WHEN selection names a value it does not have THE tag group SHALL behave as WHILE it is none, and in debug builds report the value.",
+      "verify": "Unit: under selection multiple with values [open, review] the chips Open and Needs review are pressed and the others not; setting values to [blocked] makes Blocked the only pressed chip and emits nothing; a filter chip added with the value blocked arrives pressed."
+    },
+    {
+      "id": "TGR-18",
+      "text": "WHILE selection is single or multiple, WHERE a filter chip's value is empty THE tag group SHALL leave that chip out of its selection — it keeps its own selected and its own change, as WHILE selection is none — and WHERE two filter chips share a value THE tag group SHALL put them on and off together, because they name one thing; in debug builds it SHALL report each, and it SHALL render either way."
+    },
+    {
+      "id": "TGR-19",
+      "text": "WHEN the person switches a filter chip that has a value — by pointer, touch, Enter, Space or assistive technology — WHILE selection is single THE tag group SHALL set value to the chip's value WHERE the chip is now on, and switch every other filter chip off, or to null WHERE it is now off, because each chip is a toggle that says it is pressed and a pressed toggle that cannot be released would be untrue; WHILE selection is multiple THE tag group SHALL add the chip's value to values WHERE the chip is now on, or take it out WHERE it is now off. THE tag group SHALL then emit change exactly once, carrying value (single) or values (multiple), which it already holds, and SHALL stop the chip's own change at the group, so that a listener on the group or above it hears one change that carries the selection. THE tag group SHALL emit nothing WHEN the product sets selection, value or values.",
+      "verify": "Unit: under single, pressing Oldest while Recently updated is on leaves only Oldest on and emits one change with value oldest; pressing Oldest again emits one change with value null. Under multiple, Space on Assigned to me emits one change with values that hold it. No change from a chip reaches a listener on the group."
+    },
+    {
+      "id": "TGR-20",
+      "text": "WHILE selection is single or multiple and the group holds a chip that takes focus THE tag group SHALL be one stop in the focus order, in place of the stops TGR-6 gives each chip: the chip that last had focus WHILE it is still in the group and takes focus, otherwise the first filter chip that is on, otherwise the first chip that takes focus; every other chip, and with it its remove action, SHALL be out of the Tab order and stay focusable by the keys of this rule, by pointer and touch, and by assistive technology. WHILE a chip of the group has focus THE tag group SHALL move focus, without switching or removing anything: on Right Arrow to the chip drawn after it and on Left Arrow to the one drawn before it — in a right-to-left layout the same two keys the other way, so that an arrow always moves the way it points — on Home to the first chip and on End to the last, passing every member that takes no focus (a tag, a disabled chip); focus SHALL NOT wrap, and Up Arrow and Down Arrow SHALL do nothing: the members are one row in their order, however many lines draw it. Enter and Space SHALL stay the focused chip's own — Space switches a filter chip (CHP-11) — and so SHALL Backspace and Delete on an input chip (CHP-19).",
+      "verify": "Unit: Tab reaches one chip of the set — the one that is on — and Tab again leaves the set; Right Arrow, End, Left Arrow and Home move focus in the order given and stop at the ends; in a right-to-left layout Left Arrow moves to the next chip; Shift+Tab after leaving comes back to the chip that last had focus."
+    },
+    {
+      "id": "TGR-21",
+      "text": "WHILE selection is single or multiple, WHEN a member leaves while focus is on it THE tag group SHALL move focus as TGR-9 says, and the chip that then has focus SHALL be the set's stop; WHEN the chip that was the set's stop leaves, is disabled or no longer takes focus while focus is elsewhere THE tag group SHALL make a stop as TGR-20 says of a group whose last-focused chip is gone, so that the set keeps exactly one stop while it holds a chip that takes focus. WHEN selection becomes none THE tag group SHALL give each chip its own stop again.",
+      "verify": "Unit: of five input chips under selection multiple, Delete on the focused third puts focus on the former fourth, which is then the only chip in the Tab order."
     }
   ],
   "accessibility": {
@@ -253,23 +312,28 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus to each chip of the set in turn, in the order given; an input chip is one stop, its remove action is not in the Tab order. A set of tags has no stop."
+        "action": "While selection is none: moves focus to each chip of the set in turn, in the order given; an input chip is one stop, its remove action is not in the Tab order. While selection is single or multiple: the set is one stop — the chip that last had focus, else the first chip that is on, else the first chip (TGR-20). A set of tags has no stop."
+      },
+      {
+        "keys": "Left Arrow / Right Arrow, Home / End",
+        "action": "While selection is single or multiple: move focus to the chip drawn before or after (the way the arrow points, in a right-to-left layout too), or to the first or the last, without switching anything; focus does not wrap. Up and Down Arrow do nothing. While selection is none the group handles no key."
       },
       {
         "keys": "Enter, Space, Backspace or Delete",
-        "action": "The focused chip's own keys, as the Chip says: Backspace or Delete removes an input chip. After a removal, focus is on the chip that followed, or on the one before where none follows (TGR-9)."
+        "action": "The focused chip's own keys, as the Chip says: Space switches a filter chip — and, while selection is single or multiple, changes the group's selection (TGR-19); Backspace or Delete removes an input chip. After a removal, focus is on the chip that followed, or on the one before where none follows (TGR-9)."
       }
     ],
-    "labeling": "label names the list (\"Tags\", \"Filters\"); it is not drawn. Each member is one list item and keeps its own name inside it: a tag its text, a chip its label, an input chip's remove action its removeLabel. A filter chip's state is its own pressed state. An empty group exposes nothing.",
+    "labeling": "label names the list (\"Tags\", \"Filters\"); it is not drawn. Each member is one list item and keeps its own name inside it: a tag its text, a chip its label, an input chip's remove action its removeLabel. A filter chip's state is its own pressed state, also while the group holds the selection: the chip then shows the group's selection. An empty group exposes nothing.",
     "minimumTarget": true,
     "notes": [
-      "Not interactive by itself: the tag group takes no focus and handles no key (TGR-6), so it has no target of its own to size and minimumTarget holds through its chips, each of which extends its own hit area (CHP-5). What the group owes them is room: gap and row-gap decide how much of each extended hit area a chip keeps beside and between its neighbours (TGR-5).",
+      "Not interactive by itself: the tag group never takes focus itself, and while selection is none it handles no key (TGR-6), so it has no target of its own to size and minimumTarget holds through its chips, each of which extends its own hit area (CHP-5). What the group owes them is room: gap and row-gap decide how much of each extended hit area a chip keeps beside and between its neighbours (TGR-5).",
       "Why a list, for tags and for chips alike: a list tells a person how many members there are and where they are among them, which is what a set of like things needs — four tags on an article, the third of nine filters. It holds static text, links and buttons equally, so one component needs no setting for its semantics.",
       "Why not a group: a group says that controls belong together and nothing more. It is what a button group is, whose two to four members are different actions; a tag group's members are of one kind and any number.",
-      "Why not a list box: a list box is one control that holds a selection, with options that are not buttons. An input chip's remove action cannot live inside an option, and a set of filters would lose each chip's own pressed state. One choice among several is a radio group, tabs or a segmented button; a choice from a list is a select.",
-      "Why not a toolbar: a toolbar is one Tab stop with arrow keys. The chip is a Tab stop of its own today (CHP-23) and so is every Button of a button group; a set of filters that should be one stop is placed in a Toolbar, which gives its members those keys.",
-      "The tag group does not make filter chips exclusive and holds no value. A product that wants one filter on at a time switches the others off when one is switched on; assistive technology then hears toggle buttons, which is true of them.",
+      "Why not a list box, also while the group holds a selection: a list box is one control whose options hold the selection (aria-selected), and an option cannot hold a button — an input chip's remove action, or the chip's own button — inside it. React Aria's TagGroup exposes a selectable set as a grid, rows that carry aria-selected and the remove button in a cell; Tanrei's chip is a button whose pressed state already says whether it is on, which is how M3's filter chips and Carbon's selectable tags say it, so a selection keeps the list and each chip its pressed state. One choice among several that is not a filter is a radio group, tabs or a segmented button; a choice from a list is a select.",
+      "Why one stop with arrow keys only with a selection: while selection is none each chip is its own Tab stop, as every Button of a button group is (CHP-23), and a set of links or of entered items is crossed by Tab. A set that holds a selection is one control to the person who uses it, as a segmented button's segments and Material's chip set are: one stop, the arrow keys inside it (TGR-20), focus not wrapping, as in the chip field (CHF-13). The list stays, so a screen reader still says how many chips there are and where one is among them.",
+      "While selection is none the tag group does not make filter chips exclusive and holds no value: each filter chip is on or off by itself. With selection single the group puts one on at a time and a chip that is on can be switched off, leaving none, because each chip is a toggle; a choice that must always hold one value is a segmented button or a radio group. With multiple any number are on. The group names its chips by their value, as a segmented button names its segments, and its change carries value or values, as the segmented button's does (TGR-19).",
       "After the last member is removed the group is gone and cannot hold focus. The product moves focus to what the set belonged to (the field that adds items, the button that opens the filters); otherwise the platform drops it. The docs page says so with an example.",
+      "Removing and selecting together: an input chip has no selected state (CHP-11), so in a set that holds a selection the entered items are reached by the arrow keys and removed by Backspace or Delete as before, and the filter chips are switched; the chip that receives focus after a removal becomes the set's stop (TGR-21). A filter chip that the product takes away leaves value and values as they were (TGR-17): the product, which took it away, changes them where it wants the filter gone.",
       "A removal is not announced by the group. Where it must be (a filter removed far from the list it changes), the product reports it in a live region or with a snackbar.",
       "A status among a set of tags never rests on color alone: each tag says it in words (TAG-11).",
       "A small chip is for dense places where a set stands on one line. On wrapped lines small chips are 24 high and 16 apart under the default system, so their touch targets meet between the lines at 40; a set of small chips that wraps on a touch screen wants medium chips.",
@@ -1032,6 +1096,103 @@
       ]
     },
     {
+      "id": "chips-filters-multiple",
+      "props": {
+        "spacing": "chips",
+        "label": "Filters",
+        "selection": "multiple",
+        "values": [
+          "open",
+          "review"
+        ]
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Open",
+            "kind": "filter",
+            "value": "open"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Assigned to me",
+            "kind": "filter",
+            "value": "assigned"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Needs review",
+            "kind": "filter",
+            "value": "review"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Blocked",
+            "kind": "filter",
+            "value": "blocked"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Has a design",
+            "kind": "filter",
+            "value": "design"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-filters-single",
+      "props": {
+        "spacing": "chips",
+        "label": "Sort by",
+        "selection": "single",
+        "value": "updated"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Newest",
+            "kind": "filter",
+            "value": "newest"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Recently updated",
+            "kind": "filter",
+            "value": "updated"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Most comments",
+            "kind": "filter",
+            "value": "comments"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Oldest",
+            "kind": "filter",
+            "value": "oldest"
+          }
+        }
+      ]
+    },
+    {
       "id": "chips-suggestions",
       "props": {
         "spacing": "chips",
@@ -1343,7 +1504,13 @@
       "name": "tanrei-tag-group",
       "props": {
         "spacing": "spacing",
-        "label": "label"
+        "label": "label",
+        "selection": "selection",
+        "value": "value",
+        "values": "values"
+      },
+      "events": {
+        "change": "change"
       },
       "items": {
         "tag": {
@@ -1364,6 +1531,7 @@
             "label": "label",
             "size": "size",
             "selected": "selected",
+            "value": "value",
             "disabled": "disabled",
             "href": "href",
             "removeLabel": "removeLabel",
@@ -1377,14 +1545,20 @@
           "notes": "A `tanrei-chip` child, as anywhere; `remove-label` is its attribute. The page removes the element on `remove`; the group sees it leave and moves focus (TGR-9)."
         }
       },
-      "notes": "`<tanrei-tag-group label=\"Filters\" spacing=\"chips\">` holds `tanrei-tag` and `tanrei-chip` children. The members stay in the product's light DOM, in the default slot: they keep their attributes, events, styles and place in the document, and the group moves none of them. The shadow root holds one element with `role=\"list\"` and `aria-label`, a flex container that wraps (`flex-wrap: wrap; align-items: center; column-gap; row-gap` from the tokens of `spacing`), around the slot; the host has no role, and the group gives each slotted member `role=\"listitem\"` where it has no role of its own and takes it back when the member leaves (`slotchange`), as the carousel exposes its items. A `tanrei-chip` host carries no role itself — its button or link is in its shadow root — so the item holds that control. While the slot is empty the host is `display: none` and the list is not rendered (TGR-8). Removal: a `MutationObserver` and `slotchange` find a member that left while `:focus-within` held on it, and the group calls `focus()` on the next chip (TGR-9). The debug report of TGR-4 looks for a `tanrei-chip` among the slotted elements. Before the element is defined its children are already shown, as the inline elements they are, in source order and separated by the white space between them: a set of tags is readable and a set of chips is operable once the chips themselves are defined; a page that wants the final layout from the first paint adds `tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; gap: … }` with the token's custom properties. The host is `display: block`."
+      "notes": "`<tanrei-tag-group label=\"Filters\" spacing=\"chips\">` holds `tanrei-tag` and `tanrei-chip` children. The members stay in the product's light DOM, in the default slot: they keep their attributes, events, styles and place in the document, and the group moves none of them. The shadow root holds one element with `role=\"list\"` and `aria-label`, a flex container that wraps (`flex-wrap: wrap; align-items: center; column-gap; row-gap` from the tokens of `spacing`), around the slot; the host has no role, and the group gives each slotted member `role=\"listitem\"` where it has no role of its own and takes it back when the member leaves (`slotchange`), as the carousel exposes its items. A `tanrei-chip` host carries no role itself — its button or link is in its shadow root — so the item holds that control. While the slot is empty the host is `display: none` and the list is not rendered (TGR-8). Removal: a `MutationObserver` and `slotchange` find a member that left while `:focus-within` held on it, and the group calls `focus()` on the next chip (TGR-9). The debug report of TGR-4 looks for a `tanrei-chip` among the slotted elements. Before the element is defined its children are already shown, as the inline elements they are, in source order and separated by the white space between them: a set of tags is readable and a set of chips is operable once the chips themselves are defined; a page that wants the final layout from the first paint adds `tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; gap: … }` with the token's custom properties. The host is `display: block`. Selection (TGR-17 to TGR-21): `selection` and `value` are attributes and properties; `values` is a property (an array), and the `values` attribute is also read, as JSON or as space-separated words, because the fixture harness writes attributes. A chip's `value` is the `tanrei-chip`'s own `value`. While selection is single or multiple the group writes each filter chip's `selected`, stops the chip's `change` at the host and dispatches its own `change` (`detail.value` or `detail.values`), and gives every chip but the set's stop `tabindex=\"-1\"` (a host that delegates focus with a negative tabindex is out of the Tab order, with everything in its shadow root), taking back only the tabindex it gave; it handles the arrow keys, Home and End from a `keydown` listener on the host."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiTagGroup",
       "props": {
         "spacing": "spacing",
-        "label": "label"
+        "label": "label",
+        "selection": "selectionMode",
+        "value": "selection",
+        "values": "selection"
+      },
+      "events": {
+        "change": "selection"
       },
       "items": {
         "tag": {
@@ -1405,6 +1579,7 @@
             "label": "title",
             "size": "size",
             "selected": "isSelected",
+            "value": "value",
             "disabled": "disabled",
             "href": "destination",
             "removeLabel": "removeLabel",
@@ -1418,14 +1593,20 @@
           "notes": "A `TanreiChip` child, as anywhere."
         }
       },
-      "notes": "`TanreiTagGroup(_ label: String = \"\", spacing: .chips) { TanreiChip(…) … }`: a custom `Layout` that flows its subviews into lines by TGR-1 and TGR-2 and follows `layoutDirection`. The container is `.accessibilityElement(children: .contain)` with the label; SwiftUI has no list trait for an arbitrary layout, so VoiceOver reads the label and then each member (TGR-7's fallback). Focus after a removal uses `@AccessibilityFocusState` and `@FocusState` keyed by the members' identities, which the caller gives with `.id(_:)` as in a `ForEach`."
+      "notes": "`TanreiTagGroup(_ label: String = \"\", spacing: .chips) { TanreiChip(…) … }`: a custom `Layout` that flows its subviews into lines by TGR-1 and TGR-2 and follows `layoutDirection`. The container is `.accessibilityElement(children: .contain)` with the label; SwiftUI has no list trait for an arbitrary layout, so VoiceOver reads the label and then each member (TGR-7's fallback). Focus after a removal uses `@AccessibilityFocusState` and `@FocusState` keyed by the members' identities, which the caller gives with `.id(_:)` as in a `ForEach`. Selection: `TanreiTagGroup(selection: $value)` with a `Binding<String?>` (single) or a `Binding<Set<String>>` (multiple), each chip given its value as `TanreiChip(value:)`; the arrow keys come from `focusable()` and `onMoveCommand`."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiTagGroup",
       "props": {
         "spacing": "spacing",
-        "label": "contentDescription"
+        "label": "contentDescription",
+        "selection": "selectionMode",
+        "value": "selectedValue",
+        "values": "selectedValues"
+      },
+      "events": {
+        "change": "onSelectionChange"
       },
       "items": {
         "tag": {
@@ -1446,6 +1627,7 @@
             "label": "label",
             "size": "size",
             "selected": "selected",
+            "value": "value",
             "disabled": "enabled",
             "href": "href",
             "removeLabel": "removeContentDescription",
@@ -1466,7 +1648,13 @@
       "name": "TanreiTagGroup",
       "props": {
         "spacing": "spacing",
-        "label": "semanticLabel"
+        "label": "semanticLabel",
+        "selection": "selectionMode",
+        "value": "selectedValue",
+        "values": "selectedValues"
+      },
+      "events": {
+        "change": "onSelectionChanged"
       },
       "items": {
         "tag": {
@@ -1487,6 +1675,7 @@
             "label": "label",
             "size": "size",
             "selected": "selected",
+            "value": "value",
             "disabled": "isEnabled",
             "href": "href",
             "removeLabel": "removeSemanticLabel",
@@ -1507,7 +1696,13 @@
       "name": "TagGroup",
       "props": {
         "spacing": "spacing",
-        "label": "accessibilityLabel"
+        "label": "accessibilityLabel",
+        "selection": "selectionMode",
+        "value": "value",
+        "values": "values"
+      },
+      "events": {
+        "change": "onSelectionChange"
       },
       "items": {
         "tag": {
@@ -1528,6 +1723,7 @@
             "label": "label",
             "size": "size",
             "selected": "selected",
+            "value": "value",
             "disabled": "disabled",
             "href": "href",
             "removeLabel": "removeAccessibilityLabel",
