@@ -1534,6 +1534,7 @@
         "import": "@tanrei/react"
       },
       "variants": [
+        "inline",
         "docked",
         "floating"
       ]

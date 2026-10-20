@@ -9471,8 +9471,22 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     ),
   ),
   toolbar: TanreiToolbarTokens(
+    dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    dividerLength: 24.0,
+    dividerThickness: 1.0,
+    groupGap: 8.0,
     outlineWidth: 1.0,
+    separation: 1.0,
     variants: TanreiToolbarVariants(
+      inline: TanreiToolbarVariantTokens(
+        containerColor: TanreiPaint.none(),
+        containerElevation: _elevationLevel0,
+        containerShape: 12.0,
+        containerSize: 40.0,
+        containerPaddingInline: 0.0,
+        containerGap: 4.0,
+        outlineColor: TanreiPaint.none(),
+      ),
       docked: TanreiToolbarVariantTokens(
         containerColor: TanreiPaint.role(TanreiColorRole.surface),
         containerElevation: _elevationLevel0,

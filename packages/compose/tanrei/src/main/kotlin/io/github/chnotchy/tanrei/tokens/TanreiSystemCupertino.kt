@@ -8756,8 +8756,14 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun toolbar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiToolbarTokens =
         TanreiToolbarTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerLength = 24.dp,
+            dividerThickness = 1.dp,
+            groupGap = 8.dp,
             outlineWidth = 1.dp,
+            separation = 0f,
             variants = TanreiToolbarVariants(
+                inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 10.dp, containerSize = 40.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
                 docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 44.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 floating = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLowest), containerElevation = elevation.level2, containerShape = 9999.dp, containerSize = 48.dp, containerPaddingInline = 6.dp, containerGap = 8.dp, outlineColor = TanreiPaint.None),
             ),

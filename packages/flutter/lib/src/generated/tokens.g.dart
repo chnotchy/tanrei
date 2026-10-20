@@ -25398,13 +25398,14 @@ class TanreiTimelineTokens {
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
 /// `const TanreiToolbarVariant('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [docked].
+/// active system does not have renders as [inline].
 extension type const TanreiToolbarVariant(String name) {
+  static const inline = TanreiToolbarVariant('inline');
   static const docked = TanreiToolbarVariant('docked');
   static const floating = TanreiToolbarVariant('floating');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiToolbarVariant> core = <TanreiToolbarVariant>[docked, floating];
+  static const List<TanreiToolbarVariant> core = <TanreiToolbarVariant>[inline, docked, floating];
 }
 
 /// The tokens of one toolbar variant.
@@ -25460,11 +25461,14 @@ class TanreiToolbarVariantTokens {
 @immutable
 class TanreiToolbarVariants {
   const TanreiToolbarVariants({
+    required this.inline,
     required this.docked,
     required this.floating,
     this.extra = const <TanreiToolbarVariant, TanreiToolbarVariantTokens>{},
   });
 
+  /// `comp.toolbar` variant `inline`
+  final TanreiToolbarVariantTokens inline;
   /// `comp.toolbar` variant `docked`
   final TanreiToolbarVariantTokens docked;
   /// `comp.toolbar` variant `floating`
@@ -25476,10 +25480,12 @@ class TanreiToolbarVariants {
   /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
   /// those with the same key): a copy never loses a value the design system added.
   TanreiToolbarVariants copyWith({
+    TanreiToolbarVariantTokens? inline,
     TanreiToolbarVariantTokens? docked,
     TanreiToolbarVariantTokens? floating,
     Map<TanreiToolbarVariant, TanreiToolbarVariantTokens>? extra,
   }) => TanreiToolbarVariants(
+        inline: inline ?? this.inline,
         docked: docked ?? this.docked,
         floating: floating ?? this.floating,
         extra: extra == null ? this.extra : <TanreiToolbarVariant, TanreiToolbarVariantTokens>{...this.extra, ...extra},
@@ -25487,9 +25493,10 @@ class TanreiToolbarVariants {
 
   /// The tokens of [variant].
   ///
-  /// A variant this design system does not have resolves to [docked], the default; debug builds report it
+  /// A variant this design system does not have resolves to [inline], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
   TanreiToolbarVariantTokens operator [](TanreiToolbarVariant variant) => switch (variant.name) {
+        'inline' => inline,
         'docked' => docked,
         'floating' => floating,
         _ => extra[variant] ?? _fallback(variant),
@@ -25503,10 +25510,10 @@ class TanreiToolbarVariants {
 
   TanreiToolbarVariantTokens _fallback(TanreiToolbarVariant variant) {
     assert(() {
-      debugTanreiReportUnknownValue('toolbar variant', variant.name, 'docked');
+      debugTanreiReportUnknownValue('toolbar variant', variant.name, 'inline');
       return true;
     }());
-    return docked;
+    return inline;
   }
 }
 
@@ -25514,21 +25521,46 @@ class TanreiToolbarVariants {
 @immutable
 class TanreiToolbarTokens {
   const TanreiToolbarTokens({
+    required this.dividerColor,
+    required this.dividerLength,
+    required this.dividerThickness,
+    required this.groupGap,
     required this.outlineWidth,
+    required this.separation,
     required this.variants,
   });
 
+  /// `comp.toolbar.divider-color`
+  final TanreiPaint dividerColor;
+  /// `comp.toolbar.divider-length`
+  final double dividerLength;
+  /// `comp.toolbar.divider-thickness`
+  final double dividerThickness;
+  /// `comp.toolbar.group-gap`
+  final double groupGap;
   /// `comp.toolbar.outline-width`
   final double outlineWidth;
+  /// `comp.toolbar.separation`
+  final double separation;
   /// The `variant` axis: `variants[variant]`.
   final TanreiToolbarVariants variants;
 
   /// A copy with the given tokens replaced.
   TanreiToolbarTokens copyWith({
+    TanreiPaint? dividerColor,
+    double? dividerLength,
+    double? dividerThickness,
+    double? groupGap,
     double? outlineWidth,
+    double? separation,
     TanreiToolbarVariants? variants,
   }) => TanreiToolbarTokens(
+        dividerColor: dividerColor ?? this.dividerColor,
+        dividerLength: dividerLength ?? this.dividerLength,
+        dividerThickness: dividerThickness ?? this.dividerThickness,
+        groupGap: groupGap ?? this.groupGap,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        separation: separation ?? this.separation,
         variants: variants ?? this.variants,
       );
 }

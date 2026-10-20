@@ -9332,8 +9332,22 @@ private let cupertinoTimelineTokens = TanreiTimelineTokens(
 )
 
 private let cupertinoToolbarTokens = TanreiToolbarTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerLength: 24,
+  dividerThickness: 1,
+  groupGap: 8,
   outlineWidth: 1,
+  separation: 0,
   variants: TanreiToolbarVariants(
+    inline: TanreiToolbarVariantTokens(
+      containerColor: .none,
+      containerElevation: cupertinoElevation.level0,
+      containerShape: 10,
+      containerSize: 40,
+      containerPaddingInline: 0,
+      containerGap: 4,
+      outlineColor: .none
+    ),
     docked: TanreiToolbarVariantTokens(
       containerColor: .role(.surfaceContainerLow),
       containerElevation: cupertinoElevation.level0,

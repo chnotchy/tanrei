@@ -9447,8 +9447,22 @@ private let m3LikeTimelineTokens = TanreiTimelineTokens(
 )
 
 private let m3LikeToolbarTokens = TanreiToolbarTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerLength: 24,
+  dividerThickness: 1,
+  groupGap: 8,
   outlineWidth: 1,
+  separation: 1,
   variants: TanreiToolbarVariants(
+    inline: TanreiToolbarVariantTokens(
+      containerColor: .none,
+      containerElevation: m3LikeElevation.level0,
+      containerShape: 12,
+      containerSize: 40,
+      containerPaddingInline: 0,
+      containerGap: 4,
+      outlineColor: .none
+    ),
     docked: TanreiToolbarVariantTokens(
       containerColor: .role(.surface),
       containerElevation: m3LikeElevation.level0,

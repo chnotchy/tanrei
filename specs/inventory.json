@@ -264,7 +264,7 @@
     {
       "name": "toolbar",
       "title": "Toolbar",
-      "category": "navigation",
+      "category": "actions",
       "level": "base",
       "listing": "default"
     },

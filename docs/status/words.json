@@ -1203,6 +1203,15 @@
       ]
     },
     {
+      "key": "toolbarOverflowLabel",
+      "readers": [
+        {
+          "component": "toolbar",
+          "prop": "overflowLabel"
+        }
+      ]
+    },
+    {
       "key": "wheelsLabel",
       "readers": [
         {

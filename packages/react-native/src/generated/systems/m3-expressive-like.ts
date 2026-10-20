@@ -13987,8 +13987,22 @@ export const m3ExpressiveLike = {
       },
     },
     toolbar: {
+      dividerColor: { kind: "role", role: "outlineVariant" },
+      dividerLength: 24,
+      dividerThickness: 1,
+      groupGap: 8,
       outlineWidth: 1,
+      separation: 1,
       variants: {
+        inline: {
+          containerColor: { kind: "none" },
+          containerElevation: "level0",
+          containerShape: 12,
+          containerSize: 40,
+          containerPaddingInline: 0,
+          containerGap: 4,
+          outlineColor: { kind: "none" },
+        },
         docked: {
           containerColor: { kind: "role", role: "surface" },
           containerElevation: "level0",

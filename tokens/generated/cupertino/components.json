@@ -1571,6 +1571,7 @@
         "import": "@tanrei/react/cupertino"
       },
       "variants": [
+        "inline",
         "docked",
         "floating"
       ]

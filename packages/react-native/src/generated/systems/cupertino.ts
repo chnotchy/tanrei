@@ -11414,8 +11414,22 @@ export const cupertino = {
       },
     },
     toolbar: {
+      dividerColor: { kind: "role", role: "outlineVariant" },
+      dividerLength: 24,
+      dividerThickness: 1,
+      groupGap: 8,
       outlineWidth: 1,
+      separation: 0,
       variants: {
+        inline: {
+          containerColor: { kind: "none" },
+          containerElevation: "level0",
+          containerShape: 10,
+          containerSize: 40,
+          containerPaddingInline: 0,
+          containerGap: 4,
+          outlineColor: { kind: "none" },
+        },
         docked: {
           containerColor: { kind: "role", role: "surfaceContainerLow" },
           containerElevation: "level0",
