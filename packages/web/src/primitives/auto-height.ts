@@ -49,6 +49,19 @@ const wholeLines = (lines: number) => Math.max(1, Math.ceil(lines - 0.05));
 
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/**
+ * Whether a transition of a property `property` matches still runs on `element` (or is held, paused): the motion a
+ * `transitionend` or `transitioncancel` would end is not over while one does.
+ *
+ * A change that arrives while a height moves replaces that motion with one from the height then shown, and the replaced
+ * transition is cancelled. Its `transitioncancel` is dispatched with the next frame's events — after the new motion has
+ * begun — so a handler that takes every such event for the end of the motion would end the new one, and the height
+ * would jump to its end. An event of the motion that has ended finds none still running: a finished transition is no
+ * longer one of the element's animations.
+ */
+export const stillMoving = (element: Element, property: RegExp): boolean =>
+  element.getAnimations().some((animation) => property.test((animation as CSSTransition).transitionProperty ?? '') && animation.playState !== 'finished');
+
 export class AutoHeight {
   /** The lines the element shows, or is on its way to show; 0 until it was first fitted. */
   rows = 0;
@@ -146,10 +159,15 @@ export class AutoHeight {
     if (box.style.blockSize) box.style.blockSize = '';
   }
 
-  /** The box's own transition of its height ended or was cancelled: bind it to `transitionend` and `transitioncancel` on the box. */
+  /**
+   * The box's own transition of its height ended or was cancelled: bind it to `transitionend` and `transitioncancel` on
+   * the box. The event of a motion that a later change replaced arrives while that change's motion runs, and ends
+   * nothing (`stillMoving`).
+   */
   readonly ended = (event: TransitionEvent) => {
     const box = this.options.box();
     if (!box || event.target !== box || !/^(block-size|height|width)$/.test(event.propertyName)) return;
+    if (stillMoving(box, /^(block-size|height)$/)) return;
     this.settle(box);
   };
 
