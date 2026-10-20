@@ -100,7 +100,8 @@ jobs:
   # the env block above) answers 'false' whatever changed and whatever started the run.
   # Paths: `shared` feeds every area. web adds the React bindings (they wrap the elements); docs adds the docs app,
   # Theme Studio (the docs embed it) and what the site reads (design/, docs/status/); core-tests is one output per
-  # suite, the CLI and Studio suites building the web packages and Studio's app.
+  # suite, the CLI and Studio suites building the web packages and Studio's app; workflows is .github/ alone (the
+  # workflow audit), since nothing else changes what the workflows do.
   # The changed files come from `git diff` against the pull request's base (token: ''), not from the REST API, which
   # lists at most 3,000 files of a pull request.
   changes:
@@ -122,6 +123,7 @@ jobs:
       react-native: ${{ steps.out.outputs.react-native }}
       core: ${{ steps.out.outputs.core }}
       core-matrix: ${{ steps.out.outputs.core-matrix }}
+      workflows: ${{ steps.out.outputs.workflows }}
       web-matrix: ${{ steps.out.outputs.web-matrix }}
       web-grep: ${{ steps.out.outputs.web-grep }}
       native-paused: ${{ steps.out.outputs.native-paused }}
@@ -196,6 +198,8 @@ jobs:
             core-studio:
               - *web
               - packages/studio/**
+            workflows:
+              - .github/**
       # A pull request and a push to main run the areas their paths changed; a dispatched run and a release run every
       # area. The core suites' matrix entries are kept here, filtered by their outputs.
       # `ci:web-only` on a pull request (CONTRIBUTING.md#web-only-iteration): the other platforms' jobs
@@ -284,6 +288,7 @@ jobs:
           echo "held=$held" >> "$GITHUB_OUTPUT"
           on() { if [ "$held" = true ]; then echo false; elif [ "$targeted" = true ]; then if [ "$1" = web ]; then echo true; else echo false; fi; elif [ "$ALL" = true ]; then echo true; else echo "$FILTER" | jq -r --arg k "$1" '.[$k] // "false"'; fi; }
           echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
+          echo "workflows=$(on workflows)" >> "$GITHUB_OUTPUT"
           # The web's matrix. Every test in the three engines (22 shards) on a dispatched run, a release and a push without
           # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
@@ -380,6 +385,37 @@ jobs:
       - env:
           BASE: ${{ github.event.pull_request.base.sha }}
         run: node scripts/ci/check-changeset.mjs "$BASE"
+
+  # The workflows' own security audit (zizmor, https://docs.zizmor.sh/audits/): template injection, credentials left
+  # in a checkout, cache poisoning, unpinned or impostor actions, dangerous triggers, excessive permissions. It runs when
+  # anything under .github/ changes (a dispatched run and a release run it whatever changed), and any finding fails it.
+  # A finding that is intended is silenced on its own line by a `zizmor: ignore[<audit>]` comment with the reason, never
+  # in a configuration file. The binary is the release asset, pinned by version and SHA-256: bump both together (the
+  # release page lists each asset's digest).
+  zizmor:
+    name: Workflow audit (zizmor)
+    needs: [validate, changes]
+    if: needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read # the checkout; the online audits read the pinned actions' public repositories with this token
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
+      - name: zizmor
+        env:
+          ZIZMOR_VERSION: "1.31.1"
+          ZIZMOR_SHA256: d185f726bdaf92df78273217dfdd24ebcd6b0ef48cf3ce776ff5762b6e138c99 # zizmor-x86_64-unknown-linux-gnu.tar.gz
+          GH_TOKEN: ${{ github.token }} # the online audits (impostor commits, known-vulnerable actions, ref confusion)
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/zizmor.tar.gz" "https://github.com/zizmorcore/zizmor/releases/download/v$ZIZMOR_VERSION/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          echo "$ZIZMOR_SHA256  $RUNNER_TEMP/zizmor.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/zizmor.tar.gz" -C "$RUNNER_TEMP" zizmor
+          "$RUNNER_TEMP/zizmor" --version
+          # Annotations on the pull request; on a finding, the full report again in the log, then the failure.
+          "$RUNNER_TEMP/zizmor" --format=github . || { "$RUNNER_TEMP/zizmor" --format=plain .; exit 1; }
 
   # The token engine, the pipeline, the repo tools, the CLI, the MCP server and Theme Studio. One `pnpm --filter … test`
   # over all six ran them in dependency order (engine → pipeline → CLI and MCP → Studio), about 25 minutes end to end;
@@ -1019,6 +1055,7 @@ jobs:
       - validate
       - changes
       - changeset
+      - zizmor
       - core-tests
       - web
       - web-report
@@ -1039,7 +1076,7 @@ jobs:
           echo "$AREAS" | jq -r 'to_entries[] | select(.key != "core-matrix") | "area \(.key): \(.value)"'
           echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
           bad=$(echo "$NEEDS" | jq -r --argjson areas "$AREAS" --arg event "$EVENT" '
-            { "core-tests": "core", "web": "web", "docs": "docs",
+            { "zizmor": "workflows", "core-tests": "core", "web": "web", "docs": "docs",
               "swiftui": "apple", "swiftui-dynamic-type": "apple", "swiftui-gallery": "apple",
               "flutter": "flutter", "compose": "compose", "compose-instrumented": "compose",
               "react-native": "react-native" } as $area
