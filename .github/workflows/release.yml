@@ -83,8 +83,8 @@ jobs:
     needs: preflight
     uses: $/.github/workflows/ci.yml # self-repository form: this commit's ci.yml, and allowed under "require actions pinned to a SHA"
     permissions:
-      contents: read
-      pull-requests: read
+      contents: read # the checkout
+      pull-requests: read # ci.yml's secret scan lists a pull request's commits
 
   npm:
     if: inputs.registry == 'npm' && github.ref == 'refs/heads/main'
