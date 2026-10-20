@@ -665,6 +665,12 @@ test.describe('behavior', () => {
       const ways: [string, () => Promise<unknown>][] = [
         ['Tab', () => tabTo(page, host(page, id))],
         ['a press', async () => {
+          // Scrolled into view before it is measured: a box is a rectangle in the window and the press a point in it.
+          // Where the Tab before it left the page is WebKit's to decide: it reveals a text control that Tab focused at
+          // a later rendering update, which the blur that follows can come before, and the page then stays where the
+          // previous stop was, the input below the window's bottom edge (y 757 in a window 720 high) and the press on
+          // nothing.
+          await native(page, id).scrollIntoViewIfNeeded();
           const b = await box(native(page, id));
           await page.mouse.click(b.x + 20, b.y + 10);
         }],
