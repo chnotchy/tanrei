@@ -2,12 +2,12 @@
 title: 动效
 description: 基于弹簧的动效令牌、短促的状态过渡，以及必须尊重“减弱动态效果”设置的硬性要求。
 translationOf: foundations/motion.mdx
-sourceHash: f42d4188d081ad9ba7c1139a83ea7129667b29a3
+sourceHash: 4f9955bbb670ba3ae000b5c9d1b530622521450b
 ---
 
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
-在 Tanrei 中，动效解释完一次变化，就立刻退场。其中大部分只是一层用 150 毫秒淡入的状态层。
+在 Tanrei 中，动效解释完一次变化，就立刻退场。其中大部分只是一层用 200 到 250 毫秒淡入的状态层。
 
 ## 两类运动
 
@@ -26,8 +26,8 @@ import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
 | 变化的种类 | 参考值 |
 | --- | --- |
-| 状态变化（悬停、按下、选中） | 100–200ms |
-| 元素进入 | 约 300ms |
+| 状态变化（悬停、按下、选中） | 200–250ms |
+| 元素进入 | 300–400ms，界面越大越长 |
 | 大范围的展开 | 最长 800ms，各项之间错开 100ms |
 | 任何元素离开 | 比进入时更快 |
 

@@ -294,12 +294,12 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.default}",
             "$description": "How long the capsule's edge and fill take to change between rest, hover, focus, error and the receiving condition, and the counter to change color."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$value": "{tanrei.sys.motion.easing.state}",
             "$description": "The curve of those changes."
           }
         }

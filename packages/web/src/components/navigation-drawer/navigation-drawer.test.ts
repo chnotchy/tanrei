@@ -1310,6 +1310,9 @@ test.describe('the collapsed form', () => {
 
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
     await mount(page, [fixture('e', MAIL), rail('c', MAIL), ...only('collapsed-labels-selected')], { reducedMotion: false });
+    // The two motions are told apart only where the selection's is the longer: a system may time them alike (the
+    // default system's state.large and selection.mark roles are both 250 ms), so the test sets the selection's longer.
+    await override(page, { [T('motion-selection-duration')]: `calc(var(${T('motion-state-duration')}) * 2)` });
     const [selection, state] = await Promise.all([resolveToken(page, T('motion-selection-duration'), 'duration'), resolveToken(page, T('motion-state-duration'), 'duration')]);
     for (const [id, n, old] of [
       ['e', 2, 0],

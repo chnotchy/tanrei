@@ -1203,7 +1203,6 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
@@ -1220,7 +1219,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 20,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     ),
     medium: TanreiButtonSizeTokens(
       containerHeight: 40,
@@ -1235,7 +1235,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     ),
     large: TanreiButtonSizeTokens(
       containerHeight: 56,
@@ -1250,7 +1251,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiButtonVariants(
@@ -2764,7 +2766,6 @@ private let m3LikeChipTokens = TanreiChipTokens(
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
   motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   removeContainerShape: 9999,
@@ -2780,7 +2781,8 @@ private let m3LikeChipTokens = TanreiChipTokens(
       labelTypescale: m3LikeTypescale.labelSmall,
       iconSize: 20,
       avatarSize: 16,
-      removeContainerSize: 24
+      removeContainerSize: 24,
+      motionStateDuration: 150
     ),
     medium: TanreiChipSizeTokens(
       containerHeight: 32,
@@ -2793,7 +2795,8 @@ private let m3LikeChipTokens = TanreiChipTokens(
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
       avatarSize: 24,
-      removeContainerSize: 28
+      removeContainerSize: 28,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiChipVariants(
@@ -4451,7 +4454,6 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
   containerShapeBottom: 0,
   motionLabelDuration: 150,
   motionLabelEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineNotchPadding: 4,
   outlineWidth: 1,
@@ -4469,7 +4471,8 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.body,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 150
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 56,
@@ -4481,7 +4484,8 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 56,
@@ -4493,7 +4497,8 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiInputBoxVariants(
@@ -5286,7 +5291,6 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
   motionFeedbackDuration: 450,
   motionResizeDuration: 500,
   motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiMainActionButtonSizes(
     small: TanreiMainActionButtonSizeTokens(
@@ -5299,7 +5303,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     medium: TanreiMainActionButtonSizeTokens(
       containerHeight: 56,
@@ -5311,7 +5316,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 12,
       labelTypescale: m3LikeTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     large: TanreiMainActionButtonSizeTokens(
       containerHeight: 96,
@@ -5323,7 +5329,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.heading5,
-      iconSize: 36
+      iconSize: 36,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiMainActionButtonVariants(
@@ -7285,7 +7292,6 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
   motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outline),
   outlineWidth: 1,
@@ -7300,7 +7306,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     ),
     medium: TanreiSegmentedButtonSizeTokens(
       containerHeight: 40,
@@ -7309,7 +7316,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     ),
     large: TanreiSegmentedButtonSizeTokens(
       containerHeight: 48,
@@ -7318,7 +7326,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     )
   ),
   conditions: TanreiSegmentedButtonConditions(

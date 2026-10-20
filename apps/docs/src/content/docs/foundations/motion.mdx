@@ -5,7 +5,7 @@ description: Spring-based motion tokens, short state transitions, and a hard req
 
 import MotionTokens from '../../../components/tokens/MotionTokens.astro';
 
-Motion in Tanrei explains a change and then gets out of the way. Most of it is a state layer fading in over 150 milliseconds.
+Motion in Tanrei explains a change and then gets out of the way. Most of it is a state layer fading in over 200 to 250 milliseconds.
 
 ## Two kinds of movement
 
@@ -24,8 +24,8 @@ Fixed durations and easing curves are provided for transitions that are not spri
 
 | Kind of change | Guideline |
 | --- | --- |
-| State change (hover, press, selection) | 100–200ms |
-| An element entering | about 300ms |
+| State change (hover, press, selection) | 200–250ms |
+| An element entering | 300–400ms, longer for a larger surface |
 | A large reveal | up to 800ms, with items staggered 100ms apart |
 | Anything leaving | faster than it entered |
 

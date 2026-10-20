@@ -391,21 +391,21 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a state change of a row takes."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "disclosure-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.disclosure}",
             "$description": "How long a parent takes to open or close: its rows revealed or hidden, what follows moving, and its chevron turning. The name and the value of a navigation drawer group's and an accordion's.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -416,7 +416,7 @@
           },
           "disclosure-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of disclosure-duration.",

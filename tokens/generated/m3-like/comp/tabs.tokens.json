@@ -1079,26 +1079,27 @@
           },
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a tab's colors take to change between states, and how long the active indicator takes to reach the pointer when a drag is taken away from it."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "indicator-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
-            "$description": "How long the active indicator and the underline take to slide and resize to the newly selected tab, and to settle on a tab, or return to the selected one, when a drag is released; the covered label and icon follow the indicator over the same time."
+            "$description": "How long the active indicator and the underline take to slide and resize to the newly selected tab, and to settle on a tab, or return to the selected one, when a drag is released; the covered label and icon follow the indicator over the same time.",
+            "$extensions": {}
           },
           "indicator-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         }
       }

@@ -2,12 +2,12 @@
 title: Movimiento
 description: Tokens de movimiento basados en muelles, transiciones de estado breves y la obligación estricta de respetar la preferencia de reducir movimiento.
 translationOf: foundations/motion.mdx
-sourceHash: f42d4188d081ad9ba7c1139a83ea7129667b29a3
+sourceHash: 4f9955bbb670ba3ae000b5c9d1b530622521450b
 ---
 
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
-En Tanrei, el movimiento explica un cambio y luego se aparta. La mayor parte es una capa de estado que aparece con un fundido de 150 milisegundos.
+En Tanrei, el movimiento explica un cambio y luego se aparta. La mayor parte es una capa de estado que aparece con un fundido de 200 a 250 milisegundos.
 
 ## Dos tipos de movimiento
 
@@ -26,8 +26,8 @@ Para las transiciones que no son muelles se ofrecen duraciones y curvas de acele
 
 | Tipo de cambio | Pauta |
 | --- | --- |
-| Cambio de estado (paso del cursor, pulsación, selección) | 100–200ms |
-| Un elemento que entra | unos 300ms |
+| Cambio de estado (paso del cursor, pulsación, selección) | 200–250ms |
+| Un elemento que entra | 300–400ms, más cuanto mayor es la superficie |
 | Una revelación grande | hasta 800ms, con los elementos escalonados cada 100ms |
 | Todo lo que sale | más rápido de lo que entró |
 

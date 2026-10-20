@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { buildSync } from 'esbuild';
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, sampleFrames } from '../../test/frames.js';
-import { rootTokens } from '../../test/harness.js';
+import { resolveToken, rootTokens } from '../../test/harness.js';
 import { EVERY_ANIMATION } from '../../test/motions.js';
 import { holdClock } from '../../test/page-clock.js';
 
@@ -257,9 +257,9 @@ test.describe('appearStyles and AppearController', () => {
     expectEntered(seen, 'opacity');
     expectEntered(seen, 'sx');
     expectNoFlicker(seen);
-    // The entrance is the role's (modal: 350 ms under the default system) on the enter curve; the row's late state is no motion.
+    // The entrance is the role's (modal) on the enter curve; the row's late state is no motion.
     const opacity = seen.motions.find((motion) => motion.name === 'opacity')!;
-    expect(opacity).toMatchObject({ on: 'div.motion', duration: 350 });
+    expect(opacity).toMatchObject({ on: 'div.motion', duration: await resolveToken(page, '--tanrei-sys-motion-role-appear-modal-enter', 'duration') });
     expect(seen.motions.filter((motion) => motion.on.startsWith('div.row'))).toEqual([]);
     expect(await runs(page.locator('#a'))).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
     expect((await runs(page.locator('#a'))).filter((run) => run.startsWith('row:'))).toEqual([]);
