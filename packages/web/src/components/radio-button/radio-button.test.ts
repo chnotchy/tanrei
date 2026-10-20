@@ -7,6 +7,7 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, res
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('radio-button');
@@ -126,7 +127,10 @@ const selected = (page: P) => page.evaluate(() => [...document.querySelectorAll(
 
 /**
  * One group: the options given, each in its own stage (so `host(page, id)` finds it), all with the name "size" and no
- * form around them, inside one element with role radiogroup; a button before and after it for Tab.
+ * form around them, inside one element with role radiogroup; a button before and after it for Tab. Resolves once every
+ * option has settled where it now stands: moving an option connects it again, and an option settles for two frames
+ * after each connection (data-tanrei-settling, MOT-3), starting no transition meanwhile — a change of condition made in
+ * those frames, which a slow runner reaches, is drawn at once, without the selection motion a test reads.
  */
 async function mountGroup(page: P, options: Fixture['props'][], { dir = 'ltr' }: { dir?: 'ltr' | 'rtl' } = {}) {
   await mountFixtures(page, spec, { fixtures: options.map((props, i) => fixture(`o${i}`, { name: 'size', value: `v${i}`, label: `Option ${i}`, ...props })) });
@@ -143,6 +147,7 @@ async function mountGroup(page: P, options: Fixture['props'][], { dir = 'ltr' }:
     main.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>');
     main.insertAdjacentHTML('beforeend', '<button id="after">After</button>');
   }, dir);
+  await allSettled(page);
 }
 /** Everything a condition paints, as drawn. */
 const drawn = (page: P, id: string, { settled = false } = {}) =>
@@ -1274,10 +1279,13 @@ test.describe('one shape', () => {
   // What a gap shows is what is behind, a pixel wide at worst (255 levels of a channel here) and never less than a
   // quarter of it; two shares each rounded to 8 bits and then summed may be 2 levels off.
   const TOLERANCE = 3;
+  // Mounted and settled: a radio button starts no transition for two frames after it is connected (MOT-3), so a
+  // selection motion read after the mount begins once those frames are over, or it is no motion at all.
   const mount = async (page: P, offset: number, options: Parameters<typeof mountFixtures>[2] = {}) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => SELECTED.includes(f.id)), ...options });
     await stageBehind(page, offset);
     await page.mouse.move(0, 0);
+    await allSettled(page);
   };
   /** The two colors the radio button paints at this moment. */
   const parts = (page: P, id: string) => ringOf(page, id).evaluate((el) => ({ ring: getComputedStyle(el, '::before').backgroundColor, fill: getComputedStyle(el.querySelector('.fill')!).backgroundColor }));
