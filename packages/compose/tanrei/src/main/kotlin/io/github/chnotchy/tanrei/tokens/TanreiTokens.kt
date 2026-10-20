@@ -1777,6 +1777,7 @@ public data class TanreiButtonSizeTokens(
     public val iconSizeWithoutLabel: Dp,
     public val containerGap: Dp,
     public val outlineWidth: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -1950,7 +1951,6 @@ public data class TanreiButtonTokens(
     public val containerShape: Dp,
     public val motionBusyCycleDuration: Int,
     public val motionFeedbackDuration: Int,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val toneContainerOpacity: Float,
     public val hovered: TanreiButtonStateTokens,
@@ -2909,6 +2909,7 @@ public data class TanreiChipSizeTokens(
     public val iconSize: Dp,
     public val avatarSize: Dp,
     public val removeContainerSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -3063,7 +3064,6 @@ public data class TanreiChipTokens(
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
     public val removeContainerShape: Dp,
@@ -5226,6 +5226,7 @@ public data class TanreiInputBoxSizeTokens(
     public val labelFloatedTypescale: TanreiTextStyle,
     public val inputTypescale: TanreiTextStyle,
     public val iconSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -5399,7 +5400,6 @@ public data class TanreiInputBoxTokens(
     public val containerShapeBottom: Dp,
     public val motionLabelDuration: Int,
     public val motionLabelEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineNotchPadding: Dp,
     public val outlineWidth: Dp,
@@ -6195,6 +6195,7 @@ public data class TanreiMainActionButtonSizeTokens(
     public val containerGap: Dp,
     public val labelTypescale: TanreiTextStyle,
     public val iconSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -6324,7 +6325,6 @@ public data class TanreiMainActionButtonTokens(
     public val motionFeedbackDuration: Int,
     public val motionResizeDuration: Int,
     public val motionResizeEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val hovered: TanreiMainActionButtonStateTokens,
     public val focused: TanreiMainActionButtonStateTokens,
@@ -8361,6 +8361,7 @@ public data class TanreiSegmentedButtonSizeTokens(
     public val labelTypescale: TanreiTextStyle,
     public val iconSize: Dp,
     public val checkSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -8493,7 +8494,6 @@ public data class TanreiSegmentedButtonTokens(
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,

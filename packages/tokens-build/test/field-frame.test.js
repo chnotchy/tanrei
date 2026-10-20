@@ -170,9 +170,10 @@ test('the text field has no group of its own: the box is the one set, the text i
   // 364 were the text input's (361 at the split, and three for the entries place): 330 are the box's
   // now, and 34 are its own — the resize grip, a segment, the code face, the entries place, the motion of a height.
   assert.equal(count('text-input'), 34);
-  // The box: the text input's 330, and the ten of the small size, which the select alone offered.
+  // The box: the text input's 330, the ten of the small size, which the select alone offered, and its state duration
+  // per size (three in place of one).
   const box = Object.keys(model.tokens).filter((id) => id.startsWith(`${INPUT_BOX}.`));
-  assert.equal(box.length, 340);
+  assert.equal(box.length, 342);
   // Every name of the box is its own reference, but the stacked look's label and asterisk, which the Field draws above a stacked box.
   assert.equal(box.filter((id) => reference(id.slice(INPUT_BOX.length + 1)) !== id).length, 16);
   // No name of the text input's own group is a name a text field had for the box or a row.

@@ -1089,8 +1089,8 @@ test.describe('behavior: the value and its text', () => {
     // The motion: the state duration, and none where motion is reduced.
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('CLI-23: the focused edge is the focus indicator — under the default system the focus-ring role at the thick width, by keyboard and by pointer — and no ring is drawn around the container or the input; where the focus style is glow the glow is drawn around the container too', async ({ page }) => {

@@ -41,7 +41,7 @@ const PARTS = {
 export const PREFIX = '--tanrei-comp-select';
 /** The box is drawn from the one set of tokens every input box is drawn from; `PREFIX` is what this component alone draws. */
 const B = unsafeCSS(INPUT_BOX);
-const STATE_MOTION = `var(${INPUT_BOX}-motion-state-duration) var(${INPUT_BOX}-motion-state-easing)`;
+const STATE_MOTION = `var(--_state-duration) var(${INPUT_BOX}-motion-state-easing)`;
 const motion = unsafeCSS(STATE_MOTION);
 // The trigger's token blocks (src/primitives/field-trigger.ts): per variant both looks' parts in every state, per size
 // the members of the size axis, which look is painted (SEL-9), and each state's paint (SEL-7, SEL-9, SEL-20, SEL-46).
@@ -251,7 +251,7 @@ export const styles = css`
   /* SEL-18, SEL-19: the glyphs, at the size's icon size in the family and fill of an unselected icon, colored by
      their part, gap from the value. SEL-57: iconGlyph() mirrors the glyph GlyphMirrorController marked, in
      right-to-left, in its own box; the chevron is never marked. */
-  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${INPUT_BOX}-motion-state-duration`, easing: `${INPUT_BOX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: '--_state-duration', easing: `${INPUT_BOX}-motion-state-easing` })}
   .icon {
     position: relative;
     display: none;

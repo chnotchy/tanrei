@@ -2,7 +2,7 @@
 title: الطبقة النمطية
 description: الطبقة التي تحت كل سطح نمطي. تعتّم النافذة خلف ما تعرضه، وتجعل كل ما هناك خاملًا، وتنقل التركيز إلى الداخل وتُبقيه فيه ثم تعيده، وتطلب الإغلاق بالمفتاح Escape أو بالرجوع في المنصة أو بالضغط على الحجاب. غيّر مظهرها مرة واحدة فتتبعها كل الأسطح النمطية.
 translationOf: components/modal-layer.mdx
-sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
+sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -106,13 +106,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "أسطحنا النمطية تُغشّي ما يقع خلفها كالزجاج المصنفر." },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "أسطحنا النمطية تُغشّي ما يقع خلفها كالزجاج المصنفر." }
   }
 }
 ```
 
-عتامة الحجاب هي قيمة ألفا في لونه: غيّر اللون، أو الدور `scrim` في النظام، لتجعله أفتح أو أغمق. ولتميّز سطحًا واحدًا، اضبط الرمز الخاص بذلك السطح بدلًا من ذلك (`comp.dialog.scrim.color`، `comp.side-sheet.motion.enter-duration`). فهو يشير إلى رمز الطبقة إلى أن تفعل.
+عتامة الحجاب هي قيمة ألفا في لونه: غيّر اللون، أو الدور `scrim` في النظام، لتجعله أفتح أو أغمق. ولتميّز سطحًا واحدًا، اضبط الرمز الخاص بذلك السطح بدلًا من ذلك (`comp.dialog.scrim.color`، `comp.dialog.motion.enter-duration`). فهو يشير إلى رمز الطبقة إلى أن تفعل.
 
 ## المواصفات
 

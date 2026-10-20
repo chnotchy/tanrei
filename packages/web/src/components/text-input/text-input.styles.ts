@@ -50,6 +50,7 @@ const SIZE_MEMBERS = {
   floated: 'label-floated-typescale',
   input: 'input-typescale',
   icon: 'icon-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 const TYPESCALES = new Set(['label-typescale', 'label-floated-typescale', 'input-typescale']);
 
@@ -209,7 +210,7 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     min-inline-size: 0;
-    transition: opacity var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: opacity var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* TXI-51: a filled field that draws its label sets the line under the floated label's band, as a single-line one does —
      centred in what container.height leaves below the band, where that is more than a line. */
@@ -264,7 +265,7 @@ export const styles = css`
     background: var(--_c);
     cursor: text;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: background-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   ${unsafeCSS(FILLED)} .container {
     border-end-start-radius: calc(var(${unsafeCSS(BOX)}-container-shape-bottom) * var(--_corner-scale));
@@ -355,8 +356,8 @@ export const styles = css`
     text-align: start;
     cursor: inherit;
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      caret-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      caret-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* A single line is one line of the input's text style, as the label's and the affixes' beside it are: two engines of
      three give a text input no line shorter than the face's own ("normal"), so with a face whose own line is taller
@@ -433,8 +434,8 @@ export const styles = css`
   }
   textarea.input[data-resizing]:not([data-resizing='from']) {
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      caret-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      caret-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       margin-block-end var(${unsafeCSS(OWN)}-motion-resize-duration) var(${unsafeCSS(OWN)}-motion-resize-easing),
       clip-path var(${unsafeCSS(OWN)}-motion-resize-duration) var(${unsafeCSS(OWN)}-motion-resize-easing);
   }
@@ -558,12 +559,12 @@ export const styles = css`
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     cursor: inherit;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .literal {
     flex: none;
     white-space: pre;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .row[data-empty] .literal {
     color: var(--_h);
@@ -609,7 +610,7 @@ export const styles = css`
   .segment:empty::before {
     content: attr(data-placeholder);
     color: var(--_h);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* TXI-43: the focused segment is drawn as selected text — selection.color behind it, and its number or its
      placeholder in selection.content.color. Neither is animated: the pair is readable only together. */
@@ -642,7 +643,7 @@ export const styles = css`
     color: var(--_a);
     white-space: pre;
     line-height: var(--_input-line-height);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .prefix {
     margin-inline-end: var(${unsafeCSS(BOX)}-affix-gap);
@@ -668,7 +669,7 @@ export const styles = css`
   /* TXI-22: the icons, at the size's icon size in the family and fill of an unselected icon, colored by their part, gap
      from the text. A slotted element that is larger (the product's icon button) keeps its own size. TXI-35: iconGlyph()
      mirrors the slotted glyph GlyphMirrorController marked, in right-to-left, in its own box. */
-  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${BOX}-motion-state-duration`, easing: `${BOX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: '--_state-duration', easing: `${BOX}-motion-state-easing` })}
   .icon {
     position: relative;
     display: none;
@@ -682,8 +683,8 @@ export const styles = css`
     overflow: visible;
     cursor: default;
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      font-variation-settings var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      font-variation-settings var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .field[data-leading] .leading,
   .field[data-trailing] .trailing {
@@ -782,7 +783,7 @@ export const styles = css`
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
-      var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-state-duration);
+      var(${unsafeCSS(BOX)}-motion-label-duration), var(--_state-duration);
     transition-timing-function:
       var(${unsafeCSS(BOX)}-motion-label-easing), var(${unsafeCSS(BOX)}-motion-label-easing),
       var(${unsafeCSS(BOX)}-motion-label-easing), var(${unsafeCSS(BOX)}-motion-label-easing),
@@ -887,7 +888,7 @@ export const styles = css`
   .asterisk {
     margin-inline-start: var(${unsafeCSS(BOX)}-requirement-asterisk-gap);
     color: var(--_ra);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* TXI-26: a stacked field's edge is a line inside the container's edge, following its corners, that takes no layout
@@ -903,8 +904,8 @@ export const styles = css`
     corner-shape: inherit;
     pointer-events: none;
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* The outlined variant's edge (TXI-13, TXI-16): three pieces, so that the floated label opens a gap of
@@ -924,8 +925,8 @@ export const styles = css`
     border-block-width: var(--_ow);
     corner-shape: inherit;
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .outline-start {
     flex: none;
@@ -940,8 +941,8 @@ export const styles = css`
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing) !important;
   }
   ${unsafeCSS(FLOATED)} .outline-notch {
@@ -978,8 +979,8 @@ export const styles = css`
     background: var(--_i);
     pointer-events: none;
     transition:
-      background-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      block-size var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      background-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      block-size var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* TXI-7: where the focus style is glow, the glow around the container while the input is focused (no ring ever). */
@@ -993,7 +994,7 @@ export const styles = css`
      TXI-40: its hit area is the minimum target, centred on the glyph and reaching past the container's edges; a fine
      pointer over it shows the resize cursor of the axes it resizes. TXI-41: keyboard focus is shown around the glyph as
      the focus style names; focus gained by a pointer is not, and there is no state layer and no pressed answer. */
-  ${iconGlyph('.grip-glyph', { size: `${OWN}-resize-grip-size`, selected: '.never-selected', duration: `${BOX}-motion-state-duration`, easing: `${BOX}-motion-state-easing` })}
+  ${iconGlyph('.grip-glyph', { size: `${OWN}-resize-grip-size`, selected: '.never-selected', duration: '--_state-duration', easing: `${BOX}-motion-state-easing` })}
   .grip {
     position: absolute;
     z-index: 2;
@@ -1007,7 +1008,7 @@ export const styles = css`
     cursor: ns-resize;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .grip:focus {
     outline: none;

@@ -43,11 +43,12 @@
           "resize-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
-            "$description": "How long the label's box takes to change its width to the text now shown, while labelWidth is fit (CPY-19). Unused while labelWidth is widest; at once where motion is reduced."
+            "$description": "How long the label's box takes to change its width to the text now shown, while labelWidth is fit (CPY-19). Unused while labelWidth is widest; at once where motion is reduced.",
+            "$extensions": {}
           },
           "resize-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         }
       }

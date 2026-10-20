@@ -205,11 +205,13 @@ export function markConditionChange(root: Element | null | undefined) {
 /**
  * The timing of the parts that the states and the condition both recolor (see `markConditionChange`): on `.root`,
  * `--_recolor-duration` and `--_recolor-easing` are the state motion, and the selection motion while the condition changes.
+ * `stateDuration` is the property the state motion's duration is read from, where it follows the size (the chip's and
+ * the segmented button's: a private property of the size, written by the component's size block).
  */
-export function recolorTiming(prefix: string): CSSResult {
+export function recolorTiming(prefix: string, stateDuration = `${prefix}-motion-state-duration`): CSSResult {
   return unsafeCSS(`
   .root {
-    --_recolor-duration: var(${prefix}-motion-state-duration);
+    --_recolor-duration: var(${stateDuration});
     --_recolor-easing: var(${prefix}-motion-state-easing);
   }
   .root[data-condition-change] {

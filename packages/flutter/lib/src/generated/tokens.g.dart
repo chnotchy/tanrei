@@ -4284,6 +4284,7 @@ class TanreiButtonSizeTokens {
     required this.iconSizeWithoutLabel,
     required this.containerGap,
     required this.outlineWidth,
+    required this.motionStateDuration,
   });
 
   /// `comp.button.container-height.<size>`
@@ -4312,6 +4313,8 @@ class TanreiButtonSizeTokens {
   final double containerGap;
   /// `comp.button.outline-width.<size>`
   final double outlineWidth;
+  /// `comp.button.motion-state-duration.<size>`
+  final int motionStateDuration;
 
   /// A copy with the given tokens replaced.
   TanreiButtonSizeTokens copyWith({
@@ -4328,6 +4331,7 @@ class TanreiButtonSizeTokens {
     double? iconSizeWithoutLabel,
     double? containerGap,
     double? outlineWidth,
+    int? motionStateDuration,
   }) => TanreiButtonSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInlineNarrow: containerPaddingInlineNarrow ?? this.containerPaddingInlineNarrow,
@@ -4342,6 +4346,7 @@ class TanreiButtonSizeTokens {
         iconSizeWithoutLabel: iconSizeWithoutLabel ?? this.iconSizeWithoutLabel,
         containerGap: containerGap ?? this.containerGap,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
       );
 }
 
@@ -4687,7 +4692,6 @@ class TanreiButtonTokens {
     required this.containerShape,
     required this.motionBusyCycleDuration,
     required this.motionFeedbackDuration,
-    required this.motionStateDuration,
     required this.motionStateEasing,
     required this.toneContainerOpacity,
     required this.sizes,
@@ -4706,8 +4710,6 @@ class TanreiButtonTokens {
   final int motionBusyCycleDuration;
   /// `comp.button.motion-feedback-duration`
   final int motionFeedbackDuration;
-  /// `comp.button.motion-state-duration`
-  final int motionStateDuration;
   /// `comp.button.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
   /// `comp.button.tone-container-opacity`
@@ -4731,7 +4733,6 @@ class TanreiButtonTokens {
     double? containerShape,
     int? motionBusyCycleDuration,
     int? motionFeedbackDuration,
-    int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? toneContainerOpacity,
     TanreiButtonSizes? sizes,
@@ -4745,7 +4746,6 @@ class TanreiButtonTokens {
         containerShape: containerShape ?? this.containerShape,
         motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         toneContainerOpacity: toneContainerOpacity ?? this.toneContainerOpacity,
         sizes: sizes ?? this.sizes,
@@ -6760,6 +6760,7 @@ class TanreiChipSizeTokens {
     required this.iconSize,
     required this.avatarSize,
     required this.removeContainerSize,
+    required this.motionStateDuration,
   });
 
   /// `comp.chip.container-height.<size>`
@@ -6784,6 +6785,8 @@ class TanreiChipSizeTokens {
   final double avatarSize;
   /// `comp.chip.remove-container-size.<size>`
   final double removeContainerSize;
+  /// `comp.chip.motion-state-duration.<size>`
+  final int motionStateDuration;
 
   /// A copy with the given tokens replaced.
   TanreiChipSizeTokens copyWith({
@@ -6798,6 +6801,7 @@ class TanreiChipSizeTokens {
     double? iconSize,
     double? avatarSize,
     double? removeContainerSize,
+    int? motionStateDuration,
   }) => TanreiChipSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -6810,6 +6814,7 @@ class TanreiChipSizeTokens {
         iconSize: iconSize ?? this.iconSize,
         avatarSize: avatarSize ?? this.avatarSize,
         removeContainerSize: removeContainerSize ?? this.removeContainerSize,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
       );
 }
 
@@ -7110,7 +7115,6 @@ class TanreiChipTokens {
     required this.motionFeedbackDuration,
     required this.motionSelectionDuration,
     required this.motionSelectionEasing,
-    required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
     required this.removeContainerShape,
@@ -7134,8 +7138,6 @@ class TanreiChipTokens {
   final int motionSelectionDuration;
   /// `comp.chip.motion-selection-easing`
   final TanreiCubicBezier motionSelectionEasing;
-  /// `comp.chip.motion-state-duration`
-  final int motionStateDuration;
   /// `comp.chip.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
   /// `comp.chip.outline-width`
@@ -7163,7 +7165,6 @@ class TanreiChipTokens {
     int? motionFeedbackDuration,
     int? motionSelectionDuration,
     TanreiCubicBezier? motionSelectionEasing,
-    int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
     double? removeContainerShape,
@@ -7180,7 +7181,6 @@ class TanreiChipTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
         motionSelectionEasing: motionSelectionEasing ?? this.motionSelectionEasing,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
         removeContainerShape: removeContainerShape ?? this.removeContainerShape,
@@ -12253,6 +12253,7 @@ class TanreiInputBoxSizeTokens {
     required this.labelFloatedTypescale,
     required this.inputTypescale,
     required this.iconSize,
+    required this.motionStateDuration,
   });
 
   /// `comp.input-box.container-height.<size>`
@@ -12275,6 +12276,8 @@ class TanreiInputBoxSizeTokens {
   final TanreiTextStyle inputTypescale;
   /// `comp.input-box.icon-size.<size>`
   final double iconSize;
+  /// `comp.input-box.motion-state-duration.<size>`
+  final int motionStateDuration;
 
   /// A copy with the given tokens replaced.
   TanreiInputBoxSizeTokens copyWith({
@@ -12288,6 +12291,7 @@ class TanreiInputBoxSizeTokens {
     TanreiTextStyle? labelFloatedTypescale,
     TanreiTextStyle? inputTypescale,
     double? iconSize,
+    int? motionStateDuration,
   }) => TanreiInputBoxSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -12299,6 +12303,7 @@ class TanreiInputBoxSizeTokens {
         labelFloatedTypescale: labelFloatedTypescale ?? this.labelFloatedTypescale,
         inputTypescale: inputTypescale ?? this.inputTypescale,
         iconSize: iconSize ?? this.iconSize,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
       );
 }
 
@@ -12648,7 +12653,6 @@ class TanreiInputBoxTokens {
     required this.containerShapeBottom,
     required this.motionLabelDuration,
     required this.motionLabelEasing,
-    required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineNotchPadding,
     required this.outlineWidth,
@@ -12674,8 +12678,6 @@ class TanreiInputBoxTokens {
   final int motionLabelDuration;
   /// `comp.input-box.motion-label-easing`
   final TanreiCubicBezier motionLabelEasing;
-  /// `comp.input-box.motion-state-duration`
-  final int motionStateDuration;
   /// `comp.input-box.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
   /// `comp.input-box.outline-notch-padding`
@@ -12707,7 +12709,6 @@ class TanreiInputBoxTokens {
     double? containerShapeBottom,
     int? motionLabelDuration,
     TanreiCubicBezier? motionLabelEasing,
-    int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineNotchPadding,
     double? outlineWidth,
@@ -12726,7 +12727,6 @@ class TanreiInputBoxTokens {
         containerShapeBottom: containerShapeBottom ?? this.containerShapeBottom,
         motionLabelDuration: motionLabelDuration ?? this.motionLabelDuration,
         motionLabelEasing: motionLabelEasing ?? this.motionLabelEasing,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineNotchPadding: outlineNotchPadding ?? this.outlineNotchPadding,
         outlineWidth: outlineWidth ?? this.outlineWidth,
@@ -14336,6 +14336,7 @@ class TanreiMainActionButtonSizeTokens {
     required this.containerGap,
     required this.labelTypescale,
     required this.iconSize,
+    required this.motionStateDuration,
   });
 
   /// `comp.main-action-button.container-height.<size>`
@@ -14358,6 +14359,8 @@ class TanreiMainActionButtonSizeTokens {
   final TanreiTextStyle labelTypescale;
   /// `comp.main-action-button.icon-size.<size>`
   final double iconSize;
+  /// `comp.main-action-button.motion-state-duration.<size>`
+  final int motionStateDuration;
 
   /// A copy with the given tokens replaced.
   TanreiMainActionButtonSizeTokens copyWith({
@@ -14371,6 +14374,7 @@ class TanreiMainActionButtonSizeTokens {
     double? containerGap,
     TanreiTextStyle? labelTypescale,
     double? iconSize,
+    int? motionStateDuration,
   }) => TanreiMainActionButtonSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerShape: containerShape ?? this.containerShape,
@@ -14382,6 +14386,7 @@ class TanreiMainActionButtonSizeTokens {
         containerGap: containerGap ?? this.containerGap,
         labelTypescale: labelTypescale ?? this.labelTypescale,
         iconSize: iconSize ?? this.iconSize,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
       );
 }
 
@@ -14622,7 +14627,6 @@ class TanreiMainActionButtonTokens {
     required this.motionFeedbackDuration,
     required this.motionResizeDuration,
     required this.motionResizeEasing,
-    required this.motionStateDuration,
     required this.motionStateEasing,
     required this.sizes,
     required this.variants,
@@ -14638,8 +14642,6 @@ class TanreiMainActionButtonTokens {
   final int motionResizeDuration;
   /// `comp.main-action-button.motion-resize-easing`
   final TanreiCubicBezier motionResizeEasing;
-  /// `comp.main-action-button.motion-state-duration`
-  final int motionStateDuration;
   /// `comp.main-action-button.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
   /// The `size` axis: `sizes[size]`.
@@ -14660,7 +14662,6 @@ class TanreiMainActionButtonTokens {
     int? motionFeedbackDuration,
     int? motionResizeDuration,
     TanreiCubicBezier? motionResizeEasing,
-    int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     TanreiMainActionButtonSizes? sizes,
     TanreiMainActionButtonVariants? variants,
@@ -14672,7 +14673,6 @@ class TanreiMainActionButtonTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
         motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         sizes: sizes ?? this.sizes,
         variants: variants ?? this.variants,
@@ -19428,6 +19428,7 @@ class TanreiSegmentedButtonSizeTokens {
     required this.labelTypescale,
     required this.iconSize,
     required this.checkSize,
+    required this.motionStateDuration,
   });
 
   /// `comp.segmented-button.container-height.<size>`
@@ -19444,6 +19445,8 @@ class TanreiSegmentedButtonSizeTokens {
   final double iconSize;
   /// `comp.segmented-button.check-size.<size>`
   final double checkSize;
+  /// `comp.segmented-button.motion-state-duration.<size>`
+  final int motionStateDuration;
 
   /// A copy with the given tokens replaced.
   TanreiSegmentedButtonSizeTokens copyWith({
@@ -19454,6 +19457,7 @@ class TanreiSegmentedButtonSizeTokens {
     TanreiTextStyle? labelTypescale,
     double? iconSize,
     double? checkSize,
+    int? motionStateDuration,
   }) => TanreiSegmentedButtonSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
@@ -19462,6 +19466,7 @@ class TanreiSegmentedButtonSizeTokens {
         labelTypescale: labelTypescale ?? this.labelTypescale,
         iconSize: iconSize ?? this.iconSize,
         checkSize: checkSize ?? this.checkSize,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
       );
 }
 
@@ -19709,7 +19714,6 @@ class TanreiSegmentedButtonTokens {
     required this.motionFeedbackDuration,
     required this.motionSelectionDuration,
     required this.motionSelectionEasing,
-    required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineColor,
     required this.outlineWidth,
@@ -19738,8 +19742,6 @@ class TanreiSegmentedButtonTokens {
   final int motionSelectionDuration;
   /// `comp.segmented-button.motion-selection-easing`
   final TanreiCubicBezier motionSelectionEasing;
-  /// `comp.segmented-button.motion-state-duration`
-  final int motionStateDuration;
   /// `comp.segmented-button.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
   /// `comp.segmented-button.outline-color`
@@ -19774,7 +19776,6 @@ class TanreiSegmentedButtonTokens {
     int? motionFeedbackDuration,
     int? motionSelectionDuration,
     TanreiCubicBezier? motionSelectionEasing,
-    int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     TanreiPaint? outlineColor,
     double? outlineWidth,
@@ -19795,7 +19796,6 @@ class TanreiSegmentedButtonTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
         motionSelectionEasing: motionSelectionEasing ?? this.motionSelectionEasing,
-        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,

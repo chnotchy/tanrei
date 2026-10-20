@@ -132,12 +132,12 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.default}",
             "$description": "How long a change of the frame's colors takes when focus enters or leaves, or the error or disabled condition changes: the text field's state duration."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$value": "{tanrei.sys.motion.easing.state}",
             "$description": "The curve of that change."
           }
         },

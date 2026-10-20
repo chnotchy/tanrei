@@ -288,21 +288,21 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the role of a sheet's exit, so that every sheet of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         }
       }

@@ -1376,7 +1376,6 @@ private object M3LikeSystemSource {
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
             motionFeedbackDuration = 450,
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             toneContainerOpacity = 0.16f,
             hovered = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
@@ -1384,9 +1383,9 @@ private object M3LikeSystemSource {
             pressed = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonSizes(
-                small = TanreiButtonSizeTokens(containerHeight = 32.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 12.dp, containerPaddingInlineEnd = 12.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp),
-                medium = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp),
-                large = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 12.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 24.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp),
+                small = TanreiButtonSizeTokens(containerHeight = 32.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 12.dp, containerPaddingInlineEnd = 12.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
+                medium = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
+                large = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 12.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 24.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 18.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
             ),
             variants = TanreiButtonVariants(
                 filled = TanreiButtonVariantTokens(
@@ -2803,7 +2802,6 @@ private object M3LikeSystemSource {
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.31f, y1 = 0.94f, x2 = 0.34f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineWidth = 1.dp,
             removeContainerShape = 9999.dp,
@@ -2812,8 +2810,8 @@ private object M3LikeSystemSource {
             pressed = TanreiChipStateTokens(opacity = 1f),
             disabled = TanreiChipStateTokens(opacity = 1f),
             sizes = TanreiChipSizes(
-                small = TanreiChipSizeTokens(containerHeight = 24.dp, containerPaddingInline = 8.dp, containerPaddingInlineWithIcon = 6.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 6.dp, containerPaddingBlock = 2.dp, containerGap = 4.dp, labelTypescale = typescale.labelSmall, iconSize = 20.dp, avatarSize = 16.dp, removeContainerSize = 24.dp),
-                medium = TanreiChipSizeTokens(containerHeight = 32.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 8.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, avatarSize = 24.dp, removeContainerSize = 28.dp),
+                small = TanreiChipSizeTokens(containerHeight = 24.dp, containerPaddingInline = 8.dp, containerPaddingInlineWithIcon = 6.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 6.dp, containerPaddingBlock = 2.dp, containerGap = 4.dp, labelTypescale = typescale.labelSmall, iconSize = 20.dp, avatarSize = 16.dp, removeContainerSize = 24.dp, motionStateDuration = 150),
+                medium = TanreiChipSizeTokens(containerHeight = 32.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 8.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, avatarSize = 24.dp, removeContainerSize = 28.dp, motionStateDuration = 150),
             ),
             variants = TanreiChipVariants(
                 outlined = TanreiChipVariantTokens(
@@ -4357,7 +4355,6 @@ private object M3LikeSystemSource {
             containerShapeBottom = 0.dp,
             motionLabelDuration = 150,
             motionLabelEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineNotchPadding = 4.dp,
             outlineWidth = 1.dp,
@@ -4368,9 +4365,9 @@ private object M3LikeSystemSource {
             focused = TanreiInputBoxStateTokens(activeIndicatorWidth = 2.dp, opacity = 1f, outlineWidth = 2.dp),
             disabled = TanreiInputBoxStateTokens(activeIndicatorWidth = 1.dp, opacity = 1f, outlineWidth = 1.dp),
             sizes = TanreiInputBoxSizes(
-                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.body, iconSize = 20.dp),
-                medium = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp),
-                large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp),
+                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 150),
+                medium = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 150),
+                large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 150),
             ),
             variants = TanreiInputBoxVariants(
                 stacked = TanreiInputBoxVariantTokens(
@@ -5095,16 +5092,15 @@ private object M3LikeSystemSource {
             motionFeedbackDuration = 450,
             motionResizeDuration = 500,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             hovered = TanreiMainActionButtonStateTokens(opacity = 1f),
             focused = TanreiMainActionButtonStateTokens(opacity = 1f),
             pressed = TanreiMainActionButtonStateTokens(opacity = 1f),
             disabled = TanreiMainActionButtonStateTokens(opacity = 1f),
             sizes = TanreiMainActionButtonSizes(
-                small = TanreiMainActionButtonSizeTokens(containerHeight = 40.dp, containerShape = 12.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp),
-                medium = TanreiMainActionButtonSizeTokens(containerHeight = 56.dp, containerShape = 16.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp),
-                large = TanreiMainActionButtonSizeTokens(containerHeight = 96.dp, containerShape = 28.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 6.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 36.dp),
+                small = TanreiMainActionButtonSizeTokens(containerHeight = 40.dp, containerShape = 12.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 150),
+                medium = TanreiMainActionButtonSizeTokens(containerHeight = 56.dp, containerShape = 16.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 150),
+                large = TanreiMainActionButtonSizeTokens(containerHeight = 96.dp, containerShape = 28.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 6.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 36.dp, motionStateDuration = 150),
             ),
             variants = TanreiMainActionButtonVariants(
                 filled = TanreiMainActionButtonVariantTokens(
@@ -6907,7 +6903,6 @@ private object M3LikeSystemSource {
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.31f, y1 = 0.94f, x2 = 0.34f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineColor = TanreiPaint.Role(TanreiColorRole.Outline),
             outlineWidth = 1.dp,
@@ -6919,9 +6914,9 @@ private object M3LikeSystemSource {
             pressed = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             disabled = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             sizes = TanreiSegmentedButtonSizes(
-                small = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
-                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
-                large = TanreiSegmentedButtonSizeTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
+                small = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
+                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
+                large = TanreiSegmentedButtonSizeTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
             ),
             conditions = TanreiSegmentedButtonConditions(
                 unselected = TanreiSegmentedButtonConditionTokens(

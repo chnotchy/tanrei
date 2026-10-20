@@ -88,7 +88,8 @@
                 "icon.size",
                 "icon.size-without-label",
                 "container.gap",
-                "outline.width"
+                "outline.width",
+                "motion.state-duration"
               ],
               "extensions": [
                 {
@@ -1932,15 +1933,44 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$description": "How long a change of state takes. It follows the size (small over the compact role, medium over the default role, large over the large role): a smaller control changes state sooner.",
+            "small": {
+              "$value": "{tanrei.sys.motion.role.state.compact}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.motion.role.state.default}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.motion.role.state.large}"
+            },
+            "xsmall": {
+              "$value": "{tanrei.sys.motion.role.state.compact}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 Expressive has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-expressive-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": "{tanrei.sys.motion.role.state.large}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 Expressive has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-expressive-like",
+                  "extension": true
+                }
+              }
+            }
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           },
           "busy-cycle-duration": {

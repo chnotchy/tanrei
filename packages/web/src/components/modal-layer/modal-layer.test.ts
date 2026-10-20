@@ -322,11 +322,13 @@ test.describe('motion', () => {
     expect(await css(container(page, 'l'), 'translate')).toBe('none');
   });
 
-  test('MDL-1, MDL-7: the components built from the layer take its scrim and its tempo — one value changes every modal surface', async ({ page }) => {
-    const members: { name: string; tag: string; pick: (fixture: Fixture) => boolean; window: { width: number; height: number }; scrim: string; enter: string }[] = [
-      { name: 'dialog', tag: 'tanrei-dialog', pick: (fx) => fx.id === 'basic', window: dialogWindow('basic'), scrim: 'dialog', enter: 'dialog-motion-enter-duration' },
-      { name: 'bottom-sheet', tag: 'tanrei-bottom-sheet', pick: (fx) => fx.id === 'modal', window: { width: 400, height: 720 }, scrim: 'bottom-sheet', enter: 'bottom-sheet-motion-enter-duration' },
-      { name: 'side-sheet', tag: 'tanrei-side-sheet', pick: (fx) => fx.id === 'modal', window: { width: 720, height: 480 }, scrim: 'side-sheet', enter: 'side-sheet-motion-enter-duration' },
+  test('MDL-1, MDL-7: the components built from the layer take its scrim, and its tempo where they take the modal role — one value changes every such surface, and one value every sheet', async ({ page }) => {
+    // The tempo: a dialog's enter duration aliases the layer's (the modal role); a sheet's takes the sheet role.
+    const SHEET_ENTER = '--tanrei-sys-motion-role-appear-sheet-enter';
+    const members: { name: string; tag: string; pick: (fixture: Fixture) => boolean; window: { width: number; height: number }; scrim: string; enter: string; tempo: string }[] = [
+      { name: 'dialog', tag: 'tanrei-dialog', pick: (fx) => fx.id === 'basic', window: dialogWindow('basic'), scrim: 'dialog', enter: 'dialog-motion-enter-duration', tempo: T('motion-enter-duration') },
+      { name: 'bottom-sheet', tag: 'tanrei-bottom-sheet', pick: (fx) => fx.id === 'modal', window: { width: 400, height: 720 }, scrim: 'bottom-sheet', enter: 'bottom-sheet-motion-enter-duration', tempo: SHEET_ENTER },
+      { name: 'side-sheet', tag: 'tanrei-side-sheet', pick: (fx) => fx.id === 'modal', window: { width: 720, height: 480 }, scrim: 'side-sheet', enter: 'side-sheet-motion-enter-duration', tempo: SHEET_ENTER },
     ];
     for (const member of members) {
       const memberSpec = loadSpec(member.name);
@@ -334,7 +336,7 @@ test.describe('motion', () => {
       await mountFixtures(page, memberSpec, { icons: true, fixtures: memberSpec.fixtures.filter(member.pick) });
       const backdrop = page.locator(member.tag).locator('dialog').first();
       await expect.poll(() => backdrop.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
-      await rootTokens(page, { [T('scrim-color')]: 'rgb(10, 20, 30)', [T('scrim-blur')]: '5px', [T('motion-enter-duration')]: '321ms' });
+      await rootTokens(page, { [T('scrim-color')]: 'rgb(10, 20, 30)', [T('scrim-blur')]: '5px', [member.tempo]: '321ms' });
       expect(await css(backdrop, 'background-color', '::backdrop'), member.name).toBe('rgb(10, 20, 30)');
       expect(await css(backdrop, 'backdrop-filter', '::backdrop'), member.name).toBe('blur(5px)');
       expect(await resolveToken(page, `--tanrei-comp-${member.enter}`, 'duration'), member.name).toBe(321);
