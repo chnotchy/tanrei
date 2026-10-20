@@ -67,6 +67,11 @@
   padding: 1rem;
   min-inline-size: 0;
 }
+/* Where a panel is drawn once it comes near the window (ui/dom.ts `drawnNear`): a window high, so that the panels
+   below it are not near yet, and the page is about as long as it will be. */
+.ts-panel-pending {
+  min-block-size: 100vh;
+}
 .ts-panel > header,
 .ts-preview-bar {
   display: flex;
