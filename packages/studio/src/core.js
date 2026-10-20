@@ -205,59 +205,133 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     bases.clear();
     usable.clear();
     droppable.clear();
-    cache = { key: '', value: null };
+    cache = { key: '', words: '', computation: null };
+    shown = { json: '', view: null };
   }
 
-  let cache = { key: '', value: null };
+  // ── one layer, shown: its checks, and its computation ─────────────────────────────────────────
+  // Computing a layer is the whole build (the engine, the emitter, the checks). The layer's prose is no part of any
+  // value: what it is called and says about itself (META) reaches nothing the build computes, and a reason, a rationale
+  // or a palette's description (its WORDS) is copied into the model as text — whether one is there, and long enough,
+  // is all the engine asks of it. So the layer is checked each time it changes (`validate`, cheap), and computed only
+  // when what it values changes (`valueKey`): typing a name computes nothing, typing a reason computes nothing until
+  // the page asks for the model's words to catch up (`preview(layer, { worded: true })`). The test suite holds the
+  // computation to that: the same values, sheet and checks for any words of the same validity.
+  const META = ['name', 'description', 'attribution'];
+  /** What the engine asks of a word: a string at least MIN_REASON long (a reason, a rationale), or anything else as it is. */
+  const counted = (text) => (typeof text === 'string' ? text.length >= MIN_REASON : text);
+  const entries = (section, fn) => (section && typeof section === 'object' && !Array.isArray(section) ? Object.fromEntries(Object.entries(section).map(([key, value]) => [key, value && typeof value === 'object' && !Array.isArray(value) ? fn(value) : value])) : section);
+  const withoutMeta = (layer) => Object.fromEntries(Object.entries(layer).filter(([key]) => !META.includes(key)));
   /**
-   * Everything the page shows for one layer. Throws nothing: an invalid layer comes back as `problems`.
-   * `css(scope)` is the system's whole scoped sheet, exactly what `tanrei build` writes for the web.
+   * The layer as far as its values go: without META, each word reduced to what the engine asks of it — a pin's
+   * `reason` and a declaration's `rationale` to whether they count, a declared palette's `description` to whether it
+   * is there — and the words nothing asks of (a declaration's `$description`, a pattern rule's `reason`) left out. Two
+   * layers with one key compute the same values, the same sheet and the same checks, and fail the same way.
    */
-  function preview(layer) {
-    const key = JSON.stringify(layer);
-    if (cache.key === key) return cache.value;
+  function valueKey(layer) {
+    const pin = (op) => ('reason' in op ? { ...op, reason: counted(op.reason) } : op);
+    return JSON.stringify({
+      ...withoutMeta(layer),
+      tokens: entries(layer.tokens, pin),
+      vocabulary: entries(layer.vocabulary, (declaration) => ({ ...pin(declaration), ...('rationale' in declaration ? { rationale: counted(declaration.rationale) } : {}), $description: undefined })),
+      palettes: entries(layer.palettes, (declaration) => ('description' in declaration ? { ...declaration, description: Boolean(declaration.description) } : declaration)),
+      rules: Array.isArray(layer.rules) ? layer.rules.map((rule) => (rule && typeof rule === 'object' ? { ...rule, reason: undefined } : rule)) : layer.rules,
+    });
+  }
+  /** The layer but for META: what the model's words are copied from. */
+  const wordsKey = (layer) => JSON.stringify(withoutMeta(layer));
+
+  /** What is wrong with a layer that needs no computation to say: its id, what it extends, the schema. */
+  function validate(layer) {
     const problems = [];
     if (!ID_PATTERN.test(layer.id ?? '')) problems.push(`"id" must be lowercase words joined by hyphens (it becomes the file name <id>.system.json)`);
     else if (layers[layer.id]) problems.push(`"${layer.id}" is a shipped system; give your layer its own id`);
     else if (Object.hasOwn(parents, layer.id)) problems.push(`"${layer.id}" is one of the layers next to this file; give your layer its own id`);
     if (!layer.extends && layer.id !== rootId) problems.push(`the Studio edits layers that extend a shipped system ("extends": ${systems.map((s) => `"${s.id}"`).join(' | ')})`);
     problems.push(...(validateSchema?.(layer) ?? []));
-    let value;
+    return problems;
+  }
+
+  /**
+   * A layer computed: what every layer of its `valueKey` shows. `sheet` is kept from `previous` — the computation of
+   * the same values, before its words changed — since the words reach no declaration of it.
+   */
+  function evaluate(layer, previous) {
+    let computed;
     try {
-      const computed = compute(layer);
+      computed = compute(layer);
+    } catch (error) {
+      return { error: error.message };
+    }
+    const { model } = computed;
+    const hollowValue = (v) => v === null || (typeof v === 'number' && Number.isNaN(v)) || (v && typeof v === 'object' && Object.values(v).some(hollowValue));
+    const sheets = previous?.sheets ?? new Map();
+    let index;
+    return {
+      computed,
+      hollow: Object.values(model.tokens).filter((token) => hollowValue(token.value)),
+      intents: Object.keys(model.colors.light).filter((r) => [`on-${r}`, `${r}-container`, `on-${r}-container`].every((k) => k in model.colors.light)),
+      sheets,
+      // What the system does not have, as `tanrei build` declares it in the product's sheet: an element in the
+      // preview reads the layer's lists, not the default system's from `:root`.
+      css: (scope) => sheets.get(scope) ?? sheets.set(scope, emitCss(model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })).get(scope),
+      followers: (id) => [...(index ??= dependencyIndex(computed.files)).followers(id)],
+    };
+  }
+
+  let cache = { key: '', words: '', computation: null };
+  let shown = { json: '', view: null };
+  /**
+   * Everything the page shows for one layer. Throws nothing: an invalid layer comes back as `problems`.
+   * `css(scope)` is the system's whole scoped sheet, exactly what `tanrei build` writes for the web.
+   * `computation`: the same object for every view computed once (a page counts its computations by it). `worded`:
+   * the model's words — a pin's `fixed` reason, a declaration's rationale, a declared palette's roles' — are this
+   * layer's; `false` when only words changed since the layer was computed, until it is asked again with
+   * `{ worded: true }`, which computes it.
+   */
+  function preview(layer, { worded = false } = {}) {
+    const json = JSON.stringify(layer);
+    if (shown.json === json && (shown.view.worded || !worded)) return shown.view;
+    const [key, words] = [valueKey(layer), wordsKey(layer)];
+    if (cache.key !== key || (worded && cache.words !== words)) cache = { key, words, computation: evaluate(layer, cache.key === key ? cache.computation : null) };
+    const computation = cache.computation;
+    const problems = validate(layer);
+    let view;
+    if (computation.error) view = { ok: false, layer, problems: [...problems, computation.error], worded: true, computation };
+    else {
+      const { computed, hollow } = computation;
       const { model } = computed;
-      const hollow = (v) => v === null || (typeof v === 'number' && Number.isNaN(v)) || (v && typeof v === 'object' && Object.values(v).some(hollow));
-      for (const token of Object.values(model.tokens)) if (hollow(token.value)) problems.push(`${token.id}: the engine computed no value for this operation (${JSON.stringify(layer.tokens?.[token.id] ?? token.derive)})`);
-      const intents = Object.keys(model.colors.light).filter((r) => [`on-${r}`, `${r}-container`, `on-${r}-container`].every((k) => k in model.colors.light));
-      let index;
-      value = {
+      problems.push(...hollow.map((token) => `${token.id}: the engine computed no value for this operation (${JSON.stringify(layer.tokens?.[token.id] ?? token.derive)})`));
+      view = {
         ok: problems.length === 0,
         layer,
         problems,
         ...computed,
-        intents,
-        // What the system does not have, as `tanrei build` declares it in the product's sheet: an element in the
-        // preview reads the layer's lists, not the default system's from `:root`.
-        css: (scope = layer.id) => emitCss(model, { scope, ...sheetAvailability(computed.chain, homes, standIns) }),
+        // The layer's own META, as the build merges it: what this layer says, not the one computed.
+        system: { ...computed.system, name: layer.name },
+        chain: [...computed.chain.slice(0, -1), layer],
+        intents: computation.intents,
+        css: (scope = layer.id) => computation.css(scope),
         valueOf: (id) => model.tokens[id]?.value,
         /** `followers(id)`: every token whose value moves when this one does. */
-        followers: (id) => [...(index ??= dependencyIndex(computed.files)).followers(id)],
+        followers: computation.followers,
+        worded: cache.words === words,
+        computation,
       };
-    } catch (error) {
-      value = { ok: false, layer, problems: [...problems, error.message] };
     }
-    cache = { key, value };
-    return value;
+    shown = { json, view };
+    return view;
   }
 
   /**
    * Where a palette's colors reach the sheet other than as its own `ref.palette` tones, for one computed view: a
    * `contrast-pick` anywhere (it CHOOSES a role or a tone by the colors, so a new color may choose another), and each
    * palette a `tone` rule on a component color reads (that color is written into the sheet as a literal, per scheme).
+   * Kept per computation: the views of one share it.
    */
   const reaches = new WeakMap();
   function reachOf(view) {
-    if (!reaches.has(view)) {
+    if (!reaches.has(view.computation)) {
       const toned = new Set();
       let picks = Object.values(view.system.tokens).some((op) => op?.derive?.fn === 'contrast-pick');
       for (const tokens of Object.values(view.model.perScheme)) {
@@ -266,9 +340,9 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
           else if (token.derive?.fn === 'tone') toned.add(token.derive.palette);
         }
       }
-      reaches.set(view, { picks, toned });
+      reaches.set(view.computation, { picks, toned });
     }
-    return reaches.get(view);
+    return reaches.get(view.computation);
   }
   /** The palettes a layer's system declares, as the build merges them: the base's, replaced or dropped by the layer's own. */
   function palettesOf(layer) {
@@ -348,12 +422,12 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
    * arithmetic in CSS (`calc(var(--tanrei-dial-…) * …)`), which the browser follows by itself — except a text style's,
    * whose tracking the emitter writes as a number, its letter spacing over its size (`letterSpacing` pinned in px, or
    * rounded by the engine). Those are listed, to be valued again; `null` when some other token moves with the dials
-   * and is written as a value (a shadow, a rule the emitter cannot write as CSS). Kept per view and set of dials.
+   * and is written as a value (a shadow, a rule the emitter cannot write as CSS). Kept per computation and set of dials.
    */
   const follows = new WeakMap();
   function followingOf(view, ids) {
-    if (!follows.has(view)) follows.set(view, new Map());
-    const byDials = follows.get(view);
+    if (!follows.has(view.computation)) follows.set(view.computation, new Map());
+    const byDials = follows.get(view.computation);
     const key = [...ids].sort().join(' ');
     if (!byDials.has(key)) {
       const moving = new Set(ids.flatMap((id) => view.followers(id)));
@@ -1032,7 +1106,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     namespace: NS, rootId, defaultId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
-    cssVar, roleVar, blank, fromLayer, preview, liveProperties, base, baseOf,
+    cssVar, roleVar, blank, fromLayer, validate, valueKey, preview, liveProperties, base, baseOf,
     setMeta, setBase, dials, setDial, essentials, setEssential,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,

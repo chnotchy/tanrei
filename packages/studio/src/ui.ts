@@ -413,27 +413,35 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       if (!properties) return update();
       preview.patch(properties);
       window.clearTimeout(resting);
+      window.clearTimeout(wording);
       resting = window.setTimeout(update, REST);
     });
   }
 
   // ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
+  // What is typed into a name, a reason or a description is no value (core.valueKey): the page shows it at once —
+  // the file, the fields, the checks — and the layer is not computed for it. A reason, a rationale or a palette's
+  // description is also written into the model as text (a token's "fixed" reason in Every token): those words catch
+  // up once the typing has rested, as a dragged value does.
+  let wording: number | undefined;
   const COMPUTE = `${NS}-studio: compute`;
   /** The layer, computed (core.preview): each time it is, a measure on the page's timeline that DevTools shows — the last one is kept. */
-  function compute() {
+  function compute(options?: { worded?: boolean }) {
     cancelAnimationFrame(frame);
     frame = 0;
     window.clearTimeout(resting);
+    window.clearTimeout(wording);
     const started = performance.now();
-    const before = latest;
-    latest = studio.preview(layer) as Json;
-    if (latest !== before) {
+    const before = latest.computation;
+    latest = studio.preview(layer, options) as Json;
+    if (latest.computation !== before) {
       performance.clearMeasures(COMPUTE);
       performance.measure(COMPUTE, { start: started });
     }
+    if (!latest.worded) wording = window.setTimeout(() => update({ worded: true }), REST);
   }
-  function update() {
-    compute();
+  function update(options?: { worded?: boolean }) {
+    compute(options);
     if (latest.model) last = latest;
     if (last) preview.apply(last, contrast);
     preview.stale.hidden = Boolean(latest.model);
@@ -512,6 +520,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       window.clearTimeout(timer);
       cancelAnimationFrame(frame);
       window.clearTimeout(resting);
+      window.clearTimeout(wording);
       // Once for each mount, whatever the caller does twice; the last Studio of the document gives the width back.
       if (!live) return;
       live = false;
