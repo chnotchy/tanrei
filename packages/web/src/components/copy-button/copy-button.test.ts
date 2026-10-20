@@ -533,9 +533,9 @@ test.describe('copying', () => {
     const id = 'labelled-fit';
     const duration = await resolveToken(page, `${RESIZE}-duration`, 'duration');
     expect(duration).toBeGreaterThan(0);
-    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-spring-standard-default-spatial-duration', 'duration'));
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-default', 'duration'));
     const easing = await resolveAs(page, 'transition-timing-function', `${RESIZE}-easing`);
-    expect(easing).toBe(await resolveAs(page, 'transition-timing-function', '--tanrei-sys-motion-spring-standard-default-spatial-easing'));
+    expect(easing).toBe(await resolveAs(page, 'transition-timing-function', '--tanrei-sys-motion-easing-spatial'));
     const labels = host(page, id).locator('.labels');
     expect(await css(labels, 'transition-property')).toBe('inline-size');
     expect(Number.parseFloat(await css(labels, 'transition-duration')) * 1000).toBe(duration);

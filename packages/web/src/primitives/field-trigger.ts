@@ -44,6 +44,7 @@ export const TRIGGER_SIZE_MEMBERS = {
   floated: 'label-floated-typescale',
   input: 'input-typescale',
   icon: 'icon-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 const TYPESCALES = new Set(['label-typescale', 'label-floated-typescale', 'input-typescale']);
 
@@ -132,7 +133,7 @@ const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
  * `--_pad-label`, `--_height`, `--_ow`, `--_l`, `--_ra`, the three lines and the label's two text styles).
  */
 export function floatingLabelStyles(): CSSResult {
-  const motion = `var(${P}-motion-state-duration) var(${P}-motion-state-easing)`;
+  const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   return unsafeCSS(`
   .floating,
   .measure {
@@ -152,7 +153,7 @@ export function floatingLabelStyles(): CSSResult {
     transition-property: inset-block-start, inset-inline-start, translate, font-size, line-height, letter-spacing, max-inline-size, color;
     transition-duration:
       var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration),
-      var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-state-duration);
+      var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(--_state-duration);
     transition-timing-function:
       var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing),
       var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-state-easing);
@@ -239,7 +240,7 @@ export function floatingLabelStyles(): CSSResult {
  * Reads `--_ow`, `--_iw`, `--_o`, `--_i`, `--_pad`, `--_end`, `--_float-widest` and the floated text style.
  */
 export function triggerEdgeStyles(): CSSResult {
-  const motion = `var(${P}-motion-state-duration) var(${P}-motion-state-easing)`;
+  const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   return unsafeCSS(`
   .edge {
     position: absolute;

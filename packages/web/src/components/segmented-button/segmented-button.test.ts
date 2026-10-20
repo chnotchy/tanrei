@@ -785,7 +785,7 @@ test.describe('states, press, target, corners and focus style', () => {
     await page.keyboard.up('Enter');
     expect(layer.x).toBeCloseTo(0.5, 5);
     expect(layer.grow).toBe(await resolveToken(page, T('motion-feedback-duration'), 'duration'));
-    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration'), 'duration'));
+    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration-medium'), 'duration'));
     expect(layer.start).toBe(layer.container);
     expect(layer.end).toBe('0px');
     // Reduced motion: the ripple appears whole.
@@ -822,7 +822,7 @@ test.describe('states, press, target, corners and focus style', () => {
   });
 
   test('SEG-23: colors and elevation change over the state motion between states, and at once where motion is reduced', async ({ page }) => {
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const b = btn(page, 'single', 0);
     // The first condition a segment is told is drawn without motion until two frames after it connected (`.still`); a
     // loaded machine can reach this line before those frames, so wait for them rather than read the still transition.
@@ -832,7 +832,7 @@ test.describe('states, press, target, corners and focus style', () => {
     for (const p of ['background-color', 'box-shadow', 'color', 'opacity']) expect(durations[properties.indexOf(p)], p).toBe(duration);
     // (60 s: the pointer starts the motion, and it is held in a later answer — a motion of 800 ms was over where the
     // hover and the question take a slow runner a second; it is ended by hand below.)
-    await override(page, { [T('motion-state-duration')]: '60000ms' });
+    await override(page, { [T('motion-state-duration-medium')]: '60000ms' });
     const hovered = await resolveColor(page, T('unselected-hovered-container-color'));
     await b.hover();
     // Sampled on the transition's own timeline, not the wall clock: the background runs over the overridden state

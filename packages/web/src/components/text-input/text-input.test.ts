@@ -715,7 +715,7 @@ test.describe('behavior', () => {
 
   test('TXI-14: the label moves over motion.label-*, colors and widths over motion.state-*, and both at once where motion is reduced', async ({ page }) => {
     const id = 'outlined-empty';
-    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration'), 'duration')];
+    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration-medium'), 'duration')];
     /**
      * Focuses the input and reads the transitions each part runs, in one task: getAnimations() flushes the style change,
      * so every transition the focus starts is read before any of them can finish — however long a busy machine takes
@@ -1260,7 +1260,7 @@ test.describe('behavior', () => {
       await blurAll(page);
     }
     // It changes over motion.state-*.
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const running = await host(page, 'stacked-empty').evaluate((el) => {
       const root = el.shadowRoot!;
       root.querySelector<HTMLElement>('.input')!.focus();
@@ -1797,7 +1797,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' }), fixture('five', { label: 'Notes', multiline: true, value: '1\n2\n3\n4\n5' }), fixture('b', { label: 'Notes', multiline: true, value: '1\n2' })] });
     const lineOf = await line(page, T('input-typescale-medium'));
     const [duration, easing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await token(page, T('motion-resize-easing'))];
-    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short4', 'duration'));
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-default', 'duration'));
     // A five-line value on the first render shows five lines with no motion.
     expect(await input(page, 'five').evaluate((el) => [el.getAnimations().length, el.hasAttribute('data-resizing')])).toEqual([0, false]);
     expect((await bounds(input(page, 'five'))).height).toBeCloseTo(5 * lineOf, 0);

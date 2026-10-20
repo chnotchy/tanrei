@@ -708,8 +708,8 @@ test.describe('behavior: the trigger', () => {
     // The motion.
     expect(await px(container(page, id), 'transition-duration')).toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, id), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'motion.state-duration', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, id), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'motion.state-duration', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('SEL-21: focus is shown by the focused tokens — the focused edge is the indicator — and never by a ring around the container; where the focus style is glow the container also glows while focused', async ({ page }) => {
