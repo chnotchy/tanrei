@@ -56,6 +56,12 @@
       "description": "Prevents interaction; the option is skipped by the focus order and by the arrow keys."
     },
     {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The person cannot select this option: it can still be focused and read, and the arrow keys still reach it, but a press, Space or an arrow key that lands on it selects nothing. Drawn as an enabled option, without the hover and press answers. A radio group that is read-only makes each of its options so (RAD-28)."
+    },
+    {
       "name": "error",
       "type": "boolean",
       "default": false,
@@ -208,6 +214,11 @@
       "id": "RAD-27",
       "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE radio button SHALL draw each error form exactly as it draws the same condition out of error there — its ring in the platform's own colors, the stroke's weight carrying the selection — and SHALL show no error color, because the person's colors leave none to show: the error is carried by the words of the group's error text and by the group's invalid state (RGP-14, FGR-17).",
       "verify": "On the web, with forced colors emulated: the fixtures error-unselected and error-selected are the same pictures as unselected and selected."
+    },
+    {
+      "id": "RAD-28",
+      "text": "WHILE readOnly is true and disabled is false, or WHILE the radio group it stands in is read-only (RGP-20), THE radio button SHALL stay focusable, keep its place in its group's single tab stop (RAD-5) and be reached by its group's arrow keys (RAD-4); SHALL NOT become selected, and SHALL NOT emit change, on any activation — pointer, touch, Space, Enter where Enter activates it, assistive technology, a click on its label, a click dispatched on the element or an arrow key that moves focus to it — so that an arrow key moves focus to it and selects nothing, and from it moves focus on as RAD-4 says, selecting the option it lands on only where that option is not read-only; and SHALL be drawn from the resting component tokens of its condition — the enabled ones, never the disabled ones — and SHALL show no hovered and no pressed state, under any pressed feedback (no overlay, no ripple, no dim), while keyboard focus still selects the focused state and shows the focus ring (RAD-7, RAD-8). The radio role has no read-only state: the group says it — the radio group (RGP-20), or, where options are grouped without one (RAD-25), the container the product gives them. The product may still set checked. WHILE disabled is true as well, disabled wins (RAD-6).",
+      "verify": "Web unit, among options grouped by name: a read-only option keeps its group's selection after a click on its ring, a click on its label, Space and element.click(), and fires no input and no change; an arrow key moves focus to it and leaves the selection where it was; hovered and pressed it draws its resting tokens, keyboard-focused its focused ones."
     }
   ],
   "accessibility": {
@@ -219,15 +230,15 @@
       },
       {
         "keys": "Space",
-        "action": "Selects the focused option if it is not selected."
+        "action": "Selects the focused option if it is not selected; nothing while it is read-only."
       },
       {
         "keys": "Down Arrow / Right Arrow",
-        "action": "Moves to the next enabled option and selects it, wrapping (Left Arrow in right-to-left)."
+        "action": "Moves to the next enabled option and selects it, wrapping (Left Arrow in right-to-left); an option that is read-only is focused and not selected."
       },
       {
         "keys": "Up Arrow / Left Arrow",
-        "action": "Moves to the previous enabled option and selects it, wrapping (Right Arrow in right-to-left)."
+        "action": "Moves to the previous enabled option and selects it, wrapping (Right Arrow in right-to-left); an option that is read-only is focused and not selected."
       },
       {
         "keys": "Enter",
@@ -240,7 +251,8 @@
       "Scope: this spec covers the option, and what holds among the options of any group however it is formed (RAD-3, RAD-4, RAD-5, RAD-16). The radio group component (`radio-group`) is the group in the usual case: it holds the value, names the set and draws its label, its description and its error. Grouping without it (RAD-25) is for options that one container cannot lay out — one in each row of a table or a list, one on each card — and draws nothing, so it has no tokens.",
       "iOS has no radio role: an option is exposed as a button with the selected trait, and its position (\"2 of 3\") through its accessibility value.",
       "The ring alone carries the selected condition at 3:1 against the surface (WCAG 1.4.11): the selected ring is sys.color.primary, which the build holds to 4.5:1 on every surface role, and its stroke is 2.5 times the unselected one, so the selection does not rest on color alone (WCAG 1.4.1). The translucent fill is not counted for that, but it is a part of the mark, and WCAG 1.4.11 measures a part against the colors next to it: where the fill meets the ring (fill.inset 0) it is held 3:1 against the ring, and where an inset leaves a gap (a dot) it is held 3:1 against the gap, which shows what the radio stands on. The build holds it as drawn — the fill at comp.radio-button.fill.opacity and the ring, each over the state layer of the state — at rest, hovered, focused and pressed (a disabled option is exempt, as WCAG exempts an inactive control), on every surface role, in every scheme; in the default system the fill is the ring's color at 16 %, 3.17:1 from the ring at the least (the focused error form on surface-container-highest in light). In an error form the ring is sys.color.error, which the build holds to 4.5:1 on every surface role as it holds the primary role, so both error forms keep 3:1 (WCAG 1.4.11) and the selection is still told by the stroke.",
-      "A group in error is said by the radio group — its error text and its invalid state (RGP-8) — and shown on every option of it: the ring, and the fill of the selected one, take the error color (RAD-26), as a checkbox's box does (CHK-4). The color is one more sign and never the only one (WCAG 1.4.1): the words and the state carry the error, and the option exposes no invalid state of its own, because the radio role has none. The option has an error condition so that one form marks its checkboxes and its radio buttons by one rule."
+      "A group in error is said by the radio group — its error text and its invalid state (RGP-8) — and shown on every option of it: the ring, and the fill of the selected one, take the error color (RAD-26), as a checkbox's box does (CHK-4). The color is one more sign and never the only one (WCAG 1.4.1): the words and the state carry the error, and the option exposes no invalid state of its own, because the radio role has none. The option has an error condition so that one form marks its checkboxes and its radio buttons by one rule.",
+      "Read-only (RAD-28) is said by the group, never by the option: WAI-ARIA has aria-readonly on radiogroup and not on radio. A radio group that is read-only says it (RGP-20); options grouped by name alone are read-only as a set when each is, and the product says it on the container it gives them (on the web, aria-readonly on the element with role radiogroup). HTML's readonly attribute does not apply to a radio button, so the option cancels its activation itself."
     ]
   },
   "tokens": "comp.radio-button",
@@ -309,6 +321,16 @@
         "label": "Weekly",
         "labelHidden": true
       }
+    },
+    {
+      "id": "read-only-selected",
+      "props": {
+        "readOnly": true,
+        "checked": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
     }
   ],
   "platforms": {
@@ -320,6 +342,7 @@
         "value": "value",
         "name": "name",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "error": "error"
@@ -327,7 +350,7 @@
       "events": {
         "change": "change"
       },
-      "notes": "Form-associated, with the native radio's idiom: a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27)."
+      "notes": "Form-associated, with the native radio's idiom: a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27). `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a radio button, so the option cancels the activation itself and writes no ARIA state, the radio role having none). In a `tanrei-radio-group` it is also read-only while the group is, without its own `readOnly` changing."
     },
     "swiftui": {
       "status": "lagging",
@@ -337,6 +360,7 @@
         "value": "value",
         "name": "TanreiRadioGroup",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "title",
         "labelHidden": "labelsHidden",
         "error": "isError"
@@ -354,6 +378,7 @@
         "value": "onClick",
         "name": "selectableGroup",
         "disabled": "enabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "error": "isError"
@@ -371,6 +396,7 @@
         "value": "value",
         "name": "TanreiRadioGroup",
         "disabled": "enabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "error": "isError"
@@ -388,6 +414,7 @@
         "value": "value",
         "name": "RadioGroup",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "error": "error"
