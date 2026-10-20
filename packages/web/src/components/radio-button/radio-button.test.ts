@@ -1325,9 +1325,16 @@ test.describe('one shape', () => {
         const el = host(page, 'selected');
         await endMotion(el);
         for (const checked of [false, true]) {
+          // The change, and the motion it begins held at its start in the same task: asking for the animations brings
+          // the style up to date, which begins them. A motion left to run until the next round trip may be over by
+          // then on a slow runner, and the frames below would all be its end.
           await el.evaluate(async (node: any, value: boolean) => {
             node.checked = value;
             await node.updateComplete;
+            for (const animation of (node as Element).shadowRoot!.getAnimations()) {
+              animation.pause();
+              animation.currentTime = 0;
+            }
           }, checked);
           const strokes: number[] = [];
           for (const share of [0.2, 0.5, 0.8]) {
