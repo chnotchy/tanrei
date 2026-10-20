@@ -35907,6 +35907,230 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/scroll-area/scroll-area.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "EDGES",
+          "type": {
+            "text": "['top', 'bottom', 'start', 'end']"
+          },
+          "default": "['top', 'bottom', 'start', 'end']",
+          "description": "The edges a scroll area can watch (SCA-2); start and end follow the layout direction (SCA-13)."
+        },
+        {
+          "kind": "variable",
+          "name": "FORMS",
+          "type": {
+            "text": "['shadow', 'fade', 'line', 'blur']"
+          },
+          "default": "['shadow', 'fade', 'line', 'blur']",
+          "description": "`sys.behavior.scroll-edge`, in the order of its token: the first is what an unknown name draws (SCA-7, SCA-9)."
+        },
+        {
+          "kind": "variable",
+          "name": "SCROLL_EDGES",
+          "type": {
+            "text": "['auto', ...FORMS, 'none']"
+          },
+          "default": "['auto', ...FORMS, 'none']",
+          "description": "The `scrollEdge` prop: `auto` takes the component token; `none` is the instance's only."
+        },
+        {
+          "kind": "variable",
+          "name": "CHOICE",
+          "type": {
+            "text": "string"
+          },
+          "default": "'--_scroll-edge'",
+          "description": "The private property the attribute and the component token meet in (as `--_separation` does for separation)."
+        },
+        {
+          "kind": "variable",
+          "name": "LAYERS",
+          "default": "`${PREFIX}-blur-layers`",
+          "description": "The blur's layer count, read by the script to render that many layers (SCA-6)."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ directionProbeStyles, css` /* SCA-1: as large as its layout gives it. A flex column, so that a height, a max-height or a share of a flex or grid track given to the host is the box's; overflow: hidden makes its least size in a flex or grid track 0, as a native scroll box's is, so that it shrinks and scrolls rather than growing with its content. Nothing is drawn outside the box. */ :host { display: flex; flex-direction: column; overflow: hidden; ${unsafeCSS(CHOICE)}: ${unsafeCSS(T('scroll-edge'))}; --_dur: ${unsafeCSS(T('motion-duration'))}; --_ease: ${unsafeCSS(T('motion-easing'))}; } ${unsafeCSS(SCROLL_EDGES.filter((value) => value !== 'auto').map((value) => `:host([scroll-edge='${value}']) {\\n ${CHOICE}: ${value};\\n }`).join('\\n '))} .frame { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-block-size: 0; /* SCA-2: each edge 0 or 1 — content beyond it (named and drawn) or not; the fade moves its mask by them. */ --_top: 0; --_bottom: 0; --_start: 0; --_end: 0; --_depth: ${unsafeCSS(T('shadow-extent'))}; } ${unsafeCSS(EDGES.map((edge) => `.frame[data-${edge}] {\\n --_${edge}: 1;\\n }`).join('\\n '))} /* SCA-1: the platform's own scrolling — wheel, trackpad, touch, scroll bars, keyboard while it has focus — in each direction the content does not fit. No fill, edge or corner. */ .scroll { flex: 1 1 auto; min-block-size: 0; display: flex; align-items: flex-start; overflow: auto; outline: none; /* SCA-4: the fade's mask, laid out in every form so that a change of form moves nothing (SCA-7): one gradient per edge, each a band fade.extent deep beyond the box's edge until content lies beyond that edge, when it is moved in. Only the fade form draws the image. */ --_e: ${unsafeCSS(T('fade-extent'))}; --_left: var(--_start); --_right: var(--_end); mask-repeat: no-repeat; mask-size: 100% calc(100% + var(--_e)), 100% calc(100% + var(--_e)), calc(100% + var(--_e)) 100%, calc(100% + var(--_e)) 100%; mask-position: 0 calc((var(--_top) - 1) * var(--_e)), 0 calc(var(--_bottom) * -1 * var(--_e)), calc((var(--_left) - 1) * var(--_e)) 0, calc(var(--_right) * -1 * var(--_e)) 0; mask-composite: intersect; } :host(:dir(rtl)) .scroll { --_left: var(--_end); --_right: var(--_start); } /* SCA-1: laid out at the box's width — a paragraph wraps there — and wider only where a row cannot wrap (its least width), which the box then scrolls sideways. */ .content { position: relative; flex: 1 1 auto; } /* SCA-8: a mark at each end of the content; one IntersectionObserver on the box says when one leaves or enters it. */ .sentinel { position: absolute; pointer-events: none; } .sentinel.top, .sentinel.bottom { inset-inline: 0; block-size: 1px; } .sentinel.top { inset-block-start: 0; } .sentinel.bottom { inset-block-end: 0; } .sentinel.start, .sentinel.end { inset-block: 0; inline-size: 1px; } .sentinel.start { inset-inline-start: 0; } .sentinel.end { inset-inline-end: 0; } /* SCA-2, SCA-12: an edge's mark over the content, along the whole edge inside the box and its scroll bars (whose sizes the script writes as --_bar-*), hidden from assistive technology and taking no input. SCA-13: start is the left in left-to-right and the right in right-to-left; each form is drawn the same toward its own edge. */ .edge { position: absolute; pointer-events: none; } .edge.top, .edge.bottom { left: var(--_bar-left, 0); right: var(--_bar-right, 0); height: var(--_depth); } .edge.top { top: 0; --_in: to bottom; } .edge.bottom { bottom: var(--_bar-bottom, 0); --_in: to top; } .edge.start, .edge.end { top: 0; bottom: var(--_bar-bottom, 0); width: var(--_depth); } .edge.start { left: var(--_bar-left, 0); --_in: to right; } .edge.end { right: var(--_bar-right, 0); --_in: to left; } :host(:dir(rtl)) .edge.start { left: auto; right: var(--_bar-right, 0); --_in: to left; } :host(:dir(rtl)) .edge.end { right: auto; left: var(--_bar-left, 0); --_in: to right; } /* SCA-3, shadow (the plain rules: the first form, and what an unknown name draws): a band shadow.extent deep in shadow.color — the surface the area stands on — full at the edge, none at its inner end. No line. SCA-8: faded in and out by its opacity over motion.duration with motion.easing. */ .band { position: absolute; inset: 0; opacity: 0; background: linear-gradient(var(--_in), ${unsafeCSS(T('shadow-color'))}, transparent); transition: opacity var(--_dur) var(--_ease); } ${unsafeCSS(beyond('.band'))} { opacity: 1; } /* SCA-6: the blur's layers, drawn only by the blur form. Each blurs what lies behind it by blur.radius × i / n and is masked to its step of the band — full at its own depth, none a step either side — so that the radius falls from blur.radius at the edge to none at the inner end with no step seen. Each layer fades by its own opacity: an opacity on a box around them would make that box their backdrop's root, and they would blur nothing while it fades. */ .layer { display: none; position: absolute; inset: 0; opacity: 0; --_step: calc(var(--_depth) / var(--_n)); --_at: calc((var(--_n) - var(--_i)) * var(--_step)); backdrop-filter: blur(calc(${unsafeCSS(T('blur-radius'))} * var(--_i) / var(--_n))); mask-image: linear-gradient(var(--_in), transparent calc(var(--_at) - var(--_step)), black var(--_at), transparent calc(var(--_at) + var(--_step))); transition: opacity var(--_dur) var(--_ease); } ${unsafeCSS(beyond('.layer'))} { opacity: 1; } /* SCA-11: the focus indicator inside the box's edge, over every mark and never faded by one (the fade masks the box, not this), without animation, for keyboard focus only. The area has no corner of its own. */ .ring { position: absolute; inset: 0; pointer-events: none; --tanrei-corner-radius: var(--tanrei-sys-shape-corner-none); --tanrei-corner-pill: 0; } /* SCA-8: the marks change at once where motion is reduced. */ @media (prefers-reduced-motion: reduce) { :host { --_dur: 0s; } } `, focusRing((focus) => `.scroll${focus} ~ .ring`, { inside: true }), // SCA-5, line: a line line.width thick in line.color along the edge, inside the box. when('line', (frame) => `${frame} { --_depth: ${T('line-width')}; } ${frame} .band { background: ${T('line-color')}; }`), // SCA-4, fade: the content itself fades toward the edge, none of it at the edge and all of it fade.extent in; no // color, no line — the scroll bar fades with it. The mask moves (mask-position) over the motion of SCA-8. when('fade', (frame) => `${frame} .edge { display: none; } ${frame} .scroll { mask-image: linear-gradient(to bottom, transparent, black var(--_e)), linear-gradient(to top, transparent, black var(--_e)), linear-gradient(to right, transparent, black var(--_e)), linear-gradient(to left, transparent, black var(--_e)); transition: mask-position var(--_dur) var(--_ease); }`), // SCA-6, blur: blur.layers layers in a band blur.extent deep, no line and no tint. SCA-9: a browser without backdrop // filters draws the shadow (the plain rules) in its place. unsafeCSS(`@supports (backdrop-filter: blur(1px)) { ${when('blur', (frame) => `${frame} { --_depth: ${T('blur-extent')}; } ${frame} .band { display: none; } ${frame} .layer { display: block; }`).cssText} }`), // SCA-2: none draws nothing at any edge. when('none', (frame) => `${frame} .edge { display: none; }`), css` /* SCA-9: with a person's own forced colors every form is the line of SCA-5, in the text color. */ @media (forced-colors: active) { :host .frame { --_depth: var(--tanrei-comp-scroll-area-line-width); } :host .frame .scroll { mask-image: none; } :host .frame .edge { display: block; } :host .frame .band { display: block; background: CanvasText; forced-color-adjust: none; } :host .frame .layer { display: none; } } `, unsafeCSS(`@media (forced-colors: active) { ${when('none', (frame) => `:host ${frame} .edge { display: none; }`).cssText} }`), hiddenHost, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EDGES",
+          "declaration": {
+            "name": "EDGES",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FORMS",
+          "declaration": {
+            "name": "FORMS",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SCROLL_EDGES",
+          "declaration": {
+            "name": "SCROLL_EDGES",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CHOICE",
+          "declaration": {
+            "name": "CHOICE",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "LAYERS",
+          "declaration": {
+            "name": "LAYERS",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/scroll-area/scroll-area.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/scroll-area/scroll-area.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A box that scrolls the product's content with the platform's own scrolling and shows, at each edge it watches, that\nmore lies beyond it — a band in the surface's color, a fade of the content, a line or a blur, as the design system\nor the instance chooses — without changing its size or moving the content.\n\nContract: specs/scroll-area.spec.json. The host is as large as its layout gives it (a height, a max-height, a share\nof a flex or grid track); the content is laid out at its width and scrolls in each direction it does not fit. The\narea lays out and styles nothing inside it, draws no fill, edge or corner of its own, and keeps the browser's scroll\nbars.\n\n`scroll-edge` chooses the mark: `shadow` (a band `comp.scroll-area.shadow.extent` deep in\n`--tanrei-comp-scroll-area-shadow-color`), `fade` (the content fades toward the edge: for a transparent surface, a\npicture or a video behind), `line`, `blur` (a browser without backdrop filters draws shadow) or `none`; `auto`, the\ndefault, takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge`. The shadow's color is the\nsurface the area stands on, `sys.color.surface` by default: on another surface (a card, a sheet, a container color)\nset `--tanrei-comp-scroll-area-shadow-color` on the element or an ancestor to that surface's color.\n\nWhether content lies beyond an edge is told by one IntersectionObserver on four sentinels at the ends of the content\n(and, when a size changes, by the scroll's own extents): no scroll listener, no layout read while scrolling — only\n`scrollend`, once a sideways scroll has ended, keeps the distance from the start edge for a flip of direction. While\nthe content scrolls and nothing inside it takes focus, the box is one stop in the focus order, a region named by\n`label`, so that a keyboard can scroll it.",
+          "name": "TanreiScrollArea",
+          "cssProperties": [
+            {
+              "description": "The shadow band's color: the surface the area stands on.",
+              "name": "--tanrei-comp-scroll-area-shadow-color"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The scroll box: its scroll bars are the browser's own.",
+              "name": "container"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content the area scrolls.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "scrollEdge",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiScrollAreaScrollEdge"
+              },
+              "default": "'auto'",
+              "description": "How an edge shows that content lies beyond it: `shadow`, `fade`, `line`, `blur` or `none`; `auto` (the default)\ntakes `comp.scroll-area.scroll-edge`. Anything else is `auto`, reported in debug builds (SCA-15). Reflected.",
+              "attribute": "scroll-edge",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "edges",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiScrollAreaEdge[]"
+              },
+              "default": "['top', 'bottom']",
+              "description": "Which edges show the scroll edge: any of `top`, `bottom`, `start`, `end` (start is the left in left-to-right, the\nright in right-to-left). The attribute is space-separated. Any other name is ignored, reported in debug builds.",
+              "attribute": "edges"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the box while it is a focus stop of its own (SCA-10): what it holds (\"Messages\"). Never drawn.",
+              "attribute": "label"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "scroll-edge",
+              "type": {
+                "text": "TanreiScrollAreaScrollEdge"
+              },
+              "default": "'auto'",
+              "description": "How an edge shows that content lies beyond it: `shadow`, `fade`, `line`, `blur` or `none`; `auto` (the default)\ntakes `comp.scroll-area.scroll-edge`. Anything else is `auto`, reported in debug builds (SCA-15). Reflected.",
+              "fieldName": "scrollEdge"
+            },
+            {
+              "name": "edges",
+              "type": {
+                "text": "TanreiScrollAreaEdge[]"
+              },
+              "default": "['top', 'bottom']",
+              "description": "Which edges show the scroll edge: any of `top`, `bottom`, `start`, `end` (start is the left in left-to-right, the\nright in right-to-left). The attribute is space-separated. Any other name is ignored, reported in debug builds.",
+              "fieldName": "edges"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of the box while it is a focus stop of its own (SCA-10): what it holds (\"Messages\"). Never drawn.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-scroll-area",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiScrollArea",
+          "declaration": {
+            "name": "TanreiScrollArea",
+            "module": "src/components/scroll-area/scroll-area.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-scroll-area",
+          "declaration": {
+            "name": "TanreiScrollArea",
+            "module": "src/components/scroll-area/scroll-area.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/search/search.styles.ts",
       "declarations": [
         {

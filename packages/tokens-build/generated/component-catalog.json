@@ -1716,7 +1716,14 @@
       "title": "Scroll area",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-scroll-area",
+        "module": "@tanrei/web/components/scroll-area"
+      },
+      "react": {
+        "name": "ScrollArea"
+      }
     }
   ]
 }

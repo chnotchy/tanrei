@@ -172,6 +172,7 @@ A choice of kind reaches CSS as its **name**, never as the index the token file 
 --tanrei-sys-behavior-pressed-feedback: overlay | ripple | dim | none;
 --tanrei-sys-behavior-focus-style:      ring | glow;
 --tanrei-sys-behavior-separation:       divider | gap;
+--tanrei-sys-behavior-scroll-edge:      shadow | fade | line | blur;
 ```
 
 They are ordinary inherited custom properties, declared wherever the active system is declared, so they cross shadow
@@ -1384,6 +1385,77 @@ ring or glow (never clipped: the clip is a box inside the container), corner smo
 the outline and the ring concentric with it, and the state motion of the colors, the elevation and the opacity, from
 the same primitives and the `comp.card.*` tokens. Parts: `container`, `content`, `outline`. Forced colors: a system-color
 edge on every variant.
+
+## `<tanrei-scroll-area>`
+
+A box that scrolls the product's content and marks, at each edge it watches, that more lies beyond it
+(`specs/scroll-area.spec.json`, SCA-1…17).
+
+```html
+<tanrei-scroll-area label="Messages" style="block-size: 320px">…</tanrei-scroll-area>
+<tanrei-scroll-area scroll-edge="fade" label="Results">…</tanrei-scroll-area>
+<tanrei-scroll-area edges="start end" label="Photos">…</tanrei-scroll-area>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `scrollEdge` / `scroll-edge` | `auto` \| `shadow` \| `fade` \| `line` \| `blur` \| `none` | `auto` | how an edge with content beyond it is marked; `auto` takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge` (shadow in the default system, line in m3-like and m3-expressive-like, blur in cupertino). Anything else is `auto`, reported (SCA-15); reflected |
+| `edges` | `('top' \| 'bottom' \| 'start' \| 'end')[]` | `['top', 'bottom']` | the edges watched; the attribute is space-separated. `start` is the left in left-to-right and the right in right-to-left. An unknown name is ignored, reported |
+| `label` | string | `""` | the name of the box while it is a focus stop of its own (SCA-10); never drawn |
+
+**Size.** The host is a flex column with `overflow: hidden`: a height, a max-height or a share of a flex or grid track
+given to it is the scroll box's, and its least size in a track is 0, as a native scroll box's is, so it shrinks and
+scrolls rather than growing with its content (SCA-1). The content is laid out at the box's width; a row that cannot wrap
+widens it, and the box scrolls sideways. The scroll bars are the browser's own; the part `container` is the scroll box.
+
+**Whether content lies beyond an edge** (SCA-8) is told by one `IntersectionObserver` whose root is the scroll box, on
+four 1-pixel sentinels at the ends of the content: an edge has content beyond it while its sentinel is out of the box.
+There is no `scroll` listener and nothing is measured while scrolling; the state is written as `data-top`,
+`data-bottom`, `data-start`, `data-end` on the shadow root's frame, only when it changes, and only for the edges named.
+When a size changes (a `ResizeObserver` on the box and the content — never in a frame of a scroll) the same state is read
+from the scroll's own extents, so that the first frame, and a frame after content was added, draws its edges at once;
+the sizes of the box's scroll bars are read there too, and the marks stay inside them. Scrolled from end to end, the
+area's script runs twice: once when the top edge turns on, once when the bottom one turns off. Not CSS scroll-driven
+animations: they are missing in Firefox, they tie a mark to the distance scrolled rather than fading it over the state
+motion, and one fade mask over two edges cannot follow two timelines.
+
+**The forms**, every value a `--tanrei-comp-scroll-area-*` token:
+
+| Form | On the web |
+|---|---|
+| `shadow` | a band per edge, `shadow.extent` deep: `linear-gradient(<inward>, var(--tanrei-comp-scroll-area-shadow-color), transparent)`. The color is the surface the area stands on (`sys.color.surface` by default): **on another surface — a card, a sheet, a container color — set `--tanrei-comp-scroll-area-shadow-color` on the element or an ancestor to that surface's color** |
+| `fade` | a `mask-image` on the scroll box: one gradient per edge, `fade.extent` deep, laid outside the box and moved in by `mask-position` while content lies beyond its edge; the four are intersected (`mask-composite`). No color: whatever is behind the area shows through, and the browser's scroll bar fades with the content at a faded edge |
+| `line` | the band as a fill, `line.width` thick in `line.color` |
+| `blur` | `blur.layers` layers in a band `blur.extent` deep, layer *i* of *n* with `backdrop-filter: blur(radius × i / n)` and a `mask-image` gradient full at its own depth and none a step either side, so the radius falls from `blur.radius` at the edge to none at the inner end. The layer count is read from the token when the area renders (at most 16). Each layer fades by its own opacity: an opacity on a box around them would make that box their backdrop's root, and they would blur nothing while it fades |
+| `none` | nothing |
+
+**Motion.** An edge's mark fades in and out over `motion.duration` with `motion.easing` — an `opacity` transition on the
+band (one transition per edge that changes), on each blur layer, or a `mask-position` transition for the fade; no
+registered custom property (the edge state is unregistered 0/1 properties consumed in `calc()`). Under
+`prefers-reduced-motion: reduce` it changes at once. A change of form (the attribute, the token or the system) is drawn at
+once, keeping the scroll position and focus.
+
+**Fallbacks** (SCA-9). `@supports not (backdrop-filter: blur(1px))` draws the shadow in place of a blur. With a
+person's forced colors every form but `none` is the line, `line.width` thick in `CanvasText`. A browser without style
+container queries reads the form from the cascade when the area renders and writes it as `data-scroll-edge` (again when
+the document's root switches the system), as Separation does. Playwright's WebKit and Firefox screenshots do not draw
+`backdrop-filter`; the blur is drawn by both browsers themselves.
+
+**Focus** (SCA-10, SCA-11). While the content does not fit and nothing inside takes focus, the scroll box is one stop in
+the focus order with `role="region"` and `aria-label` from `label` (no label: still a stop, reported); otherwise it has
+neither. What is inside is read when the fit changes, when the slotted content changes and when focus arrives inside — a
+focusable element added deep in the content without any of these is seen at the next. The focus indicator is the system's
+(`focusRing(…, { inside: true })`) on a box over the scroll box and every mark, never masked by the fade and never
+animated, for keyboard focus only. The keys that scroll a focused box are the browser's: Page Up, Page Down, Home, End,
+Space everywhere, and the arrow keys where the browser gives them to a focused box (WebKit gives them to the page).
+
+**Direction** (SCA-13, SCA-14). The direction is the one the host inherits. Every browser puts a scroll box back at its
+start when the direction around it flips, so the distance from the start edge — kept from the scroll's own offset when a
+sideways scroll ends (`scrollend`, never in a frame of the scroll) — is given back by a `DirectionController`, which also
+finishes the transitions the flip started (the fade's mask is placed by physical sides), before the frame is painted.
+
+**Semantics.** The marks are `aria-hidden` and `pointer-events: none`: presses, hovers and the wheel reach the content
+under them. The area has no words of its own (SCA-17).
 
 ## `<tanrei-carousel>` and `<tanrei-carousel-item>`
 

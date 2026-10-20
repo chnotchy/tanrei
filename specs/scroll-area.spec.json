@@ -88,7 +88,7 @@
     {
       "id": "SCA-8",
       "text": "WHEN content starts or stops lying beyond an edge THE scroll area SHALL fade that edge's scroll edge in or out over comp.scroll-area.motion.duration with comp.scroll-area.motion.easing, and at once where motion is reduced; it SHALL NOT change its size, move the content, or change anything else it draws because of the scroll edge. It SHALL learn whether content lies beyond an edge from what the platform already knows of the scroll — its notice that a mark at that end of the content has entered or left the box, or the scroll's own extents — and SHALL NOT measure the content's layout in a frame of a scroll.",
-      "verify": "Count the work, not the time: while a long list is scrolled from end to end, the area's script runs only when an edge changes (two notices for one edge that turns on and off), reads no layout, and starts one transition for each edge that changes."
+      "verify": "Count the work, not the time: while a long list is scrolled from end to end, the area's script runs only when an edge changes (two notices for one edge that turns on and off), reads no layout, listens to no scroll, and starts one transition for each drawn layer of an edge that changes (one for a shadow or a line, blur.layers for a blur). Reading where a sideways scroll stands once a scroll has ended, to keep it across a change of direction (SCA-14), is not a read in a frame of a scroll."
     },
     {
       "id": "SCA-9",
@@ -100,7 +100,7 @@
     },
     {
       "id": "SCA-11",
-      "text": "WHILE the box has keyboard focus THE scroll area SHALL show it as sys.behavior.focus-style names (ring or glow), inside its edge by sys.focus.offset so that nothing around the box covers it, over every scroll edge and never faded by one, without animation, and never for focus gained by pointer or touch; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+      "text": "WHILE the box has keyboard focus THE scroll area SHALL show it as sys.behavior.focus-style names (ring or glow), drawn wholly inside its edge so that nothing around the box covers it, over every scroll edge and never faded by one, without animation, and never for focus gained by pointer or touch; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
     },
     {
       "id": "SCA-12",
@@ -144,17 +144,17 @@
   },
   "tokens": "comp.scroll-area",
   "fixtures": [
-    { "id": "default", "props": {}, "slots": { "default": "Long content" } },
-    { "id": "fade", "props": { "scrollEdge": "fade" }, "slots": { "default": "Long content" } },
-    { "id": "line", "props": { "scrollEdge": "line" }, "slots": { "default": "Long content" } },
-    { "id": "blur", "props": { "scrollEdge": "blur" }, "slots": { "default": "Long content" } },
-    { "id": "none", "props": { "scrollEdge": "none" }, "slots": { "default": "Long content" } },
-    { "id": "sideways", "props": { "edges": ["start", "end"], "label": "Photos" }, "slots": { "default": "A wide row" } },
-    { "id": "rtl-sideways", "direction": "rtl", "props": { "edges": ["start", "end"], "label": "Photos" }, "slots": { "default": "A wide row" } }
+    {"id": "default", "props": {"label": "Messages"}, "slots": {"default": "Long content"}},
+    {"id": "fade", "props": {"scrollEdge": "fade", "label": "Messages"}, "slots": {"default": "Long content"}},
+    {"id": "line", "props": {"scrollEdge": "line", "label": "Messages"}, "slots": {"default": "Long content"}},
+    {"id": "blur", "props": {"scrollEdge": "blur", "label": "Messages"}, "slots": {"default": "Long content"}},
+    {"id": "none", "props": {"scrollEdge": "none", "label": "Messages"}, "slots": {"default": "Long content"}},
+    {"id": "sideways", "props": {"edges": ["start", "end"], "label": "Photos"}, "slots": {"default": "A wide row"}},
+    {"id": "rtl-sideways", "direction": "rtl", "props": {"edges": ["start", "end"], "label": "Photos"}, "slots": {"default": "A wide row"}}
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-scroll-area",
       "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
       "notes": "`<tanrei-scroll-area scroll-edge edges=\"top bottom\" label>`; `edges` is a space-separated attribute and an array property. Whether content lies beyond an edge is read from one `IntersectionObserver` on four thin sentinels at the ends of the content (SCA-8): no scroll listener, no layout read while scrolling. Not CSS scroll-driven animations: they are not in every engine, and they tie the mark to the distance scrolled rather than fading it over the state motion. shadow is a gradient band per edge in `--tanrei-comp-scroll-area-shadow-color`; set that custom property on the element, or on an ancestor, to the surface it stands on. fade is a `mask-image` on the scroll box, one gradient per axis, moved by `mask-position` and `mask-size` (no registered custom property), so the browser's scroll bar fades with the content at a faded edge. blur is `blur.layers` layers inside each band, each with `backdrop-filter: blur(r × i / n)` and a `mask-image` gradient; `@supports not (backdrop-filter: blur(1px))` draws shadow (SCA-9). Every mark is `pointer-events: none` and `aria-hidden`. A fixture fills the slot with enough lines (or a row wide enough) to scroll, in a box of a fixed size, scrolled to the middle."

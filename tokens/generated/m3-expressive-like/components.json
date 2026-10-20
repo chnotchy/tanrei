@@ -1201,7 +1201,16 @@
       "title": "Scroll area",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-scroll-area",
+        "import": "@tanrei/web/m3-expressive-like",
+        "module": "@tanrei/web/components/scroll-area"
+      },
+      "react": {
+        "name": "ScrollArea",
+        "import": "@tanrei/react/m3-expressive-like"
+      }
     },
     {
       "name": "search",
