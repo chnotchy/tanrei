@@ -5,28 +5,34 @@ description: The accessibility requirements Tanrei builds into tokens and compon
 
 import Callout from '../../../components/Callout.astro';
 import DimensionScale from '../../../components/tokens/DimensionScale.astro';
+import { contrast } from '../../../lib/contrast';
 
 Accessibility in Tanrei is a set of constraints on the system itself. The token build refuses to produce a scheme that fails contrast, and a component spec is not valid without its role, keyboard table and target guarantee.
 
 ## Contrast
 
-| Content | Minimum contrast |
-| --- | --- |
-| Text and icons that convey meaning | 4.5:1 |
-| Large text (about 24px regular, or 19px bold, and up) | 3:1 |
-| Boundaries and graphics needed to identify or operate a control | 3:1 |
-| The focus ring against adjacent surfaces | 3:1 |
+The token build measures every scheme, light and dark at standard, medium and high contrast, against these thresholds, and fails when a pair falls short:
 
-Disabled elements and pure decoration, including `outline-variant` hairlines, are exempt. That exemption is why a border which is the only sign of a control must use `outline`, not `outline-variant`.
+| Content | Standard and medium contrast | High contrast |
+| --- | --- | --- |
+| Text, and icons drawn in a content color | {contrast.text} | {contrast.highContrastText} |
+| A status's mark on its own tonal container | {contrast.nonText} | {contrast.nonText} |
+| Boundaries and graphics needed to identify or operate a control | {contrast.nonText} | {contrast.nonText} |
+| The focus ring against adjacent surfaces | {contrast.nonText} | {contrast.nonText} |
+
+Large text has no lower threshold. WCAG accepts less contrast for text of about 24px regular, or 19px bold, and up, but the build holds every text role at {contrast.text}, and at {contrast.highContrastText} at high contrast: a color role does not know the size it will be set in.
+
+Disabled elements and pure decoration are exempt, and so is the `outline-variant` hairline at standard contrast. That exemption is why a border which is the only sign of a control must use `outline`, not `outline-variant`.
 
 ### Enforced invariants
 
 These hold for every theme at every contrast level, six permutations in all, and the build fails otherwise:
 
-- each `(X, on-X)` role pair is at least 4.5:1;
-- `outline` is at least 3:1 against every surface role;
-- in the default system at medium and high contrast, `outline-variant` is at least 3:1 and 4.5:1 against every surface role, and `outline` stays stronger;
-- `focus-ring` is at least 3:1 against surfaces.
+- each `(X, on-X)` role pair, and each text role (`on-surface`, `on-surface-variant`, `link`, an intent's color) on every surface role, is at least {contrast.text}, and at least {contrast.highContrastText} in the two high-contrast schemes;
+- each status color is at least {contrast.nonText} against its own tonal container;
+- `outline` is at least {contrast.nonText} against every surface role;
+- in the default system at medium and high contrast, `outline-variant` is at least {contrast.hairlineMedium} and {contrast.hairlineHigh} against every surface role, and `outline` stays stronger;
+- `focus-ring` is at least {contrast.nonText} against surfaces.
 
 Project rules forbid loosening a threshold to make a check pass.
 

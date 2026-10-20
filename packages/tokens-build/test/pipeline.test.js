@@ -7,7 +7,7 @@ import { emitDart } from '../src/emit/dart.js';
 import { emitKotlin } from '../src/emit/kotlin.js';
 import { emitSwift } from '../src/emit/swift.js';
 import { emitTs } from '../src/emit/ts.js';
-import { checkInvariants, contrast } from '../src/invariants.js';
+import { CONTRAST_THRESHOLDS, checkInvariants, contrast } from '../src/invariants.js';
 import { buildIR } from '../src/ir.js';
 import { REPO_ROOT, TOKENS_DIR, buildModel } from '../src/model.js';
 import { SCHEMES, generateSchemeFiles, loadDefaultSystem } from '../src/scheme.js';
@@ -342,6 +342,35 @@ test('high contrast is strictly stronger than standard for body text', () => {
     const at = (s) => contrast(model.colors[s]['on-surface-variant'].value, model.colors[s].surface.value);
     assert.ok(at(`${mode}-high`) > at(`${mode}-medium`) && at(`${mode}-medium`) > at(mode), mode);
   }
+});
+
+test('the exported thresholds are the ones the checks hold, scheme by scheme (the docs state them from there)', () => {
+  // Each pair is drawn in its ground's own color, so it fails in every scheme, and its message names what it was held to.
+  const broken = breakable(model);
+  for (const scheme of model.schemes) {
+    const roles = broken.colors[scheme];
+    for (const [fg, bg] of [['on-surface', 'surface'], ['outline', 'surface'], ['focus-ring', 'surface'], ['outline-variant', 'surface']]) {
+      roles[fg] = { ...roles[fg], value: roles[bg].value };
+    }
+  }
+  const failures = checkInvariants(broken);
+  const heldTo = (scheme, pair, why) => {
+    const found = failures.find((f) => f.startsWith(`[${scheme}] ${pair}: `) && f.endsWith(`(${why})`));
+    assert.ok(found, `${scheme} ${pair}\n${failures.join('\n')}`);
+    return Number(found.match(/< ([\d.]+):1/)[1]);
+  };
+  const { text, highContrastText, nonText, hairline } = CONTRAST_THRESHOLDS;
+  assert.ok(highContrastText > text && text > nonText);
+  for (const scheme of model.schemes) {
+    const level = scheme.endsWith('-high') ? 'high' : scheme.endsWith('-medium') ? 'medium' : 'standard';
+    assert.equal(heldTo(scheme, 'on-surface on surface', 'body text'), level === 'high' ? highContrastText : text, scheme);
+    assert.equal(heldTo(scheme, 'outline on surface', 'functional boundary (WCAG 1.4.11)'), nonText, scheme);
+    assert.equal(heldTo(scheme, 'focus-ring on surface', 'focus indicator (WCAG 2.4.13)'), nonText, scheme);
+    const edge = failures.find((f) => f.startsWith(`[${scheme}] outline-variant on surface: `));
+    if (level === 'standard') assert.equal(edge, undefined, scheme);
+    else assert.equal(heldTo(scheme, 'outline-variant on surface', 'the hairline in a raised-contrast scheme'), hairline[level], scheme);
+  }
+  assert.throws(() => { CONTRAST_THRESHOLDS.text = 3; }, TypeError);
 });
 
 test('CSS keeps the alias chain and switches schemes with light-dark()', () => {

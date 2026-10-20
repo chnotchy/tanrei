@@ -150,6 +150,21 @@ const HAIRLINE = { medium: 3, high: 4.5 };
 // hovered row in the default system; a tone chosen against the page met the hover layer at 1.00:1 to 1.03:1, and the
 // two rows read as one grey. The default system alone is held to it: a preset keeps its original's selection.
 const ROW_SELECTION = 1.1;
+
+/**
+ * The contrast thresholds the checks here hold, as the n of n:1. The docs state them from this object (their
+ * Accessibility and Color pages), so that a page cannot say less, or more, than the build checks.
+ */
+export const CONTRAST_THRESHOLDS = Object.freeze({
+  /** Text, and a content color on its container, in the standard and medium contrast schemes. */
+  text: TEXT,
+  /** The same pairs in the high-contrast schemes. */
+  highContrastText: HIGH_CONTRAST_TEXT,
+  /** A boundary that identifies a control, a status's mark, the focus indicator: in every scheme. */
+  nonText: NON_TEXT,
+  /** The hairline (outline-variant) in the default system's raised-contrast schemes. */
+  hairline: Object.freeze({ ...HAIRLINE }),
+});
 // The scheme of the other theme at the same contrast level (an inverse status form mirrors it).
 const OTHER_THEME = { light: 'dark', 'light-medium': 'dark-medium', 'light-high': 'dark-high', dark: 'light', 'dark-medium': 'light-medium', 'dark-high': 'light-high' };
 

@@ -2,11 +2,12 @@
 title: 颜色
 description: 颜色角色、单色的主色、唯一的强调色，以及每个配色方案如何生成和校验。
 translationOf: foundations/color.mdx
-sourceHash: ddde2b1831c92ee6d35e5c257ddbcb70104b4581
+sourceHash: 31328e97dbf59a6d31bd8381d374c5c3f32209f8
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import { contrast } from '../../../../lib/contrast';
 
 Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，例如 `primary` 或 `surface-container`，由当前生效的主题决定用哪种颜色来充当这个角色。角色由 Tanrei 的词汇定义，它们的值则由各个设计系统的层给出。
 
@@ -35,8 +36,8 @@ Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，
 
 | 角色 | 用途 | 对比度 |
 | --- | --- | --- |
-| `outline` | **功能性边界**：它是表明控件所在位置的唯一依据，例如空的文本字段、未选中的复选框或 outlined 按钮。 | 相对于每个表面角色至少为 3:1 |
-| `outline-variant` | **装饰性细线**：分隔线、卡片边框、层级的圆环。去掉它不得隐藏任何信息。 | 标准对比度下没有要求，此时它是低透明度的黑色或白色。在中对比度下至少为 3:1，在高对比度下至少为 4.5:1，相对于每个表面角色而言，并且始终弱于 `outline` |
+| `outline` | **功能性边界**：它是表明控件所在位置的唯一依据，例如空的文本字段、未选中的复选框或 outlined 按钮。 | 相对于每个表面角色至少为 {contrast.nonText} |
+| `outline-variant` | **装饰性细线**：分隔线、卡片边框、层级的圆环。去掉它不得隐藏任何信息。 | 标准对比度下没有要求，此时它是低透明度的黑色或白色。在中对比度下至少为 {contrast.hairlineMedium}，在高对比度下至少为 {contrast.hairlineHigh}，相对于每个表面角色而言，并且始终弱于 `outline` |
 
 <Callout type="caution">
   如果边框是表明控件存在的唯一线索，就必须使用 `outline`。透明度为 8% 的细线看着舒服，但很多人根本看不见它。
@@ -68,8 +69,8 @@ Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，
 
 对主题与对比度的全部六种组合，除非满足以下条件，否则令牌构建失败：
 
-- 每一对 `(role, on-role)` 达到 **4.5:1**；
-- `outline` 相对于每个表面角色达到 **3:1**；
-- `focus-ring` 相对于绘制它的表面达到 **3:1**。
+- 每一对 `(role, on-role)` 达到 **{contrast.text}**，在两种高对比度方案中达到 **{contrast.highContrastText}**；
+- `outline` 相对于每个表面角色达到 **{contrast.nonText}**；
+- `focus-ring` 相对于绘制它的表面达到 **{contrast.nonText}**。
 
 不得为了让构建通过而放宽阈值。角色和值的完整列表见[颜色令牌参考](/zh-cn/tokens/color/)。
