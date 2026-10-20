@@ -39,6 +39,8 @@ const PARTS = {
 
 /** What a select alone draws: its list, its options, the rows' own state motion and opacity (SEL-65). */
 export const PREFIX = '--tanrei-comp-select';
+/** The same, for the select's own rules below (the status row, SEL-68). */
+const P = unsafeCSS(PREFIX);
 /** The box is drawn from the one set of tokens every input box is drawn from; `PREFIX` is what this component alone draws. */
 const B = unsafeCSS(INPUT_BOX);
 const STATE_MOTION = `var(${INPUT_BOX}-motion-state-duration) var(${INPUT_BOX}-motion-state-easing)`;
@@ -317,6 +319,56 @@ export const styles = css`
   /* SEL-24 … SEL-45: the list (src/primitives/option-list.ts). */
   ${optionListStyles({ prefix: PREFIX, variants: [DEFAULT_VARIANT, ...CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT)], minWidth: `var(${PREFIX}-list-min-width)`, maxWidth: `var(${PREFIX}-list-max-width)` })}
 
+  /* SEL-68: the status row, after the last option — inset as an option's row is, taking no input and no state:
+     statusText, wrapping, in status.typescale and status.color (status.error.color while the source failed), the empty
+     text in the same place and style, or the loading indicator at the row's start; one line of text high whether or not
+     the indicator shows yet. SEL-69: its live regions are always there, so the row is too, and it takes no room until
+     it has something to show. It is not in the list box, which holds options and groups only, and not in the box that
+     scrolls: the options scroll above it, and it stays in view. The combobox's row (CMB-32), from the select's tokens. */
+  .status {
+    display: flex;
+    flex: none;
+    align-items: center;
+    font: var(${P}-status-typescale-font);
+    letter-spacing: var(${P}-status-typescale-letter-spacing);
+    color: var(${P}-status-color);
+  }
+  .status[data-shown] {
+    margin-block-end: var(${P}-list-padding-block);
+    margin-inline: var(${P}-list-padding-inline);
+    padding-block: var(${P}-option-padding-block);
+    padding-inline: var(${P}-option-padding-inline);
+  }
+  .list.bare > .status[data-shown] {
+    margin-block-start: var(${P}-list-padding-block);
+  }
+  /* One line of the status text, whatever the row holds. */
+  .status[data-shown]::before {
+    content: '\\200b';
+    flex: none;
+    inline-size: 0;
+  }
+  .status.error {
+    color: var(${P}-status-error-color);
+  }
+  .status-text {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .spinner {
+    flex: none;
+  }
+  ${productText('.status-text', { align: 'start' })}
+  /* SEL-69: what the regions read, kept out of the picture: the row draws its text above. */
+  .live {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   /* SEL-15, SEL-20: where motion is reduced, the label and the states change at once. */
   @media (prefers-reduced-motion: reduce) {
     .field,
@@ -350,7 +402,9 @@ export const styles = css`
       outline-offset: calc(-1 * var(${B}-focused-outline-width));
     }
     .floating,
-    .floating .asterisk {
+    .floating .asterisk,
+    .status,
+    .status.error {
       color: CanvasText;
     }
     .value,

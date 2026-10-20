@@ -11,6 +11,7 @@ import {
   SEPARATION_VALUES,
   type SeparationProp,
   SystemWatchController,
+  WordsController,
   keepOverlayFocusAfterPress,
   registerOverlay,
   report,
@@ -36,6 +37,7 @@ import {
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import '../option/option.js';
+import '../loading-indicator/loading-indicator.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { AXES, INSET, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -50,6 +52,8 @@ export type TanreiSelectSize = keyof TanreiInputBoxSizeRegistry;
 export type TanreiSelectSeparation = SeparationProp;
 /** Whether an option keeps the leading icon column where it has no icon (SEL-66). A closed set: the menu's values. */
 export type TanreiSelectIconSpace = OptionIconSpace;
+/** What the product's source of options is doing (SEL-68): the combobox's and the search's values. */
+export type TanreiSelectStatus = 'idle' | 'loading' | 'error';
 /** Why the list closed (SEL-27). The web has no back of its own, so it never sends `back`. */
 export type TanreiSelectToggleReason = 'select' | 'escape' | 'back' | 'outside' | 'focus-out' | 'anchor-hidden' | 'press' | 'tab';
 /** `toggle`'s detail: the new `open`, and for a close its reason. */
@@ -59,6 +63,8 @@ export interface TanreiSelectToggleDetail {
 }
 
 type Layout = 'stacked' | 'filled' | 'outlined';
+
+const STATUSES: readonly string[] = ['idle', 'loading', 'error'];
 
 /** Runs `task` once the document has been read: an element upgraded while its children are still being parsed has none yet. */
 function whenParsed(task: () => void) {
@@ -133,6 +139,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * @csspart group - A group of options.
  * @csspart group-title - A group's title.
  * @csspart divider - The line between two groups while the separation is divider.
+ * @csspart status - The status row after the options: what the product's source is doing, or the empty text.
  * @attr {string} form - The id of the form the select belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires change - The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  * @fires {CustomEvent<TanreiSelectToggleDetail>} toggle - The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
@@ -170,6 +177,7 @@ export class TanreiSelect extends TanreiElement {
     'group',
     'group-title',
     'divider',
+    'status',
   ];
 
   static override properties: PropertyDeclarations = {
@@ -186,7 +194,11 @@ export class TanreiSelect extends TanreiElement {
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    status: { type: String, reflect: true },
+    statusText: { type: String, attribute: 'status-text' },
+    emptyText: { type: String, attribute: 'empty-text' },
     inline: { type: Boolean, reflect: true },
+    spoken: { state: true },
     hasLeading: { state: true },
     focused: { state: true },
     formDisabled: { state: true },
@@ -222,7 +234,7 @@ export class TanreiSelect extends TanreiElement {
   /** The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn. The attribute is `readonly`. */
   readOnly = false;
 
-  /** Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or holds no option. Reflected. */
+  /** Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected. */
   open = false;
 
   /** How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-select-separation`). */
@@ -235,6 +247,15 @@ export class TanreiSelect extends TanreiElement {
    */
   iconSpace: TanreiSelectIconSpace = 'auto';
 
+  /** What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected. */
+  status: TanreiSelectStatus = 'idle';
+
+  /** The status row's text, in the product's language (`status-text`), read when the list opens and when it changes: a count, that loading failed, or, while loading, the loading indicator's name. */
+  statusText = '';
+
+  /** Shown in the list while the select holds no option, `status` is idle and `statusText` is empty (`empty-text`): this instance's words, else the product's (`setWords({ noOptionsText })`). Tanrei has none: without them a select with no option does not open. */
+  emptyText = '';
+
   /** For tests and fixtures: draws the open list in place below the trigger — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal. */
   inline = false;
 
@@ -244,6 +265,8 @@ export class TanreiSelect extends TanreiElement {
   protected focused = false;
   /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
   protected formDisabled = false;
+  /** SEL-69: the list has been shown, so the status row's live regions hold its text; empty while it is closed. */
+  protected spoken = false;
 
   private readonly internals: ElementInternals;
   /** What it tells its form, said where an element composed around it hears it (src/primitives/form-says.ts). */
@@ -257,6 +280,10 @@ export class TanreiSelect extends TanreiElement {
   /** SEL-64: what left the element with the frame has been reported for this element. */
   private reportedLeft = false;
   private unregister: (() => void) | null = null;
+  /** SEL-69: the frame after which the shown list's regions are given their text. */
+  private speakFrame = 0;
+  /** SEL-62: the person tried to open a select that has nothing to show: the missing words are reported. */
+  private triedEmpty = false;
 
   /** SEL-60: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'select', behavior: 'SEL-60', axes: AXES });
@@ -305,6 +332,8 @@ export class TanreiSelect extends TanreiElement {
   /** SEL-57: the glyph of the slot, the chosen option's own and the options' are marked when the icon set mirrors them. */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="leading-icon"]', drawn: `.leading-own, ${OPTION_MIRRORED}` });
   /** SEL-19: a glyph the select draws by name is drawn once the icon set can draw it; until then nothing stands in its place. */
+  /** SEL-62: the product's words, read where the instance gives none (src/primitives/words.ts). */
+  private readonly words = new WordsController(this);
   private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>(`.chevron, .leading-own, ${OPTION_GLYPHS}`));
 
   constructor() {
@@ -409,9 +438,39 @@ export class TanreiSelect extends TanreiElement {
     return html`${text}${said.map((own) => html`${'\n'}<span lang=${own.lang}>${own.label}</span>`)}`;
   }
 
+  /** SEL-60: a status the select does not define is idle. */
+  private get statusNow(): TanreiSelectStatus {
+    return STATUSES.includes(this.status) ? this.status : 'idle';
+  }
+
+  /** SEL-68: the status row has something of the product's to show. */
+  private get statusShown(): boolean {
+    return this.statusNow === 'loading' || this.statusText !== '';
+  }
+
+  /** SEL-68: no option, and nothing of the product's stands in the status row's place: the empty text is asked for. */
+  private get emptyAsked(): boolean {
+    return this.options$.model.options.length === 0 && !this.statusShown;
+  }
+
+  /** SEL-62: what says that there is nothing to choose — the instance's emptyText, else the product's words, else nothing. */
+  private get emptyWords(): string {
+    return this.words.get('noOptionsText', this.emptyText);
+  }
+
+  /** SEL-68: the select holds no option, and says so in the status row's place. */
+  private get emptyShown(): boolean {
+    return this.emptyAsked && this.emptyWords !== '';
+  }
+
+  /** SEL-61: there is something to show — an option, a status row or the empty text. */
+  private get showable(): boolean {
+    return this.options$.model.options.length > 0 || this.statusShown || this.emptyShown;
+  }
+
   /** SEL-23, SEL-46, SEL-47, SEL-61: whether the list can be shown at all. */
   private get usable(): boolean {
-    return !this.inert_ && !this.readOnly && this.options$.model.options.length > 0;
+    return !this.inert_ && !this.readOnly && this.showable;
   }
 
   /** The form it belongs to, if any. */
@@ -465,6 +524,11 @@ export class TanreiSelect extends TanreiElement {
 
   /** SEL-23: the person opens the list. `open` is true before `toggle` is fired; the list is presented by the render that follows. */
   private openList(keyboard: boolean) {
+    // SEL-62: a select with nothing to show does not open; a debug build says which words are missing.
+    if (!this.open && !this.usable && !this.inert_ && !this.readOnly) {
+      this.triedEmpty = true;
+      this.requestUpdate();
+    }
     if (this.open || !this.usable) return;
     this.byKeyboard = keyboard;
     this.focus({ preventScroll: true });
@@ -501,6 +565,11 @@ export class TanreiSelect extends TanreiElement {
   private present() {
     if (!this.anchored.show()) return;
     this.presented = true;
+    // SEL-69: the regions are given their text once the list is shown, so that what the row already says is read.
+    cancelAnimationFrame(this.speakFrame);
+    this.speakFrame = requestAnimationFrame(() => {
+      if (this.presented) this.spoken = true;
+    });
     // SEL-25: the whole of the chosen option is in view when the list opens.
     this.list.reveal();
     if (!this.inline) this.dismiss.start();
@@ -510,6 +579,8 @@ export class TanreiSelect extends TanreiElement {
   private withdraw(fade = true) {
     if (!this.presented) return;
     this.presented = false;
+    cancelAnimationFrame(this.speakFrame);
+    this.spoken = false;
     if (this.dismiss.active) {
       this.dismiss.closeOwned();
       this.dismiss.stop();
@@ -556,7 +627,12 @@ export class TanreiSelect extends TanreiElement {
     const plain = !event.ctrlKey && !event.metaKey && !event.altKey;
     const printable = plain && [...key].length === 1;
     if (!(this.open && this.usable)) {
-      if (!this.usable || event.ctrlKey || event.metaKey) return;
+      if (event.ctrlKey || event.metaKey) return;
+      if (!this.usable) {
+        // SEL-61, SEL-62: nothing to show: the list does not open (`openList()` says why in a debug build).
+        if (key === 'Enter' || key === ' ' || key === 'ArrowDown' || key === 'ArrowUp' || printable) this.openList(true);
+        return;
+      }
       // SEL-23: the list opens; the value never changes from the keyboard while it is closed.
       if (key === 'Enter' || key === ' ' || key === 'ArrowDown' || key === 'ArrowUp') {
         event.preventDefault();
@@ -623,6 +699,8 @@ export class TanreiSelect extends TanreiElement {
     // The controllers take the surface out of the top layer and stop listening.
     this.presented = false;
     this.focused = false;
+    cancelAnimationFrame(this.speakFrame);
+    this.spoken = false;
   }
 
   protected override willUpdate(changed: PropertyValues) {
@@ -648,7 +726,7 @@ export class TanreiSelect extends TanreiElement {
     if (want && !this.presented) this.present();
     else if (!want && this.presented) {
       this.withdraw();
-      // …disabled, read-only or without its last option while open: it is closed, and says nothing.
+      // …disabled, read-only or left with nothing to show while open: it is closed, and says nothing.
       if (this.open) this.open = false;
     } else if (this.presented) this.anchored.request();
 
@@ -684,13 +762,21 @@ export class TanreiSelect extends TanreiElement {
     if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
       report(this, 'SEL-66', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
     }
+    // SEL-60: a status the select does not define is idle.
+    if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SEL-60', `status "${this.status}" is not idle, loading or error; it behaves as "idle"`);
+    // SEL-62: the person, or the product's open, asked a select with nothing to show to open, and nobody gave the
+    // words that would say why. (Without them the list has nothing to show and is not open.)
+    if ((this.triedEmpty || (this.open && changed.has('open'))) && this.emptyAsked && !this.emptyWords && !this.inert_ && !this.readOnly) {
+      this.words.missing('noOptionsText', { prop: 'emptyText', id: 'SEL-62', effect: 'a select without options does not open and says nothing' });
+    }
+    this.triedEmpty = false;
     const { options, nested } = this.options$.model;
     // The options are reported when they, or the value, change — not on every render.
     const signature = `${this.value}\u0000${options.map((option) => `${option.value}\u0001${option.label}`).join('\u0000')}\u0000${nested.length}`;
     if (signature === this.reportedOptions) return;
     this.reportedOptions = signature;
     if (options.length === 0) {
-      report(this, 'SEL-61', `the select holds no option, so it does not open; give it <${OPTION_TAG}> children`);
+      if (!this.showable) report(this, 'SEL-61', `the select holds no option and nothing to say, so it does not open; give it <${OPTION_TAG}> children, a status while they load, or an emptyText`);
       return;
     }
     if (options.some((option) => !option.label)) report(this, 'SEL-11', `an option has an empty label, so it has no accessible name; give each <${OPTION_TAG}> a label or a text`);
@@ -701,6 +787,25 @@ export class TanreiSelect extends TanreiElement {
       seen.add(option.value);
     }
     if (nested.length) report(this, 'SEL-44', `a <${OPTION_GROUP_TAG}> stands inside another; its options are drawn as the outer group's, with no title or separation of its own`);
+  }
+
+  /**
+   * SEL-68, SEL-69: the status row, after the last option. It draws the text — statusText, or the empty text — or,
+   * while loading, the loading indicator named by statusText in its place. Its two live regions are always there and
+   * are given the row's text once the list has been shown (`spoken`), so that what the row already says as the list
+   * opens is read: the polite one while idle, the assertive one while the source failed; while loading both are empty,
+   * so nothing is announced. The drawn text is kept from assistive technology, which reads the regions.
+   */
+  private renderStatus() {
+    const status = this.statusNow;
+    const shown = this.statusShown || this.emptyShown;
+    const text = status === 'loading' ? '' : this.statusText || (this.emptyShown ? this.emptyWords : '');
+    const say = (role: 'status' | 'alert') => (this.spoken && (role === 'alert') === (status === 'error') ? text : '');
+    return html`<div part="status" class=${status === 'error' ? 'status error' : 'status'} ?data-shown=${shown}>
+      ${status === 'loading' ? html`<tanrei-loading-indicator class="spinner" size="small" label=${this.statusText}></tanrei-loading-indicator>` : nothing}${text
+        ? html`<span class="status-text" aria-hidden="true" dir=${ownDirection(text)}>${text}</span>`
+        : nothing}<span class="live" role="status">${say('status')}</span><span class="live" role="alert">${say('alert')}</span>
+    </div>`;
   }
 
   protected override render() {
@@ -778,7 +883,7 @@ export class TanreiSelect extends TanreiElement {
         <span id="name" hidden>${name}</span>
         ${described ? html`<span id="description" hidden>${described}</span>` : nothing}
       </div>
-      ${this.list.render({ labelledBy: 'name', inline: this.inline })}
+      ${this.list.render({ labelledBy: 'name', inline: this.inline, after: this.renderStatus(), tail: this.statusShown || this.emptyShown, busy: this.statusNow === 'loading' })}
     `;
   }
 }
