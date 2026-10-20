@@ -1,5 +1,11 @@
 # @tanrei/token-engine
 
+<!-- tanrei:status -->
+<!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/token-engine@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
+
+<!-- /tanrei:status -->
+
 Tanrei's token derivation engine: **layers, rules and palettes**, as pure functions over DTCG documents. It is isomorphic — no filesystem, no `tanrei.config.json` read of its own — so the token build (`@tanrei/tokens-build`), the CLI, the MCP server and Theme Studio in a browser all compute identical values from the same inputs. Everything is exported from `src/index.js`; the groups below follow that file.
 
 The vocabulary's namespace (`tanrei` in `tanrei.config.json`) is a parameter, `DEFAULT_NAMESPACE` when a caller passes none; a namespace given to `mergeLayers` travels on the merged system, so everything that takes the system afterwards uses the same one.
