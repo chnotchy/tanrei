@@ -7180,6 +7180,20 @@ private let acmeRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let acmeScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 250,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 0,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let acmeSearchTokens = TanreiSearchTokens(
   containerButtonGap: 0,
   containerGap: 16,
@@ -9819,6 +9833,7 @@ extension TanreiSystem {
       linkUnderline: .always,
       pressedFeedback: .overlay,
       requirementMark: .tag,
+      scrollEdge: .shadow,
       separation: .divider
     ),
     motion: TanreiMotionTokens(
@@ -9941,6 +9956,7 @@ extension TanreiSystem {
     progressIndicator: acmeProgressIndicatorTokens,
     prose: acmeProseTokens,
     radioButton: acmeRadioButtonTokens,
+    scrollArea: acmeScrollAreaTokens,
     search: acmeSearchTokens,
     segmentedButton: acmeSegmentedButtonTokens,
     select: acmeSelectTokens,

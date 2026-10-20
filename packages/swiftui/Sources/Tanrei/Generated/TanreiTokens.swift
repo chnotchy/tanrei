@@ -1036,6 +1036,15 @@ public enum TanreiRequirementMark: String, Sendable, Hashable, CaseIterable {
   case none
 }
 
+/// The choice `tanrei.sys.behavior.scroll-edge`.
+/// A design system chooses among these; it cannot add one. The first is the default.
+public enum TanreiScrollEdge: String, Sendable, Hashable, CaseIterable {
+  case shadow
+  case fade
+  case line
+  case blur
+}
+
 /// The choice `tanrei.sys.behavior.separation`.
 /// A design system chooses among these; it cannot add one. The first is the default.
 public enum TanreiSeparation: String, Sendable, Hashable, CaseIterable {
@@ -1057,6 +1066,8 @@ public struct TanreiBehavior: Sendable, Equatable {
   public var pressedFeedback: TanreiPressedFeedback
   /// `tanrei.sys.behavior.requirement-mark`
   public var requirementMark: TanreiRequirementMark
+  /// `tanrei.sys.behavior.scroll-edge`
+  public var scrollEdge: TanreiScrollEdge
   /// `tanrei.sys.behavior.separation`
   public var separation: TanreiSeparation
 
@@ -1067,6 +1078,7 @@ public struct TanreiBehavior: Sendable, Equatable {
     linkUnderline: TanreiLinkUnderline,
     pressedFeedback: TanreiPressedFeedback,
     requirementMark: TanreiRequirementMark,
+    scrollEdge: TanreiScrollEdge,
     separation: TanreiSeparation
   ) {
     self.appearance = appearance
@@ -1075,6 +1087,7 @@ public struct TanreiBehavior: Sendable, Equatable {
     self.linkUnderline = linkUnderline
     self.pressedFeedback = pressedFeedback
     self.requirementMark = requirementMark
+    self.scrollEdge = scrollEdge
     self.separation = separation
   }
 }
@@ -13042,6 +13055,47 @@ public struct TanreiRadioButtonTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of scroll-area (comp.scroll-area).
+public struct TanreiScrollAreaTokens: Sendable, Equatable {
+  public var blurExtent: CGFloat
+  public var blurLayers: Double
+  public var blurRadius: CGFloat
+  public var fadeExtent: CGFloat
+  public var lineColor: TanreiPaint
+  public var lineWidth: CGFloat
+  public var motionDuration: Double
+  public var motionEasing: TanreiCubicBezier
+  public var scrollEdge: Double
+  public var shadowColor: TanreiPaint
+  public var shadowExtent: CGFloat
+
+  public init(
+    blurExtent: CGFloat,
+    blurLayers: Double,
+    blurRadius: CGFloat,
+    fadeExtent: CGFloat,
+    lineColor: TanreiPaint,
+    lineWidth: CGFloat,
+    motionDuration: Double,
+    motionEasing: TanreiCubicBezier,
+    scrollEdge: Double,
+    shadowColor: TanreiPaint,
+    shadowExtent: CGFloat
+  ) {
+    self.blurExtent = blurExtent
+    self.blurLayers = blurLayers
+    self.blurRadius = blurRadius
+    self.fadeExtent = fadeExtent
+    self.lineColor = lineColor
+    self.lineWidth = lineWidth
+    self.motionDuration = motionDuration
+    self.motionEasing = motionEasing
+    self.scrollEdge = scrollEdge
+    self.shadowColor = shadowColor
+    self.shadowExtent = shadowExtent
+  }
+}
+
 /// A value of search's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -18430,6 +18484,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _radioButton.value }
     set { _radioButton.value = newValue }
   }
+  public var scrollArea: TanreiScrollAreaTokens {
+    get { _scrollArea.value }
+    set { _scrollArea.value = newValue }
+  }
   public var search: TanreiSearchTokens {
     get { _search.value }
     set { _search.value = newValue }
@@ -18579,6 +18637,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _progressIndicator: TanreiBox<TanreiProgressIndicatorTokens>
   private var _prose: TanreiBox<TanreiProseTokens>
   private var _radioButton: TanreiBox<TanreiRadioButtonTokens>
+  private var _scrollArea: TanreiBox<TanreiScrollAreaTokens>
   private var _search: TanreiBox<TanreiSearchTokens>
   private var _segmentedButton: TanreiBox<TanreiSegmentedButtonTokens>
   private var _select: TanreiBox<TanreiSelectTokens>
@@ -18677,6 +18736,7 @@ public struct TanreiSystem: Sendable, Equatable {
     progressIndicator: TanreiProgressIndicatorTokens,
     prose: TanreiProseTokens,
     radioButton: TanreiRadioButtonTokens,
+    scrollArea: TanreiScrollAreaTokens,
     search: TanreiSearchTokens,
     segmentedButton: TanreiSegmentedButtonTokens,
     select: TanreiSelectTokens,
@@ -18774,6 +18834,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._progressIndicator = TanreiBox(progressIndicator)
     self._prose = TanreiBox(prose)
     self._radioButton = TanreiBox(radioButton)
+    self._scrollArea = TanreiBox(scrollArea)
     self._search = TanreiBox(search)
     self._segmentedButton = TanreiBox(segmentedButton)
     self._select = TanreiBox(select)

@@ -775,7 +775,7 @@ export const m3ExpressiveLike = {
     opticalSizeMin: 20,
     opticalSizeMax: 48,
   },
-  behavior: { appearance: "unfold", dividerVisibility: "scroll", focusStyle: "ring", linkUnderline: "always", pressedFeedback: "ripple", requirementMark: "asterisk", separation: "gap" },
+  behavior: { appearance: "unfold", dividerVisibility: "scroll", focusStyle: "ring", linkUnderline: "always", pressedFeedback: "ripple", requirementMark: "asterisk", scrollEdge: "line", separation: "gap" },
   motion: {
     duration: { extraLong1: 700, extraLong2: 800, extraLong3: 900, extraLong4: 1000, long1: 450, long2: 500, long3: 550, long4: 600, medium1: 250, medium2: 300, medium3: 350, medium4: 400, pressHold: 100, short1: 50, short2: 100, short3: 150, short4: 200, stagger: 100 },
     easing: {
@@ -10653,6 +10653,19 @@ export const m3ExpressiveLike = {
           },
         },
       },
+    },
+    scrollArea: {
+      blurExtent: 48,
+      blurLayers: 4,
+      blurRadius: 8,
+      fadeExtent: 24,
+      lineColor: { kind: "role", role: "outlineVariant" },
+      lineWidth: 1,
+      motionDuration: 150,
+      motionEasing: [0.2, 0, 0, 1],
+      scrollEdge: 2,
+      shadowColor: { kind: "role", role: "surface" },
+      shadowExtent: 24,
     },
     search: {
       containerButtonGap: 8,

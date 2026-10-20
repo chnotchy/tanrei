@@ -1,0 +1,187 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "scroll-area",
+  "title": "Scroll area",
+  "summary": "A box that scrolls the product's content with the platform's own scrolling and shows, at each edge it watches, that more lies beyond it — a band in the surface's color, a fade of the content, a line or a blur, as the design system or the instance chooses — without changing its size or moving the content.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The scroll box: as large as its layout gives it, scrolling the content up and down, sideways or both where it does not fit, with the platform's own scrolling and scroll bars. It has no fill, edge or corner of its own."
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in it: a list, a column of cards, a form, a row of pictures. The area lays nothing out and styles nothing inside it."
+    },
+    {
+      "id": "scroll-edge",
+      "description": "The mark at one edge of the box while content lies beyond that edge: a band in the color of the surface the box stands on, full at the edge and none at its inner end; a fade of the content itself toward the edge; a line along it; or a band in which the content is blurred, most at the edge. Drawn over the content (the fade, on it), taking no input.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The system's focus indicator inside the box's edge, while the box itself has keyboard focus.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "scrollEdge",
+      "type": "enum",
+      "values": ["auto", "shadow", "fade", "line", "blur", "none"],
+      "default": "auto",
+      "description": "How an edge shows that content lies beyond it. shadow: a band in the color of the surface the area stands on, so that the content sinks into the surface. fade: the content itself fades out toward the edge and no color is drawn, for a transparent surface, a picture or a video behind the area. line: a hairline along the edge. blur: the content blurred in a band along the edge, most at the edge. none: nothing. auto takes comp.scroll-area.scroll-edge, the design system's answer, which follows sys.behavior.scroll-edge (shadow in the default system)."
+    },
+    {
+      "name": "edges",
+      "type": "strings",
+      "default": ["top", "bottom"],
+      "description": "Which edges show the scroll edge: any of top, bottom, start and end. start is the left in a left-to-right layout and the right in a right-to-left one."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The name of the scroll box, for the moments it is a focus stop of its own (SCA-10): what it holds (\"Messages\", \"Results\"). Never drawn."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content the area scrolls. A fixture's string is drawn as plain text in it.",
+      "fixture": "text"
+    }
+  ],
+  "states": ["enabled", "focused"],
+  "behavior": [
+    {
+      "id": "SCA-1",
+      "text": "THE scroll area SHALL be as large as its layout gives it, SHALL lay its content out at its own width, and WHERE the content does not fit SHALL scroll it with the platform's own scrolling — wheel, trackpad, touch, scroll bars, keyboard and assistive technology — in each direction it does not fit; it SHALL draw no fill, edge, corner or elevation of its own, and SHALL NOT replace the platform's scroll bars."
+    },
+    {
+      "id": "SCA-2",
+      "text": "WHILE content lies beyond an edge that edges names — the content is scrolled away from that edge, so that some of it is out of view past it — THE scroll area SHALL draw the scroll edge of that edge in the form its scroll edge (SCA-7) names; WHILE nothing lies beyond it, or the edge is not named, THE scroll area SHALL draw none there. Each edge SHALL be drawn and faded by itself: content beyond the top and none beyond the bottom draws the top edge only."
+    },
+    {
+      "id": "SCA-3",
+      "text": "WHILE the scroll edge is shadow THE scroll area SHALL draw over the content, along the whole length of the edge and inside the box, a band comp.scroll-area.shadow.extent deep in comp.scroll-area.shadow.color — the color of the surface the area stands on, not a color of its own — full at the edge and falling smoothly to none at the band's inner end, and SHALL draw no line.",
+      "verify": "On a surface that is not the plain surface, set comp.scroll-area.shadow.color to that surface's color: the band then joins the surface with no seam at the edge."
+    },
+    {
+      "id": "SCA-4",
+      "text": "WHILE the scroll edge is fade THE scroll area SHALL fade the content itself along the edge, none of it shown at the edge rising smoothly to all of it at comp.scroll-area.fade.extent in from it, SHALL draw no color and no line, so that whatever lies behind the area — a transparent surface, a picture, a video — shows through where the content fades."
+    },
+    {
+      "id": "SCA-5",
+      "text": "WHILE the scroll edge is line THE scroll area SHALL draw it as a line comp.scroll-area.line.width thick in comp.scroll-area.line.color along the whole length of the edge, inside the box."
+    },
+    {
+      "id": "SCA-6",
+      "text": "WHILE the scroll edge is blur THE scroll area SHALL blur the content lying in a band comp.scroll-area.blur.extent deep along the edge, by comp.scroll-area.blur.radius at the edge falling to none at the band's inner end, in comp.scroll-area.blur.layers layers of evenly stepped radius, each masked to its part of the band so that no step is seen, and SHALL draw no line and no tint: the scroll area has no fill of its own to tint with."
+    },
+    {
+      "id": "SCA-7",
+      "text": "THE scroll area SHALL take its scroll edge from scrollEdge: WHILE scrollEdge is auto, as comp.scroll-area.scroll-edge names, which follows sys.behavior.scroll-edge unless a design system sets the scroll area apart; WHILE it is shadow, fade, line, blur or none, as that value names, whatever the tokens say. WHEN scrollEdge, or the token it follows, changes THE scroll area SHALL draw the other form at once, keeping the scroll position and focus."
+    },
+    {
+      "id": "SCA-8",
+      "text": "WHEN content starts or stops lying beyond an edge THE scroll area SHALL fade that edge's scroll edge in or out over comp.scroll-area.motion.duration with comp.scroll-area.motion.easing, and at once where motion is reduced; it SHALL NOT change its size, move the content, or change anything else it draws because of the scroll edge. It SHALL learn whether content lies beyond an edge from what the platform already knows of the scroll — its notice that a mark at that end of the content has entered or left the box, or the scroll's own extents — and SHALL NOT measure the content's layout in a frame of a scroll.",
+      "verify": "Count the work, not the time: while a long list is scrolled from end to end, the area's script runs only when an edge changes (two notices for one edge that turns on and off), reads no layout, and starts one transition for each edge that changes."
+    },
+    {
+      "id": "SCA-9",
+      "text": "WHERE the platform cannot blur what lies behind a band (a browser without backdrop filters, Android before version 12, a platform where the product gave no blur view) THE scroll area SHALL draw shadow (SCA-3), the system's first form, in place of a blur; WHERE the platform draws with a person's own forced colors THE scroll area SHALL draw the line of SCA-5 in the platform's text color in place of a shadow, a fade or a blur."
+    },
+    {
+      "id": "SCA-10",
+      "text": "WHILE the content does not fit and nothing inside the box takes keyboard focus THE scroll area SHALL make the box itself one stop in the focus order, exposed as a region named by label, so that a keyboard can scroll it (WCAG 2.1.1); WHILE something inside takes focus, or the content fits, THE scroll area SHALL NOT be a focus stop and SHALL expose no role of its own. WHILE it is a focus stop and label is empty it SHALL still be focusable, and in debug builds report that the region has no accessible name."
+    },
+    {
+      "id": "SCA-11",
+      "text": "WHILE the box has keyboard focus THE scroll area SHALL show it as sys.behavior.focus-style names (ring or glow), inside its edge by sys.focus.offset so that nothing around the box covers it, over every scroll edge and never faded by one, without animation, and never for focus gained by pointer or touch; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "SCA-12",
+      "text": "THE scroll area SHALL draw every scroll edge over the content (the fade, on the content itself), hidden from assistive technology, and SHALL let every press, hover and scroll over it reach the content under it."
+    },
+    {
+      "id": "SCA-13",
+      "text": "WHERE the layout direction is right-to-left THE scroll area SHALL take start as its right edge and end as its left edge, SHALL begin a sideways scroll at the right, and SHALL mirror no scroll edge otherwise: each form is drawn the same toward whichever edge it stands at."
+    },
+    {
+      "id": "SCA-14",
+      "text": "THE scroll area SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the area is shown THE scroll area SHALL draw itself for the new direction at once, keeping its scroll position from the start edge.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "SCA-15",
+      "text": "IF scrollEdge names a value the component does not define THE scroll area SHALL treat it as auto, IF edges names a value other than top, bottom, start and end THE scroll area SHALL ignore it, and in debug builds report the unknown value."
+    },
+    {
+      "id": "SCA-16",
+      "text": "WHILE the text size is enlarged THE scroll area SHALL keep its scroll edges at their sizes and lay out the larger content, which scrolls further: a scroll edge is a mark of the box, not of its text."
+    },
+    {
+      "id": "SCA-17",
+      "text": "THE scroll area SHALL have no words of its own and SHALL read none of the product's words: label names this one region."
+    }
+  ],
+  "accessibility": {
+    "role": "region, only while the box is a focus stop of its own (SCA-10); otherwise none",
+    "keyboard": [
+      { "keys": "Tab", "action": "Moves focus into the content, or to the box itself while nothing inside takes focus and the content does not fit." },
+      { "keys": "Arrow keys, Page Up, Page Down, Home, End, Space", "action": "Scroll the box while it has focus, as the platform scrolls any scroll box." }
+    ],
+    "labeling": "While the box is a focus stop it is a region named by label. The scroll edges are hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive except as a scroll box: it has no target of its own, and its focus stop exists only so that a keyboard can scroll content that has nothing focusable (WCAG 2.1.1).",
+      "Animation from interactions (WCAG 2.3.3): the scroll edge's fade is a change of opacity, not motion, and is still made at once where motion is reduced.",
+      "A shadow or a fade lowers the contrast of the content it lies over, by design, only within its band and only while that content is scrolled toward the edge; the content is read at full contrast once it is scrolled into view."
+    ]
+  },
+  "tokens": "comp.scroll-area",
+  "fixtures": [
+    { "id": "default", "props": {}, "slots": { "default": "Long content" } },
+    { "id": "fade", "props": { "scrollEdge": "fade" }, "slots": { "default": "Long content" } },
+    { "id": "line", "props": { "scrollEdge": "line" }, "slots": { "default": "Long content" } },
+    { "id": "blur", "props": { "scrollEdge": "blur" }, "slots": { "default": "Long content" } },
+    { "id": "none", "props": { "scrollEdge": "none" }, "slots": { "default": "Long content" } },
+    { "id": "sideways", "props": { "edges": ["start", "end"], "label": "Photos" }, "slots": { "default": "A wide row" } },
+    { "id": "rtl-sideways", "direction": "rtl", "props": { "edges": ["start", "end"], "label": "Photos" }, "slots": { "default": "A wide row" } }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-scroll-area",
+      "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
+      "notes": "`<tanrei-scroll-area scroll-edge edges=\"top bottom\" label>`; `edges` is a space-separated attribute and an array property. Whether content lies beyond an edge is read from one `IntersectionObserver` on four thin sentinels at the ends of the content (SCA-8): no scroll listener, no layout read while scrolling. Not CSS scroll-driven animations: they are not in every engine, and they tie the mark to the distance scrolled rather than fading it over the state motion. shadow is a gradient band per edge in `--tanrei-comp-scroll-area-shadow-color`; set that custom property on the element, or on an ancestor, to the surface it stands on. fade is a `mask-image` on the scroll box, one gradient per axis, moved by `mask-position` and `mask-size` (no registered custom property), so the browser's scroll bar fades with the content at a faded edge. blur is `blur.layers` layers inside each band, each with `backdrop-filter: blur(r × i / n)` and a `mask-image` gradient; `@supports not (backdrop-filter: blur(1px))` draws shadow (SCA-9). Every mark is `pointer-events: none` and `aria-hidden`. A fixture fills the slot with enough lines (or a row wide enough) to scroll, in a box of a fixed size, scrolled to the middle."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiScrollArea",
+      "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
+      "notes": "A `ScrollView`. `onScrollGeometryChange` tells whether content lies beyond an edge. shadow is a `LinearGradient` overlay from the surface color; fade a `mask` of a gradient; on iOS 26 and macOS 26 blur is the system's `scrollEdgeEffectStyle(.soft, for:)` and line `.hard` with the line drawn by Tanrei, before them blur is a `Material` band under a gradient mask."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiScrollArea",
+      "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
+      "notes": "A `verticalScroll`/`horizontalScroll` box (or the product's lazy list through a `ScrollState`/`LazyListState` parameter); `canScrollBackward`/`canScrollForward` tell the edges. shadow is a `drawWithContent` gradient in the surface color; fade a `BlendMode.DstIn` gradient on an offscreen layer; blur draws the band's content again under `graphicsLayer { renderEffect = BlurEffect(…) }` with a gradient mask on API 31 and later, and shadow below it."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiScrollArea",
+      "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
+      "notes": "A `SingleChildScrollView` (or the product's scrollable via its `ScrollController`); `ScrollMetrics.extentBefore`/`extentAfter`, read in a `NotificationListener<ScrollMetricsNotification>`, tell the edges. shadow is a `DecoratedBox` gradient in the surface color; fade a `ShaderMask` with `BlendMode.dstIn`; blur `BackdropFilter` bands under `ShaderMask`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ScrollArea",
+      "props": { "scrollEdge": "scrollEdge", "edges": "edges", "label": "label" },
+      "notes": "A `ScrollView`; `onScroll` with `scrollEventThrottle` and the content size tell the edges, and the edge state is set only when it changes. shadow is a gradient view in the surface color where the product passes a gradient component, else a stack of translucent strips; fade needs a masked view the product passes, and is drawn as shadow without it. React Native has no blur of its own: blur is drawn only where the product passes a blur view component; otherwise shadow (SCA-9)."
+    }
+  }
+}

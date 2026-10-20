@@ -1196,6 +1196,13 @@
       }
     },
     {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "search",
       "title": "Search",
       "level": "feature",

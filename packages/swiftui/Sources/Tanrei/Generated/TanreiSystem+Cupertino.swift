@@ -7009,6 +7009,20 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let cupertinoScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 250,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 3,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let cupertinoSearchTokens = TanreiSearchTokens(
   containerButtonGap: 8,
   containerGap: 8,
@@ -9645,6 +9659,7 @@ extension TanreiSystem {
       linkUnderline: .always,
       pressedFeedback: .dim,
       requirementMark: .none,
+      scrollEdge: .blur,
       separation: .divider
     ),
     motion: TanreiMotionTokens(
@@ -9761,6 +9776,7 @@ extension TanreiSystem {
     progressIndicator: cupertinoProgressIndicatorTokens,
     prose: cupertinoProseTokens,
     radioButton: cupertinoRadioButtonTokens,
+    scrollArea: cupertinoScrollAreaTokens,
     search: cupertinoSearchTokens,
     segmentedButton: cupertinoSegmentedButtonTokens,
     select: cupertinoSelectTokens,

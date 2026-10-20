@@ -4,7 +4,7 @@
 <!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
 > **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
 
-**Components:** 9 alpha · 83 lagging (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
+**Components:** 9 alpha · 83 lagging · 1 planned (*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec · *planned*: nothing shippable yet). The [component status matrix](https://github.com/chnotchy/tanrei/blob/main/docs/status/STATUS.md) has each one, computed from the repository.
 
 <!-- /tanrei:status -->
 

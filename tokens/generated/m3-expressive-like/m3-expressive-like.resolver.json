@@ -46,6 +46,9 @@
         },
         {
           "$ref": "sys/behavior.tokens.json"
+        },
+        {
+          "$ref": "sys/scroll-edge.tokens.json"
         }
       ]
     },
@@ -158,6 +161,9 @@
         },
         {
           "$ref": "comp/handle.tokens.json"
+        },
+        {
+          "$ref": "comp/scroll-area.tokens.json"
         },
         {
           "$ref": "comp/side-sheet.tokens.json"

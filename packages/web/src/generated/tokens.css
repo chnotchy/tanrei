@@ -5770,6 +5770,17 @@
     --tanrei-comp-radio-button-unselected-pressed-state-layer-color: var(--tanrei-comp-radio-button-unselected-state-layer-color);
     --tanrei-comp-radio-button-unselected-ring-color: var(--tanrei-sys-color-outline);
     --tanrei-comp-radio-button-unselected-state-layer-color: var(--tanrei-comp-radio-button-unselected-ring-color);
+    --tanrei-comp-scroll-area-blur-extent: var(--tanrei-sys-scroll-edge-blur-extent);
+    --tanrei-comp-scroll-area-blur-layers: var(--tanrei-sys-scroll-edge-blur-layers);
+    --tanrei-comp-scroll-area-blur-radius: var(--tanrei-sys-scroll-edge-blur-radius);
+    --tanrei-comp-scroll-area-fade-extent: var(--tanrei-sys-scroll-edge-extent);
+    --tanrei-comp-scroll-area-line-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-scroll-area-line-width: var(--tanrei-sys-border-hairline);
+    --tanrei-comp-scroll-area-motion-duration: var(--tanrei-sys-motion-role-state-default);
+    --tanrei-comp-scroll-area-motion-easing: var(--tanrei-sys-motion-easing-state);
+    --tanrei-comp-scroll-area-scroll-edge: var(--tanrei-sys-behavior-scroll-edge);
+    --tanrei-comp-scroll-area-shadow-color: var(--tanrei-sys-color-surface);
+    --tanrei-comp-scroll-area-shadow-extent: var(--tanrei-sys-scroll-edge-extent);
     --tanrei-comp-search-container-button-gap: var(--tanrei-sys-space-space0);
     --tanrei-comp-search-container-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-search-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
@@ -8541,6 +8552,7 @@
     --tanrei-sys-behavior-link-underline: always;
     --tanrei-sys-behavior-pressed-feedback: overlay;
     --tanrei-sys-behavior-requirement-mark: tag;
+    --tanrei-sys-behavior-scroll-edge: shadow;
     --tanrei-sys-behavior-separation: divider;
     --tanrei-sys-border-hairline: var(--tanrei-dial-stroke-unit);
     --tanrei-sys-border-thick: round(nearest, calc(var(--tanrei-dial-stroke-unit) * 2), 0.25px);
@@ -8675,6 +8687,10 @@
     --tanrei-sys-motion-spring-standard-slow-spatial-duration: round(nearest, calc(var(--tanrei-dial-motion-unit) * 15), 1ms);
     --tanrei-sys-motion-spring-standard-slow-spatial-easing: cubic-bezier(0.27, 1.06, 0.18, 1);
     --tanrei-sys-motion-spring-standard-slow-spatial-stiffness: 300;
+    --tanrei-sys-scroll-edge-blur-extent: var(--tanrei-sys-space-space600);
+    --tanrei-sys-scroll-edge-blur-layers: 4;
+    --tanrei-sys-scroll-edge-blur-radius: var(--tanrei-sys-space-space100);
+    --tanrei-sys-scroll-edge-extent: var(--tanrei-sys-space-space300);
     --tanrei-sys-shape-corner-smoothing: 0;
     --tanrei-sys-shape-corner-extra-extra-large: round(nearest, calc(var(--tanrei-dial-shape-unit) * 12), 0.25px);
     --tanrei-sys-shape-corner-extra-large: round(nearest, calc(var(--tanrei-dial-shape-unit) * 8), 0.25px);

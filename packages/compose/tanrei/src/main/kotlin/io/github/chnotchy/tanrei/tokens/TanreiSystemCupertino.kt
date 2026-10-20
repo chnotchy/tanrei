@@ -56,7 +56,7 @@ private object CupertinoSystemSource {
             ),
             motion = motion(),
             elevation = elevation,
-            behavior = TanreiBehavior(appearance = TanreiAppearance.FadeScale, dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Dim, requirementMark = TanreiRequirementMark.None, separation = TanreiSeparation.Divider),
+            behavior = TanreiBehavior(appearance = TanreiAppearance.FadeScale, dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Dim, requirementMark = TanreiRequirementMark.None, scrollEdge = TanreiScrollEdge.Blur, separation = TanreiSeparation.Divider),
             accordion = accordion(typescale, elevation),
             appBar = appBar(typescale, elevation),
             appShell = appShell(typescale, elevation),
@@ -118,6 +118,7 @@ private object CupertinoSystemSource {
             progressIndicator = progressIndicator(typescale, elevation),
             prose = prose(typescale, elevation),
             radioButton = radioButton(typescale, elevation),
+            scrollArea = scrollArea(typescale, elevation),
             search = search(typescale, elevation),
             segmentedButton = segmentedButton(typescale, elevation),
             select = select(typescale, elevation),
@@ -6621,6 +6622,22 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun scrollArea(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiScrollAreaTokens =
+        TanreiScrollAreaTokens(
+            blurExtent = 48.dp,
+            blurLayers = 4f,
+            blurRadius = 8.dp,
+            fadeExtent = 24.dp,
+            lineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            lineWidth = 1.dp,
+            motionDuration = 250,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            scrollEdge = 3f,
+            shadowColor = TanreiPaint.Role(TanreiColorRole.Surface),
+            shadowExtent = 24.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
