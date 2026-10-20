@@ -1,10 +1,13 @@
 // <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-1…28; DLG-25 is retired) is cited by a
 // test title, every fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and
 // its scrim are in the top layer), and every value is read back from the tokens — never from a number written here.
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
-import { type Fixture, type FixtureItem, dialogWindow, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -1006,6 +1009,73 @@ test.describe('header, reason and width', () => {
     await open(page, 'content');
     expect((await bounds(dialog(page, 'content'))).width).toBeCloseTo(c.width, 0);
     expect(seen.some((r) => r.text.includes('DLG-27') && r.text.includes('"huge"'))).toBe(true);
+  });
+});
+
+test.describe('Lit development mode', () => {
+  // Lit's development build warns (`change-in-update`) when an element sets one of its reactive properties inside its
+  // own update — in `firstUpdated` or `updated` — so that one update schedules another. A product's development server
+  // resolves Lit's `development` export, so a product sees the warning; the harness's bundle is Lit's production build,
+  // which does not check. This page defines the components from a development build of the package instead.
+  const dist = (file: string) => fileURLToPath(new URL(`../../../dist/${file}`, import.meta.url));
+  let development: string | undefined;
+  const developmentBundle = () =>
+    (development ??= buildSync({
+      entryPoints: [dist('all.js')],
+      bundle: true,
+      write: false,
+      format: 'esm',
+      conditions: ['development'],
+      define: { 'process.env.NODE_ENV': '"development"' },
+    }).outputFiles[0].text.replaceAll('</script', '<\\/script'));
+
+  test('mounting, opening, changing and closing it never schedules an update from inside an update (Lit’s change-in-update)', async ({ page }) => {
+    await page.setViewportSize(WIDE);
+    // `basic` is written open; the others are opened, changed and closed one by one.
+    const fixtures = [spec.fixtures.find((fx) => fx.id === 'basic')!, f('words'), closed('icon'), closed('content'), closed('scrolling')];
+    const production = fs.readFileSync(dist('tanrei.bundle.js'), 'utf8');
+    // Before the bundle: every change-in-update warning is kept with the step it came in, and Lit is made to warn again
+    // the next time (it warns once a page for each message, and the message names only the tag).
+    const lead = `<script>
+      window.step = 'mount';
+      window.seen = [];
+      const warn = console.warn;
+      console.warn = (...args) => {
+        if (String(args[0]).includes('change-in-update')) {
+          window.seen.push(window.step);
+          // Lit records the message after it is written.
+          queueMicrotask(() => globalThis.litIssuedWarnings?.clear());
+        }
+        warn(...args);
+      };
+    </script>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures, lead });
+    expect(markup.includes(production), 'the document embeds the production bundle this test replaces').toBe(true);
+    await page.setContent(markup.replace(production, developmentBundle));
+    await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
+    await expect.poll(() => isOpen(page, 'basic')).toBe(true);
+    // Lit's development build keeps the warnings it issued here, so the page is known to run it.
+    const isDevelopment = await page.evaluate(() => (globalThis as { litIssuedWarnings?: Set<string> }).litIssuedWarnings instanceof Set);
+    expect(isDevelopment, 'the page runs Lit’s development build').toBe(true);
+    for (const { id } of fixtures) {
+      await host(page, id).evaluate(async (el: any, fixture) => {
+        const step = async (name: string, change: () => void) => {
+          (window as any).step = `${fixture} ${name}`;
+          change();
+          await el.updateComplete;
+          await new Promise(requestAnimationFrame);
+          await el.updateComplete;
+        };
+        if (!el.open) await step('open', () => (el.open = true));
+        await step('width', () => (el.width = 'large'));
+        await step('headline', () => (el.headline = `${el.headline} (changed)`));
+        // A child added while it is open: the parts it fills change.
+        await step('content', () => el.append(Object.assign(document.createElement('p'), { textContent: 'More content' })));
+        await step('close', () => (el.open = false));
+      }, id);
+      await expect.poll(() => isOpen(page, id)).toBe(false);
+    }
+    expect(await page.evaluate(() => (window as any).seen)).toEqual([]);
   });
 });
 

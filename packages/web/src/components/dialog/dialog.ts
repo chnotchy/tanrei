@@ -226,8 +226,18 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     if (this.shown) this.withdraw(false);
   }
 
-  /** DLG-8, DLG-10: which child goes to which slot, and the actions' runs. */
+  /**
+   * DLG-8, DLG-10: which child goes to which slot, and the actions' runs. A change in which parts are filled is drawn by
+   * the update it requests, which assigns and lays out the slots it draws; otherwise they are assigned and laid out here.
+   */
   private readSlots() {
+    if (this.readChildren()) return;
+    this.assign();
+    this.layout();
+  }
+
+  /** DLG-8, DLG-10, DLG-20: the children by slot, the actions given their variant; true when the filled parts changed. */
+  private readChildren(): boolean {
     const nodes = [...this.childNodes];
     const slotted = (node: Node, slot: string) => node instanceof Element && node.getAttribute('slot') === slot;
     this.icons = nodes.filter((node) => slotted(node, 'icon')) as Element[];
@@ -237,11 +247,9 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     this.placement.read(nodes.filter((node) => slotted(node, 'actions')) as Element[]);
     this.giveVariant();
     const filled = { icon: this.icons.length > 0, content: this.content.length > 0, actions: this.placement.actions.length > 0 };
-    if (filled.icon !== this.filled.icon || filled.content !== this.filled.content || filled.actions !== this.filled.actions) this.filled = filled;
-    else {
-      this.assign();
-      this.layout();
-    }
+    if (filled.icon === this.filled.icon && filled.content === this.filled.content && filled.actions === this.filled.actions) return false;
+    this.filled = filled;
+    return true;
   }
 
   /** DLG-20: every action is told the dialog's variant, which it draws while its own is not set; a former action, none. */
@@ -477,8 +485,16 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
 
   private readonly onScroll = () => this.syncDividers();
 
+  /**
+   * The children are read before the first render, so that it draws the parts they fill. Read after it (in
+   * `firstUpdated`), a change of `filled` would schedule a second update from inside the first, which Lit's development
+   * build warns about (`change-in-update`). `updated` assigns them to the slots the render drew.
+   */
+  protected override willUpdate() {
+    if (!this.hasUpdated) this.readChildren();
+  }
+
   protected override firstUpdated() {
-    this.readSlots();
     const dialog = this.dialog;
     if (dialog) this.resize$?.observe(dialog);
   }
