@@ -13,7 +13,9 @@
 // The native element is given its end height at once (`--_rows`, which the component's stylesheet multiplies by one
 // line of its text style). A box as tall as its text has nothing to scroll, so the browser never scrolls the first line
 // away to show a caret on a line the box does not hold yet; the first line stays at the top edge at every frame, and
-// the box, which clips while it moves, uncovers the new lines as its bottom edge passes them. Going down, the element is
+// the box, which clips while it moves, uncovers the new lines as its bottom edge passes them. The box clips without
+// being a scroll container (`overflow: clip` in the component's stylesheet): one that only hides what overflows it can
+// still be scrolled, and the browser would scroll it to reveal the caret on the new line. Going down, the element is
 // the smaller height at once and the box still holds the room that leaves.
 //
 // It holds no token and writes no duration: the component's stylesheet says how `[data-resizing]` moves
