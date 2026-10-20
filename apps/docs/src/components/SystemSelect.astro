@@ -62,11 +62,6 @@ const t = strings(Astro.props.lang);
   .docs-system:not(:defined) > tanrei-option {
     display: none;
   }
-  /* In the sidebar it stands in the drawer's header, with the switch: drawn with the drawer, and until the drawer is
-     defined it has no box among the sidebar's plain links. */
-  .docs-sidebar:not(:defined) > .docs-system:not(:defined) {
-    display: none;
-  }
   /* Where no script runs nothing is hidden and nothing can be chosen: the select is not drawn, and takes no room. */
   @media (scripting: none) {
     .docs-system:not(:defined) {
