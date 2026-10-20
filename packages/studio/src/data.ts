@@ -12,7 +12,7 @@ import resolver from '../../../tokens/tanrei.resolver.json';
 // The generated status file, written from the specs: each component's level, listing and members (./listing.js).
 import status from '../../../docs/status/status.json';
 // The build's own emitter and invariants; their filesystem-bound import is swapped by ../vite-plugin.js.
-import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
+import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
 import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
@@ -54,6 +54,7 @@ export const studio = createStudio({
   contrast,
   idToVar,
   cssColor,
+  declarations,
   catalog: catalogOf(status),
 });
 export type Studio = typeof studio;

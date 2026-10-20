@@ -63,8 +63,11 @@ function colorExpression(rule) {
   return null;
 }
 
-/** One token → one or more `[name, value]` declarations. */
-function declarations(token) {
+/**
+ * One token → one or more `[name, value]` declarations. Exported for Theme Studio, which writes a dragged dial — and
+ * the few declarations that follow it as literals — the way this emitter writes them, without emitting the sheet.
+ */
+export function declarations(token) {
   const name = idToVar(token.id);
   if (token.alias && token.type !== 'typography') return [[name, ref(token.alias)]];
   // A choice of kind reaches CSS as its NAME — `--tanrei-sys-behavior-pressed-feedback: ripple` — so

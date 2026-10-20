@@ -400,16 +400,16 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // ── what is typed, stepped or dragged ─────────────────────────────────────────────────────────
   // A drag reports a value for every move of the pointer — a picker or a slider, many times a frame — and computing
   // the layer is the whole build: the token engine, the emitter and the checks. So a value shown while it moves is
-  // shown at the next frame, the latest one only. A palette's color is drawn from the palette alone, into the sheet
-  // that is there (core.paletteProperties, preview.patch); the layer is computed when the value is committed, or once
-  // the pointer has rested a moment — and every other value is computed at that frame.
+  // shown at the next frame, the latest one only. A palette's color and a dial are drawn without computing the layer,
+  // into the sheet that is there (core.liveProperties, preview.patch); the layer is computed when the value is
+  // committed, or once the pointer has rested a moment — and every other value is computed at that frame.
   let frame = 0;
   let resting: number | undefined;
   const REST = 150;
   function follow() {
     frame ||= requestAnimationFrame(() => {
       frame = 0;
-      const properties = last ? (studio.paletteProperties(last, layer) as Record<string, string> | null) : null;
+      const properties = last ? (studio.liveProperties(last, layer) as Record<string, string> | null) : null;
       if (!properties) return update();
       preview.patch(properties);
       window.clearTimeout(resting);
