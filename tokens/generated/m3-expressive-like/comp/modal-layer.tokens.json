@@ -44,23 +44,23 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
-            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+            "$value": "{tanrei.sys.motion.role.appear.modal.enter}",
+            "$description": "How long the scrim takes to fade in as a modal surface opens. It is the modal role's entrance, as each modal surface's own enter duration is, so that the surface arrives with its scrim."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}",
-            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+            "$value": "{tanrei.sys.motion.easing.enter}",
+            "$description": "The curve of the scrim's fade in; the entrance curve, as each modal surface's own enter easing is."
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+            "$value": "{tanrei.sys.motion.role.appear.modal.exit}",
+            "$description": "How long the scrim takes to fade out as a modal surface closes. It is the modal role's exit, as each modal surface's own exit duration is, so that the surface leaves with its scrim."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}",
-            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+            "$value": "{tanrei.sys.motion.easing.exit}",
+            "$description": "The curve of the scrim's fade out; the exit curve, as each modal surface's own exit easing is."
           }
         }
       }

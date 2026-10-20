@@ -206,7 +206,7 @@
           },
           "show-delay": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$value": "{tanrei.sys.motion.role.show-delay}",
             "$description": "How long the indicator waits, from the moment it is inserted, before it is drawn and exposed to assistive technology, so that a wait shorter than this shows nothing instead of a mark that flashes. Its box is kept during the wait."
           },
           "entrance": {
@@ -228,12 +228,14 @@
           "enter-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "The length of the entrance, fade or grow."
+            "$description": "The length of the entrance, fade or grow.",
+            "$extensions": {}
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.standard-decelerate}",
-            "$description": "The curve of the entrance: it arrives fast and settles, as an element entering the screen does."
+            "$description": "The curve of the entrance: it arrives fast and settles, as an element entering the screen does.",
+            "$extensions": {}
           }
         }
       }

@@ -1266,7 +1266,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     containerShape: 9999.0,
     motionBusyCycleDuration: 1000,
     motionFeedbackDuration: 450,
-    motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
@@ -1284,6 +1283,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
+        motionStateDuration: 150,
       ),
       medium: TanreiButtonSizeTokens(
         containerHeight: 56.0,
@@ -1299,6 +1299,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
+        motionStateDuration: 150,
       ),
       large: TanreiButtonSizeTokens(
         containerHeight: 96.0,
@@ -1314,6 +1315,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         iconSizeWithoutLabel: 32.0,
         containerGap: 12.0,
         outlineWidth: 2.0,
+        motionStateDuration: 150,
       ),
       extra: <TanreiButtonSize, TanreiButtonSizeTokens>{
         M3ExpressiveLikeButtonSize.xsmall: TanreiButtonSizeTokens(
@@ -1330,6 +1332,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
           iconSizeWithoutLabel: 20.0,
           containerGap: 8.0,
           outlineWidth: 1.0,
+          motionStateDuration: 150,
         ),
         M3ExpressiveLikeButtonSize.xlarge: TanreiButtonSizeTokens(
           containerHeight: 136.0,
@@ -1345,6 +1348,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
           iconSizeWithoutLabel: 40.0,
           containerGap: 16.0,
           outlineWidth: 3.0,
+          motionStateDuration: 150,
         ),
       },
     ),
@@ -2853,7 +2857,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionSelectionDuration: 150,
     motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1.0),
-    motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineWidth: 1.0,
     removeContainerShape: 9999.0,
@@ -2870,6 +2873,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         iconSize: 20.0,
         avatarSize: 16.0,
         removeContainerSize: 24.0,
+        motionStateDuration: 150,
       ),
       medium: TanreiChipSizeTokens(
         containerHeight: 32.0,
@@ -2883,6 +2887,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         iconSize: 18.0,
         avatarSize: 24.0,
         removeContainerSize: 28.0,
+        motionStateDuration: 150,
       ),
     ),
     variants: TanreiChipVariants(
@@ -4518,7 +4523,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     containerShapeBottom: 0.0,
     motionLabelDuration: 150,
     motionLabelEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
-    motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineNotchPadding: 4.0,
     outlineWidth: 1.0,
@@ -4537,6 +4541,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelFloatedTypescale: _typescaleBodySmall,
         inputTypescale: _typescaleBody,
         iconSize: 20.0,
+        motionStateDuration: 150,
       ),
       medium: TanreiInputBoxSizeTokens(
         containerHeight: 56.0,
@@ -4549,6 +4554,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelFloatedTypescale: _typescaleBodySmall,
         inputTypescale: _typescaleBodyLarge,
         iconSize: 24.0,
+        motionStateDuration: 150,
       ),
       large: TanreiInputBoxSizeTokens(
         containerHeight: 56.0,
@@ -4561,6 +4567,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelFloatedTypescale: _typescaleBodySmall,
         inputTypescale: _typescaleBodyLarge,
         iconSize: 24.0,
+        motionStateDuration: 150,
       ),
     ),
     variants: TanreiInputBoxVariants(
@@ -5346,7 +5353,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionResizeDuration: 500,
     motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
-    motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     sizes: TanreiMainActionButtonSizes(
       small: TanreiMainActionButtonSizeTokens(
@@ -5360,6 +5366,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         containerGap: 8.0,
         labelTypescale: _typescaleLabel,
         iconSize: 24.0,
+        motionStateDuration: 150,
       ),
       medium: TanreiMainActionButtonSizeTokens(
         containerHeight: 56.0,
@@ -5372,6 +5379,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         containerGap: 12.0,
         labelTypescale: _typescaleLabel,
         iconSize: 24.0,
+        motionStateDuration: 150,
       ),
       large: TanreiMainActionButtonSizeTokens(
         containerHeight: 96.0,
@@ -5384,6 +5392,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         containerGap: 16.0,
         labelTypescale: _typescaleHeading5,
         iconSize: 36.0,
+        motionStateDuration: 150,
       ),
     ),
     variants: TanreiMainActionButtonVariants(
@@ -7328,7 +7337,6 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionSelectionDuration: 150,
     motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1.0),
-    motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineColor: TanreiPaint.role(TanreiColorRole.outline),
     outlineWidth: 1.0,
@@ -7344,6 +7352,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelTypescale: _typescaleLabel,
         iconSize: 18.0,
         checkSize: 18.0,
+        motionStateDuration: 150,
       ),
       medium: TanreiSegmentedButtonSizeTokens(
         containerHeight: 40.0,
@@ -7353,6 +7362,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelTypescale: _typescaleLabel,
         iconSize: 18.0,
         checkSize: 18.0,
+        motionStateDuration: 150,
       ),
       large: TanreiSegmentedButtonSizeTokens(
         containerHeight: 48.0,
@@ -7362,6 +7372,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
         labelTypescale: _typescaleLabel,
         iconSize: 18.0,
         checkSize: 18.0,
+        motionStateDuration: 150,
       ),
     ),
     conditions: TanreiSegmentedButtonConditions(

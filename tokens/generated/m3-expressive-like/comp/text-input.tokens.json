@@ -135,12 +135,13 @@
         "motion": {
           "resize-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.resize.default}",
             "$description": "How long an auto-resized multi-line input takes to change height when its number of lines changes."
           },
           "resize-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$extensions": {}
           }
         },
         "entries": {

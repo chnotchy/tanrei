@@ -226,7 +226,7 @@
           "disclosure-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long an item takes to open or close: its content revealed or hidden, what follows moving, and its chevron turning. The name and the value of a navigation drawer group's."
@@ -234,9 +234,9 @@
           "disclosure-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -251,7 +251,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a state change of a header takes."
@@ -1654,7 +1654,7 @@
           "condition-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the bar takes to change between flat and scrolled."
@@ -3053,35 +3053,35 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 400,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 350,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the modal layer's."
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "feedback-duration": {
@@ -3095,7 +3095,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -3631,7 +3631,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -5451,7 +5451,7 @@
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "The chevron turning or cross-fading to its open form, and the trailing half's inner corners changing where inner-shape-open differs from inner-shape, when the menu opens or closes."
@@ -5459,16 +5459,16 @@
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -10167,10 +10167,26 @@
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -15657,7 +15673,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -18657,7 +18673,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -19633,7 +19649,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -20263,7 +20279,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the capsule's edge and fill take to change between rest, hover, focus, error and the receiving condition, and the counter to change color."
@@ -22567,7 +22583,7 @@
           "mark-scale-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the glyph takes to grow in from, or shrink out to, mark-enter-scale when the condition changes."
@@ -22575,9 +22591,9 @@
           "mark-scale-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ],
             "$description": "The curve of the glyph's scale. A size may overshoot and settle; this is a spatial curve."
@@ -22585,7 +22601,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the box, outline and glyph take to change color, and the glyph to fade in or out, when the condition changes."
@@ -22593,17 +22609,17 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.31,
-              0.94,
-              0.34,
+              0.2,
+              0,
+              0,
               1
             ],
-            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is an effects curve."
+            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is the curve of a change of state."
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -25688,7 +25704,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a filter chip takes to show or hide its check (the chip's width changes with it) and to change to or from the selected look."
@@ -25696,17 +25712,26 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.31,
-              0.94,
-              0.34,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -28839,7 +28864,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long colors and edge widths take to follow a change of state."
@@ -30765,7 +30790,7 @@
           "resize-duration": {
             "$type": "duration",
             "$value": {
-              "value": 500,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long the label's box takes to change its width to the text now shown, while labelWidth is fit (CPY-19). Unused while labelWidth is widest; at once where motion is reduced."
@@ -30773,9 +30798,9 @@
           "resize-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           }
@@ -31091,7 +31116,7 @@
             "close-duration": {
               "$type": "duration",
               "$value": {
-                "value": 100,
+                "value": 250,
                 "unit": "ms"
               }
             },
@@ -31100,23 +31125,23 @@
               "$value": [
                 0.3,
                 0,
-                0.8,
-                0.15
+                1,
+                1
               ]
             },
             "open-duration": {
               "$type": "duration",
               "$value": {
-                "value": 200,
+                "value": 300,
                 "unit": "ms"
               }
             },
             "open-easing": {
               "$type": "cubicBezier",
               "$value": [
-                0.05,
-                0.7,
-                0.1,
+                0.2,
+                0,
+                0,
                 1
               ]
             }
@@ -31467,7 +31492,7 @@
             "close-duration": {
               "$type": "duration",
               "$value": {
-                "value": 200,
+                "value": 300,
                 "unit": "ms"
               }
             },
@@ -31476,8 +31501,8 @@
               "$value": [
                 0.3,
                 0,
-                0.8,
-                0.15
+                1,
+                1
               ]
             },
             "enter-scale": {
@@ -31488,16 +31513,16 @@
             "open-duration": {
               "$type": "duration",
               "$value": {
-                "value": 300,
+                "value": 350,
                 "unit": "ms"
               }
             },
             "open-easing": {
               "$type": "cubicBezier",
               "$value": [
-                0.05,
-                0.7,
-                0.1,
+                0.2,
+                0,
+                0,
                 1
               ]
             }
@@ -31556,7 +31581,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -33107,16 +33132,16 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 350,
               "unit": "ms"
             }
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -33128,7 +33153,7 @@
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             }
           },
@@ -33137,8 +33162,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           }
         },
@@ -33377,7 +33402,7 @@
           "duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the overlay takes to fade in when a drag of files enters the zone, and to fade out when it leaves, ends or drops; and how long a change between taking and refusing takes."
@@ -33628,7 +33653,7 @@
           "resize-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long the height takes to change when the number of lines shown changes (ETI-8)."
@@ -34441,7 +34466,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a change of the frame's colors takes when focus enters or leaves, or the error or disabled condition changes: the text field's state duration."
@@ -35715,7 +35740,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a change of the colors of the body or of an action takes between states."
@@ -36851,7 +36876,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a change of the area's colors takes between states and conditions."
@@ -37854,7 +37879,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             },
             "$description": "How long the line takes to grow, thicken, darken and appear, and the box's state layer to change."
@@ -38392,7 +38417,7 @@
           "controls-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "The fade of the bar, the previous and next controls and the caption when they are hidden or shown."
@@ -38409,16 +38434,16 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 350,
               "unit": "ms"
             }
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -38430,7 +38455,7 @@
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             }
           },
@@ -38439,8 +38464,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "page-duration": {
@@ -40540,7 +40565,7 @@
           "label-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the label takes to float or rest."
@@ -40555,10 +40580,26 @@
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -44283,7 +44324,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -45493,7 +45534,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -46814,7 +46855,7 @@
           "reorder-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long an item takes to change place: the items that slide aside under a dragged one, the dropped item settling, an item lifted by the keyboard stepping to its next place, and items changing places after a move (LST-38, LST-41). Longer than a change of color: something crosses the length of an item."
@@ -46831,7 +46872,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -47687,7 +47728,7 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "The length of the entrance, fade or grow."
@@ -47695,7 +47736,7 @@
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0,
+              0.2,
               0,
               0,
               1
@@ -48754,7 +48795,7 @@
           "resize-duration": {
             "$type": "duration",
             "$value": {
-              "value": 500,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long the container takes to collapse to its icon or extend to show its label."
@@ -48762,17 +48803,33 @@
           "resize-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -52887,7 +52944,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -55161,7 +55218,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -56050,38 +56107,38 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 350,
               "unit": "ms"
             },
-            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+            "$description": "How long the scrim takes to fade in as a modal surface opens. It is the modal role's entrance, as each modal surface's own enter duration is, so that the surface arrives with its scrim."
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ],
-            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+            "$description": "The curve of the scrim's fade in; the entrance curve, as each modal surface's own enter easing is."
           },
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
-            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+            "$description": "How long the scrim takes to fade out as a modal surface closes. It is the modal role's exit, as each modal surface's own exit duration is, so that the surface leaves with its scrim."
           },
           "exit-easing": {
             "$type": "cubicBezier",
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ],
-            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+            "$description": "The curve of the scrim's fade out; the exit curve, as each modal surface's own exit easing is."
           }
         },
         "scrim": {
@@ -57370,7 +57427,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the active indicator takes to slide to the newly selected destination, or to settle or return when a drag of it is released (the covered icon and label follow it over the same time), the icon indicator to grow in and the previous one to fade out, and labels to appear and disappear."
@@ -57378,16 +57435,16 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a state change takes, and how long the active indicator takes to come to the pointer when a drag is taken away from where it rests."
@@ -60473,7 +60530,7 @@
           "disclosure-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long a group takes to open or close: its destinations revealed or hidden, the rows below moving, and its chevron turning."
@@ -60481,50 +60538,50 @@
           "disclosure-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 400,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 350,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "expand-duration": {
             "$type": "duration",
             "$value": {
-              "value": 500,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long the drawer takes to widen from the icon column to its full width, or to narrow back, with every part that changes on the way (the edge, the labels, the active indicator, the header)."
@@ -60532,9 +60589,9 @@
           "expand-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -60549,7 +60606,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long an icon indicator takes to grow in (and the previous one to fade out), and short labels to appear and disappear, when the selection changes. The item container does not use it: it changes color in place over state-duration."
@@ -60557,16 +60614,16 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a state change takes, and how long the item containers take to change color when the selection changes."
@@ -62093,7 +62150,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a change of a cell’s colors and line takes when the state, the active cell, error or disabled changes: the text field’s state duration."
@@ -64143,7 +64200,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -65032,7 +65089,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -66529,7 +66586,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the ring's stroke takes to thicken or thin, and the ring and fill to change color (the fill from none to its color and back), when the selection changes."
@@ -66537,16 +66594,16 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.31,
-              0.94,
-              0.34,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -67612,7 +67669,7 @@
           "close-duration": {
             "$type": "duration",
             "$value": {
-              "value": 100,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -67621,8 +67678,8 @@
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           },
           "feedback-duration": {
@@ -67636,23 +67693,23 @@
           "open-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             }
           },
           "open-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -69402,7 +69459,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "The check appearing or leaving and the segment changing to or from the selected colors."
@@ -69410,17 +69467,33 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.31,
-              0.94,
-              0.34,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
+            "large": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "medium": {
+              "$type": "duration",
+              "$value": {
+                "value": 250,
+                "unit": "ms"
+              }
+            },
+            "small": {
+              "$type": "duration",
+              "$value": {
+                "value": 200,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -71319,7 +71392,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a change of colors and edge widths takes."
@@ -73455,35 +73528,35 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 400,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 350,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the role of a sheet's exit, so that every sheet of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
             "$value": [
               0.3,
               0,
-              0.8,
-              0.15
+              1,
+              1
             ]
           }
         },
@@ -73737,7 +73810,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -73753,7 +73826,7 @@
           "value-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the handle takes to reach a value set by a key, assistive technology, a tap on the track or the product. A drag follows the press without it."
@@ -73761,9 +73834,9 @@
           "value-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           }
@@ -77508,23 +77581,23 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 250,
+              "value": 350,
               "unit": "ms"
             }
           },
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 300,
               "unit": "ms"
             }
           },
@@ -77540,7 +77613,7 @@
           "expand-duration": {
             "$type": "duration",
             "$value": {
-              "value": 300,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long the bar takes to grow to its expanded height or shrink back."
@@ -77565,7 +77638,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             }
           },
@@ -80394,7 +80467,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a step's colors take to change between states and conditions."
@@ -81189,7 +81262,7 @@
           "selection-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the handle takes to travel along the track, and the track and handle to change color, when the switch changes."
@@ -81197,16 +81270,16 @@
           "selection-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             }
           },
@@ -82468,7 +82541,7 @@
           "fade-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 100,
               "unit": "ms"
             },
             "$description": "Where motion is reduced, how long the crossfade that replaces the switch takes."
@@ -82476,17 +82549,17 @@
           "fade-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.34,
-              0.8,
-              0.34,
+              0.2,
+              0,
+              0,
               1
             ],
-            "$description": "The reduced-motion crossfade's easing: an effects curve, which never overshoots."
+            "$description": "The reduced-motion crossfade's easing: the curve of a change of state, which never overshoots."
           },
           "switch-duration": {
             "$type": "duration",
             "$value": {
-              "value": 500,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a switch takes when a tab is selected, and how long the rest of it takes after a swipe is released. The tabs' indicator slides over the same default, so the two land together."
@@ -82494,9 +82567,9 @@
           "switch-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ],
             "$description": "The switch's easing. A spatial spring may overshoot; the travel follows it, the fade and the blur stop at their end points."
@@ -83318,7 +83391,7 @@
           "disclosure-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long the compact form takes to open or close: its list revealed or hidden, what follows moving, and its chevron turning. The name and the value of an accordion item's and of a navigation drawer group's."
@@ -83326,9 +83399,9 @@
           "disclosure-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -83343,7 +83416,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a state change of a row takes, and how long the marker and the weight of the current item take to change."
@@ -83793,7 +83866,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a sortable header takes to change between its states."
@@ -84860,7 +84933,7 @@
           "indicator-duration": {
             "$type": "duration",
             "$value": {
-              "value": 500,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the active indicator and the underline take to slide and resize to the newly selected tab, and to settle on a tab, or return to the selected one, when a drag is released; the covered label and icon follow the indicator over the same time."
@@ -84868,16 +84941,16 @@
           "indicator-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a tab's colors take to change between states, and how long the active indicator takes to reach the pointer when a drag is taken away from it."
@@ -91132,7 +91205,7 @@
           "resize-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 300,
               "unit": "ms"
             },
             "$description": "How long an auto-resized multi-line input takes to change height when its number of lines changes."
@@ -92122,7 +92195,7 @@
           "enter-duration": {
             "$type": "duration",
             "$value": {
-              "value": 200,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long the tooltip takes to fade in, grow and travel to its place."
@@ -92130,9 +92203,9 @@
           "enter-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.05,
-              0.7,
-              0.1,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -92152,7 +92225,7 @@
           "exit-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 200,
               "unit": "ms"
             },
             "$description": "How long the tooltip takes to fade out, shrink and travel back."
@@ -92934,7 +93007,7 @@
           "disclosure-duration": {
             "$type": "duration",
             "$value": {
-              "value": 350,
+              "value": 400,
               "unit": "ms"
             },
             "$description": "How long a parent takes to open or close: its rows revealed or hidden, what follows moving, and its chevron turning. The name and the value of a navigation drawer group's and an accordion's."
@@ -92942,9 +93015,9 @@
           "disclosure-easing": {
             "$type": "cubicBezier",
             "$value": [
-              0.27,
-              1.06,
-              0.18,
+              0.2,
+              0,
+              0,
               1
             ]
           },
@@ -92959,7 +93032,7 @@
           "state-duration": {
             "$type": "duration",
             "$value": {
-              "value": 150,
+              "value": 250,
               "unit": "ms"
             },
             "$description": "How long a state change of a row takes."

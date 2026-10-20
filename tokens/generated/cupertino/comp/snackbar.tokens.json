@@ -1121,36 +1121,36 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium1}"
+            "$value": "{tanrei.sys.motion.role.appear.toast.enter}"
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.appear.toast.exit}"
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press on a control takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "expand-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
             "$description": "How long the bar takes to grow to its expanded height or shrink back.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -1161,7 +1161,7 @@
           },
           "expand-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "As expand-duration: expanding in place moves by its own curve.",

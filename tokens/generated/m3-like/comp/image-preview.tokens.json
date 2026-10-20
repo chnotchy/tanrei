@@ -229,11 +229,11 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}"
+            "$value": "{tanrei.sys.motion.role.appear.modal.enter}"
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "enter-scale": {
             "$type": "number",
@@ -247,11 +247,11 @@
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}"
+            "$value": "{tanrei.sys.motion.role.appear.modal.exit}"
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "zoom-duration": {
             "$type": "duration",
@@ -283,12 +283,12 @@
           },
           "controls-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "The fade of the bar, the previous and next controls and the caption when they are hidden or shown."
           },
           "controls-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

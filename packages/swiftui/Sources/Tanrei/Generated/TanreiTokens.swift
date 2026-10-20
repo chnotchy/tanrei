@@ -2774,6 +2774,7 @@ public struct TanreiButtonSizeTokens: Sendable, Equatable {
   public var iconSizeWithoutLabel: CGFloat
   public var containerGap: CGFloat
   public var outlineWidth: CGFloat
+  public var motionStateDuration: Double
 
   public init(
     containerHeight: CGFloat,
@@ -2788,7 +2789,8 @@ public struct TanreiButtonSizeTokens: Sendable, Equatable {
     iconSize: CGFloat,
     iconSizeWithoutLabel: CGFloat,
     containerGap: CGFloat,
-    outlineWidth: CGFloat
+    outlineWidth: CGFloat,
+    motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInlineNarrow = containerPaddingInlineNarrow
@@ -2803,6 +2805,7 @@ public struct TanreiButtonSizeTokens: Sendable, Equatable {
     self.iconSizeWithoutLabel = iconSizeWithoutLabel
     self.containerGap = containerGap
     self.outlineWidth = outlineWidth
+    self.motionStateDuration = motionStateDuration
   }
 }
 
@@ -3048,7 +3051,6 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var motionBusyCycleDuration: Double
   public var motionFeedbackDuration: Double
-  public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var toneContainerOpacity: Double
   public var sizes: TanreiButtonSizes
@@ -3067,7 +3069,6 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     containerShape: CGFloat,
     motionBusyCycleDuration: Double,
     motionFeedbackDuration: Double,
-    motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     toneContainerOpacity: Double,
     sizes: TanreiButtonSizes,
@@ -3081,7 +3082,6 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionFeedbackDuration = motionFeedbackDuration
-    self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.toneContainerOpacity = toneContainerOpacity
     self.sizes = sizes
@@ -4545,6 +4545,7 @@ public struct TanreiChipSizeTokens: Sendable, Equatable {
   public var iconSize: CGFloat
   public var avatarSize: CGFloat
   public var removeContainerSize: CGFloat
+  public var motionStateDuration: Double
 
   public init(
     containerHeight: CGFloat,
@@ -4557,7 +4558,8 @@ public struct TanreiChipSizeTokens: Sendable, Equatable {
     labelTypescale: TanreiTextStyle,
     iconSize: CGFloat,
     avatarSize: CGFloat,
-    removeContainerSize: CGFloat
+    removeContainerSize: CGFloat,
+    motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
@@ -4570,6 +4572,7 @@ public struct TanreiChipSizeTokens: Sendable, Equatable {
     self.iconSize = iconSize
     self.avatarSize = avatarSize
     self.removeContainerSize = removeContainerSize
+    self.motionStateDuration = motionStateDuration
   }
 }
 
@@ -4786,7 +4789,6 @@ public struct TanreiChipTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionSelectionDuration: Double
   public var motionSelectionEasing: TanreiCubicBezier
-  public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
   public var removeContainerShape: CGFloat
@@ -4808,7 +4810,6 @@ public struct TanreiChipTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionSelectionDuration: Double,
     motionSelectionEasing: TanreiCubicBezier,
-    motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
     removeContainerShape: CGFloat,
@@ -4825,7 +4826,6 @@ public struct TanreiChipTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionSelectionDuration = motionSelectionDuration
     self.motionSelectionEasing = motionSelectionEasing
-    self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth
     self.removeContainerShape = removeContainerShape
@@ -8359,6 +8359,7 @@ public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
   public var labelFloatedTypescale: TanreiTextStyle
   public var inputTypescale: TanreiTextStyle
   public var iconSize: CGFloat
+  public var motionStateDuration: Double
 
   public init(
     containerHeight: CGFloat,
@@ -8370,7 +8371,8 @@ public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
     labelTypescale: TanreiTextStyle,
     labelFloatedTypescale: TanreiTextStyle,
     inputTypescale: TanreiTextStyle,
-    iconSize: CGFloat
+    iconSize: CGFloat,
+    motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
@@ -8382,6 +8384,7 @@ public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
     self.labelFloatedTypescale = labelFloatedTypescale
     self.inputTypescale = inputTypescale
     self.iconSize = iconSize
+    self.motionStateDuration = motionStateDuration
   }
 }
 
@@ -8629,7 +8632,6 @@ public struct TanreiInputBoxTokens: Sendable, Equatable {
   public var containerShapeBottom: CGFloat
   public var motionLabelDuration: Double
   public var motionLabelEasing: TanreiCubicBezier
-  public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineNotchPadding: CGFloat
   public var outlineWidth: CGFloat
@@ -8652,7 +8654,6 @@ public struct TanreiInputBoxTokens: Sendable, Equatable {
     containerShapeBottom: CGFloat,
     motionLabelDuration: Double,
     motionLabelEasing: TanreiCubicBezier,
-    motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineNotchPadding: CGFloat,
     outlineWidth: CGFloat,
@@ -8671,7 +8672,6 @@ public struct TanreiInputBoxTokens: Sendable, Equatable {
     self.containerShapeBottom = containerShapeBottom
     self.motionLabelDuration = motionLabelDuration
     self.motionLabelEasing = motionLabelEasing
-    self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineNotchPadding = outlineNotchPadding
     self.outlineWidth = outlineWidth
@@ -9854,6 +9854,7 @@ public struct TanreiMainActionButtonSizeTokens: Sendable, Equatable {
   public var containerGap: CGFloat
   public var labelTypescale: TanreiTextStyle
   public var iconSize: CGFloat
+  public var motionStateDuration: Double
 
   public init(
     containerHeight: CGFloat,
@@ -9865,7 +9866,8 @@ public struct TanreiMainActionButtonSizeTokens: Sendable, Equatable {
     containerPaddingBlock: CGFloat,
     containerGap: CGFloat,
     labelTypescale: TanreiTextStyle,
-    iconSize: CGFloat
+    iconSize: CGFloat,
+    motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
     self.containerShape = containerShape
@@ -9877,6 +9879,7 @@ public struct TanreiMainActionButtonSizeTokens: Sendable, Equatable {
     self.containerGap = containerGap
     self.labelTypescale = labelTypescale
     self.iconSize = iconSize
+    self.motionStateDuration = motionStateDuration
   }
 }
 
@@ -10057,7 +10060,6 @@ public struct TanreiMainActionButtonTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionResizeDuration: Double
   public var motionResizeEasing: TanreiCubicBezier
-  public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var sizes: TanreiMainActionButtonSizes
   public var variants: TanreiMainActionButtonVariants
@@ -10074,7 +10076,6 @@ public struct TanreiMainActionButtonTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionResizeDuration: Double,
     motionResizeEasing: TanreiCubicBezier,
-    motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     sizes: TanreiMainActionButtonSizes,
     variants: TanreiMainActionButtonVariants,
@@ -10086,7 +10087,6 @@ public struct TanreiMainActionButtonTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionResizeDuration = motionResizeDuration
     self.motionResizeEasing = motionResizeEasing
-    self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.sizes = sizes
     self.variants = variants
@@ -13427,6 +13427,7 @@ public struct TanreiSegmentedButtonSizeTokens: Sendable, Equatable {
   public var labelTypescale: TanreiTextStyle
   public var iconSize: CGFloat
   public var checkSize: CGFloat
+  public var motionStateDuration: Double
 
   public init(
     containerHeight: CGFloat,
@@ -13435,7 +13436,8 @@ public struct TanreiSegmentedButtonSizeTokens: Sendable, Equatable {
     containerGap: CGFloat,
     labelTypescale: TanreiTextStyle,
     iconSize: CGFloat,
-    checkSize: CGFloat
+    checkSize: CGFloat,
+    motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
@@ -13444,6 +13446,7 @@ public struct TanreiSegmentedButtonSizeTokens: Sendable, Equatable {
     self.labelTypescale = labelTypescale
     self.iconSize = iconSize
     self.checkSize = checkSize
+    self.motionStateDuration = motionStateDuration
   }
 }
 
@@ -13629,7 +13632,6 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionSelectionDuration: Double
   public var motionSelectionEasing: TanreiCubicBezier
-  public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
@@ -13655,7 +13657,6 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionSelectionDuration: Double,
     motionSelectionEasing: TanreiCubicBezier,
-    motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
@@ -13676,7 +13677,6 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionSelectionDuration = motionSelectionDuration
     self.motionSelectionEasing = motionSelectionEasing
-    self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth

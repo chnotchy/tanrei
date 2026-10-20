@@ -1739,15 +1739,14 @@ export const m3Like = {
       hoveredOpacity: 1,
       motionBusyCycleDuration: 1000,
       motionFeedbackDuration: 450,
-      motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 9999,
       pressedOpacity: 1,
       toneContainerOpacity: 0.16,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 12, containerPaddingInlineEnd: 12, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1 },
-        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1 },
-        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1 },
+        small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 12, containerPaddingInlineEnd: 12, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
+        large: { containerHeight: 56, containerPaddingInlineNarrow: 12, containerWidthWide: 72, containerPaddingInlineStart: 24, containerPaddingInlineEnd: 24, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 24, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1, motionStateDuration: 150 },
       },
       variants: {
         filled: {
@@ -4224,14 +4223,13 @@ export const m3Like = {
       motionFeedbackDuration: 450,
       motionSelectionDuration: 150,
       motionSelectionEasing: [0.31, 0.94, 0.34, 1],
-      motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       outlineWidth: 1,
       pressedOpacity: 1,
       removeContainerShape: 9999,
       sizes: {
-        small: { containerHeight: 24, containerPaddingInline: 8, containerPaddingInlineWithIcon: 6, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 6, containerPaddingBlock: 2, containerGap: 4, labelTypescale: "labelSmall", iconSize: 20, avatarSize: 16, removeContainerSize: 24 },
-        medium: { containerHeight: 32, containerPaddingInline: 16, containerPaddingInlineWithIcon: 8, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 8, containerPaddingBlock: 4, containerGap: 8, labelTypescale: "label", iconSize: 18, avatarSize: 24, removeContainerSize: 28 },
+        small: { containerHeight: 24, containerPaddingInline: 8, containerPaddingInlineWithIcon: 6, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 6, containerPaddingBlock: 2, containerGap: 4, labelTypescale: "labelSmall", iconSize: 20, avatarSize: 16, removeContainerSize: 24, motionStateDuration: 150 },
+        medium: { containerHeight: 32, containerPaddingInline: 16, containerPaddingInlineWithIcon: 8, containerPaddingInlineWithAvatar: 4, containerPaddingInlineWithRemove: 8, containerPaddingBlock: 4, containerGap: 8, labelTypescale: "label", iconSize: 18, avatarSize: 24, removeContainerSize: 28, motionStateDuration: 150 },
       },
       variants: {
         outlined: {
@@ -6784,7 +6782,6 @@ export const m3Like = {
       hoveredOutlineWidth: 1,
       motionLabelDuration: 150,
       motionLabelEasing: [0.2, 0, 0, 1],
-      motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       outlineNotchPadding: 4,
       outlineWidth: 1,
@@ -6792,9 +6789,9 @@ export const m3Like = {
       selectionColor: { kind: "role", role: "primaryContainer" },
       selectionContentColor: { kind: "role", role: "onSurface" },
       sizes: {
-        small: { containerHeight: 40, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "body", iconSize: 20 },
-        medium: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24 },
-        large: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24 },
+        small: { containerHeight: 40, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 150 },
+        medium: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
+        large: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
       },
       variants: {
         stacked: {
@@ -7945,13 +7942,12 @@ export const m3Like = {
       motionFeedbackDuration: 450,
       motionResizeDuration: 500,
       motionResizeEasing: [0.27, 1.06, 0.18, 1],
-      motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedOpacity: 1,
       sizes: {
-        small: { containerHeight: 40, containerShape: 12, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 24 },
-        medium: { containerHeight: 56, containerShape: 16, containerPaddingInlineStart: 20, containerPaddingInlineEnd: 20, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 20, containerPaddingBlock: 6, containerGap: 12, labelTypescale: "label", iconSize: 24 },
-        large: { containerHeight: 96, containerShape: 28, containerPaddingInlineStart: 32, containerPaddingInlineEnd: 32, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 32, containerPaddingBlock: 6, containerGap: 16, labelTypescale: "heading5", iconSize: 36 },
+        small: { containerHeight: 40, containerShape: 12, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 24, motionStateDuration: 150 },
+        medium: { containerHeight: 56, containerShape: 16, containerPaddingInlineStart: 20, containerPaddingInlineEnd: 20, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 20, containerPaddingBlock: 6, containerGap: 12, labelTypescale: "label", iconSize: 24, motionStateDuration: 150 },
+        large: { containerHeight: 96, containerShape: 28, containerPaddingInlineStart: 32, containerPaddingInlineEnd: 32, containerPaddingInlineStartWithIcon: 24, containerPaddingInlineEndWithIcon: 32, containerPaddingBlock: 6, containerGap: 16, labelTypescale: "heading5", iconSize: 36, motionStateDuration: 150 },
       },
       variants: {
         filled: {
@@ -10868,7 +10864,6 @@ export const m3Like = {
       motionFeedbackDuration: 450,
       motionSelectionDuration: 150,
       motionSelectionEasing: [0.31, 0.94, 0.34, 1],
-      motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       outlineColor: { kind: "role", role: "outline" },
       outlineWidth: 1,
@@ -10878,9 +10873,9 @@ export const m3Like = {
       setPadding: 0,
       setShape: 9999,
       sizes: {
-        small: { containerHeight: 32, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18 },
-        medium: { containerHeight: 40, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18 },
-        large: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18 },
+        small: { containerHeight: 32, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18, motionStateDuration: 150 },
+        medium: { containerHeight: 40, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18, motionStateDuration: 150 },
+        large: { containerHeight: 48, containerPaddingInline: 12, containerPaddingBlock: 6, containerGap: 8, labelTypescale: "label", iconSize: 18, checkSize: 18, motionStateDuration: 150 },
       },
       conditions: {
         unselected: {

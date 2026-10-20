@@ -961,6 +961,7 @@ export interface TanreiButtonSizeTokens {
   readonly iconSizeWithoutLabel: number;
   readonly containerGap: number;
   readonly outlineWidth: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiButtonSizes = { readonly [Key in TanreiCoreButtonSize]: TanreiButtonSizeTokens } & { readonly [Key in TanreiButtonSize]?: TanreiButtonSizeTokens };
@@ -1030,7 +1031,6 @@ export interface TanreiButtonTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionFeedbackDuration: number;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
@@ -1469,6 +1469,7 @@ export interface TanreiChipSizeTokens {
   readonly iconSize: number;
   readonly avatarSize: number;
   readonly removeContainerSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiChipSizes = { readonly [Key in TanreiCoreChipSize]: TanreiChipSizeTokens } & { readonly [Key in TanreiChipSize]?: TanreiChipSizeTokens };
@@ -1531,7 +1532,6 @@ export interface TanreiChipTokens {
   readonly motionFeedbackDuration: number;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
   readonly pressedOpacity: number;
@@ -2651,6 +2651,7 @@ export interface TanreiInputBoxSizeTokens {
   readonly labelFloatedTypescale: TanreiTypescaleRole;
   readonly inputTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiInputBoxSizes = { readonly [Key in TanreiCoreInputBoxSize]: TanreiInputBoxSizeTokens } & { readonly [Key in TanreiInputBoxSize]?: TanreiInputBoxSizeTokens };
@@ -2725,7 +2726,6 @@ export interface TanreiInputBoxTokens {
   readonly hoveredOutlineWidth: number;
   readonly motionLabelDuration: number;
   readonly motionLabelEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineNotchPadding: number;
   readonly outlineWidth: number;
@@ -3097,6 +3097,7 @@ export interface TanreiMainActionButtonSizeTokens {
   readonly containerGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiMainActionButtonSizes = { readonly [Key in TanreiCoreMainActionButtonSize]: TanreiMainActionButtonSizeTokens } & { readonly [Key in TanreiMainActionButtonSize]?: TanreiMainActionButtonSizeTokens };
@@ -3143,7 +3144,6 @@ export interface TanreiMainActionButtonTokens {
   readonly motionFeedbackDuration: number;
   readonly motionResizeDuration: number;
   readonly motionResizeEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedOpacity: number;
   readonly sizes: TanreiMainActionButtonSizes;
@@ -4170,6 +4170,7 @@ export interface TanreiSegmentedButtonSizeTokens {
   readonly labelTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
   readonly checkSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiSegmentedButtonSizes = { readonly [Key in TanreiCoreSegmentedButtonSize]: TanreiSegmentedButtonSizeTokens } & { readonly [Key in TanreiSegmentedButtonSize]?: TanreiSegmentedButtonSizeTokens };
@@ -4223,7 +4224,6 @@ export interface TanreiSegmentedButtonTokens {
   readonly motionFeedbackDuration: number;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;

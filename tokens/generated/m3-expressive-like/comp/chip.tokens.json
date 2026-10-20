@@ -74,7 +74,8 @@
                 "label.typescale",
                 "icon.size",
                 "avatar.size",
-                "remove.container.size"
+                "remove.container.size",
+                "motion.state-duration"
               ]
             },
             "variant": {
@@ -671,25 +672,32 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$description": "How long a change of state takes. It follows the size (small over the compact role, medium over the default role): a smaller control changes state sooner.",
+            "small": {
+              "$value": "{tanrei.sys.motion.role.state.compact}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.motion.role.state.default}"
+            }
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "How long a filter chip takes to show or hide its check (the chip's width changes with it) and to change to or from the selected look."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}",
+            "$extensions": {}
           }
         }
       }

@@ -326,34 +326,34 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press on the drag handle takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the modal layer's."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         }
       }
