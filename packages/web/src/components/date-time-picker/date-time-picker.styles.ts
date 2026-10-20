@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, conditionBlock, focusRing, minimumTarget, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -110,9 +110,10 @@ export const styles = css`
     }
   }
   /* DTM-1, MDL-1: the modal layer's scrim, over the whole window behind the picker (its color and blur), fading with it. */
+  ${scrimFilter('.surface.modal', T('modal-scrim-blur'))}
   .surface.modal::backdrop {
     background: ${t('modal-scrim-color')};
-    backdrop-filter: blur(${t('modal-scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('modal-motion-close-duration')};

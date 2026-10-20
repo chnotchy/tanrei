@@ -1,5 +1,6 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { cornerRadius } from '../styles/shape.js';
+import { SCRIM_FILTER, scrimFilter } from './scrim.js';
 
 // Tanrei's rule for a compact window (docs/architecture/overview.md, "Component conventions"): below the window width
 // its own token names, a popover and a dialog take the bottom sheet's appearance — at the window's bottom edge, across
@@ -123,9 +124,10 @@ export function sheetLookStyles({ sheet, paddingBlockEnd = '0px', scrim }: Sheet
       translate: 0 100%;
     }
   }
+  ${scrimFilter(sheet, scrimBlur).cssText}
   ${sheet}::backdrop {
     background: ${scrimColor};
-    backdrop-filter: blur(${scrimBlur});
+    backdrop-filter: ${SCRIM_FILTER.cssText};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${S('motion-exit-duration')};

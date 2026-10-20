@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, shape, whenChosen, whenScroll } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, scrimFilter, shape, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -312,9 +312,10 @@ export const styles = css`
       translate: var(--_away) 0;
     }
   }
+  ${scrimFilter('dialog.sheet', T('scrim-blur'))}
   dialog.sheet::backdrop {
     background: ${t('scrim-color')};
-    backdrop-filter: blur(${t('scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};
