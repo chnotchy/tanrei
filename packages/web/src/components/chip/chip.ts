@@ -101,6 +101,8 @@ export class TanreiChip extends TanreiElement {
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
     selected: { type: Boolean, reflect: true },
+    // Written back to the attribute, where a holder watches it (TGR-17); an empty value is no attribute.
+    value: { type: String, reflect: true, converter: { fromAttribute: (value: string | null) => value ?? '', toAttribute: (value: string) => value || null } },
     disabled: { type: Boolean, reflect: true },
     label: { type: String },
     removeLabel: { type: String, attribute: 'remove-label', reflect: true },
@@ -131,6 +133,12 @@ export class TanreiChip extends TanreiElement {
 
   /** Whether a filter chip is on. Ignored unless `kind` is filter. */
   selected = false;
+
+  /**
+   * What a component that holds the selection of a set of filter chips names this chip by: the tag group's `value` and
+   * `values`. Unique within the set. Not drawn and not exposed; the chip itself does nothing with it.
+   */
+  value = '';
 
   /** Prevents interaction and removes the chip, and its remove action, from the focus order. */
   disabled = false;
