@@ -2,7 +2,7 @@
 title: セレクトフィールド
 description: 決まったリストの中から 1 つの値を、完成した 1 つのフォームのフィールドとして選べるようにします。必須または任意であることを伝えられるラベル、選ばれているオプションを表示してオプションのリストを開くトリガー、下に置く補足またはエラーの 1 行から成り、支援技術に対して 1 つにまとめられ、フォームには 1 つのコントロールとして加わります。
 translationOf: components/select-field.mdx
-sourceHash: 95f1fb821622fa51e25b0cd7baf6e20568c8ae50
+sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 
 | 観点 | フィールドから | セレクトから |
 | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation`、`iconSpace` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation`、`iconSpace`、`status`、`statusText`、`emptyText` |
 | イベント | — | `change`、`toggle` |
 | スロット | `label-icon` | `leading-icon` と、オプション |
 | トークン | `comp.field.*` | ボックスは `comp.input-box.*`（すべての入力ボックスが読みます）。リストは `comp.select.*` |
@@ -187,7 +187,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 - オプションは、`<tanrei-select-field>` の子のままです。移動も複製もされません。スロットを通して中のセレクトに届き、変わるたびにセレクトが読み直します。`replaceChildren()` で入れ替えても、セレクトのときと同じように動きます。
 - 要素はフォームに関連付けられます。`name` と `form` を受け取り、値だけを送信します（無効の間は何も送信せず、読み取り専用の間は送信します）。リセットすると `value` 属性の値に戻り、無効な `<fieldset>` に従い、`required` が設定されていて値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。
 - `change` は、composed でバブルする、セレクトのイベントです。`toggle` は、`detail.open` と `detail.reason` を持つ、セレクトの CustomEvent です。composed ですがバブルしないので、この要素では受け取れますが、`<details>` のような祖先には届きません。イベントのターゲットはこの要素で、どのリスナーでも `event.target.value` と `event.target.open` は新しい値です。
-- パーツ: `field` と `select` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text` と、`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider` です。`label` と `requirement-label` は、2 つのうち描かれているほう（フィールドの行か、セレクトの浮き上がるラベル）を指します。`field-label`、`select-label`、`field-requirement-label`、`select-requirement-label` は、どちらか一方だけを指します。
+- パーツ: `field` と `select` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text` と、`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status` です。`label` と `requirement-label` は、2 つのうち描かれているほう（フィールドの行か、セレクトの浮き上がるラベル）を指します。`field-label`、`select-label`、`field-requirement-label`、`select-requirement-label` は、どちらか一方だけを指します。
 - 要素そのものはフォーカスを受け取りません。`focus()` はトリガーに移り、ページの `<label for>` もフォーカスをトリガーに移します。ラベルの行を押すと、トリガーにフォーカスが移るだけで、何も開きません。トリガーを押すとリストが開き、補足を押しても何も起こりません。
 - 要素にロールはありません。名前は `label` で付けます。ラベルが別の場所に描かれているときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
 - 属性は構成要素のものと同じです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`readonly` です。

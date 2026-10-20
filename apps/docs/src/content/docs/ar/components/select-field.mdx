@@ -2,7 +2,7 @@
 title: حقل الاختيار
 description: يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة، حقلًا كاملًا من حقول النموذج، فيه تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومشغِّل يعرض الخيار المختار ويفتح قائمة بالخيارات، وسطر مساعدة أو خطأ تحته، وكلها مربوطة معًا للتقنيات المساعدة وتشارك في النموذج عنصر تحكم واحدًا.
 translationOf: components/select-field.mdx
-sourceHash: 95f1fb821622fa51e25b0cd7baf6e20568c8ae50
+sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من الحقل | من عنصر الاختيار |
 | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `value`، `placeholder`، `readOnly`، `open`، `separation`، `iconSpace` |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `value`، `placeholder`، `readOnly`، `open`، `separation`، `iconSpace`، `status`، `statusText`، `emptyText` |
 | الأحداث | — | `change`، `toggle` |
 | المنافذ (slots) | `label-icon` | `leading-icon`، والخيارات |
 | رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق، وهي التي يقرؤها كل صندوق إدخال؛ و `comp.select.*` للقائمة |
@@ -187,7 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الخيارات تبقى فروعك أنت لعنصر `<tanrei-select-field>`. ولا تُنقل ولا تُنسخ أبدًا: تصل إلى عنصر الاختيار الداخلي عبر منفذ، وعنصر الاختيار يقرؤها من جديد حين تتغيّر. واستبدالها باليد (`replaceChildren()`) يعمل كما يعمل على عنصر اختيار.
 - العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة وحدها، ولا يرسل شيئًا وهو معطَّل، ويظل يرسلها وهو للقراءة فقط، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة والقيمة فارغة. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
 - الحدث `change` هو حدث عنصر الاختيار، وهو يعبر حدود جذر الظل (composed) ويتصاعد (bubbles). والحدث `toggle` هو حدث عنصر الاختيار من النوع CustomEvent ومعه `detail.open` و `detail.reason`: يعبر حدود جذر الظل ولا يتصاعد، فيُسمع على العنصر ولا يسمعه أبدًا عنصر سلف مثل `<details>`. وهدفهما هو العنصر، و `event.target.value` و `event.target.open` جديدتان في كل مستمع.
-- الأجزاء: `field` و `select` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`؛ `container`، `outline`، `active-indicator`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`. والجزآن `label` و `requirement-label` هما المرسوم من الاثنين، أي صف الحقل أو التسمية العائمة في عنصر الاختيار، والأجزاء `field-label` و `select-label` و `field-requirement-label` و `select-requirement-label` تسمّي ما لعضو واحد وحده.
+- الأجزاء: `field` و `select` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`؛ `container`، `outline`، `active-indicator`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`، `status`. والجزآن `label` و `requirement-label` هما المرسوم من الاثنين، أي صف الحقل أو التسمية العائمة في عنصر الاختيار، والأجزاء `field-label` و `select-label` و `field-requirement-label` و `select-requirement-label` تسمّي ما لعضو واحد وحده.
 - العنصر نفسه غير قابل للتركيز: فالدالة `focus()` تذهب إلى المشغِّل، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليه. والضغط على صف التسمية ينقل التركيز إلى المشغِّل ولا يفتح شيئًا؛ والضغط على المشغِّل يفتح القائمة؛ والضغط على المساعدة لا يفعل شيئًا.
 - ليس للعنصر دور. سمِّه بالخاصية `label`، ومعها `label-hidden` حيث تُرسم التسمية في مكان آخر، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
 - خصائص HTML هي خصائص العضوين نفسها: `label-hidden`، `supporting-text`، `error-text`، `required-mark`، `required-text`، `optional-text`، `readonly`.
