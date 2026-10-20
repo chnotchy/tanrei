@@ -3,7 +3,7 @@ title: Using Tanrei with AI agents
 description: Connect Tanrei's MCP server, give a coding agent your product's UI rules in AGENTS.md, and keep it to the components and values of the default system.
 ---
 
-import Callout from '../../../components/Callout.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../components/LeftOutOfDefault.astro';
 
 A coding agent that writes your product's interface needs what a person on your team needs: which components exist, what each one takes, and where every value comes from. Tanrei keeps all three in files its packages ship and in an MCP server, so an agent can look them up instead of guessing. This page shows how to connect them, and gives you a rules file to copy into your repository.
@@ -18,14 +18,14 @@ A coding agent that writes your product's interface needs what a person on your 
 
 `@tanrei/mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server for Tanrei's tokens and design-system layers. An agent asks it which tokens exist, what a token resolves to in a system and why, what a layer may change and how, and whether an edit to a layer is valid before it writes the edit. Every tool is read-only: the agent edits your layer file itself, and the server checks the edit with the same build `tanrei build` runs. Components are not among its answers; their contract is the manifest above.
 
-<Callout type="caution" title="Prerelease">
-  Tanrei's packages are published as prereleases under the npm tag `next`, so install `@tanrei/mcp@next`. Keep it on the same version as `@tanrei/web`, `@tanrei/cli` and the other libraries: they share one vocabulary.
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+Keep `@tanrei/mcp` on the same version as `@tanrei/web`, `@tanrei/cli` and the other libraries: they share one vocabulary.
 
 In Claude Code, run this in your repository:
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 `--scope project` writes the server into `.mcp.json` at the repository's root. Commit that file, and everyone who works in the repository has the same server.
@@ -37,7 +37,7 @@ Cursor (`.cursor/mcp.json`), Claude Desktop and most other clients read the same
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -51,7 +51,7 @@ VS Code reads `.vscode/mcp.json`, whose servers stand under `servers` and name t
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }

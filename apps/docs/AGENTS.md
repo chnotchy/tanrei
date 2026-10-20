@@ -62,7 +62,7 @@ Nothing is drawn before it is near the view. A window loads when it comes near i
 
 - All prose is original. Never copy or closely paraphrase text from m3.material.io or any other design system's documentation.
 - Tanrei is independent, and is described by what it is. Another design system is named only for a preset, a fidelity note, a dependency or a data source.
-- Be honest about availability. Packages are unpublished until a maintainer releases them; install pages carry `<PreReleaseNotice>`, give the from-source steps that work today under "From source", and the registry steps under "After the first release".
+- Be honest about availability, and write install pages as they read once a version is released. A published package's page gives the registry install first ("From npm") and building from the source second ("From source"); a paused platform's page gives the steps from the source first and the registry steps under "Once it is published". Every install page carries `<ReleaseNotice>` (`src/lib/release-notice.ts`), which says what differs today — a prerelease and its dist-tag, a paused platform not yet published — from `tanrei.config.json`'s version and `packages/tools/paused-platforms.json`, and draws nothing once nothing does. No page states the version, the tag or what is published in its prose.
 
 ## Look and feel
 

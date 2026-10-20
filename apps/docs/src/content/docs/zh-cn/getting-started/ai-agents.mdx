@@ -2,10 +2,10 @@
 title: 与 AI 代理一起使用 Tanrei
 description: 连接 Tanrei 的 MCP 服务器，用 AGENTS.md 把产品的 UI 规则交给编程代理，并让它只使用默认系统的组件和值。
 translationOf: getting-started/ai-agents.mdx
-sourceHash: c935a7deeaca4967e9fa87be2ccfbbb5877a389b
+sourceHash: cae040b44f8e42012e32aac5d132b7c76dcd0b81
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 为你的产品编写界面的编程代理，需要的东西和团队里的人一样：有哪些组件，每个组件接受什么，每个值从哪里来。Tanrei 把这三样都放在它的包所附带的文件和一个 MCP 服务器里，代理可以直接查，不必去猜。本页说明如何把它们接上，并给出一份可以复制到你仓库里的规则文件。
@@ -20,14 +20,14 @@ import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 `@tanrei/mcp` 是面向 Tanrei 令牌和设计系统层的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。代理可以问它：有哪些令牌，某个令牌在某个系统中解析成什么、为什么，层可以改什么、怎么改，以及对层的一处修改在写入之前是否有效。所有工具都是只读的：层文件由代理自己编辑，服务器用与 `tanrei build` 相同的构建来检查这次修改。它不回答关于组件的问题；组件的契约就是上面的清单。
 
-<Callout type="caution" title="预发布">
-  Tanrei 的包以预发布版本发布在 npm 的 `next` 标签下，所以请安装 `@tanrei/mcp@next`。让它与 `@tanrei/web`、`@tanrei/cli` 等库保持同一版本：它们共用一套词汇。
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+让 `@tanrei/mcp` 与 `@tanrei/web`、`@tanrei/cli` 等库保持同一版本：它们共用一套词汇。
 
 在 Claude Code 中，在你的仓库里运行：
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 `--scope project` 会把服务器写进仓库根目录的 `.mcp.json`。提交这个文件，在这个仓库里工作的每个人就都有同一个服务器。
@@ -39,7 +39,7 @@ Cursor（`.cursor/mcp.json`）、Claude Desktop 和大多数其他客户端，�
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -53,7 +53,7 @@ VS Code 读取 `.vscode/mcp.json`，服务器放在 `servers` 下，并写明传
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }

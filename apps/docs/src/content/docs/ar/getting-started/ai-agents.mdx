@@ -2,10 +2,10 @@
 title: استخدام Tanrei مع وكلاء الذكاء الاصطناعي
 description: صِل خادم MCP لنظام Tanrei، وأعطِ وكيل البرمجة قواعد واجهة منتجك في الملف AGENTS.md، وأبقِه ضمن مكوّنات النظام الافتراضي وقيمه.
 translationOf: getting-started/ai-agents.mdx
-sourceHash: c935a7deeaca4967e9fa87be2ccfbbb5877a389b
+sourceHash: cae040b44f8e42012e32aac5d132b7c76dcd0b81
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 يحتاج وكيل البرمجة الذي يكتب واجهة منتجك إلى ما يحتاج إليه أي شخص في فريقك: ما المكوّنات الموجودة، وما الذي يأخذه كل مكوّن، ومن أين تأتي كل قيمة. ويحفظ نظام Tanrei هذه الثلاثة في ملفات تأتي مع حزمه وفي خادم MCP، فيستطيع الوكيل أن يرجع إليها بدل أن يخمّن. تبيّن هذه الصفحة كيف تصلها، وتعطيك ملف قواعد تنسخه إلى مستودعك.
@@ -20,14 +20,14 @@ import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 الحزمة `@tanrei/mcp` خادم [Model Context Protocol](https://modelcontextprotocol.io) لرموز Tanrei ولطبقات أنظمة التصميم. يسأله الوكيل: ما الرموز الموجودة، وإلامَ يؤول رمز في نظام ما ولماذا، وما الذي تستطيع الطبقة تغييره وكيف، وهل تعديلٌ على طبقة صالح قبل أن يكتبه. كل أدواته للقراءة فقط: الوكيل هو من يعدّل ملف طبقتك، والخادم يتحقق من التعديل بالبناء نفسه الذي يشغّله الأمر `tanrei build`. ولا يجيب عن المكوّنات، فعقدها هو الملف المذكور أعلاه.
 
-<Callout type="caution" title="إصدار تمهيدي">
-  تُنشر حزم Tanrei إصداراتٍ تمهيدية تحت الوسم `next` في npm، فثبِّت `@tanrei/mcp@next`. وأبقِه على الإصدار نفسه الذي عليه `@tanrei/web` و `@tanrei/cli` وسائر المكتبات، فهي تتشارك مفردات واحدة.
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+أبقِ `@tanrei/mcp` على الإصدار نفسه الذي عليه `@tanrei/web` و `@tanrei/cli` وسائر المكتبات، فهي تتشارك مفردات واحدة.
 
 في Claude Code، شغّل هذا الأمر في مستودعك:
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 يكتب الخيار `--scope project` الخادم في الملف `.mcp.json` في جذر المستودع. أودِع هذا الملف (commit)، فيكون الخادم نفسه لدى كل من يعمل في المستودع.
@@ -39,7 +39,7 @@ claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -53,7 +53,7 @@ claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }

@@ -2,23 +2,29 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: d7a902eae657f6f6948c5db7f205778e61104046
+sourceHash: b795991094209ca4e3878521a44be6737c299786
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` 包含两样东西：一份以 CSS 自定义属性提供设计令牌的样式表，以及用 Lit 构建的、基于标准的自定义元素。它不要求使用任何框架。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## 安装
 
+### 从 npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### 从源码
 
-你需要 Git、Node 22.12 或更高版本，以及 pnpm 12（`corepack enable` 会给你仓库固定的那个版本）。在仓库的克隆中构建这个包并打包，再把打包出的文件安装到你的项目里：
+要在发布之前使用 `main` 上的源码，你需要 Git、Node 22.12 或更高版本，以及 pnpm 12（`corepack enable` 会给你仓库固定的那个版本）。在仓库的克隆中构建这个包并打包，再把打包出的文件安装到你的项目里：
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,13 +39,7 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-打包出的文件包含的正是发布时会发布的内容，所以下面的一切用法都完全相同。要取用更新的源码，就拉取、重新构建并打包，然后安装新的文件。
-
-### 首次发布之后
-
-```sh
-npm install @tanrei/web
-```
+打包出的文件包含的正是发布时发布的内容，所以下面的一切用法都完全相同。要取用更新的源码，就拉取、重新构建并打包，然后安装新的文件。
 
 ## 使用
 

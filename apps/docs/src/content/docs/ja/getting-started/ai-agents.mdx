@@ -2,10 +2,10 @@
 title: AI エージェントと Tanrei を使う
 description: Tanrei の MCP サーバーをつなぎ、コーディングエージェントにプロダクトの UI の規則を AGENTS.md で渡し、既定のシステムのコンポーネントと値の中に留めます。
 translationOf: getting-started/ai-agents.mdx
-sourceHash: c935a7deeaca4967e9fa87be2ccfbbb5877a389b
+sourceHash: cae040b44f8e42012e32aac5d132b7c76dcd0b81
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 プロダクトの画面を書くコーディングエージェントに要るものは、チームの人に要るものと同じです。どのコンポーネントがあるか、それぞれが何を受け取るか、そしてすべての値がどこから来るか。Tanrei はこの 3 つを、パッケージに同梱したファイルと MCP サーバーに持っています。エージェントは推測せずに、それを引けます。このページでは、それらのつなぎ方を示し、リポジトリにそのまま写せる規則のファイルを渡します。
@@ -20,14 +20,14 @@ import LeftOutOfDefault from '../../../../components/LeftOutOfDefault.astro';
 
 `@tanrei/mcp` は、Tanrei のトークンとデザインシステムのレイヤのための [Model Context Protocol](https://modelcontextprotocol.io) サーバーです。エージェントはこれに、どのトークンがあるか、あるシステムでトークンが何に解決されるかとその理由、レイヤが何をどう変えられるか、そしてレイヤへの編集を書く前にそれが妥当かを尋ねます。ツールはすべて読み取り専用です。レイヤファイルを編集するのはエージェント自身で、サーバーは `tanrei build` と同じビルドでその編集を確かめます。コンポーネントについては答えません。コンポーネントの契約は、上のマニフェストです。
 
-<Callout type="caution" title="プレリリース">
-  Tanrei のパッケージは npm のタグ `next` でプレリリースとして公開されています。`@tanrei/mcp@next` をインストールしてください。`@tanrei/web`、`@tanrei/cli` などのライブラリと同じバージョンにそろえます。これらは 1 つの語彙を共有しているからです。
-</Callout>
+<ReleaseNotice registry="npm" pkg="@tanrei/mcp" />
+
+`@tanrei/mcp` は、`@tanrei/web`、`@tanrei/cli` などのライブラリと同じバージョンにそろえます。これらは 1 つの語彙を共有しているからです。
 
 Claude Code では、リポジトリで次を実行します。
 
 ```sh
-claude mcp add --scope project tanrei -- npx -y @tanrei/mcp@next
+claude mcp add --scope project tanrei -- npx -y @tanrei/mcp
 ```
 
 `--scope project` を付けると、サーバーはリポジトリのルートの `.mcp.json` に書かれます。このファイルをコミットすれば、リポジトリで作業する全員が同じサーバーを使えます。
@@ -39,7 +39,7 @@ Cursor（`.cursor/mcp.json`）、Claude Desktop をはじめ多くのクライ�
   "mcpServers": {
     "tanrei": {
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }
@@ -53,7 +53,7 @@ VS Code は `.vscode/mcp.json` を読みます。サーバーは `servers` の�
     "tanrei": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@tanrei/mcp@next"]
+      "args": ["-y", "@tanrei/mcp"]
     }
   }
 }

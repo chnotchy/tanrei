@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { CONFIG, REPO_ROOT } from '../src/conventions.js';
-import { BEGIN, END, READMES, block, counts, readmeFiles, release, splice } from '../src/readme.js';
+import { BEGIN, END, READMES, block, counts, readmeFiles, splice } from '../src/readme.js';
+import { release } from '../src/release.js';
 import { buildStatus } from '../src/status.js';
 
 /** npm shows the first 65,536 characters of a README; a README stays well under that. */

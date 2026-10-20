@@ -2,33 +2,50 @@
 title: आपका अपना डिज़ाइन सिस्टम
 description: अपने प्रॉडक्ट में एक लेयर फ़ाइल रखें। एक कमांड आपके हर प्लैटफ़ॉर्म के लिए टोकन और कोड लिख देता है, एक ही पुल रिक्वेस्ट में।
 translationOf: getting-started/your-design-system.mdx
-sourceHash: f0aacb9b2c77df2484e95318e8f788358f113d78
+sourceHash: bd3397e0846e7a9ba9e4705d7656f66e8a2d53fa
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 आपके प्रॉडक्ट का रूप बदलने पर Tanrei के कंपोनेंट कभी नहीं बदलते। जो बदलता है वह एक **लेयर** है: एक छोटी JSON फ़ाइल, जो साझा शब्दावली के मान तय करती है और आपके पैलेट घोषित करती है। `@tanrei/cli` उसी एक फ़ाइल से वह सब कुछ बना देता है जो हर प्लैटफ़ॉर्म को चाहिए।
 
-<Callout type="caution" title="पहली रिलीज़ से पहले">
-  `@tanrei/cli` और `@tanrei/mcp` अभी npm पर नहीं हैं। जब तक वे नहीं आते, उन्हें सोर्स से बिल्ड करें और पैक की गई फ़ाइलें अपने प्रॉडक्ट में डेवलपमेंट डिपेंडेंसी के रूप में इंस्टॉल करें; तब इस पेज की हर `npx tanrei …` कमांड इंस्टॉल की गई कॉपी चलाती है।
+<ReleaseNotice registry="npm" pkg={["@tanrei/cli", "@tanrei/mcp"]} />
 
-  ```sh
-  git clone https://github.com/chnotchy/tanrei.git
-  cd tanrei
-  pnpm install
-  pnpm --filter @tanrei/studio build:app   # Theme Studio, जिसे `tanrei studio` सर्व करता है
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
-  ```
+## इंस्टॉल करें
 
-  ```sh
-  # अपने प्रॉडक्ट में: उस फ़ोल्डर का पाथ जिसमें पैकेज लिखे गए
-  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
-  ```
+### npm से
 
-  MCP सर्वर के लिए इंस्टॉल की गई कॉपी रजिस्टर करें: `claude mcp add tanrei -- npx tanrei-mcp`, अपने प्रॉडक्ट के फ़ोल्डर में चलाकर।
-</Callout>
+कमांड लाइन टूल को अपने प्रॉडक्ट में डेवलपमेंट डिपेंडेंसी के रूप में जोड़ें; तब इस पेज का हर `npx tanrei …` कमांड वही कॉपी चलाता है। इसमें Theme Studio भी है, जिसे `tanrei studio` सर्व करता है।
+
+```sh
+npm install --save-dev @tanrei/cli
+```
+
+MCP सर्वर को इंस्टॉल करने की ज़रूरत नहीं: जब कोई एजेंट उसे शुरू करता है, तब `npx` `@tanrei/mcp` ले आता है, जैसा इस पेज में आगे रजिस्टर किया गया है।
+
+### सोर्स से
+
+`main` पर मौजूद सोर्स इस्तेमाल करने के लिए रिपॉज़िटरी के क्लोन में दोनों पैकेज बिल्ड करें, और पैक की गई फ़ाइलें अपने प्रॉडक्ट में डेवलपमेंट डिपेंडेंसी के रूप में इंस्टॉल करें:
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/studio build:app   # Theme Studio, जिसे `tanrei studio` सर्व करता है
+pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# अपने प्रॉडक्ट में: उस फ़ोल्डर का पाथ जिसमें पैकेज लिखे गए
+npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+```
+
+MCP सर्वर के लिए उसकी जगह इंस्टॉल की गई कॉपी रजिस्टर करें: `claude mcp add tanrei -- npx tanrei-mcp`, अपने प्रॉडक्ट के फ़ोल्डर में चलाकर।
+
+## एक लेयर से हर प्लैटफ़ॉर्म तक
 
 <Steps>
 
@@ -138,7 +155,7 @@ npx tanrei audit src
 - इसमें `components.json` भी होता है, यानी आपका सिस्टम जो कॉम्पोनेंट देता है: हर एक का एलिमेंट (या क्लास), उसका React नाम और वह मॉड्यूल जो उसे रजिस्टर करता है; और वे कॉम्पोनेंट जो सिस्टम में नहीं हैं, इस जानकारी के साथ कि किस लेयर ने उसे छोड़ा और उसकी जगह क्या इस्तेमाल करें। इसे पढ़ने वाला एजेंट वही कॉम्पोनेंट सुझाता है जिन्हें आपका प्रोडक्ट इस्तेमाल कर सकता है। Tanrei के साथ आने वाले हर सिस्टम की भी ऐसी एक फ़ाइल है: `@tanrei/web/systems/<id>.components.json`।
 - `@tanrei/mcp` एक [Model Context Protocol](https://modelcontextprotocol.io) सर्वर है। आपकी रिपॉज़िटरी में काम कर रहा एजेंट शब्दावली में खोज सकता है, देख सकता है कि कोई मान कहाँ से आता है, सिस्टमों की तुलना कर सकता है, नतीजे के मानों के साथ **किसी विस्तार का प्रस्ताव** रख सकता है (Button का नया साइज़, एक स्टेप, आपका अपना टोकन), और **लेयर का संपादन लिखने से पहले उसे वैलिडेट** कर सकता है — और उसे नियम बता दिए जाते हैं: मान लेयर के ज़रिए बदलें, शब्दावली का विस्तार सिर्फ़ जोड़कर और तर्क के साथ करें, हर पिन किए गए मान का कारण दें, किसी थ्रेशोल्ड को कभी न छुएँ। UI के लिए वह सिस्टम के कंपोनेंट मैनिफ़ेस्ट (components manifest) और स्पेक से जवाब देता है: **सिस्टम में कौन-से कंपोनेंट हैं** (और जो नहीं है, उसकी जगह क्या इस्तेमाल करें), किसी कंपोनेंट के props, events और व्यवहार के नियम, और **आपके कोड में कौन-से एलिमेंट, import और variant सिस्टम में नहीं हैं**, वे कहाँ हैं समेत — वही जाँच जो `tanrei audit` करता है।
 
-  पहली रिलीज़ के बाद इसे npm से रजिस्टर करें (तब तक, इस पेज के ऊपर "पहली रिलीज़ से पहले" देखें):
+  इसे अपने प्रॉडक्ट के फ़ोल्डर में npm से रजिस्टर करें (दूसरे क्लाइंट की सेटिंग [AI एजेंट के साथ Tanrei का इस्तेमाल](/hi/getting-started/ai-agents/) में है):
 
   ```bash
   claude mcp add tanrei -- npx -y @tanrei/mcp
