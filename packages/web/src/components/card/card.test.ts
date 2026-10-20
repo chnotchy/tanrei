@@ -10,6 +10,7 @@ import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLin
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 
 const spec = loadSpec('card');
 type P = Page;
@@ -383,6 +384,9 @@ test.describe('behavior', () => {
 
   test('CRD-16: colors and elevation change over motion.state-duration with motion.state-easing, and at once where motion is reduced', async ({ page }) => {
     const target = inner(page, 'outlined-interactive');
+    // The transition the card has at rest: a card just mounted settles for two frames (data-tanrei-settling, MOT-3),
+    // and starts no transition meanwhile — its transition-property reads none until then, which a slow runner reaches.
+    await allSettled(page);
     const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
     expect(duration).toBeGreaterThan(0);
     expect(Number.parseFloat(await css(target, 'transition-duration')) * 1000).toBe(duration);
