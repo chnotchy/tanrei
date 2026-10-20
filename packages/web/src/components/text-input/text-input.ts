@@ -24,6 +24,7 @@ import {
   WordsController,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
+import { stillMoving } from '../../primitives/auto-height.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import {
   EMPTY_SEGMENTS,
@@ -1715,9 +1716,16 @@ export class TanreiTextInput extends TanreiElement {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
+  /**
+   * TXI-38: the height's motion ended or was cancelled. A motion that the next change replaced (`showLines` starts one
+   * from the room then shown) reports its cancellation a frame later, while the new one runs: that report ends nothing
+   * (`stillMoving`), or the new motion would be cut off and the height jump to its end.
+   */
   private onResizeEnd(event: TransitionEvent) {
     const input = event.currentTarget as HTMLElement;
-    if (event.target === input && /^margin-(block-end|bottom)$/.test(event.propertyName)) input.removeAttribute('data-resizing');
+    if (event.target !== input || !/^margin-(block-end|bottom)$/.test(event.propertyName)) return;
+    if (stillMoving(input, /^margin-(block-end|bottom)$/)) return;
+    input.removeAttribute('data-resizing');
   }
 
   /**
