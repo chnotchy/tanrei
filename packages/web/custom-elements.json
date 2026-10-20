@@ -8908,6 +8908,18 @@
             },
             {
               "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What a component that holds the selection of a set of filter chips names this chip by: the tag group's `value` and\n`values`. Unique within the set. Not drawn and not exposed; the chip itself does nothing with it.",
+              "attribute": "value",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "disabled",
               "privacy": "public",
               "type": {
@@ -9082,6 +9094,15 @@
               "default": "false",
               "description": "Whether a filter chip is on. Ignored unless `kind` is filter.",
               "fieldName": "selected"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What a component that holds the selection of a set of filter chips names this chip by: the tag group's `value` and\n`values`. Unique within the set. Not drawn and not exposed; the chip itself does nothing with it.",
+              "fieldName": "value"
             },
             {
               "name": "disabled",
@@ -44942,7 +44963,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.\n\nContract: specs/tag-group.spec.json. It reads four tokens (`--tanrei-comp-tag-group-gap-*` and `-row-gap-*`, one pair\nper `spacing`) and draws nothing of its own: no container, no fill, no edge, no padding, and not its `label`. Its\nmembers are `<tanrei-tag>` and `<tanrei-chip>` children, which stay in your DOM where you wrote them, drawn from\ntheir own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group takes no\nfocus, handles no key, keeps no selection, does not make filter chips exclusive and fires no event.\n\nIt is a list (TGR-7): the shadow root holds one element with the list role, named by `label`, around the slot, and\neach member is given `role=\"listitem\"` while it is in the group — the attribute is written on your element where it\nhas no `role` of its own, and taken back when it leaves. A chip's button or link, with its state, is inside its item.\n\n`spacing` says what the set holds. Lines of tags stand as close as the tags along a line; lines of chips stand far\nenough apart that each chip keeps its whole touch target, and a chip in a group ends its hit area at the middle of\nthe gap to its neighbour — along a line, and between two lines while the set wraps (TGR-5). A set of chips wants\n`spacing=\"chips\"`.\n\nWhen a member leaves while focus is on it — on a chip or on its remove action — focus goes to the chip that followed\nit, or to the one before where none follows (TGR-9). The group removes nothing itself: on a chip's `remove` you take\nthe element out. When the last member that takes focus has gone the group has nowhere to put it; move it yourself to\nthe control the set belongs to. A group with no member draws nothing, takes no space and exposes nothing (TGR-8).\n\nIt supplies no words: the name of the set is yours, in `label`.",
+          "description": "Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.\n\nContract: specs/tag-group.spec.json. It reads four tokens (`--tanrei-comp-tag-group-gap-*` and `-row-gap-*`, one pair\nper `spacing`) and draws nothing of its own: no container, no fill, no edge, no padding, and not its `label`. Its\nmembers are `<tanrei-tag>` and `<tanrei-chip>` children, which stay in your DOM where you wrote them, drawn from\ntheir own tokens at their own size, with their own states, events, names and Tab stops (TGR-6). The group itself never\ntakes focus. With the default `selection=\"none\"` it handles no key, keeps no selection, does not make filter chips\nexclusive and fires no event.\n\nIt is a list (TGR-7): the shadow root holds one element with the list role, named by `label`, around the slot, and\neach member is given `role=\"listitem\"` while it is in the group — the attribute is written on your element where it\nhas no `role` of its own, and taken back when it leaves. A chip's button or link, with its state, is inside its item.\n\n`spacing` says what the set holds. Lines of tags stand as close as the tags along a line; lines of chips stand far\nenough apart that each chip keeps its whole touch target, and a chip in a group ends its hit area at the middle of\nthe gap to its neighbour — along a line, and between two lines while the set wraps (TGR-5). A set of chips wants\n`spacing=\"chips\"`.\n\nWhen a member leaves while focus is on it — on a chip or on its remove action — focus goes to the chip that followed\nit, or to the one before where none follows (TGR-9). The group removes nothing itself: on a chip's `remove` you take\nthe element out. When the last member that takes focus has gone the group has nowhere to put it; move it yourself to\nthe control the set belongs to. A group with no member draws nothing, takes no space and exposes nothing (TGR-8).\n\n`selection=\"single\"` or `\"multiple\"` makes the group hold the selection of its filter chips (TGR-17 to TGR-21), named\nby each chip's `value`: `value` is the one that is on (single; `null` for none), `values` the ones that are on\n(multiple). The group sets each filter chip's `selected` from them, and when a person switches a chip it sets `value`\nor `values`, stops the chip's own `change` and fires its own. A single selection can be emptied by switching its chip\noff, because each chip is a toggle. The set is then one Tab stop — the chip that last had focus, else the first chip\nthat is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between\nits chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.\n\nIt supplies no words: the name of the set is yours, in `label`.",
           "name": "TanreiTagGroup",
           "slots": [
             {
@@ -44973,6 +44994,49 @@
               "default": "''",
               "description": "The accessible name of the set (\"Tags\", \"Filters\"), in your words. It is not drawn: a set that needs a visible name\nstands under your own heading or text, and still takes this. Empty, the list is exposed without a name.",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "selection",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTagGroupSelection"
+              },
+              "default": "'none'",
+              "description": "Whether the group holds the selection of its filter chips (TGR-17): `none` (each filter chip holds its own\n`selected`), `single` (at most one on, named by `value`) or `multiple` (any number, named by `values`). While it is\nsingle or multiple the set is one Tab stop and the arrow keys move between its chips (TGR-20). A value the group\ndoes not have is `none`, reported in debug builds.",
+              "attribute": "selection",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "string | null"
+              },
+              "default": "null",
+              "description": "The value of the filter chip that is on while `selection` is single; `null` for none. The group sets it when a chip is switched.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "values",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The values of the filter chips that are on while `selection` is multiple. Assign a new array to change it; the group assigns one when a chip is switched.",
+              "attribute": "values"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<TanreiTagGroupChangeDetail>"
+              },
+              "description": "While `selection` is single or multiple, a person switched a filter chip: `detail.value` (single) or `detail.values` (multiple) after the change, which the group already holds. The chip's own `change` stops at the group.",
+              "name": "change"
             }
           ],
           "attributes": [
@@ -44993,6 +45057,33 @@
               "default": "''",
               "description": "The accessible name of the set (\"Tags\", \"Filters\"), in your words. It is not drawn: a set that needs a visible name\nstands under your own heading or text, and still takes this. Empty, the list is exposed without a name.",
               "fieldName": "label"
+            },
+            {
+              "name": "selection",
+              "type": {
+                "text": "TanreiTagGroupSelection"
+              },
+              "default": "'none'",
+              "description": "Whether the group holds the selection of its filter chips (TGR-17): `none` (each filter chip holds its own\n`selected`), `single` (at most one on, named by `value`) or `multiple` (any number, named by `values`). While it is\nsingle or multiple the set is one Tab stop and the arrow keys move between its chips (TGR-20). A value the group\ndoes not have is `none`, reported in debug builds.",
+              "fieldName": "selection"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string | null"
+              },
+              "default": "null",
+              "description": "The value of the filter chip that is on while `selection` is single; `null` for none. The group sets it when a chip is switched.",
+              "fieldName": "value"
+            },
+            {
+              "name": "values",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The values of the filter chips that are on while `selection` is multiple. Assign a new array to change it; the group assigns one when a chip is switched.",
+              "fieldName": "values"
             }
           ],
           "superclass": {

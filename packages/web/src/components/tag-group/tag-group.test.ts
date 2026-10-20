@@ -1,4 +1,4 @@
-// <tanrei-tag-group>, driven by specs/tag-group.spec.json: every behaviour id (TGR-1…16) is cited by a test title, every
+// <tanrei-tag-group>, driven by specs/tag-group.spec.json: every behaviour id (TGR-1…21) is cited by a test title, every
 // fixture has a baseline, and every length is read back from the tokens — never from a number written here, except
 // where the spec's own `verify` names the default system's value.
 import AxeBuilder from '@axe-core/playwright';
@@ -803,6 +803,218 @@ test.describe('behavior', () => {
     expect(seen.join('\n')).toMatch(/spacing "Not A Name" is not a value of the active design system; it is drawn as "chips" \(TGR-16\)/);
     expect(seen.join('\n')).not.toMatch(/dense/);
   });
+
+  // ── Selection (TGR-17 to TGR-21) ──────────────────────────────────────────────────────────────────────────────────
+
+  test('TGR-17: under single or multiple the group holds the selection of its filter chips by their value — each shows and exposes it as its pressed state; a value set by the product, a chip that arrives and a chip that changes its value are put right, and nothing is fired; a member that leaves changes nothing; under none the chips keep what they have; a selection the group does not have is none, and reported', async ({ page }) => {
+    const seen = warnings(page);
+    const filters5 = `<tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip><tanrei-chip kind="filter" label="Assigned to me" value="assigned"></tanrei-chip><tanrei-chip kind="filter" label="Needs review" value="review" selected></tanrei-chip><tanrei-chip kind="filter" label="Blocked" value="blocked"></tanrei-chip><tanrei-chip label="Clear"></tanrei-chip>`;
+    await mount(page, [...only('chips-filters-multiple', 'chips-filters-single'), fx('odd', { label: 'Filters', selection: 'several' }, filters5)]);
+    const pressed = (id: string) => members(page, id).evaluateAll((all) => all.map((el) => el.shadowRoot!.querySelector('.container')!.getAttribute('aria-pressed')));
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      for (const group of document.querySelectorAll(tag)) group.addEventListener('change', (event) => w.__seen.push(`${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}`));
+    }, TAG);
+    const events = () => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+    // The spec's unit: values [open, review] put Open and Needs review on, and only them.
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['true', 'false', 'true', 'false', 'false']);
+    await expect(stage(page, 'chips-filters-multiple').getByRole('button', { name: 'Needs review', pressed: true })).toHaveCount(1);
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'true', 'false', 'false']);
+    // Still one list of items, each chip its own button (TGR-7).
+    await expect(stage(page, 'chips-filters-multiple').getByRole('list', { name: 'Filters' })).toHaveCount(1);
+    await expect(stage(page, 'chips-filters-multiple').getByRole('listitem')).toHaveCount(5);
+    // The product sets the selection: the chips follow, and nothing is fired.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => (el.values = ['blocked']));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'true', 'false']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => (el.value = 'oldest'));
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'false', 'false', 'true']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => (el.value = null));
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'false', 'false', 'false']);
+    // A filter chip that arrives with a value the selection holds arrives on; one whose value changes follows.
+    await host(page, 'chips-filters-multiple').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-chip kind="filter" label="Blocked too" value="blocked"></tanrei-chip>'));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'true', 'false', 'true']);
+    await member(page, 'chips-filters-multiple', 0).evaluate((el: any) => (el.value = 'blocked'));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['true', 'false', 'false', 'true', 'false', 'true']);
+    // A member that leaves changes neither the values nor anything else, and fires nothing.
+    await member(page, 'chips-filters-multiple', 3).evaluate((el) => el.remove());
+    expect(await host(page, 'chips-filters-multiple').evaluate((el: any) => el.values)).toEqual(['blocked']);
+    // A value that names no member puts nothing on and is not reported.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => (el.values = ['gone']));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'false', 'false']);
+    expect(await events()).toEqual([]);
+    // Under none the chips keep what they have, and each holds its own again.
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.value = 'newest'; });
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['true', 'false', 'false', 'false']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.selection = 'none'; });
+    await frames(page);
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.value = 'oldest'; });
+    await frames(page);
+    expect(await pressed('chips-filters-single')).toEqual(['true', 'false', 'false', 'false']);
+    await member(page, 'chips-filters-single', 2).click();
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['true', 'false', 'true', 'false']);
+    await expect.poll(events).toEqual(['tanrei-chip:{"selected":true}']);
+    // A selection the group does not have is none: the chips keep their own state, and it is reported.
+    expect(await pressed('odd')).toEqual(['false', 'false', 'true', 'false', null]);
+    await expect.poll(() => seen.filter((line) => line.includes('TGR-17')).length).toBe(1);
+    expect(seen.find((line) => line.includes('TGR-17'))).toMatch(/selection "several" is not none, single or multiple/);
+  });
+
+  test('TGR-18: a filter chip without a value is left out of the selection — it keeps its own selected and its own change — and two filter chips with one value go on and off together; each is reported, and the group renders either way', async ({ page }) => {
+    const seen = warnings(page);
+    const markup = `<tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip><tanrei-chip kind="filter" label="Loose"></tanrei-chip><tanrei-chip kind="filter" label="Open again" value="open"></tanrei-chip>`;
+    await mount(page, [fx('odd', { label: 'Filters', selection: 'multiple' }, markup)]);
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      document.querySelector(tag)!.addEventListener('change', (event) => w.__seen.push(`${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}`));
+    }, TAG);
+    const selected = () => members(page, 'odd').evaluateAll((all) => all.map((el) => (el as HTMLElement & { selected: boolean }).selected));
+    await member(page, 'odd', 1).click();
+    await expect.poll(selected).toEqual([false, true, false]);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['tanrei-chip:{"selected":true}']);
+    expect(await host(page, 'odd').evaluate((el: any) => el.values)).toEqual([]);
+    await member(page, 'odd', 0).click();
+    await expect.poll(selected).toEqual([true, true, true]);
+    await member(page, 'odd', 2).click();
+    await expect.poll(selected).toEqual([false, true, false]);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['tanrei-chip:{"selected":true}', 'tanrei-tag-group:{"values":["open"]}', 'tanrei-tag-group:{"values":[]}']);
+    await expect(list(page, 'odd')).toBeVisible();
+    await expect.poll(() => seen.filter((line) => line.includes('TGR-18')).length).toBe(2);
+    expect(seen.join('\n')).toMatch(/the filter chip "Loose" has no value/);
+    expect(seen.join('\n')).toMatch(/two filter chips have the value "open"/);
+  });
+
+  test('TGR-19: switching a filter chip sets value (single) — the others go off, and the chip that is on can be switched off — or values (multiple), then fires one change with what the group now holds; the chip’s own change stops at the group, and the product’s writes fire nothing', async ({ page }) => {
+    await mount(page, only('chips-filters-single', 'chips-filters-multiple'));
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      // Listeners on the group and above it: what passes the group is the group's own change, and the chip's click.
+      for (const group of document.querySelectorAll(tag)) {
+        group.addEventListener('change', (event) => w.__seen.push(`${group.getAttribute('label')} change ${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}:${JSON.stringify((group as any).selection === 'single' ? (group as any).value : (group as any).values)}`));
+        group.addEventListener('click', (event) => w.__seen.push(`${group.getAttribute('label')} click ${(event.target as Element).localName}`));
+      }
+      document.addEventListener('change', (event) => w.__seen.push(`document change ${(event.target as Element).localName}`));
+    }, TAG);
+    const events = () => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+    // What was heard since the last look, which is then forgotten.
+    const heard = async (expected: string[]) => {
+      await expect.poll(events).toEqual(expected);
+      await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen.splice(0));
+    };
+    const selected = (id: string) => members(page, id).evaluateAll((all) => all.map((el) => (el as HTMLElement & { selected: boolean }).selected));
+    // The spec's unit: Oldest while Recently updated is on.
+    await member(page, 'chips-filters-single', 3).click();
+    await expect.poll(() => selected('chips-filters-single')).toEqual([false, false, false, true]);
+    await heard(['Sort by click tanrei-chip', 'Sort by change tanrei-tag-group:{"value":"oldest"}:"oldest"', 'document change tanrei-tag-group']);
+    // The chip that is on, switched off: none is on, and value is null.
+    await member(page, 'chips-filters-single', 3).click();
+    await expect.poll(() => selected('chips-filters-single')).toEqual([false, false, false, false]);
+    await heard(['Sort by click tanrei-chip', 'Sort by change tanrei-tag-group:{"value":null}:null', 'document change tanrei-tag-group']);
+    // Multiple: Space on Assigned to me adds it; Space again takes it out.
+    await member(page, 'chips-filters-multiple', 1).locator('.container').focus();
+    await page.keyboard.press('Space');
+    await expect.poll(() => selected('chips-filters-multiple')).toEqual([true, true, true, false, false]);
+    await heard(['Filters click tanrei-chip', 'Filters change tanrei-tag-group:{"values":["open","review","assigned"]}:["open","review","assigned"]', 'document change tanrei-tag-group']);
+    await page.keyboard.press('Enter');
+    await expect.poll(() => selected('chips-filters-multiple')).toEqual([true, false, true, false, false]);
+    await heard(['Filters click tanrei-chip', 'Filters change tanrei-tag-group:{"values":["open","review"]}:["open","review"]', 'document change tanrei-tag-group']);
+    // A disabled chip switches nothing and fires nothing.
+    await member(page, 'chips-filters-multiple', 4).evaluate((el: any) => (el.disabled = true));
+    await member(page, 'chips-filters-multiple', 4).click({ force: true });
+    await frames(page);
+    // The product's writes fire nothing.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => { el.values = ['design']; el.selection = 'single'; el.value = 'open'; });
+    await frames(page);
+    expect(await events()).toEqual([]);
+  });
+
+  test('TGR-20: under a selection the set is one Tab stop — the chip that is on, then the chip that last had focus — and the arrows (the way they point, in right-to-left too), Home and End move between its chips without switching anything, passing a tag and a disabled chip; focus does not wrap, Up and Down do nothing, and Space is the chip’s own', async ({ page }) => {
+    const markup = `<tanrei-chip kind="filter" label="Newest" value="newest"></tanrei-chip><tanrei-tag label="Static"></tanrei-tag><tanrei-chip kind="filter" label="Recently updated" value="updated"></tanrei-chip><tanrei-chip kind="filter" label="Off" value="off" disabled></tanrei-chip><tanrei-chip kind="filter" label="Most comments" value="comments"></tanrei-chip><tanrei-chip kind="input" label="Oldest" remove-label="Remove Oldest"></tanrei-chip>`;
+    await mount(page, [fx('set', { label: 'Sort by', selection: 'single', value: 'updated' }, markup)]);
+    await host(page, 'set').evaluate((el) => {
+      el.insertAdjacentHTML('beforebegin', '<button id="before">Before</button>');
+      el.insertAdjacentHTML('afterend', '<button id="after">After</button>');
+    });
+    const active = () => page.evaluate(() => document.activeElement?.id ?? '');
+    const stops = () => host(page, 'set').evaluate((el) => [...el.children].filter((child) => child.localName === 'tanrei-chip' && !child.hasAttribute('tabindex')).map((child) => child.getAttribute('label')));
+    await page.locator('#before').focus();
+    // One stop: the chip that is on. Tab again leaves the set, past its other chips and the input chip's remove action.
+    await tab(page);
+    expect(await focusPath(page)).toBe(onChip('Recently updated'));
+    expect(await stops()).toEqual(['Recently updated']);
+    await tab(page);
+    expect(await active()).toBe('after');
+    await tab(page, { back: true });
+    expect(await focusPath(page)).toBe(onChip('Recently updated'));
+    // The arrows move in the order given, passing the tag and the disabled chip, and stop at the ends; Home and End.
+    const keys: [string, string][] = [
+      ['ArrowRight', 'Most comments'],
+      ['ArrowRight', 'Oldest'],
+      ['ArrowRight', 'Oldest'],
+      ['ArrowLeft', 'Most comments'],
+      ['ArrowLeft', 'Recently updated'],
+      ['ArrowLeft', 'Newest'],
+      ['ArrowLeft', 'Newest'],
+      ['End', 'Oldest'],
+      ['ArrowUp', 'Oldest'],
+      ['ArrowDown', 'Oldest'],
+      ['Home', 'Newest'],
+      ['ArrowRight', 'Recently updated'],
+      ['ArrowRight', 'Most comments'],
+    ];
+    for (const [key, label] of keys) {
+      await page.keyboard.press(key);
+      expect(await focusPath(page), key).toBe(onChip(label));
+    }
+    // Nothing was switched, and the page did not scroll.
+    expect(await host(page, 'set').evaluate((el: any) => el.value)).toBe('updated');
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    // The chip that last had focus is the stop now.
+    expect(await stops()).toEqual(['Most comments']);
+    await tab(page);
+    await tab(page, { back: true });
+    expect(await focusPath(page)).toBe(onChip('Most comments'));
+    // Space is the chip's own: it switches the focused chip.
+    await page.keyboard.press('Space');
+    await expect.poll(() => host(page, 'set').evaluate((el: any) => el.value)).toBe('comments');
+    // In a right-to-left layout each arrow moves the way it points: Left to the next chip.
+    await stage(page, 'set').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await page.keyboard.press('ArrowLeft');
+    expect(await focusPath(page)).toBe(onChip('Oldest'));
+    await page.keyboard.press('ArrowRight');
+    expect(await focusPath(page)).toBe(onChip('Most comments'));
+    // The group itself never takes focus.
+    expect(await host(page, 'set').evaluate((el) => [el.hasAttribute('tabindex'), el.getAttribute('role')])).toEqual([false, null]);
+  });
+
+  test('TGR-21: under a selection the chip that has focus after a removal is the set’s one stop; a stop that leaves, or is disabled, while focus is elsewhere is replaced; under none every chip has its own stop again, and a tabindex of the product’s own is kept', async ({ page }) => {
+    await mount(page, [fx('five', { spacing: 'chips', label: 'Recipients', selection: 'multiple' }, inputs(...FIVE))]);
+    const stops = () => host(page, 'five').evaluate((el) => [...el.children].filter((child) => !child.hasAttribute('tabindex')).map((child) => child.getAttribute('label')));
+    await host(page, 'five').evaluate((el) => el.addEventListener('remove', (event) => (event.target as Element).remove()));
+    // No chip is on: the first is the stop.
+    expect(await stops()).toEqual(['Ada']);
+    await member(page, 'five', 0).locator('.container').focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    expect(await focusPath(page)).toBe(onChip('Katherine'));
+    // The spec's unit: Delete on the focused third puts focus on the former fourth, the only stop.
+    await page.keyboard.press('Delete');
+    await expect.poll(() => focusPath(page)).toBe(onChip('Margaret'));
+    expect(await stops()).toEqual(['Margaret']);
+    // The stop leaves while focus is elsewhere: the first chip that takes focus is the stop.
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await member(page, 'five', 2).evaluate((el) => el.remove());
+    await expect.poll(stops).toEqual(['Ada']);
+    // The stop is disabled: the next chip that takes focus is.
+    await member(page, 'five', 0).evaluate((el: any) => (el.disabled = true));
+    await expect.poll(stops).toEqual(['Grace']);
+    // A tabindex of the product's own is kept, under a selection and after it.
+    await member(page, 'five', 2).evaluate((el) => el.setAttribute('tabindex', '0'));
+    await host(page, 'five').evaluate((el: any) => (el.selection = 'none'));
+    await expect.poll(() => host(page, 'five').evaluate((el) => [...el.children].map((child) => child.getAttribute('tabindex')))).toEqual([null, null, '0']);
+  });
 });
 
 test.describe('accessibility', () => {
@@ -853,7 +1065,7 @@ test.describe('fixtures', () => {
   });
 
   test('every fixture mounts its members as the spec gives them, with the spacing it names', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(22);
+    expect(spec.fixtures.length).toBe(24);
     for (const f of spec.fixtures) {
       const given = f.items!;
       expect(await members(page, f.id).evaluateAll((all) => all.map((el) => [el.localName, el.getAttribute('label')])), f.id).toEqual(given.map((item) => [item.kind === 'tag' ? 'tanrei-tag' : 'tanrei-chip', String(item.props.label)]));
