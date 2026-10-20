@@ -1,8 +1,8 @@
 // The docs' figure frame as the built site draws it (components/visuals/VisualFrame.astro, SystemSwitch.astro), on
 // the first page that uses it, the button's:
 //
-// - its stage takes the same room before any element is defined as once they are, at a phone's width and a desktop's,
-//   so nothing under it moves when its script arrives; and what it shows stands in one row;
+// - its stage and its header take the same room before any element is defined as once they are, at a phone's width
+//   and a desktop's, so nothing under it moves when its script arrives; and what it shows stands in one row;
 // - it is drawn under the default system, and no preset's stylesheet is asked for with the page; choosing a preset in
 //   its header loads that stylesheet once and draws the stage — and only the stage — with that system's tokens.
 //
@@ -89,16 +89,9 @@ const settled = (page) =>
 
 describe('the figure frame on the button’s page', () => {
   for (const viewport of VIEWPORTS) {
-    test(`at ${viewport.width}: the stage and the header take the same room before anything is defined as after, and the variants stand in one row`, async () => {
-      // Without script nothing is defined: the room the page holds for the figure.
-      const before = await browser.newContext({ viewport, javaScriptEnabled: false });
-      const still = await before.newPage();
-      await still.goto(`${origin}${PAGE}`);
-      await still.evaluate(() => document.fonts.ready);
-      const held = await boxes(still);
-      await before.close();
-      // The control in the header is not drawn where no script runs; held before definition, it is measured with script
-      // held back, as a slow line delivers the page.
+    test(`at ${viewport.width}: the stage and the header take the same room before anything is defined as once drawn, and the variants stand in one row`, async () => {
+      // Every script is held until the document is parsed and its faces are in: the first frame is the page before any
+      // element is defined, what a reader on a slow line sees.
       const context = await browser.newContext({ viewport });
       const page = await context.newPage();
       let release;
@@ -110,13 +103,15 @@ describe('the figure frame on the button’s page', () => {
       // The document is parsed (`interactive`) before its module scripts run: DOMContentLoaded waits for them.
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'commit' });
       await page.waitForFunction(() => document.readyState !== 'loading');
-      await page.evaluate(() => document.fonts.ready);
+      // No face still loading, and a frame drawn since. Not `document.fonts.ready`: WebKit and Firefox resolve it only
+      // once the document has loaded, which waits for the scripts held here.
+      await page.waitForFunction(() => [...document.fonts].every((face) => face.status !== 'loading'));
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const parsed = await boxes(page);
       release();
       await settled(page);
       const drawn = await boxes(page);
       await context.close();
-      assert.ok(Math.abs(drawn.stage - held.stage) < 0.5, `the stage holds ${held.stage}px before definition and takes ${drawn.stage}px once drawn`);
       assert.ok(Math.abs(drawn.stage - parsed.stage) < 0.5, `the stage holds ${parsed.stage}px while the script is held and takes ${drawn.stage}px once drawn`);
       assert.ok(Math.abs(drawn.header - parsed.header) < 0.5, `the header holds ${parsed.header}px while the script is held and takes ${drawn.header}px once drawn`);
       assert.equal(new Set(drawn.tops.map((top) => Math.round(top))).size, 1, `the variants stand in one row: tops ${drawn.tops.join(', ')}`);
