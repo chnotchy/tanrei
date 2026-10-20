@@ -57,6 +57,7 @@
     "packages/web/src/generated/systems/m3-expressive-like.css",
     "packages/web/src/generated/systems/m3-like.css",
     "packages/web/src/generated/tokens.css",
+    "tokens/generated/a11y-report.json",
     "tokens/generated/comp.states.dark-high.tokens.json",
     "tokens/generated/comp.states.dark-medium.tokens.json",
     "tokens/generated/comp.states.dark.tokens.json",

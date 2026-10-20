@@ -37,12 +37,25 @@ export const PRESET_CRITERIA_NOTE =
  * The accessibility report of an imitation preset (`tokens/generated/<id>/a11y-report.json`): the fixed ruler's
  * measurements, marked as not applying. Only criterion findings belong here; anything else fails the build.
  */
-export const presetAccessibilityReport = (system, measurements) => ({
+export const presetAccessibilityReport = (system, measurements, checked) => ({
   system,
   criteria: 'not-applied',
   because: PRESET_CRITERIA_NOTE,
+  checked: checkedPairs(checked),
   count: measurements.length,
   measurements,
+});
+
+/** Why the default system's report lists no finding — the words its report uses. */
+export const DEFAULT_CRITERIA_NOTE =
+  "The default system is held to Tanrei's accessibility criteria in every contrast scheme: a pair under its threshold, or any other invariant violation, fails the build. A committed report therefore lists no finding; it records what was checked.";
+
+/** The accessibility report of the default system (`tokens/generated/a11y-report.json`): what the build checked. */
+export const defaultAccessibilityReport = (system, checked) => ({
+  system,
+  criteria: 'enforced',
+  because: DEFAULT_CRITERIA_NOTE,
+  checked: checkedPairs(checked),
 });
 
 /**
@@ -174,8 +187,24 @@ const choiceOf = (model, name) => {
   return token?.enum?.values?.[token.value];
 };
 
-export function checkInvariants(model) {
+/**
+ * Every finding of the fixed ruler, and how many contrast pairs it measured in each scheme of the model. A pair is one
+ * comparison that can produce one finding: `rolePairs` are the pairs of color roles (a foreground role on each
+ * background it may sit on, the tonal and declared pairs, the hairline and the input's edge of a raised-contrast
+ * scheme); `componentPairs` are the pairs of a component's own colors (a focus indicator on its own bar, the snackbar's
+ * inverse status forms, code, a radio's mark, a link told from text by color). A pair that a role pair already holds,
+ * or whose colors the model does not carry, is not measured and not counted. The public number of pairs is this count:
+ * `tokens/generated/a11y-report.json` (the default system) and `tokens/generated/<id>/a11y-report.json` write it.
+ * @returns {{ failures: string[], checked: Record<string, { rolePairs: number, componentPairs: number }> }}
+ */
+export function auditInvariants(model) {
   const failures = [];
+  const checked = Object.fromEntries(model.schemes.map((scheme) => [scheme, { rolePairs: 0, componentPairs: 0 }]));
+  // Every ratio a pair is judged by is measured here, so what is counted is what is checked.
+  const measure = (scheme, kind, fg, bg) => {
+    checked[scheme][kind] += 1;
+    return contrast(fg, bg);
+  };
   const focusStyle = choiceOf(model, 'focus-style');
   for (const scheme of model.schemes) {
     const roles = model.colors[scheme];
@@ -189,7 +218,7 @@ export function checkInvariants(model) {
         continue;
       }
       const required = isHigh && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-      const ratio = contrast(roles[fg].value, roles[bg].value);
+      const ratio = measure(scheme, 'rolePairs', roles[fg].value, roles[bg].value);
       if (ratio < required) {
         failures.push(`[${scheme}] ${fg} on ${bg}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
       }
@@ -199,9 +228,9 @@ export function checkInvariants(model) {
     const level = model.system !== CONFIG.namespace ? null : isHigh ? 'high' : scheme.endsWith('-medium') ? 'medium' : null;
     if (level && roles['outline-variant'] && roles.outline) {
       for (const s of SURFACES.filter((each) => roles[each])) {
-        const hairline = contrast(roles['outline-variant'].value, roles[s].value);
+        const hairline = measure(scheme, 'rolePairs', roles['outline-variant'].value, roles[s].value);
         if (hairline < HAIRLINE[level]) failures.push(`[${scheme}] outline-variant on ${s}: ${hairline.toFixed(2)}:1 < ${HAIRLINE[level]}:1 (the hairline in a raised-contrast scheme)`);
-        const edge = contrast(roles.outline.value, roles[s].value);
+        const edge = measure(scheme, 'rolePairs', roles.outline.value, roles[s].value);
         if (edge < hairline) failures.push(`[${scheme}] outline on ${s}: ${edge.toFixed(2)}:1 < ${hairline.toFixed(2)}:1 (an input's edge stays stronger than the hairline)`);
       }
     }
@@ -296,7 +325,7 @@ export function checkInvariants(model) {
       const fg = byRole ? model.colors[scheme][ringRole].value : model.componentColors?.[scheme]?.[ring.id]?.value;
       const bg = byRole ? model.colors[scheme][barRole].value : model.componentColors?.[scheme]?.[barId]?.value;
       if (!fg || !bg || rgba(bg).a < 1) continue;
-      const ratio = contrast(fg, bg);
+      const ratio = measure(scheme, 'componentPairs', fg, bg);
       if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(ring.id)} on ${short(barId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (focus indicator on the component's own bar, WCAG 2.4.13)`);
     }
   }
@@ -359,7 +388,7 @@ export function checkInvariants(model) {
         if (!fg || !bar || rgba(bar).a < 1 || (groundId && !ground)) continue;
         const bg = ground ? flat(ground, bar) : bar;
         const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-        const ratio = contrast(faded(fg, opacity), bg);
+        const ratio = measure(scheme, 'componentPairs', faded(fg, opacity), bg);
         if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(groundId ?? barId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
       }
     }
@@ -390,7 +419,7 @@ export function checkInvariants(model) {
         for (const [state, opacity] of Object.entries(layerOpacity)) {
           if (bare && state === 'rest') continue;
           const ground = opacity ? flat(faded(tone, opacity), circle) : circle;
-          const ratio = contrast(tone, ground);
+          const ratio = measure(scheme, 'componentPairs', tone, ground);
           if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(toneId)} on ${short(barId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (expand and close glyph on its circle over the bar, ${state})`);
         }
       }
@@ -436,7 +465,7 @@ export function checkInvariants(model) {
       const bg = bgRole && model.colors[scheme][bgRole] ? model.colors[scheme][bgRole].value : inScheme(scheme, bgId);
       if (!fg || !bg || rgba(bg).a < 1) continue;
       const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-      const ratio = contrast(fg, bg);
+      const ratio = measure(scheme, 'componentPairs', fg, bg);
       if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
     }
   }
@@ -460,7 +489,7 @@ export function checkInvariants(model) {
         const fg = fgRole && model.colors[scheme][fgRole] ? model.colors[scheme][fgRole].value : inScheme(scheme, fgId);
         const bg = bgRole && model.colors[scheme][bgRole] ? model.colors[scheme][bgRole].value : inScheme(scheme, bgId);
         if (!fg || !bg || rgba(bg).a < 1) continue;
-        const ratio = contrast(fg, bg);
+        const ratio = measure(scheme, 'componentPairs', fg, bg);
         if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (a meter's indicator against ${what}, where its value is read — WCAG 1.4.11)`);
       }
     }
@@ -518,6 +547,8 @@ export function checkInvariants(model) {
             const ratio = contrast(center, gap ? ground : flat(ring, ground));
             if (!worst || ratio < worst.ratio) worst = { ratio, groundId };
           }
+          // One pair, the center against what it meets, judged on the ground where it is weakest: counted once.
+          if (worst) checked[scheme].componentPairs += 1;
           if (!worst || worst.ratio >= NON_TEXT) continue;
           const [fillId, besideId] = [at(`${condition}.${state}${mark.fill}.color`), gap ? short(worst.groundId) : short(at(`${condition}.${state}${mark.ring}.color`))];
           const why = gap
@@ -553,6 +584,9 @@ export function checkInvariants(model) {
             if (!read || textRatio < read.ratio) read = { ratio: textRatio, surface };
           }
         }
+        // Each pair is judged on the surface where it is weakest: counted once, as a radio's mark is.
+        if (apart) checked[scheme].componentPairs += 1;
+        if (read) checked[scheme].componentPairs += 1;
         if (apart && apart.ratio < ROW_SELECTION) failures.push(`[${scheme}] ${short(selectedId)} on ${short(hoveredId)}: ${apart.ratio.toFixed(2)}:1 < ${ROW_SELECTION}:1 (a selected row against a hovered one, each laid over sys.color.${apart.surface}: the two read as one fill — make the selection a layer of the row's content color, as comp.list.selected.container.color is)`);
         const required = scheme.endsWith('-high') ? HIGH_CONTRAST_TEXT : TEXT;
         if (read && read.ratio < required) failures.push(`[${scheme}] ${short(textId)} on ${short(selectedId)}: ${read.ratio.toFixed(2)}:1 < ${required}:1 (a selected row's text on its fill, laid over sys.color.${read.surface})`);
@@ -605,9 +639,29 @@ export function checkInvariants(model) {
     for (const scheme of model.schemes) {
       const [fg, beside] = [colorIn(scheme, fgId), colorIn(scheme, besideId)];
       if (!fg || !beside || rgba(fg).a < 1 || rgba(beside).a < 1) continue;
-      const ratio = contrast(fg, beside);
+      const ratio = measure(scheme, 'componentPairs', fg, beside);
       if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} against ${short(besideId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why}, while ${short(choice.id)} is "${named}": a link not underlined at rest is told from text by color alone — WCAG 1.4.1; underline it always, or move the link color)`);
     }
   }
-  return failures;
+  return { failures, checked };
 }
+
+/** The findings of `auditInvariants` alone: what the build fails on, warns of or records. */
+export const checkInvariants = (model) => auditInvariants(model).failures;
+
+/**
+ * The count of `auditInvariants` as a report writes it: the totals over every scheme, then each scheme's.
+ * @param {Record<string, { rolePairs: number, componentPairs: number }>} checked
+ */
+export const checkedPairs = (checked) => ({
+  rolePairs: Object.values(checked).reduce((sum, each) => sum + each.rolePairs, 0),
+  componentPairs: Object.values(checked).reduce((sum, each) => sum + each.componentPairs, 0),
+  schemes: checked,
+});
+
+/** One line for a build's output: `826 role pairs and 40 component pairs in 6 schemes (light 127 + 8, …)`. */
+export const checkedLine = (checked) => {
+  const { rolePairs, componentPairs, schemes } = checkedPairs(checked);
+  const each = Object.entries(schemes).map(([scheme, n]) => `${scheme} ${n.rolePairs} + ${n.componentPairs}`).join(', ');
+  return `${rolePairs} role pairs and ${componentPairs} component pairs checked in ${Object.keys(schemes).length} schemes (${each})`;
+};
