@@ -111,5 +111,6 @@ export { TagGroup } from './wrappers/tag-group.js';
 export { TextField, type TextFieldMarks } from './wrappers/text-field.js';
 export { TextInput, type TextInputMarks } from './wrappers/text-input.js';
 export { Toolbar } from './wrappers/toolbar.js';
+export { ToolbarGroup } from './wrappers/toolbar-group.js';
 export { Tooltip } from './wrappers/tooltip.js';
 export { TreeView } from './wrappers/tree-view.js';

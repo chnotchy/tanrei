@@ -8881,8 +8881,14 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun toolbar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiToolbarTokens =
         TanreiToolbarTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerLength = 24.dp,
+            dividerThickness = 1.dp,
+            groupGap = 8.dp,
             outlineWidth = 1.dp,
+            separation = 1f,
             variants = TanreiToolbarVariants(
+                inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 12.dp, containerSize = 40.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
                 docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 8.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 floating = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright), containerElevation = elevation.level3, containerShape = 9999.dp, containerSize = 64.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, outlineColor = TanreiPaint.None),
             ),

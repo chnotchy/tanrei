@@ -10955,13 +10955,14 @@ public data class TanreiTimelineTokens(
 /**
  * A variant of toolbar: the key of one entry of [TanreiToolbarVariants]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Docked].
+ * A key the current system does not have draws as [Inline].
  */
 @JvmInline
 public value class TanreiToolbarVariant(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
+        public val Inline: TanreiToolbarVariant = TanreiToolbarVariant("inline")
         public val Docked: TanreiToolbarVariant = TanreiToolbarVariant("docked")
         public val Floating: TanreiToolbarVariant = TanreiToolbarVariant("floating")
     }
@@ -10990,27 +10991,30 @@ public data class TanreiToolbarVariantTokens(
  */
 @Immutable
 public data class TanreiToolbarVariants(
+    public val inline: TanreiToolbarVariantTokens,
     public val docked: TanreiToolbarVariantTokens,
     public val floating: TanreiToolbarVariantTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiToolbarVariant, TanreiToolbarVariantTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiToolbarVariant> get() = linkedSetOf(TanreiToolbarVariant.Docked, TanreiToolbarVariant.Floating) + extra.keys
+    public val keys: Set<TanreiToolbarVariant> get() = linkedSetOf(TanreiToolbarVariant.Inline, TanreiToolbarVariant.Docked, TanreiToolbarVariant.Floating) + extra.keys
 
     public operator fun contains(key: TanreiToolbarVariant): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiToolbarVariant): TanreiToolbarVariantTokens? = when (key) {
+        TanreiToolbarVariant.Inline -> inline
         TanreiToolbarVariant.Docked -> docked
         TanreiToolbarVariant.Floating -> floating
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [docked]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiToolbarVariant): TanreiToolbarVariantTokens = find(key) ?: docked
+    /** TOTAL: a key this system does not have reads the default value, [inline]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiToolbarVariant): TanreiToolbarVariantTokens = find(key) ?: inline
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(inline.referencedRoles())
         addAll(docked.referencedRoles())
         addAll(floating.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
@@ -11020,10 +11024,16 @@ public data class TanreiToolbarVariants(
 /** `comp.toolbar`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`). */
 @Immutable
 public data class TanreiToolbarTokens(
+    public val dividerColor: TanreiPaint,
+    public val dividerLength: Dp,
+    public val dividerThickness: Dp,
+    public val groupGap: Dp,
     public val outlineWidth: Dp,
+    public val separation: Float,
     public val variants: TanreiToolbarVariants,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(dividerColor.roles())
         addAll(variants.referencedRoles())
     }
 }

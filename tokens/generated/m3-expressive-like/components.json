@@ -1592,6 +1592,7 @@
         "import": "@tanrei/react/m3-expressive-like"
       },
       "variants": [
+        "inline",
         "docked",
         "floating"
       ]

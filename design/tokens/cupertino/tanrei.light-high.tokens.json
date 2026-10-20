@@ -89844,6 +89844,19 @@
                 "alpha": 1
               },
               "$description": "White in light schemes, lighter than the page in dark ones, as a raised surface is."
+            },
+            "inline": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
             }
           },
           "elevation": {
@@ -89885,6 +89898,11 @@
                 }
               ],
               "$description": "The FAB's level: a floating toolbar sits over the content as a FAB does. Level 1 is only a hairline ring in the default system, so a raised surface needs level 2 or more."
+            },
+            "inline": {
+              "$type": "shadow",
+              "$value": [],
+              "$description": "No shadow of its own."
             }
           },
           "gap": {
@@ -89901,6 +89919,14 @@
                 "value": 8,
                 "unit": "px"
               }
+            },
+            "inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$description": "A condensed row: neighbouring items stand at least this far apart, and further as TBR-16 keeps their targets apart, as a floating toolbar's do."
             }
           },
           "padding-inline": {
@@ -89918,6 +89944,14 @@
                 "unit": "px"
               },
               "$description": "Equal to the space across the row around a medium item (64 − 40 = 2 × 12), so the items sit evenly inside the rounded ends."
+            },
+            "inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 0,
+                "unit": "px"
+              },
+              "$description": "Its ends line up with the content around it."
             }
           },
           "shape": {
@@ -89935,6 +89969,14 @@
                 "value": 9999,
                 "unit": "px"
               }
+            },
+            "inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 10,
+                "unit": "px"
+              },
+              "$description": "For a layer that fills the surface; nothing is drawn with it in the default system."
             }
           },
           "size": {
@@ -89951,7 +89993,57 @@
                 "value": 48,
                 "unit": "px"
               }
+            },
+            "inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$description": "A medium Button's height: the items' targets reach beyond it themselves (BTN-5)."
             }
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.3,
+              "hex": "#000000"
+            },
+            "$description": "The Divider's role. Decorative to the eye; the line is exposed as a separator."
+          },
+          "length": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "How long the line between two groups is, across the toolbar's axis, centred: shorter than the row it stands in."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "As the Divider's line."
+          }
+        },
+        "group": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The space on each side of the line between two groups, or of a separator item; under a gap separation, the empty space is twice this."
           }
         },
         "outline": {
@@ -89981,6 +90073,19 @@
                 "alpha": 0,
                 "hex": "#000000"
               }
+            },
+            "inline": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
             }
           },
           "width": {
@@ -89990,6 +90095,11 @@
               "unit": "px"
             }
           }
+        },
+        "separation": {
+          "$type": "number",
+          "$value": 0,
+          "$description": "How two groups, or a separator item, set items apart. divider: a line of divider.thickness and divider.length in divider.color with group.gap on each side. gap: twice group.gap of empty space and no line. Follows the system's choice; a toolbar's separation prop overrides it (TBR-23). The value is an index into dev.tanrei.enum.values; platforms receive the name."
         }
       },
       "tooltip": {

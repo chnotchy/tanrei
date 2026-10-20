@@ -104,6 +104,7 @@ export { Tag } from '../../generated/wrappers/tag.js';
 export { TagGroup } from '../../generated/wrappers/tag-group.js';
 export { TextField, type TextFieldMarks } from '../../generated/wrappers/text-field.js';
 export { Toolbar } from '../../generated/wrappers/toolbar.js';
+export { ToolbarGroup } from '../../generated/wrappers/toolbar-group.js';
 export { Tooltip } from '../../generated/wrappers/tooltip.js';
 export { TreeView } from '../../generated/wrappers/tree-view.js';
 

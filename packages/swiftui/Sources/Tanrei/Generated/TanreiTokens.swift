@@ -17615,13 +17615,14 @@ public struct TanreiToolbarVariant: RawRepresentable, Hashable, Sendable, Custom
   public init(rawValue: String) { self.rawValue = rawValue }
   public var description: String { rawValue }
 
+  public static let inline = TanreiToolbarVariant(rawValue: "inline")
   public static let docked = TanreiToolbarVariant(rawValue: "docked")
   public static let floating = TanreiToolbarVariant(rawValue: "floating")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiToolbarVariant] = [.docked, .floating]
+  public static let core: [TanreiToolbarVariant] = [.inline, .docked, .floating]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiToolbarVariant.docked
+  public static let fallback = TanreiToolbarVariant.inline
 }
 
 /// Everything of toolbar that depends on its variant.
@@ -17656,16 +17657,19 @@ public struct TanreiToolbarVariantTokens: Sendable, Equatable {
 /// The variants of toolbar: named fields for the core values, `extra` for what a design system added.
 /// Read one with `variants[key]`.
 public struct TanreiToolbarVariants: Sendable, Equatable {
+  public var inline: TanreiToolbarVariantTokens
   public var docked: TanreiToolbarVariantTokens
   public var floating: TanreiToolbarVariantTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiToolbarVariant: TanreiToolbarVariantTokens]
 
   public init(
+    inline: TanreiToolbarVariantTokens,
     docked: TanreiToolbarVariantTokens,
     floating: TanreiToolbarVariantTokens,
     extra: [TanreiToolbarVariant: TanreiToolbarVariantTokens] = [:]
   ) {
+    self.inline = inline
     self.docked = docked
     self.floating = floating
     self.extra = extra
@@ -17674,18 +17678,19 @@ public struct TanreiToolbarVariants: Sendable, Equatable {
   /// The tokens of one toolbar variant, core or added; `nil` when this design system does not have it.
   public func value(for key: TanreiToolbarVariant) -> TanreiToolbarVariantTokens? {
     switch key {
+    case .inline: return inline
     case .docked: return docked
     case .floating: return floating
     default: return extra[key]
     }
   }
 
-  /// Total lookup: a toolbar variant this design system does not have reads the tokens of `docked`, the
+  /// Total lookup: a toolbar variant this design system does not have reads the tokens of `inline`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
   public subscript(key: TanreiToolbarVariant) -> TanreiToolbarVariantTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no toolbar variant \"\(key.rawValue)\"; using \"docked\"")
-    return docked
+    TanreiDiagnostics.report("Tanrei: the current design system has no toolbar variant \"\(key.rawValue)\"; using \"inline\"")
+    return inline
   }
 
   /// Every toolbar variant of this design system: the core ones, then what it added.
@@ -17694,14 +17699,29 @@ public struct TanreiToolbarVariants: Sendable, Equatable {
 
 /// Component tokens of toolbar (comp.toolbar).
 public struct TanreiToolbarTokens: Sendable, Equatable {
+  public var dividerColor: TanreiPaint
+  public var dividerLength: CGFloat
+  public var dividerThickness: CGFloat
+  public var groupGap: CGFloat
   public var outlineWidth: CGFloat
+  public var separation: Double
   public var variants: TanreiToolbarVariants
 
   public init(
+    dividerColor: TanreiPaint,
+    dividerLength: CGFloat,
+    dividerThickness: CGFloat,
+    groupGap: CGFloat,
     outlineWidth: CGFloat,
+    separation: Double,
     variants: TanreiToolbarVariants
   ) {
+    self.dividerColor = dividerColor
+    self.dividerLength = dividerLength
+    self.dividerThickness = dividerThickness
+    self.groupGap = groupGap
     self.outlineWidth = outlineWidth
+    self.separation = separation
     self.variants = variants
   }
 }
