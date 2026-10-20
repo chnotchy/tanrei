@@ -52,6 +52,12 @@
       "description": "Prevents interaction and removes the switch from the focus order."
     },
     {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the setting and keeps it: the switch can be focused and read and is submitted with its form, but the person cannot switch it or drag its handle. Drawn as an enabled switch, without the hover and press answers (SWT-25)."
+    },
+    {
       "name": "label",
       "type": "string",
       "default": "",
@@ -196,6 +202,11 @@
     {
       "id": "SWT-24",
       "text": "THE switch SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE switch SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "SWT-25",
+      "text": "WHILE readOnly is true and disabled is false THE switch SHALL stay focusable and in the focus order; SHALL NOT change checked, and SHALL NOT emit change, on any activation — pointer, touch, Space, Enter where Enter activates it, assistive technology, a click on its label or a click dispatched on the element; SHALL NOT take a drag (SWT-19) nor change its handle's size for a press (SWT-18); SHALL expose the read-only state to assistive technology beside its on or off state; WHERE the platform has forms SHALL be submitted with its form as it is drawn; and SHALL be drawn from the resting component tokens of its condition — the enabled ones, never the disabled ones — and SHALL show no hovered and no pressed state, under any pressed feedback (no overlay, no ripple, no dim), while keyboard focus still selects the focused state and shows the focus ring (SWT-3, SWT-4). The product may still set checked, which then moves the handle (SWT-13). WHILE disabled is true as well, disabled wins (SWT-2).",
+      "verify": "Web unit: a read-only switch is reached by Tab, keeps checked after a click on the track, a click on the label, Space, element.click() and a drag along the track, and fires no input and no change; its input carries aria-readonly with role switch; a named one is in FormData; hovered and pressed it draws its resting tokens, keyboard-focused its focused ones."
     }
   ],
   "accessibility": {
@@ -207,7 +218,7 @@
       },
       {
         "keys": "Space",
-        "action": "Switches it."
+        "action": "Switches it; nothing while it is read-only."
       },
       {
         "keys": "Enter",
@@ -222,6 +233,7 @@
     "minimumTarget": true,
     "notes": [
       "The state is announced as on / off: role switch with aria-checked on the web, the switch trait of a toggle on Apple platforms, Role.Switch with a toggleable state on Android, Semantics toggled in Flutter, accessibilityRole \"switch\" with accessibilityState checked in React Native.",
+      "Read-only (SWT-25) is a switch that shows a setting in place and keeps it in the focus order, so that it is read with the others — a setting a policy holds, or one only an administrator may change. HTML's readonly attribute does not apply to a checkbox, the switch's native element on the web, so the switch cancels its activation itself and says read-only with aria-readonly, which WAI-ARIA allows on the switch role; React Aria's isReadOnly is the same: focusable, announced with its value, not changeable. Where the person may not reach it at all, it is disabled.",
       "A tap anywhere on the switch or its label toggles it. A drag along the track carries the handle with the finger, and the switch takes the side the handle is released on (SWT-19 to SWT-21).",
       "The drag is never the only way (WCAG 2.5.7): a single tap, a click on the label and Space all switch it. With a screen reader running, a one-finger drag belongs to the reader; the switch is then toggled by the reader's activation, as before.",
       "A drag changes what is drawn, continuously, and nothing that assistive technology is told: between its ends the switch looks partly on, but the state stays on or off as it was, and is announced once, when the release changes it. There is no threshold in the look; the middle of the travel decides only what a release chooses.",
@@ -284,6 +296,14 @@
         "label": "Wi-Fi",
         "labelHidden": true
       }
+    },
+    {
+      "id": "read-only-selected",
+      "props": {
+        "readOnly": true,
+        "checked": true,
+        "label": "Wi-Fi"
+      }
     }
   ],
   "platforms": {
@@ -293,6 +313,7 @@
       "props": {
         "checked": "checked",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "checkedIcon": "checkedIcon",
@@ -301,7 +322,7 @@
       "events": {
         "change": "change"
       },
-      "notes": "Form-associated: submits its `value` (default \"on\") under `name` while checked, as a native checkbox does; those are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`). Attributes are `label-hidden`, `checked-icon` and `unchecked-icon`. A drag (SWT-19 to SWT-21) is followed with Pointer Events on the track: `setPointerCapture` once the drag is taken, `pointermove` placing the handle, `pointerup` choosing the side, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-checked` and the form value are written only on the release, and `touch-action: pan-y` on the track leaves vertical drags to the page. The in-between look is one progress from 0 to 1 in a registered custom property (`@property`, a `<number>`): every color that differs is `color-mix()` of the two conditions' tokens by it, the handle's size and place are `calc()` of it, and the two glyphs' opacities are it and its complement. A drag writes the property in each frame, and a tap transitions the same property (SWT-13), so both draw the same looks."
+      "notes": "Form-associated: submits its `value` (default \"on\") under `name` while checked, as a native checkbox does; those are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`). Attributes are `label-hidden`, `checked-icon` and `unchecked-icon`. A drag (SWT-19 to SWT-21) is followed with Pointer Events on the track: `setPointerCapture` once the drag is taken, `pointermove` placing the handle, `pointerup` choosing the side, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-checked` and the form value are written only on the release, and `touch-action: pan-y` on the track leaves vertical drags to the page. The in-between look is one progress from 0 to 1 in a registered custom property (`@property`, a `<number>`): every color that differs is `color-mix()` of the two conditions' tokens by it, the handle's size and place are `calc()` of it, and the two glyphs' opacities are it and its complement. A drag writes the property in each frame, and a tap transitions the same property (SWT-13), so both draw the same looks. `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a checkbox, so the element cancels the activation and the drag itself and writes `aria-readonly` on its native checkbox)."
     },
     "swiftui": {
       "status": "lagging",
@@ -309,6 +330,7 @@
       "props": {
         "checked": "isOn",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "title",
         "labelHidden": "labelsHidden",
         "checkedIcon": "selectedIcon",
@@ -325,6 +347,7 @@
       "props": {
         "checked": "checked",
         "disabled": "enabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "checkedIcon": "thumbContent",
@@ -341,6 +364,7 @@
       "props": {
         "checked": "value",
         "disabled": "onChanged",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "checkedIcon": "thumbIcon",
@@ -357,6 +381,7 @@
       "props": {
         "checked": "value",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
         "checkedIcon": "selectedIcon",

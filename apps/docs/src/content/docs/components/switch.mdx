@@ -121,6 +121,7 @@ This page describes the switch as the spec has it now: a 52 × 32 track, a handl
     <tanrei-switch disabled label="Disabled, off"></tanrei-switch>
     <tanrei-switch disabled checked label="Disabled, on"></tanrei-switch>
   </div>
+  <tanrei-switch readonly checked label="Read-only, on"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
 </DemoFrame>
 
@@ -156,6 +157,10 @@ In the default system the switch has a 52 × 32 track with a 2 outline, and a ha
 
 The switch and [tabs](/components/tabs/) share one model: a thumb on a track that slides to what is chosen and follows a finger. A switch has two states that are not equals, so its track, outline and handle differ between off and on. Tabs offer two or more equal choices, so their track never changes. Use a switch for a setting that is on or off, and tabs to choose among views.
 
+### Read-only
+
+A read-only switch shows a setting that the person can read but not change, such as one held by a policy or one only an administrator may change. It stays in the focus order, is announced with its state and as read-only, and is submitted with its form. It looks like an enabled switch without the hover and press feedback, and its handle cannot be dragged. Say near it why it cannot be changed. Use `disabled` when the setting does not apply at all.
+
 ### Do
 
 - Name the setting in the label, not the action: "Wi-Fi", not "Turn on Wi-Fi".
@@ -180,6 +185,7 @@ The switch and [tabs](/components/tabs/) share one model: a thumb on a track tha
 - A drag along the track carries the handle and switches on release. It is never the only way: a tap, a click on the label and Space all switch it. With a screen reader running, a one-finger drag belongs to the reader, and the switch is toggled by the reader's activation.
 - During a drag the switch may look partly on, but its state, and the value it would submit with a form, stay as they were. The change is announced once, when the release makes it.
 - Space toggles it. Enter toggles it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
+- While `readOnly` is set it stays focusable and is announced as read-only beside its state. No tap, drag, Space, click on the label or `click()` changes it, and it shows no hover or press feedback. On the web its value is still submitted. HTML's `readonly` does not apply to the switch's native element, so the component does this itself.
 - In a right-to-left layout, the handle's positions, its travel and the label are mirrored. A drag still carries the handle to where the pointer is.
 - It shows the focus indicator for keyboard focus only.
 - A missing label is reported in debug builds.
@@ -187,6 +193,7 @@ The switch and [tabs](/components/tabs/) share one model: a thumb on a track tha
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native ship the previous revision: the switch answers a tap and follows no drag, and its glyphs are not yet drawn at the mark's own weight.
+- `readOnly` is on the web only so far: SwiftUI, Compose, Flutter and React Native do not have it yet.
 
 ### What you need to do
 

@@ -70,6 +70,10 @@ const OTHER_CONTROLS = 'input, button, select, textarea, a[href], [tabindex]:not
  * `<fieldset disabled>`, and reports `valueMissing` while `required` and `value` is empty, in the
  * browser's own words for an unanswered set of radio buttons. It never sets `error` itself.
  *
+ * Read-only (`readonly`, RGP-20): it is still entered at its stop and the arrow keys still move focus among the enabled
+ * radio buttons, but nothing a person does changes `value` — each radio button is read-only while the group is (RAD-28)
+ * —, it is submitted, reports no missing value, and its radiogroup says `aria-readonly`.
+ *
  * The element is not focusable itself and has no role: `focus()` goes to the radio button that is the stop, and the
  * radio group that assistive technology is told of — its name, its description and its required, invalid and disabled
  * states and its orientation — is the field group's own element (`label`, never `aria-label` on this one).
@@ -104,6 +108,7 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     required: { type: Boolean, reflect: true },
     optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
@@ -136,6 +141,12 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
 
   /** @from tanrei-field-group.disabled */
   disabled = false;
+
+  /**
+   * Shows the answer and keeps it (RGP-20): the group is focused and read and its value submitted, but a person cannot
+   * change it. The `readonly` attribute. `disabled` wins over it.
+   */
+  readOnly = false;
 
   /** @from tanrei-field-group.required */
   required = false;
@@ -337,6 +348,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     if (at < 0 || enabled.length < 2) return;
     const next = enabled[(at + direction + enabled.length) % enabled.length];
     next.focus();
+    // RGP-20, RAD-28: in a read-only group, or on a read-only radio button, the arrow key moves focus and selects nothing.
+    if (next.isReadOnly) return;
     // Selected as a person selects it: the radio button tells the group, which fires `input` and `change` (RGP-4).
     next.click();
   };
@@ -355,7 +368,8 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   private syncForm(options = this.options) {
     const off = this.isDisabled;
     this.internals.setFormValue(off || this.value === '' ? null : this.value, this.value);
-    if (!off && this.required && this.value === '') {
+    // RGP-20: a read-only group reports no missing value — a person cannot give one.
+    if (!off && !this.readOnly && this.required && this.value === '') {
       // The browser's own words for an unanswered set of radio buttons; where it has none, the product's.
       const message = missingValueMessage('radio', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
       // W6, item 3: anchored on the radio button that is the stop — its own native element, which is what takes focus.
@@ -395,8 +409,11 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     this.askAgain();
     // RGP-6, RGP-10: the tab stop and each position, from the selection and the disabled states as they are now.
     options[0]?.regroup();
+    // RAD-28: each radio button draws itself read-only while the group is.
+    if (changed.has('readOnly')) for (const option of options) option.requestUpdate();
     this.syncForm(options);
     this.reports(options);
+    void this.exposeReadOnly();
     super.updated(changed);
   }
 
@@ -404,6 +421,21 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
    * What a debug build tells the developer; the group still renders. An unknown value of a frame's prop, missing words
    * and an empty label are the field group's to report (RGP-10, RGP-18, RGP-19: FGR-10, FGR-22, FGR-24).
    */
+  /**
+   * RGP-10, RGP-20: the radio group assistive technology is told of is the field group's own element, which carries the
+   * role's other states; a field group has no read-only state of its own, so the radio group writes `aria-readonly` on
+   * that element once the field group has drawn it.
+   */
+  private async exposeReadOnly() {
+    const frame = this.renderRoot.querySelector<TanreiFieldGroup>('tanrei-field-group');
+    if (!frame) return;
+    await frame.updateComplete;
+    const group = frame.shadowRoot?.querySelector('[role="radiogroup"]');
+    if (!group) return;
+    if (this.readOnly && !this.isDisabled) group.setAttribute('aria-readonly', 'true');
+    else group.removeAttribute('aria-readonly');
+  }
+
   private reports(options: TanreiRadioButton[]) {
     // RGP-12: a set without a radio button still draws its rows.
     if (!options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');

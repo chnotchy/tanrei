@@ -59,6 +59,10 @@ const NO_VALUE = 'on';
  * `indeterminate`) before it fires `input` and `change`. The semantics are a native checkbox in the shadow root, named
  * by `label`; a click on the visible label toggles it.
  *
+ * Read-only (`readonly`, CHK-24): it stays focusable and submitted, and a person cannot switch it — HTML's `readonly`
+ * does not apply to a checkbox, so the element cancels the native checkbox's activation itself and says `aria-readonly`
+ * on it. It is drawn as an enabled checkbox without the hover and press answers; keyboard focus still shows.
+ *
  * Inside a `<tanrei-checkbox-group>` (CHK-23) it is a choice of that set: its `checked` is the group's — whether the
  * group's list holds its `value` —, it submits nothing itself whatever `name` it carries, `required` is not read, and
  * it fires no `input` and no `change`: the group fires one `change` with the list. A checkbox that carries no `value`
@@ -94,6 +98,7 @@ export class TanreiCheckbox extends TanreiElement {
     indeterminate: { type: Boolean, reflect: true },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     label: { type: String },
     labelHidden: { type: Boolean, attribute: 'label-hidden', reflect: true },
     required: { type: Boolean, reflect: true },
@@ -112,6 +117,12 @@ export class TanreiCheckbox extends TanreiElement {
 
   /** Prevents interaction and removes the checkbox from the focus order. */
   disabled = false;
+
+  /**
+   * Shows the choice and keeps it (CHK-24): focusable, submitted with its form, not switched by a person. The `readonly`
+   * attribute. `disabled` wins over it.
+   */
+  readOnly = false;
 
   /** The text that names the choice: drawn next to the box and used as the accessible name. */
   label = '';
@@ -144,7 +155,8 @@ export class TanreiCheckbox extends TanreiElement {
   private readonly press = new PressController(this, {
     container: () => this.renderRoot.querySelector('.container'),
     holdCarrier: () => this.renderRoot.querySelector('.control'),
-    disabled: () => this.selection.disabled,
+    // CHK-24: a read-only checkbox shows no pressed state either — a press changes nothing.
+    disabled: () => this.selection.disabled || this.readOnly,
     keys: [' '],
     origin: selectionRippleOrigin(() => this.renderRoot.querySelector('.container')),
   });
@@ -240,7 +252,10 @@ export class TanreiCheckbox extends TanreiElement {
   }
 
   /** CHK-2: activation of an indeterminate checkbox checks it, whatever `checked` was (the native one would flip it). */
-  private onClick() {
+  private onClick(event: Event) {
+    // CHK-24: read-only, the activation is cancelled — the native checkbox goes back to what it was and fires no input
+    // and no change — whatever started it: a press, Space, the label, assistive technology or element.click().
+    if (this.readOnly) return event.preventDefault();
     // The native checkbox has already switched: mark the change before anything can style it.
     markConditionChange(this.renderRoot.querySelector('.root'));
     const input = this.input;
@@ -298,10 +313,14 @@ export class TanreiCheckbox extends TanreiElement {
     // state and its error condition (FLD-8, FLD-10, FLD-11, FGR-8): `data-error` draws the error form for either.
     const field = this.selection.field;
     const error = this.error || field.invalid;
+    // CHK-24: a read-only checkbox reports no missing value — a person cannot give one — and is still exposed as required.
+    const required = this.required && !this.owner;
+    const nativeRequired = required && !this.readOnly;
     return html`
       <label
         class="root"
         ?data-error=${error}
+        ?data-readonly=${this.readOnly}
         @click=${this.onRootClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -315,11 +334,12 @@ export class TanreiCheckbox extends TanreiElement {
             .checked=${live(this.checked)}
             .indeterminate=${live(this.indeterminate)}
             ?disabled=${this.selection.disabled}
-            ?required=${this.required && !this.owner}
+            ?required=${nativeRequired}
             aria-label=${field.name(this.label) || nothing}
             aria-description=${field.description() || nothing}
             aria-invalid=${error ? 'true' : nothing}
-            aria-required=${field.required && !(this.required && !this.owner) ? 'true' : nothing}
+            aria-required=${(field.required || required) && !nativeRequired ? 'true' : nothing}
+            aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
             @click=${this.onClick}
             @input=${this.onInput}
             @change=${this.onChange}

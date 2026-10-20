@@ -2,7 +2,7 @@
 title: Grupo de botones de opción
 description: Hace una pregunta que tiene exactamente una respuesta entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de botones de opción que guarda el valor elegido, bajo una etiqueta que puede decir si la respuesta es obligatoria u opcional, con una descripción y un único error para el conjunto.
 translationOf: components/radio-group.mdx
-sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
+sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -128,6 +128,11 @@ Escribe a mano el grupo de campos y los botones de opción donde el conjunto con
     <tanrei-radio-button value="express" label="Exprés, al día siguiente" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
   </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" value="express" readonly>
+    <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-radio-group>
 </DemoFrame>
 
 <ComponentSpecs name="radio-group" />
@@ -199,6 +204,10 @@ Las teclas de flecha funcionan igual en las dos orientaciones y siguen el orden 
 
 Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable.
 
+### Solo lectura
+
+Un grupo de solo lectura muestra su respuesta en su sitio, para que la persona la lea y no la cambie: un paso de revisión, o una elección que solo algunas personas pueden cambiar. Tab sigue entrando por el botón de opción seleccionado, las flechas se mueven entre las opciones sin seleccionar ninguna, y el valor se envía con el formulario. El formulario no rechaza un grupo obligatorio y de solo lectura que queda sin responder, porque la persona no puede responderlo. Se dibuja como un grupo habilitado, sin la respuesta al pasar el puntero ni al pulsar.
+
 ### Recomendado
 
 - Da al conjunto como nombre la pregunta a la que responden sus opciones: «Entrega».
@@ -210,7 +219,7 @@ Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable
 - No pongas en un grupo de botones de opción nada más que se pueda accionar: ni una casilla de verificación, ni un botón, ni un campo.
 - No des un `name` a los botones de opción de un grupo de botones de opción. Se ignora: su grupo es el propio grupo.
 - No envuelvas un grupo de botones de opción en un campo o en un grupo de campos para darle una etiqueta. Ya tiene la suya. Un grupo de botones de opción puede ser un miembro de un grupo de campos que da nombre a un conjunto mayor («Envío»).
-- No hagas que un conjunto sea de solo lectura deshabilitando el grupo: un grupo deshabilitado no envía nada. Un grupo de botones de opción no tiene estado de solo lectura; muestra como texto una respuesta que no se puede cambiar, o deshabilita cada botón de opción por separado, lo que conserva el valor.
+- No hagas que un conjunto sea de solo lectura deshabilitando el grupo: un grupo deshabilitado no envía nada y no se puede alcanzar. Usa `readOnly`, que mantiene el conjunto en el orden del foco y envía su valor.
 
 ## Accesibilidad
 
@@ -220,6 +229,7 @@ Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable
 
 - Un solo grupo de botones de opción que contiene sus botones de opción y recibe su nombre de `label`, tanto si se dibuja como si se oculta con `labelHidden`.
 - El estado obligatorio mientras `required` está activado, el estado no válido mientras `error` es true, el estado deshabilitado mientras `disabled` es true, y su orientación.
+- El estado de solo lectura mientras `readOnly` es verdadero. Entonces cada botón de opción es de solo lectura: Tab y las flechas siguen moviendo el foco, y nada de lo que haga la persona cambia `value`.
 - La descripción del grupo es `supportingText`, después `errorText` mientras `error` es true y después `optionalText` mientras es opcional. `requiredText` no forma parte de ella: lo dice el estado obligatorio.
 - Cada botón de opción dice su posición en el conjunto y el tamaño del conjunto, contando las opciones deshabilitadas.
 - Una sola parada en el orden del foco: el botón de opción seleccionado o, si no hay ninguno, el primero habilitado. Tab entra en el grupo por ahí y sale de él; las teclas de flecha se mueven dentro del grupo, se saltan una opción deshabilitada y dan la vuelta en los dos extremos. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.

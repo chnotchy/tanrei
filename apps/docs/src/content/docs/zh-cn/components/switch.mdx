@@ -2,7 +2,7 @@
 title: "开关"
 description: "打开或关闭一项设置，并立即生效。"
 translationOf: components/switch.mdx
-sourceHash: 9d5ae1fdd7d55360b027863517b0a3f00989f40e
+sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -123,6 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-switch disabled label="禁用，关"></tanrei-switch>
     <tanrei-switch disabled checked label="禁用，开"></tanrei-switch>
   </div>
+  <tanrei-switch readonly checked label="只读，开"></tanrei-switch>
   <tanrei-switch checked label-hidden label="WLAN"></tanrei-switch>
 </DemoFrame>
 
@@ -158,6 +159,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 开关和[标签页](/zh-cn/components/tabs/)共用一个模型：轨道上的一个滑块，它滑向被选中的那一项，并跟随手指。开关的两个状态并不对等，所以它的轨道、轮廓和滑块在开与关之间各不相同。标签页提供两个或更多对等的选择，所以它的轨道始终不变。开或关的设置用开关，在视图之间选择用标签页。
 
+### 只读
+
+只读开关显示一个可以阅读但不能更改的设置，例如由策略锁定的设置，或只有管理员可以更改的设置。它留在焦点顺序中，会连同状态一起被读作只读，并随表单提交。它看起来与启用的开关相同，只是没有悬停和按下的反馈，滑块也不能拖动。请在旁边说明为什么不能更改。设置根本不适用时，请使用 `disabled`。
+
 ### 推荐
 
 - 标签写设置的名称，而不是操作：写“WLAN”，而不是“打开 WLAN”。
@@ -182,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 沿轨道拖动会带着滑块移动，并在松开时切换。拖动绝不是唯一的方式：轻点、点击标签和 Space 都能切换它。屏幕阅读器运行时，单指拖动归阅读器所有，开关由阅读器的激活操作来切换。
 - 拖动过程中，开关可能看起来是部分打开的，但它的状态，以及它随表单提交的值，都保持原样。变化只朗读一次，即松开手指、变化真正发生的时候。
 - Space 切换它。Enter 只在平台用 Enter 激活任何获得焦点的控件时（Android、tvOS）才切换它；在 Web 上，Enter 提交表单。
+- 设置 `readOnly` 时，它仍可获得焦点，并在状态之外被读作只读。轻点、拖动、Space、点击标签或 `click()` 都不会改变它，也没有悬停和按下的反馈。在 Web 上它的值照常提交。HTML 的 `readonly` 对开关的原生元素无效，所以由组件自己完成这些。
 - 在从右到左的布局中，滑块的位置、它的行程和标签都会镜像。拖动仍然把滑块带到指针所在的位置。
 - 它只在键盘聚焦时显示焦点指示。
 - 缺少标签会在调试构建中报告。
@@ -189,6 +195,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 提供的是上一版：开关响应轻点，不跟随拖动，图标也还没有按标记自己的字重来绘制。
+- `readOnly` 目前只在 Web 上提供：SwiftUI、Compose、Flutter 和 React Native 还没有。
 
 ### 需要你做的事
 

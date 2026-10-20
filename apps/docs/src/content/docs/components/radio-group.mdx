@@ -126,6 +126,11 @@ Write the field group and the radio buttons by hand where the set holds somethin
     <tanrei-radio-button value="express" label="Express, next day" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
   </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" value="express" readonly>
+    <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-radio-group>
 </DemoFrame>
 
 <ComponentSpecs name="radio-group" />
@@ -197,6 +202,10 @@ The arrow keys are the same in both, and go by the order given, not by where a w
 
 A change of value does not clear the error. Clear it when the answer is acceptable.
 
+### Read-only
+
+A read-only group shows its answer in place, for the person to read and not change: a review step, or a choice that only some people may change. Tab still enters it at the selected radio button, the arrow keys move among the options without selecting any, and the value is submitted with the form. A required, read-only group left unanswered is not refused by the form, because the person cannot answer it. It is drawn as an enabled group, without the hover and press feedback.
+
 ### Do
 
 - Name the set with the question its options answer: "Delivery".
@@ -208,7 +217,7 @@ A change of value does not clear the error. Clear it when the answer is acceptab
 - Don't put anything else that can be operated in a radio group: no checkbox, no button, no field.
 - Don't give the radio buttons of a radio group a `name`. It is ignored: the group is their group.
 - Don't wrap a radio group in a field or a field group to give it a label. It has its own. A radio group may be one member of a field group that names a larger set ("Shipping").
-- Don't make a set read-only by disabling the group: a disabled group submits nothing. A radio group has no read-only state; show an answer that cannot be changed as text, or disable each radio button by itself, which keeps the value.
+- Don't make a set read-only by disabling the group: a disabled group submits nothing and cannot be reached. Use `readOnly`, which keeps the set in the focus order and submits its value.
 
 ## Accessibility
 
@@ -218,6 +227,7 @@ A change of value does not clear the error. Clear it when the answer is acceptab
 
 - One radio group that contains its radio buttons, named by `label`, drawn or hidden with `labelHidden`.
 - The required state while `required` is set, the invalid state while `error` is true, the disabled state while `disabled` is true, and its orientation.
+- The read-only state while `readOnly` is true. Every radio button is then read-only: Tab and the arrow keys still move focus, and nothing a person does changes `value`.
 - The group's description is `supportingText`, then `errorText` while `error` is true, then `optionalText` while it is optional. `requiredText` is not part of it: the required state says it.
 - Each radio button says its position in the set and the set's size, disabled options counted.
 - One stop in the focus order: the selected radio button, or the first enabled one. Tab enters the group there and leaves it; the arrow keys move within it, skip a disabled option and wrap at both ends. In a right-to-left layout Left Arrow and Right Arrow exchange.
