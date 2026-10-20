@@ -13890,6 +13890,9 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var optionShape: CGFloat
   public var optionSupportingTextTypescale: TanreiTextStyle
   public var separation: Double
+  public var statusColor: TanreiPaint
+  public var statusErrorColor: TanreiPaint
+  public var statusTypescale: TanreiTextStyle
   public var variants: TanreiSelectVariants
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiSelectStateTokens
@@ -13935,6 +13938,9 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     optionShape: CGFloat,
     optionSupportingTextTypescale: TanreiTextStyle,
     separation: Double,
+    statusColor: TanreiPaint,
+    statusErrorColor: TanreiPaint,
+    statusTypescale: TanreiTextStyle,
     variants: TanreiSelectVariants,
     hovered: TanreiSelectStateTokens,
     focused: TanreiSelectStateTokens,
@@ -13975,6 +13981,9 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.optionShape = optionShape
     self.optionSupportingTextTypescale = optionSupportingTextTypescale
     self.separation = separation
+    self.statusColor = statusColor
+    self.statusErrorColor = statusErrorColor
+    self.statusTypescale = statusTypescale
     self.variants = variants
     self.hovered = hovered
     self.focused = focused

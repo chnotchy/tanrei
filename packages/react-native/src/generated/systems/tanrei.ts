@@ -11811,6 +11811,9 @@ export const tanrei = {
       optionSupportingTextTypescale: "bodySmall",
       pressedOpacity: 1,
       separation: 0,
+      statusColor: { kind: "role", role: "onSurfaceVariant" },
+      statusErrorColor: { kind: "role", role: "error" },
+      statusTypescale: "bodySmall",
       variants: {
         stacked: {
           enabled: {

@@ -69,6 +69,7 @@ export const englishWords: Readonly<Required<TanreiWords>> = {
   nextMonthLabel: "Next month",
   nextPageLabel: "Next page",
   noFileText: "No file chosen",
+  noOptionsText: "No options",
   optionalText: "Optional",
   pageCountText: "Page {page} of {count}",
   pageLabel: "Page {page}",

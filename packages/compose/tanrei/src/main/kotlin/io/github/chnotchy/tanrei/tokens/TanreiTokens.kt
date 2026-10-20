@@ -8678,6 +8678,9 @@ public data class TanreiSelectTokens(
     public val optionShape: Dp,
     public val optionSupportingTextTypescale: TanreiTextStyle,
     public val separation: Float,
+    public val statusColor: TanreiPaint,
+    public val statusErrorColor: TanreiPaint,
+    public val statusTypescale: TanreiTextStyle,
     public val hovered: TanreiSelectStateTokens,
     public val focused: TanreiSelectStateTokens,
     public val pressed: TanreiSelectStateTokens,
@@ -8698,6 +8701,8 @@ public data class TanreiSelectTokens(
         addAll(groupTitleColor.roles())
         addAll(listColor.roles())
         listElevation.forEach { add(it.role) }
+        addAll(statusColor.roles())
+        addAll(statusErrorColor.roles())
         addAll(variants.referencedRoles())
     }
 }

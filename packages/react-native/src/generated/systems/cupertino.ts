@@ -9027,6 +9027,9 @@ export const cupertino = {
       optionSupportingTextTypescale: "bodySmall",
       pressedOpacity: 0.7,
       separation: 0,
+      statusColor: { kind: "role", role: "onSurfaceVariant" },
+      statusErrorColor: { kind: "role", role: "error" },
+      statusTypescale: "bodySmall",
       variants: {
         stacked: {
           enabled: {

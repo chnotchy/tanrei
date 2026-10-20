@@ -7451,6 +7451,9 @@ private let m3LikeSelectTokens = TanreiSelectTokens(
   optionShape: 0,
   optionSupportingTextTypescale: m3LikeTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: m3LikeTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(

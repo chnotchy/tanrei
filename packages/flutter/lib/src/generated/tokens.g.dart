@@ -20068,6 +20068,9 @@ class TanreiSelectTokens {
     required this.optionShape,
     required this.optionSupportingTextTypescale,
     required this.separation,
+    required this.statusColor,
+    required this.statusErrorColor,
+    required this.statusTypescale,
     required this.variants,
     required this.hovered,
     required this.focused,
@@ -20143,6 +20146,12 @@ class TanreiSelectTokens {
   final TanreiTextStyle optionSupportingTextTypescale;
   /// `comp.select.separation`
   final double separation;
+  /// `comp.select.status-color`
+  final TanreiPaint statusColor;
+  /// `comp.select.status-error-color`
+  final TanreiPaint statusErrorColor;
+  /// `comp.select.status-typescale`
+  final TanreiTextStyle statusTypescale;
   /// The `variant` axis: `variants[variant]`.
   final TanreiSelectVariants variants;
   /// `comp.select.hovered.*`
@@ -20190,6 +20199,9 @@ class TanreiSelectTokens {
     double? optionShape,
     TanreiTextStyle? optionSupportingTextTypescale,
     double? separation,
+    TanreiPaint? statusColor,
+    TanreiPaint? statusErrorColor,
+    TanreiTextStyle? statusTypescale,
     TanreiSelectVariants? variants,
     TanreiSelectStateTokens? hovered,
     TanreiSelectStateTokens? focused,
@@ -20230,6 +20242,9 @@ class TanreiSelectTokens {
         optionShape: optionShape ?? this.optionShape,
         optionSupportingTextTypescale: optionSupportingTextTypescale ?? this.optionSupportingTextTypescale,
         separation: separation ?? this.separation,
+        statusColor: statusColor ?? this.statusColor,
+        statusErrorColor: statusErrorColor ?? this.statusErrorColor,
+        statusTypescale: statusTypescale ?? this.statusTypescale,
         variants: variants ?? this.variants,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,

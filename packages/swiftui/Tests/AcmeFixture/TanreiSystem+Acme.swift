@@ -7507,6 +7507,9 @@ private let acmeSelectTokens = TanreiSelectTokens(
   optionShape: 4,
   optionSupportingTextTypescale: acmeTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: acmeTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(

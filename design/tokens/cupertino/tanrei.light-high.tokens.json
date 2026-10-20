@@ -70850,6 +70850,61 @@
               }
             }
           }
+        },
+        "status": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.1882,
+                0.1882,
+                0.1961
+              ],
+              "hex": "#303032",
+              "alpha": 1
+            },
+            "$description": "The status row's text while nothing is wrong, and the text shown while the select holds no option: secondary to the options."
+          },
+          "error": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.5765,
+                  0,
+                  0.0157
+                ],
+                "hex": "#930004",
+                "alpha": 1
+              },
+              "$description": "The status row's text while status is error. The words say what failed; the color says that something did."
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Inter",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 13,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.3846
+            },
+            "$description": "The status row's text and the text shown while the select holds no option."
+          }
         }
       },
       "side-sheet": {
