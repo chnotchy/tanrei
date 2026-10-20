@@ -96,6 +96,8 @@
 //   modal       — modalLayer: the Tanrei modal overlays open in the window, which a snackbar waits and pauses for (SNK-9, SNK-12);
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets)
+//   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
+//                 a blur to draw (MDL-1)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
@@ -261,6 +263,7 @@ export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } f
 export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
+export { SCRIM_FILTER, scrimFilter } from './scrim.js';
 export {
   POINTER_STOPPED_TIME,
   SHEET_FLING_VELOCITY,
