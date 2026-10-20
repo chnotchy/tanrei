@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
 const { strings } = await import('../src/lib/i18n.ts');
-const { releaseNotice } = await import('../src/lib/release-notice.ts');
+const { releaseNotice, heroEyebrow } = await import('../src/lib/release-notice.ts');
 const { source, translations } = await import('../i18n/locales.mjs');
 
 const docs = fileURLToPath(new URL('../src/content/docs/', import.meta.url));
@@ -71,6 +71,18 @@ describe('the notice, in every language', () => {
       assert.equal(paused.paragraphs.length, 1);
       assert.equal(releaseNotice({ lang, version: '0.1.0', paused: [] }), null);
       assert.deepEqual([...unfilled(both), ...unfilled(paused)], []);
+    });
+  }
+});
+
+describe('the home hero’s eyebrow follows the version, in every language', () => {
+  for (const { lang } of languages) {
+    const t = strings(lang);
+    test(`${lang}: it names a prerelease while the version is one, and drops the word at the release`, () => {
+      assert.equal(heroEyebrow(lang, '0.1.0-next.0'), `${t.heroEyebrow} · ${t.heroPrerelease} · v0.1.0-next.0`);
+      assert.equal(heroEyebrow(lang, '0.1.0'), `${t.heroEyebrow} · v0.1.0`);
+      assert.equal(heroEyebrow(lang), heroEyebrow(lang, config.version));
+      assert.ok(!t.heroEyebrow.includes(t.heroPrerelease), `${lang}: the eyebrow's fixed words say nothing of the release`);
     });
   }
 });

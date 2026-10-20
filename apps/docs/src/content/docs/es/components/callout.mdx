@@ -2,7 +2,7 @@
 title: Callout
 description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
 translationOf: components/callout.mdx
-sourceHash: 45990ea481aa7ae5b0e2f8995548890f5b3b36af
+sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="Una nota, una precaución con título y un aviso con acciones y botón de cierre" column>
   <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
-  <tanrei-callout status="warning" headline="Prelanzamiento: todavía no se ha publicado" style="inline-size: min(100%, 34rem)">El paquete aún no está disponible en el registro de paquetes. Los pasos de instalación siguientes muestran cómo funcionará tras la primera versión.</tanrei-callout>
+  <tanrei-callout status="warning" headline="Haz una copia de seguridad antes de migrar" style="inline-size: min(100%, 34rem)">La migración reescribe la base de datos en su sitio. Los pasos siguientes muestran cómo conservar una copia que puedas restaurar.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="Hay una versión más reciente de esta página" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Vuelve a cargarla para leerla. No se pierde nada de lo que has escrito.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Volver a cargar</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Mostrar de nuevo el último</tanrei-button>
 </DemoFrame>
@@ -52,9 +52,9 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
 
     <!-- El contenido extenso es prosa, con el tamaño del callout y sin medida. -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">Prelanzamiento: todavía no se ha publicado</h3>
+      <h3 slot="title">Haz una copia de seguridad antes de migrar</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>El paquete aún no está en el registro de paquetes. <a href="/es/status/">Consulta el estado</a>.</p>
+        <p>La migración reescribe la base de datos en su sitio. <a href="#restore">Consulta cómo restaurar una copia</a>.</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -95,7 +95,7 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
 
 <DemoFrame label="Un título, tu propio glifo, acciones, un botón de cierre y el tamaño grande" plain column>
   <tanrei-callout headline="Consejo" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Mantén habilitada una acción y explica qué falta cuando se use.</tanrei-callout>
-  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar antes de la primera versión.</tanrei-callout>
+  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar en una versión posterior.</tanrei-callout>
   <tanrei-callout status="warning" headline="El archivo ha cambiado en el disco" style="inline-size: min(100%, 34rem)">Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.<tanrei-button slot="actions" variant="outlined">Volver a cargar desde el disco</tanrei-button><tanrei-button slot="actions" variant="text">Conservar los míos</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout desaparece de inmediato y el foco vuelve a donde estaba.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Mostrarlo de nuevo</tanrei-button>
@@ -209,7 +209,7 @@ El cuerpo, el slot del título y las acciones son hijos del propio elemento, as�
 
 ### Recomendado
 
-- Di el estado con palabras. «Advertencia: todavía no se ha publicado» no necesita nada más; «Accesibilidad» en una advertencia necesita `status-label="Advertencia"`.
+- Di el estado con palabras. «Advertencia: haz antes una copia de seguridad» no necesita nada más; «Accesibilidad» en una advertencia necesita `status-label="Advertencia"`.
 - Usa los estados con el significado que tienen en todas partes. Una recomendación no es un éxito.
 - Pon una sola lista de puntos en un solo callout en lugar de varios callouts seguidos.
 

@@ -806,7 +806,7 @@ test.describe('behavior', () => {
     const caution = host(page, 'docs-caution');
     expect(await caution.getAttribute('role')).toBe('note');
     expect(await caution.getAttribute('aria-live')).toBeNull();
-    await expect(page.getByRole('note', { name: 'Pre-release: not published yet' })).toHaveCount(1);
+    await expect(page.getByRole('note', { name: 'Back up before you migrate' })).toHaveCount(1);
     // Named by the product's title where it is in the slot, by statusLabel without a title, by nothing otherwise.
     const slotTitle = host(page, 'title-slot').locator('> [slot="title"]');
     expect(await host(page, 'title-slot').getAttribute('aria-labelledby')).toBe(await slotTitle.getAttribute('id'));
