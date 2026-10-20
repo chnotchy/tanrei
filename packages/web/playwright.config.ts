@@ -38,11 +38,13 @@ export default defineConfig({
   // On CI only a retry is traced (in the blob report, so in the merged HTML report): a trace of a harness page is large,
   // and tracing every attempt runs a shard out of disk and about doubles its time (measured: Chromium shards of 26–40
   // minutes took 56 to more than 60). A targeted run (ci.yml sets TANREI_TRACE=first-failure: a few tests, repeated)
-  // traces every attempt and keeps the trace of each one that fails (retain-on-failure), the first attempt included.
+  // traces every attempt and keeps the trace of each one that fails (retain-on-failure), the first attempt included —
+  // without DOM snapshots: a snapshot per action made a test of ~1000 actions three times as long (Firefox, 4 CPUs:
+  // 5–6 s untraced, 13–19 s traced, 5–7 s traced without snapshots), past its 30 s timeout on a runner.
   use: {
     deviceScaleFactor: 2,
     colorScheme: 'light',
-    trace: !process.env.CI ? 'off' : process.env.TANREI_TRACE === 'first-failure' ? 'retain-on-failure' : 'on-first-retry',
+    trace: !process.env.CI ? 'off' : process.env.TANREI_TRACE === 'first-failure' ? { mode: 'retain-on-failure', snapshots: false, screenshots: true, sources: true } : 'on-first-retry',
   },
   projects: [
     // Chromium runs everything, and is the only engine the pixel baselines are recorded and compared in.
