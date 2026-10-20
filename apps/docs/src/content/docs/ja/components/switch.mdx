@@ -2,7 +2,7 @@
 title: スイッチ
 description: 1 つの設定をオンまたはオフにし、その場で反映します。
 translationOf: components/switch.mdx
-sourceHash: 9d5ae1fdd7d55360b027863517b0a3f00989f40e
+sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -123,6 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-switch disabled label="無効、オフ"></tanrei-switch>
     <tanrei-switch disabled checked label="無効、オン"></tanrei-switch>
   </div>
+  <tanrei-switch readonly checked label="読み取り専用、オン"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
 </DemoFrame>
 
@@ -158,6 +159,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 スイッチと[タブ](/ja/components/tabs/)は、1 つのモデルを共有しています。トラックの上のハンドルが、選ばれたものへ滑り、指に付いてくるというモデルです。スイッチの 2 つの状態は対等ではないので、トラック、輪郭線、ハンドルがオフとオンで変わります。タブは 2 つ以上の対等な選択肢を並べるので、トラックは変わりません。オンかオフの設定にはスイッチを、ビューの切り替えにはタブを使います。
 
+### 読み取り専用
+
+読み取り専用のスイッチは、読めるが変えられない設定を示します。ポリシーで固定された設定や、管理者だけが変えられる設定などです。フォーカス順に残り、状態とともに読み取り専用であることが読み上げられ、フォームとともに送信されます。見た目は有効なスイッチと同じで、ホバーと押下の反応がなく、ハンドルはドラッグできません。変えられない理由をそばに書いてください。設定そのものが当てはまらないときは `disabled` を使います。
+
 ### 推奨
 
 - ラベルにはアクションではなく設定の名前を書きます。「Wi-Fi をオンにする」ではなく「Wi-Fi」です。
@@ -182,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - トラックに沿ってドラッグするとハンドルが付いてきて、離したときに切り替わります。ドラッグが唯一の手段になることはありません。タップ、ラベルのクリック、Space のどれでも切り替えられます。スクリーンリーダーの動作中は、1 本指のドラッグはスクリーンリーダーのもので、スイッチはスクリーンリーダーの実行操作で切り替えます。
 - ドラッグの間、スイッチは途中までオンのように見えることがありますが、状態も、フォームで送信される値も、元のままです。変更は、離して切り替わったときに 1 度だけ読み上げられます。
 - Space で切り替わります。Enter で切り替わるのは、フォーカスのあるコントロールを Enter で操作するのが慣習のプラットフォーム（Android、tvOS）だけです。Web では Enter はフォームを送信します。
+- `readOnly` の間は、フォーカスでき、状態とともに読み取り専用であることが伝わります。タップ、ドラッグ、Space、ラベルのクリック、`click()` のどれでも変わらず、ホバーと押下の反応も出ません。Web では値はそのまま送信されます。HTML の `readonly` はスイッチのネイティブ要素には効かないので、コンポーネントが自分でこれを行います。
 - 右から左のレイアウトでは、ハンドルの位置、動く向き、ラベルの配置が左右反転します。ドラッグでは、その場合もハンドルがポインターの位置に付いてきます。
 - フォーカスインジケーターはキーボードフォーカスのときだけ表示します。
 - ラベルがない場合は、デバッグビルドで報告します。
@@ -189,6 +195,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter、React Native は以前の版を提供しています。スイッチはタップに反応し、ドラッグには付いてきません。グリフも、まだ印専用の太さでは描かれません。
+- `readOnly` はいまのところ Web だけにあります。SwiftUI、Compose、Flutter、React Native にはまだありません。
 
 ### 利用者側で行うこと
 

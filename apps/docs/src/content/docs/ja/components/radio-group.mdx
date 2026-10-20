@@ -2,7 +2,7 @@
 title: ラジオグループ
 description: すべて見えている少数の選択肢からちょうど 1 つを答える質問を尋ねます。選ばれた値を持つラジオボタンの集まりに、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを与えます。
 translationOf: components/radio-group.mdx
-sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
+sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -128,6 +128,11 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
     <tanrei-radio-button value="express" label="お急ぎ便（翌日）" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
   </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" value="express" readonly>
+    <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-radio-group>
 </DemoFrame>
 
 <ComponentSpecs name="radio-group" />
@@ -199,6 +204,10 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 
 値が変わってもエラーは消えません。答えが受け付けられるようになったら、利用者側で消します。
 
+### 読み取り専用
+
+読み取り専用のグループは、その場で答えを示し、読めるが変えられないようにします。確認画面や、一部の人だけが変えられる選択などです。Tab では今までどおり選択中のラジオボタンに入り、矢印キーは選択肢の間を移動しますが何も選びません。値はフォームとともに送信されます。必須で未回答の読み取り専用グループは、本人には答えようがないので、フォームに拒まれません。見た目は有効なグループと同じで、ホバーと押下の反応だけがありません。
+
 ### 推奨
 
 - 選択肢が答える質問を、集まりの名前にします（「配送方法」）。
@@ -210,7 +219,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 - 操作できるほかのものをラジオグループに入れない。チェックボックスも、ボタンも、フィールドも入れません。
 - ラジオグループの中のラジオボタンに `name` を付けない。無視されます。グループがそのラジオボタンの属するグループだからです。
 - ラベルを付けるために、ラジオグループをフィールドやフィールドグループで包まない。ラベルは自分で持っています。より大きな集まりに名前を付けるフィールドグループ（「配送」）の 1 つのメンバーにすることはできます。
-- 集まりを読み取り専用にするために、グループを無効にしない。無効なグループは何も送信しません。ラジオグループに読み取り専用の状態はありません。変えられない答えはテキストで示すか、ラジオボタンを 1 つずつ無効にします。その場合、値は保たれます。
+- グループを無効にして読み取り専用の代わりにしないでください。無効なグループは何も送信せず、たどることもできません。`readOnly` を使えば、フォーカス順に残り、値も送信されます。
 
 ## アクセシビリティ
 
@@ -220,6 +229,7 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 
 - ラジオボタンを含む 1 つのラジオグループになり、描かれていても `labelHidden` で隠されていても `label` を名前とします。
 - `required` が設定されている間は必須の状態、`error` が true の間は invalid の状態、`disabled` が true の間は無効の状態を伝え、並びの向きも伝えます。
+- `readOnly` の間は読み取り専用の状態。そのあいだ、どのラジオボタンも読み取り専用になり、Tab と矢印キーでフォーカスは移りますが、何をしても `value` は変わりません。
 - グループの説明は、`supportingText`、`error` が true の間の `errorText`、任意である間の `optionalText` の順です。`requiredText` は含みません。必須の状態がそれを伝えるからです。
 - 各ラジオボタンは、集まりの中での位置と集まりの大きさを伝えます。無効な選択肢も数に含みます。
 - フォーカス順の中でフォーカスが止まる位置は 1 つです。選ばれているラジオボタンか、なければ最初の有効なラジオボタンです。Tab はそこからグループに入り、グループを出ます。矢印キーはグループの中を動き、無効な選択肢を飛ばし、両端で折り返します。右から左のレイアウトでは、左矢印と右矢印が入れ替わります。

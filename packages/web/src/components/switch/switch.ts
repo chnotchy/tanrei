@@ -44,6 +44,11 @@ export interface TanreiSwitchChangeDetail {
  * `change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on
  * the visible label toggles it.
  *
+ * Read-only (`readonly`, SWT-25): it stays focusable and submitted, and a person can neither switch it nor drag its
+ * handle — HTML's `readonly` does not apply to a checkbox, so the element cancels the native checkbox's activation
+ * itself and says `aria-readonly` on it. It is drawn as an enabled switch without the hover and press answers; keyboard
+ * focus still shows.
+ *
  * @tag tanrei-switch
  * @csspart track - The track: its fill and outline.
  * @csspart handle - The handle (and the icons in it).
@@ -66,6 +71,7 @@ export class TanreiSwitch extends TanreiElement {
   static override properties: PropertyDeclarations = {
     checked: { type: Boolean },
     disabled: { type: Boolean, reflect: true },
+    readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     label: { type: String },
     labelHidden: { type: Boolean, attribute: 'label-hidden', reflect: true },
     checkedIcon: { type: String, attribute: 'checked-icon' },
@@ -79,6 +85,12 @@ export class TanreiSwitch extends TanreiElement {
 
   /** Prevents interaction and removes the switch from the focus order. */
   disabled = false;
+
+  /**
+   * Shows the setting and keeps it (SWT-25): focusable, submitted with its form, neither switched nor dragged by a
+   * person. The `readonly` attribute. `disabled` wins over it.
+   */
+  readOnly = false;
 
   /** The text that names the setting: drawn next to the track and used as the accessible name. */
   label = '';
@@ -105,7 +117,8 @@ export class TanreiSwitch extends TanreiElement {
   private readonly press = new PressController(this, {
     container: () => this.renderRoot.querySelector('.container'),
     holdCarrier: () => this.renderRoot.querySelector('.control'),
-    disabled: () => this.selection.disabled,
+    // SWT-25: a read-only switch shows no pressed state either — a press changes nothing.
+    disabled: () => this.selection.disabled || this.readOnly,
     keys: [' '],
     origin: selectionRippleOrigin(() => this.renderRoot.querySelector('.container')),
   });
@@ -153,6 +166,14 @@ export class TanreiSwitch extends TanreiElement {
   private onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
+  }
+
+  /**
+   * SWT-25: read-only, the activation is cancelled — the native checkbox goes back to what it was and fires no input and
+   * no change — whatever started it: a press, Space, the label, assistive technology or element.click().
+   */
+  private onClick(event: Event) {
+    if (this.readOnly) event.preventDefault();
   }
 
   /**
@@ -252,7 +273,8 @@ export class TanreiSwitch extends TanreiElement {
 
   /** SWT-19: a press on the track, the handle or the target around them may become a drag; the label is not part of the control. */
   private onControlPointerDown(event: PointerEvent) {
-    if (this.drag || this.selection.disabled || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    // SWT-25: a read-only switch takes no drag.
+    if (this.drag || this.selection.disabled || this.readOnly || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
     this.drag = new SheetDrag(event, 'x');
     window.addEventListener('pointermove', this.onPointerMove, true);
     window.addEventListener('pointerup', this.onPointerUp, true);
@@ -425,7 +447,7 @@ export class TanreiSwitch extends TanreiElement {
 
   /** SWT-21: the product set `checked`, or the switch became disabled, while a drag lasted: the drag is cancelled. */
   protected override willUpdate(changed: PropertyValues<this>) {
-    if (this.drag && ((this.hasUpdated && changed.has('checked')) || this.selection.disabled)) this.cancelDrag();
+    if (this.drag && ((this.hasUpdated && changed.has('checked')) || this.selection.disabled || this.readOnly)) this.cancelDrag();
     // SWT-13: a change of condition the product made is drawn by this update.
     if (this.hasUpdated && changed.has('checked')) this.markTravel();
   }
@@ -449,6 +471,7 @@ export class TanreiSwitch extends TanreiElement {
         class="root"
         ?data-checked-icon=${!!this.checkedIcon}
         ?data-unchecked-icon=${!!this.uncheckedIcon}
+        ?data-readonly=${this.readOnly}
         @click=${this.onRootClick}
         @pointerdown=${this.onRootPointerDown}
         @pointerup=${this.press.release}
@@ -466,6 +489,8 @@ export class TanreiSwitch extends TanreiElement {
             aria-description=${this.selection.field.description() || nothing}
             aria-invalid=${this.selection.field.invalid ? 'true' : nothing}
             aria-required=${this.selection.field.required ? 'true' : nothing}
+            aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
+            @click=${this.onClick}
             @input=${this.onInput}
             @change=${this.onChange}
             @keydown=${this.onKeyDown}

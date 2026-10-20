@@ -213,7 +213,7 @@ describe('a prop whose attribute is not the kebab-case of its name', () => {
         seen.push(spec.name);
       }
     }
-    assert.deepEqual([...new Set(seen)].sort(), ['chip-field', 'combobox', 'combobox-field', 'embedded-text-input', 'file-item', 'number-field', 'number-input', 'one-time-code-input', 'select', 'select-field', 'text-field', 'text-input']);
+    assert.deepEqual([...new Set(seen)].sort(), ['checkbox', 'chip-field', 'combobox', 'combobox-field', 'embedded-text-input', 'file-item', 'number-field', 'number-input', 'one-time-code-input', 'radio-button', 'select', 'select-field', 'switch', 'text-field', 'text-input']);
   });
 
   test('a boolean that defaults to true and has an attribute for its opposite: false is that attribute, true is none', () => {

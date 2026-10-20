@@ -2,7 +2,7 @@
 title: Interruptor
 description: Activa o desactiva un ajuste, con efecto inmediato.
 translationOf: components/switch.mdx
-sourceHash: 9d5ae1fdd7d55360b027863517b0a3f00989f40e
+sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -123,6 +123,7 @@ Esta página describe el interruptor tal como lo define ahora la especificación
     <tanrei-switch disabled label="Deshabilitado, desactivado"></tanrei-switch>
     <tanrei-switch disabled checked label="Deshabilitado, activado"></tanrei-switch>
   </div>
+  <tanrei-switch readonly checked label="Solo lectura, activado"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
 </DemoFrame>
 
@@ -158,6 +159,10 @@ En el sistema predeterminado, el interruptor tiene una pista de 52 × 32 con un 
 
 El interruptor y las [pestañas](/es/components/tabs/) comparten un mismo modelo: un tirador sobre una pista, que se desliza hasta lo elegido y sigue al dedo. Un interruptor tiene dos estados que no son equivalentes, así que su pista, su contorno y su tirador difieren entre desactivado y activado. Las pestañas ofrecen dos o más elecciones equivalentes, así que su pista nunca cambia. Usa un interruptor para un ajuste que está activado o desactivado, y pestañas para elegir entre vistas.
 
+### Solo lectura
+
+Un interruptor de solo lectura muestra un ajuste que la persona puede leer pero no cambiar, como uno fijado por una política o uno que solo puede cambiar un administrador. Sigue en el orden del foco, se anuncia con su estado y como de solo lectura, y se envía con su formulario. Se ve como un interruptor habilitado, sin la respuesta al pasar el puntero ni al pulsar, y su tirador no se puede arrastrar. Di junto a él por qué no se puede cambiar. Usa `disabled` cuando el ajuste no aplica en absoluto.
+
 ### Recomendado
 
 - Nombra en la etiqueta el ajuste, no la acción: «Wi-Fi», no «Activar el Wi-Fi».
@@ -182,6 +187,7 @@ El interruptor y las [pestañas](/es/components/tabs/) comparten un mismo modelo
 - Un arrastre a lo largo de la pista lleva el tirador y cambia el interruptor al soltar. Nunca es la única forma: un toque, un clic en la etiqueta y Espacio también lo cambian. Con un lector de pantalla en marcha, el arrastre con un dedo pertenece al lector, y el interruptor se conmuta con la activación del lector.
 - Durante un arrastre, el interruptor puede parecer parcialmente activado, pero su estado, y el valor que enviaría con un formulario, siguen como estaban. El cambio se anuncia una sola vez, cuando se produce al soltar.
 - Espacio lo conmuta. Enter lo conmuta solo donde la plataforma activa con Enter cualquier control con foco (Android, tvOS); en la web, Enter envía el formulario.
+- Mientras `readOnly` está activo, sigue pudiendo recibir el foco y se anuncia como de solo lectura junto a su estado. Ningún toque, arrastre, Espacio, clic en la etiqueta ni `click()` lo cambia, y no muestra respuesta al pasar el puntero ni al pulsar. En la web su valor se sigue enviando. El `readonly` de HTML no se aplica al elemento nativo del interruptor, así que el componente lo hace por sí mismo.
 - En un diseño de derecha a izquierda, las posiciones del tirador, su recorrido y la etiqueta se reflejan. Un arrastre sigue llevando el tirador a donde está el puntero.
 - Muestra el indicador de foco solo para el foco del teclado.
 - Las compilaciones de depuración notifican la falta de etiqueta.
@@ -189,6 +195,7 @@ El interruptor y las [pestañas](/es/components/tabs/) comparten un mismo modelo
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose, Flutter y React Native ofrecen la revisión anterior: el interruptor responde a un toque y no sigue ningún arrastre, y sus glifos todavía no se dibujan con el peso propio de la marca.
+- `readOnly` está por ahora solo en la web: SwiftUI, Compose, Flutter y React Native todavía no lo tienen.
 
 ### Qué debes hacer tú
 
