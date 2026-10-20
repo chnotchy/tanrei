@@ -85,6 +85,9 @@ test('resolved values still equal the oracle, except where they differ on purpos
       (/\.ref\.palette\.(info|warning|error|success)\.(15|22|88|89|91|92|93|96)$/.test(id) && !(id in after)) ||
       // The hairline is raised in the raised-contrast schemes: 3:1 at medium, 4.5:1 at high, against every surface.
       (/-(medium|high)$/.test(scheme) && /\.sys\.color\.outline-variant$/.test(id)) ||
+      // A component's motion takes the duration and the curve of its role (sys.motion.role.*, easing.*): the default
+      // system's roles are longer than the steps the components named, and its state durations follow the size.
+      /\.comp\.[a-z-]+(\.(modal|docked))?\.motion\.([a-z-]+-)?(duration|easing)$/.test(id) ||
       false;
     // The text styles are named by level. The VALUE of each must not have moved: the new role resolves to
     // what the old one did (family aside — eyebrow moved from mono to plain on purpose).
@@ -108,9 +111,9 @@ test('resolved values still equal the oracle, except where they differ on purpos
       compared++;
     }
     // A floor so this test cannot pass vacuously. It drops only when tokens are removed or changed
-    // on purpose; every remaining value still equals the oracle's. (245 in the raised-contrast schemes, whose hairline
+    // on purpose; every remaining value still equals the oracle's. (243 in the raised-contrast schemes, whose hairline
     // was raised on purpose.)
-    assert.ok(compared >= 245, `compared ${compared}`);
+    assert.ok(compared >= 243, `compared ${compared}`);
   }
 });
 

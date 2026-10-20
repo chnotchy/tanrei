@@ -448,7 +448,7 @@
     },
     {
       "id": "TXI-14",
-      "text": "WHEN the label floats or rests THE text input SHALL move and resize it, and open or close the outline's gap, over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing; WHEN its state changes it SHALL animate colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing; WHERE motion is reduced it SHALL make both changes at once."
+      "text": "WHEN the label floats or rests THE text input SHALL move and resize it, and open or close the outline's gap, over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing; WHEN its state changes it SHALL animate colors and widths over the state duration of its size (comp.input-box.motion.state-duration.small, .medium or .large) with comp.input-box.motion.state-easing; WHERE motion is reduced it SHALL make both changes at once."
     },
     {
       "id": "TXI-15",
@@ -493,7 +493,7 @@
     },
     {
       "id": "TXI-26",
-      "text": "WHILE variant is stacked THE text input SHALL draw its container in its container color with no edge at rest (comp.input-box.stacked.outline.color is transparent), and WHILE focused SHALL draw its focused outline color and width as a line inside the container's edge, following its corners, that takes no layout space: the container's size and the places of the input text, the icons, the affixes and the picker button SHALL NOT change as the line appears, thickens or goes, and it SHALL change over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing (TXI-14). WHILE the field is in error — error is true, or the entry error of TXI-30 — it SHALL draw the same inner line at rest, in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width, so that the field itself is marked and not only its text. A hovered stacked field SHALL show the state layer on its container and draw no edge.",
+      "text": "WHILE variant is stacked THE text input SHALL draw its container in its container color with no edge at rest (comp.input-box.stacked.outline.color is transparent), and WHILE focused SHALL draw its focused outline color and width as a line inside the container's edge, following its corners, that takes no layout space: the container's size and the places of the input text, the icons, the affixes and the picker button SHALL NOT change as the line appears, thickens or goes, and it SHALL change over the state duration of its size (comp.input-box.motion.state-duration.small, .medium or .large) with comp.input-box.motion.state-easing (TXI-14). WHILE the field is in error — error is true, or the entry error of TXI-30 — it SHALL draw the same inner line at rest, in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width, so that the field itself is marked and not only its text. A hovered stacked field SHALL show the state layer on its container and draw no edge.",
       "verify": "Unit: focusing a stacked field changes neither the container's box nor the input's, the icons' or the picker button's positions, and the resolved inner line takes the focused outline color and width; a stacked field with error true draws the error line at rest."
     },
     {

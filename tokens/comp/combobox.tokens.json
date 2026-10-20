@@ -339,16 +339,16 @@
           "state-duration": {
             "$description": "How long colors and edge widths take to follow a change of state.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$description": "How long an option's ripple takes to grow.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}"
+            "$value": "{tanrei.sys.motion.role.feedback}"
           },
           "open-duration": {
             "$description": "How long the list takes to appear.",

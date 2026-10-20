@@ -545,25 +545,25 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the ripple takes to spread."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "The chevron turning or cross-fading to its open form, and the trailing half's inner corners changing where inner-shape-open differs from inner-shape, when the menu opens or closes."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           },
           "hover-open-delay": {
             "$type": "duration",
