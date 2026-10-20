@@ -2,7 +2,7 @@
 title: "单选组"
 description: "提出一个在同时全部显示出来的少量选项中恰好只有一个答案的问题——一组单选按钮，由它保存选中的值；它带有可以说明必填或选填的标签、一段描述，以及针对整组的一条错误。"
 translationOf: components/radio-group.mdx
-sourceHash: a6f8116e5f4b1d70adec351575b47874dcdbd3c7
+sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -128,6 +128,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="express" label="加急配送（次日达）" disabled></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
   </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" value="express" readonly>
+    <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-radio-group>
 </DemoFrame>
 
 <ComponentSpecs name="radio-group" />
@@ -199,6 +204,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 值的变化不会清除错误。答案可以接受时，由你清除它。
 
+### 只读
+
+只读的组就地显示它的答案，供人阅读而不能更改：例如确认步骤，或只有部分人可以更改的选择。Tab 仍然从选中的单选按钮进入它，方向键在选项之间移动但不选中任何一项，值随表单提交。必填但未作答的只读组不会被表单拒绝，因为这个人无法作答。它绘制为启用的组，只是没有悬停和按下的反馈。
+
 ### 推荐
 
 - 用这些选项所回答的问题来为这一组命名：“配送方式”。
@@ -210,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 不要在单选组里放其他任何可以操作的东西：不放复选框，不放按钮，不放字段。
 - 不要给单选组里的单选按钮设置 `name`。设置了也会被忽略：这个组就是它们的组。
 - 不要为了给单选组加标签而把它包在字段或字段组里。它有自己的标签。单选组可以是字段组的一个成员，由那个字段组为更大的一组命名（“配送信息”）。
-- 不要用禁用整个组的办法让一组变成只读：禁用的组什么都不提交。单选组没有只读状态；不能更改的答案，请显示为文本，或者逐个禁用单选按钮，这样值会保留。
+- 不要用禁用整个组来充当只读：禁用的组什么都不提交，也无法到达。请使用 `readOnly`，它让这组选项留在焦点顺序中并提交它的值。
 
 ## 无障碍
 
@@ -220,6 +229,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 一个包含其单选按钮的单选组，由 `label` 命名，无论它是画出来的，还是用 `labelHidden` 隐藏的。
 - 设置了 `required` 时的必填状态、`error` 为 true 时的无效状态、`disabled` 为 true 时的禁用状态，以及它的方向。
+- `readOnly` 为 true 时的只读状态。此时每个单选按钮都是只读的：Tab 和方向键仍然移动焦点，但任何操作都不会改变 `value`。
 - 组的描述是 `supportingText`；`error` 为 true 时，后面接 `errorText`；组为选填时，再接 `optionalText`。`requiredText` 不在其中：必填状态已经说明了这一点。
 - 每个单选按钮都说明它在这一组中的位置和这一组的大小，禁用的选项也计算在内。
 - 焦点顺序中只有一个停靠点：选中的单选按钮，或者第一个可用的单选按钮。Tab 从这里进入组，也从这里离开；方向键在组内移动，跳过禁用的选项，到两端时循环。在从右到左的布局中，左方向键和右方向键互换。
