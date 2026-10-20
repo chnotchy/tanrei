@@ -807,7 +807,11 @@ test.describe('behavior', () => {
     for (const part of await drawn(page, 'disabled')) expect(part).toEqual(NOTHING);
     await record(page, 'disabled');
     await host(page, 'disabled').evaluate((el) => (el as HTMLElement).focus());
+    // In view before it is measured: the fixture stands below the window's bottom edge (y 766 in a window 720 high), and
+    // a press at its place in the window would reach nothing and show nothing. The point is the element's.
+    await host(page, 'disabled').scrollIntoViewIfNeeded();
     const b = await box(host(page, 'disabled'));
+    expect(await host(page, 'disabled').evaluate((el, [x, y]) => el.contains(document.elementFromPoint(x!, y!)), [b.x + 10, b.y + 10])).toBe(true);
     await page.mouse.click(b.x + 10, b.y + 10);
     await page.keyboard.type('x');
     await page.keyboard.press('Control+Enter');
