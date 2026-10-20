@@ -98,6 +98,7 @@ export const englishWords: Readonly<Required<TanreiWords>> = {
   stopLabel: "Stop",
   targetLabel: "opens in a new tab",
   todayLabel: "Today",
+  toolbarOverflowLabel: "More actions",
   wheelsLabel: "Wheels",
   yearViewLabel: "Choose a year",
   zoomInLabel: "Zoom in",

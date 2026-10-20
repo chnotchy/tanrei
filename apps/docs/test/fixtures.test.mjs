@@ -12,7 +12,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { STAGED_FILES, drawsFixture, drawsLive, liveFixture, specimenFixtures } = await import('../src/lib/fixtures.ts');
+const { STAGED_FILES, drawsFixture, drawsLive, holderReadsAttribute, liveFixture, specimenFixtures } = await import('../src/lib/fixtures.ts');
 const { definedTags, specs, webAttribute } = await import('../src/lib/repo.ts');
 
 const repo = (file) => fileURLToPath(new URL(`../../../${file}`, import.meta.url));
@@ -142,7 +142,7 @@ describe('every fixture of every spec', () => {
       for (const each of drawnFixtures(spec)) {
         for (const { tag, attributes } of tanreiElements(liveFixture(spec, each).html)) {
           for (const [name] of attributes) {
-            if (declared.get(tag)?.has(name) || isGlobal(name)) continue;
+            if (declared.get(tag)?.has(name) || isGlobal(name) || holderReadsAttribute(spec, tag, name)) continue;
             unknown.set(`<${tag} ${name}>`, [...(unknown.get(`<${tag} ${name}>`) ?? []), `${spec.name} / ${each.id}`]);
           }
         }
@@ -170,6 +170,17 @@ describe('every fixture of every spec', () => {
       }
     }
     assert.deepEqual(wrong, []);
+  });
+
+  test('an attribute the holder reads on its item is drawn, and only one the holder\'s mapping names in its own namespace', () => {
+    const pinned = specs.toolbar.fixtures.find((each) => each.id === 'inline-overflow-pinned');
+    assert.ok(drawsFixture(specs.toolbar, pinned));
+    assert.ok(tanreiElements(liveFixture(specs.toolbar, pinned).html).some(({ tag, attributes }) => tag === 'tanrei-button' && attributes.some(([name, value]) => name === 'toolbar-overflow' && value === 'never')));
+    assert.equal(declared.get('tanrei-button')?.has('toolbar-overflow'), false, 'the Button does not read it itself');
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-button', 'toolbar-overflow'), true);
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-button', 'label'), false, 'outside the holder\'s namespace');
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-chip', 'toolbar-overflow'), false, 'not an element of its items');
+    assert.equal(holderReadsAttribute(specs['tag-group'], 'tanrei-button', 'toolbar-overflow'), false, 'another holder\'s mapping');
   });
 });
 

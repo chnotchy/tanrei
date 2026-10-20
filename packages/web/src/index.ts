@@ -407,7 +407,8 @@ export {
 } from './components/table-of-contents/table-of-contents.js';
 export { TanreiTag, type TanreiTagSize, type TanreiTagStatus, type TanreiTagVariant } from './components/tag/tag.js';
 export { TanreiTagGroup, type TanreiTagGroupSpacing } from './components/tag-group/tag-group.js';
-export { TanreiToolbar, type TanreiToolbarOrientation, type TanreiToolbarVariant } from './components/toolbar/toolbar.js';
+export { TanreiToolbar, type TanreiToolbarOrientation, type TanreiToolbarOverflow, type TanreiToolbarSeparation, type TanreiToolbarVariant } from './components/toolbar/toolbar.js';
+export { TanreiToolbarGroup } from './components/toolbar/toolbar-group.js';
 export { TanreiTooltip, type TanreiTooltipPlacement, type TanreiTooltipToggleDetail, type TanreiTooltipVariant } from './components/tooltip/tooltip.js';
 export { TanreiTextField } from './components/text-field/text-field.js';
 export {

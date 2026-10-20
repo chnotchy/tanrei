@@ -5417,14 +5417,15 @@ export interface TanreiTimelineTokens {
 /**
  * Every value of `comp.toolbar`'s `variant` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `docked` (with a dev-only warning).
+ * does not have falls back to `inline` (with a dev-only warning).
  */
 export interface TanreiToolbarVariantRegistry {
+  inline: true;
   docked: true;
   floating: true;
 }
 export type TanreiToolbarVariant = keyof TanreiToolbarVariantRegistry;
-export type TanreiCoreToolbarVariant = "docked" | "floating";
+export type TanreiCoreToolbarVariant = "inline" | "docked" | "floating";
 
 /** The tokens of one `variant` of `comp.toolbar`. */
 export interface TanreiToolbarVariantTokens {
@@ -5444,7 +5445,12 @@ export type TanreiToolbarVariants = { readonly [Key in TanreiCoreToolbarVariant]
  * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
  */
 export interface TanreiToolbarTokens {
+  readonly dividerColor: TanreiPaint;
+  readonly dividerLength: number;
+  readonly dividerThickness: number;
+  readonly groupGap: number;
   readonly outlineWidth: number;
+  readonly separation: number;
   readonly variants: TanreiToolbarVariants;
 }
 
