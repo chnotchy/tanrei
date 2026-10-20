@@ -2,33 +2,39 @@
 title: アクセシビリティ
 description: Tanrei がトークンとコンポーネント仕様に組み込んでいるアクセシビリティ要件と、それを守らせるチェック。
 translationOf: foundations/accessibility.mdx
-sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
+sourceHash: 5fef4e4236fc321309c4c0f09d0fdd9cef986c8e
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
+import { contrast } from '../../../../lib/contrast';
 
 Tanrei におけるアクセシビリティは、システムそのものに課した制約です。トークンのビルドは、コントラストを満たさないスキームを出力しません。コンポーネント仕様は、ロール、キーボード操作の表、ターゲットの保証がそろっていなければ有効になりません。
 
 ## コントラスト
 
-| 対象 | 最小コントラスト |
-| --- | --- |
-| 意味を伝えるテキストとアイコン | 4.5:1 |
-| 大きなテキスト（レギュラーで約 24px 以上、ボールドで約 19px 以上） | 3:1 |
-| コントロールの識別や操作に必要な境界とグラフィック | 3:1 |
-| 隣接するサーフェスに対するフォーカスリング | 3:1 |
+トークンのビルドは、すべてのスキーム（ライトとダーク、それぞれ標準・中・高コントラスト）を次のしきい値で測り、届かない組があれば失敗します。
 
-無効な要素と純粋な装飾は対象外です。`outline-variant` の細い線もこれに含まれます。コントロールがあることを示す唯一の手がかりが枠線である場合に、`outline-variant` ではなく `outline` を使わなければならないのは、この例外があるためです。
+| 対象 | 標準・中コントラスト | 高コントラスト |
+| --- | --- | --- |
+| テキストと、内容の色で描くアイコン | {contrast.text} | {contrast.highContrastText} |
+| ステータスの印と、そのステータスのトーナルコンテナ | {contrast.nonText} | {contrast.nonText} |
+| コントロールの識別や操作に必要な境界とグラフィック | {contrast.nonText} | {contrast.nonText} |
+| 隣接するサーフェスに対するフォーカスリング | {contrast.nonText} | {contrast.nonText} |
+
+大きなテキストのための低いしきい値はありません。WCAG は、レギュラーで約 24px 以上、ボールドで約 19px 以上のテキストには低いコントラストを認めていますが、ビルドはテキストのロールをすべて {contrast.text}（高コントラストでは {contrast.highContrastText}）で見ます。色のロールは、自分がどの大きさで使われるかを知らないからです。
+
+無効な要素と純粋な装飾は対象外です。標準のコントラストでは、`outline-variant` の細い線もこれに含まれます。コントロールがあることを示す唯一の手がかりが枠線である場合に、`outline-variant` ではなく `outline` を使わなければならないのは、この例外があるためです。
 
 ### 強制される不変条件
 
 次の条件は、すべてのテーマとすべてのコントラストレベル、あわせて 6 通りの組み合わせで成り立ちます。成り立たなければビルドは失敗します。
 
-- `(X, on-X)` のロールの組は、いずれも 4.5:1 以上。
-- `outline` は、すべてのサーフェスロールに対して 3:1 以上。
-- 既定のシステムの中・高コントラストでは、`outline-variant` は、すべてのサーフェスロールに対してそれぞれ 3:1 以上と 4.5:1 以上。`outline` は常にそれより強い。
-- `focus-ring` は、サーフェスに対して 3:1 以上。
+- `(X, on-X)` のロールの組と、すべてのサーフェスロールの上のテキストのロール（`on-surface`、`on-surface-variant`、`link`、インテントの色）は、いずれも {contrast.text} 以上。2 つの高コントラストのスキームでは {contrast.highContrastText} 以上。
+- ステータスの色は、そのステータスのトーナルコンテナに対して {contrast.nonText} 以上。
+- `outline` は、すべてのサーフェスロールに対して {contrast.nonText} 以上。
+- 既定のシステムの中・高コントラストでは、`outline-variant` は、すべてのサーフェスロールに対してそれぞれ {contrast.hairlineMedium} 以上と {contrast.hairlineHigh} 以上。`outline` は常にそれより強い。
+- `focus-ring` は、サーフェスに対して {contrast.nonText} 以上。
 
 チェックを通すためにしきい値を緩めることは、プロジェクトの規則で禁じています。
 

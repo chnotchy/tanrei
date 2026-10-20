@@ -2,11 +2,12 @@
 title: Color
 description: Los roles de color, el primario monocromo, el único acento, y cómo se genera y se comprueba cada esquema.
 translationOf: foundations/color.mdx
-sourceHash: ddde2b1831c92ee6d35e5c257ddbcb70104b4581
+sourceHash: 31328e97dbf59a6d31bd8381d374c5c3f32209f8
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import { contrast } from '../../../../lib/contrast';
 
 Tanrei nunca le pide a un componente que elija un color. Los componentes piden un **rol**, como `primary` o `surface-container`, y el tema activo decide qué color ocupa ese rol. Los roles los define el vocabulario de Tanrei, y sus valores, la capa de cada sistema de diseño.
 
@@ -35,8 +36,8 @@ Los dos roles de contorno se parecen y cumplen funciones opuestas.
 
 | Rol | Propósito | Contraste |
 | --- | --- | --- |
-| `outline` | Un **límite funcional**: lo único que muestra dónde está un control, como en un campo de texto vacío, una casilla de verificación sin marcar o un botón con contorno. | Al menos 3:1 frente a todos los roles de superficie |
-| `outline-variant` | Una **línea fina decorativa**: divisores, bordes de tarjetas, el anillo de la elevación. Quitarla no debe ocultar ninguna información. | Ninguno con el contraste estándar, donde es un negro o un blanco con poco alfa. Al menos 3:1 con contraste medio y 4.5:1 con alto, frente a todos los roles de superficie, y siempre más débil que `outline` |
+| `outline` | Un **límite funcional**: lo único que muestra dónde está un control, como en un campo de texto vacío, una casilla de verificación sin marcar o un botón con contorno. | Al menos {contrast.nonText} frente a todos los roles de superficie |
+| `outline-variant` | Una **línea fina decorativa**: divisores, bordes de tarjetas, el anillo de la elevación. Quitarla no debe ocultar ninguna información. | Ninguno con el contraste estándar, donde es un negro o un blanco con poco alfa. Al menos {contrast.hairlineMedium} con contraste medio y {contrast.hairlineHigh} con alto, frente a todos los roles de superficie, y siempre más débil que `outline` |
 
 <Callout type="caution">
   Si un borde es la única señal de que existe un control, debe usar `outline`. Una línea fina con un 8% de alfa resulta agradable, y es invisible para muchas personas.
@@ -68,8 +69,8 @@ El algoritmo del generador lleva una versión (`specVersion`), de modo que un ca
 
 Para las seis combinaciones de tema y contraste, la compilación de los tokens falla a menos que:
 
-- cada par `(role, on-role)` alcance **4.5:1**;
-- `outline` alcance **3:1** frente a todos los roles de superficie;
-- `focus-ring` alcance **3:1** frente a las superficies sobre las que se dibuja.
+- cada par `(role, on-role)` alcance **{contrast.text}**, y **{contrast.highContrastText}** en los dos esquemas de contraste alto;
+- `outline` alcance **{contrast.nonText}** frente a todos los roles de superficie;
+- `focus-ring` alcance **{contrast.nonText}** frente a las superficies sobre las que se dibuja.
 
 No se puede rebajar un umbral para que una compilación pase. Consulta la lista completa de roles y valores en la [referencia de tokens de color](/es/tokens/color/).
