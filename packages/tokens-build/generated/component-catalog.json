@@ -756,17 +756,21 @@
       "layer": "core",
       "web": {
         "tag": "tanrei-toolbar",
-        "module": "@tanrei/web/components/toolbar"
+        "module": "@tanrei/web/components/toolbar",
+        "items": [
+          "tanrei-toolbar-group"
+        ]
       },
       "react": {
         "name": "Toolbar"
       },
       "variant": {
         "values": [
+          "inline",
           "docked",
           "floating"
         ],
-        "default": "docked",
+        "default": "inline",
         "axis": "tanrei.comp.toolbar.variant",
         "source": "toolbar"
       }

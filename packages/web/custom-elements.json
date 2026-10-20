@@ -2346,6 +2346,11 @@
       "path": "src/components/button-with-menu/button-with-menu.ts",
       "declarations": [
         {
+          "kind": "variable",
+          "name": "ROVING_HALVES",
+          "description": "SPB-33: the internal channel by which a component that keeps one Tab stop among its items makes each half a stop of\nits own (a toolbar, TBR-25): which half is its Tab stop (0 the leading, 1 the trailing, null neither), and the two\nhalves to move focus to. Not part of the public surface."
+        },
+        {
           "kind": "class",
           "description": "Performs a main action with one press, and offers related actions in a menu from a second, joined button beside it.\n\nContract: specs/button-with-menu.spec.json. Two native buttons in one row: the leading half (the optional icon and the\nlabel) performs the main action and fires `click`; the trailing half (the chevron) asks to open or close the menu and\nfires `toggle`. The menu is a Tanrei Menu in the shadow root, holding the `menu` slot's items, placed below the whole\nbutton with menu with the end edges aligned; focus returns to the trailing half when it closes. It never opens or closes\nitself: set `open` from `toggle`, and to false from `close`.\n\nWith `hover-open`, a mouse or a pen resting on the trailing half for `hover-delay` ms (unset: the\n`comp.button-with-menu.motion.hover-open-delay` token) asks to open it too, through the same `toggle`. A menu open from\nhover takes no focus, asks to close (`toggle` with false) once the pointer has been off the trailing half and the menu\nfor `motion.hover-close-delay`, and closes on Escape wherever focus is; a press or a key on the trailing half keeps it\nopen and moves focus in, as if that activation had opened it.\n\nThe halves are joined as `separation` names (SPB-30): under `divider` they touch, with square corners where they meet\nand a line on the seam, and neither half draws its outline or its elevation's ring along the seam; under `gap` they\nstand `container.inner-gap` apart with `container.inner-shape` corners. `auto` — the default — takes\n`comp.button-with-menu.container.separation`, which follows the design system's `sys.behavior.separation`. They are\nnever stacked. `trailing-width=\"narrow\"` draws a slim trailing half: the chevron and a small inset on each side, with\nno padding added at its round end — as wide as a narrow icon-only Button (SPB-32).\n\nEvery visual value comes from `--tanrei-comp-button-with-menu-*` tokens, one set per variant shared by both halves, each\nhalf drawn in its own state: how a state looks is the active design system's decision, not this component's. How a\npress is answered and how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`),\nand how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`); all\nare read from the cascade, so they follow `data-tanrei-system`.",
           "name": "TanreiButtonWithMenu",
@@ -2651,6 +2656,14 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "ROVING_HALVES",
+          "declaration": {
+            "name": "ROVING_HALVES",
+            "module": "src/components/button-with-menu/button-with-menu.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "TanreiButtonWithMenu",
@@ -48317,15 +48330,115 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/toolbar/toolbar-group.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "TOOLBAR_GROUP",
+          "description": "The internal channel between a toolbar and its groups (TBR-22): what the group draws between its items, which the\ntoolbar decides — which item is shown (TBR-18), which space is drawn, and how long its two neighbours are (TBR-16).\nNot part of the public surface."
+        },
+        {
+          "kind": "variable",
+          "name": "TOOLBAR_CHILDREN",
+          "description": "What a toolbar is told by a group whose children changed."
+        },
+        {
+          "kind": "class",
+          "description": "A run of related items in a toolbar (Bold, Italic, Underline), optionally named. It draws nothing of its own: its items\nare laid out in the toolbar's line as the toolbar's items, and the toolbar sets the group apart from what is next to it\nas its separation says (TBR-22, TBR-23).\n\nContract: specs/toolbar.spec.json (the item kind `group`). The host is `display: contents`; with a `label` it is a\ngroup named by it (`role=\"group\"`, `aria-label`), and without one it is nothing to assistive technology: its items are\nthe toolbar's. The items are each in a slot of their own (manual slot assignment), so that the toolbar can leave one\nout when it has no room for it (TBR-18) and draw the space between two of them (TBR-16).",
+          "name": "TanreiToolbarGroup",
+          "slots": [
+            {
+              "description": "The group's items: `<tanrei-button>` and `<tanrei-button-with-menu>` elements, and a `<tanrei-menu anchor>` anchored to one of them, which is not laid out.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, slotAssignment: 'manual' }"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the group for assistive technology (\"Text style\"). Never drawn. Empty: the group is not exposed.",
+              "attribute": "label"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the group for assistive technology (\"Text style\"). Never drawn. Empty: the group is not exposed.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-toolbar-group",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TOOLBAR_GROUP",
+          "declaration": {
+            "name": "TOOLBAR_GROUP",
+            "module": "src/components/toolbar/toolbar-group.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TOOLBAR_CHILDREN",
+          "declaration": {
+            "name": "TOOLBAR_CHILDREN",
+            "module": "src/components/toolbar/toolbar-group.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiToolbarGroup",
+          "declaration": {
+            "name": "TanreiToolbarGroup",
+            "module": "src/components/toolbar/toolbar-group.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-toolbar-group",
+          "declaration": {
+            "name": "TanreiToolbarGroup",
+            "module": "src/components/toolbar/toolbar-group.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/toolbar/toolbar.styles.ts",
       "declarations": [
         {
           "kind": "variable",
           "name": "CORE_VARIANTS",
           "type": {
-            "text": "['docked', 'floating']"
+            "text": "['inline', 'docked', 'floating']"
           },
-          "default": "['docked', 'floating']"
+          "default": "['inline', 'docked', 'floating']"
         },
         {
           "kind": "variable",
@@ -48333,7 +48446,7 @@
           "type": {
             "text": "string"
           },
-          "default": "'docked'"
+          "default": "'inline'"
         },
         {
           "kind": "variable",
@@ -48342,11 +48455,20 @@
             "text": "readonly OpenAxis[]"
           },
           "default": "[ { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` }, ]",
-          "description": "The open axis (TBR-13): a variant a layer added gets its values on demand, built by the same function and\nfalling back to docked's tokens, and takes the docked structure (the structure is not a value: only `floating` is\ndrawn as a floating toolbar); a value the active system lacks is reported."
+          "description": "The open axis (TBR-13): a variant a layer added gets its values on demand, built by the same function and falling back\nto inline's tokens, and takes the inline structure (the structure is not a value: only `docked` and `floating` are\ndrawn as such); a value the active system lacks is reported."
         },
         {
           "kind": "variable",
-          "name": "styles"
+          "name": "spaceStyles",
+          "description": "The rules of a space between two items, for the toolbar's shadow root and a group's."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ spaceStyles, css` /* TBR-17, TBR-13: the inline structure — every variant but docked and floating, and the default. In place where the layout puts it, as long as its items need and never longer than the layout allows; no inset is read. */ :host { display: inline-flex; vertical-align: middle; max-inline-size: 100%; } ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))} ${unsafeCSS( CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT) .map((v) => variantBlock(v, `:host([variant='${v}'])`)) .join('\\n'), )} :host([hidden]) { display: none; } /* TBR-23: the separation it draws — its attribute's, else comp.toolbar.separation's. */ ${separationHost(`${PREFIX}-separation`)} /* One line in reading order (logical: right-to-left starts at the right, TBR-7), padding-inline at each end, each item centred across the line; the fill, elevation, corners and edge are the variant's. */ .container { box-sizing: border-box; flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 0; min-block-size: var(--_size); padding-inline: var(--_pad); background: var(--_bg); box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); --tanrei-corner-radius: var(--_shape); --tanrei-corner-pill: var(--_shape-pill); --_tanrei-toolbar-gap: var(--_gap); } /* TBR-1, TBR-2, TBR-3: docked — the parent's full width; the container at least container.size high above the bottom inset, its color reaching under the bottom and side insets while the items stay inside them; the items spread with equal space between them, never less than the gap; the edge is the container's top inset line. */ ${unsafeCSS(DOCKED)} { display: flex; max-inline-size: none; --_inset-bottom: env(safe-area-inset-bottom, 0px); --_inset-left: env(safe-area-inset-left, 0px); --_inset-right: env(safe-area-inset-right, 0px); } ${unsafeCSS(DOCKED)} .container { min-block-size: calc(var(--_size) + var(--_inset-bottom)); padding-block-end: var(--_inset-bottom); padding-left: calc(var(--_inset-left) + var(--_pad)); padding-right: calc(var(--_inset-right) + var(--_pad)); box-shadow: var(--_elevation), inset 0 ${t('outline-width')} 0 0 var(--_edge); --_tanrei-toolbar-grow: 1; --_tanrei-toolbar-basis: 0px; --_tanrei-toolbar-min: var(--_gap); } /* TBR-2: one item is centred — by the container, not by a margin on the item. */ ${unsafeCSS(DOCKED)} .container.only { justify-content: center; } /* TBR-8, TBR-9: every item keeps its own size (it never shrinks, and a Button's label stays on one line). */ ::slotted(*) { flex: none; } /* TBR-8: overflow scroll — items that need more length than the toolbar has scroll along its axis. Only then is the container a scroll container, so at rest nothing of an item — its target, its ring, an elevated Button's shadow — is clipped. */ .container.scrolls { overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scrollbar-width: none; } .container.scrolls::-webkit-scrollbar { display: none; } /* TBR-4, TBR-5: floating — at its own size where the layout places it, never wider than its container; the edge around the whole shape, rounded by the variant's corners eased by corner smoothing. */ ${unsafeCSS(FLOATING)} .container { box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge); } /* TBR-6: vertical (inline and floating) — the items stacked top to bottom in the order given, whatever the direction (TBR-7), the paddings along the block axis, at least container.size wide, never taller than its container. */ ${unsafeCSS(VERTICAL)} { flex-direction: column; max-inline-size: none; max-block-size: 100%; } ${unsafeCSS(VERTICAL)} .container { flex-direction: column; min-inline-size: var(--_size); min-block-size: 0; padding-block: var(--_pad); padding-left: 0; padding-right: 0; } ${unsafeCSS(VERTICAL)} .container.scrolls { overflow-x: hidden; overflow-y: auto; } ${unsafeCSS(PACKED)} .container { --_tanrei-toolbar-grow: 0; } /* TBR-23: the line between two groups, or where a separator item stands — divider.thickness thick, divider.length long across the axis, centred, in divider.color, with group.gap on each side. A border, not a background: engines snap a border to whole device pixels, and forced colors keep it. Docked, the space it stands in grows with the other spaces, so that the items stay evenly spread. */ .sep { flex: var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-grow, 0) var(--_tanrei-toolbar-basis, auto); align-self: stretch; display: flex; align-items: center; justify-content: center; box-sizing: content-box; padding-inline: ${t('group-gap')}; min-inline-size: ${t('divider-thickness')}; } .sep::before { content: ''; box-sizing: border-box; inline-size: 0; block-size: ${t('divider-length')}; border-inline-start: ${t('divider-thickness')} solid ${t('divider-color')}; } ${unsafeCSS(VERTICAL)} .sep { padding-inline: 0; padding-block: ${t('group-gap')}; min-inline-size: 0; min-block-size: ${t('divider-thickness')}; } ${unsafeCSS(VERTICAL)} .sep::before { inline-size: ${t('divider-length')}; block-size: 0; border-inline-start: 0; border-block-start: ${t('divider-thickness')} solid ${t('divider-color')}; } /* TBR-23: gap — twice group.gap of empty space and no line. */ ${whenGap( '.container', (container) => ` ${container} .sep { min-inline-size: 0; min-block-size: 0; } ${container} .sep::before { display: none; }`, )} /* TBR-24: a Menu anchored to an item is the product's, and is neither laid out nor counted: its host stands out of the line, and its surface is in the top layer. */ .menus { position: absolute; inline-size: 0; block-size: 0; } /* TBR-4: corner smoothing, the shared rule, on the container (data-tanrei-shape). */ ${shape} @media (forced-colors: active) { ${unsafeCSS(DOCKED)} .container { border-block-start: ${t('outline-width')} solid CanvasText; } ${unsafeCSS(FLOATING)} .container { border: ${t('outline-width')} solid CanvasText; } .sep::before { border-color: CanvasText; } } `, ]"
         }
       ],
       "exports": [
@@ -48376,6 +48498,14 @@
         },
         {
           "kind": "js",
+          "name": "spaceStyles",
+          "declaration": {
+            "name": "spaceStyles",
+            "module": "src/components/toolbar/toolbar.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "styles",
           "declaration": {
             "name": "styles",
@@ -48390,21 +48520,42 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Holds a short row of actions for the current screen or selection, docked across the bottom edge or floating over the\ncontent.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token of its variant: the\ncontainer's color, elevation, corners, cross-axis size, end padding and minimum gap, and the edge's color and width.\nIt draws no text, glyph or state of its own. Its items are the product's `<tanrei-button>` children,\nicon-only or labelled, drawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out,\nscrolls them when they do not fit (TBR-8) and makes them one Tab stop moved through with the arrow keys (TBR-10).\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one):\nboth items delegate focus to the native button in their shadow root, which a host whose tabindex is -1 takes out of the\nTab order. Between two items each item's hit area stops at the middle of the gap, which the toolbar measures and gives\nits items through an internal channel (src/primitives/group-item.ts) — not a styling API.\n\nA floating toolbar lays its items `container.gap.floating` apart — 0 in the default system — and keeps for each a\nlength of `sys.target.touch` along its axis that its neighbour's does not reach into (TBR-16): two medium Buttons (40)\nstand 8 apart, two large ones (56) touch. It measures its items for that and lays the space between two items as an\nelement of its own container (src/primitives/kept-length.ts): it writes nothing on the items, and a page's reset\n(`* { margin: 0 }`) leaves the spacing as it is.",
+          "description": "Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked\nacross the bottom edge, or floating over the content.\n\nContract: specs/toolbar.spec.json. Every value it reads is a `--tanrei-comp-toolbar-*` token: per variant the container's\ncolor, elevation, corners, cross-axis size, end padding and minimum gap and the edge's color, the edge's width, and the\nspace, the line and the choice between them that set groups apart. It draws no text, glyph or state of its own. Its\nitems are the product's `<tanrei-button>` and `<tanrei-button-with-menu>` children, alone or in `<tanrei-toolbar-group>`s,\ndrawn from their own tokens with their own states, events and semantics (TBR-9); the toolbar lays them out, draws the\nseparation between groups and where a `<tanrei-divider>` separator stands (TBR-23), hides from the end what does not fit\ninto an overflow menu (TBR-18 … TBR-21) — or scrolls (`overflow=\"scroll\"`, TBR-8) — and makes them one Tab stop moved\nthrough with the arrow keys (TBR-10, TBR-25).\n\nEach child is assigned to a slot of its own (and a group's items each to one of the group's), so that the toolbar draws\nthe space and the lines between them as elements of its own, never as a margin on the product's element, and leaves a\nhidden item out of the line while it stays in the page with its listeners and its state. What is hidden is decided\nbefore a frame is drawn — when the toolbar is first laid out, and in the frame its length or its items change\n(TBR-19) — from the lengths measured then, with no motion.\n\nThe roving Tab stop is the items' `tabindex` (0 on the stop, -1 on the other enabled items; none on a disabled one); a\nButton with menu is told which half is the stop (SPB-33). Between two items each item's hit area stops at the middle of\nthe gap, which the toolbar measures and gives its items through an internal channel (src/primitives/group-item.ts) — not\na styling API.",
           "name": "TanreiToolbar",
           "cssParts": [
             {
-              "description": "The surface: the variant's fill, elevation, corners and edge, holding the items (it scrolls them along its axis when they do not fit).",
+              "description": "The surface: the variant's fill, elevation, corners and edge, holding the items.",
               "name": "container"
+            },
+            {
+              "description": "A line between two groups or where a separator stands (TBR-23); empty space under a gap separation.",
+              "name": "separator"
+            },
+            {
+              "description": "The icon-only Button at the end that opens the menu of the hidden items (TBR-18).",
+              "name": "overflow-button"
+            },
+            {
+              "description": "The Tanrei Menu of the hidden items (TBR-20).",
+              "name": "overflow-menu"
             }
           ],
           "slots": [
             {
-              "description": "The items, in reading order: `<tanrei-button>` elements — an icon-only one for an action (a toggle such as Bold is one with `toggle`), a labelled one for a text action. Anything else is still laid out, and reported in debug builds (TBR-12).",
+              "description": "The items, in reading order: `<tanrei-button>` elements — an icon-only one for an action (a toggle such as Bold is one with `toggle`), a labelled one, one with a `<tanrei-menu anchor=\"<its id>\">` beside it for a menu button — `<tanrei-button-with-menu>` elements, `<tanrei-toolbar-group>`s holding them and `<tanrei-divider>` separators. An item with `toolbar-overflow=\"never\"` is never hidden. Anything else is still laid out, and reported in debug builds (TBR-12).",
               "name": ""
             }
           ],
           "members": [
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, slotAssignment: 'manual' }"
+            },
             {
               "kind": "field",
               "name": "variant",
@@ -48412,8 +48563,8 @@
               "type": {
                 "text": "TanreiToolbarVariant"
               },
-              "default": "'docked'",
-              "description": "`docked` spans the bottom edge of the screen, flush with it, its color reaching under the bottom inset; `floating` is a\nrounded, raised surface over the content, as long as its items, placed by the layout that holds it. A value a design\nsystem adds is drawn with the docked structure and its own values; a value the active system does not have is drawn\nas `docked` (reported in debug builds, TBR-13).",
+              "default": "'inline'",
+              "description": "`inline` (the default) stands in place where the layout puts it, as long as its items need and never longer than the\nlayout allows, with no surface, shadow or edge of its own in the default system; `docked` spans the bottom edge of the\nscreen, flush with it, its color reaching under the bottom inset; `floating` is a rounded, raised surface over the\ncontent, as long as its items, placed by the layout that holds it. A value a design system adds is drawn with the\ninline structure and its own values; a value the active system does not have is drawn as `inline` (reported in debug\nbuilds, TBR-13).",
               "attribute": "variant",
               "reflects": true
             },
@@ -48425,7 +48576,7 @@
                 "text": "TanreiToolbarOrientation"
               },
               "default": "'horizontal'",
-              "description": "The direction the items run. `vertical` is for a floating toolbar beside the content on a large screen; a docked\ntoolbar is always horizontal (reported in debug builds, TBR-6). Anything else is horizontal (TBR-13).",
+              "description": "The direction the items run. `vertical` is for an inline or a floating toolbar beside the content; a docked toolbar\nis always horizontal (reported in debug builds, TBR-6). Anything else is horizontal (TBR-13).",
               "attribute": "orientation",
               "reflects": true
             },
@@ -48439,6 +48590,41 @@
               "default": "''",
               "description": "The toolbar's accessible name (\"Formatting\", \"Message actions\"). Never drawn. Required (TBR-12).",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "overflow",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiToolbarOverflow"
+              },
+              "default": "'menu'",
+              "description": "When the items do not fit: `menu` (the default) hides items from the end, one at a time, into a menu opened from an\noverflow button at the end (TBR-18); `scroll` keeps every item and scrolls them (TBR-8). Anything else is `menu`.",
+              "attribute": "overflow",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "overflowLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The overflow button's accessible name (\"More actions\"). Never drawn. Empty takes the product's word `toolbarOverflowLabel`.",
+              "attribute": "overflow-label"
+            },
+            {
+              "kind": "field",
+              "name": "separation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiToolbarSeparation"
+              },
+              "default": "'auto'",
+              "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
+              "attribute": "separation",
+              "reflects": true
             }
           ],
           "attributes": [
@@ -48447,8 +48633,8 @@
               "type": {
                 "text": "TanreiToolbarVariant"
               },
-              "default": "'docked'",
-              "description": "`docked` spans the bottom edge of the screen, flush with it, its color reaching under the bottom inset; `floating` is a\nrounded, raised surface over the content, as long as its items, placed by the layout that holds it. A value a design\nsystem adds is drawn with the docked structure and its own values; a value the active system does not have is drawn\nas `docked` (reported in debug builds, TBR-13).",
+              "default": "'inline'",
+              "description": "`inline` (the default) stands in place where the layout puts it, as long as its items need and never longer than the\nlayout allows, with no surface, shadow or edge of its own in the default system; `docked` spans the bottom edge of the\nscreen, flush with it, its color reaching under the bottom inset; `floating` is a rounded, raised surface over the\ncontent, as long as its items, placed by the layout that holds it. A value a design system adds is drawn with the\ninline structure and its own values; a value the active system does not have is drawn as `inline` (reported in debug\nbuilds, TBR-13).",
               "fieldName": "variant"
             },
             {
@@ -48457,7 +48643,7 @@
                 "text": "TanreiToolbarOrientation"
               },
               "default": "'horizontal'",
-              "description": "The direction the items run. `vertical` is for a floating toolbar beside the content on a large screen; a docked\ntoolbar is always horizontal (reported in debug builds, TBR-6). Anything else is horizontal (TBR-13).",
+              "description": "The direction the items run. `vertical` is for an inline or a floating toolbar beside the content; a docked toolbar\nis always horizontal (reported in debug builds, TBR-6). Anything else is horizontal (TBR-13).",
               "fieldName": "orientation"
             },
             {
@@ -48468,6 +48654,33 @@
               "default": "''",
               "description": "The toolbar's accessible name (\"Formatting\", \"Message actions\"). Never drawn. Required (TBR-12).",
               "fieldName": "label"
+            },
+            {
+              "name": "overflow",
+              "type": {
+                "text": "TanreiToolbarOverflow"
+              },
+              "default": "'menu'",
+              "description": "When the items do not fit: `menu` (the default) hides items from the end, one at a time, into a menu opened from an\noverflow button at the end (TBR-18); `scroll` keeps every item and scrolls them (TBR-8). Anything else is `menu`.",
+              "fieldName": "overflow"
+            },
+            {
+              "name": "overflow-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The overflow button's accessible name (\"More actions\"). Never drawn. Empty takes the product's word `toolbarOverflowLabel`.",
+              "fieldName": "overflowLabel"
+            },
+            {
+              "name": "separation",
+              "type": {
+                "text": "TanreiToolbarSeparation"
+              },
+              "default": "'auto'",
+              "description": "How two groups, or a separator item, set items apart: `divider` draws a line with space on each side, `gap` leaves\nempty space and no line. `auto` takes `comp.toolbar.separation`, the design system's answer (divider in the default\nsystem). Anything else is `auto` (reported in debug builds).",
+              "fieldName": "separation"
             }
           ],
           "superclass": {
@@ -48479,6 +48692,14 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiToolbarGroup",
+          "declaration": {
+            "name": "TanreiToolbarGroup",
+            "module": "./toolbar-group.js"
+          }
+        },
         {
           "kind": "js",
           "name": "TanreiToolbar",

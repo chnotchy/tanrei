@@ -530,6 +530,18 @@ export function drawsLive(spec: Spec): boolean {
 const isGlobalAttribute = (name: string) => ['class', 'style', 'dir', 'lang', 'slot'].includes(name) || name.startsWith('data-') || name.startsWith('aria-');
 
 /**
+ * Whether an attribute written on an item's element is read by the spec's own element, which holds the item: the
+ * toolbar reads `toolbar-overflow` on each of its items, a Button that does not read it itself. The spec's web
+ * mapping names it for an item kind drawn by that element, it is in the holder's own namespace (`<component>-`), and
+ * the installed build defines the holder. The item's manifest cannot list it, since the item does not read it.
+ */
+export function holderReadsAttribute(spec: Spec, tag: string, name: string): boolean {
+  const web = spec.platforms.web;
+  if (!web?.name || !definedTags.has(web.name) || !name.startsWith(`${spec.name}-`)) return false;
+  return Object.values(web.items ?? {}).some((item) => item.name === tag && Object.values(item.props ?? {}).includes(name));
+}
+
+/**
  * Whether the installed web build can draw one fixture of a spec that is drawn live. A spec is accepted before the web
  * builds it (the web is `lagging` until it has), and a fixture that gives a prop the
  * element has no attribute for would be drawn as if the prop were not given — a picture of a state the spec does not
@@ -562,7 +574,7 @@ export function drawsFixture(spec: Spec, fixture: Fixture): boolean {
   for (const [, tag, written] of html.matchAll(/<(tanrei-[a-z0-9-]+)((?:\s+[^\s=<>"]+(?:="[^"]*")?)*)\s*>/g)) {
     if (!definedTags.has(tag)) return false;
     for (const [, name, value] of written.matchAll(/\s+([^\s=<>"]+)(?:="([^"]*)")?/g)) {
-      if (isGlobalAttribute(name)) continue;
+      if (isGlobalAttribute(name) || holderReadsAttribute(spec, tag, name)) continue;
       if (!webReadsAttribute(tag, name)) return false;
       // A value the build does not read yet, of an attribute it reads (the list's `reorder="drag"`, whose handle the
       // web has not built): the manifest lists the values it does.

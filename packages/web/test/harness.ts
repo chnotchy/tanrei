@@ -364,6 +364,29 @@ function itemsMarkup(spec: Spec, items: FixtureItem[], staging: Staging): string
  * `text` plain text in the slot's inherited style.
  */
 /**
+ * A toolbar fixture's items as the web's children (`itemsMarkup`), with each `menu-button` given an id from the fixture's
+ * and a closed `<tanrei-menu>` anchored to it beside it, holding three items: what a product's menu button is (TBR-24).
+ */
+function toolbarItemsMarkup(spec: Spec, f: Fixture): string {
+  let n = 0;
+  const markup = (items: FixtureItem[]): string =>
+    items
+      .map((item) => {
+        if (item.kind === 'menu-button') {
+          const id = `${f.id}-menu-${++n}`;
+          return `${itemsMarkup(spec, [item], { itemAttributes: () => `id="${id}"` })}<tanrei-menu anchor="${id}"><tanrei-menu-item label="Name"></tanrei-menu-item><tanrei-menu-item label="Date modified"></tanrei-menu-item><tanrei-menu-item label="Size"></tanrei-menu-item></tanrei-menu>`;
+        }
+        if (item.kind === 'group') {
+          const label = item.props.label ? ` label="${String(item.props.label).replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"` : '';
+          return `<tanrei-toolbar-group${label}>${markup(item.items ?? [])}</tanrei-toolbar-group>`;
+        }
+        return itemsMarkup(spec, [item], {});
+      })
+      .join('');
+  return markup(f.items ?? []);
+}
+
+/**
  * A mark as a fixture draws it (the slot fixture kind `mark`): `symbol` or `wordmark`, from design/brand/, inline and
  * in the current color, with the slot it fills — the same drawing every harness and the docs' Specs table make.
  */
@@ -1336,13 +1359,21 @@ const STAGING: Record<string, Staging> = {
   'button-with-menu': {
     css: () => `.stage:has(> tanrei-button-with-menu) { display: flex; align-items: center; inline-size: 320px; block-size: 96px; }`,
   },
-  // A toolbar's stages (TBR-1, TBR-4 and TBR-6's verify): a docked one spans a 360 × 64 stage (no system inset); a
-  // horizontal floating one is centred in 360 × 96, a vertical one in 96 × 240, so the elevation's shadow shows on every
-  // side. Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled.
+  // A toolbar's stages (TBR-1, TBR-4, TBR-6 and TBR-18's verify): a docked one spans a 360 × 64 stage (no system inset);
+  // a horizontal floating one is centred in 360 × 96, a vertical one in 96 × 240, so the elevation's shadow shows on
+  // every side (one with groups in 96 × 288); an inline one stands at the start of a 360 × 56 stage, vertically
+  // centred — an overflowing one in 240.
+  // Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled, `tanrei-button-with-menu`
+  // children, `tanrei-toolbar-group`s and `tanrei-divider` separators; a menu button is given an id and a closed
+  // `tanrei-menu` anchored to it, beside it (the fixture format has no field for the menu's own items).
   toolbar: {
     css: () => `.stage:has(> tanrei-toolbar) { box-sizing: border-box; inline-size: 360px; padding: 0; }
+      .stage:has(> tanrei-toolbar:not([variant='docked'], [variant='floating'])) { display: flex; align-items: center; block-size: 56px; }
+      .stage:is([data-fixture='inline-overflow'], [data-fixture='inline-overflow-pinned'], [data-fixture='rtl-inline-overflow']) { inline-size: 240px; }
       .stage:has(> tanrei-toolbar[variant='floating']) { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; block-size: 96px; }
-      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; block-size: 240px; }`,
+      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; block-size: 240px; }
+      .stage[data-fixture='floating-vertical-groups'] { block-size: 288px; }`,
+    items: (spec, f) => toolbarItemsMarkup(spec, f),
   },
   // A keyboard shortcut's `keys` attribute holds its chords separated by spaces (the spec's web note); every fixture pins
   // its convention.
