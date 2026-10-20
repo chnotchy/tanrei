@@ -2394,7 +2394,6 @@ private object CupertinoSystemSource {
             labelTypescale = typescale.body,
             markSize = 16.dp,
             markWeight = 300f,
-            markWidth = 2.dp,
             motionFeedbackDuration = 450,
             motionMarkEnterScale = 0.5f,
             motionMarkScaleDuration = 350,

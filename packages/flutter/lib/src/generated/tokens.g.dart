@@ -6611,7 +6611,6 @@ class TanreiCheckboxTokens {
     required this.labelTypescale,
     required this.markSize,
     required this.markWeight,
-    required this.markWidth,
     required this.motionFeedbackDuration,
     required this.motionMarkEnterScale,
     required this.motionMarkScaleDuration,
@@ -6644,8 +6643,6 @@ class TanreiCheckboxTokens {
   final double markSize;
   /// `comp.checkbox.mark-weight`
   final double markWeight;
-  /// `comp.checkbox.mark-width`
-  final double markWidth;
   /// `comp.checkbox.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.checkbox.motion-mark-enter-scale`
@@ -6685,7 +6682,6 @@ class TanreiCheckboxTokens {
     TanreiTextStyle? labelTypescale,
     double? markSize,
     double? markWeight,
-    double? markWidth,
     int? motionFeedbackDuration,
     double? motionMarkEnterScale,
     int? motionMarkScaleDuration,
@@ -6709,7 +6705,6 @@ class TanreiCheckboxTokens {
         labelTypescale: labelTypescale ?? this.labelTypescale,
         markSize: markSize ?? this.markSize,
         markWeight: markWeight ?? this.markWeight,
-        markWidth: markWidth ?? this.markWidth,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionMarkEnterScale: motionMarkEnterScale ?? this.motionMarkEnterScale,
         motionMarkScaleDuration: motionMarkScaleDuration ?? this.motionMarkScaleDuration,

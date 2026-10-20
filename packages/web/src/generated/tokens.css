@@ -1916,7 +1916,6 @@
     --tanrei-comp-checkbox-label-typescale-font: var(--tanrei-sys-typescale-body-font);
     --tanrei-comp-checkbox-mark-size: var(--tanrei-sys-icon-small);
     --tanrei-comp-checkbox-mark-weight: var(--tanrei-sys-icon-mark-weight);
-    --tanrei-comp-checkbox-mark-width: var(--tanrei-sys-border-thick);
     --tanrei-comp-checkbox-motion-feedback-duration: var(--tanrei-sys-motion-duration-long1);
     --tanrei-comp-checkbox-motion-mark-enter-scale: 0.5;
     --tanrei-comp-checkbox-motion-mark-scale-duration: var(--tanrei-sys-motion-spring-standard-fast-spatial-duration);

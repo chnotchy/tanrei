@@ -1596,7 +1596,6 @@
     "tanrei.comp.checkbox.label.typescale": "typography",
     "tanrei.comp.checkbox.mark.size": "dimension",
     "tanrei.comp.checkbox.mark.weight": "number",
-    "tanrei.comp.checkbox.mark.width": "dimension",
     "tanrei.comp.checkbox.motion.feedback-duration": "duration",
     "tanrei.comp.checkbox.motion.mark-enter-scale": "number",
     "tanrei.comp.checkbox.motion.mark-scale-duration": "duration",

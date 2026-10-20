@@ -4430,7 +4430,6 @@ public struct TanreiCheckboxTokens: Sendable, Equatable {
   public var labelTypescale: TanreiTextStyle
   public var markSize: CGFloat
   public var markWeight: Double
-  public var markWidth: CGFloat
   public var motionFeedbackDuration: Double
   public var motionMarkEnterScale: Double
   public var motionMarkScaleDuration: Double
@@ -4459,7 +4458,6 @@ public struct TanreiCheckboxTokens: Sendable, Equatable {
     labelTypescale: TanreiTextStyle,
     markSize: CGFloat,
     markWeight: Double,
-    markWidth: CGFloat,
     motionFeedbackDuration: Double,
     motionMarkEnterScale: Double,
     motionMarkScaleDuration: Double,
@@ -4483,7 +4481,6 @@ public struct TanreiCheckboxTokens: Sendable, Equatable {
     self.labelTypescale = labelTypescale
     self.markSize = markSize
     self.markWeight = markWeight
-    self.markWidth = markWidth
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionMarkEnterScale = motionMarkEnterScale
     self.motionMarkScaleDuration = motionMarkScaleDuration

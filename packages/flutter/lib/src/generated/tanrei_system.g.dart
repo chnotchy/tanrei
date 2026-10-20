@@ -2517,7 +2517,6 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     labelTypescale: _typescaleBody,
     markSize: 20.0,
     markWeight: 500.0,
-    markWidth: 2.0,
     motionFeedbackDuration: 450,
     motionMarkEnterScale: 0.5,
     motionMarkScaleDuration: 350,
