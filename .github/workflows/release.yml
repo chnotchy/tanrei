@@ -81,7 +81,7 @@ jobs:
   checks:
     name: CI
     needs: preflight
-    uses: ./.github/workflows/ci.yml
+    uses: $/.github/workflows/ci.yml # self-repository form: this commit's ci.yml, and allowed under "require actions pinned to a SHA"
     permissions:
       contents: read
       pull-requests: read
