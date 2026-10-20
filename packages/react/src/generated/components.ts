@@ -81,6 +81,7 @@ export { Popover } from './wrappers/popover.js';
 export { ProgressIndicator } from './wrappers/progress-indicator.js';
 export { RadioButton, type RadioButtonMarks } from './wrappers/radio-button.js';
 export { RadioGroup, type RadioGroupMarks } from './wrappers/radio-group.js';
+export { ScrollArea } from './wrappers/scroll-area.js';
 export { Search, type SearchMarks } from './wrappers/search.js';
 export { SearchResult } from './wrappers/search-result.js';
 export { SearchResultGroup } from './wrappers/search-result-group.js';
