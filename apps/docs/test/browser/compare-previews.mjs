@@ -55,6 +55,26 @@ export async function comparePreviews({ componentCss, still }) {
     walk(root);
     return out;
   };
+  // Until every scripted motion that has an end, of an element inside one of the roots (their shadow trees included),
+  // has ended — for 5 s at most; one that never ends (a line that scrolls on) is not waited for.
+  const inside = (node, roots) => {
+    for (let n = node; n; n = up(n)) if (roots.includes(n)) return true;
+    return false;
+  };
+  const rest = async (roots) => {
+    const until = performance.now() + 5000;
+    for (;;) {
+      // A document's and a shadow root's `getAnimations()` each hold only the animations of their own tree.
+      const trees = new Set([document, ...roots.map((root) => root.getRootNode()), ...roots.flatMap(all).flatMap((e) => (e.shadowRoot ? [e.shadowRoot] : []))]);
+      const moving = [...trees]
+        .flatMap((tree) => tree.getAnimations())
+        .filter((animation) => animation.playState === 'running' && Number.isFinite(animation.effect?.getComputedTiming().endTime) && inside(animation.effect?.target, roots));
+      if (!moving.length || performance.now() > until) break;
+      await Promise.race([Promise.allSettled(moving.map((animation) => animation.finished)), new Promise((resolve) => setTimeout(resolve, until - performance.now()))]);
+      await frame();
+    }
+    await frame();
+  };
   const settle = async (roots) => {
     const elements = roots.flatMap(all);
     await Promise.race([
@@ -170,6 +190,10 @@ export async function comparePreviews({ componentCss, still }) {
     element.scrollIntoView({ block: 'center' });
     await frame();
     await frame();
+    // A component that changes when it first comes into view (a figure that rises to its value) starts that change as
+    // the scroll above brings it in, and draws it with the Web Animations API, which `still` (CSS) does not stop: the
+    // preview is measured once it, and its copy, have come to rest, as a reader sees them a moment later.
+    await rest([element, copy]);
     const a = drawn(element);
     const c = drawn(copy);
     const ra = element.getBoundingClientRect();
