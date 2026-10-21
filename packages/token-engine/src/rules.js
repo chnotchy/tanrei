@@ -1,5 +1,8 @@
 // The numeric half of the rule language. Closed and declarative:
-//   mul    { of: "{id}", by: n, exp?: "{id}" | n }   → of × by^exp   (exp defaults to 1, so by^1 = by exactly)
+//   mul    { of: "{id}", by: n, exp?: "{id}" | n,    → max(min, round(of × by^exp × times, to the step `round`))
+//            times?: "{id}", round?: "{id}",            (exp defaults to 1, so by^1 = by exactly; times is a number
+//            min?: "{id}" }                              token, absent = 1; round is the step, absent = 0.25px / 1ms;
+//                                                        min is a floor applied after rounding, absent = none)
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
@@ -32,13 +35,51 @@ export function roundTo(value, step) {
 const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
 const refId = (v) => v.slice(1, -1);
 
+/**
+ * Round to the nearest multiple of `step`, ties upward — CSS `round(nearest, value, step)`. The quotient is cleaned of
+ * binary noise first, so 4 × 10 × 0.95 (38, a tie on a 4px grid) gives 40 and not 36.
+ */
+export function roundToStep(value, step) {
+  const n = Math.round(Number((value / step).toFixed(9)));
+  return Number((n * step).toFixed(9));
+}
+
 /** Ids a rule depends on, for ordering and cycle detection. */
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { times, round, min } · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
-  return [rule.of, rule.base, rule.exp, rule.by, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
+  return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
+}
+
+const sameUnit = (fn, field, rule, term, of) => {
+  if ((term.unit ?? null) !== (of.unit ?? null)) throw new Error(`"${fn}" ${field} ${rule[field]} (${term.unit ?? 'no unit'}) is not in the unit of ${rule.of} (${of.unit ?? 'no unit'})`);
+};
+
+/** The optional terms of `mul`: the factor `times`, the step `round` and the floor `min` (undefined when absent). */
+function mulTerms(rule, of, lookup) {
+  for (const field of ['times', 'round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
+  let times = 1;
+  if (rule.times !== undefined) {
+    const factor = lookup(refId(rule.times));
+    if (factor.unit !== undefined) throw new Error(`"mul" times ${rule.times} must be a number token; it is in ${factor.unit}`);
+    times = factor.value;
+  }
+  let step;
+  if (rule.round !== undefined) {
+    const grid = lookup(refId(rule.round));
+    sameUnit('mul', 'round', rule, grid, of);
+    if (!(grid.value > 0)) throw new Error(`"mul" round ${rule.round} must be above zero; it is ${grid.value}`);
+    step = grid.value;
+  }
+  let min;
+  if (rule.min !== undefined) {
+    const floor = lookup(refId(rule.min));
+    sameUnit('mul', 'min', rule, floor, of);
+    min = floor.value;
+  }
+  return [times, step, min];
 }
 
 /**
@@ -55,7 +96,10 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const of = lookup(refId(rule.of));
       const exp = rule.exp === undefined ? 1 : num(rule.exp);
       const coefficient = exp === 1 ? rule.by : rule.by ** exp;
-      return { value: roundTo(of.value * coefficient, ROUND[ctx.type] ?? ROUND.number), unit: of.unit };
+      const [times, step, min] = mulTerms(rule, of, lookup);
+      const product = of.value * coefficient * times;
+      const rounded = step === undefined ? roundTo(product, ROUND[ctx.type] ?? ROUND.number) : roundToStep(product, step);
+      return { value: min === undefined ? rounded : Math.max(min, rounded), unit: of.unit };
     }
     case 'scale': {
       const base = lookup(refId(rule.base));
