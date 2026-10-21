@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, actionBoxStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { SCRIM_FILTER, actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -51,12 +51,6 @@ export const styles = css`
     color: ${t('content-color')};
     text-align: start;
     outline: none;
-    /* DLG-13, DLG-18: out, it fades over the exit motion — kept in the top layer and displayed until it has. */
-    opacity: 0;
-    transition-property: opacity, scale, translate, display, overlay;
-    transition-duration: ${t('motion-exit-duration')};
-    transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   /* DLG-27: small, medium or large — the fixed width the size names, whatever the parts would ask and not held between
      min-width and max-width, but never wider than the window less the margins. A compact window places every width as
@@ -77,17 +71,19 @@ export const styles = css`
   }
   dialog[open] {
     display: flex;
-    opacity: 1;
-    /* DLG-13: in, centred, it fades in and grows about its centre from enter-scale over the enter motion. */
-    transition-duration: ${t('motion-enter-duration')};
-    transition-timing-function: ${t('motion-enter-easing')};
   }
-  @starting-style {
-    dialog[open] {
-      opacity: 0;
-      scale: ${t('motion-enter-scale')};
-    }
-  }
+  /* DLG-13: centred, it appears as every modal surface does (src/primitives/motion.ts, role modal): from
+     sys.motion.appear.*, grown about its centre and risen into place, over the enter motion; it leaves the same way back
+     over the exit motion, kept in the top layer and displayed until it has (the browser has closed it by then: focus
+     and the page are given back at once). Under reduced motion it only fades. */
+  ${appearStyles({
+    motion: 'dialog',
+    open: '[open]',
+    role: 'modal',
+    origin: 'center',
+    enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },
+    exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
+  })}
   /* DLG-1, MDL-1: the modal layer's scrim, over the whole window behind the dialog (its color and blur), fading with it. */
   ${scrimFilter('dialog', T('scrim-blur'))}
   dialog::backdrop {
@@ -109,18 +105,16 @@ export const styles = css`
       opacity: 0;
     }
   }
-  /* DLG-13: where motion is reduced it only fades. */
-  @media (prefers-reduced-motion: reduce) {
-    dialog {
-      transition-property: opacity, display, overlay;
-    }
-  }
   /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
      keyboard), as wide as the window up to the bottom sheet's greatest width whatever width names, its color, elevation
      and top corners, square at the bottom, its parts inside the dialog's padding and above the bottom inset — sliding up
      and down with the bottom sheet's motion over the dialog's own scrim (src/primitives/compact-sheet.ts). After the
      rules above, which it overrides. */
   ${sheetLookStyles({ sheet: 'dialog.compact', paddingBlockEnd: T('container-padding'), scrim: { color: T('scrim-color'), blur: T('scrim-blur') } })}
+  /* A sheet slides from its edge whatever the appearance: none of the appearance's blur, closed or leaving. */
+  dialog.compact {
+    filter: none;
+  }
 
   /* DLG-8: the parts, container.gap apart, the empty ones left out; the actions actions.margin-block-start below. */
   .scroll {

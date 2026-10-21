@@ -5,6 +5,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -1732,6 +1734,45 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await page.keyboard.press('Escape');
     await open(page, 'd');
     expect(await surface(page, 'd').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+  });
+
+  test('DTM-35: a modal picker appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — about its centre over the open motion, and leaves the same way back over the close motion, its last frame leaving no more than the accelerating curve does; where reduced it only fades over sys.motion.role.reduced', async ({ page }) => {
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const s = surface(page, 'm');
+    const drawn = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && ['opacity', 'scale'].includes(motion.name));
+    const opening = await sampleFrames(s, () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    expectNoFlicker(opening);
+    for (const motion of drawn(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('modal-motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('modal-motion-open-easing')));
+    }
+    // (WebKit reports the scrim's fade as the surface's own — its pseudo-element unnamed — so the properties are counted once each.)
+    expect([...new Set(drawn(opening).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
+    // Where the engine cannot hold a closed dialog in the top layer (no `overlay`: Firefox, Playwright's WebKit) it is
+    // gone at once, with no exit.
+    const holdsExit = await page.evaluate(() => CSS.supports('overlay', 'auto'));
+    const closing = await sampleFrames(s, () => host(page, 'm').evaluate((el: any) => (el.open = false)), { probe: appearProbe, elements: false });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    // (The exit is read from the probe alone: every element of a picker read in every frame is more than a slow machine
+    // draws in time.)
+    if (!holdsExit) expect(drawn(closing)).toEqual([]);
+    const exit = await resolveEasing(page, T('modal-motion-close-easing'));
+    for (const motion of drawn(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('modal-motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expectExitEnd(closing, { duration: await resolveToken(page, T('modal-motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && !['display', 'overlay'].includes(motion.name)).map((motion) => [motion.name, motion.duration]);
+    const fading = await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe, elements: false });
+    expectAppearStart(fading.frames[0]!, { opacity: 0, scale: 1 });
+    expect(own(fading)).toContainEqual(['opacity', reduced]);
+    expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
   });
 
   test('DTM-36: in a short window the header and the actions stay and the body scrolls between them; in a narrow one the picker is the window less the margins', async ({ page }) => {

@@ -6140,8 +6140,10 @@ each missing word is reported once.
 
 **The overlays (DTM-1…5, DTM-35).** A modal picker is a native `<dialog>` in the shadow root opened with `showModal()`,
 as `<tanrei-dialog>` is: the top layer, `::backdrop` as the scrim, everything else inert, the page's scroll held, focus
-trapped, centred at least `modal.container.margin` from the edges and above the on-screen keyboard; it fades in and grows
-from `modal.motion.enter-scale` and fades out, only fading where motion is reduced. A docked picker is a manual popover
+trapped, centred at least `modal.container.margin` from the edges and above the on-screen keyboard; it appears as every
+modal surface does (`appearStyles()` and `AppearController`, role modal, from its centre: `sys.motion.appear.*` over the
+modal open and close motions, turned round from what it shows, at once before the first paint) and only fades where
+motion is reduced. A docked picker is a manual popover
 placed by script with the menu's `placeMenu`: `docked.offset` below its
 anchor with the start edges aligned, flipped above when there is more room there, shifted to stay
 `docked.viewport-margin` inside the viewport, its height limited to the room, following the anchor (by events, `FollowController`); it
@@ -6293,10 +6295,13 @@ slotted element marked `autofocus`, or to the dialog itself (`tabindex="-1"`, so
 from the dialog to the last), and returns on closing to where it was (or is dropped when that element is gone). Escape is
 answered on `keydown` — the browser's own close request, with its limit on repeated cancels, never runs — and only by the
 topmost dialog; a close request without a key (Android's back) arrives as the native `cancel`, which the dialog turns into
-its own. A dialog opened from another stacks above it with its own scrim; the first becomes inert. It fades in and grows
-from `motion.enter-scale` over `motion.enter-*` (`@starting-style` transitions), and fades out over `motion.exit-*`, kept
-in the top layer by `transition-behavior: allow-discrete` on `display` and `overlay`; where motion is reduced it only
-fades. Firefox has no `overlay` transition, so there it leaves the top layer at once, without the fade. Focus moves when it opens and closes, not when the motion ends. A snackbar waits for, and
+its own. A dialog opened from another stacks above it with its own scrim; the first becomes inert. The `<dialog>` appears
+as every modal surface does (`appearStyles()` and `AppearController`, src/primitives/motion.ts: role modal, from its
+centre): from `sys.motion.appear.*` to whole over `motion.enter-*`, and back the same way over `motion.exit-*`. It is
+closed at once — focus and the page are given back — and kept drawn in the top layer by `transition-behavior:
+allow-discrete` on `display` and `overlay` until its exit has played; opened again while it leaves, it is put back with
+`AppearController.keep()`, so that it goes on from what it shows. Mounted open before the first paint, it is there at
+once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Firefox has no `overlay` transition, so there it leaves the top layer at once, without the fade. Focus moves when it opens and closes, not when the motion ends. A snackbar waits for, and
 pauses under, an open dialog (`src/primitives/modal.ts`).
 
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
@@ -10190,8 +10195,9 @@ without Ctrl does nothing at fit and is not prevented.
 
 - **The image is placed by a transform** the element writes (`translate() scale()` on an `<img>` at its fit size). A
   step of the zoom is a transition of that `transform` (`motion.zoom-*`); a change of image and a released drag are a
-  transition of the pages' `translate` (`motion.page-*`); the entrance is `@starting-style` on the dialog's `opacity`
-  and the pages' `scale`. **No custom property is registered** (`src/styles/registered-properties.test.ts`): the
+  transition of each page's `translate` (`motion.page-*`); the entrance is `@starting-style` on the dialog's `opacity`,
+  and the pages appear as every modal surface does (`appearStyles()` and `AppearController`, role modal, about the
+  centre of the fit area) and go back the same way as it closes. **No custom property is registered** (`src/styles/registered-properties.test.ts`): the
   private names (`--_at`, `--_drag-x`, `--_presence`, `--_fit-x`) are plain values a real property is computed from.
 - **`zoom`, `index` and `controlsHidden`** are plain values the element writes itself on a person's change, before the
   event; a value the product sets is taken at once and fires nothing. A pinch and a wheel write `zoom` when they end
