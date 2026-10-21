@@ -1505,7 +1505,9 @@ the shadow root (`aria-hidden`, `inert`): a product's styles for its own inline 
 
 **The fade** (MRQ-6). One mask layer, the viewport's box with a band `fade.extent` deep at each side, widened by the band
 (and moved) past each side behind which no text lies hidden; its keyframes move with the text's, the band growing over
-the first `fade.extent` of travel. In forced colors there is no mask (`!important`, over the keyframes, MRQ-18).
+the first `fade.extent` of travel. Without the keyframes (before the run's animation exists, or in a screenshot, which
+cancels an endless animation) the stylesheet draws the look of the rest at the start: only the end edge of the text's
+direction fades. In forced colors there is no mask (`!important`, over the keyframes, MRQ-18).
 
 **Trigger** (MRQ-3, MRQ-9). The area is the nearest ancestor, across shadow roots and slots, that takes presses or focus
 (a link, a button, an element with a `tabindex` or an interactive role, or a custom element whose shadow root holds one),

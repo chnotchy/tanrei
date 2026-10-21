@@ -329,6 +329,21 @@ test.describe('behavior', () => {
     expect(await mask(line)).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: '0px 0px' });
   });
 
+  test('MRQ-6: a line that plays, its motion not drawn (a screenshot cancels an endless animation), looks as it rests at its start: the end edge of its direction fades', async ({ page }) => {
+    await mount(page, only('always', 'rtl'));
+    const fade = await resolveToken(page, T('fade-extent'));
+    for (const [id, position] of [['always', `${-fade}px 0px`], ['rtl', '0px 0px']] as const) {
+      const line = host(page, id);
+      await expect.poll(async () => (await state(line)).animations, id).toBe(2);
+      await line.evaluate((el) => {
+        const root = el.shadowRoot!;
+        for (const a of [...root.querySelector('.track')!.getAnimations(), ...root.querySelector('.viewport')!.getAnimations()]) a.cancel();
+      });
+      expect(await state(line), id).toMatchObject({ playing: true, translate: 0 });
+      expect(await mask(line), id).toEqual({ size: `calc(100% + ${fade}px) 100%`, position });
+    }
+  });
+
   test('MRQ-7: the text moves and rests by its own direction, whatever the layout direction', async ({ page }) => {
     const hebrew = 'כותרת ארוכה מאוד שאינה נכנסת בשורה שבה היא עומדת';
     await mount(page, [fixture('hebrew-in-ltr', { trigger: 'always' }, hebrew), fixture('english-in-rtl', { trigger: 'always' }, LONG, { direction: 'rtl' })]);

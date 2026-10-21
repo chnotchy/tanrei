@@ -73,12 +73,17 @@ export const styles = [
 
     /* MRQ-6: the fade of the edges behind which text lies hidden. One mask layer, the line's box with a band of the
        fade's depth at each side: widened past a side (and moved) where no text lies hidden there, so that side shows
-       no fade. The script's keyframes move it with the text; at rest there is none. */
+       no fade. The script's keyframes move it with the text; at rest there is none. Without them — before the run's
+       animation exists, or where it is cancelled — the line looks as it does resting at its start: only the end edge
+       of the text's direction fades. */
     .viewport[data-playing] {
       mask-image: linear-gradient(to right, transparent 0, black var(--_fade), black calc(100% - var(--_fade)), transparent 100%);
       mask-repeat: no-repeat;
-      mask-size: calc(100% + 2 * var(--_fade)) 100%;
+      mask-size: calc(100% + var(--_fade)) 100%;
       mask-position: calc(-1 * var(--_fade)) 0;
+    }
+    .viewport[data-playing][dir='rtl'] {
+      mask-position: 0 0;
     }
 
     .copy[hidden],
