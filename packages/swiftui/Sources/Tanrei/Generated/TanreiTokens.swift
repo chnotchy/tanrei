@@ -5704,7 +5704,6 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   public var modalContainerShape: CGFloat
   public var modalMotionCloseDuration: Double
   public var modalMotionCloseEasing: TanreiCubicBezier
-  public var modalMotionEnterScale: Double
   public var modalMotionOpenDuration: Double
   public var modalMotionOpenEasing: TanreiCubicBezier
   public var modalScrimBlur: CGFloat
@@ -5797,7 +5796,6 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     modalContainerShape: CGFloat,
     modalMotionCloseDuration: Double,
     modalMotionCloseEasing: TanreiCubicBezier,
-    modalMotionEnterScale: Double,
     modalMotionOpenDuration: Double,
     modalMotionOpenEasing: TanreiCubicBezier,
     modalScrimBlur: CGFloat,
@@ -5886,7 +5884,6 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     self.modalContainerShape = modalContainerShape
     self.modalMotionCloseDuration = modalMotionCloseDuration
     self.modalMotionCloseEasing = modalMotionCloseEasing
-    self.modalMotionEnterScale = modalMotionEnterScale
     self.modalMotionOpenDuration = modalMotionOpenDuration
     self.modalMotionOpenEasing = modalMotionOpenEasing
     self.modalScrimBlur = modalScrimBlur
@@ -6086,7 +6083,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var iconSize: CGFloat
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
-  public var motionEnterScale: Double
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
   public var scrimBlur: CGFloat
@@ -6123,7 +6119,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     iconSize: CGFloat,
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
-    motionEnterScale: Double,
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
     scrimBlur: CGFloat,
@@ -6159,7 +6154,6 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.iconSize = iconSize
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
-    self.motionEnterScale = motionEnterScale
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
     self.scrimBlur = scrimBlur
@@ -8222,7 +8216,6 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
   public var motionControlsEasing: TanreiCubicBezier
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
-  public var motionEnterScale: Double
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
   public var motionPageDuration: Double
@@ -8258,7 +8251,6 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
     motionControlsEasing: TanreiCubicBezier,
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
-    motionEnterScale: Double,
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
     motionPageDuration: Double,
@@ -8293,7 +8285,6 @@ public struct TanreiImagePreviewTokens: Sendable, Equatable {
     self.motionControlsEasing = motionControlsEasing
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
-    self.motionEnterScale = motionEnterScale
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
     self.motionPageDuration = motionPageDuration

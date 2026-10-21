@@ -31498,11 +31498,6 @@
                 0.15
               ]
             },
-            "enter-scale": {
-              "$type": "number",
-              "$value": 0.95,
-              "$description": "The size a modal picker grows from, as a fraction of its own, while it fades in. 1 fades without growing."
-            },
             "open-duration": {
               "$type": "duration",
               "$value": {
@@ -33055,11 +33050,6 @@
               0.1,
               1
             ]
-          },
-          "enter-scale": {
-            "$type": "number",
-            "$value": 0.95,
-            "$description": "The size a centred container grows from, as a fraction of its own, while it fades in. 1 fades without growing."
           },
           "exit-duration": {
             "$type": "duration",
@@ -43247,11 +43237,6 @@
               0.1,
               1
             ]
-          },
-          "enter-scale": {
-            "$type": "number",
-            "$value": 0.95,
-            "$description": "The size the picture grows from, as a fraction of its size at fit, while the preview fades in. 1 fades without growing."
           },
           "exit-duration": {
             "$type": "duration",

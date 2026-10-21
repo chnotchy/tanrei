@@ -2634,7 +2634,6 @@
     --tanrei-comp-date-time-picker-modal-container-shape-pill: 0;
     --tanrei-comp-date-time-picker-modal-motion-close-duration: var(--tanrei-comp-modal-layer-motion-exit-duration);
     --tanrei-comp-date-time-picker-modal-motion-close-easing: var(--tanrei-comp-modal-layer-motion-exit-easing);
-    --tanrei-comp-date-time-picker-modal-motion-enter-scale: 0.95;
     --tanrei-comp-date-time-picker-modal-motion-open-duration: var(--tanrei-comp-modal-layer-motion-enter-duration);
     --tanrei-comp-date-time-picker-modal-motion-open-easing: var(--tanrei-comp-modal-layer-motion-enter-easing);
     --tanrei-comp-date-time-picker-modal-scrim-blur: var(--tanrei-comp-modal-layer-scrim-blur);
@@ -2832,7 +2831,6 @@
     --tanrei-comp-dialog-icon-size: var(--tanrei-sys-icon-medium);
     --tanrei-comp-dialog-motion-enter-duration: var(--tanrei-comp-modal-layer-motion-enter-duration);
     --tanrei-comp-dialog-motion-enter-easing: var(--tanrei-comp-modal-layer-motion-enter-easing);
-    --tanrei-comp-dialog-motion-enter-scale: 0.95;
     --tanrei-comp-dialog-motion-exit-duration: var(--tanrei-comp-modal-layer-motion-exit-duration);
     --tanrei-comp-dialog-motion-exit-easing: var(--tanrei-comp-modal-layer-motion-exit-easing);
     --tanrei-comp-dialog-scrim-blur: var(--tanrei-comp-modal-layer-scrim-blur);
@@ -3369,7 +3367,6 @@
     --tanrei-comp-image-preview-motion-controls-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-image-preview-motion-enter-duration: var(--tanrei-comp-modal-layer-motion-enter-duration);
     --tanrei-comp-image-preview-motion-enter-easing: var(--tanrei-comp-modal-layer-motion-enter-easing);
-    --tanrei-comp-image-preview-motion-enter-scale: 0.95;
     --tanrei-comp-image-preview-motion-exit-duration: var(--tanrei-comp-modal-layer-motion-exit-duration);
     --tanrei-comp-image-preview-motion-exit-easing: var(--tanrei-comp-modal-layer-motion-exit-easing);
     --tanrei-comp-image-preview-motion-page-duration: var(--tanrei-sys-motion-duration-medium2);

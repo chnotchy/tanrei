@@ -8387,7 +8387,6 @@ class TanreiDateTimePickerTokens {
     required this.modalContainerShape,
     required this.modalMotionCloseDuration,
     required this.modalMotionCloseEasing,
-    required this.modalMotionEnterScale,
     required this.modalMotionOpenDuration,
     required this.modalMotionOpenEasing,
     required this.modalScrimBlur,
@@ -8523,8 +8522,6 @@ class TanreiDateTimePickerTokens {
   final int modalMotionCloseDuration;
   /// `comp.date-time-picker.modal-motion-close-easing`
   final TanreiCubicBezier modalMotionCloseEasing;
-  /// `comp.date-time-picker.modal-motion-enter-scale`
-  final double modalMotionEnterScale;
   /// `comp.date-time-picker.modal-motion-open-duration`
   final int modalMotionOpenDuration;
   /// `comp.date-time-picker.modal-motion-open-easing`
@@ -8656,7 +8653,6 @@ class TanreiDateTimePickerTokens {
     double? modalContainerShape,
     int? modalMotionCloseDuration,
     TanreiCubicBezier? modalMotionCloseEasing,
-    double? modalMotionEnterScale,
     int? modalMotionOpenDuration,
     TanreiCubicBezier? modalMotionOpenEasing,
     double? modalScrimBlur,
@@ -8745,7 +8741,6 @@ class TanreiDateTimePickerTokens {
         modalContainerShape: modalContainerShape ?? this.modalContainerShape,
         modalMotionCloseDuration: modalMotionCloseDuration ?? this.modalMotionCloseDuration,
         modalMotionCloseEasing: modalMotionCloseEasing ?? this.modalMotionCloseEasing,
-        modalMotionEnterScale: modalMotionEnterScale ?? this.modalMotionEnterScale,
         modalMotionOpenDuration: modalMotionOpenDuration ?? this.modalMotionOpenDuration,
         modalMotionOpenEasing: modalMotionOpenEasing ?? this.modalMotionOpenEasing,
         modalScrimBlur: modalScrimBlur ?? this.modalScrimBlur,
@@ -8993,7 +8988,6 @@ class TanreiDialogTokens {
     required this.iconSize,
     required this.motionEnterDuration,
     required this.motionEnterEasing,
-    required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
     required this.scrimBlur,
@@ -9055,8 +9049,6 @@ class TanreiDialogTokens {
   final int motionEnterDuration;
   /// `comp.dialog.motion-enter-easing`
   final TanreiCubicBezier motionEnterEasing;
-  /// `comp.dialog.motion-enter-scale`
-  final double motionEnterScale;
   /// `comp.dialog.motion-exit-duration`
   final int motionExitDuration;
   /// `comp.dialog.motion-exit-easing`
@@ -9103,7 +9095,6 @@ class TanreiDialogTokens {
     double? iconSize,
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
-    double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
     double? scrimBlur,
@@ -9139,7 +9130,6 @@ class TanreiDialogTokens {
         iconSize: iconSize ?? this.iconSize,
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
-        motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
         scrimBlur: scrimBlur ?? this.scrimBlur,
@@ -12031,7 +12021,6 @@ class TanreiImagePreviewTokens {
     required this.motionControlsEasing,
     required this.motionEnterDuration,
     required this.motionEnterEasing,
-    required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
     required this.motionPageDuration,
@@ -12092,8 +12081,6 @@ class TanreiImagePreviewTokens {
   final int motionEnterDuration;
   /// `comp.image-preview.motion-enter-easing`
   final TanreiCubicBezier motionEnterEasing;
-  /// `comp.image-preview.motion-enter-scale`
-  final double motionEnterScale;
   /// `comp.image-preview.motion-exit-duration`
   final int motionExitDuration;
   /// `comp.image-preview.motion-exit-easing`
@@ -12138,7 +12125,6 @@ class TanreiImagePreviewTokens {
     TanreiCubicBezier? motionControlsEasing,
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
-    double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
     int? motionPageDuration,
@@ -12173,7 +12159,6 @@ class TanreiImagePreviewTokens {
         motionControlsEasing: motionControlsEasing ?? this.motionControlsEasing,
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
-        motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
         motionPageDuration: motionPageDuration ?? this.motionPageDuration,
