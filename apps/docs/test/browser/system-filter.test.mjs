@@ -1,4 +1,5 @@
-// The choice of design system on the built site, as a reader makes it (components/SystemSelect.astro,
+// The choice of design system on the built site, as a reader makes it (the header's menu beside the brand,
+// components/SystemMenu.astro, which a compact window puts first in the drawer; the index's components/SystemSelect.astro;
 // lib/list-filter.ts): the lists of components — the sidebar's and the index's — show the components of the chosen
 // system, the default one until the reader chooses, and the choice is kept across pages; the page of a component some
 // systems do not have says which, and what they use instead (components/ComponentAvailability.astro); the presets page
@@ -54,7 +55,8 @@ async function open(context, url) {
   const network = await watchNetwork(page);
   await page.goto(origin + url, { waitUntil: 'load' });
   await network.quiet();
-  await page.waitForFunction(() => customElements.get('tanrei-select-field') && customElements.get('tanrei-navigation-drawer'));
+  await page.waitForFunction(() => ['tanrei-menu', 'tanrei-button', 'tanrei-navigation-drawer'].every((name) => customElements.get(name)));
+  if (await page.locator('.index .docs-system').count()) await page.waitForFunction(() => customElements.get('tanrei-select-field'));
   return page;
 }
 
@@ -70,8 +72,49 @@ async function choose(page, system) {
   await page.waitForFunction((id) => document.documentElement.getAttribute('data-docs-system') === id, system);
 }
 
+/** What the header's buttons and menus say (the bar's, and the drawer's of a compact window). */
+const saidByTheHeader = (page) =>
+  page.evaluate(() => ({
+    groups: [...document.querySelectorAll('tanrei-menu-group.docs-system-group')].map((group) => group.value),
+    names: [...document.querySelectorAll('tanrei-button.docs-system .docs-system-name')].map((name) => name.textContent),
+  }));
+
+/** Chooses `system` in the header's menu, as a reader does: its button (in a compact window, in the opened drawer), then the item. */
+async function chooseInHeader(page, system, compact) {
+  if (compact) {
+    await page.locator('tanrei-app-bar [data-app-shell-menu]').click();
+    await page.locator('#docs-system-drawer').waitFor({ state: 'visible' });
+  }
+  const button = page.locator(compact ? '#docs-system-drawer' : '#docs-system');
+  await button.click();
+  const menu = page.locator(`tanrei-menu[anchor="${compact ? 'docs-system-drawer' : 'docs-system'}"]`);
+  await menu.getByRole('menuitemradio', { name: new RegExp(`^${system}\\b`) }).click();
+  await page.waitForFunction((id) => document.documentElement.getAttribute('data-docs-system') === id, system);
+}
+
 for (const width of [390, 1440]) {
   describe(`at ${width} px`, () => {
+    test('the header’s menu chooses the system the lists show, says it on its button, and keeps it', async () => {
+      const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+      try {
+        const page = await open(context, '/components/');
+        const compact = width < 600;
+        // The bar draws its own button only where it has room: in a compact window the drawer holds it.
+        assert.equal(await page.locator('#docs-system').isVisible(), !compact);
+        await chooseInHeader(page, 'cupertino', compact);
+        assert.deepEqual(await rows(page, 'segmented-button'), { index: 1, sidebar: 1 });
+        assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-tabs-system')), 'cupertino');
+        assert.deepEqual(await saidByTheHeader(page), { groups: ['cupertino', 'cupertino'], names: ['cupertino', 'cupertino'] });
+        assert.match(await page.locator(compact ? '#docs-system-drawer' : '#docs-system').getAttribute('label'), /cupertino/);
+        assert.equal(await page.locator('.index .docs-system').evaluate((field) => field.value), 'cupertino', 'the index’s select says the same');
+        const next = await open(context, '/components/button/');
+        assert.deepEqual(await saidByTheHeader(next), { groups: ['cupertino', 'cupertino'], names: ['cupertino', 'cupertino'] }, 'another page says it from the first frame');
+        assert.equal(await next.evaluate(() => document.documentElement.scrollWidth), width, 'no row is wider than the window');
+      } finally {
+        await context.close();
+      }
+    });
+
     test('the index shows the default system’s components until the reader chooses m3-like, which shows the FAB menu; the choice is kept', async () => {
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       try {
@@ -90,7 +133,7 @@ for (const width of [390, 1440]) {
         assert.deepEqual(await rows(page, 'segmented-button'), { index: 1, sidebar: 1 });
         assert.equal(await page.locator('[data-docs-system-only]').count(), 0, 'm3-like has everything');
         assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-tabs-system')), 'm3-like');
-        assert.equal(await page.locator('.docs-sidebar .docs-system').evaluate((field) => field.value), 'm3-like', 'every select says the same');
+        assert.deepEqual(await saidByTheHeader(page), { groups: ['m3-like', 'm3-like'], names: ['m3-like', 'm3-like'] }, 'the header’s menus and buttons say the same');
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width, 'no row is wider than the window');
 
         // Another page, from the first frame: the head's script read the choice.
