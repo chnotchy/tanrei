@@ -1,0 +1,166 @@
+{
+  "tanrei": {
+    "comp": {
+      "resizable-frame": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets a person change how much room a thing is given by dragging its edge or its corner, or from the keyboard: a preview checked at a phone's width and a laptop's, a navigation drawer or a side bar made wider for long names or narrower for the work beside it. Each needs the same box, the same handles kept off the content, the same least width, and the same small read-out of the size while it changes.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a resizable frame reads besides its handles (which are Handles, drawn by comp.handle.*): the outlined box's corners and its one hairline; the least width and the least height a person can give; how far a handle stands from the outlined box's edge; how near a drag must come to a width it snaps to; the size indicator's place, height, padding, corners, fill, text style and color; and the motions of a size changed by a key or an activation, and of the indicator coming and going.",
+            "rules": [
+              "A resizable frame changes the room its content is given; it never scales the content. A zoomed preview is another thing.",
+              "outlined is the box a preview is checked in: one hairline, rounded corners, the handles outside the box so that they cover nothing. plain is a pane's edge — a navigation drawer, a side bar: no edge and no corners of the frame's own (the content draws its own surface), the handle centred on the edge.",
+              "The frame has no fill: the content draws its own background, so that a preview shows its own.",
+              "container.min-width is the width at which content must reflow without a sideways scroll (WCAG 1.4.10); a pane sets its own least width as a prop, never by changing this token for one frame.",
+              "Every size a drag reaches is also reached from the keyboard and by activating a handle: never take the handles away from a frame whose size a person is meant to change.",
+              "Restyle through these tokens and comp.handle.* in a layer; never draw a resize handle of your own."
+            ]
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.large}",
+            "$description": "The outlined box's corners: the step of a card, so that a preview reads as one of the page's blocks. The content is clipped to them. The plain frame has no corners of its own."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The least width a person can give while the product sets none: 320 CSS pixels, the width at which content must reflow without scrolling sideways (WCAG 1.4.10), so that a person checking a design reaches that width and no narrower by accident.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 80
+              }
+            }
+          },
+          "min-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The least height a person can give while the product sets none: room for a few lines of the content and its own header.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 50
+              }
+            }
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The width of the outlined box's edge, drawn inside its size."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The outlined box's edge: decoration that shows where the content's room ends, in the color a divider and an outlined card draw theirs in. What a person drags is the handle, which is held to the 3:1 boundary of a control."
+          }
+        },
+        "handle": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "How far each handle's box stands outside the outlined box's edge, so that it covers none of the content. The plain frame centres its handle on its edge instead."
+          }
+        },
+        "snap-distance": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space100}",
+          "$description": "How near a drag must come to one of the widths the frame snaps to for the width to be taken as that one."
+        },
+        "size-indicator": {
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "How far the size indicator stands in from the box's top edge and its end edge."
+          },
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$description": "The size indicator's height: the least height of a plain tooltip, a label of the same kind laid over content.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "Before and after the size indicator's numbers."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "$description": "The size indicator's corners."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-surface}",
+              "$description": "The size indicator's fill: the inverse surface, which reads over whatever the content draws beneath it."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}",
+              "$description": "The size indicator's numbers, on the inverse surface."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.code-small}",
+              "$description": "The size indicator's numbers: a face whose digits are all one width, so that the label does not shake as the numbers change under a drag."
+            }
+          }
+        },
+        "motion": {
+          "resize-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.resize.default}",
+            "$description": "How long the box takes to reach a size a key or an activation gave it. A drag is followed without a motion."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}"
+          },
+          "indicator-enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.appear.hint.enter}",
+            "$description": "How long the size indicator takes to fade in: a hint, as a tooltip is."
+          },
+          "indicator-exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.appear.hint.exit}",
+            "$description": "How long the size indicator takes to fade out."
+          },
+          "indicator-enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.enter}"
+          },
+          "indicator-exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.exit}"
+          }
+        }
+      }
+    }
+  }
+}

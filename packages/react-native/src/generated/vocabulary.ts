@@ -4133,6 +4133,33 @@ export interface TanreiRadioButtonTokens {
 }
 
 /**
+ * `comp.resizable-frame`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiResizableFrameTokens {
+  readonly containerMinHeight: number;
+  readonly containerMinWidth: number;
+  readonly containerShape: number;
+  readonly handleGap: number;
+  readonly motionIndicatorEnterDuration: number;
+  readonly motionIndicatorEnterEasing: TanreiCubicBezier;
+  readonly motionIndicatorExitDuration: number;
+  readonly motionIndicatorExitEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
+  readonly outlineColor: TanreiPaint;
+  readonly outlineWidth: number;
+  readonly sizeIndicatorContainerColor: TanreiPaint;
+  readonly sizeIndicatorContainerHeight: number;
+  readonly sizeIndicatorContainerPaddingInline: number;
+  readonly sizeIndicatorContainerShape: number;
+  readonly sizeIndicatorLabelColor: TanreiPaint;
+  readonly sizeIndicatorLabelTypescale: TanreiTypescaleRole;
+  readonly sizeIndicatorOffset: number;
+  readonly snapDistance: number;
+}
+
+/**
  * `comp.scroll-area`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -5782,6 +5809,7 @@ export interface TanreiComponents {
   readonly progressIndicator: TanreiProgressIndicatorTokens;
   readonly prose: TanreiProseTokens;
   readonly radioButton: TanreiRadioButtonTokens;
+  readonly resizableFrame: TanreiResizableFrameTokens;
   readonly scrollArea: TanreiScrollAreaTokens;
   readonly search: TanreiSearchTokens;
   readonly segmentedButton: TanreiSegmentedButtonTokens;

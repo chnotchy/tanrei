@@ -3,9 +3,9 @@
 
 Legend: · planned · ◌ lagging · ◔ alpha · ◑ beta · ● stable · ✕ deprecated
 
-Level: 71 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
+Level: 72 base · 20 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
 
-Listing: 86 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
+Listing: 88 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
 
 | Component | Level | Listing | Category | Spec | Web Components | SwiftUI | Jetpack Compose | Flutter | React Native |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -102,6 +102,7 @@ Listing: 86 default · 8 advanced. A component of the first value is shown where
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Handle | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Resizable frame | composed: Handle | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Marquee text | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 

@@ -7199,6 +7199,29 @@ private let tanreiRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let tanreiResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 12,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 250,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionIndicatorExitDuration: 200,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 6,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: tanreiTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
+)
+
 private let tanreiScrollAreaTokens = TanreiScrollAreaTokens(
   blurExtent: 48,
   blurLayers: 4,
@@ -9953,6 +9976,7 @@ extension TanreiSystem {
     progressIndicator: tanreiProgressIndicatorTokens,
     prose: tanreiProseTokens,
     radioButton: tanreiRadioButtonTokens,
+    resizableFrame: tanreiResizableFrameTokens,
     scrollArea: tanreiScrollAreaTokens,
     search: tanreiSearchTokens,
     segmentedButton: tanreiSegmentedButtonTokens,

@@ -7177,6 +7177,29 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let cupertinoResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 14,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 250,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionIndicatorExitDuration: 200,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 8,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: cupertinoTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
+)
+
 private let cupertinoScrollAreaTokens = TanreiScrollAreaTokens(
   blurExtent: 48,
   blurLayers: 4,
@@ -9931,6 +9954,7 @@ extension TanreiSystem {
     progressIndicator: cupertinoProgressIndicatorTokens,
     prose: cupertinoProseTokens,
     radioButton: cupertinoRadioButtonTokens,
+    resizableFrame: cupertinoResizableFrameTokens,
     scrollArea: cupertinoScrollAreaTokens,
     search: cupertinoSearchTokens,
     segmentedButton: cupertinoSegmentedButtonTokens,

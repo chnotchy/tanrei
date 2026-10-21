@@ -133,6 +133,7 @@ private object M3LikeSystemSource {
             progressIndicator = progressIndicator(typescale, elevation),
             prose = prose(typescale, elevation),
             radioButton = radioButton(typescale, elevation),
+            resizableFrame = resizableFrame(typescale, elevation),
             scrollArea = scrollArea(typescale, elevation),
             search = search(typescale, elevation),
             segmentedButton = segmentedButton(typescale, elevation),
@@ -6870,6 +6871,31 @@ private object M3LikeSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun resizableFrame(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiResizableFrameTokens =
+        TanreiResizableFrameTokens(
+            containerMinHeight = 200.dp,
+            containerMinWidth = 320.dp,
+            containerShape = 16.dp,
+            handleGap = 8.dp,
+            motionIndicatorEnterDuration = 200,
+            motionIndicatorEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            motionIndicatorExitDuration = 150,
+            motionIndicatorExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
+            motionResizeDuration = 200,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
+            outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            outlineWidth = 1.dp,
+            sizeIndicatorContainerColor = TanreiPaint.Role(TanreiColorRole.InverseSurface),
+            sizeIndicatorContainerHeight = 24.dp,
+            sizeIndicatorContainerPaddingInline = 8.dp,
+            sizeIndicatorContainerShape = 8.dp,
+            sizeIndicatorLabelColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
+            sizeIndicatorLabelTypescale = typescale.codeSmall,
+            sizeIndicatorOffset = 8.dp,
+            snapDistance = 8.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
