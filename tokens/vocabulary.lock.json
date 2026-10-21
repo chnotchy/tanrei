@@ -6335,6 +6335,8 @@
     "tanrei.comp.tabs.track.visible": "number",
     "tanrei.comp.tag-group.gap.chips": "dimension",
     "tanrei.comp.tag-group.gap.tags": "dimension",
+    "tanrei.comp.tag-group.motion.move-duration": "duration",
+    "tanrei.comp.tag-group.motion.move-easing": "cubicBezier",
     "tanrei.comp.tag-group.row-gap.chips": "dimension",
     "tanrei.comp.tag-group.row-gap.tags": "dimension",
     "tanrei.comp.tag.container.gap": "dimension",

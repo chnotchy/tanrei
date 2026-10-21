@@ -8656,6 +8656,8 @@ private object M3ExpressiveLikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tagGroup(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTagGroupTokens =
         TanreiTagGroupTokens(
+            motionMoveDuration = 350,
+            motionMoveEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             spacings = TanreiTagGroupSpacings(
                 tags = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 8.dp),
                 chips = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 16.dp),

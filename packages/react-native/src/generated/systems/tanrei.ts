@@ -16102,6 +16102,8 @@ export const tanrei = {
       },
     },
     tagGroup: {
+      motionMoveDuration: 250,
+      motionMoveEasing: [0.2, 0, 0, 1],
       spacings: {
         tags: { gap: 8, rowGap: 8 },
         chips: { gap: 8, rowGap: 16 },

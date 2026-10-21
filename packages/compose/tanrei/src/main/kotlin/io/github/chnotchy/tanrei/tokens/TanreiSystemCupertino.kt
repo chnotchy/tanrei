@@ -8535,6 +8535,8 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tagGroup(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTagGroupTokens =
         TanreiTagGroupTokens(
+            motionMoveDuration = 250,
+            motionMoveEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             spacings = TanreiTagGroupSpacings(
                 tags = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 8.dp),
                 chips = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 16.dp),

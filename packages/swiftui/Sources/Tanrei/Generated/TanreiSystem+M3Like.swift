@@ -9213,6 +9213,8 @@ private let m3LikeTabsTokens = TanreiTabsTokens(
 )
 
 private let m3LikeTagGroupTokens = TanreiTagGroupTokens(
+  motionMoveDuration: 350,
+  motionMoveEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   spacings: TanreiTagGroupSpacings(
     tags: TanreiTagGroupSpacingTokens(
       gap: 8,

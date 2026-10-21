@@ -24618,16 +24618,26 @@ class TanreiTagGroupSpacings {
 @immutable
 class TanreiTagGroupTokens {
   const TanreiTagGroupTokens({
+    required this.motionMoveDuration,
+    required this.motionMoveEasing,
     required this.spacings,
   });
 
+  /// `comp.tag-group.motion-move-duration`
+  final int motionMoveDuration;
+  /// `comp.tag-group.motion-move-easing`
+  final TanreiCubicBezier motionMoveEasing;
   /// The `spacing` axis: `spacings[spacing]`.
   final TanreiTagGroupSpacings spacings;
 
   /// A copy with the given tokens replaced.
   TanreiTagGroupTokens copyWith({
+    int? motionMoveDuration,
+    TanreiCubicBezier? motionMoveEasing,
     TanreiTagGroupSpacings? spacings,
   }) => TanreiTagGroupTokens(
+        motionMoveDuration: motionMoveDuration ?? this.motionMoveDuration,
+        motionMoveEasing: motionMoveEasing ?? this.motionMoveEasing,
         spacings: spacings ?? this.spacings,
       );
 }

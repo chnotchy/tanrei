@@ -17040,11 +17040,17 @@ public struct TanreiTagGroupSpacings: Sendable, Equatable {
 
 /// Component tokens of tag-group (comp.tag-group).
 public struct TanreiTagGroupTokens: Sendable, Equatable {
+  public var motionMoveDuration: Double
+  public var motionMoveEasing: TanreiCubicBezier
   public var spacings: TanreiTagGroupSpacings
 
   public init(
+    motionMoveDuration: Double,
+    motionMoveEasing: TanreiCubicBezier,
     spacings: TanreiTagGroupSpacings
   ) {
+    self.motionMoveDuration = motionMoveDuration
+    self.motionMoveEasing = motionMoveEasing
     self.spacings = spacings
   }
 }

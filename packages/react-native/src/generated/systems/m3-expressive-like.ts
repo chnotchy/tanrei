@@ -13590,6 +13590,8 @@ export const m3ExpressiveLike = {
       },
     },
     tagGroup: {
+      motionMoveDuration: 350,
+      motionMoveEasing: [0.27, 1.06, 0.18, 1],
       spacings: {
         tags: { gap: 8, rowGap: 8 },
         chips: { gap: 8, rowGap: 16 },
