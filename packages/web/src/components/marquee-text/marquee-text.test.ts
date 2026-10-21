@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveToken, setWords, tabTo } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('marquee-text');
@@ -165,7 +166,7 @@ test.describe('behavior', () => {
     expect(back.duration).toBe(await resolveToken(page, T('motion-return-duration'), 'duration'));
     expect(back.easing).toBe(await easingOf(page, T('motion-return-easing')));
     expect(back.frames.at(-1)!.translate).toBe(0);
-    await line.evaluate((el) => Promise.all(el.shadowRoot!.querySelector('.track')!.getAnimations().map((a) => a.finished)));
+    await motionEnded(line);
     await expect.poll(() => state(line)).toMatchObject({ playing: false, animations: 0, ellipsis: 'ellipsis', translate: 0 });
   });
 
@@ -315,7 +316,7 @@ test.describe('behavior', () => {
       await seek(line, passes.duration * passes.frames[1]!.offset! * 0.5);
       expect((await mask(line)).size, `${id} mid-pass`).toBe('100% 100%');
       await away(page);
-      await line.evaluate((el) => Promise.all(el.shadowRoot!.querySelector('.track')!.getAnimations().map((a) => a.finished)));
+      await motionEnded(line);
       await expect.poll(() => state(line)).toMatchObject({ playing: false, ellipsis: 'ellipsis', mask: 'none' });
     }
     // Bounce with its end in view: only the start edge fades.
