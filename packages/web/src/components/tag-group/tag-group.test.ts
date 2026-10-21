@@ -670,6 +670,7 @@ test.describe('behavior', () => {
     // MOT-3: nothing moved while the group was first drawn.
     expect(await members(page, id).evaluateAll((all) => all.flatMap((el) => el.getAnimations()).length)).toBe(0);
     await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
     const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.remove()), { probe: placesProbe });
     expect(seen.complete).toBe(true);
     expect(seen.frames[0]!.probe['x:Assigned to me'], 'the removed member is gone in the first frame').toBeUndefined();
@@ -691,6 +692,7 @@ test.describe('behavior', () => {
     await mount(page, only('chips-filters'), { reducedMotion: false });
     const id = 'chips-filters';
     await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
     const seen = await sampleFrames(host(page, id), () => host(page, id).evaluate((el) => el.insertAdjacentHTML('afterbegin', '<tanrei-chip kind="filter" label="Added"></tanrei-chip>')), { probe: placesProbe });
     expect(seen.complete).toBe(true);
     // The new member is drawn whole, where it rests, from the first frame.
@@ -714,6 +716,7 @@ test.describe('behavior', () => {
     const before = await layout(page, id);
     expect(before.lines.length).toBe(1);
     await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
     const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.setAttribute('label', 'Assigned to me and waiting for a review')), { probe: placesProbe });
     expect(seen.complete).toBe(true);
     const grown = await layout(page, id);
