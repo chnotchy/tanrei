@@ -5374,6 +5374,93 @@ public struct TanreiComboboxVariants: Sendable, Equatable {
   public var keys: [TanreiComboboxVariant] { TanreiComboboxVariant.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of combobox's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiComboboxDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiComboboxDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiComboboxDensity(rawValue: "regular")
+  public static let compact = TanreiComboboxDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiComboboxDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiComboboxDensity.regular
+}
+
+/// Everything of combobox that depends on its density.
+public struct TanreiComboboxDensityTokens: Sendable, Equatable {
+  public var optionHeight: CGFloat
+  public var optionPaddingInline: CGFloat
+  public var optionPaddingBlock: CGFloat
+  public var optionGap: CGFloat
+  public var optionLeadingIconSize: CGFloat
+  public var optionMarkSize: CGFloat
+  public var groupTitlePaddingInline: CGFloat
+
+  public init(
+    optionHeight: CGFloat,
+    optionPaddingInline: CGFloat,
+    optionPaddingBlock: CGFloat,
+    optionGap: CGFloat,
+    optionLeadingIconSize: CGFloat,
+    optionMarkSize: CGFloat,
+    groupTitlePaddingInline: CGFloat
+  ) {
+    self.optionHeight = optionHeight
+    self.optionPaddingInline = optionPaddingInline
+    self.optionPaddingBlock = optionPaddingBlock
+    self.optionGap = optionGap
+    self.optionLeadingIconSize = optionLeadingIconSize
+    self.optionMarkSize = optionMarkSize
+    self.groupTitlePaddingInline = groupTitlePaddingInline
+  }
+}
+
+/// The densitys of combobox: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiComboboxDensitys: Sendable, Equatable {
+  public var regular: TanreiComboboxDensityTokens
+  public var compact: TanreiComboboxDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiComboboxDensity: TanreiComboboxDensityTokens]
+
+  public init(
+    regular: TanreiComboboxDensityTokens,
+    compact: TanreiComboboxDensityTokens,
+    extra: [TanreiComboboxDensity: TanreiComboboxDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one combobox density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiComboboxDensity) -> TanreiComboboxDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a combobox density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiComboboxDensity) -> TanreiComboboxDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no combobox density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every combobox density of this design system: the core ones, then what it added.
+  public var keys: [TanreiComboboxDensity] { TanreiComboboxDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of combobox that depend on the state but not on the variant.
 public struct TanreiComboboxStateTokens: Sendable, Equatable {
   public var opacity: Double
@@ -5392,7 +5479,6 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
   public var groupTitleColor: TanreiPaint
-  public var groupTitlePaddingInline: CGFloat
   public var groupTitleTypescale: TanreiTextStyle
   public var groupGap: CGFloat
   public var listColor: TanreiPaint
@@ -5410,14 +5496,8 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var motionOpenEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
-  public var optionGap: CGFloat
-  public var optionHeight: CGFloat
   public var optionLabelTypescale: TanreiTextStyle
-  public var optionLeadingIconSize: CGFloat
-  public var optionMarkSize: CGFloat
   public var optionMatchEmphasis: Double
-  public var optionPaddingBlock: CGFloat
-  public var optionPaddingInline: CGFloat
   public var optionShape: CGFloat
   public var optionSupportingTextTypescale: TanreiTextStyle
   public var separation: Double
@@ -5425,6 +5505,7 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var statusErrorColor: TanreiPaint
   public var statusTypescale: TanreiTextStyle
   public var variants: TanreiComboboxVariants
+  public var densitys: TanreiComboboxDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiComboboxStateTokens
   /// Values of the focused state shared by every variant.
@@ -5440,7 +5521,6 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
     groupTitleColor: TanreiPaint,
-    groupTitlePaddingInline: CGFloat,
     groupTitleTypescale: TanreiTextStyle,
     groupGap: CGFloat,
     listColor: TanreiPaint,
@@ -5458,14 +5538,8 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     motionOpenEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
-    optionGap: CGFloat,
-    optionHeight: CGFloat,
     optionLabelTypescale: TanreiTextStyle,
-    optionLeadingIconSize: CGFloat,
-    optionMarkSize: CGFloat,
     optionMatchEmphasis: Double,
-    optionPaddingBlock: CGFloat,
-    optionPaddingInline: CGFloat,
     optionShape: CGFloat,
     optionSupportingTextTypescale: TanreiTextStyle,
     separation: Double,
@@ -5473,6 +5547,7 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     statusErrorColor: TanreiPaint,
     statusTypescale: TanreiTextStyle,
     variants: TanreiComboboxVariants,
+    densitys: TanreiComboboxDensitys,
     hovered: TanreiComboboxStateTokens,
     focused: TanreiComboboxStateTokens,
     pressed: TanreiComboboxStateTokens,
@@ -5483,7 +5558,6 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
     self.groupTitleColor = groupTitleColor
-    self.groupTitlePaddingInline = groupTitlePaddingInline
     self.groupTitleTypescale = groupTitleTypescale
     self.groupGap = groupGap
     self.listColor = listColor
@@ -5501,14 +5575,8 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.motionOpenEasing = motionOpenEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
-    self.optionGap = optionGap
-    self.optionHeight = optionHeight
     self.optionLabelTypescale = optionLabelTypescale
-    self.optionLeadingIconSize = optionLeadingIconSize
-    self.optionMarkSize = optionMarkSize
     self.optionMatchEmphasis = optionMatchEmphasis
-    self.optionPaddingBlock = optionPaddingBlock
-    self.optionPaddingInline = optionPaddingInline
     self.optionShape = optionShape
     self.optionSupportingTextTypescale = optionSupportingTextTypescale
     self.separation = separation
@@ -5516,6 +5584,7 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.statusErrorColor = statusErrorColor
     self.statusTypescale = statusTypescale
     self.variants = variants
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
@@ -9622,6 +9691,78 @@ public struct TanreiListConditions: Sendable, Equatable {
   public var keys: [TanreiListCondition] { TanreiListCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of list's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiListDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiListDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiListDensity(rawValue: "regular")
+  public static let compact = TanreiListDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiListDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiListDensity.regular
+}
+
+/// Everything of list that depends on its density.
+public struct TanreiListDensityTokens: Sendable, Equatable {
+  public var containerHeight: CGFloat
+  public var containerPaddingBlock: CGFloat
+
+  public init(
+    containerHeight: CGFloat,
+    containerPaddingBlock: CGFloat
+  ) {
+    self.containerHeight = containerHeight
+    self.containerPaddingBlock = containerPaddingBlock
+  }
+}
+
+/// The densitys of list: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiListDensitys: Sendable, Equatable {
+  public var regular: TanreiListDensityTokens
+  public var compact: TanreiListDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiListDensity: TanreiListDensityTokens]
+
+  public init(
+    regular: TanreiListDensityTokens,
+    compact: TanreiListDensityTokens,
+    extra: [TanreiListDensity: TanreiListDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one list density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiListDensity) -> TanreiListDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a list density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiListDensity) -> TanreiListDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no list density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every list density of this design system: the core ones, then what it added.
+  public var keys: [TanreiListDensity] { TanreiListDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of list that depend on the state but not on the variant.
 public struct TanreiListStateTokens: Sendable, Equatable {
   public var containerShape: CGFloat
@@ -9639,8 +9780,6 @@ public struct TanreiListStateTokens: Sendable, Equatable {
 /// Component tokens of list (comp.list).
 public struct TanreiListTokens: Sendable, Equatable {
   public var containerGap: CGFloat
-  public var containerHeight: CGFloat
-  public var containerPaddingBlock: CGFloat
   public var containerPaddingInlineEnd: CGFloat
   public var containerPaddingInlineStart: CGFloat
   public var containerShape: CGFloat
@@ -9660,6 +9799,7 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var conditions: TanreiListConditions
+  public var densitys: TanreiListDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiListStateTokens
   /// Values of the focused state shared by every variant.
@@ -9671,8 +9811,6 @@ public struct TanreiListTokens: Sendable, Equatable {
 
   public init(
     containerGap: CGFloat,
-    containerHeight: CGFloat,
-    containerPaddingBlock: CGFloat,
     containerPaddingInlineEnd: CGFloat,
     containerPaddingInlineStart: CGFloat,
     containerShape: CGFloat,
@@ -9692,14 +9830,13 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     conditions: TanreiListConditions,
+    densitys: TanreiListDensitys,
     hovered: TanreiListStateTokens,
     focused: TanreiListStateTokens,
     pressed: TanreiListStateTokens,
     disabled: TanreiListStateTokens
   ) {
     self.containerGap = containerGap
-    self.containerHeight = containerHeight
-    self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInlineEnd = containerPaddingInlineEnd
     self.containerPaddingInlineStart = containerPaddingInlineStart
     self.containerShape = containerShape
@@ -9719,6 +9856,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.conditions = conditions
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
@@ -10292,6 +10430,96 @@ public struct TanreiMenuConditions: Sendable, Equatable {
   public var keys: [TanreiMenuCondition] { TanreiMenuCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of menu's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiMenuDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiMenuDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiMenuDensity(rawValue: "regular")
+  public static let compact = TanreiMenuDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiMenuDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiMenuDensity.regular
+}
+
+/// Everything of menu that depends on its density.
+public struct TanreiMenuDensityTokens: Sendable, Equatable {
+  public var containerHeight: CGFloat
+  public var containerPaddingInline: CGFloat
+  public var containerPaddingBlock: CGFloat
+  public var containerGap: CGFloat
+  public var leadingIconSize: CGFloat
+  public var trailingIconSize: CGFloat
+  public var markSize: CGFloat
+  public var groupTitlePaddingInline: CGFloat
+
+  public init(
+    containerHeight: CGFloat,
+    containerPaddingInline: CGFloat,
+    containerPaddingBlock: CGFloat,
+    containerGap: CGFloat,
+    leadingIconSize: CGFloat,
+    trailingIconSize: CGFloat,
+    markSize: CGFloat,
+    groupTitlePaddingInline: CGFloat
+  ) {
+    self.containerHeight = containerHeight
+    self.containerPaddingInline = containerPaddingInline
+    self.containerPaddingBlock = containerPaddingBlock
+    self.containerGap = containerGap
+    self.leadingIconSize = leadingIconSize
+    self.trailingIconSize = trailingIconSize
+    self.markSize = markSize
+    self.groupTitlePaddingInline = groupTitlePaddingInline
+  }
+}
+
+/// The densitys of menu: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiMenuDensitys: Sendable, Equatable {
+  public var regular: TanreiMenuDensityTokens
+  public var compact: TanreiMenuDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiMenuDensity: TanreiMenuDensityTokens]
+
+  public init(
+    regular: TanreiMenuDensityTokens,
+    compact: TanreiMenuDensityTokens,
+    extra: [TanreiMenuDensity: TanreiMenuDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one menu density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiMenuDensity) -> TanreiMenuDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a menu density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiMenuDensity) -> TanreiMenuDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no menu density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every menu density of this design system: the core ones, then what it added.
+  public var keys: [TanreiMenuDensity] { TanreiMenuDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of menu that depend on the state but not on the variant.
 public struct TanreiMenuStateTokens: Sendable, Equatable {
   public var containerShape: CGFloat
@@ -10309,10 +10537,6 @@ public struct TanreiMenuStateTokens: Sendable, Equatable {
 /// Component tokens of menu (comp.menu).
 public struct TanreiMenuTokens: Sendable, Equatable {
   public var checkboxItemMark: Double
-  public var containerGap: CGFloat
-  public var containerHeight: CGFloat
-  public var containerPaddingBlock: CGFloat
-  public var containerPaddingInline: CGFloat
   public var containerShape: CGFloat
   public var controlBoxShape: CGFloat
   public var controlBoxSize: CGFloat
@@ -10328,12 +10552,9 @@ public struct TanreiMenuTokens: Sendable, Equatable {
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
   public var groupTitleColor: TanreiPaint
-  public var groupTitlePaddingInline: CGFloat
   public var groupTitleTypescale: TanreiTextStyle
   public var groupGap: CGFloat
   public var labelTypescale: TanreiTextStyle
-  public var leadingIconSize: CGFloat
-  public var markSize: CGFloat
   public var markWidth: CGFloat
   public var motionCloseDuration: Double
   public var motionCloseEasing: TanreiCubicBezier
@@ -10357,9 +10578,9 @@ public struct TanreiMenuTokens: Sendable, Equatable {
   public var surfacePaddingInline: CGFloat
   public var surfaceShape: CGFloat
   public var surfaceViewportMargin: CGFloat
-  public var trailingIconSize: CGFloat
   public var trailingTextTypescale: TanreiTextStyle
   public var conditions: TanreiMenuConditions
+  public var densitys: TanreiMenuDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiMenuStateTokens
   /// Values of the focused state shared by every variant.
@@ -10371,10 +10592,6 @@ public struct TanreiMenuTokens: Sendable, Equatable {
 
   public init(
     checkboxItemMark: Double,
-    containerGap: CGFloat,
-    containerHeight: CGFloat,
-    containerPaddingBlock: CGFloat,
-    containerPaddingInline: CGFloat,
     containerShape: CGFloat,
     controlBoxShape: CGFloat,
     controlBoxSize: CGFloat,
@@ -10390,12 +10607,9 @@ public struct TanreiMenuTokens: Sendable, Equatable {
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
     groupTitleColor: TanreiPaint,
-    groupTitlePaddingInline: CGFloat,
     groupTitleTypescale: TanreiTextStyle,
     groupGap: CGFloat,
     labelTypescale: TanreiTextStyle,
-    leadingIconSize: CGFloat,
-    markSize: CGFloat,
     markWidth: CGFloat,
     motionCloseDuration: Double,
     motionCloseEasing: TanreiCubicBezier,
@@ -10419,19 +10633,15 @@ public struct TanreiMenuTokens: Sendable, Equatable {
     surfacePaddingInline: CGFloat,
     surfaceShape: CGFloat,
     surfaceViewportMargin: CGFloat,
-    trailingIconSize: CGFloat,
     trailingTextTypescale: TanreiTextStyle,
     conditions: TanreiMenuConditions,
+    densitys: TanreiMenuDensitys,
     hovered: TanreiMenuStateTokens,
     focused: TanreiMenuStateTokens,
     pressed: TanreiMenuStateTokens,
     disabled: TanreiMenuStateTokens
   ) {
     self.checkboxItemMark = checkboxItemMark
-    self.containerGap = containerGap
-    self.containerHeight = containerHeight
-    self.containerPaddingBlock = containerPaddingBlock
-    self.containerPaddingInline = containerPaddingInline
     self.containerShape = containerShape
     self.controlBoxShape = controlBoxShape
     self.controlBoxSize = controlBoxSize
@@ -10447,12 +10657,9 @@ public struct TanreiMenuTokens: Sendable, Equatable {
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
     self.groupTitleColor = groupTitleColor
-    self.groupTitlePaddingInline = groupTitlePaddingInline
     self.groupTitleTypescale = groupTitleTypescale
     self.groupGap = groupGap
     self.labelTypescale = labelTypescale
-    self.leadingIconSize = leadingIconSize
-    self.markSize = markSize
     self.markWidth = markWidth
     self.motionCloseDuration = motionCloseDuration
     self.motionCloseEasing = motionCloseEasing
@@ -10476,9 +10683,9 @@ public struct TanreiMenuTokens: Sendable, Equatable {
     self.surfacePaddingInline = surfacePaddingInline
     self.surfaceShape = surfaceShape
     self.surfaceViewportMargin = surfaceViewportMargin
-    self.trailingIconSize = trailingIconSize
     self.trailingTextTypescale = trailingTextTypescale
     self.conditions = conditions
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
@@ -13255,6 +13462,87 @@ public struct TanreiSearchConditions: Sendable, Equatable {
   public var keys: [TanreiSearchCondition] { TanreiSearchCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of search's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiSearchDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiSearchDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiSearchDensity(rawValue: "regular")
+  public static let compact = TanreiSearchDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiSearchDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiSearchDensity.regular
+}
+
+/// Everything of search that depends on its density.
+public struct TanreiSearchDensityTokens: Sendable, Equatable {
+  public var suggestionContainerHeight: CGFloat
+  public var suggestionContainerPaddingInline: CGFloat
+  public var suggestionContainerPaddingBlock: CGFloat
+  public var suggestionContainerGap: CGFloat
+  public var suggestionLeadingIconSize: CGFloat
+
+  public init(
+    suggestionContainerHeight: CGFloat,
+    suggestionContainerPaddingInline: CGFloat,
+    suggestionContainerPaddingBlock: CGFloat,
+    suggestionContainerGap: CGFloat,
+    suggestionLeadingIconSize: CGFloat
+  ) {
+    self.suggestionContainerHeight = suggestionContainerHeight
+    self.suggestionContainerPaddingInline = suggestionContainerPaddingInline
+    self.suggestionContainerPaddingBlock = suggestionContainerPaddingBlock
+    self.suggestionContainerGap = suggestionContainerGap
+    self.suggestionLeadingIconSize = suggestionLeadingIconSize
+  }
+}
+
+/// The densitys of search: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiSearchDensitys: Sendable, Equatable {
+  public var regular: TanreiSearchDensityTokens
+  public var compact: TanreiSearchDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiSearchDensity: TanreiSearchDensityTokens]
+
+  public init(
+    regular: TanreiSearchDensityTokens,
+    compact: TanreiSearchDensityTokens,
+    extra: [TanreiSearchDensity: TanreiSearchDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one search density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiSearchDensity) -> TanreiSearchDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a search density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiSearchDensity) -> TanreiSearchDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no search density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every search density of this design system: the core ones, then what it added.
+  public var keys: [TanreiSearchDensity] { TanreiSearchDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of search that depend on the state but not on the variant.
 public struct TanreiSearchStateTokens: Sendable, Equatable {
   public var opacity: Double
@@ -13303,13 +13591,8 @@ public struct TanreiSearchTokens: Sendable, Equatable {
   public var statusColor: TanreiPaint
   public var statusErrorColor: TanreiPaint
   public var statusTypescale: TanreiTextStyle
-  public var suggestionContainerGap: CGFloat
-  public var suggestionContainerHeight: CGFloat
-  public var suggestionContainerPaddingBlock: CGFloat
-  public var suggestionContainerPaddingInline: CGFloat
   public var suggestionContainerShape: CGFloat
   public var suggestionHeadlineTypescale: TanreiTextStyle
-  public var suggestionLeadingIconSize: CGFloat
   public var suggestionSupportingTextTypescale: TanreiTextStyle
   public var triggerContainerGap: CGFloat
   public var triggerContainerHeight: CGFloat
@@ -13328,6 +13611,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
   public var viewScrimColor: TanreiPaint
   public var viewViewportMargin: CGFloat
   public var conditions: TanreiSearchConditions
+  public var densitys: TanreiSearchDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiSearchStateTokens
   /// Values of the focused state shared by every variant.
@@ -13370,13 +13654,8 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     statusColor: TanreiPaint,
     statusErrorColor: TanreiPaint,
     statusTypescale: TanreiTextStyle,
-    suggestionContainerGap: CGFloat,
-    suggestionContainerHeight: CGFloat,
-    suggestionContainerPaddingBlock: CGFloat,
-    suggestionContainerPaddingInline: CGFloat,
     suggestionContainerShape: CGFloat,
     suggestionHeadlineTypescale: TanreiTextStyle,
-    suggestionLeadingIconSize: CGFloat,
     suggestionSupportingTextTypescale: TanreiTextStyle,
     triggerContainerGap: CGFloat,
     triggerContainerHeight: CGFloat,
@@ -13395,6 +13674,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     viewScrimColor: TanreiPaint,
     viewViewportMargin: CGFloat,
     conditions: TanreiSearchConditions,
+    densitys: TanreiSearchDensitys,
     hovered: TanreiSearchStateTokens,
     focused: TanreiSearchStateTokens,
     pressed: TanreiSearchStateTokens,
@@ -13432,13 +13712,8 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     self.statusColor = statusColor
     self.statusErrorColor = statusErrorColor
     self.statusTypescale = statusTypescale
-    self.suggestionContainerGap = suggestionContainerGap
-    self.suggestionContainerHeight = suggestionContainerHeight
-    self.suggestionContainerPaddingBlock = suggestionContainerPaddingBlock
-    self.suggestionContainerPaddingInline = suggestionContainerPaddingInline
     self.suggestionContainerShape = suggestionContainerShape
     self.suggestionHeadlineTypescale = suggestionHeadlineTypescale
-    self.suggestionLeadingIconSize = suggestionLeadingIconSize
     self.suggestionSupportingTextTypescale = suggestionSupportingTextTypescale
     self.triggerContainerGap = triggerContainerGap
     self.triggerContainerHeight = triggerContainerHeight
@@ -13457,6 +13732,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     self.viewScrimColor = viewScrimColor
     self.viewViewportMargin = viewViewportMargin
     self.conditions = conditions
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
@@ -13921,6 +14197,93 @@ public struct TanreiSelectVariants: Sendable, Equatable {
   public var keys: [TanreiSelectVariant] { TanreiSelectVariant.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of select's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiSelectDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiSelectDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiSelectDensity(rawValue: "regular")
+  public static let compact = TanreiSelectDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiSelectDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiSelectDensity.regular
+}
+
+/// Everything of select that depends on its density.
+public struct TanreiSelectDensityTokens: Sendable, Equatable {
+  public var optionHeight: CGFloat
+  public var optionPaddingInline: CGFloat
+  public var optionPaddingBlock: CGFloat
+  public var optionGap: CGFloat
+  public var optionLeadingIconSize: CGFloat
+  public var optionMarkSize: CGFloat
+  public var groupTitlePaddingInline: CGFloat
+
+  public init(
+    optionHeight: CGFloat,
+    optionPaddingInline: CGFloat,
+    optionPaddingBlock: CGFloat,
+    optionGap: CGFloat,
+    optionLeadingIconSize: CGFloat,
+    optionMarkSize: CGFloat,
+    groupTitlePaddingInline: CGFloat
+  ) {
+    self.optionHeight = optionHeight
+    self.optionPaddingInline = optionPaddingInline
+    self.optionPaddingBlock = optionPaddingBlock
+    self.optionGap = optionGap
+    self.optionLeadingIconSize = optionLeadingIconSize
+    self.optionMarkSize = optionMarkSize
+    self.groupTitlePaddingInline = groupTitlePaddingInline
+  }
+}
+
+/// The densitys of select: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiSelectDensitys: Sendable, Equatable {
+  public var regular: TanreiSelectDensityTokens
+  public var compact: TanreiSelectDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiSelectDensity: TanreiSelectDensityTokens]
+
+  public init(
+    regular: TanreiSelectDensityTokens,
+    compact: TanreiSelectDensityTokens,
+    extra: [TanreiSelectDensity: TanreiSelectDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one select density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiSelectDensity) -> TanreiSelectDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a select density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiSelectDensity) -> TanreiSelectDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no select density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every select density of this design system: the core ones, then what it added.
+  public var keys: [TanreiSelectDensity] { TanreiSelectDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of select that depend on the state but not on the variant.
 public struct TanreiSelectStateTokens: Sendable, Equatable {
   public var opacity: Double
@@ -13938,7 +14301,6 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
   public var groupTitleColor: TanreiPaint
-  public var groupTitlePaddingInline: CGFloat
   public var groupTitleTypescale: TanreiTextStyle
   public var groupGap: CGFloat
   public var listColor: TanreiPaint
@@ -13958,13 +14320,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var motionOpenEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
-  public var optionGap: CGFloat
-  public var optionHeight: CGFloat
   public var optionLabelTypescale: TanreiTextStyle
-  public var optionLeadingIconSize: CGFloat
-  public var optionMarkSize: CGFloat
-  public var optionPaddingBlock: CGFloat
-  public var optionPaddingInline: CGFloat
   public var optionShape: CGFloat
   public var optionSupportingTextTypescale: TanreiTextStyle
   public var separation: Double
@@ -13972,6 +14328,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var statusErrorColor: TanreiPaint
   public var statusTypescale: TanreiTextStyle
   public var variants: TanreiSelectVariants
+  public var densitys: TanreiSelectDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiSelectStateTokens
   /// Values of the focused state shared by every variant.
@@ -13986,7 +14343,6 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
     groupTitleColor: TanreiPaint,
-    groupTitlePaddingInline: CGFloat,
     groupTitleTypescale: TanreiTextStyle,
     groupGap: CGFloat,
     listColor: TanreiPaint,
@@ -14006,13 +14362,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     motionOpenEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
-    optionGap: CGFloat,
-    optionHeight: CGFloat,
     optionLabelTypescale: TanreiTextStyle,
-    optionLeadingIconSize: CGFloat,
-    optionMarkSize: CGFloat,
-    optionPaddingBlock: CGFloat,
-    optionPaddingInline: CGFloat,
     optionShape: CGFloat,
     optionSupportingTextTypescale: TanreiTextStyle,
     separation: Double,
@@ -14020,6 +14370,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     statusErrorColor: TanreiPaint,
     statusTypescale: TanreiTextStyle,
     variants: TanreiSelectVariants,
+    densitys: TanreiSelectDensitys,
     hovered: TanreiSelectStateTokens,
     focused: TanreiSelectStateTokens,
     pressed: TanreiSelectStateTokens,
@@ -14029,7 +14380,6 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
     self.groupTitleColor = groupTitleColor
-    self.groupTitlePaddingInline = groupTitlePaddingInline
     self.groupTitleTypescale = groupTitleTypescale
     self.groupGap = groupGap
     self.listColor = listColor
@@ -14049,13 +14399,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.motionOpenEasing = motionOpenEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
-    self.optionGap = optionGap
-    self.optionHeight = optionHeight
     self.optionLabelTypescale = optionLabelTypescale
-    self.optionLeadingIconSize = optionLeadingIconSize
-    self.optionMarkSize = optionMarkSize
-    self.optionPaddingBlock = optionPaddingBlock
-    self.optionPaddingInline = optionPaddingInline
     self.optionShape = optionShape
     self.optionSupportingTextTypescale = optionSupportingTextTypescale
     self.separation = separation
@@ -14063,6 +14407,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.statusErrorColor = statusErrorColor
     self.statusTypescale = statusTypescale
     self.variants = variants
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed

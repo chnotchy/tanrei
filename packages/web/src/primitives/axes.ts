@@ -19,6 +19,11 @@ export interface OpenAxis {
   rules: (value: string, selector: string) => string;
   /** A custom property that a design system which HAS the value defines: how the value is known to be missing. */
   probe: (value: string) => `--${string}`;
+  /**
+   * Where the value is drawn from, when it is not the host's own property `name` — a List row draws the density the list
+   * tells it (LRW-17) — and the selector its rules are written under (`:host([<name>='<value>'])` without one).
+   */
+  drawn?: { read: (host: HTMLElement) => string; selector: (value: string) => string };
 }
 
 export interface OpenAxesOptions {
@@ -40,7 +45,7 @@ function sheetFor(component: string, axis: OpenAxis, value: string): CSSStyleShe
   let sheet = sheets.get(id);
   if (!sheet) {
     sheet = new CSSStyleSheet();
-    sheet.replaceSync(axis.rules(value, `:host([${axis.name}='${value}'])`));
+    sheet.replaceSync(axis.rules(value, axis.drawn ? axis.drawn.selector(value) : `:host([${axis.name}='${value}'])`));
     sheets.set(id, sheet);
   }
   return sheet;
@@ -64,6 +69,7 @@ export class OpenAxesController implements ReactiveController {
   }
 
   private value(axis: OpenAxis): string {
+    if (axis.drawn) return axis.drawn.read(this.host);
     return String((this.host as unknown as Record<string, unknown>)[axis.name] ?? '');
   }
 

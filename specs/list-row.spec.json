@@ -105,7 +105,7 @@
         "compact"
       ],
       "default": "regular",
-      "description": "How much room the row takes: its least heights and the space above and below its text. regular (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; compact (40, 56 and 72) is for a tool used with a pointer. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. A design system may add values.",
+      "description": "How much room the row takes: its least heights and the space above and below its text. regular (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; compact (40, 56 and 72) is for a tool used with a pointer. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. Inside an item of a List, the list's density is drawn in place of this one (LRW-17). A design system may add values.",
       "axis": "tanrei.comp.list-row.density"
     }
   ],
@@ -159,7 +159,7 @@
     },
     {
       "id": "LRW-8",
-      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away, and THE list row SHALL draw no padding before its first part, the handle and that gap standing in its place.",
+      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block.regular tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away, and THE list row SHALL draw no padding before its first part, the handle and that gap standing in its place.",
       "verify": "In a list of the fixture's rows, an interactive item, a link item and an option that hold the row of two-line are 72 tall, as the row of two-line standing alone is, and the headline starts comp.list.container.padding-inline-start from the item's start edge. In a reorderable list the handle stands before the row's leading glyph."
     },
     {
@@ -199,6 +199,11 @@
       "id": "LRW-16",
       "text": "WHILE a list row has no leading part (LRW-4) THE list row SHALL begin its text at its start padding — except WHILE the list item it is the direct child of tells it to keep the room of a leading glyph (LST-48, LST-50), where it SHALL keep before its text a box of comp.list-row.leading-icon.size, comp.list-row.container.gap from the text, which draws nothing and is nothing to assistive technology, so that its headline starts where the headline of a row with a glyph does. WHILE it has no trailing part its text SHALL reach its end padding. It SHALL keep no other room for a part it does not draw: a row that draws a leading part keeps none besides it, and a row standing alone, or nested deeper in an item's content, keeps none, lining itself up with no other row.",
       "verify": "The fixture one-line: the headline begins at the start padding and the text box ends at the end padding. In the list fixture icon-space-auto the row About keeps an empty box 24 wide and the gap before its headline, and its headline starts where Bluetooth's does; the same row standing alone keeps none."
+    },
+    {
+      "id": "LRW-17",
+      "text": "WHILE the row is the direct child of an item of a List THE list row SHALL draw at the density the list tells it (LST-51) and SHALL NOT read its own density, so that the rows of one list are of one density; standing anywhere else it SHALL draw at its own. WHEN the density the list tells it changes THE list row SHALL draw the new form at once, as LRW-14 says of its own.",
+      "verify": "A row with density regular inside a list with density compact is drawn compact; taken out of the list it is drawn regular."
     }
   ],
   "accessibility": {

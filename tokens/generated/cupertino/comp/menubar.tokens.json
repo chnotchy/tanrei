@@ -110,7 +110,7 @@
           "padding-inline": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space150}",
-            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own rows (comp.menu.container.padding-inline), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
+            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own regular rows (comp.menu.container.padding-inline.regular), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
           },
           "gap": {
             "$type": "dimension",

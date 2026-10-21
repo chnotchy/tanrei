@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import type { OpenAxis } from '../../primitives/index.js';
 import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget, separationHost, whenGap } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -10,6 +11,39 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 const PREFIX = '--tanrei-comp-menu';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
+
+/** The densities every design system has (MNU-64). A layer may add more; those get their rules on demand. */
+export const CORE_DENSITIES = ['regular', 'compact'] as const;
+const DEFAULT_DENSITY = 'regular';
+/** The members of the density axis (`dev.tanrei.axes.density.members`), as the rows read them. */
+const DENSITY_MEMBERS = ['container-height', 'container-padding-block', 'container-padding-inline', 'container-gap', 'leading-icon-size', 'trailing-icon-size', 'mark-size', 'group-title-padding-inline'] as const;
+type DensityMember = (typeof DENSITY_MEMBERS)[number];
+// A value the core does not have may be missing from the active design system: fall back to the default's token.
+const ref = (member: string, density: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+/**
+ * MNU-64: the menu's density, set on the menu's host as private switches that its items, groups and submenus — its
+ * descendants — inherit, so that every surface takes the menu's density. MNU-12: a fine pointer's row is held to the
+ * pointer target, except in the compact density.
+ */
+const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
+  ${DENSITY_MEMBERS.map((member) => `--_mnu-${member}: ${ref(member, density, fallback)};`).join('\n  ')}
+  --_mnu-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+}`;
+/** What a row reads: the menu's density, or the regular one where it stands outside a menu. */
+const D = (member: DensityMember) => `var(--_mnu-${member}, var(${PREFIX}-${member}-${DEFAULT_DENSITY}))`;
+const d = (member: DensityMember) => unsafeCSS(D(member));
+
+/** MNU-64: a density a layer added gets its block on demand, falling back to the default's tokens. */
+export const AXES: readonly OpenAxis[] = [
+  {
+    name: 'density',
+    core: CORE_DENSITIES,
+    default: DEFAULT_DENSITY,
+    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    probe: (value) => `${PREFIX}-container-height-${value}` as const,
+  },
+];
 
 const PARTS = {
   c: 'container-color',
@@ -169,6 +203,12 @@ export const menuStyles = css`
        page's (a sticky header of the product's). What stands over the page is drawn in the top layer. */
     isolation: isolate;
   }
+  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(
+    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
+      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+      .join('\n'),
+  )}
   /* MNU-35: the separation this menu draws — its attribute's, else comp.menu.separation's; every submenu inherits it. */
   ${separationHost(`${PREFIX}-separation`)}
   ${surface}
@@ -286,8 +326,8 @@ export const groupStyles = css`
   }
   .title {
     display: block;
-    padding-block: ${t('container-padding-block')};
-    padding-inline: ${t('group-title-padding-inline')};
+    padding-block: ${d('container-padding-block')};
+    padding-inline: ${d('group-title-padding-inline')};
     font: ${t('group-title-typescale-font')};
     letter-spacing: ${t('group-title-typescale-letter-spacing')};
     color: ${t('group-title-color')};
@@ -303,19 +343,23 @@ export const itemStyles = css`
     display: block;
     /* MNU-11: the ring is drawn inside the row, never around the host. */
     outline: none;
+    /* MNU-64: the glyphs' boxes of the menu's density, as properties the glyph rules name. */
+    --_mi-leading-icon-size: ${d('leading-icon-size')};
+    --_mi-trailing-icon-size: ${d('trailing-icon-size')};
+    --_mi-mark-size: ${d('mark-size')};
   }
 
   /* MNU-21: the glyphs, at their sizes, in the family and fill of the item's condition — the selected ones for a checked
      item and for the current link item (MNU-58). MNU-22: the check, always in the
      selected family and fill (its column is the ancestor that says so). MNU-33: iconGlyph() mirrors the leading and
      trailing glyphs GlyphMirrorController marked, in right-to-left, in their own boxes; the check is never marked. */
-  ${iconGlyph('.leading-icon', { size: '--tanrei-comp-menu-leading-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  ${iconGlyph('.check', { size: '--tanrei-comp-menu-mark-size', selected: '.mark', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.leading-icon', { size: '--_mi-leading-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.check', { size: '--_mi-mark-size', selected: '.mark', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* MNU-39: the check in the box of the checkbox look is a control's own mark, drawn at comp.menu.control.mark.weight
      (not sys.icon.weight, which the check of the glyph look keeps, MNU-22) in a glyph box of control.mark.size. It
      names no motion here: the transition is .check's own, below. */
   ${iconGlyph('.check.box-check', { size: '--tanrei-comp-menu-control-mark-size', weight: '--tanrei-comp-menu-control-mark-weight', selected: '.mark' })}
-  ${iconGlyph('.trailing-icon', { size: '--tanrei-comp-menu-trailing-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.trailing-icon', { size: '--_mi-trailing-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
 
   /* MNU-10, MNU-13, MNU-15, MNU-16, MNU-18, MNU-27: the conditions, the states and their precedence, the paints, the
      ripple and the state motion (src/primitives/item-row.ts). */
@@ -339,22 +383,23 @@ export const itemStyles = css`
   .row {
     display: flex;
     align-items: center;
-    padding-block: ${t('container-padding-block')};
-    padding-inline: ${t('container-padding-inline')};
+    padding-block: ${d('container-padding-block')};
+    padding-inline: ${d('container-padding-inline')};
   }
-  /* MNU-12: at least the minimum target tall — stacked items cannot extend a hit area over each other. */
-  ${rowTarget('.row', T('container-height'))}
+  /* MNU-12: at least the minimum target tall — stacked items cannot extend a hit area over each other; for a fine
+     pointer a compact row is as tall as its density gives (MNU-64). */
+  ${rowTarget('.row', D('container-height'), 'var(--_mnu-pointer-target, var(--tanrei-sys-target-pointer))')}
 
   /* The columns — mark, leading icon, the text, the shortcut or trailing text, trailing icon — each a gap apart. Every
      column is centered on the label's FIRST line (a wrapping label keeps its check and icon beside its first line):
      --_first is the height of that line's box, the taller of the label's line and the glyphs, and each column is moved
      down by half of what it is shorter than that. They carry the label's style, so 1lh is the label's line. */
   .content {
-    --_first: max(1lh, ${t('mark-size')}, ${t('leading-icon-size')}, ${t('trailing-icon-size')});
+    --_first: max(1lh, ${d('mark-size')}, ${d('leading-icon-size')}, ${d('trailing-icon-size')});
     display: flex;
     flex: 1 1 auto;
     align-items: flex-start;
-    gap: ${t('container-gap')};
+    gap: ${d('container-gap')};
     min-inline-size: 0;
     font: ${t('label-typescale-font')};
     letter-spacing: ${t('label-typescale-letter-spacing')};
@@ -367,15 +412,15 @@ export const itemStyles = css`
   }
   .column.mark {
     position: relative;
-    inline-size: ${t('mark-size')};
-    block-size: ${t('mark-size')};
-    margin-block-start: calc((var(--_first) - ${t('mark-size')}) / 2);
+    inline-size: ${d('mark-size')};
+    block-size: ${d('mark-size')};
+    margin-block-start: calc((var(--_first) - ${d('mark-size')}) / 2);
   }
   .column.leading {
-    margin-block-start: calc((var(--_first) - ${t('leading-icon-size')}) / 2);
+    margin-block-start: calc((var(--_first) - ${d('leading-icon-size')}) / 2);
   }
   .column.trailing-icon-column {
-    margin-block-start: calc((var(--_first) - ${t('trailing-icon-size')}) / 2);
+    margin-block-start: calc((var(--_first) - ${d('trailing-icon-size')}) / 2);
   }
   .column.trailing {
     min-block-size: 1lh;

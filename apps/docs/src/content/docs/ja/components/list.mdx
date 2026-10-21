@@ -2,7 +2,7 @@
 title: リスト
 description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: bf75f2f97ba2d0af8b821c151d8a855e118e6725
+sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -261,6 +261,8 @@ SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補�
 | `never` | 幅を空けません。テキストは行の先頭から始まります。 |
 
 リストは、どの並べ方とモードでも、すべての行をまとめて決めます。行の `leading` スロットのアバター、画像、コントロールは数えず、その横に幅も空けません。その大きさはプロダクトが決めるもので、行ごとに違うからです。[メニュー](/ja/components/menu/)、[ツリービュー](/ja/components/tree-view/)、[ナビゲーションドロワー](/ja/components/navigation-drawer/)にも、同じ値と既定値の `iconSpace` があります。
+
+`density` は項目が取る広さを決めます。`regular`（既定）と、マウスで使い多くの項目を見渡すツール向けの `compact` です。compact のリストでは、アクション、リンク、テキストだけのオプションの高さが 32 になり、項目の[リスト行](/ja/components/list-row/)は自身の `density` にかかわらず compact で描かれます。1 つのリストの行は 1 つの密度にそろいます。タッチでは項目がタッチターゲットより低くなることはありません。
 
 ### 推奨
 

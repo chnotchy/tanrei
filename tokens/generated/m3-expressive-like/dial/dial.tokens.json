@@ -5392,7 +5392,7 @@
               "$value": "{tanrei.sys.shape.corner.small}",
               "reason": "Material 3's chips are rounded rectangles (8dp), not pills."
             },
-            "tanrei.comp.list.container.height": {
+            "tanrei.comp.list.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5492,7 +5492,7 @@
                 "by": 70
               }
             },
-            "tanrei.comp.menu.container.height": {
+            "tanrei.comp.menu.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5506,10 +5506,10 @@
               "$value": "{tanrei.sys.shape.corner.small}",
               "reason": "This preset keeps the corner it drew, the small corner, on a suggestion's highlight, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.leading-icon.size": {
+            "tanrei.comp.menu.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}"
             },
-            "tanrei.comp.menu.trailing-icon.size": {
+            "tanrei.comp.menu.trailing-icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}"
             },
             "tanrei.comp.menu.divider.space": {
@@ -7122,21 +7122,21 @@
               },
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.max-width."
             },
-            "tanrei.comp.select.option.height": {
+            "tanrei.comp.select.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 12
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height.regular."
             },
             "tanrei.comp.select.option.shape": {
               "$value": "{tanrei.sys.shape.corner.none}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.shape."
             },
-            "tanrei.comp.select.option.leading-icon.size": {
+            "tanrei.comp.select.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}",
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular."
             },
             "tanrei.comp.select.divider.space": {
               "$value": "{tanrei.sys.space.space100}",
@@ -7222,21 +7222,21 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.surface.padding-inline."
             },
-            "tanrei.comp.combobox.option.height": {
+            "tanrei.comp.combobox.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 12
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height.regular."
             },
             "tanrei.comp.combobox.option.shape": {
               "$value": "{tanrei.sys.shape.corner.none}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.shape."
             },
-            "tanrei.comp.combobox.option.leading-icon.size": {
+            "tanrei.comp.combobox.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}",
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular."
             },
             "tanrei.comp.combobox.divider.space": {
               "$value": "{tanrei.sys.space.space100}",

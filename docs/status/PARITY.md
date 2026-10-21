@@ -77,6 +77,7 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `icon-space-auto` | <img src="../../packages/web/snapshots/list/icon-space-auto.png" alt="web icon-space-auto" width="160"> |
 | `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
 | `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
+| `density-compact` | <img src="../../packages/web/snapshots/list/density-compact.png" alt="web density-compact" width="160"> |
 
 ## Meter
 

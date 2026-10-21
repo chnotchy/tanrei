@@ -1507,14 +1507,14 @@ test.describe('behavior: the list', () => {
 
   test('SEL-37: an option is one row — option.padding-inline from each edge, the leading icon column as SEL-66 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is the hit area', async ({ page }) => {
     await mountSpec(page, ['stacked-open', 'open-icons', 'open-supporting-text', 'open-long-options']);
-    const [pad, gap, mark, block] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-mark-size'), await token(page, 'option-padding-block')];
+    const [pad, gap, mark, block] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-mark-size-regular'), await token(page, 'option-padding-block-regular')];
     const r = row(page, 'stacked-open', 'Canada');
     const [rb, label, check] = [await box(r), await box(r.locator('.option-label')), await box(r.locator('.mark'))];
     near(label.x - rb.x, pad, 'padding-inline at the start');
     near(rb.x + rb.width - (check.x + check.width), pad, 'padding-inline at the end');
     near(check.width, mark, 'the check’s box');
     near(check.height, mark, 'the check’s box');
-    expect(rb.height).toBeGreaterThanOrEqual(Math.max(await token(page, 'option-height'), await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
+    expect(rb.height).toBeGreaterThanOrEqual(Math.max(await token(page, 'option-height-regular'), await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
     near(await px(r.locator('.option-label'), 'font-size'), await token(page, 'option-label-typescale-font-size'), 'the label’s style');
     // The spec's verify: the label starts 16 from the list's edge, where the value starts in a medium container.
     near(label.x - (await box(part(page, 'stacked-open', '.list'))).x, (await token(page, 'list-padding-inline')) + pad, 'from the list’s edge');
@@ -1552,8 +1552,8 @@ test.describe('behavior: the list', () => {
       const own = name.replace('--tanrei-comp-select-', '');
       const rules: [RegExp, string][] = [
         [/^list-(color|elevation|shape|padding-block|padding-inline|min-width|max-width|offset|viewport-margin)$/, 'surface-$1'],
-        [/^option-(height|shape|padding-inline|padding-block|gap)$/, 'container-$1'],
-        [/^option-((?:label|supporting-text)-typescale-.+|leading-icon-size|mark-size)$/, '$1'],
+        [/^option-(shape|(?:height|padding-inline|padding-block|gap)-(?:regular|compact))$/, 'container-$1'],
+        [/^option-((?:label|supporting-text)-typescale-.+|(?:leading-icon-size|mark-size)-(?:regular|compact))$/, '$1'],
         [/^(group-title-.+|group-gap|divider-(?:color|space|thickness)|separation)$/, '$1'],
         [/^(motion-(?:feedback-duration|open-duration|open-easing|close-duration|close-easing))$/, '$1'],
         [/^(?:stacked|filled|outlined)-((?:hovered|focused|pressed|disabled)-)?option-([a-z-]+-color)$/, 'unselected-$1$2'],
@@ -1646,7 +1646,7 @@ test.describe('behavior: the list', () => {
     const [m, c] = [await box(chosen.locator('.mark')), await box(check)];
     near(c.x + c.width / 2, m.x + m.width / 2, 'centred in its box');
     near(c.y + c.height / 2, m.y + m.height / 2, 'centred in its box');
-    near(c.width, await token(page, 'option-mark-size'), 'mark.size');
+    near(c.width, await token(page, 'option-mark-size-regular'), 'mark.size');
     for (const label of ['Canada', 'France', 'Kenya', 'New Zealand']) expect(await css(row(page, id, label).locator('.check'), 'visibility'), label).toBe('hidden');
     // No path, shape or character of its own: the box holds the glyph's name and nothing else.
     expect(await chosen.locator('.mark').evaluate((el) => [el.querySelectorAll('svg, img').length, el.textContent?.trim()])).toEqual([0, 'check']);
@@ -1670,8 +1670,8 @@ test.describe('behavior: the list', () => {
     const root = page.locator('html');
     const [light, dark] = [row(page, 'open-icons', 'Light').locator('.option-icon'), row(page, 'open-icons', 'Dark').locator('.option-icon')];
     await expect(light).toHaveText('light_mode');
-    near((await box(light)).width, await token(page, 'option-leading-icon-size'), 'leading-icon.size');
-    near((await box(light)).height, await token(page, 'option-leading-icon-size'), 'leading-icon.size');
+    near((await box(light)).width, await token(page, 'option-leading-icon-size-regular'), 'leading-icon.size');
+    near((await box(light)).height, await token(page, 'option-leading-icon-size-regular'), 'leading-icon.size');
     expect(await css(light, 'font-variation-settings')).toContain(`"FILL" ${(await css(root, '--tanrei-sys-icon-fill-unselected')).trim()}`);
     expect(await css(dark, 'font-variation-settings')).toContain(`"FILL" ${(await css(root, '--tanrei-sys-icon-fill-selected')).trim()}`);
     expect(await css(dark, 'font-family')).toContain((await css(root, '--tanrei-sys-icon-family-selected')).replaceAll('"', '').trim());
@@ -1789,8 +1789,8 @@ test.describe('behavior: the list', () => {
     await expect(title).toHaveText('Asia');
     expect(await css(title, 'color')).toBe(await color(page, 'group-title-color'));
     near(await px(title, 'font-size'), await token(page, 'group-title-typescale-font-size'), 'group-title.typescale');
-    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline'), 'padding-inline');
-    near(await px(title, 'padding-top'), await token(page, 'option-padding-block'), 'padding-block');
+    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline-regular'), 'padding-inline');
+    near(await px(title, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
     near((await box(title)).x, (await box(rows(page, id).first())).x, 'from the rows’ start edge');
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
@@ -1862,7 +1862,7 @@ test.describe('behavior: the list', () => {
       fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
       fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
     ]);
-    const [pad, gap, size] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-leading-icon-size')];
+    const [pad, gap, size] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-leading-icon-size-regular')];
     const none = pad;
     const kept = pad + size + gap;
     /** Where an option's label starts, from its row's start edge. */
@@ -1897,6 +1897,62 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
   });
 
+  test('SEL-70: a compact select draws its options and group titles from the compact tokens — lower, set in less, smaller glyphs, the same text — as low as its density gives for a mouse and the touch target for touch, the field’s box unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    await mount(page, [
+      compact,
+      { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
+      { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
+      { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
+    ]);
+    const sizes = async (density: string) => {
+      const [height, padBlock, padInline, gap, icon, mark, title] = await Promise.all(
+        ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'].map((n) => token(page, `${n}-${density}`)),
+      );
+      return { height, padBlock, padInline, gap, icon, mark, title };
+    };
+    const [regular, small] = [await sizes('regular'), await sizes('compact')];
+    // The default system's compact option: the menu's compact row, 32 high with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const drawn = async (id: string, label: string) => {
+      const r = row(page, id, label);
+      const [b, l, icon, font] = [await box(r), await box(r.locator('.option-label')), await px(r.locator('.option-icon'), 'font-size'), await css(r.locator('.option-label'), 'font-size')];
+      return { height: b.height, start: l.x - b.x, icon, font };
+    };
+    const mail = await drawn('density-compact', 'Mail');
+    const mailRegular = await drawn('density-regular', 'Mail');
+    near(mail.height, small.height, 'a compact option');
+    expect(mail.height).toBeLessThan(pointer);
+    near(mail.icon, small.icon, 'its glyph');
+    near(mail.start, small.padInline + small.icon + small.gap, 'its label after the padding, the glyph and the gap');
+    near(mailRegular.height, Math.max(regular.height, pointer), 'a regular option');
+    near(mailRegular.start, regular.padInline + regular.icon + regular.gap, 'a regular label');
+    // The density never changes a text style; the check's box and a group's title take the density.
+    expect(mail.font).toBe(mailRegular.font);
+    const titles = part(page, 'density-compact', '.group-title');
+    near(await px(titles.first(), 'padding-inline-start'), small.title, 'a group title’s inset');
+    // The field's own box is size's, not the density's.
+    near((await box(container(page, 'density-compact'))).height, (await box(container(page, 'density-regular'))).height, 'the field’s box');
+    // An unknown density is drawn as regular, and a debug build says so.
+    near((await drawn('density-odd', 'Mail')).height, mailRegular.height, 'an unknown density');
+    await expect.poll(() => seen.filter((w) => w.includes('SEL-70') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await rootTokens(page, { [T('option-height-roomy')]: '60px', [T('option-leading-icon-size-roomy')]: '28px' });
+    await expect.poll(async () => (await drawn('density-added', 'Mail')).height).toBeCloseTo(60, 0);
+    near((await drawn('density-added', 'Mail')).icon, 28, 'an added density’s glyph');
+    // A change is drawn at once.
+    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(async () => (await drawn('density-regular', 'Mail')).height).toBeCloseTo(mail.height, 0);
+    // SEL-37: for touch a compact option is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await expect.poll(async () => (await drawn('density-compact', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+  });
+
   test('SEL-68, SEL-26, SEL-31, SEL-51, SEL-59: with a status the list draws a status row after the last option, outside the list box and the box that scrolls, inset and padded as an option, taking no input and never active — statusText, wrapping as text of its own direction, in status.typescale and status.color, in status.error.color while the source failed, and while loading one small loading indicator named by statusText in the text’s place, the row one line tall; the options left in the list stay choosable; a select with no option draws its empty text in the row’s place, its list without an active option; with no status the row takes no room', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['open-loading', 'open-status', 'open-status-error', 'open-empty', 'stacked-open'].includes(f.id)), fx('loading-more', { status: 'loading', statusText: 'Loading more countries', open: true })], { reducedMotion: true });
     const status = (id: string) => part(page, id, '.status');
@@ -1905,8 +1961,8 @@ test.describe('behavior: the list', () => {
     await expect(row_.locator('.status-text')).toHaveText('Your 3 most recent projects. Search for others on the Projects page.');
     const last = await box(rows(page, 'open-status').last());
     expect((await box(row_)).y, 'after the last option').toBeGreaterThanOrEqual(last.y + last.height - 0.6);
-    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline'), 'option.padding-inline');
-    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block'), 'option.padding-block');
+    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline-regular'), 'option.padding-inline');
+    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block-regular'), 'option.padding-block');
     near(await px(row_, 'font-size'), await token(page, 'status-typescale-font-size'), 'status.typescale');
     expect(await css(row_, 'color')).toBe(await color(page, 'status-color'));
     expect(await row_.evaluate((el) => [el.getAttribute('role'), el.tabIndex, el.closest('[role="listbox"]'), el.closest('.scroll')]), 'not an option, not in the list box, not in the box that scrolls').toEqual([null, -1, null, null]);
@@ -1919,7 +1975,7 @@ test.describe('behavior: the list', () => {
     const spinner = row_.locator('tanrei-loading-indicator');
     expect(await spinner.evaluate((el) => [el.getAttribute('size'), el.getAttribute('label')])).toEqual(['small', 'Loading projects']);
     await expect(row_.locator('.status-text')).toHaveCount(0);
-    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline'), 'at the row’s start', 1);
+    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-regular'), 'at the row’s start', 1);
     near((await box(row_)).height, (await box(status('open-empty'))).height, 'one line of text tall');
     // The empty text, in the status row's place and style.
     await expect(status('open-empty').locator('.status-text')).toHaveText('No projects yet');
@@ -2327,9 +2383,9 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     near(right(list), right(oc), 'the list is aligned to the container’s right edge');
     const tokyo = row(page, open, 'طوكيو');
     const [r, glyph, name, check] = [await box(tokyo), await box(tokyo.locator('.option-icon')), await box(tokyo.locator('.option-label')), await box(tokyo.locator('.mark'))];
-    near(right(r) - right(glyph), await token(page, 'option-padding-inline'), 'the option’s icon at the right');
+    near(right(r) - right(glyph), await token(page, 'option-padding-inline-regular'), 'the option’s icon at the right');
     expect(right(name)).toBeLessThanOrEqual(glyph.x + 0.6);
-    near(check.x - r.x, await token(page, 'option-padding-inline'), 'the check at the left');
+    near(check.x - r.x, await token(page, 'option-padding-inline-regular'), 'the check at the left');
     near(right(await box(part(page, open, '.group-title').first())), right(r), 'the title starts at the right');
   });
 
@@ -2385,7 +2441,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await arrow.getAttribute('data-tanrei-mirrored'), 'arrow_forward is in the icon set’s list').not.toBeNull();
     expect(await mirrored(arrow)).toBe(true);
     const before = await box(arrow);
-    near(before.width, await token(page, 'option-leading-icon-size'), 'the same box');
+    near(before.width, await token(page, 'option-leading-icon-size-regular'), 'the same box');
     expect(await mirrored(row(page, open, 'طوكيو').locator('.check'))).toBe(false);
     expect(await mirrored(part(page, open, '.chevron'))).toBe(false);
     // The chosen option's glyph in the container, and the slots.
@@ -3051,7 +3107,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label, the value or the placeholder, the glyphs and — where it is open — the list the spec gives it, and no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(52);
+    expect(spec.fixtures).toHaveLength(53);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();

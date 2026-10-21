@@ -2,7 +2,7 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: bf75f2f97ba2d0af8b821c151d8a855e118e6725
+sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -261,6 +261,8 @@ Cuando los elementos contienen [filas de lista](/es/components/list-row/) y solo
 | `never` | No guarda espacio: su texto empieza al inicio de la fila. |
 
 La lista decide por todas sus filas a la vez, en cualquier disposición y modo. Un avatar, una imagen o un control en la ranura `leading` de una fila no cuenta y no guarda espacio a su lado, porque su tamaño lo decides tú y cambia de una fila a otra. El [menú](/es/components/menu/), la [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
+`density` fija cuánto espacio ocupa un elemento: `regular` (el valor por defecto) o `compact`, para una herramienta que se usa con el ratón y en la que se recorren muchos elementos. En una lista compacta una acción, un enlace o una opción de texto simple mide 32 de alto, y cada [fila de lista](/es/components/list-row/) de un elemento se dibuja compacta sea cual sea su propio `density`, de modo que las filas de una lista tienen una sola densidad. Con el tacto un elemento nunca es más bajo que el objetivo táctil.
 
 ### Recomendado
 

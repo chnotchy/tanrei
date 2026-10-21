@@ -12269,6 +12269,18 @@
               "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
             },
             {
+              "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxDensity"
+              },
+              "default": "'regular'",
+              "attribute": "density",
+              "reflects": true,
+              "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values."
+            },
+            {
               "kind": "method",
               "name": "select",
               "description": "Selects the text in the input, as the combobox's `select()` does."
@@ -12727,6 +12739,15 @@
               "default": "'auto'",
               "fieldName": "iconSpace",
               "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one."
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiComboboxDensity"
+              },
+              "default": "'regular'",
+              "fieldName": "density",
+              "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values."
             },
             {
               "name": "name",
@@ -13331,6 +13352,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiComboboxDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -13669,6 +13702,15 @@
               "default": "'auto'",
               "description": "Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a\nsection — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):\n`auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),\n`always` in every option, `never` only where it has one.",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiComboboxDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (CMB-34). A design system may add values.",
+              "fieldName": "density"
             },
             {
               "name": "inline",
@@ -22262,7 +22304,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-container-padding-block-${value}` as const, }, ]",
+          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-container-padding-block-${value}` as const, // LRW-17: the density the row draws — the list's inside an item of a list, else its own. drawn: { read: (host) => String((host as HTMLElement & { drawnDensity: string }).drawnDensity ?? ''), selector: drawnAt }, }, ]",
           "description": "LRW-14: a density a layer added gets its block on demand, falling back to the default's tokens."
         },
         {
@@ -22443,7 +22485,7 @@
                 "text": "TanreiListRowDensity"
               },
               "default": "'regular'",
-              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). A design system may add values.",
+              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). Inside an item of a list the list's\ndensity is drawn in its place (LRW-17). A design system may add values.",
               "attribute": "density",
               "reflects": true
             }
@@ -22518,7 +22560,7 @@
                 "text": "TanreiListRowDensity"
               },
               "default": "'regular'",
-              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). A design system may add values.",
+              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). Inside an item of a list the list's\ndensity is drawn in its place (LRW-17). A design system may add values.",
               "fieldName": "density"
             }
           ],
@@ -22555,6 +22597,24 @@
       "declarations": [
         {
           "kind": "variable",
+          "name": "CORE_DENSITIES",
+          "type": {
+            "text": "['regular', 'compact']"
+          },
+          "default": "['regular', 'compact']",
+          "description": "The densities every design system has (LST-51). A layer may add more; those get their rules on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-container-height-${value}` as const, }, ]",
+          "description": "LST-51: a density a layer added gets its block on demand, falling back to the default's tokens."
+        },
+        {
+          "kind": "variable",
           "name": "listStyles",
           "description": "The list itself: a box that lays its items out and draws nothing, and adds no space, around them."
         },
@@ -22564,6 +22624,22 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_DENSITIES",
+          "declaration": {
+            "name": "CORE_DENSITIES",
+            "module": "src/components/list/list.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/list/list.styles.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "listStyles",
@@ -22919,6 +22995,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiListDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an item takes (LST-51): the least height of an action, a link and an option and the padding above and\nbelow its content, and the density of every List row that is an item's direct child. `regular` (the default) is for a\nproduct used by touch as well as by pointer; `compact` for a tool used with a pointer. For touch an item is never\nlower than the touch target (LST-11). A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "selection",
               "privacy": "public",
               "type": {
@@ -23135,6 +23223,15 @@
               "default": "'auto'",
               "description": "Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws none, so that\nthe headlines start on one line (LST-50): `auto` keeps it while another item's row draws a glyph (`leading-icon`),\n`always` in every row, `never` only in a row that draws one. A leading slot's avatar or picture does not count.",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiListDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an item takes (LST-51): the least height of an action, a link and an option and the padding above and\nbelow its content, and the density of every List row that is an item's direct child. `regular` (the default) is for a\nproduct used by touch as well as by pointer; `compact` for a tool used with a pointer. For touch an item is never\nlower than the touch target (LST-11). A design system may add values.",
+              "fieldName": "density"
             },
             {
               "name": "selection",
@@ -23852,6 +23949,24 @@
       "declarations": [
         {
           "kind": "variable",
+          "name": "CORE_DENSITIES",
+          "type": {
+            "text": "['regular', 'compact']"
+          },
+          "default": "['regular', 'compact']",
+          "description": "The densities every design system has (MNU-64). A layer may add more; those get their rules on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-container-height-${value}` as const, }, ]",
+          "description": "MNU-64: a density a layer added gets its block on demand, falling back to the default's tokens."
+        },
+        {
+          "kind": "variable",
           "name": "menuStyles",
           "description": "The menu (MNU-1…4, MNU-23, MNU-35, MNU-36): the surface — in the top layer as a popover, or in place with `inline` —\nwhat parts its groups, and the open and close motion."
         },
@@ -23872,6 +23987,22 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_DENSITIES",
+          "declaration": {
+            "name": "CORE_DENSITIES",
+            "module": "src/components/menu/menu.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/menu/menu.styles.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "menuStyles",
@@ -25870,6 +26001,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMenuDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room a row takes (MNU-64): its least height, paddings, the gap between its columns and the size of its\nglyphs, never its text style. `regular` (the default) is for a product used by touch as well as by pointer;\n`compact` (the tree view's compact row) for a tool used with a pointer. For touch a row is never lower than the touch\ntarget (MNU-12). It applies to the menu and to every submenu of it. A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "anchor",
               "privacy": "public",
               "type": {
@@ -25954,6 +26097,15 @@
               "default": "'auto'",
               "description": "Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that\nthe labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the\ndefault): while another item of its section draws in that column (a checkbox or radio item its mark, an item its\nleading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every\nrow keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiMenuDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room a row takes (MNU-64): its least height, paddings, the gap between its columns and the size of its\nglyphs, never its text style. `regular` (the default) is for a product used by touch as well as by pointer;\n`compact` (the tree view's compact row) for a tool used with a pointer. For touch a row is never lower than the touch\ntarget (MNU-12). It applies to the menu and to every submenu of it. A design system may add values.",
+              "fieldName": "density"
             },
             {
               "name": "anchor",
@@ -36253,6 +36405,24 @@
       "declarations": [
         {
           "kind": "variable",
+          "name": "CORE_DENSITIES",
+          "type": {
+            "text": "['regular', 'compact']"
+          },
+          "default": "['regular', 'compact']",
+          "description": "The densities every design system has (SRC-53). A layer may add more; those get their rules on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-suggestion-container-height-${value}` as const, }, ]",
+          "description": "SRC-53: a density a layer added gets its block on demand, falling back to the default's tokens."
+        },
+        {
+          "kind": "variable",
           "name": "styles"
         },
         {
@@ -36272,6 +36442,22 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_DENSITIES",
+          "declaration": {
+            "name": "CORE_DENSITIES",
+            "module": "src/components/search/search.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/search/search.styles.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "styles",
@@ -37480,6 +37666,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSearchDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room a row of the view takes (SRC-53) — a suggestion, a result, a result group's linked heading —: its least\nheight, paddings, the gap after its icon column and the size of its glyph, never its text style; the bar is not\nchanged. `regular` (the default) is for a product used by touch as well as by pointer; `compact` for a tool used with\na pointer. For touch a row is never lower than the touch target (SRC-16). A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "inline",
               "privacy": "public",
               "type": {
@@ -37717,6 +37915,15 @@
               "default": "'auto'",
               "description": "Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon\ncolumn where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or\nresult of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiSearchDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room a row of the view takes (SRC-53) — a suggestion, a result, a result group's linked heading —: its least\nheight, paddings, the gap after its icon column and the size of its glyph, never its text style; the bar is not\nchanged. `regular` (the default) is for a product used by touch as well as by pointer; `compact` for a tool used with\na pointer. For touch a row is never lower than the touch target (SRC-16). A design system may add values.",
+              "fieldName": "density"
             },
             {
               "name": "inline",
@@ -38611,6 +38818,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectDensity"
+              },
+              "default": "'regular'",
+              "attribute": "density",
+              "reflects": true,
+              "description": "How much room an option of the list takes (SEL-70): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (SEL-37). A design system may add values."
+            },
+            {
+              "kind": "field",
               "name": "status",
               "privacy": "public",
               "type": {
@@ -39010,6 +39229,15 @@
               "default": "'auto'",
               "fieldName": "iconSpace",
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one."
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiSelectDensity"
+              },
+              "default": "'regular'",
+              "fieldName": "density",
+              "description": "How much room an option of the list takes (SEL-70): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (SEL-37). A design system may add values."
             },
             {
               "name": "status",
@@ -39523,6 +39751,18 @@
             },
             {
               "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an option of the list takes (SEL-70): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (SEL-37). A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "status",
               "privacy": "public",
               "type": {
@@ -39796,6 +40036,15 @@
               "default": "'auto'",
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one.",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiSelectDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room an option of the list takes (SEL-70): its least height, paddings, the gap between its columns and the\nsize of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product\nused by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an\noption is never lower than the touch target (SEL-37). A design system may add values.",
+              "fieldName": "density"
             },
             {
               "name": "status",

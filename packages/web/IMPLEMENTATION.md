@@ -4626,7 +4626,7 @@ controls (no role, focus or press of their own; the item stays `menuitemcheckbox
 filled in it with the icon set's check at `control.mark.size` and `control.mark.weight` (the checkbox's own weight, CHK-12; the check of the glyph look keeps `sys.icon.weight`) in the `control-mark` color — and a ring of
 `control.ring.size`, stroked at `control.ring.width`, or — checked — at `control.ring.selected-width-share` of its
 radius with its inside filled at `control.fill.opacity`. Both are drawn in both conditions and change over the state
-motion without moving. A **glyph mark** is drawn at `--tanrei-comp-menu-mark-size`, in the selected family and fill, in
+motion without moving. A **glyph mark** is drawn at the mark size of the menu's density (`--tanrei-comp-menu-mark-size-regular`, `-compact`), in the selected family and fill, in
 the mark color; the check is never mirrored, a named glyph by the icon set's list; the
 menu draws no mark of its own. A change of `checked` fades it in or out over the state motion (at once under reduced
 motion), without moving or scaling it — also during a Space's press-hold — and while the item is not checked nothing is

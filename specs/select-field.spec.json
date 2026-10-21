@@ -103,6 +103,10 @@
       "from": "select.iconSpace"
     },
     {
+      "name": "density",
+      "from": "select.density"
+    },
+    {
       "name": "status",
       "from": "select.status"
     },
@@ -2958,6 +2962,7 @@
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3011,6 +3016,7 @@
         "open": "isPresented",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3064,6 +3070,7 @@
         "open": "expanded",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3117,6 +3124,7 @@
         "open": "controller",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3170,6 +3178,7 @@
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"

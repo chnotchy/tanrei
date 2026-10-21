@@ -3251,7 +3251,6 @@ private let m3ExpressiveLikeComboboxTokens = TanreiComboboxTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3ExpressiveLikeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainer),
@@ -3269,14 +3268,8 @@ private let m3ExpressiveLikeComboboxTokens = TanreiComboboxTokens(
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: m3ExpressiveLikeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
   optionMatchEmphasis: 200,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 0,
   optionSupportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
   separation: 0,
@@ -3484,6 +3477,26 @@ private let m3ExpressiveLikeComboboxTokens = TanreiComboboxTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiComboboxDensitys(
+    regular: TanreiComboboxDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiComboboxDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -5295,8 +5308,6 @@ private let m3ExpressiveLikeListRowTokens = TanreiListRowTokens(
 
 private let m3ExpressiveLikeListTokens = TanreiListTokens(
   containerGap: 16,
-  containerHeight: 56,
-  containerPaddingBlock: 8,
   containerPaddingInlineEnd: 24,
   containerPaddingInlineStart: 16,
   containerShape: 0,
@@ -5379,6 +5390,16 @@ private let m3ExpressiveLikeListTokens = TanreiListTokens(
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       )
+    )
+  ),
+  densitys: TanreiListDensitys(
+    regular: TanreiListDensityTokens(
+      containerHeight: 56,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListDensityTokens(
+      containerHeight: 32,
+      containerPaddingBlock: 4
     )
   ),
   hovered: TanreiListStateTokens(
@@ -5589,10 +5610,6 @@ private let m3ExpressiveLikeMainActionButtonTokens = TanreiMainActionButtonToken
 
 private let m3ExpressiveLikeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
-  containerGap: 12,
-  containerHeight: 48,
-  containerPaddingBlock: 8,
-  containerPaddingInline: 12,
   containerShape: 0,
   controlBoxShape: 4,
   controlBoxSize: 18,
@@ -5608,12 +5625,9 @@ private let m3ExpressiveLikeMenuTokens = TanreiMenuTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3ExpressiveLikeTypescale.labelSmall,
   groupGap: 16,
   labelTypescale: m3ExpressiveLikeTypescale.label,
-  leadingIconSize: 24,
-  markSize: 24,
   markWidth: 2,
   motionCloseDuration: 100,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
@@ -5637,7 +5651,6 @@ private let m3ExpressiveLikeMenuTokens = TanreiMenuTokens(
   surfacePaddingInline: 0,
   surfaceShape: 4,
   surfaceViewportMargin: 8,
-  trailingIconSize: 24,
   trailingTextTypescale: m3ExpressiveLikeTypescale.labelSmall,
   conditions: TanreiMenuConditions(
     unselected: TanreiMenuConditionTokens(
@@ -5949,6 +5962,28 @@ private let m3ExpressiveLikeMenuTokens = TanreiMenuTokens(
         controlMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiMenuDensitys(
+    regular: TanreiMenuDensityTokens(
+      containerHeight: 48,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 24,
+      trailingIconSize: 24,
+      markSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiMenuDensityTokens(
+      containerHeight: 32,
+      containerPaddingInline: 8,
+      containerPaddingBlock: 6,
+      containerGap: 8,
+      leadingIconSize: 20,
+      trailingIconSize: 20,
+      markSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7319,13 +7354,8 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: m3ExpressiveLikeTypescale.bodySmall,
-  suggestionContainerGap: 16,
-  suggestionContainerHeight: 56,
-  suggestionContainerPaddingBlock: 8,
-  suggestionContainerPaddingInline: 16,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: m3ExpressiveLikeTypescale.body,
-  suggestionLeadingIconSize: 24,
   suggestionSupportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7420,6 +7450,22 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
         suggestionSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         suggestionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSearchDensitys(
+    regular: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 16,
+      suggestionLeadingIconSize: 24
+    ),
+    compact: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 32,
+      suggestionContainerPaddingInline: 8,
+      suggestionContainerPaddingBlock: 4,
+      suggestionContainerGap: 8,
+      suggestionLeadingIconSize: 20
     )
   ),
   hovered: TanreiSearchStateTokens(
@@ -7585,7 +7631,6 @@ private let m3ExpressiveLikeSelectTokens = TanreiSelectTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3ExpressiveLikeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainer),
@@ -7605,13 +7650,7 @@ private let m3ExpressiveLikeSelectTokens = TanreiSelectTokens(
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: m3ExpressiveLikeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 0,
   optionSupportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
   separation: 0,
@@ -7819,6 +7858,26 @@ private let m3ExpressiveLikeSelectTokens = TanreiSelectTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSelectDensitys(
+    regular: TanreiSelectDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiSelectDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiSelectStateTokens(

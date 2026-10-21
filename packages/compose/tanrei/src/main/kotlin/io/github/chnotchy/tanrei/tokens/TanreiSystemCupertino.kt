@@ -3056,7 +3056,6 @@ private object CupertinoSystemSource {
             dividerSpace = 0.dp,
             dividerThickness = 8.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLowest),
@@ -3074,14 +3073,8 @@ private object CupertinoSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 44.dp,
             optionLabelTypescale = typescale.bodyLarge,
-            optionLeadingIconSize = 16.dp,
-            optionMarkSize = 16.dp,
             optionMatchEmphasis = 200f,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 8.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -3294,6 +3287,10 @@ private object CupertinoSystemSource {
                         selectedOptionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiComboboxDensitys(
+                regular = TanreiComboboxDensityTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiComboboxDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -4946,8 +4943,6 @@ private object CupertinoSystemSource {
     fun list(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiListTokens =
         TanreiListTokens(
             containerGap = 12.dp,
-            containerHeight = 44.dp,
-            containerPaddingBlock = 8.dp,
             containerPaddingInlineEnd = 16.dp,
             containerPaddingInlineStart = 16.dp,
             containerShape = 0.dp,
@@ -5035,6 +5030,10 @@ private object CupertinoSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
                     ),
                 ),
+            ),
+            densitys = TanreiListDensitys(
+                regular = TanreiListDensityTokens(containerHeight = 44.dp, containerPaddingBlock = 8.dp),
+                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
             ),
         )
 
@@ -5178,10 +5177,6 @@ private object CupertinoSystemSource {
     fun menu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMenuTokens =
         TanreiMenuTokens(
             checkboxItemMark = 1f,
-            containerGap = 12.dp,
-            containerHeight = 44.dp,
-            containerPaddingBlock = 8.dp,
-            containerPaddingInline = 12.dp,
             containerShape = 8.dp,
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
@@ -5197,12 +5192,9 @@ private object CupertinoSystemSource {
             dividerSpace = 0.dp,
             dividerThickness = 8.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             labelTypescale = typescale.bodyLarge,
-            leadingIconSize = 16.dp,
-            markSize = 16.dp,
             markWidth = 2.dp,
             motionCloseDuration = 250,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
@@ -5226,7 +5218,6 @@ private object CupertinoSystemSource {
             surfacePaddingInline = 4.dp,
             surfaceShape = 20.dp,
             surfaceViewportMargin = 8.dp,
-            trailingIconSize = 16.dp,
             trailingTextTypescale = typescale.labelSmall,
             hovered = TanreiMenuStateTokens(containerShape = 8.dp, opacity = 1f),
             focused = TanreiMenuStateTokens(containerShape = 8.dp, opacity = 1f),
@@ -5543,6 +5534,10 @@ private object CupertinoSystemSource {
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiMenuDensitys(
+                regular = TanreiMenuDensityTokens(containerHeight = 44.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiMenuDensityTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 16.dp, trailingIconSize = 16.dp, markSize = 16.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -6772,13 +6767,8 @@ private object CupertinoSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
-            suggestionContainerGap = 12.dp,
-            suggestionContainerHeight = 44.dp,
-            suggestionContainerPaddingBlock = 8.dp,
-            suggestionContainerPaddingInline = 12.dp,
             suggestionContainerShape = 8.dp,
             suggestionHeadlineTypescale = typescale.body,
-            suggestionLeadingIconSize = 20.dp,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
             triggerContainerHeight = 40.dp,
@@ -6878,6 +6868,10 @@ private object CupertinoSystemSource {
                         suggestionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiSearchDensitys(
+                regular = TanreiSearchDensityTokens(suggestionContainerHeight = 44.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 20.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 
@@ -6991,7 +6985,6 @@ private object CupertinoSystemSource {
             dividerSpace = 0.dp,
             dividerThickness = 8.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLowest),
@@ -7011,13 +7004,7 @@ private object CupertinoSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 44.dp,
             optionLabelTypescale = typescale.bodyLarge,
-            optionLeadingIconSize = 16.dp,
-            optionMarkSize = 16.dp,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 8.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -7230,6 +7217,10 @@ private object CupertinoSystemSource {
                         selectedOptionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiSelectDensitys(
+                regular = TanreiSelectDensityTokens(optionHeight = 44.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiSelectDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 16.dp, optionMarkSize = 16.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
