@@ -38,7 +38,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a search reads: the bar's height, corners, paddings, gap, the gap between its action buttons, glyph size and text style; the view's surface (color, elevation, corners, padding, offset from the bar, margin from the viewport) and the full-screen header's height, padding and divider; the suggestion rows' geometry and text styles; the motion; and for its one condition (standard) the colors of the bar's parts and of a suggestion's parts, the bar's elevation and its edge's width, in each state. Also: the trigger's height, padding, gap, glyph size and text style; the shortcut hint's text style and color; the dialog view's width, its distance from the window's top and its scrim; a result group's title, gap and indent; the status row's text style and its two colors; and how a match in an excerpt is marked (color, added weight, fill).",
+            "usage": "Everything a search reads: the bar's height, corners, paddings, gap, the gap between its action buttons, glyph size and text style; the view's surface (color, elevation, corners, padding, offset from the bar, margin from the viewport) and the full-screen header's height, padding and divider; per density (regular, compact) a row's least height, paddings, gap and glyph size; a row's corners and text styles; the motion; and for its one condition (standard) the colors of the bar's parts and of a suggestion's parts, the bar's elevation and its edge's width, in each state. Also: the trigger's height, padding, gap, glyph size and text style; the shortcut hint's text style and color; the dialog view's width, its distance from the window's top and its scrim; a result group's title, gap and indent; the status row's text style and its two colors; and how a match in an excerpt is marked (color, added weight, fill).",
             "rules": [
               "The bar answers focus with its edge: the focused outline, drawn instead of the focus ring; its container stays at rest under focus.",
               "The placeholder is never the accessible name: label is.",
@@ -47,13 +47,28 @@
               "standard.state-layer.color aliases the input color and standard.suggestion.state-layer.color the headline color.",
               "A result's row reads the suggestion tokens: suggestions and results are rows of one list. Only what a result adds has tokens of its own (the mark, the group, the status).",
               "A match is marked by weight and by the stronger text color, not by a hue; result.mark.container.color is transparent in the default system.",
-              "The trigger takes the bar's colors, elevation, shape and state tokens; only its geometry and text style are its own."
+              "The trigger takes the bar's colors, elevation, shape and state tokens; only its geometry and text style are its own.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style."
             ]
           },
           "dev.tanrei.axes": {
             "condition": {
               "default": "standard",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "suggestion.container.height",
+                "suggestion.container.padding-inline",
+                "suggestion.container.padding-block",
+                "suggestion.container.gap",
+                "suggestion.leading-icon.size"
+              ]
             }
           }
         },
@@ -249,30 +264,50 @@
             "height": {
               "$type": "dimension",
               "$description": "A suggestion row's minimum height: the menu item's.",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 14
+              "regular": {
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 14
+                  }
                 }
+              },
+              "compact": {
+                "$value": "{tanrei.comp.tree-view.container.height.compact}"
               }
             },
             "padding-inline": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.space.space200}"
+              "regular": {
+                "$value": "{tanrei.sys.space.space200}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.tree-view.container.padding-inline.compact}"
+              }
             },
             "padding-block": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.space.space100}"
+              "regular": {
+                "$value": "{tanrei.sys.space.space100}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.tree-view.container.padding-block.compact}"
+              }
             },
             "gap": {
               "$type": "dimension",
               "$description": "Between a suggestion's leading icon and its text.",
-              "$value": "{tanrei.sys.space.space200}"
+              "regular": {
+                "$value": "{tanrei.sys.space.space200}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.tree-view.container.gap.compact}"
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -297,7 +332,12 @@
           "leading-icon": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}"
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.sys.icon.small}"
+              }
             }
           },
           "headline": {

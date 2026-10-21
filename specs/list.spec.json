@@ -106,6 +106,17 @@
       "description": "Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws no leading part, so that the headlines of the list start on one line. auto: a row keeps the room while the row of another item draws a glyph (leadingIcon), so that a list whose rows have no glyph starts their texts at the row's start. always: every such row keeps it. never: only a row that draws a glyph has it. An avatar, a picture or a control in a row's leading slot does not count and keeps no room beside it. The menu's, the tree view's and the navigation drawer's iconSpace, with the same values and default (LST-50)."
     },
     {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room an item takes: the least height of an interactive item, a link item and an option and the padding above and below its content, and the density of every List row that is an item's direct child (LST-51). regular (a 48 item in the default system) is for a product used by touch as well as by pointer; compact (a 32 item, the tree view's compact row) is for a tool used with a pointer, where many items are looked through. For touch an item is never lower than the touch target in either (LST-11). The paddings at the start and the end, the gap and the text style are not changed. A design system may add values.",
+      "axis": "tanrei.comp.list.density"
+    },
+    {
       "name": "selection",
       "type": "enum",
       "values": [
@@ -424,7 +435,7 @@
     },
     {
       "id": "LST-8",
-      "text": "WHILE an item is interactive, a link item or an option THE list SHALL draw it as one box: its content padded by comp.list.container.padding-block above and below, comp.list.container.padding-inline-start from the start edge and comp.list.container.padding-inline-end from the end edge, the mark of an option comp.list.container.gap after the content (LST-21), at least comp.list.container.height tall and growing with its content and with enlarged text, its corners comp.list.container.shape, and its whole box the item's hit area. THE list SHALL hand the content the content color of the item's condition and state (comp.list.unselected.content.color at rest, and so on) as its foreground and comp.list.content.typescale as its text style, which text the product did not style takes."
+      "text": "WHILE an item is interactive, a link item or an option THE list SHALL draw it as one box: its content padded by comp.list.container.padding-block.regular above and below, comp.list.container.padding-inline-start from the start edge and comp.list.container.padding-inline-end from the end edge, the mark of an option comp.list.container.gap after the content (LST-21), at least comp.list.container.height.regular tall and growing with its content and with enlarged text, its corners comp.list.container.shape, and its whole box the item's hit area. THE list SHALL hand the content the content color of the item's condition and state (comp.list.unselected.content.color at rest, and so on) as its foreground and comp.list.content.typescale as its text style, which text the product did not style takes."
     },
     {
       "id": "LST-9",
@@ -436,7 +447,7 @@
     },
     {
       "id": "LST-11",
-      "text": "WHERE an interactive item, a link item or an option is smaller than the minimum target THE list SHALL make its box at least sys.target.touch tall and wide for touch input and sys.target.pointer for fine pointers, because items that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch."
+      "text": "WHERE an interactive item, a link item or an option is smaller than the minimum target THE list SHALL make its box at least sys.target.touch tall and wide for touch input, in both densities, and for fine pointers at least sys.target.pointer wide and, WHILE density is regular, as tall, WHILE density is compact as tall as its density gives (LST-51), because items that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch."
     },
     {
       "id": "LST-12",
@@ -596,6 +607,11 @@
       "id": "LST-50",
       "text": "THE list SHALL decide for all its items together whether a List row that is an item's direct child (LST-48) keeps the room of a leading glyph where it draws no leading part (LRW-16). WHILE iconSpace is auto THE list SHALL tell every such row to keep the room WHERE an item of the list holds a List row whose leading part is a glyph — its leadingIcon, its leading slot empty —, so that the headlines of the rows with a glyph and of the rows without one start on one line, and SHALL tell none to keep it WHERE no item does, so that a list without glyphs starts its texts at the row's start; WHILE iconSpace is always THE list SHALL tell every such row to keep it, whether or not any row draws a glyph; WHILE iconSpace is never THE list SHALL tell none to keep it, so that only a row that draws a glyph has its room. The content of a row's leading slot (an avatar, a picture, a control) SHALL NOT count, because its size is the product's and differs from row to row, so that a room kept for it would line up nothing. The list is one run of items: its rows are decided together whatever its orientation, wrap, gap, dividers, selection and reorderable are. WHEN an item is added, removed or moved, or a row's leadingIcon or the content of its leading slot changes, THE list SHALL decide again; WHEN iconSpace names a value the list does not define THE list SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto: the rows Wi-Fi and Bluetooth draw a glyph and About none, so About's headline starts where Bluetooth's does, after an empty box of comp.list-row.leading-icon.size and comp.list-row.container.gap. Fixture icon-space-always: the same. Fixture icon-space-never: About's headline starts at the row's start padding. Test a list whose rows draw no glyph (auto: every headline at the start padding; always: every headline after the room), a row with an avatar in its leading slot (it does not count, and keeps no room beside it), a leadingIcon given to the only row without one and taken away again, iconSpace changed while shown, and an unknown value (auto, reported)."
+    },
+    {
+      "id": "LST-51",
+      "text": "THE list SHALL draw its items at its density. WHILE density is regular an interactive item, a link item and an option SHALL be at least comp.list.container.height.regular tall and padded by comp.list.container.padding-block.regular above and below (LST-8); WHILE density is compact at least comp.list.container.height.compact tall and padded by comp.list.container.padding-block.compact. A static item draws no box of its own and is not changed. THE list SHALL tell a List row that is an item's direct child (LST-48) the list's density, before the row is first drawn in the item and again WHEN density changes, and the row SHALL draw at that density in place of its own (LRW-17), so that the rows of one list are of one density. WHEN density names a value the active design system does not have THE list SHALL draw the default density's items and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the list is shown THE list SHALL draw the new items at once, without a motion, keeping focus and the selection.",
+      "verify": "Fixture density-compact under the default system: with a mouse every option holding a one-line row is 40 high (the row's compact one-line height), an option of plain text 32; under touch emulation every option is 48. A List row with density regular in a compact list is drawn compact."
     }
   ],
   "accessibility": {
@@ -645,7 +661,8 @@
       "The order is the product's data. The list emits move with from and to and draws the items in the order the product then gives; a product that refuses a move changes nothing and the list announces nothing.",
       "A reorderable list holds static items only, and is never a listbox: an action, a link or an option is taken by a press that a drag would take. What a reorderable item may hold besides its content: the product's own controls, such as a button that removes the item; the list keeps focus in the list when the item with focus is removed (LST-46).",
       "The four move words and the three sentences are the product's, with places to fill. The product writes the sentence, so the order of the words is its language's; the list fills in a name and two numbers and builds no phrase of its own. In a line, the product says \"Move left\" and \"Move right\" (or the reverse in a right-to-left language) where a column says \"Move up\" and \"Move down\".",
-      "A wrapping list is still one list in one order: it is read, tabbed through and counted line by line in the reading direction, and a move to another line is a move to another place in that order."
+      "A wrapping list is still one list in one order: it is read, tabbed through and counted line by line in the reading direction, and a move to another line is a move to another place in that order.",
+      "WCAG 2.5.8 (target size): for touch every interactive item, link item and option is at least the touch target high in both densities (LST-11). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its items reach across the list's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.list",
@@ -1374,11 +1391,60 @@
           ]
         }
       ]
+    },
+    {
+      "id": "density-compact",
+      "props": {
+        "selection": "single",
+        "label": "Network",
+        "value": "wifi",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {
+            "value": "wifi"
+          },
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Wi-Fi",
+                "leadingIcon": "wifi"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {
+            "value": "bluetooth"
+          },
+          "items": [
+            {
+              "kind": "list-row",
+              "props": {
+                "headline": "Bluetooth",
+                "leadingIcon": "bluetooth",
+                "supportingText": "Two devices"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "list-item",
+          "props": {
+            "value": "none"
+          },
+          "content": "None"
+        }
+      ]
     }
   ],
   "platforms": {
     "web": {
-      "status": "alpha",
+      "status": "lagging",
       "name": "tanrei-list",
       "props": {
         "orientation": "orientation",
@@ -1386,6 +1452,7 @@
         "gap": "gap",
         "dividers": "dividers",
         "iconSpace": "iconSpace",
+        "density": "density",
         "selection": "selection",
         "label": "label",
         "value": "value",
@@ -1445,6 +1512,7 @@
         "gap": "spacing",
         "dividers": "dividers",
         "iconSpace": "iconSpace",
+        "density": "density",
         "selection": "selection",
         "label": "label",
         "value": "selection",
@@ -1504,6 +1572,7 @@
         "gap": "gap",
         "dividers": "dividers",
         "iconSpace": "iconSpace",
+        "density": "density",
         "selection": "selectionMode",
         "label": "contentDescription",
         "value": "selectedValue",
@@ -1563,6 +1632,7 @@
         "gap": "spacing",
         "dividers": "dividers",
         "iconSpace": "iconSpace",
+        "density": "density",
         "selection": "selectionMode",
         "label": "semanticLabel",
         "value": "selected",
@@ -1622,6 +1692,7 @@
         "gap": "gap",
         "dividers": "dividers",
         "iconSpace": "iconSpace",
+        "density": "density",
         "selection": "selectionMode",
         "label": "accessibilityLabel",
         "value": "value",

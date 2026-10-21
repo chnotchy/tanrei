@@ -3000,7 +3000,6 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
   dividerSpace: 0,
   dividerThickness: 8,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: cupertinoTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainerLowest),
@@ -3018,14 +3017,8 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 44,
   optionLabelTypescale: cupertinoTypescale.bodyLarge,
-  optionLeadingIconSize: 16,
-  optionMarkSize: 16,
   optionMatchEmphasis: 200,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 8,
   optionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   separation: 0,
@@ -3233,6 +3226,26 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiComboboxDensitys(
+    regular: TanreiComboboxDensityTokens(
+      optionHeight: 44,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiComboboxDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -5038,8 +5051,6 @@ private let cupertinoListRowTokens = TanreiListRowTokens(
 
 private let cupertinoListTokens = TanreiListTokens(
   containerGap: 12,
-  containerHeight: 44,
-  containerPaddingBlock: 8,
   containerPaddingInlineEnd: 16,
   containerPaddingInlineStart: 16,
   containerShape: 0,
@@ -5122,6 +5133,16 @@ private let cupertinoListTokens = TanreiListTokens(
         markColor: .role(.primary),
         stateLayerColor: .role(.onSurface)
       )
+    )
+  ),
+  densitys: TanreiListDensitys(
+    regular: TanreiListDensityTokens(
+      containerHeight: 44,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListDensityTokens(
+      containerHeight: 32,
+      containerPaddingBlock: 6
     )
   ),
   hovered: TanreiListStateTokens(
@@ -5332,10 +5353,6 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
 
 private let cupertinoMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
-  containerGap: 12,
-  containerHeight: 44,
-  containerPaddingBlock: 8,
-  containerPaddingInline: 12,
   containerShape: 8,
   controlBoxShape: 2,
   controlBoxSize: 18,
@@ -5351,12 +5368,9 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
   dividerSpace: 0,
   dividerThickness: 8,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: cupertinoTypescale.labelSmall,
   groupGap: 16,
   labelTypescale: cupertinoTypescale.bodyLarge,
-  leadingIconSize: 16,
-  markSize: 16,
   markWidth: 2,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
@@ -5380,7 +5394,6 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
   surfacePaddingInline: 4,
   surfaceShape: 20,
   surfaceViewportMargin: 8,
-  trailingIconSize: 16,
   trailingTextTypescale: cupertinoTypescale.labelSmall,
   conditions: TanreiMenuConditions(
     unselected: TanreiMenuConditionTokens(
@@ -5692,6 +5705,28 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
         controlMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiMenuDensitys(
+    regular: TanreiMenuDensityTokens(
+      containerHeight: 44,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 16,
+      trailingIconSize: 16,
+      markSize: 16,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiMenuDensityTokens(
+      containerHeight: 32,
+      containerPaddingInline: 8,
+      containerPaddingBlock: 6,
+      containerGap: 8,
+      leadingIconSize: 16,
+      trailingIconSize: 16,
+      markSize: 16,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7062,13 +7097,8 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: cupertinoTypescale.bodySmall,
-  suggestionContainerGap: 12,
-  suggestionContainerHeight: 44,
-  suggestionContainerPaddingBlock: 8,
-  suggestionContainerPaddingInline: 12,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: cupertinoTypescale.body,
-  suggestionLeadingIconSize: 20,
   suggestionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7163,6 +7193,22 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
         suggestionSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         suggestionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSearchDensitys(
+    regular: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 44,
+      suggestionContainerPaddingInline: 12,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 12,
+      suggestionLeadingIconSize: 20
+    ),
+    compact: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 32,
+      suggestionContainerPaddingInline: 8,
+      suggestionContainerPaddingBlock: 6,
+      suggestionContainerGap: 8,
+      suggestionLeadingIconSize: 20
     )
   ),
   hovered: TanreiSearchStateTokens(
@@ -7328,7 +7374,6 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   dividerSpace: 0,
   dividerThickness: 8,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: cupertinoTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainerLowest),
@@ -7348,13 +7393,7 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 44,
   optionLabelTypescale: cupertinoTypescale.bodyLarge,
-  optionLeadingIconSize: 16,
-  optionMarkSize: 16,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 8,
   optionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   separation: 0,
@@ -7562,6 +7601,26 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSelectDensitys(
+    regular: TanreiSelectDensityTokens(
+      optionHeight: 44,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiSelectDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 16,
+      optionMarkSize: 16,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiSelectStateTokens(

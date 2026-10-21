@@ -3172,7 +3172,6 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
   dividerSpace: 4,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: acmeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceBright),
@@ -3190,14 +3189,8 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: acmeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
   optionMatchEmphasis: 100,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 4,
   optionSupportingTextTypescale: acmeTypescale.bodySmall,
   separation: 0,
@@ -3405,6 +3398,26 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiComboboxDensitys(
+    regular: TanreiComboboxDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiComboboxDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiComboboxStateTokens(
@@ -5210,8 +5223,6 @@ private let acmeListRowTokens = TanreiListRowTokens(
 
 private let acmeListTokens = TanreiListTokens(
   containerGap: 16,
-  containerHeight: 48,
-  containerPaddingBlock: 8,
   containerPaddingInlineEnd: 16,
   containerPaddingInlineStart: 16,
   containerShape: 0,
@@ -5294,6 +5305,16 @@ private let acmeListTokens = TanreiListTokens(
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       )
+    )
+  ),
+  densitys: TanreiListDensitys(
+    regular: TanreiListDensityTokens(
+      containerHeight: 48,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListDensityTokens(
+      containerHeight: 32,
+      containerPaddingBlock: 6
     )
   ),
   hovered: TanreiListStateTokens(
@@ -5504,10 +5525,6 @@ private let acmeMainActionButtonTokens = TanreiMainActionButtonTokens(
 
 private let acmeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 0,
-  containerGap: 12,
-  containerHeight: 48,
-  containerPaddingBlock: 8,
-  containerPaddingInline: 12,
   containerShape: 4,
   controlBoxShape: 2,
   controlBoxSize: 18,
@@ -5523,12 +5540,9 @@ private let acmeMenuTokens = TanreiMenuTokens(
   dividerSpace: 4,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: acmeTypescale.labelSmall,
   groupGap: 16,
   labelTypescale: acmeTypescale.label,
-  leadingIconSize: 24,
-  markSize: 24,
   markWidth: 2,
   motionCloseDuration: 250,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
@@ -5552,7 +5566,6 @@ private let acmeMenuTokens = TanreiMenuTokens(
   surfacePaddingInline: 4,
   surfaceShape: 8,
   surfaceViewportMargin: 8,
-  trailingIconSize: 24,
   trailingTextTypescale: acmeTypescale.labelSmall,
   conditions: TanreiMenuConditions(
     unselected: TanreiMenuConditionTokens(
@@ -5864,6 +5877,28 @@ private let acmeMenuTokens = TanreiMenuTokens(
         controlMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiMenuDensitys(
+    regular: TanreiMenuDensityTokens(
+      containerHeight: 48,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 24,
+      trailingIconSize: 24,
+      markSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiMenuDensityTokens(
+      containerHeight: 32,
+      containerPaddingInline: 8,
+      containerPaddingBlock: 6,
+      containerGap: 8,
+      leadingIconSize: 20,
+      trailingIconSize: 20,
+      markSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiMenuStateTokens(
@@ -7234,13 +7269,8 @@ private let acmeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: acmeTypescale.bodySmall,
-  suggestionContainerGap: 16,
-  suggestionContainerHeight: 56,
-  suggestionContainerPaddingBlock: 8,
-  suggestionContainerPaddingInline: 16,
   suggestionContainerShape: 4,
   suggestionHeadlineTypescale: acmeTypescale.body,
-  suggestionLeadingIconSize: 24,
   suggestionSupportingTextTypescale: acmeTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7335,6 +7365,22 @@ private let acmeSearchTokens = TanreiSearchTokens(
         suggestionSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         suggestionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSearchDensitys(
+    regular: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 16,
+      suggestionLeadingIconSize: 24
+    ),
+    compact: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 32,
+      suggestionContainerPaddingInline: 8,
+      suggestionContainerPaddingBlock: 6,
+      suggestionContainerGap: 8,
+      suggestionLeadingIconSize: 20
     )
   ),
   hovered: TanreiSearchStateTokens(
@@ -7500,7 +7546,6 @@ private let acmeSelectTokens = TanreiSelectTokens(
   dividerSpace: 4,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: acmeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceBright),
@@ -7520,13 +7565,7 @@ private let acmeSelectTokens = TanreiSelectTokens(
   motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: acmeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 4,
   optionSupportingTextTypescale: acmeTypescale.bodySmall,
   separation: 0,
@@ -7734,6 +7773,26 @@ private let acmeSelectTokens = TanreiSelectTokens(
         selectedOptionMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOptionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
+    )
+  ),
+  densitys: TanreiSelectDensitys(
+    regular: TanreiSelectDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiSelectDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
     )
   ),
   hovered: TanreiSelectStateTokens(

@@ -30,7 +30,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a list reads: the three gaps between its items and the divider between them; for an item that is an action, a link or an option, its minimum height, paddings and gap, the text style and the color it hands its content, the glyph box of the check (the icon set's check), and for each condition (unselected, selected) the colors of the box and its content in each state. For a reorderable list: the fill and the elevation of an item while it is dragged, and the motion of items changing place.",
+            "usage": "Everything a list reads: the three gaps between its items and the divider between them; for an item that is an action, a link or an option, per density (regular, compact) its least height and its padding above and below; its paddings at the start and the end and its gap, the text style and the color it hands its content, the glyph box of the check (the icon set's check), and for each condition (unselected, selected) the colors of the box and its content in each state. For a reorderable list: the fill and the elevation of an item while it is dragged, and the motion of items changing place.",
             "rules": [
               "The list adds no space around its items and draws no background: place it on a surface, or in a card for a grouped look. Its items are the product's content; a static item draws nothing of its own.",
               "A selectable list is a listbox; a list whose items each open something has interactive items or link items; a list that only shows things has neither.",
@@ -38,13 +38,25 @@
               "Restyle through these tokens in a layer; never fork the component.",
               "The check of a selected option is the icon set's check glyph, drawn at mark.size; to draw another mark, a system chooses another icon set. Never draw a check of your own.",
               "Each condition's state-layer.color is the color hover, focus and press mix into the item; it aliases that condition's content color.",
-              "A reorderable list holds static items only and is never a listbox. Its handle is a Tanrei Button and its move menu a Tanrei Menu, drawn from their own tokens. The dragged tokens are a look of one item while it is carried, not an interaction state: no state rule values them."
+              "A reorderable list holds static items only and is never a listbox. Its handle is a Tanrei Button and its move menu a Tanrei Menu, drawn from their own tokens. The dragged tokens are a look of one item while it is carried, not an interaction state: no state rule values them.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style."
             ]
           },
           "dev.tanrei.axes": {
             "condition": {
               "default": "unselected",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-block"
+              ]
             }
           }
         },
@@ -56,18 +68,23 @@
           },
           "height": {
             "$type": "dimension",
-            "$value": {
-              "value": 44,
-              "unit": "px"
-            },
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 11
+            "$description": "The minimum height of an item that is an action, a link or an option. A minimum: the item grows with its content and with enlarged text.",
+            "regular": {
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 11
+                }
               }
             },
-            "$description": "The minimum height of an item that is an action, a link or an option. A minimum: the item grows with its content and with enlarged text."
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.height.compact}"
+            }
           },
           "padding-inline-start": {
             "$type": "dimension",
@@ -82,8 +99,13 @@
           },
           "padding-block": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}",
-            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height."
+            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.padding-block.compact}"
+            }
           },
           "gap": {
             "$type": "dimension",

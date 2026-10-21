@@ -4253,7 +4253,7 @@
               "$value": "{tanrei.sys.typescale.caption}",
               "reason": "Apple's Footnote (13pt, label-small here) has a line too tall for a 24pt chip with its padding; Caption 1 (12pt) fits, the size of the default system's small chip label."
             },
-            "tanrei.comp.list.container.height": {
+            "tanrei.comp.list.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5234,19 +5234,31 @@
               "$value": 1,
               "reason": "Apple's radio fills are opaque."
             },
-            "tanrei.comp.menu.leading-icon.size": {
+            "tanrei.comp.menu.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.mark.size": {
+            "tanrei.comp.menu.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.trailing-icon.size": {
+            "tanrei.comp.menu.trailing-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.container.height": {
+            "tanrei.comp.menu.leading-icon.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."
+            },
+            "tanrei.comp.menu.mark.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's check size: its regular check is already the smaller one, and a compact row draws no larger mark than a regular one."
+            },
+            "tanrei.comp.menu.trailing-icon.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."
+            },
+            "tanrei.comp.menu.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5262,7 +5274,7 @@
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.leading-icon.size": {
+            "tanrei.comp.search.suggestion.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
@@ -5274,7 +5286,7 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.height": {
+            "tanrei.comp.search.suggestion.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5282,11 +5294,11 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.padding-inline": {
+            "tanrei.comp.search.suggestion.container.padding-inline.regular": {
               "$value": "{tanrei.sys.space.space150}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.gap": {
+            "tanrei.comp.search.suggestion.container.gap.regular": {
               "$value": "{tanrei.sys.space.space150}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
@@ -5792,21 +5804,21 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.divider.space."
             },
-            "tanrei.comp.select.option.leading-icon.size": {
+            "tanrei.comp.select.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.select.option.mark.size": {
+            "tanrei.comp.select.option.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.select.option.height": {
+            "tanrei.comp.select.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.select.stacked.selected-option.container.color": {
               "$value": "{tanrei.comp.select.stacked.option.container.color}",
@@ -5912,21 +5924,21 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.divider.space."
             },
-            "tanrei.comp.combobox.option.leading-icon.size": {
+            "tanrei.comp.combobox.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.combobox.option.mark.size": {
+            "tanrei.comp.combobox.option.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.combobox.option.height": {
+            "tanrei.comp.combobox.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.combobox.stacked.selected-option.container.color": {
               "$value": "{tanrei.comp.combobox.stacked.option.container.color}",

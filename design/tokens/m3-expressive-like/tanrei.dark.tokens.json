@@ -28932,12 +28932,20 @@
             }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "A title starts where the rows' content starts."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "typescale": {
             "$type": "typography",
@@ -29168,20 +29176,36 @@
         },
         "option": {
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Distance between a row's glyph, its text and its check."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             },
-            "$description": "Minimum height of an option's row; the row grows with its text."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            }
           },
           "label": {
             "typescale": {
@@ -29208,22 +29232,38 @@
           },
           "leading-icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
               },
-              "$description": "The glyph before an option's label."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
+              }
             }
           },
           "mark": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
               },
-              "$description": "The check at the end of the chosen option's row, and the box kept for it in every row."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
+              }
             }
           },
           "match": {
@@ -29234,20 +29274,36 @@
             }
           },
           "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
             },
-            "$description": "Padding above and below a row's text; also above and below a group's title and the status row."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Padding at each end of a row."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "shape": {
             "$type": "dimension",
@@ -51516,20 +51572,36 @@
             "$description": "Space between an item's content and the parts the list draws beside it: the check of an option, the mark of a link that opens a new context, the handle of a reorderable item."
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 56,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             },
-            "$description": "The minimum height of an item that is an action, a link or an option. A minimum: the item grows with its content and with enlarged text."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 56,
+                "unit": "px"
+              }
+            }
           },
           "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
             },
-            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
           },
           "padding-inline-end": {
             "$type": "dimension",
@@ -54474,32 +54546,67 @@
         },
         "container": {
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
             }
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             },
-            "$description": "Minimum height of an item. It grows to the minimum target for touch, with its content and with enlarged text."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            }
           },
           "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
             }
           },
           "shape": {
@@ -56957,12 +57064,20 @@
             "$description": "A group's title: quieter than the items, which are what a person acts on."
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "How far a group's title is inset from the rows' start and end edges. It follows the rows' own padding, so the title starts where the rows' content starts (the check, the leading icon or the label, whichever comes first), not after the check and icon columns."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "typescale": {
             "$type": "typography",
@@ -57034,21 +57149,38 @@
         },
         "leading-icon": {
           "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 24,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
             }
           }
         },
         "mark": {
           "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 24,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
             },
-            "$description": "The width of the mark column, reserved in every item of a surface that has a checkbox or radio item, and the glyph box of a mark that is a glyph: the icon set's check, or the glyph markIcon names. A control look (control.box.size, control.ring.size) is centered in it. Medium, the size of the leading icon beside it."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            }
           },
           "width": {
             "$type": "dimension",
@@ -58092,12 +58224,20 @@
         },
         "trailing-icon": {
           "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 24,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
             },
-            "$description": "The size of an item's trailing icon, and of the submenu indicator (the icon set's chevron_right) a submenu item draws in the same column."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            }
           }
         },
         "trailing-text": {
@@ -58949,7 +59089,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own rows (comp.menu.container.padding-inline), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
+            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own regular rows (comp.menu.container.padding-inline.regular), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
           },
           "shape": {
             "$type": "dimension",
@@ -73026,33 +73166,67 @@
         "suggestion": {
           "container": {
             "gap": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                }
               },
-              "$description": "Between a suggestion's leading icon and its text."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
+              }
             },
             "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
               },
-              "$description": "A suggestion row's minimum height: the menu item's."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              }
             },
             "padding-block": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 6,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                }
               }
             },
             "padding-inline": {
-              "$type": "dimension",
-              "$value": {
-                "value": 16,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               }
             },
             "shape": {
@@ -73088,10 +73262,19 @@
           },
           "leading-icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
               }
             }
           },
@@ -75340,12 +75523,20 @@
             }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Inset of a group's heading from the rows' edges."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "typescale": {
             "$type": "typography",
@@ -75592,20 +75783,36 @@
         },
         "option": {
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Distance between an option's glyph, its text and its check."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
             },
-            "$description": "An option's minimum height."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              }
+            }
           },
           "label": {
             "typescale": {
@@ -75632,39 +75839,71 @@
           },
           "leading-icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
               },
-              "$description": "An option's glyph."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
+              }
             }
           },
           "mark": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
               },
-              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
+              }
             }
           },
           "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
             },
-            "$description": "Padding above and below an option's content."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Padding at the sides of an option's row."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "shape": {
             "$type": "dimension",
