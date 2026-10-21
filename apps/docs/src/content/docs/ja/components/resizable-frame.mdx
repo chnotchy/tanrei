@@ -1,0 +1,155 @@
+---
+title: サイズ変更できる枠
+description: 縁や角のハンドル、キーボード、または 1 回の押下で、人が幅と高さを変えられる箱です。Outlined なら、プレビューをスマートフォンの幅とノートパソコンの幅で確かめる場所になります。Plain なら、ナビゲーションドロワーやサイドバーの縁になります。
+translationOf: components/resizable-frame.mdx
+sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="resizable-frame" />
+
+<DemoFrame label="末尾側の縁、下の縁、角で人が大きさを変えるプレビュー" plain>
+  <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="プレビューの幅を変更" height-label="プレビューの高さを変更" corner-label="プレビューの大きさを変更" style="inline-size: 100%">
+    <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">ハンドルをドラッグするか、Tab でハンドルに移動して矢印キーを使ってください。</div>
+  </tanrei-resizable-frame>
+</DemoFrame>
+
+サイズ変更できる枠は、中身に、人が変えられる幅と高さを与えます。ハンドルは[ハンドル](/ja/components/handle/)です。ドラッグすると大きさが変わり、キーボードで動かすと 1 刻みずつ変わり、ドラッグせずに押すと最大の大きさと直前の大きさを行き来します。枠は大きさを保ち、人が大きさを変えたことを知らせ、支援技術が読めるように、各ハンドルに大きさを値として渡します。
+
+見た目は 2 つあります。**Outlined** は角の丸い箱に細い線を 1 本引いたもので、ハンドルは何も隠さないように箱の外にあります。ページやコンポーネントが与えられた広さにどう応じるかを確かめる場所です。**Plain** は自分では何も描きません。中身が自分のサーフェスを描き、各ハンドルはその縁に付きます。長い名前のために人が広げるナビゲーションドロワーや、隣の作業のために狭めるサイドバーなどです。
+
+Web では `<tanrei-resizable-frame>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- スマートフォン、タブレット、ノートパソコンの幅で確かめるプレビュー。ドラッグはそれぞれの幅に吸い付きます。 -->
+    <tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="プレビューの幅を変更">
+      <iframe title="プレビュー" src="/preview"></iframe>
+    </tanrei-resizable-frame>
+
+    <!-- レイアウトの末尾側にあるサイドバー。Plain で、先頭側の縁から大きさを変えます。 -->
+    <tanrei-resizable-frame id="side" variant="plain" handles="start" min-width="240" max-width="560" size-indicator="none" width-label="サイドバーの大きさを変更">
+      <aside>…</aside>
+    </tanrei-resizable-frame>
+
+    <script type="module">
+      import '@tanrei/web/components/resizable-frame';
+      const side = document.querySelector('#side');
+      // その人の幅を、次に訪れたときまで保ちます。
+      side.width = Number(localStorage.getItem('side-bar')) || 320;
+      side.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ResizableFrame } from '@tanrei/react';
+
+    <ResizableFrame
+      variant="plain"
+      handles={['start']}
+      width={width}
+      minWidth={240}
+      maxWidth={560}
+      sizeIndicator="none"
+      widthLabel="サイドバーの大きさを変更"
+      onChange={(e) => setWidth(e.detail.width)}
+    >
+      <aside>…</aside>
+    </ResizableFrame>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<ComponentSpecs name="resizable-frame" />
+
+## ガイドライン
+
+### 使う場面
+
+人が欲しい広さを何かに与え、それがその広さでどうなるかを見るべきところで使います。別の幅で見るページやコンポーネントのプレビュー、メインのコンテンツの隣のペイン、ツールのパネルなどです。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| フィールドの高さだけを、文字に合わせて伸ばす | [テキストフィールド](/ja/components/text-field/)自身の角のハンドル。 |
+| 下端からせり上がるシート | 自前のドラッグハンドルを描く[ボトムシート](/ja/components/bottom-sheet/)。 |
+| いくつかの決まった大きさから選び、その間はない | 大きさを切り替える[セグメントボタン](/ja/components/segmented-button/)。 |
+| 見せるものを、広さを減らすのではなく、絵のように縮小する | これではありません。サイズ変更できる枠が変えるのは広さで、中身の縮尺は決して変えません。 |
+
+### 見た目
+
+| `variant` | 描くもの | 用途 |
+| --- | --- | --- |
+| `outlined`（既定） | 丸い角と細い線 1 本。ハンドルは箱の外の自分の場所にあります。マウスが枠に乗るとハンドルが見えます。 | プレビュー。中身全体が見え、枠のどの部分も中身を隠しません。 |
+| `plain` | 自分では何も描きません。中身が自分のサーフェスで箱を満たします。各ハンドルは縁に付き、ポインターが乗ったとき、フォーカスされたとき、押さえられている間だけ見えます。 | ペインの縁。ナビゲーションドロワー、サイドバー。 |
+
+### ハンドル
+
+| `handles` | 付く場所 | 変えるもの |
+| --- | --- | --- |
+| `end`（既定） | 末尾側の縁 | 幅。レイアウトの先頭側にある中身向けです。プレビュー、ナビゲーションドロワーなど。 |
+| `start` | 先頭側の縁 | 幅。先頭側に向かって広がります。レイアウトの末尾側にある中身向けです。サイドバーなど。このとき箱は、与えられた場所の末尾側に寄ります。 |
+| `bottom` | 下の縁 | 高さ。 |
+| `bottom-end` | 下の末尾側の角 | 両方を同時に。 |
+
+どれをどう組み合わせて指定してもかまいません。空のリストではハンドルを 1 つも描かず、枠は指定した大きさの箱になります。`start` と `end` はページの方向に従います。右から左のレイアウトでは、末尾側の縁は左の縁です。
+
+### サイズ
+
+`width` と `height` は箱の大きさで、単位はピクセルです。null の間、箱はレイアウトが与える幅と、レイアウトが与える高さを取ります。レイアウトが高さを与えないところでは中身の高さを取ります。人がハンドルを動かすと、大きさはその人のものになり、利用者側が別の大きさを設定するまでそのまま保たれます。利用者側が設定した大きさはすぐに描かれ、イベントは発火しません。レイアウトが狭くなると箱も狭まり、また広さができると幅は元に戻ります。
+
+最小の幅は `minWidth` で、設定しない間は 320 ピクセルです。中身が横スクロールなしで折り返さなければならない幅です。ペインには独自の値を設定します。ナビゲーションドロワーには、それ自身の最小の幅があります。最大の幅は `maxWidth`、またはレイアウトが与える広さです。`snapWidths` は、ドラッグが通り過ぎるときに吸い付く幅です。よくあるスマートフォン、タブレット、小さなノートパソコンの幅などを指定します。
+
+### 知らせること
+
+| イベント | いつ |
+| --- | --- |
+| `resize` | ドラッグで大きさが変わる描画のたびに。`width` と `height` を運びます。 |
+| `change` | 人が大きさを変え終えたとき。ドラッグが終わった、キーで動かした、ドラッグせずにハンドルを押した、のいずれかです。その人の大きさを保つなら、ここで保存します。 |
+
+### サイズ表示
+
+ハンドルが押さえられている間や、キーボードのフォーカスがある間、箱の上の末尾側の角に小さなラベルが出て、「390 × 640」のように大きさを示します。`sizeIndicator` を `always` にすると常に表示し（大きさを確かめるためのプレビュー）、`none` にすると一度も表示しません（誰も大きさを読まないペイン）。数字はページの言語の数字で書かれ、どのレイアウトでも左から右に並びます。支援技術はこれを読まず、代わりに各ハンドルの値を読みます。
+
+### 推奨
+
+- 描くハンドルにはすべて、何の大きさを変えるかを言う名前を付けます。`widthLabel`、`heightLabel`、`cornerLabel` です（「プレビューの幅を変更」「サイドバーの大きさを変更」）。
+- 中身がまだ使える最小の幅と、ページのほかの部分が使えるままになる最大の幅を設定します。
+- その人の大きさは、また戻ってくる場所に保ちます。ドロワーやサイドバーの幅を、`change` から保存します。
+
+### 非推奨
+
+- 中身のまわりに、自前のサイズ変更のハンドルを描かない。この枠を使い、ペインの縁には `plain` を使います。
+- 中身を絵のように小さくするために使わない。変えるのは広さで、縮尺ではありません。
+- 人が大きさを変えることになっているペインから、ハンドルを取り去らない。キーと押下は、ドラッグできない人が使う手段です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="resizable-frame" />
+
+### コンポーネントが担うこと
+
+- 各ハンドルは、ラベルで名前の付いた、フォーカスできるセパレーターです（ARIA Authoring Practices のウィンドウスプリッター）。ピクセルでの大きさを値として、最小と最大を範囲として伝えます。
+- フォーカス順では、ハンドルは中身の後に、先頭側、末尾側、下、角の順で並びます。Outlined の箱がフォーカスが止まる位置になるのは、中身が箱より高くてスクロールする間だけです。
+- 矢印キーで `step` ピクセル、Shift と矢印キーや Page Up と Page Down で `largeStep` ずつ大きさを変えます。Home と End で最小と最大になります。先頭側のハンドルでは、先頭側を向いた矢印キーで広がります。
+- Enter、Space、またはドラッグしない押下で、最大の大きさと直前の大きさを行き来します。そのため、どの大きさにもドラッグせずに届きます。
+- ドラッグの間は、中身に埋め込まれたドキュメントがポインターを取らないので、ポインターがその上を通ってもドラッグは途切れません。
+- サイズ表示は支援技術から隠されています。ハンドルの値がすでに伝えていることを描いているだけだからです。動きを減らす設定がオンのときは、キーや押下による変化は即座に移ります。
+- 強制カラーモードでは、Outlined の縁とサイズ表示の文字は文字色に、サイズ表示の地はキャンバスの色になります。
+
+### 利用者側で行うこと
+
+- 描く各ハンドルにラベルを付けます。ないとハンドルは描かれて動きますが、デバッグビルドで報告されます。
+- 最小の幅から上の、許すどの大きさでも中身が使えることを確かめます。

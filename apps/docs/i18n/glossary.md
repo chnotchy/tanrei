@@ -222,6 +222,7 @@ As common nouns: page titles, headings, running text.
 | Progress indicator | プログレスインジケーター | 进度指示器 |
 | Radio button | ラジオボタン | 单选按钮 |
 | Radio group | ラジオグループ | 单选组 |
+| Resizable frame | サイズ変更できる枠 — 枠 as the Handle page already calls the box its handle stands on; フレーム is an animation frame | 可调整大小的框 — short 框, as the Handle page writes 预览框; 帧 is an animation frame |
 | Scroll area | スクロールエリア | 滚动区域 |
 | Search | 検索 | 搜索 |
 | Segmented button | セグメントボタン | 分段按钮 |
@@ -451,6 +452,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Progress indicator | Indicador de progreso | प्रोग्रेस इंडिकेटर | مؤشر التقدم |
 | Radio button | Botón de opción | रेडियो बटन | زر الاختيار |
 | Radio group | Grupo de botones de opción | रेडियो ग्रुप | مجموعة أزرار الاختيار |
+| Resizable frame | Marco redimensionable — short «el marco», masculine; an animation frame is «fotograma» | साइज़ बदलने वाला फ़्रेम (masculine), short फ़्रेम, after साइज़ हैंडल | الإطار القابل لتغيير الحجم, with `(resizable frame)` on the page's first mention; short `الإطار`; an animation frame is said without إطار (`مع كل تحديث للرسم`) |
 | Scroll area | Área de desplazamiento — feminine, written «el área» / «un área» (its adjectives agree: «el área marcada») | स्क्रॉल एरिया (masculine) | منطقة التمرير — short `المنطقة` |
 | Search | Búsqueda | खोज | البحث |
 | Segmented button | Botón segmentado | सेगमेंटेड बटन | الزر المقسَّم |
