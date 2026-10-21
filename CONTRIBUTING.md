@@ -122,6 +122,7 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 |---|---|
 | Validate · generate · drift | always |
 | Changeset: a change to a released package (outside its tests and baselines) adds or edits a `.changeset/*.md` (`pnpm changeset`, or `pnpm changeset --empty` when nothing is released) | always, on a pull request only |
+| Workflow audit (zizmor): any finding in `.github/` fails it — template injection, a checkout that keeps its credentials, cache poisoning, an unpinned action, a dangerous trigger, excessive permissions. An intended finding is silenced on its line with `# zizmor: ignore[<audit>]` and the reason, never in a configuration file. Locally: `uvx zizmor@<the version in ci.yml> .` | `.github/` only (none of the other shared inputs) |
 | Core tests · token engine and repo tools, · pipeline | only the shared inputs |
 | Core tests · CLI | `packages/cli/`, `packages/studio/`, `packages/web/`, `packages/react/` |
 | Core tests · MCP server | `packages/mcp/` |
