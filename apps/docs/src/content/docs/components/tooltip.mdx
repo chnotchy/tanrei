@@ -326,7 +326,7 @@ A tooltip is a read overlay. People take information from it and never act insid
 - **Takes no focus, blocks nothing.** It holds nothing focusable or pressable, makes nothing inert and draws no scrim. A press on the tooltip closes it and does not reach what lies under it.
 - **Above everything.** It is drawn above every other layer of its window, including an open dialog and its scrim, so a tooltip inside a dialog is visible.
 - **Placement.** It stands where `placement` says; see [Placement](#placement). It follows the anchor as it moves, and closes when the anchor is removed, hidden, scrolled out of the window, or scrolled out of sight inside a scrolling area.
-- **Motion.** It comes out of the anchor's side: it fades in while it grows a little and travels a few pixels away from the anchor, and goes back the same way. A motion that is interrupted turns round from where it is. While it is closing, the tooltip takes no pointer, so it never stands in the way of what is under it. Where motion is reduced it only fades.
+- **Motion.** It comes out of the anchor's side, as every surface of the design system appears: by default it fades in while it grows a little from the middle of the edge that faces the anchor, and goes back the same way. A motion that is interrupted turns round from where it is. While it is closing, the tooltip takes no pointer, so it never stands in the way of what is under it. Where motion is reduced it only fades.
 - **Announcement.** Nothing is announced when the tooltip appears. While `describes` is true, its text, after the title for a rich tooltip, is the anchor's description whether the tooltip is open or not, and the drawn tooltip is kept from being read a second time.
 
 ### Delays for one tooltip
@@ -374,7 +374,7 @@ Each platform uses a non-modal presentation: a `popover="manual"` element in the
 - It grows with larger text without clipping it, and its text is aligned to the start of the layout direction.
 - A shortcut is exposed as the anchor's keyboard shortcut (`aria-keyshortcuts` on the web, on the element that takes focus), and the drawn keys are hidden from assistive technology. Where the anchor already states a shortcut of its own, the tooltip's keys are spelled out at the end of the description instead, while `describes` is true.
 - The arrow is decoration and is hidden from assistive technology. Both looks use pairs of text and container colors whose contrast the build checks in every scheme.
-- Its motion is small: a fade, a slight growth and a few pixels of travel. Where motion is reduced it fades without growing or travelling, except on Android, whose setting removes every animation. The delays, the touch timeout and the time during which the next tooltip opens at once are waits, not motion, and are kept everywhere.
+- Its motion is small: by default a fade and a slight growth. Where motion is reduced it fades without growing or travelling, except on Android, whose setting removes every animation. The delays, the touch timeout and the time during which the next tooltip opens at once are waits, not motion, and are kept everywhere.
 - A tooltip whose text is empty never opens and adds nothing. Debug builds report it, and a plain tooltip's ignored title.
 
 Known platform gaps:

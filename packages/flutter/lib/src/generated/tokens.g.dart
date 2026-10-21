@@ -25701,8 +25701,6 @@ class TanreiTooltipTokens {
     required this.arrowWidth,
     required this.motionEnterDuration,
     required this.motionEnterEasing,
-    required this.motionEnterOffset,
-    required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
     required this.motionHideDelay,
@@ -25757,10 +25755,6 @@ class TanreiTooltipTokens {
   final int motionEnterDuration;
   /// `comp.tooltip.motion-enter-easing`
   final TanreiCubicBezier motionEnterEasing;
-  /// `comp.tooltip.motion-enter-offset`
-  final double motionEnterOffset;
-  /// `comp.tooltip.motion-enter-scale`
-  final double motionEnterScale;
   /// `comp.tooltip.motion-exit-duration`
   final int motionExitDuration;
   /// `comp.tooltip.motion-exit-easing`
@@ -25850,8 +25844,6 @@ class TanreiTooltipTokens {
     double? arrowWidth,
     int? motionEnterDuration,
     TanreiCubicBezier? motionEnterEasing,
-    double? motionEnterOffset,
-    double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
     int? motionHideDelay,
@@ -25899,8 +25891,6 @@ class TanreiTooltipTokens {
         arrowWidth: arrowWidth ?? this.arrowWidth,
         motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
         motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
-        motionEnterOffset: motionEnterOffset ?? this.motionEnterOffset,
-        motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
         motionHideDelay: motionHideDelay ?? this.motionHideDelay,

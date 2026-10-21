@@ -9091,8 +9091,6 @@ private object AcmeSystemSource {
             arrowWidth = 12.dp,
             motionEnterDuration = 250,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            motionEnterOffset = 4.dp,
-            motionEnterScale = 0.95f,
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             motionHideDelay = 100,

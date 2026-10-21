@@ -5435,13 +5435,18 @@ whether or not `describes` is set. An anchor that states `aria-keyshortcuts` its
 then added to the end of the description in that same notation (`Saves a copy, Control+Shift+S`) while `describes` is
 true — the text KBS-10 gives for a shortcut without a label; no key is spelled out in any language.
 
-**Motion (TIP-15, TIP-28, TIP-29).** It comes out of the anchor's side: it fades in over `motion.enter-duration` /
-`-easing` while it grows from `motion.enter-scale` and travels `motion.enter-offset` from nearer the anchor, the growth
-fixed at the point of its edge where an arrow points or would point, and goes back the same way over
-`motion.exit-duration` / `-easing`. These are transitions on the wrapper, so a motion that is interrupted turns round
-from the opacity, size and place it has reached. The placed box, the hover gap and the following never see them. A
-tooltip that is closed or leaving takes no pointer (`pointer-events: none`), and a closed one is out of the top layer.
-Under `prefers-reduced-motion: reduce` it fades and neither grows nor travels. **Warm tooltips:** one that opens while
+**Motion (TIP-15, TIP-28, TIP-29).** It appears as every surface does (`appearStyles()` and `AppearController`,
+`src/primitives/motion.ts`, role hint): from `sys.motion.appear.*` — a fade and a growth from 0.96 under the default
+system — grown from the middle of the edge that faces the anchor (`data-side`; from its centre while it covers the
+anchor, `data-held`, or where `sys.motion.appear.origin` is `center`), over `motion.enter-duration` / `-easing`, and back
+the same way over `motion.exit-duration` / `-easing`; under the `unfold` appearance (m3-like) it unfolds along the axis
+that leaves the anchor. These are transitions on the wrapper, so a motion that is interrupted turns round from the
+opacity, size and place it has reached (`AppearController.keep()` while the popover is put back on top). The placed box,
+the hover gap and the following never see them; the arrow's elevation filter is on the placed box (`shadeOn()`). A
+tooltip that is closed or leaving takes no pointer (`pointer-events: none`), and a closed one is out of the top layer,
+taken out once `exit()` resolves. One in the page's markup with `open` is there in the first frame without its motion
+(MOT-4). Under `prefers-reduced-motion: reduce` it cross-fades over `sys.motion.role.reduced`, with no scale, distance
+or blur. **Warm tooltips:** one that opens while
 another is open or still fading out, or within `motion.warm-duration` after one closed because the pointer or the
 keyboard focus left its anchor, appears whole at once — no show delay for a pointer, no motion — and the other
 disappears at once. A tooltip closed by Escape, an activation or a press on it starts no warm time. The time is kept per

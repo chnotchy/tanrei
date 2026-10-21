@@ -9652,8 +9652,6 @@ private let m3ExpressiveLikeTooltipTokens = TanreiTooltipTokens(
   arrowWidth: 12,
   motionEnterDuration: 200,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 4,
-  motionEnterScale: 0.95,
   motionExitDuration: 150,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionHideDelay: 100,

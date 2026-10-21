@@ -16762,8 +16762,6 @@ export const tanrei = {
       arrowWidth: 12,
       motionEnterDuration: 250,
       motionEnterEasing: [0.2, 0, 0, 1],
-      motionEnterOffset: 4,
-      motionEnterScale: 0.95,
       motionExitDuration: 200,
       motionExitEasing: [0.3, 0, 1, 1],
       motionHideDelay: 100,

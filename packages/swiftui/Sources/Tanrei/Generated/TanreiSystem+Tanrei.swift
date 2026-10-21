@@ -9525,8 +9525,6 @@ private let tanreiTooltipTokens = TanreiTooltipTokens(
   arrowWidth: 12,
   motionEnterDuration: 250,
   motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionEnterOffset: 4,
-  motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionHideDelay: 100,

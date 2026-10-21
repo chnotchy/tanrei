@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { arrowStyles, whenChosen } from '../../primitives/index.js';
+import { appearStyles, arrowStyles, whenChosen } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -180,43 +180,23 @@ export const styles = css`
      as one shape by a filter, not by each one's own shadow (src/primitives/arrow.ts). */
   ${arrowStyles({ surface: '.surface', box: '.bubble', width: `var(${PREFIX}-arrow-width)`, height: `var(${PREFIX}-arrow-height)`, fill: 'var(--_fill)', elevation: 'var(--_elevation)' })}
 
-  /* TIP-15: closed, it is clear, a little smaller and a little nearer the anchor; open, it is whole and in its place.
-     Going to either takes that motion's own time and curve, and a motion that is turned round starts from where the
-     other had got to (TIP-29). Only this wrapper moves: the placed box around it does not (TIP-9, TIP-1). */
+  /* TIP-15: what is inside the placed box appears as every surface does (src/primitives/motion.ts, role hint, from its
+     anchor): closed it stands where sys.motion.appear.* start it, open it is whole, and it moves between the two over
+     the tooltip's own enter and exit times and curves — from where the other had got to when it is turned round
+     (TIP-29), and a cross-fade over sys.motion.role.reduced where motion is reduced. It grows from the middle of the
+     edge that faces the anchor (data-side; from its centre while it covers the anchor, data-held). Only this wrapper
+     moves: the placed box around it does not (TIP-9, TIP-1). */
   .motion {
     position: relative;
-    opacity: 0;
-    transform: translate(var(--_from-x, 0), var(--_from-y, 0)) scale(${t('motion-enter-scale')});
-    transition:
-      opacity ${t('motion-exit-duration')} ${t('motion-exit-easing')},
-      transform ${t('motion-exit-duration')} ${t('motion-exit-easing')};
   }
-  .surface.open .motion {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity ${t('motion-enter-duration')} ${t('motion-enter-easing')},
-      transform ${t('motion-enter-duration')} ${t('motion-enter-easing')};
-  }
-  /* It comes out of the anchor's side: from below when it stands above the anchor, and so on round. */
-  .surface[data-side='top'] {
-    --_from-y: ${t('motion-enter-offset')};
-  }
-  .surface[data-side='bottom'] {
-    --_from-y: calc(-1 * ${t('motion-enter-offset')});
-  }
-  .surface[data-side='left'] {
-    --_from-x: ${t('motion-enter-offset')};
-  }
-  .surface[data-side='right'] {
-    --_from-x: calc(-1 * ${t('motion-enter-offset')});
-  }
-  /* Where motion is reduced it fades, and neither grows nor travels. */
-  @media (prefers-reduced-motion: reduce) {
-    .motion {
-      transform: none;
-    }
-  }
+  ${appearStyles({
+    motion: '.motion',
+    open: '.surface.open',
+    role: 'hint',
+    origin: 'anchor',
+    enter: { duration: `var(${PREFIX}-motion-enter-duration)`, easing: `var(${PREFIX}-motion-enter-easing)` },
+    exit: { duration: `var(${PREFIX}-motion-exit-duration)`, easing: `var(${PREFIX}-motion-exit-easing)` },
+  })}
 
   /* TIP-1, TIP-3, TIP-28: the delays, the touch timeout and the warm time, read through real properties by script; this
      element draws nothing. */
@@ -240,7 +220,7 @@ export const styles = css`
     .arrow {
       background: CanvasText;
     }
-    .motion {
+    .surface {
       filter: none !important;
     }
   }

@@ -9025,8 +9025,6 @@ private object M3LikeSystemSource {
             arrowWidth = 12.dp,
             motionEnterDuration = 200,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
-            motionEnterOffset = 4.dp,
-            motionEnterScale = 0.95f,
             motionExitDuration = 150,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             motionHideDelay = 100,
