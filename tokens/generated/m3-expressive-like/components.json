@@ -1202,6 +1202,15 @@
       "level": "composed",
       "listing": "default",
       "layer": "core",
+      "web": {
+        "tag": "tanrei-resizable-frame",
+        "import": "@tanrei/web/m3-expressive-like",
+        "module": "@tanrei/web/components/resizable-frame"
+      },
+      "react": {
+        "name": "ResizableFrame",
+        "import": "@tanrei/react/m3-expressive-like"
+      },
       "variants": [
         "outlined",
         "plain"

@@ -36004,6 +36004,471 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/resizable-frame/resizable-frame.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "VARIANTS",
+          "type": {
+            "text": "['outlined', 'plain']"
+          },
+          "default": "['outlined', 'plain']",
+          "description": "The variants and the handles the component defines (RSF-16: anything else is drawn as outlined, or not drawn)."
+        },
+        {
+          "kind": "variable",
+          "name": "HANDLES",
+          "type": {
+            "text": "['start', 'end', 'bottom', 'bottom-end']"
+          },
+          "default": "['start', 'end', 'bottom', 'bottom-end']"
+        },
+        {
+          "kind": "variable",
+          "name": "SIZE_INDICATORS",
+          "type": {
+            "text": "['none', 'active', 'always']"
+          },
+          "default": "['none', 'active', 'always']"
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "VARIANTS",
+          "declaration": {
+            "name": "VARIANTS",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "HANDLES",
+          "declaration": {
+            "name": "HANDLES",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SIZE_INDICATORS",
+          "declaration": {
+            "name": "SIZE_INDICATORS",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/resizable-frame/resizable-frame.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Gives its content — a component preview, a page in an embedded document, a navigation drawer, a side bar — a width\nand a height a person changes by dragging a handle on its edge or its corner, from the keyboard (each handle is a\nseparator: the arrows, Page Up and Page Down, Home and End), or by activating the handle, which switches between the\ngreatest size and the one before it.\n\nContract: specs/resizable-frame.spec.json. Built from `<tanrei-handle>`, one for each name in `handles`, in its\nshadow root: the frame gives each its value, least, greatest and name, and hears its events there; they do not\nleave the shadow root. The frame's own events are `resize` (in every frame of a drag) and `change` (once a person\nhas changed the size), both with `{ width, height }`; neither is sent when you set `width` or `height`.\n\n`variant=\"outlined\"` (the default) is a box a preview is checked in: rounded corners, one hairline, the handles\noutside the box so that they cover nothing, drawn at rest while a mouse is over the frame. `variant=\"plain\"` is a\npane's edge: no edge or corners of its own, the content filling the box with its own surface, each handle centred on\nits edge and out of sight until it is used. `handles=\"start\"` is for content at the end of a layout (a side bar): the\nbox then stands at the end of its room.\n\n`width` and `height` are null until a person or you give one: the box then takes the width the layout gives and the\nheight the layout gives (or the content's). The least width is `min-width`, or 320 (the reflow width of WCAG\n1.4.10); the greatest is `max-width`, or the room the layout gives. While a drag lasts, every `<iframe>`, `<object>`\nand `<embed>` in the content takes no pointer, so the drag is not lost over it.",
+          "name": "TanreiResizableFrame",
+          "cssParts": [
+            {
+              "description": "The box the content is laid out in.",
+              "name": "container"
+            },
+            {
+              "description": "The width × height label (hidden from assistive technology).",
+              "name": "size-indicator"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the start edge.",
+              "name": "start-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the end edge.",
+              "name": "end-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the bottom edge.",
+              "name": "bottom-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` at the bottom-end corner.",
+              "name": "corner-handle"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content: a component, an embedded document, a layout, a navigation drawer.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "variant",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameVariant"
+              },
+              "default": "'outlined'",
+              "description": "`outlined`: a box with rounded corners and one hairline, its handles outside it. `plain`: a pane's edge, the handles centred on it.",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "handles",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameHandle[]"
+              },
+              "default": "['end']",
+              "description": "Which handles it draws: any of `start`, `end`, `bottom`, `bottom-end`. The attribute is space-separated.",
+              "attribute": "handles"
+            },
+            {
+              "kind": "field",
+              "name": "width",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's width in pixels; null takes the width the layout gives. A person's drag, key or activation changes it.",
+              "attribute": "width"
+            },
+            {
+              "kind": "field",
+              "name": "height",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's height in pixels; null takes the height the layout gives, or the content's.",
+              "attribute": "height"
+            },
+            {
+              "kind": "field",
+              "name": "minWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give; null is `--tanrei-comp-resizable-frame-container-min-width` (320).",
+              "attribute": "min-width"
+            },
+            {
+              "kind": "field",
+              "name": "maxWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width; null is the width the layout gives.",
+              "attribute": "max-width"
+            },
+            {
+              "kind": "field",
+              "name": "minHeight",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least height; null is `--tanrei-comp-resizable-frame-container-min-height`.",
+              "attribute": "min-height"
+            },
+            {
+              "kind": "field",
+              "name": "maxHeight",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest height; null is unlimited.",
+              "attribute": "max-height"
+            },
+            {
+              "kind": "field",
+              "name": "snapWidths",
+              "privacy": "public",
+              "type": {
+                "text": "number[]"
+              },
+              "default": "[]",
+              "description": "Widths in whole pixels a drag that changes the width snaps to (`snap-widths=\"360 600 1024\"`).",
+              "attribute": "snap-widths"
+            },
+            {
+              "kind": "field",
+              "name": "step",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "10",
+              "description": "Pixels one arrow key changes a size by.",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "largeStep",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "Pixels Shift with an arrow key, Page Up or Page Down changes a size by.",
+              "attribute": "large-step"
+            },
+            {
+              "kind": "field",
+              "name": "sizeIndicator",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameSizeIndicator"
+              },
+              "default": "'active'",
+              "description": "When the size indicator is drawn: `none`, `active` (while a handle is held or has keyboard focus) or `always`.",
+              "attribute": "size-indicator"
+            },
+            {
+              "kind": "field",
+              "name": "widthLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the start and the end handle (\"Resize preview width\"), in your words. Required while one is drawn.",
+              "attribute": "width-label"
+            },
+            {
+              "kind": "field",
+              "name": "heightLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the bottom handle (\"Resize preview height\"). Required while it is drawn.",
+              "attribute": "height-label"
+            },
+            {
+              "kind": "field",
+              "name": "cornerLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the corner handle (\"Resize preview\"). Required while it is drawn.",
+              "attribute": "corner-label"
+            }
+          ],
+          "events": [
+            {
+              "name": "resize",
+              "type": {
+                "text": "CustomEvent<TanreiResizableFrameSizeDetail>"
+              },
+              "description": "The size changed during a drag, in every frame it changes."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiResizableFrameSizeDetail>"
+              },
+              "description": "A person finished changing the size: a drag ended, a key changed it, or a handle was activated."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "TanreiResizableFrameVariant"
+              },
+              "default": "'outlined'",
+              "description": "`outlined`: a box with rounded corners and one hairline, its handles outside it. `plain`: a pane's edge, the handles centred on it.",
+              "fieldName": "variant"
+            },
+            {
+              "name": "handles",
+              "type": {
+                "text": "TanreiResizableFrameHandle[]"
+              },
+              "default": "['end']",
+              "description": "Which handles it draws: any of `start`, `end`, `bottom`, `bottom-end`. The attribute is space-separated.",
+              "fieldName": "handles"
+            },
+            {
+              "name": "width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's width in pixels; null takes the width the layout gives. A person's drag, key or activation changes it.",
+              "fieldName": "width"
+            },
+            {
+              "name": "height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's height in pixels; null takes the height the layout gives, or the content's.",
+              "fieldName": "height"
+            },
+            {
+              "name": "min-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give; null is `--tanrei-comp-resizable-frame-container-min-width` (320).",
+              "fieldName": "minWidth"
+            },
+            {
+              "name": "max-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width; null is the width the layout gives.",
+              "fieldName": "maxWidth"
+            },
+            {
+              "name": "min-height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least height; null is `--tanrei-comp-resizable-frame-container-min-height`.",
+              "fieldName": "minHeight"
+            },
+            {
+              "name": "max-height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest height; null is unlimited.",
+              "fieldName": "maxHeight"
+            },
+            {
+              "name": "snap-widths",
+              "type": {
+                "text": "number[]"
+              },
+              "default": "[]",
+              "description": "Widths in whole pixels a drag that changes the width snaps to (`snap-widths=\"360 600 1024\"`).",
+              "fieldName": "snapWidths"
+            },
+            {
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "default": "10",
+              "description": "Pixels one arrow key changes a size by.",
+              "fieldName": "step"
+            },
+            {
+              "name": "large-step",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "Pixels Shift with an arrow key, Page Up or Page Down changes a size by.",
+              "fieldName": "largeStep"
+            },
+            {
+              "name": "size-indicator",
+              "type": {
+                "text": "TanreiResizableFrameSizeIndicator"
+              },
+              "default": "'active'",
+              "description": "When the size indicator is drawn: `none`, `active` (while a handle is held or has keyboard focus) or `always`.",
+              "fieldName": "sizeIndicator"
+            },
+            {
+              "name": "width-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the start and the end handle (\"Resize preview width\"), in your words. Required while one is drawn.",
+              "fieldName": "widthLabel"
+            },
+            {
+              "name": "height-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the bottom handle (\"Resize preview height\"). Required while it is drawn.",
+              "fieldName": "heightLabel"
+            },
+            {
+              "name": "corner-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the corner handle (\"Resize preview\"). Required while it is drawn.",
+              "fieldName": "cornerLabel"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-resizable-frame",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "around",
+          "type": {
+            "text": "number"
+          },
+          "default": "0"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiResizableFrame",
+          "declaration": {
+            "name": "TanreiResizableFrame",
+            "module": "src/components/resizable-frame/resizable-frame.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-resizable-frame",
+          "declaration": {
+            "name": "TanreiResizableFrame",
+            "module": "src/components/resizable-frame/resizable-frame.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/scroll-area/scroll-area.styles.ts",
       "declarations": [
         {

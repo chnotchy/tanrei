@@ -68,6 +68,13 @@ export {
   type TanreiHandleStepDetail,
 } from './components/handle/handle.js';
 export {
+  TanreiResizableFrame,
+  type TanreiResizableFrameHandle,
+  type TanreiResizableFrameSizeDetail,
+  type TanreiResizableFrameSizeIndicator,
+  type TanreiResizableFrameVariant,
+} from './components/resizable-frame/resizable-frame.js';
+export {
   TanreiBottomSheet,
   type TanreiBottomSheetCloseDetail,
   type TanreiBottomSheetCloseReason,

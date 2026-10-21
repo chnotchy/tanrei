@@ -6474,6 +6474,78 @@ disabled (`forced-color-adjust: none` on the line only); the box is transparent;
 The fixtures are drawn by the test harness (`test/harness.ts`) on a 160 × 96 box whose corners are concentric with the
 arc, the handle at its bottom edge, its end edge or its corner.
 
+## `<tanrei-resizable-frame>`
+
+A box whose width and height a person changes by a handle on its edge or its corner, from the keyboard, or by
+activating the handle (`specs/resizable-frame.spec.json`, RSF-1…19). It is built from `<tanrei-handle>`: one per name
+in `handles`, in its shadow root, given its `value`, `min`, `max`, `label` and `revealed` by the frame on every render.
+
+```html
+<!-- A preview checked at a phone's width, a tablet's and a laptop's. -->
+<tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="Resize preview width">
+  <iframe title="Preview" src="/preview"></iframe>
+</tanrei-resizable-frame>
+<!-- A side bar at the end of a layout: plain, resized from its start edge, its width kept from one visit to the next. -->
+<tanrei-resizable-frame variant="plain" handles="start" width="320" min-width="240" max-width="560" size-indicator="none" width-label="Resize side bar">
+  <aside>…</aside>
+</tanrei-resizable-frame>
+<script type="module">
+  const bar = document.querySelectorAll('tanrei-resizable-frame')[1];
+  bar.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+</script>
+```
+
+| `<tanrei-resizable-frame>` | Type | Default | |
+|---|---|---|---|
+| `variant` | `outlined` \| `plain` | `outlined` | outlined: corners, one hairline, the handles in tracks beyond the box. plain: nothing drawn, the content fills the box, each handle centred on its edge. Any other value is `outlined`, reported (RSF-16); reflected |
+| `handles` | array of `start`, `end`, `bottom`, `bottom-end` | `["end"]` | the attribute is space-separated or a JSON array; an empty attribute draws none. Unknown names are not drawn, reported |
+| `width` / `height` | number \| null | `null` | the box's size in px; null takes the layout's (the content's height where the layout gives none). A person's drag, key or activation sets it; setting it sends no event (RSF-12) |
+| `minWidth` / `min-width` | number \| null | `null` | null is `comp.resizable-frame.container.min-width` (320) |
+| `maxWidth` / `max-width` | number \| null | `null` | null is the room the layout gives, less the handles' tracks |
+| `minHeight` / `min-height`, `maxHeight` / `max-height` | number \| null | `null` | null is `container.min-height`, and no greatest |
+| `snapWidths` / `snap-widths` | array of numbers | `[]` | a drag that changes the width snaps within `snap-distance`; a width that is not a whole number above zero is ignored, reported |
+| `step` / `largeStep` (`large-step`) | number | `10` / `100` | px per arrow key, and with Shift or Page Up/Down |
+| `sizeIndicator` / `size-indicator` | `none` \| `active` \| `always` | `active` | active: while a handle is held or has keyboard focus |
+| `widthLabel`, `heightLabel`, `cornerLabel` (`width-label`…) | string | `""` | the names of the start and end handle, the bottom one and the corner one; an empty one of a drawn handle is reported (RSF-9) |
+
+| Event | When |
+|---|---|
+| `resize` | each frame a drag changes the size: `detail.width`, `detail.height` |
+| `change` | once a person has changed it: a drag ended, a key, an activation. Neither is sent for a size you set |
+
+Both are composed and bubble; the Handle's own events stay in the shadow root, where the frame hears them.
+
+**Layout (RSF-1, RSF-3, RSF-12).** The host is a block; `.room` is its content box, a flex row that puts the frame at
+its start, or at its end while `handles` has `start` and not `end`. `.frame` is a grid whose areas are written per
+render: outlined, the box and a track for each edge a handle stands beyond, `handle.gap` apart; plain, the box's cell
+alone, the handles in it, aligned to an edge and moved half their size across it (`translate`, mirrored for
+right-to-left). The box's width is written as `--_rsf-w` on the box (the content inherits the name, so it is the
+frame's alone): the person's or the product's width within the least and the greatest. The greatest is measured — the
+room's width less the handles' tracks and gaps, read from the grid's resolved columns by a `ResizeObserver` on the
+room, the box, the content and the handles — and so are the token lengths the element counts with (`container.min-*`,
+`snap-distance`), each as the width of a hidden probe. A narrower room narrows the box and keeps `width`, which comes
+back when there is room.
+
+**A drag (RSF-4…6).** On a handle's `resizestart` the frame takes the shown size and sets `pointer-events: none` on
+every slotted `<iframe>`, `<object>` and `<embed>` (and those inside slotted elements), putting back each one's own
+inline value on `resizeend`. Each `resize` sets `width` and/or `height` from the distance (the start handle's taken the
+other way), snapped and clamped, and sends `resize` when the size changed; `resizeend` sends one `change` where it did.
+
+**Keys and activation (RSF-7, RSF-8).** `step` moves the size its axis stands for; Home and End give the least and the
+greatest from either edge. `activate` switches to the greatest and back to the size before; the bottom handle's greatest
+is the content's height while `max-height` is null. Both move through `AnimatedSize` (src/primitives/motion.ts) on the
+box, over `motion.resize-duration` with `motion.resize-easing`, at once where motion is reduced; a size you set and a
+drag never move.
+
+**What it shows (RSF-2, RSF-10, RSF-11, RSF-19).** Outlined, the box scrolls its content (`overflow: auto`, its edge
+`outline.width` in `outline.color` as the box's border, its corners through `heldShape()`), and is a focus stop while
+the content is taller than it. The indicator is a grid item over the box's top-end corner, `dir="ltr"`, its digits from
+`Intl.NumberFormat` for the nearest `lang`, without grouping; it fades by `opacity` on the hint's role and does not
+transition during a drag. Outlined, a mouse over the frame sets `revealed` on its handles; plain leaves them to the
+Handle's own rule.
+
+The fixtures are drawn by the test harness in a room 640 wide, their content a block in `surface-container-low`.
+
 ## `<tanrei-side-sheet>`
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and

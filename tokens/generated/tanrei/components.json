@@ -1167,6 +1167,15 @@
       "level": "composed",
       "listing": "default",
       "layer": "core",
+      "web": {
+        "tag": "tanrei-resizable-frame",
+        "import": "@tanrei/web",
+        "module": "@tanrei/web/components/resizable-frame"
+      },
+      "react": {
+        "name": "ResizableFrame",
+        "import": "@tanrei/react"
+      },
       "variants": [
         "outlined",
         "plain"

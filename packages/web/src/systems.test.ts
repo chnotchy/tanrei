@@ -22,6 +22,9 @@ const SUBJECTS = [
   // An arc at its corner, drawn at rest: each preset's line color and thickness, the arc's radius and inset from the
   // corner (the stage's corner is concentric with it).
   subject('handle', (fixture) => fixture.id === 'both-bottom-end'),
+  // Outlined with its size indicator drawn: each preset's corners and edge for the box, and the indicator's height,
+  // padding, corners, inverse colors and monospaced digits.
+  subject('resizable-frame', (fixture) => fixture.id === 'indicator-always'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.

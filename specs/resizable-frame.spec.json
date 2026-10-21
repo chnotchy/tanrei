@@ -206,7 +206,7 @@
     },
     {
       "id": "RSF-13",
-      "text": "WHERE the layout direction is right-to-left THE resizable frame SHALL mirror its layout: the box at the right of its room (at its left WHILE it stands at the end edge, RSF-1), the end handle on the box's left edge and the start handle on its right, the corner handle at the bottom-left corner, so that a drag away from the box widens it, and the size indicator at the top-left, the width still before the height."
+      "text": "WHERE the layout direction is right-to-left THE resizable frame SHALL mirror its layout: the box at the right of its room (at its left WHILE it stands at the end edge, RSF-1), the end handle on the box's left edge and the start handle on its right, the corner handle at the bottom-left corner, so that a drag away from the box widens it, and the size indicator at the top-left, its numbers still written left to right, the width at the left of the height, as a size is written in every language."
     },
     {
       "id": "RSF-14",
@@ -264,7 +264,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-resizable-frame",
       "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
       "events": { "resize": "resize", "change": "change" },
