@@ -107,7 +107,7 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. The default system's 16 is 48 minus the narrowest button there (the bar's small clear button, 32). The action buttons stand button-gap from one another instead.",
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 48 − 32 = 16 in the default system. The action buttons stand button-gap from one another instead.",
             "$value": "{tanrei.sys.space.space100}",
             "$extensions": {}
           },

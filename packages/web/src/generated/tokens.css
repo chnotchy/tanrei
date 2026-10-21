@@ -435,7 +435,7 @@
     --tanrei-comp-button-group-connected-separation: var(--tanrei-sys-behavior-separation);
     --tanrei-comp-button-group-connected-vertical-outer-shape: var(--tanrei-sys-shape-corner-large);
     --tanrei-comp-button-group-connected-vertical-outer-shape-pill: 0;
-    --tanrei-comp-button-group-standard-gap: var(--tanrei-sys-space-space200);
+    --tanrei-comp-button-group-standard-gap: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
     --tanrei-comp-button-with-menu-container-gap-large: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-medium: var(--tanrei-sys-space-space100);
     --tanrei-comp-button-with-menu-container-gap-small: var(--tanrei-sys-space-space100);
@@ -5908,7 +5908,7 @@
     --tanrei-comp-scroll-area-shadow-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-scroll-area-shadow-extent: var(--tanrei-sys-scroll-edge-extent);
     --tanrei-comp-search-container-button-gap: var(--tanrei-sys-space-space0);
-    --tanrei-comp-search-container-gap: var(--tanrei-sys-space-space200);
+    --tanrei-comp-search-container-gap: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
     --tanrei-comp-search-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-search-container-padding-inline: var(--tanrei-sys-space-space200);
     --tanrei-comp-search-container-padding-inline-with-button: var(--tanrei-sys-space-space100);
@@ -8134,7 +8134,7 @@
     --tanrei-comp-toolbar-container-elevation-floating-inset-ring: var(--tanrei-sys-elevation-level3-inset-ring);
     --tanrei-comp-toolbar-container-elevation-inline: var(--tanrei-sys-elevation-level0);
     --tanrei-comp-toolbar-container-elevation-inline-inset-ring: var(--tanrei-sys-elevation-level0-inset-ring);
-    --tanrei-comp-toolbar-container-gap-docked: var(--tanrei-sys-space-space200);
+    --tanrei-comp-toolbar-container-gap-docked: max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)));
     --tanrei-comp-toolbar-container-gap-floating: var(--tanrei-sys-space-space0);
     --tanrei-comp-toolbar-container-gap-inline: var(--tanrei-sys-space-space50);
     --tanrei-comp-toolbar-container-padding-inline-docked: var(--tanrei-sys-space-space200);

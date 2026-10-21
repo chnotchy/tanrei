@@ -176,17 +176,28 @@ export function declarations(token, tokens) {
 // comp token whose alias chain reaches `sys.shape.corner.*` gets a companion `<name>-pill` — 1 when the chain passes
 // through `corner.full`, else 0 — which the web's one corner rule reads to draw that box round whatever the smoothing.
 // A corner derived by `sub` (one inside another, less the inset) is not the full step, and neither is a token that
-// aliases one: 0.
+// aliases one: 0. A `sub` that is no corner — a gap, the room a target needs beyond what a control draws — has no
+// companion: only a `sub` whose operand is a shape (a corner inside another) is one.
 const CORNER = `${CONFIG.namespace}.sys.shape.corner.`;
 const FULL = `${CORNER}full`;
+/** Whether a token is a corner: a step of sys.shape, or a token whose alias chain or `sub` reaches one. */
+function isShape(id, tokens, seen = new Set()) {
+  if (id.startsWith(`${CONFIG.namespace}.sys.shape.`)) return true;
+  const token = tokens[id];
+  if (!token || seen.has(id)) return false;
+  seen.add(id);
+  if (token.alias) return isShape(token.alias, tokens, seen);
+  return token.derive?.fn === 'sub' && isShape(token.derive.of.slice(1, -1), tokens, seen);
+}
 function cornerCompanion(token, tokens) {
   if (token.path[0] !== 'comp' || token.type !== 'dimension') return [];
   const name = `${idToVar(token.id)}-pill`;
-  if (token.derive?.fn === 'sub') return [[name, '0']];
+  const innerCorner = (t) => t?.derive?.fn === 'sub' && isShape(t.derive.of.slice(1, -1), tokens);
+  if (innerCorner(token)) return [[name, '0']];
   if (!token.alias) return [];
   const chain = [];
   for (let id = token.alias; id && !chain.includes(id); id = tokens[id]?.alias) chain.push(id);
-  if (chain.some((id) => tokens[id]?.derive?.fn === 'sub')) return [[name, '0']];
+  if (chain.some((id) => innerCorner(tokens[id]))) return [[name, '0']];
   if (!chain.some((id) => id.startsWith(CORNER))) return [];
   return [[name, chain.includes(FULL) ? '1' : '0']];
 }
