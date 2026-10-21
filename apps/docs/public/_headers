@@ -9,8 +9,21 @@
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
   Cross-Origin-Opener-Policy: same-origin
   # Report-only until the pages have been checked against it: Starlight and the contrast bootstrap use inline
-  # scripts, and Theme Studio evaluates the build's emitter in the browser.
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+  # scripts, and Theme Studio evaluates the build's emitter in the browser. A page frames only this site's own
+  # documents: the fixture gallery's windows (/fixtures/*, below).
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+
+# The fixture gallery's windows: a component page frames /fixtures/<component>/?id=<fixture>, so these documents may be
+# framed by this site and by no other. The host adds the headers of every rule a path matches, in this file's order, and
+# joins a header two rules set: each header the rule above sets is first detached (`!`), so it is sent once, with this
+# value. The policy enforced here is only who may frame the document (X-Frame-Options says the same to a browser that
+# reads no frame-ancestors); the report-only policy is the one above, but for frame-ancestors.
+/fixtures/*
+  ! X-Frame-Options
+  ! Content-Security-Policy-Report-Only
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'; object-src 'none'
 
 # File names carry a content hash.
 /_astro/*
