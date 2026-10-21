@@ -1625,6 +1625,11 @@ public data class TanreiButtonWithMenuVariantStateTokens(
     public val outlineColor: TanreiPaint,
     public val dividerColor: TanreiPaint,
     public val stateLayerColor: TanreiPaint,
+    public val destructiveContainerColor: TanreiPaint,
+    public val destructiveLabelColor: TanreiPaint,
+    public val destructiveOutlineColor: TanreiPaint,
+    public val destructiveDividerColor: TanreiPaint,
+    public val destructiveStateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
@@ -1633,6 +1638,11 @@ public data class TanreiButtonWithMenuVariantStateTokens(
         addAll(outlineColor.roles())
         addAll(dividerColor.roles())
         addAll(stateLayerColor.roles())
+        addAll(destructiveContainerColor.roles())
+        addAll(destructiveLabelColor.roles())
+        addAll(destructiveOutlineColor.roles())
+        addAll(destructiveDividerColor.roles())
+        addAll(destructiveStateLayerColor.roles())
     }
 }
 

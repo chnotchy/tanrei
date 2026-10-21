@@ -37664,7 +37664,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -37680,7 +37680,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -37692,7 +37692,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -37704,7 +37704,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -37716,7 +37716,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -37728,9 +37728,85 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9412,
+                      0.7451,
+                      0.7333
+                    ],
+                    "hex": "#f0bebb"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.filled.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
                 }
               }
             }
@@ -37750,7 +37826,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -37766,7 +37842,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -37778,7 +37854,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -37790,7 +37866,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -37802,7 +37878,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -37814,9 +37890,85 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9255,
+                      0.7294,
+                      0.7176
+                    ],
+                    "hex": "#ecbab7"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.filled.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
                 }
               }
             }
@@ -37836,7 +37988,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -37852,7 +38004,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -37864,7 +38016,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -37876,7 +38028,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -37888,7 +38040,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -37900,9 +38052,85 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9255,
+                      0.7294,
+                      0.7176
+                    ],
+                    "hex": "#ecbab7"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.filled.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
                 }
               }
             }
@@ -37923,7 +38151,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -37938,7 +38166,7 @@
                 "$value": "{tanrei.sys.elevation.level0}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -37959,7 +38187,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -37976,7 +38204,7 @@
                 "$value": "{tanrei.comp.button-with-menu.filled.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -37997,7 +38225,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -38023,13 +38251,75 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.sys.color.on-surface}",
                     "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.disabled.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.disabled.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.disabled.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.disabled.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.filled.disabled.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               }
@@ -38052,7 +38342,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -38068,7 +38358,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38080,7 +38370,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38092,7 +38382,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38104,7 +38394,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38116,9 +38406,85 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2745,
+                      0.1804,
+                      0.1725
+                    ],
+                    "hex": "#462e2c"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.tonal.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
                 }
               }
             }
@@ -38138,7 +38504,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -38154,7 +38520,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38166,7 +38532,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38178,7 +38544,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38190,7 +38556,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38202,9 +38568,85 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2902,
+                      0.1961,
+                      0.1882
+                    ],
+                    "hex": "#4a3230"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.tonal.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
                 }
               }
             }
@@ -38224,7 +38666,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -38240,7 +38682,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38252,7 +38694,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38264,7 +38706,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38276,7 +38718,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38288,9 +38730,85 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2902,
+                      0.1961,
+                      0.1882
+                    ],
+                    "hex": "#4a3230"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.tonal.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
                 }
               }
             }
@@ -38311,7 +38829,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -38326,7 +38844,7 @@
                 "$value": "{tanrei.sys.elevation.level0}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38347,7 +38865,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -38364,7 +38882,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38376,7 +38894,7 @@
                 "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38397,13 +38915,75 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.sys.color.on-surface}",
                     "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.disabled.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.disabled.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.disabled.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.disabled.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.tonal.disabled.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               }
@@ -38426,7 +39006,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -38442,7 +39022,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38454,7 +39034,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38466,7 +39046,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38478,7 +39058,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38490,9 +39070,85 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0941,
+                      0.0784,
+                      0.0784
+                    ],
+                    "hex": "#181414"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.elevated.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
                 }
               }
             }
@@ -38512,7 +39168,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -38528,7 +39184,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38540,7 +39196,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38552,7 +39208,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38564,7 +39220,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38576,9 +39232,85 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1137,
+                      0.0941,
+                      0.0941
+                    ],
+                    "hex": "#1d1818"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.elevated.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
                 }
               }
             }
@@ -38598,7 +39330,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -38614,7 +39346,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38626,7 +39358,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38638,7 +39370,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38650,7 +39382,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -38662,9 +39394,85 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1137,
+                      0.0941,
+                      0.0941
+                    ],
+                    "hex": "#1d1818"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.elevated.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
                 }
               }
             }
@@ -38685,7 +39493,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -38700,7 +39508,7 @@
                 "$value": "{tanrei.sys.elevation.level0}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38721,7 +39529,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -38738,7 +39546,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38750,7 +39558,7 @@
                 "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -38771,13 +39579,75 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.sys.color.on-surface}",
                     "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.disabled.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.disabled.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.disabled.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.disabled.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.elevated.disabled.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               }
@@ -38801,7 +39671,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -38817,7 +39687,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38829,7 +39699,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38841,7 +39711,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38853,7 +39723,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -38865,9 +39735,86 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7961
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#ffcfcb"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.outlined.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
                 }
               }
             }
@@ -38888,7 +39835,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -38904,7 +39851,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38916,7 +39863,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38928,7 +39875,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38940,7 +39887,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -38952,9 +39899,86 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7961
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#ffcfcb"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.outlined.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
                 }
               }
             }
@@ -38975,7 +39999,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -38991,7 +40015,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.container.elevation}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -39003,7 +40027,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -39015,7 +40039,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -39027,7 +40051,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -39039,9 +40063,86 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7961
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#ffcfcb"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button-with-menu.outlined.destructive.container.color}",
+                      "with": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.destructive.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
                 }
               }
             }
@@ -39053,7 +40154,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -39063,7 +40164,7 @@
                 "$value": "{tanrei.sys.elevation.level0}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -39084,7 +40185,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
@@ -39101,7 +40202,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.outline.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -39113,7 +40214,7 @@
                 "$value": "{tanrei.comp.button-with-menu.outlined.divider.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -39134,13 +40235,75 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                   },
                   "dev.tanrei.state": "disabled",
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.sys.color.on-surface}",
                     "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "destructive": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.disabled.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.disabled.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.disabled.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "divider": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.disabled.divider.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button-with-menu.outlined.disabled.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                    },
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               }
@@ -39153,7 +40316,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
               },
               "dev.tanrei.state": "hovered",
               "dev.tanrei.derive": {
@@ -39167,7 +40330,7 @@
               "$value": "{tanrei.comp.button-with-menu.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                 },
                 "dev.tanrei.state": "hovered"
               }
@@ -39180,7 +40343,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
               },
               "dev.tanrei.state": "focused",
               "dev.tanrei.derive": {
@@ -39194,7 +40357,7 @@
               "$value": "{tanrei.comp.button-with-menu.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                 },
                 "dev.tanrei.state": "focused"
               }
@@ -39207,7 +40370,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
               },
               "dev.tanrei.state": "pressed",
               "dev.tanrei.derive": {
@@ -39221,7 +40384,7 @@
               "$value": "{tanrei.comp.button-with-menu.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                 },
                 "dev.tanrei.state": "pressed"
               }
@@ -39234,7 +40397,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
               },
               "dev.tanrei.state": "disabled",
               "dev.tanrei.derive": {
@@ -39248,7 +40411,7 @@
               "$value": "{tanrei.comp.button-with-menu.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half."
+                  "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half."
                 },
                 "dev.tanrei.state": "disabled"
               }

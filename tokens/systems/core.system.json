@@ -1997,6 +1997,11 @@
       "reason": "A disabled destructive button looks like any disabled button of its variant: an outlined one keeps the plain disabled edge, not the error color, since it cannot be pressed."
     },
     {
+      "match": "tanrei.comp.button-with-menu.*.disabled.destructive.*.color",
+      "$value": "{tanrei.comp.button-with-menu.$1.disabled.$2.color}",
+      "reason": "A disabled destructive button with menu looks like any disabled button with menu of its variant, as a disabled destructive Button does: its fill, edge, divider and label are the plain disabled ones, since it cannot be pressed."
+    },
+    {
       "match": "tanrei.comp.main-action-button.*.hovered.container.elevation",
       "$value": "{tanrei.sys.elevation.level4}",
       "reason": "The main action button rises further under a pointer; the generic rule keeps the resting level."

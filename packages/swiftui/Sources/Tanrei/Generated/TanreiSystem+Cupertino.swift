@@ -903,7 +903,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.primary),
@@ -911,7 +916,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.primary),
@@ -919,7 +929,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.primary),
@@ -927,7 +942,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -935,7 +955,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     tonal: TanreiButtonWithMenuVariantTokens(
@@ -945,7 +970,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.secondaryContainer),
@@ -953,7 +983,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.secondaryContainer),
@@ -961,7 +996,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.secondaryContainer),
@@ -969,7 +1009,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -977,7 +1022,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     elevated: TanreiButtonWithMenuVariantTokens(
@@ -987,7 +1037,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.surfaceContainerLowest),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.surfaceContainerLowest),
@@ -995,7 +1050,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.surfaceContainerLowest),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.surfaceContainerLowest),
@@ -1003,7 +1063,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.surfaceContainerLowest),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .role(.surfaceContainerLowest),
@@ -1011,7 +1076,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.surfaceContainerLowest),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1019,7 +1089,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     outlined: TanreiButtonWithMenuVariantTokens(
@@ -1029,7 +1104,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .none,
@@ -1037,7 +1117,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .none,
@@ -1045,7 +1130,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .none,
@@ -1053,7 +1143,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .none,
@@ -1061,7 +1156,12 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .alpha(of: .role(.onSurface), amount: 0.12),
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
   ),

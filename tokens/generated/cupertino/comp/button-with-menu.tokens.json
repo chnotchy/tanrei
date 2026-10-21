@@ -4,7 +4,7 @@
       "button-with-menu": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled; on a desktop it may also reveal those options when the pointer rests on the trailing half.",
+            "rationale": "One product offers a main action with more options for it one press away (Save and Save as, Merge and Squash and merge), at several emphasis levels and at the heights of its buttons, enabled and disabled, some of them for a main action that deletes or discards something (Delete, with Delete all in its menu), which a person should be able to tell apart before pressing; on a desktop it may also reveal those options when the pointer rests on the trailing half.",
             "since": "0.1.0"
           },
           "dev.tanrei.states": {
@@ -26,7 +26,12 @@
               "label.color": "color",
               "outline.color": "color",
               "divider.color": "color",
-              "state-layer.color": "color"
+              "state-layer.color": "color",
+              "destructive.container.color": "color",
+              "destructive.label.color": "color",
+              "destructive.outline.color": "color",
+              "destructive.divider.color": "color",
+              "destructive.state-layer.color": "color"
             },
             "perComponent": {
               "opacity": "number",
@@ -34,7 +39,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a button with menu reads: per size its height, the leading half's paddings and gap, the trailing half's padding at its default width and its inset at the narrow one, the label style, the icon size and the outline width; whether the halves are joined by a divider or by a gap, the divider's thickness and inset, the gap, the outer, inner and open inner corners and the padding added at the rounded outer ends; the motion, including how long a pointer rests before the menu opens on hover and how long it may be away before that menu closes; and per variant (filled, tonal, elevated, outlined) the container, label (icon and chevron too), outline, divider and elevation of a half in each state.",
+            "usage": "Everything a button with menu reads: per size its height, the leading half's paddings and gap, the trailing half's padding at its default width and its inset at the narrow one, the label style, the icon size and the outline width; whether the halves are joined by a divider or by a gap, the divider's thickness and inset, the gap, the outer, inner and open inner corners and the padding added at the rounded outer ends; the motion, including how long a pointer rests before the menu opens on hover and how long it may be away before that menu closes; and per variant (filled, tonal, elevated, outlined) the container, label (icon and chevron too), outline, divider and elevation of a half in each state, and of a button with menu whose main action deletes or discards (destructive.).",
             "rules": [
               "Use a button with menu when a main action has a few more options; when there is no main action, use a menu from a button.",
               "Both halves share one look; each shows its own state.",
@@ -46,7 +51,8 @@
               "The hover delays apply only where the product turns hoverOpen on, and only to a fine pointer.",
               "container.separation follows sys.behavior.separation; set it here only to join this component differently from the rest of the system, and use the separation prop for one instance.",
               "inner-shape, inner-shape-open and inner-gap are read under gap only. Keep inner-shape-open equal to inner-shape unless the trailing half should change shape while the menu is open.",
-              "In the default system the outlined outline and the divider of the outlined, tonal and elevated variants are the hairline, the color the divider component draws its line in. filled.divider.color stays the functional outline role: a hairline cannot be seen on the filled container."
+              "In the default system the outlined outline and the divider of the outlined, tonal and elevated variants are the hairline, the color the divider component draws its line in. filled.divider.color stays the functional outline role: a hairline cannot be seen on the filled container.",
+              "destructive. is the look of a button with menu whose main action deletes or discards something: each variant's destructive parts alias Button's (comp.button.<variant>.destructive.*), so the two components agree, and both halves take it; the menu's items do not. Disabled, it looks like any disabled button with menu of its variant."
             ]
           },
           "dev.tanrei.axes": {
@@ -397,6 +403,38 @@
               "$value": "{tanrei.comp.button-with-menu.filled.label.color}",
               "$description": "The color hover, focus and press mix into a half's container: its label color."
             }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.destructive.container.color}",
+                "$description": "A destructive filled button with menu: both halves in the error role, as a destructive filled Button."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.destructive.label.color}",
+                "$description": "The label, the icon and the chevron: a destructive Button's label color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.destructive.outline.color}"
+              }
+            },
+            "divider": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.filled.divider.color}",
+                "$description": "The line on the seam keeps the variant's own divider color."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.filled.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive half: its label color."
+              }
+            }
           }
         },
         "tonal": {
@@ -451,6 +489,38 @@
               "$type": "color",
               "$value": "{tanrei.comp.button-with-menu.tonal.label.color}",
               "$description": "The color hover, focus and press mix into a half's container: its label color."
+            }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.destructive.container.color}",
+                "$description": "A destructive tonal button with menu: both halves in the error role's tonal container, as a destructive tonal Button."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.destructive.label.color}",
+                "$description": "The label, the icon and the chevron: a destructive Button's label color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.destructive.outline.color}"
+              }
+            },
+            "divider": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
+                "$description": "The line on the seam keeps the variant's own divider color."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.tonal.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive half: its label color."
+              }
             }
           }
         },
@@ -508,6 +578,38 @@
               "$value": "{tanrei.comp.button-with-menu.elevated.label.color}",
               "$description": "The color hover, focus and press mix into a half's container: its label color."
             }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.destructive.container.color}",
+                "$description": "A destructive elevated button with menu keeps its variant's container, as a destructive elevated Button; its label and chevron take the error color."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.destructive.label.color}",
+                "$description": "The label, the icon and the chevron: a destructive Button's label color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.destructive.outline.color}"
+              }
+            },
+            "divider": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
+                "$description": "The line on the seam keeps the variant's own divider color."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.elevated.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive half: its label color."
+              }
+            }
           }
         },
         "outlined": {
@@ -563,6 +665,38 @@
               "$type": "color",
               "$value": "{tanrei.comp.button-with-menu.outlined.label.color}",
               "$description": "The color hover, focus and press mix into a half's container: its label color."
+            }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.destructive.container.color}",
+                "$description": "A destructive outlined button with menu keeps its variant's container (none), as a destructive outlined Button; its label, chevron and edge take the error color."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.destructive.label.color}",
+                "$description": "The label, the icon and the chevron: a destructive Button's label color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.destructive.outline.color}"
+              }
+            },
+            "divider": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.outlined.destructive.outline.color}",
+                "$description": "The line on the seam of a destructive outlined button with menu: its edge color, as the plain outlined divider is its edge color."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button-with-menu.outlined.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive half: its label color."
+              }
             }
           }
         },
