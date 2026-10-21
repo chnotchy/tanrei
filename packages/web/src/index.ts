@@ -351,6 +351,7 @@ export {
   TanreiSearchSuggestion,
   type TanreiSearchToggleDetail,
 } from './components/search/search.js';
+export { TanreiScrollArea, type TanreiScrollAreaEdge, type TanreiScrollAreaScrollEdge } from './components/scroll-area/scroll-area.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,

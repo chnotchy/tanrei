@@ -129,6 +129,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
 
+## Scroll area
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/scroll-area/default.png" alt="web default" width="160"> |
+| `fade` | <img src="../../packages/web/snapshots/scroll-area/fade.png" alt="web fade" width="160"> |
+| `line` | <img src="../../packages/web/snapshots/scroll-area/line.png" alt="web line" width="160"> |
+| `blur` | <img src="../../packages/web/snapshots/scroll-area/blur.png" alt="web blur" width="160"> |
+| `none` | <img src="../../packages/web/snapshots/scroll-area/none.png" alt="web none" width="160"> |
+| `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
+| `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
+
 ## Stepper
 
 | Fixture | Web Components |

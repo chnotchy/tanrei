@@ -65052,6 +65052,112 @@
           }
         }
       },
+      "scroll-area": {
+        "blur": {
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$description": "How deep the blur band reaches in from its edge."
+          },
+          "layers": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "In how many layers of evenly stepped radius the blur band is drawn."
+          },
+          "radius": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The blur's radius at the edge, falling to none at the band's inner end."
+          }
+        },
+        "fade": {
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "How deep the content fades, from none of it shown at the edge to all of it at this depth."
+          }
+        },
+        "line": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                1,
+                1,
+                1
+              ],
+              "alpha": 0.4,
+              "hex": "#ffffff"
+            },
+            "$description": "The line along an edge while content lies beyond it: a decorative boundary, as a divider is."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            }
+          }
+        },
+        "motion": {
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long an edge's mark takes to fade in when content starts lying beyond the edge, and out when it stops."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "scroll-edge": {
+          "$type": "number",
+          "$value": 3,
+          "$description": "What marks an edge of the area while content lies beyond it: shadow, fade, line or blur. Follows the system's choice; the scrollEdge prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+        },
+        "shadow": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "hex": "#000000",
+              "alpha": 1
+            },
+            "$description": "The color of the shadow band: the color of the surface the area stands on, full at the edge and none at the band's inner end. Defaults to the plain surface; set it to the surface the area stands on."
+          },
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "How deep the shadow band reaches in from its edge."
+          }
+        }
+      },
       "search": {
         "container": {
           "button-gap": {
@@ -96174,6 +96280,11 @@
           "$value": 2,
           "$description": "How a required control, or a required set of controls, is marked beside its label. tag: a small filled Tag holding the product's word for it. asterisk: \"*\" after the label's text. none: no mark is drawn; the requirement is still exposed to assistive technology. Read by the Field (and so by every composed field) and by the field group, each through its own component token so that a design system can set one apart; an instance can set its own. A label that floats inside its control's box has no room for a tag and shows tag as the asterisk. What is optional is said in words under every choice."
         },
+        "scroll-edge": {
+          "$type": "number",
+          "$value": 3,
+          "$description": "What marks an edge of a box that scrolls while content lies beyond it, scrolled out of view past that edge. shadow: a band sys.scroll-edge.extent deep in the color of the surface the box stands on, full at the edge and none at the band's inner end, so that the content sinks into the surface. fade: the content itself fades out over the same depth toward the edge, so that whatever lies behind it — a transparent surface, a picture, a video — shows through. line: a hairline along the edge. blur: the content blurred in a band sys.scroll-edge.blur.extent deep, most at the edge. A platform that cannot blur what lies behind draws shadow, the first value; with a person's own forced colors every choice is drawn as the line. Read by the scroll area through its own component token, so that a design system can set it apart; an instance can set its own."
+        },
         "separation": {
           "$type": "number",
           "$value": 0,
@@ -97975,6 +98086,39 @@
               }
             }
           }
+        }
+      },
+      "scroll-edge": {
+        "blur": {
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$description": "How deep the blur band reaches in from its edge."
+          },
+          "layers": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "In how many layers of evenly stepped radius the blur band is drawn, each masked to its part of the band so that no step shows."
+          },
+          "radius": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The blur's radius at the edge; it falls in even steps to none at the band's inner end."
+          }
+        },
+        "extent": {
+          "$type": "dimension",
+          "$value": {
+            "value": 24,
+            "unit": "px"
+          },
+          "$description": "How deep the shadow and fade bands reach in from their edge: full at the edge, none at this depth."
         }
       },
       "shape": {

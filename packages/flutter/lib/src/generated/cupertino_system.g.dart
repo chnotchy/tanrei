@@ -482,6 +482,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     dividerVisibility: TanreiDividerVisibility.scroll,
     linkUnderline: TanreiLinkUnderline.always,
     requirementMark: TanreiRequirementMark.none,
+    scrollEdge: TanreiScrollEdge.blur,
     separation: TanreiSeparation.divider,
   ),
   motion: TanreiMotion(
@@ -7109,6 +7110,19 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       containerShape: 9999.0,
       opacity: 1.0,
     ),
+  ),
+  scrollArea: TanreiScrollAreaTokens(
+    blurExtent: 48.0,
+    blurLayers: 4.0,
+    blurRadius: 8.0,
+    fadeExtent: 24.0,
+    lineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    lineWidth: 1.0,
+    motionDuration: 250,
+    motionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    scrollEdge: 3.0,
+    shadowColor: TanreiPaint.role(TanreiColorRole.surface),
+    shadowExtent: 24.0,
   ),
   search: TanreiSearchTokens(
     containerButtonGap: 8.0,

@@ -1868,19 +1868,37 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/scroll-area/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 9,
+      "alpha": 10,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 63,
+      "planned": 64,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1888,7 +1906,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 63,
+      "planned": 64,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1896,7 +1914,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 63,
+      "planned": 64,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1904,7 +1922,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 63,
+      "planned": 64,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

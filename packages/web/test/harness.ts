@@ -404,10 +404,14 @@ function slotsMarkup(spec: Spec, slots: Fixture['slots']): string {
       if (!kind) throw new Error(`${spec.name}: the slot "${name}" is not declared, or declares no fixture kind`);
       return (Array.isArray(value) ? value : [value]).map((v) => {
         const text = escape(v);
+        // A staging that fills a slot from the fixture's string (a scroll area's content that scrolls) writes it itself.
+        const staged = STAGING[spec.name]?.slot?.(name, v);
+        if (staged !== undefined) return staged;
         if (kind === 'icon-only-button') return `<tanrei-button variant="text" slot="${name}" label="${text}"><span slot="icon">${text}</span></tanrei-button>`;
         if (kind === 'button') return `<tanrei-button slot="${name}" variant="text">${text}</tanrei-button>`;
         if (kind === 'mark') return markMarkup(v, name);
-        return `<span slot="${name}">${text}</span>`;
+        // The default slot is the one no `slot` attribute names.
+        return name === 'default' ? `<span>${text}</span>` : `<span slot="${name}">${text}</span>`;
       });
     })
     .join('');
@@ -599,6 +603,11 @@ interface Staging {
   wrap?: (element: string, fixture: Fixture) => string;
   /** Spec props that the web spells differently from `name="value"` (a card's `inset: false` is the `flush` attribute). The fixture is given too, for an attribute that names something of its stage (a popover's anchor). */
   props?: (props: Fixture['props'], fixture: Fixture) => Fixture['props'];
+  /**
+   * A slot's markup from the fixture's string, where the slot's fixture kind is not enough on its own: a scroll area's
+   * text is enough lines (or a row wide enough) to scroll. Left out — or `undefined` for a slot — the kind's markup.
+   */
+  slot?: (name: string, text: string) => string | undefined;
   /** What an item of the fixture holds besides its attributes (a list item's avatar monogram). */
   itemContent?: (item: FixtureItem) => string;
   /** Attributes an item's element takes besides its props (the slot an app bar's item goes into). */
@@ -1080,6 +1089,40 @@ const STAGING: Record<string, Staging> = {
   // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
+  },
+  // A scroll area is as large as its layout gives it (SCA-1): its stage gives it a box 280 × 160, and the fixture's text
+  // is content that does not fit it — twenty-four lines of "Long content", or a row of twelve tiles that cannot wrap
+  // ("A wide row") — every other row on a container color, so that a mark over it shows. Once staged, the box is
+  // scrolled to the middle in the direction its content does not fit (from the start edge, in either direction), so that
+  // both edges a fixture watches have content beyond them, and the step waits until the area has drawn both.
+  'scroll-area': {
+    css: () => `tanrei-scroll-area { inline-size: 280px; block-size: 160px; }
+      .scroll-fixture-line { padding: 8px 12px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+      .scroll-fixture-line:nth-child(odd), .scroll-fixture-tile:nth-child(odd) { background: var(--tanrei-sys-color-surface-container-highest); }
+      .scroll-fixture-row { display: flex; block-size: 100%; }
+      .scroll-fixture-tile { flex: none; box-sizing: border-box; inline-size: 96px; block-size: 136px; padding: 8px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => {
+      if (name !== 'default') return undefined;
+      const words = text.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
+      const numbered = (n: number) => `${words} ${n + 1}`;
+      return text === 'A wide row'
+        ? `<div class="scroll-fixture-row">${Array.from({ length: 12 }, (_, n) => `<div class="scroll-fixture-tile">${numbered(n)}</div>`).join('')}</div>`
+        : Array.from({ length: 24 }, (_, n) => `<div class="scroll-fixture-line">${numbered(n)}</div>`).join('');
+    },
+    after: async (element) => {
+      const area = element as HTMLElement & { updateComplete: Promise<unknown> };
+      await area.updateComplete;
+      const box = area.shadowRoot!.querySelector<HTMLElement>('[part~="container"]')!;
+      const frame = box.parentElement!;
+      const rtl = getComputedStyle(box).direction === 'rtl';
+      const down = box.scrollHeight - box.clientHeight;
+      const along = box.scrollWidth - box.clientWidth;
+      box.scrollTop = down / 2;
+      box.scrollLeft = (rtl ? -along : along) / 2;
+      const watched = (area.getAttribute('edges') ?? 'top bottom').split(/\s+/).filter((edge) => (edge === 'top' || edge === 'bottom' ? down : along) > 0);
+      const drawn = () => watched.every((edge) => frame.hasAttribute(`data-${edge}`));
+      for (let frames = 0; frames < 60 && !drawn(); frames++) await new Promise((resolve) => requestAnimationFrame(resolve));
+    },
   },
   // A loading indicator's fixture is the shown indicator from its first frame: no show delay and no entrance (LDG-11's
   // verify). A test's own fixture may name either.

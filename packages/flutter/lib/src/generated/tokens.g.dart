@@ -1665,6 +1665,14 @@ enum TanreiRequirementMark {
   none,
 }
 
+/// `sys.behavior.scroll-edge`: a choice of kind. The first value is the default.
+enum TanreiScrollEdge {
+  shadow,
+  fade,
+  line,
+  blur,
+}
+
 /// `sys.behavior.separation`: a choice of kind. The first value is the default.
 enum TanreiSeparation {
   divider,
@@ -1682,6 +1690,7 @@ class TanreiBehavior {
     required this.dividerVisibility,
     required this.linkUnderline,
     required this.requirementMark,
+    required this.scrollEdge,
     required this.separation,
   });
 
@@ -1697,6 +1706,8 @@ class TanreiBehavior {
   final TanreiLinkUnderline linkUnderline;
   /// `sys.behavior.requirement-mark`
   final TanreiRequirementMark requirementMark;
+  /// `sys.behavior.scroll-edge`
+  final TanreiScrollEdge scrollEdge;
   /// `sys.behavior.separation`
   final TanreiSeparation separation;
 
@@ -1708,6 +1719,7 @@ class TanreiBehavior {
     TanreiDividerVisibility? dividerVisibility,
     TanreiLinkUnderline? linkUnderline,
     TanreiRequirementMark? requirementMark,
+    TanreiScrollEdge? scrollEdge,
     TanreiSeparation? separation,
   }) => TanreiBehavior(
         pressedFeedback: pressedFeedback ?? this.pressedFeedback,
@@ -1716,6 +1728,7 @@ class TanreiBehavior {
         dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         linkUnderline: linkUnderline ?? this.linkUnderline,
         requirementMark: requirementMark ?? this.requirementMark,
+        scrollEdge: scrollEdge ?? this.scrollEdge,
         separation: separation ?? this.separation,
       );
 }
@@ -18870,6 +18883,74 @@ class TanreiRadioButtonTokens {
       };
 }
 
+/// `comp.scroll-area.*`
+@immutable
+class TanreiScrollAreaTokens {
+  const TanreiScrollAreaTokens({
+    required this.blurExtent,
+    required this.blurLayers,
+    required this.blurRadius,
+    required this.fadeExtent,
+    required this.lineColor,
+    required this.lineWidth,
+    required this.motionDuration,
+    required this.motionEasing,
+    required this.scrollEdge,
+    required this.shadowColor,
+    required this.shadowExtent,
+  });
+
+  /// `comp.scroll-area.blur-extent`
+  final double blurExtent;
+  /// `comp.scroll-area.blur-layers`
+  final double blurLayers;
+  /// `comp.scroll-area.blur-radius`
+  final double blurRadius;
+  /// `comp.scroll-area.fade-extent`
+  final double fadeExtent;
+  /// `comp.scroll-area.line-color`
+  final TanreiPaint lineColor;
+  /// `comp.scroll-area.line-width`
+  final double lineWidth;
+  /// `comp.scroll-area.motion-duration`
+  final int motionDuration;
+  /// `comp.scroll-area.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.scroll-area.scroll-edge`
+  final double scrollEdge;
+  /// `comp.scroll-area.shadow-color`
+  final TanreiPaint shadowColor;
+  /// `comp.scroll-area.shadow-extent`
+  final double shadowExtent;
+
+  /// A copy with the given tokens replaced.
+  TanreiScrollAreaTokens copyWith({
+    double? blurExtent,
+    double? blurLayers,
+    double? blurRadius,
+    double? fadeExtent,
+    TanreiPaint? lineColor,
+    double? lineWidth,
+    int? motionDuration,
+    TanreiCubicBezier? motionEasing,
+    double? scrollEdge,
+    TanreiPaint? shadowColor,
+    double? shadowExtent,
+  }) => TanreiScrollAreaTokens(
+        blurExtent: blurExtent ?? this.blurExtent,
+        blurLayers: blurLayers ?? this.blurLayers,
+        blurRadius: blurRadius ?? this.blurRadius,
+        fadeExtent: fadeExtent ?? this.fadeExtent,
+        lineColor: lineColor ?? this.lineColor,
+        lineWidth: lineWidth ?? this.lineWidth,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionEasing: motionEasing ?? this.motionEasing,
+        scrollEdge: scrollEdge ?? this.scrollEdge,
+        shadowColor: shadowColor ?? this.shadowColor,
+        shadowExtent: shadowExtent ?? this.shadowExtent,
+      );
+}
+
 /// The key of a condition of search (`comp.search`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -26314,6 +26395,7 @@ class TanreiSystem {
     required this.progressIndicator,
     required this.prose,
     required this.radioButton,
+    required this.scrollArea,
     required this.search,
     required this.segmentedButton,
     required this.select,
@@ -26414,6 +26496,7 @@ class TanreiSystem {
   final TanreiProgressIndicatorTokens progressIndicator;
   final TanreiProseTokens prose;
   final TanreiRadioButtonTokens radioButton;
+  final TanreiScrollAreaTokens scrollArea;
   final TanreiSearchTokens search;
   final TanreiSegmentedButtonTokens segmentedButton;
   final TanreiSelectTokens select;
@@ -26513,6 +26596,7 @@ class TanreiSystem {
     TanreiProgressIndicatorTokens? progressIndicator,
     TanreiProseTokens? prose,
     TanreiRadioButtonTokens? radioButton,
+    TanreiScrollAreaTokens? scrollArea,
     TanreiSearchTokens? search,
     TanreiSegmentedButtonTokens? segmentedButton,
     TanreiSelectTokens? select,
@@ -26610,6 +26694,7 @@ class TanreiSystem {
         progressIndicator: progressIndicator ?? this.progressIndicator,
         prose: prose ?? this.prose,
         radioButton: radioButton ?? this.radioButton,
+        scrollArea: scrollArea ?? this.scrollArea,
         search: search ?? this.search,
         segmentedButton: segmentedButton ?? this.segmentedButton,
         select: select ?? this.select,

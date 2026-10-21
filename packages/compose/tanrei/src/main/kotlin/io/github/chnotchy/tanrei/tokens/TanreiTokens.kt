@@ -707,6 +707,9 @@ public enum class TanreiPressedFeedback { Overlay, Ripple, Dim, None }
 /** `sys.behavior.requirement-mark`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiRequirementMark { Tag, Asterisk, None }
 
+/** `sys.behavior.scroll-edge`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
+public enum class TanreiScrollEdge { Shadow, Fade, Line, Blur }
+
 /** `sys.behavior.separation`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiSeparation { Divider, Gap }
 
@@ -719,6 +722,7 @@ public data class TanreiBehavior(
     public val linkUnderline: TanreiLinkUnderline,
     public val pressedFeedback: TanreiPressedFeedback,
     public val requirementMark: TanreiRequirementMark,
+    public val scrollEdge: TanreiScrollEdge,
     public val separation: TanreiSeparation,
 )
 
@@ -8133,6 +8137,27 @@ public data class TanreiRadioButtonTokens(
     }
 }
 
+/** `comp.scroll-area`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiScrollAreaTokens(
+    public val blurExtent: Dp,
+    public val blurLayers: Float,
+    public val blurRadius: Dp,
+    public val fadeExtent: Dp,
+    public val lineColor: TanreiPaint,
+    public val lineWidth: Dp,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val scrollEdge: Float,
+    public val shadowColor: TanreiPaint,
+    public val shadowExtent: Dp,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(lineColor.roles())
+        addAll(shadowColor.roles())
+    }
+}
+
 /**
  * A condition of search: the key of one entry of [TanreiSearchConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -11385,6 +11410,7 @@ public data class TanreiSystem(
     public val progressIndicator: TanreiProgressIndicatorTokens,
     public val prose: TanreiProseTokens,
     public val radioButton: TanreiRadioButtonTokens,
+    public val scrollArea: TanreiScrollAreaTokens,
     public val search: TanreiSearchTokens,
     public val segmentedButton: TanreiSegmentedButtonTokens,
     public val select: TanreiSelectTokens,
@@ -11472,6 +11498,7 @@ public data class TanreiSystem(
         addAll(progressIndicator.referencedRoles())
         addAll(prose.referencedRoles())
         addAll(radioButton.referencedRoles())
+        addAll(scrollArea.referencedRoles())
         addAll(search.referencedRoles())
         addAll(segmentedButton.referencedRoles())
         addAll(select.referencedRoles())

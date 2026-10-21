@@ -7164,6 +7164,20 @@ private let m3ExpressiveLikeRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let m3ExpressiveLikeScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 150,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 2,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   containerButtonGap: 8,
   containerGap: 8,
@@ -9816,6 +9830,7 @@ extension TanreiSystem {
       linkUnderline: .always,
       pressedFeedback: .ripple,
       requirementMark: .asterisk,
+      scrollEdge: .line,
       separation: .gap
     ),
     motion: TanreiMotionTokens(
@@ -9932,6 +9947,7 @@ extension TanreiSystem {
     progressIndicator: m3ExpressiveLikeProgressIndicatorTokens,
     prose: m3ExpressiveLikeProseTokens,
     radioButton: m3ExpressiveLikeRadioButtonTokens,
+    scrollArea: m3ExpressiveLikeScrollAreaTokens,
     search: m3ExpressiveLikeSearchTokens,
     segmentedButton: m3ExpressiveLikeSegmentedButtonTokens,
     select: m3ExpressiveLikeSelectTokens,
