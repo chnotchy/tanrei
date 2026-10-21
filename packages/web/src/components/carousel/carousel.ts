@@ -161,12 +161,12 @@ export class TanreiCarouselItem extends TanreiElement {
   }
 
   /** CRL-7: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
   /** CRL-1: Enter activates on key-down and Space on key-up, as a native button does. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.target !== this.container) return;
     this.press.onKeyDown(event);
     if (event.key === 'Enter') {
@@ -178,14 +178,14 @@ export class TanreiCarouselItem extends TanreiElement {
     }
   }
 
-  private onKeyUp(event: KeyboardEvent) {
+  #onKeyUp(event: KeyboardEvent) {
     this.press.onKeyUp(event);
     if (event.key !== ' ' || !this.spaceDown) return;
     this.spaceDown = false;
     this.container?.click();
   }
 
-  private onBlur() {
+  #onBlur() {
     // A Space whose key-up arrives somewhere else does not activate, as on a native button.
     this.spaceDown = false;
     this.press.onBlur();
@@ -224,10 +224,10 @@ export class TanreiCarouselItem extends TanreiElement {
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
-        @keydown=${this.onKeyDown}
-        @keyup=${this.onKeyUp}
-        @blur=${this.onBlur}
-        @focus=${this.onFocus}
+        @keydown=${this.#onKeyDown}
+        @keyup=${this.#onKeyUp}
+        @blur=${this.#onBlur}
+        @focus=${this.#onFocus}
       >
         <div class="clip" aria-hidden="true">
           <div part="content" class="content"><slot @slotchange=${this.inspectContent}></slot></div>

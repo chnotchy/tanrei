@@ -2043,16 +2043,16 @@ export class TanreiDateTimePicker extends TanreiElement {
   /** DTM-5: a press that starts and ends on a modal picker's scrim. */
   private readonly onDialogPointerDown = (event: PointerEvent) => {
     this.onSurfacePointerDown(event);
-    this.pressedScrim = this.onScrim(event);
+    this.pressedScrim = this.#onScrim(event);
   };
 
   private readonly onDialogClick = (event: MouseEvent) => {
-    const scrim = this.pressedScrim && this.onScrim(event);
+    const scrim = this.pressedScrim && this.#onScrim(event);
     this.pressedScrim = false;
     if (scrim) this.requestClose('outside');
   };
 
-  private onScrim(event: MouseEvent): boolean {
+  #onScrim(event: MouseEvent): boolean {
     const surface = this.surface;
     if (!surface || this.inline || event.composedPath()[0] !== surface) return false;
     const box = surface.getBoundingClientRect();

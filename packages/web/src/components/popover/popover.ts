@@ -292,7 +292,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   /** POP-30: the actions that were told their place. */
   private placed = new Set<Element>();
   private readonly mutation$ = new MutationObserver(() => this.readSlots());
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.onResize());
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.#onResize());
   /** Whether the surface is presented: open, with an anchor and something to show. */
   private presented = false;
   private first = true;
@@ -492,7 +492,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       this.hasContent = content;
     } else {
       this.assign();
-      this.onResize();
+      this.#onResize();
     }
   }
 
@@ -565,7 +565,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   private readonly onScroll = () => this.syncScroll();
 
   /** A part changed size (its text, the text size, the window): the actions are placed again, and the surface with them. */
-  private onResize() {
+  #onResize() {
     if (!this.presented) return;
     this.arrange();
     this.syncScroll();
@@ -903,7 +903,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
             @scroll=${this.onScroll}
             @focus=${focus}
           >
-            <div class="inner"><slot @slotchange=${() => this.onResize()}></slot></div>
+            <div class="inner"><slot @slotchange=${() => this.#onResize()}></slot></div>
           </div>
           <span class="focus" data-tanrei-shape></span>
         </div>

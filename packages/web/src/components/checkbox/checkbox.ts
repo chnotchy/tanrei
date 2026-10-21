@@ -234,11 +234,11 @@ export class TanreiCheckbox extends TanreiElement {
   }
 
   /** CHK-11: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.input);
   }
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
   }
@@ -247,12 +247,12 @@ export class TanreiCheckbox extends TanreiElement {
    * A click on the label's text or on the target around the box is the label's; the browser turns it into the input's
    * click, which is the one the element lets out, so a listener hears one click per activation.
    */
-  private onRootClick(event: Event) {
+  #onRootClick(event: Event) {
     if (event.target !== this.input) event.stopPropagation();
   }
 
   /** CHK-2: activation of an indeterminate checkbox checks it, whatever `checked` was (the native one would flip it). */
-  private onClick(event: Event) {
+  #onClick(event: Event) {
     // CHK-24: read-only, the activation is cancelled — the native checkbox goes back to what it was and fires no input
     // and no change — whatever started it: a press, Space, the label, assistive technology or element.click().
     if (this.readOnly) return event.preventDefault();
@@ -263,7 +263,7 @@ export class TanreiCheckbox extends TanreiElement {
   }
 
   /** CHK-1: the native input switched; the element takes the new value before anyone hears of it. */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     markConditionChange(this.renderRoot.querySelector('.root'));
     const owner = this.owner;
@@ -281,7 +281,7 @@ export class TanreiCheckbox extends TanreiElement {
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
-  private onChange() {
+  #onChange() {
     // CHK-23: the group fires the one `change`.
     const owner = this.owner;
     if (owner) return owner.memberSwitched(this, 'change');
@@ -321,7 +321,7 @@ export class TanreiCheckbox extends TanreiElement {
         class="root"
         ?data-error=${error}
         ?data-readonly=${this.readOnly}
-        @click=${this.onRootClick}
+        @click=${this.#onRootClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -340,13 +340,13 @@ export class TanreiCheckbox extends TanreiElement {
             aria-invalid=${error ? 'true' : nothing}
             aria-required=${(field.required || required) && !nativeRequired ? 'true' : nothing}
             aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
-            @click=${this.onClick}
-            @input=${this.onInput}
-            @change=${this.onChange}
-            @keydown=${this.onKeyDown}
+            @click=${this.#onClick}
+            @input=${this.#onInput}
+            @change=${this.#onChange}
+            @keydown=${this.#onKeyDown}
             @keyup=${this.press.onKeyUp}
             @blur=${this.press.onBlur}
-            @focus=${this.onFocus}
+            @focus=${this.#onFocus}
           />
           <span part="container" class="container" data-tanrei-shape aria-hidden="true"></span>
           <span part="box" class="box" data-tanrei-shape aria-hidden="true">

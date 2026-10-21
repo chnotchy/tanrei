@@ -1031,7 +1031,7 @@ export class TanreiTextInput extends TanreiElement {
    * autofill, a paste the clipboard event did not bring), a deletion removes a digit. A composition cannot be cancelled
    * and is left to the input method until it commits.
    */
-  private onBeforeInput(event: InputEvent) {
+  #onBeforeInput(event: InputEvent) {
     if (!(event.target instanceof HTMLElement) || !event.target.classList.contains('segment')) return;
     if (this.composing || isCompositionInput(event)) return;
     event.preventDefault();
@@ -1065,7 +1065,7 @@ export class TanreiTextInput extends TanreiElement {
    * Page Down by more, Home and End go to the ends of the range; Backspace and Delete remove a digit; Enter is the
    * action key (TXI-3). Digits and letters arrive as `beforeinput`.
    */
-  private onSegmentKeyDown(event: KeyboardEvent) {
+  #onSegmentKeyDown(event: KeyboardEvent) {
     const segment = event.target;
     const row = this.row;
     if (!row || !(segment instanceof HTMLElement) || !segment.classList.contains('segment')) return;
@@ -1113,7 +1113,7 @@ export class TanreiTextInput extends TanreiElement {
     event.preventDefault();
   }
 
-  private onSegmentCompositionStart() {
+  #onSegmentCompositionStart() {
     this.composing = true;
   }
 
@@ -1125,11 +1125,11 @@ export class TanreiTextInput extends TanreiElement {
    * picked) alike — and never after a timer: on a busy page an engine handles input before timers, so the next
    * composition (or a digit typed) could begin on this segment before the timer ran and focus moved on, and its digits
    * would be taken here. What an engine still reports afterwards is the composition's by what it is: Firefox's last
-   * `input` only repaints (`onSegmentInput`), and the committing key WebKit reports after the end is not the segment's
+   * `input` only repaints (`#onSegmentInput`), and the committing key WebKit reports after the end is not the segment's
    * (`segmentComposition`). Firefox ends a composition a second time when focus moves inside its end — a second
    * `compositionend`, from within the move — and that one is not a commit: no composition is open by then.
    */
-  private onSegmentCompositionEnd(event: CompositionEvent) {
+  #onSegmentCompositionEnd(event: CompositionEvent) {
     if (!this.composing) return;
     this.segmentComposition.ended(event);
     const segment = event.target instanceof HTMLElement && event.target.classList.contains('segment') ? event.target : null;
@@ -1146,13 +1146,13 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** The browser's own `input` on a segment (a composition's) is not the field's: the value's change is (TXI-46). */
-  private onSegmentInput(event: Event) {
+  #onSegmentInput(event: Event) {
     event.stopPropagation();
     if (!(event as InputEvent).isComposing) this.paintSegments();
   }
 
   /** TXI-29: copy puts the whole row on the clipboard as drawn, whichever segment has focus. */
-  private onCopy(event: ClipboardEvent) {
+  #onCopy(event: ClipboardEvent) {
     const row = this.row;
     if (!row) return;
     event.preventDefault();
@@ -1160,13 +1160,13 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** TXI-29: cut copies the whole row and then empties every segment, unless the field is read-only. */
-  private onCut(event: ClipboardEvent) {
-    this.onCopy(event);
+  #onCut(event: ClipboardEvent) {
+    this.#onCopy(event);
     if (this.row && fill(this.row, this.segments).held > 0) this.edit(EMPTY_SEGMENTS);
   }
 
   /** TXI-29: pasted text is read whole, whichever segment has focus; text that reads as nothing changes nothing. */
-  private onPaste(event: ClipboardEvent) {
+  #onPaste(event: ClipboardEvent) {
     if (!this.row) return;
     event.preventDefault();
     this.takeWhole(event.clipboardData?.getData('text/plain') ?? '');
@@ -1178,7 +1178,7 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** TXI-43: focus arrived on a segment or on the picker button of a date or time field. */
-  private onEntryFocusIn(event: FocusEvent) {
+  #onEntryFocusIn(event: FocusEvent) {
     if (!this.row || !this.keepsEntry(event.target)) return;
     const target = event.target as HTMLElement;
     if (target.classList.contains('segment')) {
@@ -1198,7 +1198,7 @@ export class TanreiTextInput extends TanreiElement {
    * TXI-43: focus left a segment or the picker button. Moving between them commits nothing; leaving them for anything
    * else commits the field (TXI-2, TXI-30) — without the entry error when it leaves for the picker it asked for (TXI-33).
    */
-  private onEntryFocusOut(event: FocusEvent) {
+  #onEntryFocusOut(event: FocusEvent) {
     if (!this.row || !this.keepsEntry(event.target)) return;
     const to = event.relatedTarget;
     if ((event.target as HTMLElement).classList.contains('segment')) this.focused = to instanceof Element && to.classList.contains('segment') && this.renderRoot.contains(to);
@@ -1214,7 +1214,7 @@ export class TanreiTextInput extends TanreiElement {
    * itself — after the element has taken the new value. An edit past maxLength is cut to fit; one that changes nothing
    * then (a keystroke at the limit) is refused and heard by no one.
    */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     const input = event.target as HTMLInputElement | HTMLTextAreaElement;
     // TXI-4: the composition is the platform's; the value follows it, and nothing is written back.
     if (this.native.composingInput(event)) return;
@@ -1244,14 +1244,14 @@ export class TanreiTextInput extends TanreiElement {
     }
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     this.committed = this.value;
     syncFocusStyle(this, this.renderRoot.querySelector('.field'));
   }
 
   /** TXI-2: focus left with a changed value — `change`, once. */
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
     this.commit();
   }
@@ -1277,7 +1277,7 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /** The browser's own `change` is not the field's (TXI-2 decides when a value is committed). */
-  private onNativeChange(event: Event) {
+  #onNativeChange(event: Event) {
     event.stopPropagation();
   }
 
@@ -1286,7 +1286,7 @@ export class TanreiTextInput extends TanreiElement {
    * `action` was cancelled, it requests the form's submission as a native input does. Not while composing: there Enter
    * commits the composition. In a multi-line field Enter is a line break.
    */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.key !== 'Enter' || this.isMultiline || event.isComposing || this.native.composing || event.keyCode === 229) return;
     this.act(event);
   }
@@ -1310,7 +1310,7 @@ export class TanreiTextInput extends TanreiElement {
    * presented, nothing committed — the value it carries is empty while the row is half-filled or not available, and no
    * entry error is raised for that, because the picker is about to give a whole value.
    */
-  private onPickerClick() {
+  #onPickerClick() {
     const kind = this.dateKind;
     if (!kind || this.inert_ || this.readOnly) return;
     this.pickerAsked = true;
@@ -1322,7 +1322,7 @@ export class TanreiTextInput extends TanreiElement {
    * TXI-33: a press on the picker button is already the request, as far as the entry error goes: where a press on a
    * button moves focus to nothing (Safari), focus leaves the segments before the click arrives.
    */
-  private onPickerPress() {
+  #onPickerPress() {
     if (this.dateKind && !this.inert_ && !this.readOnly) this.pickerAsked = true;
   }
 
@@ -1340,7 +1340,7 @@ export class TanreiTextInput extends TanreiElement {
    * text between two segments — focuses the input (TXI-43: a segment). An
    * interactive element in a slot, a segment, the picker button and the resize grip keep their own press.
    */
-  private onFieldMouseDown(event: MouseEvent) {
+  #onFieldMouseDown(event: MouseEvent) {
     const input = this.entryTarget;
     if (!input || this.inert_ || event.button !== 0) return;
     const path = event.composedPath();
@@ -1354,7 +1354,7 @@ export class TanreiTextInput extends TanreiElement {
     input.focus();
   }
 
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const filled = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || node.textContent?.trim());
     if (slot.name === 'leading-icon') this.hasLeading = filled;
@@ -1614,7 +1614,7 @@ export class TanreiTextInput extends TanreiElement {
    * TXI-39, TXI-40: a press that begins on the grip's hit area belongs to the grip — it does not place the caret,
    * select text or take focus from the input — and a drag follows the pointer without motion.
    */
-  private onGripPointerDown(event: PointerEvent) {
+  #onGripPointerDown(event: PointerEvent) {
     const input = this.textarea;
     if (!input || event.button !== 0) return;
     event.preventDefault();
@@ -1632,7 +1632,7 @@ export class TanreiTextInput extends TanreiElement {
     };
   }
 
-  private onGripPointerMove(event: PointerEvent) {
+  #onGripPointerMove(event: PointerEvent) {
     const drag = this.drag;
     if (!drag || event.pointerId !== drag.id) return;
     const [dx, dy] = [event.clientX - drag.x, event.clientY - drag.y];
@@ -1643,7 +1643,7 @@ export class TanreiTextInput extends TanreiElement {
     if (this.axis === 'both') this.resizeWidth(drag.width + (drag.rtl ? -dx : dx));
   }
 
-  private onGripPointerUp(event: PointerEvent) {
+  #onGripPointerUp(event: PointerEvent) {
     const drag = this.drag;
     if (!drag || event.pointerId !== drag.id) return;
     this.drag = null;
@@ -1651,16 +1651,16 @@ export class TanreiTextInput extends TanreiElement {
     if (!drag.moved) this.fitToText();
   }
 
-  private onGripPointerCancel() {
+  #onGripPointerCancel() {
     this.drag = null;
   }
 
-  private onGripMouseDown(event: MouseEvent) {
+  #onGripMouseDown(event: MouseEvent) {
     event.preventDefault();
   }
 
   /** TXI-41: an activation that came with no pointer (a click assistive technology makes) fits the height to the text too. */
-  private onGripClick(event: MouseEvent) {
+  #onGripClick(event: MouseEvent) {
     if (event.detail === 0) this.fitToText();
   }
 
@@ -1670,7 +1670,7 @@ export class TanreiTextInput extends TanreiElement {
    * horizontal arrow that points to its end edge widens it by one line height and the other narrows it; Enter and
    * Space fit the height to the text. Each change moves as TXI-38 says.
    */
-  private onGripKeyDown(event: KeyboardEvent) {
+  #onGripKeyDown(event: KeyboardEvent) {
     const input = this.textarea;
     if (!input || event.altKey || event.ctrlKey || event.metaKey) return;
     const rtl = getComputedStyle(this).direction === 'rtl';
@@ -1712,7 +1712,7 @@ export class TanreiTextInput extends TanreiElement {
     event.preventDefault();
   }
 
-  private onGripFocus(event: FocusEvent) {
+  #onGripFocus(event: FocusEvent) {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
@@ -1721,7 +1721,7 @@ export class TanreiTextInput extends TanreiElement {
    * from the room then shown) reports its cancellation a frame later, while the new one runs: that report ends nothing
    * (`stillMoving`), or the new motion would be cut off and the height jump to its end.
    */
-  private onResizeEnd(event: TransitionEvent) {
+  #onResizeEnd(event: TransitionEvent) {
     const input = event.currentTarget as HTMLElement;
     if (event.target !== input || !/^margin-(block-end|bottom)$/.test(event.propertyName)) return;
     if (stillMoving(input, /^margin-(block-end|bottom)$/)) return;
@@ -2034,7 +2034,7 @@ export class TanreiTextInput extends TanreiElement {
     if (!this.pickerShown) return nothing;
     // TXI-32: calendar_month for a date and a date-time, schedule for a time.
     const glyph = this.dateKind === 'time' ? 'schedule' : 'calendar_month';
-    return html`<span class="picker" @pointerdown=${this.onPickerPress}
+    return html`<span class="picker" @pointerdown=${this.#onPickerPress}
       ><tanrei-button
         part="picker-button"
         class="picker-button"
@@ -2042,7 +2042,7 @@ export class TanreiTextInput extends TanreiElement {
         size=${this.pickerSize}
         label=${this.pickerLabel}
         ?disabled=${this.inert_}
-        @click=${this.onPickerClick}
+        @click=${this.#onPickerClick}
         ><span slot="icon">${glyph}</span></tanrei-button
       ></span>`;
   }
@@ -2102,14 +2102,14 @@ export class TanreiTextInput extends TanreiElement {
       aria-label=${ifDefined(this.name_ || undefined)}
       aria-disabled=${ifDefined(inert ? 'true' : undefined)}
       ?data-empty=${fill(row, this.segments).held === 0}
-      @keydown=${this.onSegmentKeyDown}
-      @beforeinput=${this.onBeforeInput}
-      @input=${this.onSegmentInput}
-      @compositionstart=${this.onSegmentCompositionStart}
-      @compositionend=${this.onSegmentCompositionEnd}
-      @copy=${this.onCopy}
-      @cut=${this.onCut}
-      @paste=${this.onPaste}
+      @keydown=${this.#onSegmentKeyDown}
+      @beforeinput=${this.#onBeforeInput}
+      @input=${this.#onSegmentInput}
+      @compositionstart=${this.#onSegmentCompositionStart}
+      @compositionend=${this.#onSegmentCompositionEnd}
+      @copy=${this.#onCopy}
+      @cut=${this.#onCut}
+      @paste=${this.#onPaste}
     >
       ${row.parts.map((part) => (part.unit ? segment(part.unit) : html`<span class="literal" aria-hidden="true">${part.literal}</span>`))}
     </div>`;
@@ -2130,14 +2130,14 @@ export class TanreiTextInput extends TanreiElement {
         aria-label=${ifDefined(this.gripName || undefined)}
         aria-valuemin=${this.minLines}
         aria-valuemax=${ifDefined(max || undefined)}
-        @pointerdown=${this.onGripPointerDown}
-        @pointermove=${this.onGripPointerMove}
-        @pointerup=${this.onGripPointerUp}
-        @pointercancel=${this.onGripPointerCancel}
-        @mousedown=${this.onGripMouseDown}
-        @click=${this.onGripClick}
-        @keydown=${this.onGripKeyDown}
-        @focus=${this.onGripFocus}
+        @pointerdown=${this.#onGripPointerDown}
+        @pointermove=${this.#onGripPointerMove}
+        @pointerup=${this.#onGripPointerUp}
+        @pointercancel=${this.#onGripPointerCancel}
+        @mousedown=${this.#onGripMouseDown}
+        @click=${this.#onGripClick}
+        @keydown=${this.#onGripKeyDown}
+        @focus=${this.#onGripFocus}
       >
         <span class="grip-glyph" aria-hidden="true"><span class="ink">${this.axis === 'both' ? 'drag_indicator' : 'drag_handle'}</span></span>
       </div>
@@ -2174,11 +2174,11 @@ export class TanreiTextInput extends TanreiElement {
       autocomplete: this.autocomplete || undefined,
     };
     const onEvents = {
-      input: this.onInput,
-      change: this.onNativeChange,
-      focus: this.onFocus,
-      blur: this.onBlur,
-      keydown: this.onKeyDown,
+      input: this.#onInput,
+      change: this.#onNativeChange,
+      focus: this.#onFocus,
+      blur: this.#onBlur,
+      keydown: this.#onKeyDown,
       compositionstart: this.native.onCompositionStart,
       compositionend: this.native.onCompositionEnd,
     };
@@ -2231,8 +2231,8 @@ export class TanreiTextInput extends TanreiElement {
             @keydown=${onEvents.keydown}
             @compositionstart=${onEvents.compositionstart}
             @compositionend=${onEvents.compositionend}
-            @transitionend=${this.onResizeEnd}
-            @transitioncancel=${this.onResizeEnd}
+            @transitionend=${this.#onResizeEnd}
+            @transitioncancel=${this.#onResizeEnd}
           ></textarea>`
         : html`<input
             id="input"
@@ -2305,18 +2305,18 @@ export class TanreiTextInput extends TanreiElement {
           class="container"
           data-tanrei-shape
           style=${this.isMultiline ? `--_rows-min: ${rows};${max ? ` --_rows-max: ${max};` : ''}` : nothing}
-          @mousedown=${this.onFieldMouseDown}
-          @focusin=${this.onEntryFocusIn}
-          @focusout=${this.onEntryFocusOut}
+          @mousedown=${this.#onFieldMouseDown}
+          @focusin=${this.#onEntryFocusIn}
+          @focusout=${this.#onEntryFocusOut}
         >
-          <span part="leading-icon" class="icon leading"><slot name="leading-icon" @slotchange=${this.onSlotChange}></slot></span>
+          <span part="leading-icon" class="icon leading"><slot name="leading-icon" @slotchange=${this.#onSlotChange}></slot></span>
           <div class="body" dir=${(!row && run) || nothing}>
-            <span part="entries" class="entries"><slot name="entries" @slotchange=${this.onSlotChange}></slot></span>
+            <span part="entries" class="entries"><slot name="entries" @slotchange=${this.#onSlotChange}></slot></span>
             <span part="prefix" class="prefix" id="prefix">${row ? nothing : this.prefixText}</span>
             ${control}
             <span part="suffix" class="suffix" id="suffix">${row ? nothing : this.suffixText}</span>
           </div>
-          <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.onSlotChange}></slot></span>
+          <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.#onSlotChange}></slot></span>
           ${this.renderPicker()}
           ${floating && labelled ? html`<label part="label" class="label" for="input" aria-hidden="true">${name}${asterisk}</label>` : nothing}
           ${floating && labelled

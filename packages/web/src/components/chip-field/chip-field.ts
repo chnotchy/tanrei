@@ -381,7 +381,7 @@ export class TanreiChipField extends ComposedElement {
     // CHF-4: focus left the chip field — a move between the typing part and an entry never arrives here, since both
     // are the element itself to a listener on it. Heard on its way in (capturing), before the Text input hears that
     // it lost focus: the text that became an entry is gone from it by then, and it has no change of its own to tell.
-    this.addEventListener('blur', (event) => this.onLeave(event), true);
+    this.addEventListener('blur', (event) => this.#onLeave(event), true);
   }
 
   private get input(): TanreiTextInput | null {
@@ -598,7 +598,7 @@ export class TanreiChipField extends ComposedElement {
     capture: true,
     handleEvent: (event: KeyboardEvent) => {
       if (!this.fromTyping(event) || event.isComposing || this.composing || event.keyCode === 229) return;
-      if (event.key !== 'Enter') return this.onTypingKey(event);
+      if (event.key !== 'Enter') return this.#onTypingKey(event);
       if (this.inert_ || this.readOnly || this.inputValue === '') return;
       event.preventDefault();
       event.stopPropagation();
@@ -611,7 +611,7 @@ export class TanreiChipField extends ComposedElement {
    * starts moves focus to the last entry and removes nothing. Never for the repeats of a held key, and never while
    * the list is empty.
    */
-  private onTypingKey(event: KeyboardEvent) {
+  #onTypingKey(event: KeyboardEvent) {
     if (event.repeat || this.inert_ || this.list.length === 0) return;
     if (event.key !== 'Backspace' && event.key !== (this.rtl ? 'ArrowRight' : 'ArrowLeft')) return;
     if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -626,7 +626,7 @@ export class TanreiChipField extends ComposedElement {
    * Where it holds a line break or a separator, it is read with the text already there as a row of candidates, each
    * offered; text that holds neither is the Text input's own to take.
    */
-  private onBeforeInput(event: InputEvent) {
+  #onBeforeInput(event: InputEvent) {
     if (!this.fromTyping(event) || this.inert_ || this.readOnly || event.isComposing || this.composing) return;
     if (event.inputType !== 'insertFromPaste' && event.inputType !== 'insertFromDrop') return;
     const data = event.data ?? event.dataTransfer?.getData('text/plain') ?? '';
@@ -644,7 +644,7 @@ export class TanreiChipField extends ComposedElement {
    * text before it is offered and the text after it stays typed; filled-in text is offered whole (CHF-8). CHF-6: an
    * edit of the text ends the entry error.
    */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     if (!this.fromTyping(event)) return;
     if ((event as InputEvent).isComposing || this.composing) return;
     const text = this.inputValue;
@@ -662,11 +662,11 @@ export class TanreiChipField extends ComposedElement {
     this.offer(text, { tail: TYPED.test((event as InputEvent).inputType ?? '') });
   }
 
-  private onCompositionStart(event: Event) {
+  #onCompositionStart(event: Event) {
     if (this.fromTyping(event)) this.composing = true;
   }
 
-  private onCompositionEnd(event: Event) {
+  #onCompositionEnd(event: Event) {
     if (this.fromTyping(event)) this.composing = false;
   }
 
@@ -674,7 +674,7 @@ export class TanreiChipField extends ComposedElement {
    * CHF-4: focus left the chip field for another part of the product: what was typed is offered. Not when the window
    * itself lost focus, and never bringing focus back.
    */
-  private onLeave(event: FocusEvent) {
+  #onLeave(event: FocusEvent) {
     const to = event.relatedTarget;
     if (to instanceof Node && (to === this || this.contains(to))) return;
     if (!to && !this.ownerDocument.hasFocus()) return;
@@ -687,7 +687,7 @@ export class TanreiChipField extends ComposedElement {
   }
 
   /** CHF-16: the Text input's own `change` — of its text — is not the chip field's, whose `change` is of the list. */
-  private onMemberEvent(event: Event) {
+  #onMemberEvent(event: Event) {
     if (event.target === this.input) event.stopPropagation();
   }
 
@@ -701,7 +701,7 @@ export class TanreiChipField extends ComposedElement {
   };
 
   /** CHF-13: the keys among the entries. Each arrow moves the way it points; nothing is activated or removed here. */
-  private onEntryKey(event: KeyboardEvent) {
+  #onEntryKey(event: KeyboardEvent) {
     this.key = '';
     const chips = this.chips;
     const index = chips.findIndex((chip) => chip === event.target);
@@ -769,7 +769,7 @@ export class TanreiChipField extends ComposedElement {
    * first, while the chip is still there: after Backspace to the entry before, or the one after where it was the
    * first; after Delete or the remove action to the entry after; to the typing part where there is none.
    */
-  private onEntryRemove(event: Event) {
+  #onEntryRemove(event: Event) {
     event.stopPropagation();
     const key = this.key;
     this.key = '';
@@ -793,7 +793,7 @@ export class TanreiChipField extends ComposedElement {
    * it is refused nothing more happens. Then the entry leaves the list and its text stands in the typing part, with
    * focus and the caret at its end, and `change` is fired once.
    */
-  private onEntryClick(event: Event) {
+  #onEntryClick(event: Event) {
     if (this.inert_ || this.readOnly) return;
     const index = this.chips.indexOf(event.currentTarget as TanreiChip);
     const entry = this.list[index];
@@ -929,9 +929,9 @@ export class TanreiChipField extends ComposedElement {
                   .removeLabel=${this.removeName(sentence, entry)}
                   .disabled=${inert}
                   .removable=${!this.readOnly}
-                  @keydown=${this.onEntryKey}
-                  @click=${this.onEntryClick}
-                  @remove=${this.onEntryRemove}
+                  @keydown=${this.#onEntryKey}
+                  @click=${this.#onEntryClick}
+                  @remove=${this.#onEntryRemove}
                 ></tanrei-chip
               ></div>`,
           )}</div
@@ -952,13 +952,13 @@ export class TanreiChipField extends ComposedElement {
           .placeholder=${this.list.length ? '' : this.placeholder}
           .value=${live(this.inputValue)}
           @keydown=${this.onTypingKeyFirst}
-          @beforeinput=${this.onBeforeInput}
-          @input=${this.onInput}
-          @compositionstart=${this.onCompositionStart}
-          @compositionend=${this.onCompositionEnd}
-          @change=${this.onMemberEvent}
-          @pickerrequest=${this.onMemberEvent}
-          @entryerror=${this.onMemberEvent}
+          @beforeinput=${this.#onBeforeInput}
+          @input=${this.#onInput}
+          @compositionstart=${this.#onCompositionStart}
+          @compositionend=${this.#onCompositionEnd}
+          @change=${this.#onMemberEvent}
+          @pickerrequest=${this.#onMemberEvent}
+          @entryerror=${this.#onMemberEvent}
           >${entries}</tanrei-text-input
         ></tanrei-field
       ><span class="announcer" aria-live="polite"></span>`;

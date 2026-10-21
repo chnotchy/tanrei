@@ -714,7 +714,7 @@ export class TanreiCombobox extends TanreiElement {
     // CMB-30: a list with nothing left to show closes with the reason empty, once the text is drawn (updated()).
   }
 
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     if (this.native.composingInput(event)) return;
     const input = event.target as HTMLInputElement;
     this.took(input.value, false);
@@ -822,12 +822,12 @@ export class TanreiCombobox extends TanreiElement {
 
   // ── CMB-16, CMB-21, CMB-26 … CMB-30: the input's keys ─────────────────────────────────────────────────────────
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || this.inert_) return;
     // CMB-16: while an input method composes, every key is its own.
     if (event.isComposing || this.native.composing || event.keyCode === 229) return;
     const { key } = event;
-    // CMB-29: Tab moves focus on; the field marks the press (onFieldKeyDown).
+    // CMB-29: Tab moves focus on; the field marks the press (#onFieldKeyDown).
     if (key === 'Tab') return;
     if (key === 'Enter') {
       this.enter(event);
@@ -898,23 +898,23 @@ export class TanreiCombobox extends TanreiElement {
     }
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     // CMB-15: where style queries are missing, the focus style is read when focus arrives.
     syncFocusStyle(this, this.renderRoot.querySelector<HTMLElement>('.field'));
   }
 
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
   }
 
   /** CMB-29: every key that goes down in the field — the input's and the clear button's — says whether a Tab is moving focus. */
-  private onFieldKeyDown(event: KeyboardEvent) {
+  #onFieldKeyDown(event: KeyboardEvent) {
     this.tabbing = event.key === 'Tab';
   }
 
   /** CMB-29: a Tab that comes up in the field moved no focus out of it (something cancelled it): it is over. */
-  private onFieldKeyUp(event: KeyboardEvent) {
+  #onFieldKeyUp(event: KeyboardEvent) {
     if (event.key === 'Tab') this.tabbing = false;
   }
 
@@ -923,7 +923,7 @@ export class TanreiCombobox extends TanreiElement {
    * given up where it names nothing; the active option is not chosen; an open list closes with the reason tab or
    * focus-out. Focus that leaves the window has gone nowhere: nothing is resolved until it goes elsewhere in the page.
    */
-  private onFocusOut(event: FocusEvent) {
+  #onFocusOut(event: FocusEvent) {
     // A Tab's focus move is this one, wherever it goes: within the field, out of the window or elsewhere in the page.
     const tabbed = this.tabbing;
     this.tabbing = false;
@@ -940,7 +940,7 @@ export class TanreiCombobox extends TanreiElement {
    * else. A press in the input places the caret; the clear button and the chevron answer their own click, and focus
    * stays where it is (the clear button is reached by Tab).
    */
-  private onContainerPress(event: MouseEvent) {
+  #onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest('.input')) return;
@@ -951,7 +951,7 @@ export class TanreiCombobox extends TanreiElement {
   }
 
   /** CMB-19: a press on the chevron opens the list while it is closed and closes it while it is open; focus is the input's. */
-  private onChevron() {
+  #onChevron() {
     if (this.inert_ || this.readOnly) return;
     this.focus({ preventScroll: true });
     if (this.open && this.presented) this.closeList('press');
@@ -962,7 +962,7 @@ export class TanreiCombobox extends TanreiElement {
    * CMB-20: the clear button empties the text and the value: `input` once with the empty text, `change` once while the
    * value was not empty, focus to the input, and the list left as it is — showing every option while open.
    */
-  private onClear() {
+  #onClear() {
     if (this.inert_ || this.readOnly) return;
     const had = this.value !== '';
     this.value = '';
@@ -974,7 +974,7 @@ export class TanreiCombobox extends TanreiElement {
     this.focus();
   }
 
-  private onLeadingSlotChange(event: Event) {
+  #onLeadingSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     this.hasLeading = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     // CMB-18: the slot's content is a glyph only.
@@ -1171,12 +1171,12 @@ export class TanreiCombobox extends TanreiElement {
         data-leading=${leading ?? nothing}
         ?data-chevron=${chevron}
         ?data-clear=${clear}
-        @focusout=${this.onFocusOut}
-        @keydown=${this.onFieldKeyDown}
-        @keyup=${this.onFieldKeyUp}
+        @focusout=${this.#onFocusOut}
+        @keydown=${this.#onFieldKeyDown}
+        @keyup=${this.#onFieldKeyUp}
       >
-        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
-          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.onLeadingSlotChange}></slot></span>
+        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.#onContainerPress}>
+          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
           <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
             <input
@@ -1204,22 +1204,22 @@ export class TanreiCombobox extends TanreiElement {
               aria-expanded=${expanded ? 'true' : 'false'}
               aria-controls=${expanded ? 'list' : nothing}
               aria-activedescendant=${(expanded && this.list.activeId) || nothing}
-              @input=${this.onInput}
-              @keydown=${this.onKeyDown}
-              @focus=${this.onFocus}
-              @blur=${this.onBlur}
+              @input=${this.#onInput}
+              @keydown=${this.#onKeyDown}
+              @focus=${this.#onFocus}
+              @blur=${this.#onBlur}
               @compositionstart=${this.native.onCompositionStart}
               @compositionend=${this.native.onCompositionEnd}
             />
           </div>
           ${clear
             ? html`<span class="clear-box"
-                ><tanrei-button part="clear-button" class="clear" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.onClear}
+                ><tanrei-button part="clear-button" class="clear" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.#onClear}
                   ><span slot="icon" class="clear-glyph"><span class="ink">close</span></span></tanrei-button
                 ></span
               >`
             : nothing}${chevron
-            ? html`<button part="chevron" class="chevron" type="button" tabindex="-1" aria-label=${name} aria-expanded=${expanded ? 'true' : 'false'} ?disabled=${inert} @click=${this.onChevron}>
+            ? html`<button part="chevron" class="chevron" type="button" tabindex="-1" aria-label=${name} aria-expanded=${expanded ? 'true' : 'false'} ?disabled=${inert} @click=${this.#onChevron}>
                 <span class="icon chevron-glyph" aria-hidden="true"><span class="ink">expand_more</span></span>
               </button>`
             : nothing}

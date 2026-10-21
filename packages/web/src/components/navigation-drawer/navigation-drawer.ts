@@ -569,7 +569,7 @@ abstract class DrawerCell extends TanreiElement {
   }
 
   /** NVD-15, NVD-43: what the trailing slot holds, and what it says as part of the description. */
-  protected onTrailingChange(event: Event) {
+  #onTrailingChange(event: Event) {
     const assigned = (event.target as HTMLSlotElement).assignedElements({ flatten: true });
     const text = assigned
       .filter((element) => element.getAttribute('aria-hidden') !== 'true')
@@ -592,7 +592,7 @@ abstract class DrawerCell extends TanreiElement {
     const text = !filled && !!this.trailingText;
     const marked = mark && !filled && !text;
     return html`<span class=${classMap({ trailing: true, filled: filled || text || marked || after !== nothing })} aria-hidden="true" inert>
-      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.onTrailingChange}></slot></span>
+      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.#onTrailingChange}></slot></span>
       ${text ? html`<span part="trailing-text" class="trailing-text">${this.trailingText}</span>` : nothing}
       ${marked ? html`<span part="link-mark" class="link-mark">${LINK_MARK}</span>` : nothing}
       ${after}
@@ -2472,7 +2472,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.dismiss();
   };
 
-  private onScrim(event: MouseEvent): boolean {
+  #onScrim(event: MouseEvent): boolean {
     const dialog = this.dialog;
     if (!dialog || event.composedPath()[0] !== dialog) return false;
     const box = dialog.getBoundingClientRect();
@@ -2480,7 +2480,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   private readonly onPointerDown = (event: PointerEvent) => {
-    this.pressedScrim = this.onScrim(event);
+    this.pressedScrim = this.#onScrim(event);
     if (this.pressedScrim || !this.open) return;
     this.drag = { id: event.pointerId, x: event.clientX, time: event.timeStamp, following: false, lastX: event.clientX, lastTime: event.timeStamp, velocity: 0 };
   };
@@ -2541,24 +2541,24 @@ export class TanreiNavigationDrawer extends TanreiElement {
   };
 
   private readonly onClick = (event: MouseEvent) => {
-    const scrim = this.pressedScrim && this.onScrim(event);
+    const scrim = this.pressedScrim && this.#onScrim(event);
     this.pressedScrim = false;
     if (scrim) this.dismiss();
   };
 
   // ---- the header (NVD-37…39) ----
 
-  private onHeaderButtons() {
+  #onHeaderButtons() {
     this.hasButtons = this.headerButtons.length > 0;
     this.observeSizes();
     this.syncMenuButton();
   }
 
-  private onHeaderChange(event: Event) {
+  #onHeaderChange(event: Event) {
     this.hasTitle = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || (node.textContent ?? '').trim() !== '');
   }
 
-  private onMainAction() {
+  #onMainAction() {
     const actions = this.mainActions;
     this.hasMain = actions.length > 0;
     // NVD-39: the first is drawn; the rest are reported.
@@ -2799,11 +2799,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
     return html`
       <div part="outline" class="edge" aria-hidden="true"></div>
       <div part="header" class=${classMap({ header: true, filled, 'no-buttons': !this.hasButtons })} style=${styleMap(this.measured)}>
-        <slot name="header-button" @slotchange=${this.onHeaderButtons}></slot>
+        <slot name="header-button" @slotchange=${this.#onHeaderButtons}></slot>
         <div class=${classMap({ title: true, filled: this.hasTitle })} ?inert=${collapsed} aria-hidden=${collapsed ? 'true' : nothing}>
-          <slot name="header" @slotchange=${this.onHeaderChange}></slot>
+          <slot name="header" @slotchange=${this.#onHeaderChange}></slot>
         </div>
-        <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.onMainAction}></slot></div>
+        <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.#onMainAction}></slot></div>
       </div>
       <div part="content" class="items" role="list" @scroll=${this.onScroll}><slot></slot></div>
       <span class="clock"></span>

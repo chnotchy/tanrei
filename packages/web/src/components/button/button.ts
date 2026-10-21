@@ -473,15 +473,15 @@ export class TanreiButton extends TanreiElement {
   }
 
   /** BTN-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
-  private onLabelSlotChange(event: Event) {
+  #onLabelSlotChange(event: Event) {
     this.hasLabel = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     this.reportName();
   }
@@ -571,7 +571,7 @@ export class TanreiButton extends TanreiElement {
    * BTN-14: a toggle switches its own `selected`, then fires `click`, then `change` (src/primitives/after-click.ts): a
    * `click` listener on the element already sees the new value, and `change` follows once the click has gone through the page.
    */
-  private onClick() {
+  #onClick() {
     if (!this.toggle || this.refuses) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
@@ -719,7 +719,7 @@ export class TanreiButton extends TanreiElement {
         aria-pressed=${this.toggle ? String(this.selected) : nothing}
         ?disabled=${!link && disabled && !reachable}
         aria-disabled=${!link && reachable ? 'true' : nothing}
-        @click=${this.onClick}
+        @click=${this.#onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -727,10 +727,10 @@ export class TanreiButton extends TanreiElement {
         @keydown=${this.press.onKeyDown}
         @keyup=${this.press.onKeyUp}
         @blur=${this.press.onBlur}
-        @focus=${this.onFocus}
+        @focus=${this.#onFocus}
       >
-        <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
-        <span part="label" class="label"><slot @slotchange=${this.onLabelSlotChange}></slot></span>
+        <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
+        <span part="label" class="label"><slot @slotchange=${this.#onLabelSlotChange}></slot></span>
         ${mark ? html`<span part="icon" class="mark" aria-hidden="true">${LINK_MARK}</span>` : nothing}
         ${busy ? html`<span class="busy-arc" aria-hidden="true">${svg`<svg focusable="false"><circle></circle></svg>`}</span>` : nothing}
       </${tag}>

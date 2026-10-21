@@ -293,16 +293,16 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
 
   /** DLG-5: a press that starts and ends on the scrim (outside the surface) dismisses. */
   private readonly onPointerDown = (event: PointerEvent) => {
-    this.pressedScrim = this.onScrim(event);
+    this.pressedScrim = this.#onScrim(event);
   };
 
   private readonly onClick = (event: MouseEvent) => {
-    const scrim = this.pressedScrim && this.onScrim(event);
+    const scrim = this.pressedScrim && this.#onScrim(event);
     this.pressedScrim = false;
     if (scrim) this.requestDismiss('scrim');
   };
 
-  private onScrim(event: MouseEvent): boolean {
+  #onScrim(event: MouseEvent): boolean {
     const dialog = this.dialog;
     if (!dialog || event.composedPath()[0] !== dialog) return false;
     const box = dialog.getBoundingClientRect();

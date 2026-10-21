@@ -298,12 +298,12 @@ export class TanreiRadioButton extends TanreiElement {
   }
 
   /** RAD-13: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.input);
   }
 
   /** RAD-4: the arrow keys move to the next or previous enabled option, wrapping, and select it; RTL mirrors left and right. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
     const step = STEPS[event.key];
@@ -322,12 +322,12 @@ export class TanreiRadioButton extends TanreiElement {
   }
 
   /** A click on the label's text or on the target around the ring is the label's; only the input's click is let out. */
-  private onRootClick(event: Event) {
+  #onRootClick(event: Event) {
     if (event.target !== this.input) event.stopPropagation();
   }
 
   /** The native control has already switched: mark the change of condition before anything can style it. */
-  private onClick(event: Event) {
+  #onClick(event: Event) {
     // RAD-28: read-only, the activation is cancelled — the native radio goes back to what it was and fires no input and
     // no change — whatever started it: a press, Space, the label, assistive technology or element.click().
     if (this.isReadOnly) return event.preventDefault();
@@ -335,7 +335,7 @@ export class TanreiRadioButton extends TanreiElement {
   }
 
   /** RAD-1: the native radio was selected (a click, Space, assistive technology); a selected one fires nothing (RAD-2). */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     markConditionChange(this.renderRoot.querySelector('.root'));
     this.checked = true;
@@ -345,7 +345,7 @@ export class TanreiRadioButton extends TanreiElement {
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
-  private onChange() {
+  #onChange() {
     const owner = this.owner;
     if (owner) return owner.optionSelected(this, 'change');
     this.dispatchEvent(new CustomEvent<TanreiRadioButtonChangeDetail>('change', { bubbles: true, detail: { value: this.value } }));
@@ -400,7 +400,7 @@ export class TanreiRadioButton extends TanreiElement {
         class="root"
         ?data-error=${this.inError}
         ?data-readonly=${this.isReadOnly}
-        @click=${this.onRootClick}
+        @click=${this.#onRootClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -418,13 +418,13 @@ export class TanreiRadioButton extends TanreiElement {
             aria-description=${this.selection.field.description() || nothing}
             aria-posinset=${this.position}
             aria-setsize=${this.groupSize}
-            @click=${this.onClick}
-            @input=${this.onInput}
-            @change=${this.onChange}
-            @keydown=${this.onKeyDown}
+            @click=${this.#onClick}
+            @input=${this.#onInput}
+            @change=${this.#onChange}
+            @keydown=${this.#onKeyDown}
             @keyup=${this.press.onKeyUp}
             @blur=${this.press.onBlur}
-            @focus=${this.onFocus}
+            @focus=${this.#onFocus}
           />
           <span part="container" class="container" data-tanrei-shape aria-hidden="true"></span>
           <span part="ring" class="ring" data-tanrei-shape aria-hidden="true"><span part="fill" class="fill"></span></span>

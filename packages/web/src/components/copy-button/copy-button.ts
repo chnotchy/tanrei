@@ -245,7 +245,7 @@ export class TanreiCopyButton extends TanreiElement {
   }
 
   /** CPY-2: an activation — by pointer, touch, Enter, Space or assistive technology, all of which click the Button. */
-  private onClick() {
+  #onClick() {
     if (this.disabled || this.pending) return;
     // CPY-5: every activation is announced anew.
     for (const role of ['status', 'alert'] as const) {
@@ -361,7 +361,7 @@ export class TanreiCopyButton extends TanreiElement {
         label=${this.iconOnly ? this.words.get('copyLabel', this.label) : nothing}
         ?disabled=${this.disabled}
         data-form=${this.form}
-        @click=${this.onClick}
+        @click=${this.#onClick}
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>
         ${this.iconOnly ? nothing : html`<span class="labels" ?data-fit=${this.labelWidth === 'fit'} style=${this.labelWidth === 'fit' && this.fitted !== undefined ? `inline-size: ${this.fitted}px` : ''}>${text('label', this.words.get('copyLabel', this.label))}${text('copied', this.words.get('copiedLabel', this.copiedLabel))}${text('failed', this.words.get('copyFailedLabel', this.failedLabel))}</span>`}

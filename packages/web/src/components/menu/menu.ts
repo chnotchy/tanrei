@@ -2109,7 +2109,7 @@ export class TanreiMenu extends TanreiElement {
       // The triangle is taken anew each time the pointer leaves the submenu's item: from where it was last on it.
       this.endAim();
       this.apex = { submenu: aimed, x: event.clientX, y: event.clientY };
-    } else if (aimed && this.apex?.submenu === aimed && this.onTheWay(event, aimed)) {
+    } else if (aimed && this.apex?.submenu === aimed && this.#onTheWay(event, aimed)) {
       if (item) {
         item.suppressHover(true);
         this.crossed.add(item);
@@ -2127,7 +2127,7 @@ export class TanreiMenu extends TanreiElement {
   };
 
   /** MNU-45: whether the pointer is inside the triangle to `submenu`'s surface, which follows the side it is placed on. */
-  private onTheWay(event: PointerEvent, submenu: TanreiSubmenu): boolean {
+  #onTheWay(event: PointerEvent, submenu: TanreiSubmenu): boolean {
     const surface = submenu.surfaceElement;
     const row = submenu.rowElement;
     if (!surface || !row || !this.apex) return false;
