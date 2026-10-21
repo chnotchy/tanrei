@@ -3,15 +3,16 @@
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
-// It reads `dist/` and serves it on a free port. The order is the one a slow line gives: the header's script defines the
-// Buttons, and the hero's own script — which holds the whole library (lib/register-web.ts) — arrives after it.
+// It reads `dist/` and serves it on a free port, as the host does (host.mjs). The order is the one a slow line gives:
+// the header's script defines the Buttons, and the hero's own script — which holds the whole library
+// (lib/register-web.ts) — arrives after it.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import { serveDist } from './host.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -23,28 +24,19 @@ const content = path.join(docs, 'src/content/docs');
 const languages = fs.readdirSync(content).filter((name) => fs.existsSync(path.join(content, name, 'components')));
 const homes = ['/', ...languages.map((lang) => `/${lang}/`)];
 
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm' };
-let server;
+let host;
 let origin;
 let browser;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    response.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist);
+  origin = host.origin;
   browser = await chromium.launch();
 });
 
 after(async () => {
   await browser?.close();
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 const everythingDefined = () => [...document.querySelectorAll('.hero *')].every((el) => !el.localName.includes('-') || el.matches(':defined'));

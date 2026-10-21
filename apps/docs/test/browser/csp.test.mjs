@@ -6,59 +6,31 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium,firefox,webkit node --test test/browser/csp.test.mjs   # in each engine
 //
-// It reads `dist/` and serves it on a free port, with the headers `dist/_headers` gives every page.
+// It reads `dist/` and serves it on a free port, as the host does (host.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as playwright from '@playwright/test';
+import { headerRules, headersFor, serveDist } from './host.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
-/** The headers of the rule for every page (`/*`) in `_headers`, as the host reads them. */
-function headersForEveryPage() {
-  const headers = {};
-  let inRule = false;
-  for (const line of fs.readFileSync(path.join(dist, '_headers'), 'utf8').split('\n')) {
-    if (!line.trim() || line.trim().startsWith('#')) continue;
-    if (!/^\s/.test(line)) {
-      inRule = line.trim() === '/*';
-      continue;
-    }
-    if (!inRule) continue;
-    const at = line.indexOf(':');
-    headers[line.slice(0, at).trim().toLowerCase()] = line.slice(at + 1).trim();
-  }
-  return headers;
-}
-
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm' };
-const EVERY_PAGE = headersForEveryPage();
+const EVERY_PAGE = headersFor(headerRules(fs.readFileSync(path.join(dist, '_headers'), 'utf8')), '/');
 const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium').split(',').map((name) => name.trim());
-let server;
+let host;
 let origin;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    // Strict-Transport-Security means nothing on http://; the rest is what the host sends.
-    const { 'strict-transport-security': _, ...headers } = EVERY_PAGE;
-    response.writeHead(200, { ...headers, 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist);
+  origin = host.origin;
 });
 
 after(async () => {
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 test('every page holds its own policy, before any script', () => {
