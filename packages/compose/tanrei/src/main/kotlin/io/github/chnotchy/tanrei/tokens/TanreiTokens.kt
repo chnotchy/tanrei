@@ -1337,7 +1337,6 @@ public data class TanreiBottomSheetTokens(
     public val handleContainerShape: Dp,
     public val handleContainerWidth: Dp,
     public val handleGripHeight: Dp,
-    public val handleGripShape: Dp,
     public val handleGripWidth: Dp,
     public val handleMarginBlock: Dp,
     public val headerGap: Dp,
@@ -10749,89 +10748,7 @@ public data class TanreiTagTokens(
     }
 }
 
-/**
- * A variant of text-input: the key of one entry of [TanreiTextInputVariants]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Stacked].
- */
-@JvmInline
-public value class TanreiTextInputVariant(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Stacked: TanreiTextInputVariant = TanreiTextInputVariant("stacked")
-        public val Filled: TanreiTextInputVariant = TanreiTextInputVariant("filled")
-        public val Outlined: TanreiTextInputVariant = TanreiTextInputVariant("outlined")
-    }
-}
-
-/** What one variant of text-input draws in one interaction state. */
-@Immutable
-public data class TanreiTextInputVariantStateTokens(
-    public val resizeGripColor: TanreiPaint,
-    public val errorResizeGripColor: TanreiPaint,
-) {
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(resizeGripColor.roles())
-        addAll(errorResizeGripColor.roles())
-    }
-}
-
-/** One variant of text-input: a full set of tokens per interaction state. */
-@Immutable
-public data class TanreiTextInputVariantTokens(
-    public val enabled: TanreiTextInputVariantStateTokens,
-    public val hovered: TanreiTextInputVariantStateTokens,
-    public val focused: TanreiTextInputVariantStateTokens,
-    public val disabled: TanreiTextInputVariantStateTokens,
-) {
-    public operator fun get(state: TanreiInteractionState): TanreiTextInputVariantStateTokens = when (state) {
-        TanreiInteractionState.Enabled -> enabled
-        TanreiInteractionState.Hovered -> hovered
-        TanreiInteractionState.Focused -> focused
-        TanreiInteractionState.Pressed -> enabled
-        TanreiInteractionState.Disabled -> disabled
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + disabled.referencedRoles()
-}
-
-/**
- * Every variant of text-input: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiTextInputVariants(
-    public val stacked: TanreiTextInputVariantTokens,
-    public val filled: TanreiTextInputVariantTokens,
-    public val outlined: TanreiTextInputVariantTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiTextInputVariant, TanreiTextInputVariantTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiTextInputVariant> get() = linkedSetOf(TanreiTextInputVariant.Stacked, TanreiTextInputVariant.Filled, TanreiTextInputVariant.Outlined) + extra.keys
-
-    public operator fun contains(key: TanreiTextInputVariant): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiTextInputVariant): TanreiTextInputVariantTokens? = when (key) {
-        TanreiTextInputVariant.Stacked -> stacked
-        TanreiTextInputVariant.Filled -> filled
-        TanreiTextInputVariant.Outlined -> outlined
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [stacked]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTextInputVariant): TanreiTextInputVariantTokens = find(key) ?: stacked
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(stacked.referencedRoles())
-        addAll(filled.referencedRoles())
-        addAll(outlined.referencedRoles())
-        extra.values.forEach { addAll(it.referencedRoles()) }
-    }
-}
-
-/** `comp.text-input`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`). */
+/** `comp.text-input`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiTextInputTokens(
     public val codeTabSize: Float,
@@ -10841,13 +10758,9 @@ public data class TanreiTextInputTokens(
     public val entriesTypingMinWidth: Dp,
     public val motionResizeDuration: Int,
     public val motionResizeEasing: TanreiCubicBezier,
-    public val resizeGripInset: Dp,
-    public val resizeGripSize: Dp,
     public val segmentPaddingInline: Dp,
-    public val variants: TanreiTextInputVariants,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(variants.referencedRoles())
     }
 }
 

@@ -3265,7 +3265,6 @@ class TanreiBottomSheetTokens {
     required this.handleContainerShape,
     required this.handleContainerWidth,
     required this.handleGripHeight,
-    required this.handleGripShape,
     required this.handleGripWidth,
     required this.handleMarginBlock,
     required this.headerGap,
@@ -3320,8 +3319,6 @@ class TanreiBottomSheetTokens {
   final double handleContainerWidth;
   /// `comp.bottom-sheet.handle-grip-height`
   final double handleGripHeight;
-  /// `comp.bottom-sheet.handle-grip-shape`
-  final double handleGripShape;
   /// `comp.bottom-sheet.handle-grip-width`
   final double handleGripWidth;
   /// `comp.bottom-sheet.handle-margin-block`
@@ -3381,7 +3378,6 @@ class TanreiBottomSheetTokens {
     double? handleContainerShape,
     double? handleContainerWidth,
     double? handleGripHeight,
-    double? handleGripShape,
     double? handleGripWidth,
     double? handleMarginBlock,
     double? headerGap,
@@ -3419,7 +3415,6 @@ class TanreiBottomSheetTokens {
         handleContainerShape: handleContainerShape ?? this.handleContainerShape,
         handleContainerWidth: handleContainerWidth ?? this.handleContainerWidth,
         handleGripHeight: handleGripHeight ?? this.handleGripHeight,
-        handleGripShape: handleGripShape ?? this.handleGripShape,
         handleGripWidth: handleGripWidth ?? this.handleGripWidth,
         handleMarginBlock: handleMarginBlock ?? this.handleMarginBlock,
         headerGap: headerGap ?? this.headerGap,
@@ -24985,143 +24980,6 @@ class TanreiTagTokens {
       );
 }
 
-/// The key of a variant of text-input (`comp.text-input`, axis `variant`).
-///
-/// The set is open: the constants are the core values, and a design system may add its own —
-/// `const TanreiTextInputVariant('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [stacked].
-extension type const TanreiTextInputVariant(String name) {
-  static const stacked = TanreiTextInputVariant('stacked');
-  static const filled = TanreiTextInputVariant('filled');
-  static const outlined = TanreiTextInputVariant('outlined');
-
-  /// The core values, in the order the component declares them.
-  static const List<TanreiTextInputVariant> core = <TanreiTextInputVariant>[stacked, filled, outlined];
-}
-
-/// What one variant of text-input looks like in one interaction state.
-@immutable
-class TanreiTextInputVariantStateTokens {
-  const TanreiTextInputVariantStateTokens({
-    required this.resizeGripColor,
-    required this.errorResizeGripColor,
-  });
-
-  /// `comp.text-input.<variant>.<state>.resize-grip-color`
-  final TanreiPaint resizeGripColor;
-  /// `comp.text-input.<variant>.<state>.error-resize-grip-color`
-  final TanreiPaint errorResizeGripColor;
-
-  /// A copy with the given tokens replaced.
-  TanreiTextInputVariantStateTokens copyWith({
-    TanreiPaint? resizeGripColor,
-    TanreiPaint? errorResizeGripColor,
-  }) => TanreiTextInputVariantStateTokens(
-        resizeGripColor: resizeGripColor ?? this.resizeGripColor,
-        errorResizeGripColor: errorResizeGripColor ?? this.errorResizeGripColor,
-      );
-}
-
-/// The per-state tokens of one text-input variant. How a state looks is a value of the design system;
-/// the widget only selects the state.
-@immutable
-class TanreiTextInputVariantTokens {
-  const TanreiTextInputVariantTokens({
-    required this.enabled,
-    required this.hovered,
-    required this.focused,
-    required this.disabled,
-  });
-
-  final TanreiTextInputVariantStateTokens enabled;
-  final TanreiTextInputVariantStateTokens hovered;
-  final TanreiTextInputVariantStateTokens focused;
-  final TanreiTextInputVariantStateTokens disabled;
-
-  /// A copy with the given tokens replaced.
-  TanreiTextInputVariantTokens copyWith({
-    TanreiTextInputVariantStateTokens? enabled,
-    TanreiTextInputVariantStateTokens? hovered,
-    TanreiTextInputVariantStateTokens? focused,
-    TanreiTextInputVariantStateTokens? disabled,
-  }) => TanreiTextInputVariantTokens(
-        enabled: enabled ?? this.enabled,
-        hovered: hovered ?? this.hovered,
-        focused: focused ?? this.focused,
-        disabled: disabled ?? this.disabled,
-      );
-
-  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
-  TanreiTextInputVariantStateTokens of(TanreiInteractionState state) => switch (state) {
-        TanreiInteractionState.enabled => enabled,
-        TanreiInteractionState.hovered => hovered,
-        TanreiInteractionState.focused => focused,
-        TanreiInteractionState.pressed => enabled,
-        TanreiInteractionState.disabled => disabled,
-      };
-}
-
-/// Every variant of text-input: the core values by name, the values a design system added in [extra].
-/// Look one up with `variants[key]`; the lookup is total.
-@immutable
-class TanreiTextInputVariants {
-  const TanreiTextInputVariants({
-    required this.stacked,
-    required this.filled,
-    required this.outlined,
-    this.extra = const <TanreiTextInputVariant, TanreiTextInputVariantTokens>{},
-  });
-
-  /// `comp.text-input` variant `stacked`
-  final TanreiTextInputVariantTokens stacked;
-  /// `comp.text-input` variant `filled`
-  final TanreiTextInputVariantTokens filled;
-  /// `comp.text-input` variant `outlined`
-  final TanreiTextInputVariantTokens outlined;
-
-  /// The variants a design system added to the core vocabulary.
-  final Map<TanreiTextInputVariant, TanreiTextInputVariantTokens> extra;
-
-  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
-  /// those with the same key): a copy never loses a value the design system added.
-  TanreiTextInputVariants copyWith({
-    TanreiTextInputVariantTokens? stacked,
-    TanreiTextInputVariantTokens? filled,
-    TanreiTextInputVariantTokens? outlined,
-    Map<TanreiTextInputVariant, TanreiTextInputVariantTokens>? extra,
-  }) => TanreiTextInputVariants(
-        stacked: stacked ?? this.stacked,
-        filled: filled ?? this.filled,
-        outlined: outlined ?? this.outlined,
-        extra: extra == null ? this.extra : <TanreiTextInputVariant, TanreiTextInputVariantTokens>{...this.extra, ...extra},
-      );
-
-  /// The tokens of [variant].
-  ///
-  /// A variant this design system does not have resolves to [stacked], the default; debug builds report it
-  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
-  TanreiTextInputVariantTokens operator [](TanreiTextInputVariant variant) => switch (variant.name) {
-        'stacked' => stacked,
-        'filled' => filled,
-        'outlined' => outlined,
-        _ => extra[variant] ?? _fallback(variant),
-      };
-
-  /// Whether this design system has [variant].
-  bool has(TanreiTextInputVariant variant) => TanreiTextInputVariant.core.contains(variant) || extra.containsKey(variant);
-
-  /// Every variant this design system has: the core values, then the added ones.
-  List<TanreiTextInputVariant> get keys => <TanreiTextInputVariant>[...TanreiTextInputVariant.core, ...extra.keys];
-
-  TanreiTextInputVariantTokens _fallback(TanreiTextInputVariant variant) {
-    assert(() {
-      debugTanreiReportUnknownValue('text-input variant', variant.name, 'stacked');
-      return true;
-    }());
-    return stacked;
-  }
-}
-
 /// `comp.text-input.*`
 @immutable
 class TanreiTextInputTokens {
@@ -25133,10 +24991,7 @@ class TanreiTextInputTokens {
     required this.entriesTypingMinWidth,
     required this.motionResizeDuration,
     required this.motionResizeEasing,
-    required this.resizeGripInset,
-    required this.resizeGripSize,
     required this.segmentPaddingInline,
-    required this.variants,
   });
 
   /// `comp.text-input.code-tab-size`
@@ -25153,14 +25008,8 @@ class TanreiTextInputTokens {
   final int motionResizeDuration;
   /// `comp.text-input.motion-resize-easing`
   final TanreiCubicBezier motionResizeEasing;
-  /// `comp.text-input.resize-grip-inset`
-  final double resizeGripInset;
-  /// `comp.text-input.resize-grip-size`
-  final double resizeGripSize;
   /// `comp.text-input.segment-padding-inline`
   final double segmentPaddingInline;
-  /// The `variant` axis: `variants[variant]`.
-  final TanreiTextInputVariants variants;
 
   /// A copy with the given tokens replaced.
   TanreiTextInputTokens copyWith({
@@ -25171,10 +25020,7 @@ class TanreiTextInputTokens {
     double? entriesTypingMinWidth,
     int? motionResizeDuration,
     TanreiCubicBezier? motionResizeEasing,
-    double? resizeGripInset,
-    double? resizeGripSize,
     double? segmentPaddingInline,
-    TanreiTextInputVariants? variants,
   }) => TanreiTextInputTokens(
         codeTabSize: codeTabSize ?? this.codeTabSize,
         codeTypescale: codeTypescale ?? this.codeTypescale,
@@ -25183,10 +25029,7 @@ class TanreiTextInputTokens {
         entriesTypingMinWidth: entriesTypingMinWidth ?? this.entriesTypingMinWidth,
         motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
         motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
-        resizeGripInset: resizeGripInset ?? this.resizeGripInset,
-        resizeGripSize: resizeGripSize ?? this.resizeGripSize,
         segmentPaddingInline: segmentPaddingInline ?? this.segmentPaddingInline,
-        variants: variants ?? this.variants,
       );
 }
 

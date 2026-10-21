@@ -741,7 +741,6 @@ export interface TanreiBottomSheetTokens {
   readonly handleContainerShape: number;
   readonly handleContainerWidth: number;
   readonly handleGripHeight: number;
-  readonly handleGripShape: number;
   readonly handleGripWidth: number;
   readonly handleMarginBlock: number;
   readonly headerGap: number;
@@ -5325,36 +5324,8 @@ export interface TanreiTagTokens {
 }
 
 /**
- * Every value of `comp.text-input`'s `variant` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `stacked` (with a dev-only warning).
- */
-export interface TanreiTextInputVariantRegistry {
-  stacked: true;
-  filled: true;
-  outlined: true;
-}
-export type TanreiTextInputVariant = keyof TanreiTextInputVariantRegistry;
-export type TanreiCoreTextInputVariant = "stacked" | "filled" | "outlined";
-
-/** What one `variant` of `comp.text-input` is drawn from in ONE interaction state. */
-export interface TanreiTextInputVariantStateTokens {
-  readonly resizeGripColor: TanreiPaint;
-  readonly errorResizeGripColor: TanreiPaint;
-}
-/** One `variant`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiTextInputVariantTokens {
-  readonly enabled: TanreiTextInputVariantStateTokens;
-  readonly hovered: TanreiTextInputVariantStateTokens;
-  readonly focused: TanreiTextInputVariantStateTokens;
-  readonly disabled: TanreiTextInputVariantStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiTextInputVariants = { readonly [Key in TanreiCoreTextInputVariant]: TanreiTextInputVariantTokens } & { readonly [Key in TanreiTextInputVariant]?: TanreiTextInputVariantTokens };
-
-/**
  * `comp.text-input`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
 export interface TanreiTextInputTokens {
   readonly codeTabSize: number;
@@ -5364,10 +5335,7 @@ export interface TanreiTextInputTokens {
   readonly entriesTypingMinWidth: number;
   readonly motionResizeDuration: number;
   readonly motionResizeEasing: TanreiCubicBezier;
-  readonly resizeGripInset: number;
-  readonly resizeGripSize: number;
   readonly segmentPaddingInline: number;
-  readonly variants: TanreiTextInputVariants;
 }
 
 /**
@@ -5828,7 +5796,6 @@ declare module './vocabulary' {
   interface TanreiTagGroupSpacingRegistry {}
   interface TanreiTagSizeRegistry {}
   interface TanreiTagVariantRegistry {}
-  interface TanreiTextInputVariantRegistry {}
   interface TanreiTimelineSizeRegistry {}
   interface TanreiTimelineDensityRegistry {}
   interface TanreiToolbarVariantRegistry {}

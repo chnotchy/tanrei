@@ -3,7 +3,7 @@
 // here, on the token sources as written:
 //
 //   the looks agree   a reader whose own group still declares looks, for parts of its own (a select's and a
-//                     combobox's options, a text input's grip), declares the box's looks, in the box's order and
+//                     combobox's options), declares the box's looks, in the box's order and
 //                     with the box's default — so that a layer that adds a look to the box is told to
 //                     add it there too, and no reader offers a look the box cannot be drawn in;
 //   the states        the box has no pressed state (no box is drawn pressed), and a reader with a list has it, for
@@ -42,9 +42,9 @@ test('the box names its readers, and each of them has a document', () => {
 
 test('a reader that declares looks for parts of its own declares the box\'s looks, in its order, with its default', () => {
   const declaring = readers.filter((reader) => groupOf(reader).$extensions[extension('states')]);
-  // The select's and the combobox's options and the text input's resize grip are colored per look; a number input's
-  // steppers and a color input's swatch are not.
-  assert.deepEqual(declaring, ['text-input', 'select', 'combobox']);
+  // The select's and the combobox's options are colored per look; a text input's resize handle is a Handle, drawn from
+  // its own tokens, and a number input's steppers and a color input's swatch are not.
+  assert.deepEqual(declaring, ['select', 'combobox']);
   assert.deepEqual(readers.flatMap((reader) => lookProblems(reader, groupOf(reader))), []);
 });
 

@@ -2830,11 +2830,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.6078,
-                    0.6078,
-                    0.6078
+                    0.7255,
+                    0.7255,
+                    0.7255
                   ],
-                  "hex": "#9b9b9b",
+                  "hex": "#b9b9b9",
                   "alpha": 1
                 }
               }
@@ -2877,11 +2877,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.6078,
-                    0.6078,
-                    0.6078
+                    0.7255,
+                    0.7255,
+                    0.7255
                   ],
-                  "hex": "#9b9b9b",
+                  "hex": "#b9b9b9",
                   "alpha": 1
                 }
               }
@@ -2952,13 +2952,6 @@
             "$type": "dimension",
             "$value": {
               "value": 4,
-              "unit": "px"
-            }
-          },
-          "grip-shape": {
-            "$type": "dimension",
-            "$value": {
-              "value": 9999,
               "unit": "px"
             }
           },
@@ -91218,142 +91211,6 @@
             "$description": "The least width the typing part keeps beside the last item of a line; with less left, it takes a line of its own."
           }
         },
-        "filled": {
-          "disabled": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9529,
-                    0.9529,
-                    0.9529
-                  ],
-                  "alpha": 0.38,
-                  "hex": "#f3f3f3"
-                }
-              }
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "focused": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "hovered": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.7255,
-                  0.7255,
-                  0.7255
-                ],
-                "hex": "#b9b9b9",
-                "alpha": 1
-              }
-            }
-          }
-        },
         "motion": {
           "resize-duration": {
             "$type": "duration",
@@ -91373,160 +91230,6 @@
             ]
           }
         },
-        "outlined": {
-          "disabled": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9529,
-                    0.9529,
-                    0.9529
-                  ],
-                  "alpha": 0.38,
-                  "hex": "#f3f3f3"
-                }
-              }
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "focused": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "hovered": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.7255,
-                  0.7255,
-                  0.7255
-                ],
-                "hex": "#b9b9b9",
-                "alpha": 1
-              }
-            }
-          }
-        },
-        "resize-grip": {
-          "inset": {
-            "$type": "dimension",
-            "$value": {
-              "value": 4,
-              "unit": "px"
-            },
-            "$description": "Distance from the container's bottom edge and from its end edge to the grip's glyph."
-          },
-          "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "The glyph of the resize grip of a manually resized multi-line input: the icon scale's smallest step. Its hit area is the minimum target, not this size."
-          }
-        },
         "segment": {
           "padding-inline": {
             "$type": "dimension",
@@ -91535,142 +91238,6 @@
               "unit": "px"
             },
             "$description": "The room on each side of a date or time segment's text, inside the highlight a focused segment is drawn with."
-          }
-        },
-        "stacked": {
-          "disabled": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.9529,
-                      0.9529,
-                      0.9529
-                    ],
-                    "alpha": 0.38,
-                    "hex": "#f3f3f3"
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.9529,
-                    0.9529,
-                    0.9529
-                  ],
-                  "alpha": 0.38,
-                  "hex": "#f3f3f3"
-                }
-              }
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "focused": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "hovered": {
-            "error": {
-              "resize-grip": {
-                "color": {
-                  "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0.7255,
-                      0.7255,
-                      0.7255
-                    ],
-                    "hex": "#b9b9b9",
-                    "alpha": 1
-                  }
-                }
-              }
-            },
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.7255,
-                    0.7255,
-                    0.7255
-                  ],
-                  "hex": "#b9b9b9",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.7255,
-                  0.7255,
-                  0.7255
-                ],
-                "hex": "#b9b9b9",
-                "alpha": 1
-              }
-            }
           }
         }
       },

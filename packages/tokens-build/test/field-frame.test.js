@@ -168,8 +168,9 @@ test('the text field has no group of its own: the box is the one set, the text i
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   assert.equal(count('text-field'), 0);
   // 364 were the text input's (361 at the split, and three for the entries place): 330 are the box's
-  // now, and 34 are its own — the resize grip, a segment, the code face, the entries place, the motion of a height.
-  assert.equal(count('text-input'), 34);
+  // now, 26 went with the resize grip (its handle is a Handle, comp.handle.*), and 8 are its own — a segment, the code
+  // face, the entries place, the motion of a height.
+  assert.equal(count('text-input'), 8);
   // The box: the text input's 330, the ten of the small size, which the select alone offered, and its state duration
   // per size (three in place of one).
   const box = Object.keys(model.tokens).filter((id) => id.startsWith(`${INPUT_BOX}.`));

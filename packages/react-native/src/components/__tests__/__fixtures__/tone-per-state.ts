@@ -1084,7 +1084,6 @@ export const tonePerState = {
       handleContainerShape: 9999,
       handleContainerWidth: 48,
       handleGripHeight: 4,
-      handleGripShape: 9999,
       handleGripWidth: 32,
       handleMarginBlock: 12,
       headerGap: 8,
@@ -1117,7 +1116,7 @@ export const tonePerState = {
               with: { kind: "role", role: "outline" },
               amount: 0.08,
             },
-            gripColor: { kind: "role", role: "outline" },
+            gripColor: { kind: "role", role: "onSurfaceVariant" },
             stateLayerColor: { kind: "role", role: "outline" },
           },
           focused: {
@@ -1137,7 +1136,7 @@ export const tonePerState = {
               with: { kind: "role", role: "outline" },
               amount: 0.1,
             },
-            gripColor: { kind: "role", role: "outline" },
+            gripColor: { kind: "role", role: "onSurfaceVariant" },
             stateLayerColor: { kind: "role", role: "outline" },
           },
         },
@@ -16435,89 +16434,7 @@ export const tonePerState = {
       entriesTypingMinWidth: 72,
       motionResizeDuration: 300,
       motionResizeEasing: [0.2, 0, 0, 1],
-      resizeGripInset: 4,
-      resizeGripSize: 16,
       segmentPaddingInline: 2,
-      variants: {
-        stacked: {
-          enabled: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          hovered: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          focused: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          disabled: {
-            resizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            errorResizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-          },
-        },
-        filled: {
-          enabled: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          hovered: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          focused: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          disabled: {
-            resizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            errorResizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-          },
-        },
-        outlined: {
-          enabled: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          hovered: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          focused: {
-            resizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-            errorResizeGripColor: { kind: "role", role: "onSurfaceVariant" },
-          },
-          disabled: {
-            resizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-            errorResizeGripColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.38,
-            },
-          },
-        },
-      },
     },
     timeline: {
       bodyGap: 8,

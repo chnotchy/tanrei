@@ -906,7 +906,6 @@ private object TanreiSystemSource {
             handleContainerShape = 9999.dp,
             handleContainerWidth = 48.dp,
             handleGripHeight = 4.dp,
-            handleGripShape = 9999.dp,
             handleGripWidth = 32.dp,
             handleMarginBlock = 12.dp,
             headerGap = 8.dp,
@@ -935,7 +934,7 @@ private object TanreiSystemSource {
                     ),
                     hovered = TanreiBottomSheetControlStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.08f),
-                        gripColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        gripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                     ),
                     focused = TanreiBottomSheetControlStateTokens(
@@ -945,7 +944,7 @@ private object TanreiSystemSource {
                     ),
                     pressed = TanreiBottomSheetControlStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.1f),
-                        gripColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        gripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                     ),
                 ),
@@ -8695,65 +8694,7 @@ private object TanreiSystemSource {
             entriesTypingMinWidth = 72.dp,
             motionResizeDuration = 300,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            resizeGripInset = 4.dp,
-            resizeGripSize = 16.dp,
             segmentPaddingInline = 2.dp,
-            variants = TanreiTextInputVariants(
-                stacked = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-                filled = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-                outlined = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-            ),
         )
 
     @Suppress("UNUSED_PARAMETER")

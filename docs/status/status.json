@@ -105,7 +105,8 @@
       "listing": "advanced",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "handle"
       ],
       "hasSpec": true,
       "docs": "/components/text-input/",
@@ -643,7 +644,8 @@
         "modal-layer"
       ],
       "uses": [
-        "button"
+        "button",
+        "handle"
       ],
       "hasSpec": true,
       "docs": "/components/bottom-sheet/",

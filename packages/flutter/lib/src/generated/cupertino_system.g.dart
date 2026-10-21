@@ -826,7 +826,6 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     handleContainerShape: 9999.0,
     handleContainerWidth: 48.0,
     handleGripHeight: 5.0,
-    handleGripShape: 9999.0,
     handleGripWidth: 36.0,
     handleMarginBlock: 0.0,
     headerGap: 8.0,
@@ -852,7 +851,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
         hovered: TanreiBottomSheetControlStateTokens(
           containerColor: TanreiPaint.none(),
-          gripColor: TanreiPaint.role(TanreiColorRole.outline),
+          gripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
         ),
         focused: TanreiBottomSheetControlStateTokens(
@@ -862,7 +861,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         ),
         pressed: TanreiBottomSheetControlStateTokens(
           containerColor: TanreiPaint.none(),
-          gripColor: TanreiPaint.role(TanreiColorRole.outline),
+          gripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
           stateLayerColor: TanreiPaint.role(TanreiColorRole.outline),
         ),
       ),
@@ -9331,65 +9330,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     entriesTypingMinWidth: 72.0,
     motionResizeDuration: 300,
     motionResizeEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
-    resizeGripInset: 4.0,
-    resizeGripSize: 16.0,
     segmentPaddingInline: 2.0,
-    variants: TanreiTextInputVariants(
-      stacked: TanreiTextInputVariantTokens(
-        enabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        hovered: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        focused: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        disabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          errorResizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-        ),
-      ),
-      filled: TanreiTextInputVariantTokens(
-        enabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        hovered: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        focused: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        disabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          errorResizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-        ),
-      ),
-      outlined: TanreiTextInputVariantTokens(
-        enabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        hovered: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        focused: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-          errorResizeGripColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
-        ),
-        disabled: TanreiTextInputVariantStateTokens(
-          resizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          errorResizeGripColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-        ),
-      ),
-    ),
   ),
   timeline: TanreiTimelineTokens(
     bodyGap: 8.0,
