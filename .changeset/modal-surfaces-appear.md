@@ -14,7 +14,7 @@ it came. **Breaking** (a motion and three tokens 0.1.0-next.0 shipped).
   `sys.motion.appear.*` — opacity 0 and scale 0.96 under the default system (was 0.95) — grown about their centre (the
   image about the centre of its fit area) and risen into place by `sys.motion.appear.distance`, over their enter motion;
   they leave the same way back over their exit motion, where they only faded before. Under the `unfold` appearance
-  (m3-like and m3-expressive-like) a centred surface, having no anchored edge, grows on both axes from its centre.
+  (m3-like) a centred surface, having no anchored edge, grows on both axes from its centre.
 - A motion turned round goes on from what it shows: a dialog, a picker or a preview closed while it enters, or opened
   again while it leaves, does not start again from nothing.
 - Where motion is reduced the container (the image) fades in and out over `sys.motion.role.reduced` (100 ms), with no

@@ -15,7 +15,7 @@ Tooltip: it appears as every surface does, and leaves the way it came. **Breakin
   covers its anchor), and leaves the same way back on `comp.tooltip.motion.exit-easing` (standard-accelerate in the
   default system). It no longer grows from 0.95 about the point its arrow points at, and no longer travels 4 px toward
   the anchor: a system that sets `sys.motion.appear.distance` makes it travel.
-- Under the `unfold` appearance (m3-like and m3-expressive-like) it unfolds from that edge along the axis that leaves
+- Under the `unfold` appearance (m3-like) it unfolds from that edge along the axis that leaves
   the anchor, at its full width.
 - Where motion is reduced it fades in and out over `sys.motion.role.reduced` (100 ms), with no scale, distance or blur.
 - A tooltip written open in the page's markup appears in the first frame without its motion; one mounted open after
