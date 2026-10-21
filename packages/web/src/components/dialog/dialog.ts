@@ -3,6 +3,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   ActionPlacement,
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   CompactWindow,
@@ -179,6 +180,14 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
 
   /** DLG-17: the window, matched against the resolved `compact.window-width`; crossing it re-places at once. */
   private readonly compact = new CompactWindow(() => this.layout());
+
+  /**
+   * DLG-13, DLG-18: its appearance, opened and closed (src/primitives/motion.ts): made at once before the first paint
+   * (MOT-4), turned round from what it shows (MOT-2). The `<dialog>` is the surface that appears.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.dialog });
+  /** Closed, and still playing its exit: opened again, it goes on from what it shows. */
+  private leaving = false;
 
   /** DLG-4: where focus was when it opened. */
   private opener: Element | null = null;
@@ -375,7 +384,14 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
     this.giveVariant();
     this.layout();
-    if (!dialog.open) dialog.showModal();
+    // DLG-13: still leaving, it is put back into the top layer where its exit has got to (MOT-2): an element taken out
+    // and put back is drawn anew, from the start of its entrance otherwise.
+    if (!dialog.open) {
+      if (this.leaving) this.appear.keep(() => dialog.showModal());
+      else dialog.showModal();
+    }
+    this.leaving = false;
+    this.appear.enter();
     this.shown = true;
     // DLG-19, DLG-2: counted, and the marked element looked for, when it opens — or, in a document that is still being
     // read, once it has been. A dialog written open whose element was defined before its markup opens at its start
@@ -420,7 +436,13 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
+    // DLG-13: out of the top layer at once — the page and focus are given back now — and drawn there until its exit has
+    // played (its `display` and `overlay` change at the exit's end).
     if (dialog?.open) dialog.close();
+    this.leaving = true;
+    void this.appear.exit(!this.isConnected).then((left) => {
+      if (left) this.leaving = false;
+    });
     const opener = this.opener as HTMLElement | null;
     this.opener = null;
     if (restoreFocus) {

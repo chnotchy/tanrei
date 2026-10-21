@@ -1856,7 +1856,6 @@ export interface TanreiDateTimePickerTokens {
   readonly modalContainerShape: number;
   readonly modalMotionCloseDuration: number;
   readonly modalMotionCloseEasing: TanreiCubicBezier;
-  readonly modalMotionEnterScale: number;
   readonly modalMotionOpenDuration: number;
   readonly modalMotionOpenEasing: TanreiCubicBezier;
   readonly modalScrimBlur: number;
@@ -1967,7 +1966,6 @@ export interface TanreiDialogTokens {
   readonly iconSize: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly scrimBlur: number;
@@ -2626,7 +2624,6 @@ export interface TanreiImagePreviewTokens {
   readonly motionControlsEasing: TanreiCubicBezier;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly motionPageDuration: number;

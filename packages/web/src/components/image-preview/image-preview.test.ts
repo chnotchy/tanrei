@@ -2103,19 +2103,25 @@ test.describe('loading and failure', () => {
 });
 
 test.describe('motion', () => {
-  test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image grows about the centre of the fit area from enter-scale, over the enter motion; closing, all of it fades out over the exit motion; the image is never flown from anywhere', async ({ page }) => {
+  test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image appears as every modal surface does — from opacity 0 and scale 0.96 under the default system, about the centre of the fit area — over the enter motion; closing, all of it fades out over the exit motion while the image goes back the same way; the image is never flown from anywhere', async ({ page }) => {
     await mount(page, fx({ open: false, index: 1 }));
     await override(page, { [T('motion-enter-duration')]: '2000ms', [T('motion-exit-duration')]: '1500ms' });
+    // What each motion is expected to run for: the component's tokens, as just set, read back.
+    const enter = await ms(page, T('motion-enter-duration'));
+    const exit = await ms(page, T('motion-exit-duration'));
     // What opening begins is kept as the engine announces it, with the values it runs between: asked for after the two
     // frames `settled` waits, and again in a third question, a motion of 2 s is over on a runner that draws slowly.
     await watchRuns(page);
     await set(page, { open: true });
     await settled(page);
-    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 2000 }]));
-    await expect.poll(() => begun(page, '.pages')).toEqual([{ property: 'scale', duration: 2000 }]);
-    const growing = { ...(await runs(page, '.pages'))[0], origin: await style(page, '.pages', 'transform-origin') };
-    expect(growing.from).toBe(String(await page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), T('motion-enter-scale'))));
+    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: enter }]));
+    await expect.poll(() => begun(page, '.pages')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: enter }, { property: 'scale', duration: enter }]));
+    const pagesRuns = await runs(page, '.pages');
+    const growing = { ...pagesRuns.find((run) => run.property === 'scale')!, origin: await style(page, '.pages', 'transform-origin') };
+    // From where the appearance starts it (sys.motion.appear.*), to whole.
+    expect(growing.from).toBe(String(await page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), '--tanrei-sys-motion-appear-scale')));
     expect(growing.to).toBe('none');
+    expect(pagesRuns.find((run) => run.property === 'opacity')).toMatchObject({ from: '0', to: '1' });
     const seen = await look(page);
     const origin = growing.origin.split(' ').map(Number.parseFloat);
     near(origin[0], centre(seen.fit).x, 'about the centre of the fit area, across');
@@ -2129,13 +2135,14 @@ test.describe('motion', () => {
     await watchRuns(page);
     await set(page, { open: false });
     await settled(page);
-    if (await fadesOut(page)) await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 1500 }]));
+    if (await fadesOut(page)) await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: exit }]));
     else expect(await style(page, 'dialog', 'display'), 'gone at once where a closed dialog cannot be held').toBe('none');
     expect(await style(page, 'dialog', 'transition-duration')).toBe('1.5s');
-    expect(await running(page, '.pages')).toEqual([]);
+    // The image goes back the same way, over the exit motion, where the closed dialog is held while it fades.
+    if (await fadesOut(page)) await expect.poll(() => begun(page, '.pages')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: exit }, { property: 'scale', duration: exit }]));
   });
 
-  test('IMP-34: where motion is reduced it opens and closes by fading without growing, a step of the zoom, a change of image and the controls change at once, an image still follows a finger, and a released drag settles at once', async ({ page }) => {
+  test('IMP-34: where motion is reduced it opens and closes by fading — the image over sys.motion.role.reduced, without growing — a step of the zoom, a change of image and the controls change at once, an image still follows a finger, and a released drag settles at once', async ({ page }) => {
     await mount(page, fx({ open: false, index: 1 }), { reducedMotion: true });
     await override(page, { [T('motion-enter-duration')]: '2000ms' });
     await watchRuns(page);
@@ -2143,7 +2150,7 @@ test.describe('motion', () => {
     await settled(page);
     await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 2000 }]));
     // (The engine announces what one change starts together: a growth would be in the list by now.)
-    expect(await begun(page, '.pages'), 'without growing').toEqual([]);
+    expect((await begun(page, '.pages')).filter((run) => !['display', 'overlay'].includes(run.property)), 'the image only fades, without growing').toEqual([{ property: 'opacity', duration: await ms(page, '--tanrei-sys-motion-role-reduced') }]);
     await override(page, { [T('motion-enter-duration')]: '0ms' });
     await rest(page);
     await control(page, 'zoom-in').click();

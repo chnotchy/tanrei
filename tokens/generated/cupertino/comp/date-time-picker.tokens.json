@@ -99,16 +99,6 @@
             "close-easing": {
               "$type": "cubicBezier",
               "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
-            },
-            "enter-scale": {
-              "$type": "number",
-              "$value": 0.95,
-              "$description": "The size a modal picker grows from, as a fraction of its own, while it fades in. 1 fades without growing.",
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fixed": "A proportion of the picker's own size; no dial scales it."
-                }
-              }
             }
           }
         },
