@@ -4530,7 +4530,10 @@ that side has less room than the surface within `surface.viewport-margin` and th
 anchor to stay inside that margin, its height limited to the room left (the items scroll), and followed while open —
 by events, frame by frame only while something moves (`FollowController`, below). It fades in and grows from the edge facing the anchor over `motion.open-duration` / `-easing`, and fades out
 over `motion.close-duration` / `-easing` (at once under reduced motion). Opening focuses the first enabled item; closing
-returns focus to the anchor when it was inside the menu. It is not modal: no focus trap, nothing inert, no scrim. **A press
+returns focus to the anchor when it was inside the menu. Where that item is not drawn yet — a menu mounted open, or
+opened in the task that gives it new groups, renders before its groups draw their slots, and Chromium and Firefox focus
+nothing that is not drawn (WebKit does) — the menu waits for itself, its groups and its rows to finish rendering (their
+`updateComplete`, microtasks only, so no input comes between), then places focus. It is not modal: no focus trap, nothing inert, no scrim. **A press
 outside also reaches the element under it** (the menu listens in the capture phase and prevents nothing). Tab asks to
 close and moves focus to the anchor first, so the Tab itself goes on from the anchor. A press on the anchor is the
 anchor's own: it neither closes the menu nor counts as outside, so your anchor handler decides (toggle it).
