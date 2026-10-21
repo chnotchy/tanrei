@@ -12,6 +12,7 @@ import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { sitemapLastmod } from './src/lib/lastmod.mjs';
+import { pagePolicies } from './src/lib/csp.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 // When each page of the sitemap last changed: the newest commit of its own source and, for a component's page, of its
@@ -192,6 +193,9 @@ export default defineConfig({
     tanreiMarkdown(),
     // Each language's not-found page also as `<language>/404.html`, for a host that answers with the nearest one.
     notFoundFiles(translations),
+    // Last, so that it reads every page as it is served: each page's own script policy, the hashes of the inline scripts
+    // and event handlers it holds, in a meta element beside the one the host sends (src/lib/csp.mjs, public/_headers).
+    pagePolicies(),
   ],
   // No highlighter of the Markdown engine's: a fence reaches the docs' own step as it was written.
   markdown: { syntaxHighlight: false },
