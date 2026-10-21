@@ -14040,8 +14040,6 @@ export const m3ExpressiveLike = {
       arrowWidth: 12,
       motionEnterDuration: 200,
       motionEnterEasing: [0.05, 0.7, 0.1, 1],
-      motionEnterOffset: 4,
-      motionEnterScale: 0.95,
       motionExitDuration: 150,
       motionExitEasing: [0.3, 0, 1, 1],
       motionHideDelay: 100,

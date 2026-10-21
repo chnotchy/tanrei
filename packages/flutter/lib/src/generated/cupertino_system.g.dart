@@ -9476,8 +9476,6 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     arrowWidth: 12.0,
     motionEnterDuration: 250,
     motionEnterEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
-    motionEnterOffset: 4.0,
-    motionEnterScale: 0.95,
     motionExitDuration: 200,
     motionExitEasing: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),
     motionHideDelay: 100,

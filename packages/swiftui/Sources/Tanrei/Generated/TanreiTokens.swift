@@ -17797,8 +17797,6 @@ public struct TanreiTooltipTokens: Sendable, Equatable {
   public var arrowWidth: CGFloat
   public var motionEnterDuration: Double
   public var motionEnterEasing: TanreiCubicBezier
-  public var motionEnterOffset: CGFloat
-  public var motionEnterScale: Double
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
   public var motionHideDelay: Double
@@ -17847,8 +17845,6 @@ public struct TanreiTooltipTokens: Sendable, Equatable {
     arrowWidth: CGFloat,
     motionEnterDuration: Double,
     motionEnterEasing: TanreiCubicBezier,
-    motionEnterOffset: CGFloat,
-    motionEnterScale: Double,
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
     motionHideDelay: Double,
@@ -17896,8 +17892,6 @@ public struct TanreiTooltipTokens: Sendable, Equatable {
     self.arrowWidth = arrowWidth
     self.motionEnterDuration = motionEnterDuration
     self.motionEnterEasing = motionEnterEasing
-    self.motionEnterOffset = motionEnterOffset
-    self.motionEnterScale = motionEnterScale
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
     self.motionHideDelay = motionHideDelay

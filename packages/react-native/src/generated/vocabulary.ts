@@ -5488,8 +5488,6 @@ export interface TanreiTooltipTokens {
   readonly arrowWidth: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterOffset: number;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly motionHideDelay: number;

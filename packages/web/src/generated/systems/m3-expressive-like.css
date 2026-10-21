@@ -8373,8 +8373,6 @@
     --tanrei-comp-tooltip-arrow-width: var(--tanrei-sys-space-space150);
     --tanrei-comp-tooltip-motion-enter-duration: var(--tanrei-sys-motion-role-appear-hint-enter);
     --tanrei-comp-tooltip-motion-enter-easing: var(--tanrei-sys-motion-easing-enter);
-    --tanrei-comp-tooltip-motion-enter-offset: var(--tanrei-sys-space-space50);
-    --tanrei-comp-tooltip-motion-enter-scale: 0.95;
     --tanrei-comp-tooltip-motion-exit-duration: var(--tanrei-sys-motion-role-appear-hint-exit);
     --tanrei-comp-tooltip-motion-exit-easing: var(--tanrei-sys-motion-easing-standard-accelerate);
     --tanrei-comp-tooltip-motion-hide-delay: var(--tanrei-sys-motion-duration-short2);

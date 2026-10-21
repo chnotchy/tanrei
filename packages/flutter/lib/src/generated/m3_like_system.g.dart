@@ -9507,8 +9507,6 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     arrowWidth: 12.0,
     motionEnterDuration: 200,
     motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
-    motionEnterOffset: 4.0,
-    motionEnterScale: 0.95,
     motionExitDuration: 150,
     motionExitEasing: TanreiCubicBezier(0.3, 0.0, 1.0, 1.0),
     motionHideDelay: 100,

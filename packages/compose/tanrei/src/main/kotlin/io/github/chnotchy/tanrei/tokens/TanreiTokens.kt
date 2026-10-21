@@ -11077,8 +11077,6 @@ public data class TanreiTooltipTokens(
     public val arrowWidth: Dp,
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
-    public val motionEnterOffset: Dp,
-    public val motionEnterScale: Float,
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
     public val motionHideDelay: Int,

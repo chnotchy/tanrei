@@ -96180,7 +96180,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long the tooltip takes to fade in, grow and travel to its place."
+            "$description": "How long the tooltip takes to appear from its anchor's side: a hint's entrance."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -96191,26 +96191,13 @@
               1
             ]
           },
-          "enter-offset": {
-            "$type": "dimension",
-            "$value": {
-              "value": 4,
-              "unit": "px"
-            },
-            "$description": "How far towards the anchor from its place the tooltip starts as it fades in, and returns as it fades out. 0 fades without travelling."
-          },
-          "enter-scale": {
-            "$type": "number",
-            "$value": 0.95,
-            "$description": "The size the tooltip grows from as it fades in, and shrinks to as it fades out, as a fraction of its own; the growth is fixed at the point of its edge that faces the anchor. 1 fades without growing."
-          },
           "exit-duration": {
             "$type": "duration",
             "$value": {
               "value": 150,
               "unit": "ms"
             },
-            "$description": "How long the tooltip takes to fade out, shrink and travel back."
+            "$description": "How long the tooltip takes to leave the way it came: a hint's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
