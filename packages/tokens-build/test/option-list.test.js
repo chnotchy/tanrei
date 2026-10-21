@@ -113,3 +113,26 @@ test('the list comparison is not vacuous: the chosen row is the menu\'s checked 
   model.componentColors.dark[id].value = model.colors.dark.primary.value;
   assert.notEqual(inScheme(model, 'dark', id), inScheme(model, 'dark', `${MENU}.selected.container.color`));
 });
+
+// The status row a select draws after its options is the combobox's (SEL-68, CMB-32): the same text style and colors.
+// Neither aliases the other (each aliases `sys.*`), so the pair is held together here, as the lists are above.
+test('select: every token of its status row equals the combobox’s, in every scheme of every shipped system', async () => {
+  for (const system of systems) {
+    const model = await modelOf(system);
+    const mine = Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.select.status.`));
+    assert.deepEqual(
+      mine.map((id) => id.slice(`${NS}.select.`.length)).sort(),
+      ['status.color', 'status.error.color', 'status.typescale'],
+      `${system}: the select's status tokens`,
+    );
+    const differing = [];
+    for (const scheme of model.schemes) {
+      for (const id of mine) {
+        const theirs = id.replace(`${NS}.select.`, `${NS}.combobox.`);
+        const [a, b] = [inScheme(model, scheme, id), inScheme(model, scheme, theirs)];
+        if (a !== b) differing.push(`[${system} ${scheme}] ${id} ${a} ≠ ${theirs} ${b}`);
+      }
+    }
+    assert.deepEqual(differing, []);
+  }
+});

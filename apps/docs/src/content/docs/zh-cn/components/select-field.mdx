@@ -2,7 +2,7 @@
 title: "下拉选择字段"
 description: "以表单里一个完整字段的形式，让用户从一个封闭的列表中选择一个值——一个可以说明字段必填或选填的标签，一个显示选中的选项并打开选项列表的触发器，以及下方的一行帮助文本或错误——它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/select-field.mdx
-sourceHash: 95f1fb821622fa51e25b0cd7baf6e20568c8ae50
+sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段 | 来自下拉选择框 |
 | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, `iconSpace` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, `iconSpace`, `status`, `statusText`, `emptyText` |
 | 事件 | — | `change`, `toggle` |
 | 插槽 | `label-icon` | `leading-icon`，以及选项 |
 | 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；列表用 `comp.select.*` |
@@ -187,7 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 选项仍然是你写在 `<tanrei-select-field>` 里的子元素。它们绝不会被移动或复制：它们通过一个插槽到达里面的下拉选择框，一有变化，下拉选择框就会重新读取。手动替换它们（`replaceChildren()`）的效果与在下拉选择框上相同。
 - 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有值，禁用时什么都不提交，只读时照常提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；设置了 `required` 而值为空时，报告缺少值。它的两个成员不向表单添加任何条目。
 - `change` 是下拉选择框的事件，composed 并且冒泡。`toggle` 是下拉选择框的 CustomEvent，带有 `detail.open` 和 `detail.reason`：它是 composed 的，但不冒泡，所以要在这个元素上监听，`<details>` 之类的祖先绝不会收到它。它们的 target 是这个元素，在每个监听器里，`event.target.value` 和 `event.target.open` 都已经是新的值。
-- 部件：`field` 和 `select` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。`label` 和 `requirement-label` 指两者之中画出来的那一个——字段的标签行，或者下拉选择框的浮动标签——而 `field-label`、`select-label`、`field-requirement-label` 和 `select-requirement-label` 只指其中一个成员的。
+- 部件：`field` 和 `select` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。`label` 和 `requirement-label` 指两者之中画出来的那一个——字段的标签行，或者下拉选择框的浮动标签——而 `field-label`、`select-label`、`field-requirement-label` 和 `select-requirement-label` 只指其中一个成员的。
 - 这个元素本身不能获得焦点：`focus()` 会把焦点交给触发器，页面自己的 `<label for>` 也会把焦点移到那里。按下标签行会让触发器获得焦点，不打开任何东西；按下触发器会打开列表；按下帮助文本什么都不会发生。
 - 这个元素没有角色。用 `label` 为它命名，标签绘制在别处时再加上 `label-hidden`；绝不要用 `aria-label`，它在这里不为任何东西命名。
 - 属性（attribute）就是成员自己的那些：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`readonly`。

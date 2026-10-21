@@ -134,8 +134,9 @@ test.describe('the top-layer surface in Chromium’s accessibility tree', () => 
     const found = await popovers(page);
     expectNoBareGroup(found);
     expect(found).toEqual([{ host: 'tanrei-select', open: true, ignored: true, role: '', name: '' }]);
-    // (No status region: a select announces nothing itself — an error is announced by the Field that frames it.)
-    expect(await tree(page)).toEqual(['main:', '  combobox:Country', '  listbox:Country', '    option:Canada', '    option:France', '    option:Japan', '    option:Kenya', '    option:New Zealand']);
+    // The status row's two live regions (SEL-69) are there, empty, while the list is shown with nothing to say: beside the
+    // list box, never inside it. An error of the value is still announced by the Field that frames the select.
+    expect(await tree(page)).toEqual(['main:', '  combobox:Country', '  listbox:Country', '    option:Canada', '    option:France', '    option:Japan', '    option:Kenya', '    option:New Zealand', '  status:', '  alert:']);
   });
 
   test('combobox: the placed box is not exposed — the list box stands by itself, named by the label', async ({ page }) => {

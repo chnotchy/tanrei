@@ -6320,6 +6320,15 @@
     --tanrei-comp-select-stacked-selected-option-mark-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-select-stacked-selected-option-state-layer-color: var(--tanrei-comp-select-stacked-selected-option-label-color);
     --tanrei-comp-select-stacked-selected-option-supporting-text-color: var(--tanrei-sys-color-on-secondary-container);
+    --tanrei-comp-select-status-color: var(--tanrei-sys-color-on-surface-variant);
+    --tanrei-comp-select-status-error-color: var(--tanrei-sys-color-error);
+    --tanrei-comp-select-status-typescale-font-family: var(--tanrei-sys-typescale-body-small-font-family);
+    --tanrei-comp-select-status-typescale-font-size: var(--tanrei-sys-typescale-body-small-font-size);
+    --tanrei-comp-select-status-typescale-font-weight: var(--tanrei-sys-typescale-body-small-font-weight);
+    --tanrei-comp-select-status-typescale-font-weight-emphasized: var(--tanrei-sys-typescale-body-small-font-weight-emphasized);
+    --tanrei-comp-select-status-typescale-letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+    --tanrei-comp-select-status-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
+    --tanrei-comp-select-status-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-side-sheet-actions-arrangement: fill;
     --tanrei-comp-side-sheet-actions-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-side-sheet-actions-padding-block: var(--tanrei-sys-space-space200);

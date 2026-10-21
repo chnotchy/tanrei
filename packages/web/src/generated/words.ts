@@ -130,6 +130,8 @@ export interface TanreiWords {
   nextPageLabel?: string;
   /** Read by `file-upload.emptyText`. */
   noFileText?: string;
+  /** Read by `select.emptyText`. */
+  noOptionsText?: string;
   /** Read by `field.optionalText`, `field-group.optionalText`. */
   optionalText?: string;
   /** Read by `pagination.countText`. A word with places: `{page}` (number), `{count}` (number). */
@@ -204,7 +206,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'toolbarOverflowLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'noOptionsText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'toolbarOverflowLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -271,6 +273,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   nextMonthLabel: ['calendar.nextMonthLabel', 'date-time-picker.nextMonthLabel'],
   nextPageLabel: ['pagination.nextLabel'],
   noFileText: ['file-upload.emptyText'],
+  noOptionsText: ['select.emptyText'],
   optionalText: ['field.optionalText', 'field-group.optionalText'],
   pageCountText: ['pagination.countText'],
   pageLabel: ['pagination.pageLabel'],
