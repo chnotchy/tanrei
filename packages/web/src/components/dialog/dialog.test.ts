@@ -307,7 +307,17 @@ test.describe('presentation and focus', () => {
           const style = getComputedStyle(native);
           return { opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number(style.scale.split(' ')[0]) };
         };
-        const running = native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        const own = () => native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        // What the dialog carries, for the failure message: each animation's property, pseudo-element, state and keyframes
+        // (a count alone does not say which motion is one too many).
+        const listed = () =>
+          native.getAnimations().map((a) => {
+            const effect = a.effect as KeyframeEffect | null;
+            const property = (a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName ?? a.id;
+            const values = effect?.getKeyframes().map((keyframe) => String(keyframe[property] ?? '')) ?? [];
+            return `${property} ${JSON.stringify(effect?.pseudoElement ?? null)} ${a.playState} ${values.join(' → ')}`;
+          });
+        const running = own();
         for (const animation of running) {
           animation.pause();
           animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
@@ -315,9 +325,9 @@ test.describe('presentation and focus', () => {
         const held = read();
         el.open = to;
         await el.updateComplete;
-        const turned = native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        const turned = own();
         for (const animation of turned) animation.pause();
-        return { held, turned: read(), moving: turned.length };
+        return { held, turned: read(), moving: turned.map((a) => (a as CSSTransition).transitionProperty).sort(), listed: listed().join('; ') };
       }, open);
     await host(page, 'd').evaluate(async (el: any) => {
       el.open = true;
@@ -326,14 +336,14 @@ test.describe('presentation and focus', () => {
     const closedMidway = await turn(false);
     expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
     expect(closedMidway.held.opacity).toBeLessThan(0.99);
-    expect(closedMidway.moving).toBe(2);
+    expect(closedMidway.moving, closedMidway.listed).toEqual(['opacity', 'scale']);
     expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
     expect(closedMidway.turned.scale).toBeCloseTo(closedMidway.held.scale, 3);
     await host(page, 'd').evaluate((el: any) => (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.play()));
     // Opened again while it leaves: put back into the top layer where its exit has got to, not from its start.
     const openedMidway = await turn(true);
     expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
-    expect(openedMidway.moving).toBe(2);
+    expect(openedMidway.moving, openedMidway.listed).toEqual(['opacity', 'scale']);
     expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
     expect(openedMidway.turned.scale).toBeCloseTo(openedMidway.held.scale, 3);
     expect(await isOpen(page, 'd')).toBe(true);
