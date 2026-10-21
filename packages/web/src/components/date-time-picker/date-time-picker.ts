@@ -6,6 +6,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   ActionPlacement,
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type CalendarDate,
@@ -561,6 +562,19 @@ export class TanreiDateTimePicker extends TanreiElement {
   private session = false;
   private shown = false;
   private presenting = false;
+  /**
+   * DTM-35: a modal picker's appearance, opened and closed (src/primitives/motion.ts): made at once before the first
+   * paint (MOT-4), turned round from what it shows (MOT-2). Its `<dialog>` is the surface that appears; a docked or an
+   * in-place picker has none.
+   */
+  private readonly appear = new AppearController(this, {
+    motion: () => {
+      const surface = this.surface;
+      return surface instanceof HTMLDialogElement && !this.inline ? surface : null;
+    },
+  });
+  /** A modal picker closed and still playing its exit: opened again, it goes on from what it shows. */
+  private leaving = false;
   private closeRequested = false;
   /** The choice the picker opened with, in the mode's form (DTM-6). */
   private openedWith: Record<End, string> = { value: '', start: '', end: '' };
@@ -2205,7 +2219,14 @@ export class TanreiDateTimePicker extends TanreiElement {
     try {
       if (surface instanceof HTMLDialogElement) {
         watchEscape();
-        if (!surface.open) surface.showModal();
+        // DTM-35: still leaving, it is put back into the top layer where its exit has got to (MOT-2): an element taken
+        // out and put back is drawn anew, from the start of its entrance otherwise.
+        if (!surface.open) {
+          if (this.leaving) this.appear.keep(() => surface.showModal());
+          else surface.showModal();
+        }
+        this.leaving = false;
+        this.appear.enter();
         modalLayer.add(this);
         holdPageScroll(this, true);
         window.visualViewport?.addEventListener('resize', this.onWindow);
@@ -2295,7 +2316,13 @@ export class TanreiDateTimePicker extends TanreiElement {
       modalLayer.delete(this);
       holdPageScroll(this, false);
       window.visualViewport?.removeEventListener('resize', this.onWindow);
+      // DTM-35: out of the top layer at once — the page and focus are given back now — and drawn there until its exit
+      // has played (its `display` and `overlay` change at the exit's end).
       if (surface.open) surface.close();
+      this.leaving = true;
+      void this.appear.exit(!this.isConnected).then((left) => {
+        if (left) this.leaving = false;
+      });
     } else if (surface) {
       surface.classList.remove('entering');
       surface.classList.add('leaving');

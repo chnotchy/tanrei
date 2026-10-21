@@ -7,6 +7,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
@@ -64,9 +66,9 @@ const closed = (id: string): Fixture => {
   const fixture = spec.fixtures.find((fx) => fx.id === id)!;
   return { ...fixture, props: { ...fixture.props, open: false } };
 };
-async function mount(page: P, fixtures: Fixture[], window = WIDE) {
+async function mount(page: P, fixtures: Fixture[], window = WIDE, system?: string) {
   await page.setViewportSize(window);
-  await mountFixtures(page, spec, { icons: true, fixtures });
+  await mountFixtures(page, spec, { icons: true, fixtures, system });
   await page.evaluate(() => {
     const log: string[] = ((window as any).log = []);
     for (const d of document.querySelectorAll<any>('tanrei-dialog')) {
@@ -201,48 +203,147 @@ test.describe('presentation and focus', () => {
     expect(await log(page)).toEqual(['d:Discard']);
   });
 
-  test('DLG-13: centred, it fades and grows in over the enter motion, fades out over the exit motion, and only fades where motion is reduced; focus moves at once', async ({ page }) => {
+  test('DLG-13: centred, the container appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown about its centre over the enter motion; closing, it leaves the same way back over the exit motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and focus moves at once', async ({ page }) => {
     await mount(page, [f('d')]);
-    // The motions at 40 s, ended by hand: the opacity and the scale are read 'on their way' three to five answers after
-    // the opening, and at 2 s a runner that takes half a second an answer read a dialog that had arrived. The durations
-    // are read from the transitions after the override, so the binding to the tokens is still what is proved.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
     await page.locator('#open-d').focus();
+    // Focus moves when it opens, while the motion runs: read in the step that opens it.
+    let focusAtOnce: unknown = null;
+    const opening = await sampleFrames(dialog(page, 'd'), async () => (focusAtOnce = await host(page, 'd').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+      const active = el.shadowRoot.activeElement;
+      return active?.localName ?? null;
+    })), { probe: appearProbe });
+    expect(focusAtOnce).toBe('dialog');
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    // About its centre.
+    const box = await bounds(dialog(page, 'd'));
+    const [ox, oy] = String(opening.frames[0]!.probe.origin).split(' ').map(Number.parseFloat);
+    expect(ox).toBeCloseTo(box.width / 2, 1);
+    expect(oy).toBeCloseTo(box.height / 2, 1);
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const drawn = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of drawn(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-enter-easing')));
+    }
+    expect(drawn(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    // The modal role's tempo (MDL-7).
+    expect(await resolveToken(page, T('motion-enter-duration'), 'duration')).toBe(await resolveToken(page, '--tanrei-sys-motion-role-appear-modal-enter', 'duration'));
+
+    let afterClose: unknown = null;
+    const closing = await sampleFrames(dialog(page, 'd'), async () => (afterClose = await host(page, 'd').evaluate(async (el: any) => {
+      el.open = false;
+      await el.updateComplete;
+      const native = el.shadowRoot.querySelector('dialog') as HTMLDialogElement;
+      return { open: native.open, focused: document.activeElement?.id ?? null };
+    })), { probe: appearProbe });
+    // Out of the top layer and focus back at once; drawn until the exit has played.
+    expect(afterClose).toEqual({ open: false, focused: 'open-d' });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    expectAnimated(closing, 'opacity');
+    const exit = await resolveEasing(page, T('motion-exit-easing'));
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    for (const motion of drawn(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expect(drawn(closing).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-exit-duration'), 'duration'), easing: bezierOf(exit) });
+    expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
+    expect(await css(dialog(page, 'd'), 'display')).toBe('none');
+  });
+
+  test('DLG-13: under the unfold appearance (m3-like) a centred container has no anchored edge: it grows on both axes from its centre', async ({ page }) => {
+    await mount(page, [f('d')], WIDE, 'm3-like');
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: Number(await token(page, '--tanrei-sys-motion-appear-scale')) });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+  });
+
+  test('DLG-13: where motion is reduced the container only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [f('d')]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && !['display', 'overlay'].includes(motion.name)).map((motion) => [motion.name, motion.duration]);
+    const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    expect(own(opening)).toEqual([['opacity', reduced]]);
+    const closing = await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe });
+    expect(own(closing)).toEqual([['opacity', reduced]]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
+  });
+
+  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page }) => {
+    await mount(page, [f('d')]);
+    await override(page, { [T('motion-enter-duration')]: '600ms', [T('motion-exit-duration')]: '600ms' });
+    // A turn is read where the motion is held at half its length, not where a clock has let it get to; the new state is
+    // set and read in the same task, before a frame has passed.
+    const turn = (open: boolean) =>
+      host(page, 'd').evaluate(async (el: any, to) => {
+        const native = el.shadowRoot.querySelector('dialog') as HTMLElement;
+        const read = () => {
+          const style = getComputedStyle(native);
+          return { opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number(style.scale.split(' ')[0]) };
+        };
+        const running = native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        for (const animation of running) {
+          animation.pause();
+          animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
+        }
+        const held = read();
+        el.open = to;
+        await el.updateComplete;
+        const turned = native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        for (const animation of turned) animation.pause();
+        return { held, turned: read(), moving: turned.length };
+      }, open);
     await host(page, 'd').evaluate(async (el: any) => {
       el.open = true;
       await el.updateComplete;
     });
-    // Focus has already moved, while the motion runs.
-    expect(await focused(page)).toBe('dialog');
-    const running = await dialog(page, 'd').evaluate((el) =>
-      el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })),
-    );
-    expect(running).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'scale', duration: 40_000 }]));
-    expect(running.map((r) => r.property)).not.toContain('translate');
-    expect(Number(await css(dialog(page, 'd'), 'opacity'))).toBeLessThan(1);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'scale'))).toBeLessThan(1);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'scale'))).toBeGreaterThanOrEqual(Number(await token(page, T('motion-enter-scale'))) - 0.001);
-    await dialog(page, 'd').evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    await close(page, 'd');
-    await expect(page.locator('#open-d')).toBeFocused();
-    await dialog(page, 'd').evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await mount(page, [f('d')]);
-    // (Opened and read in one step, as the close of the compact dialog is: nothing of the test stands between the
-    // opening and what moves at it.)
-    const reduced = await host(page, 'd').evaluate(async (el: any) => {
-      el.open = true;
-      await el.updateComplete;
-      return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
-    });
-    expect(reduced).toContain('opacity');
-    expect(reduced).not.toContain('scale');
-    // The tokens' own durations.
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await mount(page, [f('d')]);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'transition-duration')) * 1000).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
-    await open(page, 'd');
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'transition-duration')) * 1000).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
+    const closedMidway = await turn(false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.99);
+    expect(closedMidway.moving).toBe(2);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.scale).toBeCloseTo(closedMidway.held.scale, 3);
+    await host(page, 'd').evaluate((el: any) => (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.play()));
+    // Opened again while it leaves: put back into the top layer where its exit has got to, not from its start.
+    const openedMidway = await turn(true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expect(openedMidway.moving).toBe(2);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.scale).toBeCloseTo(openedMidway.held.scale, 3);
+    expect(await isOpen(page, 'd')).toBe(true);
+    await host(page, 'd').evaluate((el: any) => (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.finish()));
+    expect(await css(dialog(page, 'd'), 'opacity')).toBe('1');
+  });
+
+  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
+    await mount(page, []);
+    const main = page.locator('main');
+    const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-dialog id="late" headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>')), { probe: appearProbe });
+    expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs on the container (every
+    // transition that starts in a shadow root is counted from before the first element is made).
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.localName + event.pseudoElement + ' ' + event.propertyName)); return root; };</script>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}<tanrei-dialog headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>` });
+    await page.route('http://dialog.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://dialog.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
+    const native = page.locator('tanrei-dialog').locator('dialog');
+    await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
+    await native.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+    expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
+    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog '))).toEqual([]);
   });
 
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {

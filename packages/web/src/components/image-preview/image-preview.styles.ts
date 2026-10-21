@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph } from '../../primitives/index.js';
+import { appearStyles, focusRing, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -73,22 +73,27 @@ export const styles = css`
   /* IMP-11, IMP-32: the image shown and its two neighbours, each on a page as large as the stage; the page of the
      image after lies one stage and layout.page-gap toward the end — to the left in a right-to-left layout (IMP-35) —
      and all three follow a drag (IMP-18, IMP-22). The pages take no pointer: the stage above them does. */
+  /* IMP-33, IMP-34: the image appears as every modal surface does (src/primitives/motion.ts, role modal): from
+     sys.motion.appear.*, grown about its centre and risen into place, over the enter motion, and goes back the same way
+     over the exit motion while the container fades; under reduced motion it only fades. */
+  ${appearStyles({
+    motion: '.pages',
+    open: 'dialog[open]',
+    role: 'modal',
+    origin: 'center',
+    enter: { duration: T('motion-enter-duration'), easing: T('motion-enter-easing') },
+    exit: { duration: T('motion-exit-duration'), easing: T('motion-exit-easing') },
+  })}
   .pages {
     --_direction: 1;
     position: absolute;
     inset: 0;
     pointer-events: none;
-    /* IMP-33: the image grows about the centre of the fit area (which the element measures). */
+    /* IMP-33: the image grows about the centre of the fit area (which the element measures), not of the stage. */
     transform-origin: var(--_fit-x, 50%) var(--_fit-y, 50%);
-    transition: scale ${t('motion-enter-duration')} ${t('motion-enter-easing')};
   }
   .pages:dir(rtl) {
     --_direction: -1;
-  }
-  @starting-style {
-    dialog[open] .pages {
-      scale: ${t('motion-enter-scale')};
-    }
   }
   .page {
     position: absolute;
@@ -378,7 +383,6 @@ export const styles = css`
   /* IMP-34: where motion is reduced it opens and closes by fading without growing; the zoom steps, the change of
      image, the settle of a released drag and the controls change at once. */
   @media (prefers-reduced-motion: reduce) {
-    .pages,
     .pages.settling .page,
     .image.stepping,
     .bar,
@@ -387,11 +391,6 @@ export const styles = css`
     .caption,
     dialog.returning :is(.surface, .bar, .previous, .next, .caption) {
       transition: none;
-    }
-    @starting-style {
-      dialog[open] .pages {
-        scale: none;
-      }
     }
   }
 

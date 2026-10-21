@@ -5,6 +5,7 @@ import { wordPlaces } from '../../generated/words.js';
 import { exported } from '../../primitives/composed.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   GlyphDrawnController,
@@ -357,6 +358,13 @@ export class TanreiImagePreview extends TanreiElement {
   private opener: Element | null = null;
   /** Presented: in the top layer. */
   private presented = false;
+  /**
+   * IMP-33: the image's appearance, opened and closed (src/primitives/motion.ts): made at once before the first paint
+   * (MOT-4), turned round from what it shows (MOT-2). The pages are what appears; the container fades round them.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.pagesElement });
+  /** Closed and still playing its exit: opened again, the image goes on from what it shows. */
+  private leaving = false;
   /** IMP-43: an opening with nothing to show was reported, until there is something. */
   private reportedEmpty = false;
 
@@ -793,7 +801,8 @@ export class TanreiImagePreview extends TanreiElement {
   };
 
   private readonly onPagesSettled = (event: TransitionEvent) => {
-    if (event.propertyName !== 'translate') return;
+    // A page's settle (IMP-18, IMP-20), not the pages' own appearance (which may travel, IMP-33).
+    if (event.propertyName !== 'translate' || event.target === event.currentTarget) return;
     this.pagesElement?.classList.remove('settling');
   };
 
@@ -1303,7 +1312,14 @@ export class TanreiImagePreview extends TanreiElement {
     this.pagesElement?.classList.remove('settling');
     this.pagesElement?.style.removeProperty('--_drag-x');
     this.pagesElement?.style.removeProperty('--_drag-y');
-    if (!dialog.open) dialog.showModal();
+    // IMP-33: still leaving, it is put back into the top layer where the image's exit has got to (MOT-2): an element
+    // taken out and put back is drawn anew, from the start of its entrance otherwise.
+    if (!dialog.open) {
+      if (this.leaving) this.appear.keep(() => dialog.showModal());
+      else dialog.showModal();
+    }
+    this.leaving = false;
+    this.appear.enter();
     this.presented = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -1334,7 +1350,13 @@ export class TanreiImagePreview extends TanreiElement {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
+    // IMP-4, IMP-33: out of the top layer at once — the page and focus are given back now — and drawn there until it has
+    // faded (its `display` and `overlay` change at the fade's end), the image going back the way it came.
     if (dialog?.open) dialog.close();
+    this.leaving = true;
+    void this.appear.exit(!this.isConnected).then((left) => {
+      if (left) this.leaving = false;
+    });
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);
