@@ -2992,6 +2992,8 @@ class TanreiAvatarTokens {
     required this.groupOutlineWidth,
     required this.iconColor,
     required this.labelColor,
+    required this.motionPictureDuration,
+    required this.motionPictureEasing,
     required this.sizes,
     required this.shapes,
   });
@@ -3006,6 +3008,10 @@ class TanreiAvatarTokens {
   final TanreiPaint iconColor;
   /// `comp.avatar.label-color`
   final TanreiPaint labelColor;
+  /// `comp.avatar.motion-picture-duration`
+  final int motionPictureDuration;
+  /// `comp.avatar.motion-picture-easing`
+  final TanreiCubicBezier motionPictureEasing;
   /// The `size` axis: `sizes[size]`.
   final TanreiAvatarSizes sizes;
   /// The `shape` axis: `shapes[shape]`.
@@ -3018,6 +3024,8 @@ class TanreiAvatarTokens {
     double? groupOutlineWidth,
     TanreiPaint? iconColor,
     TanreiPaint? labelColor,
+    int? motionPictureDuration,
+    TanreiCubicBezier? motionPictureEasing,
     TanreiAvatarSizes? sizes,
     TanreiAvatarShapes? shapes,
   }) => TanreiAvatarTokens(
@@ -3026,6 +3034,8 @@ class TanreiAvatarTokens {
         groupOutlineWidth: groupOutlineWidth ?? this.groupOutlineWidth,
         iconColor: iconColor ?? this.iconColor,
         labelColor: labelColor ?? this.labelColor,
+        motionPictureDuration: motionPictureDuration ?? this.motionPictureDuration,
+        motionPictureEasing: motionPictureEasing ?? this.motionPictureEasing,
         sizes: sizes ?? this.sizes,
         shapes: shapes ?? this.shapes,
       );

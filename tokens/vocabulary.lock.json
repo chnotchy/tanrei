@@ -180,6 +180,8 @@
     "tanrei.comp.avatar.label.typescale.large": "typography",
     "tanrei.comp.avatar.label.typescale.medium": "typography",
     "tanrei.comp.avatar.label.typescale.small": "typography",
+    "tanrei.comp.avatar.motion.picture-duration": "duration",
+    "tanrei.comp.avatar.motion.picture-easing": "cubicBezier",
     "tanrei.comp.badge.container.color": "color",
     "tanrei.comp.badge.container.height": "dimension",
     "tanrei.comp.badge.container.offset": "dimension",

@@ -1859,6 +1859,8 @@ public struct TanreiAvatarTokens: Sendable, Equatable {
   public var groupOutlineWidth: CGFloat
   public var iconColor: TanreiPaint
   public var labelColor: TanreiPaint
+  public var motionPictureDuration: Double
+  public var motionPictureEasing: TanreiCubicBezier
   public var sizes: TanreiAvatarSizes
   public var shapes: TanreiAvatarShapes
 
@@ -1868,6 +1870,8 @@ public struct TanreiAvatarTokens: Sendable, Equatable {
     groupOutlineWidth: CGFloat,
     iconColor: TanreiPaint,
     labelColor: TanreiPaint,
+    motionPictureDuration: Double,
+    motionPictureEasing: TanreiCubicBezier,
     sizes: TanreiAvatarSizes,
     shapes: TanreiAvatarShapes
   ) {
@@ -1876,6 +1880,8 @@ public struct TanreiAvatarTokens: Sendable, Equatable {
     self.groupOutlineWidth = groupOutlineWidth
     self.iconColor = iconColor
     self.labelColor = labelColor
+    self.motionPictureDuration = motionPictureDuration
+    self.motionPictureEasing = motionPictureEasing
     self.sizes = sizes
     self.shapes = shapes
   }

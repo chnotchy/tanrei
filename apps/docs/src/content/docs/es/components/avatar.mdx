@@ -2,7 +2,7 @@
 title: Avatar
 description: Representa a una persona, un equipo o un proyecto con una imagen pequeña, o con iniciales o un glifo donde no la hay, en un círculo o en un cuadrado redondeado de tres tamaños. Varios se muestran como un solo grupo superpuesto que cuenta el resto. Es una imagen, nunca un control.
 translationOf: components/avatar.mdx
-sourceHash: 3ca2970b0b9bc34925154938bed00d654218501d
+sourceHash: 07dead2023b4f4d4a40bc6b59db9d6f9d5b93421
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -115,7 +115,7 @@ El avatar dibuja lo primero que tenga de esta lista:
 3. El glifo de su slot `icon`.
 4. El glifo propio del sistema: una persona para un círculo, una marca neutra para un cuadrado.
 
-La caja conserva su tamaño desde el primer pintado. Mientras una imagen se carga, en su lugar se dibuja el respaldo, y la imagen lo sustituye cuando llega. Nada de lo que rodea al avatar se mueve. Una imagen que no se puede cargar deja el respaldo: no hay marca de imagen rota, y el avatar no vuelve a pedirla.
+La caja conserva su tamaño desde el primer pintado. Mientras una imagen se carga, en su lugar se dibuja el respaldo, y cuando la imagen llega aparece gradualmente mientras el respaldo se desvanece. Una imagen que el navegador ya tiene se dibuja de inmediato. Nada de lo que rodea al avatar se mueve. Una imagen que no se puede cargar deja el respaldo: no hay marca de imagen rota, y el avatar no vuelve a pedirla.
 
 ### Iniciales
 

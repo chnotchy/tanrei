@@ -972,6 +972,8 @@ private object M3LikeSystemSource {
             groupOutlineWidth = 2.dp,
             iconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             labelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            motionPictureDuration = 150,
+            motionPictureEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             sizes = TanreiAvatarSizes(
                 small = TanreiAvatarSizeTokens(containerSize = 24.dp, labelTypescale = typescale.caption, iconSize = 16.dp, groupOverlap = 2.dp),
                 medium = TanreiAvatarSizeTokens(containerSize = 40.dp, labelTypescale = typescale.label, iconSize = 24.dp, groupOverlap = 4.dp),

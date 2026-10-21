@@ -1159,6 +1159,8 @@ export const m3ExpressiveLike = {
       groupOutlineWidth: 2,
       iconColor: { kind: "role", role: "onSurfaceVariant" },
       labelColor: { kind: "role", role: "onSurfaceVariant" },
+      motionPictureDuration: 150,
+      motionPictureEasing: [0.2, 0, 0, 1],
       sizes: {
         small: { containerSize: 24, labelTypescale: "caption", iconSize: 16, groupOverlap: 2 },
         medium: { containerSize: 40, labelTypescale: "label", iconSize: 24, groupOverlap: 4 },
