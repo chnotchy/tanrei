@@ -269,7 +269,7 @@ test.describe('behavior', () => {
     expect(await drawnForm(host(page, 'blur'))).toBe('blur');
     await rootTokens(page, { '--tanrei-sys-behavior-scroll-edge': '' });
     // Each preset's answer.
-    for (const [system, form] of [['m3-like', 'line'], ['cupertino', 'blur'], ['m3-expressive-like', null]] as const) {
+    for (const [system, form] of [['m3-like', 'line'], ['cupertino', 'blur']] as const) {
       await mountFixtures(page, spec, { reducedMotion: true, system, fixtures: spec.fixtures.filter((f) => ['default', 'fade'].includes(f.id)) });
       // A preset this test names no form for draws the one its system token names.
       const named = form ?? (await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-behavior-scroll-edge').trim()));

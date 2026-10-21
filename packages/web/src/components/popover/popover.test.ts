@@ -1063,8 +1063,8 @@ test.describe('size and layout', () => {
     await expect(button).toHaveCount(1);
   });
 
-  test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'cupertino'] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
       const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
       await expect(button, system).toHaveCount(1);

@@ -295,7 +295,7 @@ Known platform gaps:
 - React Native: the layout, the drag and how it gives way to a scroll view, and the adjustable handles have not yet been checked on a device.
 - SwiftUI, Compose, Flutter and React Native still draw the previous look: a solid handle, one stop-dot size for every size, and the tracks cut at the handle rather than meeting under it. Where they cut, they end the track differently: square on SwiftUI, rounded with a notch on Flutter and React Native, and cut to the handle's shape on Compose.
 - Under `cupertino`, the white thumb on a white page measures 1.0:1 in the light schemes, below the 3:1 a part that shows the value needs. It has no outline, as Apple draws it, and is told apart by its shadow and by the tinted active track beside it; no invariant checks a handle against the page. The 1.0:1 is a measurement kept as information: Tanrei's accessibility criteria do not apply to an imitation preset. Under `cupertino` the slider also draws no stop dots, not even at the ends of the track.
-- Under `m3-like`, the slider draws Material's upright bar, from Material's published measurements. They have not yet been checked against the fidelity reference. Under `m3-expressive-like`, the glyph Material draws inside a thick track has no place (mimicry gap `slider-inset-icon`): put your icon beside the slider.
+- Under `m3-like`, the slider draws Material's upright bar, from Material's published measurements. They have not yet been checked against the fidelity reference. The glyph Material draws inside a thick track has no place (mimicry gap `slider-inset-icon`): put your icon beside the slider.
 
 ### What you need to do
 

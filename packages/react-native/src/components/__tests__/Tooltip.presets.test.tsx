@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -59,12 +58,6 @@ describe('m3-like drives the Tooltip', () => {
     expect(viewStyle(part('container')).backgroundColor).toBe(role(system, 'surfaceContainer'));
     expect(textStyle(part('title')).color).toBe(role(system, 'onSurfaceVariant'));
     expect(textStyle(part('text')).color).toBe(role(system, 'onSurfaceVariant'));
-  });
-});
-
-describe('m3-expressive-like drives the Tooltip', () => {
-  test('it inherits m3-like\'s tooltip', () => {
-    expect(m3ExpressiveLike.components.tooltip).toEqual(m3Like.components.tooltip);
   });
 });
 

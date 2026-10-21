@@ -82,7 +82,7 @@ const rows = [
                     <dt>{t.fidelity}</dt>
                     <dd>
                       {fidelity
-                        ? <Fragment><strong>{fidelity.equal} / {fidelity.total - fidelity.covered}</strong> {t.equal} · {fidelity.different.length}{' '}{t.different} · {fidelity.unmapped.length}{' '}{t.unmappedGap} — {fidelity.reference.name} {fidelity.reference.version} ({fidelity.reference.license})</Fragment>
+                        ? <Fragment><strong>{fidelity.equal} / {fidelity.total - fidelity.covered}</strong> {t.equal} · {fidelity.different.length}{' '}{t.different} · {fidelity.unmapped.length}{' '}{t.unmappedGap} — {fidelity.reference.map((r: Json) => `${r.name} ${r.version} (${r.license})`).join(' · ')}</Fragment>
                         : t.unmeasured}
                     </dd>
                   </div>

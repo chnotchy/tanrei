@@ -655,12 +655,12 @@ struct TanreiAppBarSnapshotTests {
 
 /// One representative fixture per shipped preset, light scheme:
 /// `__Snapshots__/TanreiAppBarTests/<system-id>/<fixture-id>.png` — picked for what each preset changes, as on Compose:
-/// m3-like's scrolled bar (its tinted container), m3-expressive-like's large bar with a subtitle, cupertino's large title.
+/// m3-like's scrolled bar (its tinted container), cupertino's large title.
 @MainActor
 @Suite("TanreiAppBar preset snapshots")
 struct TanreiAppBarPresetSnapshotTests {
-  nonisolated static let representatives: [ShippedSystem: String] = [.m3Like: "small-scrolled", .m3ExpressiveLike: "large-subtitle", .cupertino: "large"]
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let representatives: [ShippedSystem: String] = [.m3Like: "small-scrolled", .cupertino: "large"]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

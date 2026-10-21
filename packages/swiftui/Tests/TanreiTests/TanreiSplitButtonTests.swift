@@ -969,7 +969,7 @@ struct TanreiSplitButtonSnapshotTests {
 struct TanreiSplitButtonPresetSnapshotTests {
   /// The filled split button with an icon: the preset's corners (outer and inner), paddings, gap and chevron.
   nonisolated static let fixtureId = "filled-icon"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

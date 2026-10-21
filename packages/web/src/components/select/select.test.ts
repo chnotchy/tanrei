@@ -202,7 +202,7 @@ const computed = (page: P, names: string[]) =>
     probe.remove();
     return out;
   }, names);
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 test.describe('behavior: the trigger', () => {

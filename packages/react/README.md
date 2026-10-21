@@ -57,7 +57,7 @@ editor completes, and a type check accepts, only that system's components and va
 | Entry | What it exports |
 |---|---|
 | `@tanrei/react` | The components of the default system, Tanrei. Not the FAB menu, which lives in the m3-like layer, nor the segmented button, which Tanrei leaves out (`import { FabMenu } from '@tanrei/react'` is TS2305); and a variant Tanrei leaves out is not a value of the prop (`<TextField variant="outlined">` is TS2322) |
-| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | The components of that preset, with its variants |
+| `@tanrei/react/m3-like`, `@tanrei/react/cupertino` | The components of that preset, with its variants |
 | `@tanrei/react/advanced` | The components listed as advanced, the building blocks of others: `TextInput`, `NumberInput`, `ColorInput`, `OneTimeCodeInput`, `EmbeddedTextInput`, `Combobox`, `FilePicker`, `ModalLayer`. Each one's doc comment names the components built from it, which a product usually writes instead |
 | `@tanrei/react/all` | Every wrapper, whichever system has its component: for a design system of your own (built with `tanrei build`) and for building one |
 

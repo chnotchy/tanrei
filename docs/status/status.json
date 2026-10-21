@@ -1944,18 +1944,6 @@
         "fab-menu": "m3-like"
       }
     },
-    "m3-expressive-like": {
-      "components": [],
-      "variants": {
-        "navigation-bar": [
-          "filled"
-        ],
-        "tabs": [
-          "tonal"
-        ]
-      },
-      "outside": {}
-    },
     "m3-like": {
       "components": [],
       "variants": {

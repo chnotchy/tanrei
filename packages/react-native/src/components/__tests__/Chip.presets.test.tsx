@@ -4,7 +4,6 @@
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiCoreChipVariant, TanreiSystem } from '../../generated/vocabulary';
 import { byTestID, describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -79,12 +78,9 @@ describe('m3-like drives the Chip', () => {
   test('CHP-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the Chip', () => {
-  test('it inherits m3-like\'s chip, with no added axis values', () => {
-    const tokens = m3ExpressiveLike.components.chip;
-    expect(tokens).toEqual(m3Like.components.chip);
+  test('it adds no Chip axis value', () => {
+    const tokens = m3Like.components.chip;
     expect(Object.keys(tokens.sizes).sort()).toEqual([...sizes].sort());
     expect(Object.keys(tokens.variants).sort()).toEqual([...variants].sort());
   });

@@ -48,7 +48,6 @@ import { FabMenu, FabMenuItem, SegmentedButton, TextField as M3TextField } from 
 import { SegmentedButton as CupertinoSegmentedButton } from '@tanrei/react/cupertino';
 // @ts-expect-error cupertino has the segmented button and not the FAB menu
 import { FabMenu as NoCupertinoFabMenu } from '@tanrei/react/cupertino';
-import { FabMenu as ExpressiveFabMenu } from '@tanrei/react/m3-expressive-like';
 
 declare function use(...values: unknown[]): void;
 use(NoFabMenu, NoSegmentedButton, NoTextInput, NoCupertinoFabMenu);
@@ -69,7 +68,6 @@ export const systems = (
     <FabMenu label="Create" variant="tonal">
       <FabMenuItem label="Note" />
     </FabMenu>
-    <ExpressiveFabMenu label="Create" />
     <all.FabMenu label="Create" />
     <SegmentedButton label="View" />
     <CupertinoSegmentedButton label="View" />

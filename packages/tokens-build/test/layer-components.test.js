@@ -27,7 +27,6 @@ test('the FAB menu lives in m3-like: its tokens are in the sheets of the systems
   assert.equal(sourceFiles(REPO_ROOT)['comp/fab-menu.tokens.json'], undefined, 'the core vocabulary does not have it');
   assert.equal(fabMenu(sheet('tokens.css')).length, 0);
   assert.equal(fabMenu(sheet('systems/m3-like.css')).length, 282);
-  assert.equal(fabMenu(sheet('systems/m3-expressive-like.css')).length, 282, 'm3-expressive-like extends m3-like, and has it');
   assert.equal(fabMenu(sheet('systems/cupertino.css')).length, 0);
   // Each sheet says where what it does not have lives, apart from what it leaves out.
   assert.match(sheet('tokens.css'), /--tanrei-unavailable-layer: "fab-menu=m3-like";/);

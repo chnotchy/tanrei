@@ -289,7 +289,7 @@ const inForm = (page: P, id: string) =>
       ((window as unknown as { __events?: string[] }).__events ??= []).push('submit');
     });
   });
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 test.describe('behavior: the box, and what it takes from the Field that frames it', () => {

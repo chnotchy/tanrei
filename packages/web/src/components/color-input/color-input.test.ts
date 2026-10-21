@@ -275,7 +275,7 @@ const systemColor = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 const VALUE = /^(#[0-9a-f]{6})?$/;
 

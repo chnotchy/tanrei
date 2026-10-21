@@ -5,12 +5,11 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StatusBar, Text, View } from 'react-native';
 import { Button, TanreiProvider, tanrei, useTanrei, type TanreiContrast, type TanreiSystem, type TanreiThemePreference } from '@tanrei/react-native';
 import { cupertino } from '@tanrei/react-native/systems/cupertino';
-import { m3ExpressiveLike } from '@tanrei/react-native/systems/m3-expressive-like';
 import { m3Like } from '@tanrei/react-native/systems/m3-like';
 import { COMPONENTS, renderFixture } from './registry';
 
 /** Every system the package ships. A test fails when `src/generated/systems/` has one this list lacks. */
-export const SYSTEMS: readonly TanreiSystem[] = [tanrei, m3Like, m3ExpressiveLike, cupertino];
+export const SYSTEMS: readonly TanreiSystem[] = [tanrei, m3Like, cupertino];
 export const THEMES: readonly TanreiThemePreference[] = ['system', 'light', 'dark'];
 export const CONTRASTS: readonly TanreiContrast[] = ['standard', 'medium', 'high'];
 

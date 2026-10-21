@@ -859,7 +859,7 @@ struct TanreiButtonGroupPresetSnapshotTests {
   /// Outlined Buttons joined: the preset's inner corner against its own (pill ends in the m3 presets), the outlines
   /// following the joined shape.
   nonisolated static let fixtureId = "connected"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

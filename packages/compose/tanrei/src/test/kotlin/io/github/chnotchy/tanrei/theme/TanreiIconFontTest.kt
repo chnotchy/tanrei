@@ -4,7 +4,6 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import com.acme.design.Acme
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.Tanrei
 import io.github.chnotchy.tanrei.tokens.TanreiFontStack
@@ -27,17 +26,16 @@ class TanreiIconFontTest {
     private fun set(name: String) = TanreiFontStack(families = listOf(name), generic = TanreiGenericFontFamily.SansSerif, system = false)
 
     @Test
-    fun `every shipped system names its icon set - Rounded at 300 by default, Outlined at 400 for the m3-like presets`() {
+    fun `every shipped system names its icon set - Rounded at 300 by default, Outlined at 400 for m3-like`() {
         for (system in listOf(TanreiSystem.Tanrei, TanreiSystem.Cupertino)) {
             assertEquals(system.id, set("Material Symbols Rounded"), system.icon.family(selected = false))
             assertEquals(system.id, set("Material Symbols Rounded"), system.icon.family(selected = true))
             assertEquals(system.id, 300, system.icon.weight)
         }
-        for (system in listOf(TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike)) {
-            assertEquals(system.id, set("Material Symbols Outlined"), system.icon.family(selected = false))
-            assertEquals(system.id, set("Material Symbols Outlined"), system.icon.family(selected = true))
-            assertEquals(system.id, 400, system.icon.weight)
-        }
+        val m3 = TanreiSystem.M3Like
+        assertEquals(set("Material Symbols Outlined"), m3.icon.family(selected = false))
+        assertEquals(set("Material Symbols Outlined"), m3.icon.family(selected = true))
+        assertEquals(400, m3.icon.weight)
     }
 
     @Test

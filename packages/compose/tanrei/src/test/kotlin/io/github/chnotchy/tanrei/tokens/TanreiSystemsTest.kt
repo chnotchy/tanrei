@@ -11,7 +11,7 @@ import org.junit.Test
  * required parameters); what is left to check is the OPEN part — color roles.
  */
 class TanreiSystemsTest {
-    private val systems = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike, TanreiSystem.Cupertino)
+    private val systems = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.Cupertino)
 
     /** Roles the hand-written primitives and theme read directly, besides what component tokens name. */
     private val primitiveRoles = setOf(
@@ -31,8 +31,8 @@ class TanreiSystemsTest {
     )
 
     @Test
-    fun `the shipped systems are four distinct systems`() {
-        assertEquals(listOf("tanrei", "m3-like", "m3-expressive-like", "cupertino"), systems.map { it.id })
+    fun `the shipped systems are three distinct systems`() {
+        assertEquals(listOf("tanrei", "m3-like", "cupertino"), systems.map { it.id })
     }
 
     @Test
@@ -50,7 +50,6 @@ class TanreiSystemsTest {
     fun `choices of kind are typed values on the system - overlay and ring by default, and what each preset chose`() {
         assertEquals(TanreiBehavior(focusStyle = TanreiFocusStyle.Ring, pressedFeedback = TanreiPressedFeedback.Overlay), TanreiSystem.Tanrei.behavior)
         assertEquals(TanreiPressedFeedback.Ripple, TanreiSystem.M3Like.behavior.pressedFeedback)
-        assertEquals(TanreiPressedFeedback.Ripple, TanreiSystem.M3ExpressiveLike.behavior.pressedFeedback)
         assertEquals(TanreiPressedFeedback.Dim, TanreiSystem.Cupertino.behavior.pressedFeedback)
         assertEquals(listOf("Overlay", "Ripple", "Dim", "None"), TanreiPressedFeedback.entries.map { it.name })
         assertEquals(listOf("Ring", "Glow"), TanreiFocusStyle.entries.map { it.name })
@@ -60,7 +59,6 @@ class TanreiSystemsTest {
     fun `corner smoothing is an amount on shape - 0 by default, 0_6 (the iOS corner) under cupertino`() {
         assertEquals(0f, TanreiSystem.Tanrei.shape.cornerSmoothing)
         assertEquals(0f, TanreiSystem.M3Like.shape.cornerSmoothing)
-        assertEquals(0f, TanreiSystem.M3ExpressiveLike.shape.cornerSmoothing)
         assertEquals(0.6f, TanreiSystem.Cupertino.shape.cornerSmoothing)
         for (system in systems) assertTrue(system.id, system.shape.cornerSmoothing in 0f..1f)
     }

@@ -4,7 +4,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiCoreTextFieldVariant, TanreiSystem, TanreiTypescaleRole } from '../../generated/vocabulary';
 import { byTestID, describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -80,12 +79,6 @@ describe('m3-like drives the TextField', () => {
     await outlined.unmount();
     await mount(system, { variant: 'filled' });
     expect(viewStyle(part('active-indicator')!).borderColor).toBe(role(system, 'onSurfaceVariant'));
-  });
-});
-
-describe('m3-expressive-like drives the TextField', () => {
-  test('it inherits m3-like\'s text field', () => {
-    expect(m3ExpressiveLike.components.textField).toEqual(m3Like.components.textField);
   });
 });
 

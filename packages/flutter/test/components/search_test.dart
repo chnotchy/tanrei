@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -1285,11 +1284,7 @@ void main() {
     // One representative fixture per shipped preset: the docked view shows the
     // preset's bar, view and rows together.
     const String recorded = 'docked';
-    for (final TanreiSystem preset in <TanreiSystem>[
-      m3LikeSystem,
-      m3ExpressiveLikeSystem,
-      cupertinoSystem,
-    ]) {
+    for (final TanreiSystem preset in <TanreiSystem>[m3LikeSystem, cupertinoSystem]) {
       testWidgets('golden: ${preset.id}/$recorded', (WidgetTester tester) async {
         final Map<String, dynamic> fixture = fixtures.singleWhere(
           (Map<String, dynamic> f) => f['id'] == recorded,

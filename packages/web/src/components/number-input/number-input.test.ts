@@ -243,7 +243,7 @@ const systemColor = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-const SYSTEMS = [undefined, 'm3-like', 'm3-expressive-like', 'cupertino'] as const;
+const SYSTEMS = [undefined, 'm3-like', 'cupertino'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 test.describe('the arithmetic and the reading of a text (number-text.ts)', () => {
@@ -1860,20 +1860,21 @@ test.describe('behavior: exposure, forms, size and direction', () => {
   test('NMI-37: with text enlarged to 200% a floating label wraps and never clips, the container grows with the input’s line and keeps the height of its size as a minimum, the number stays on one line, the prefix and the suffix grow with it and are not cut, and the steppers keep Button’s sizes — nothing is lost, overlaps or needs scrolling in two directions, at 320 wide', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });
     // At 200% in a window 320 wide an input holds its steppers or a prefix and a suffix (NMI-36: it is never narrower
-    // than what it holds).
-    await mount(page, [fx('one', { value: 120 }), fx('unit', { value: 120, prefixText: '$', suffixText: 'USD', steppers: false }), fx('float', { variant: 'outlined', label: 'How many copies of the printed report', steppers: false })], { system: 'm3-like' });
+    // than what it holds). The small size: m3-like's medium steppers are Material's 56, and two of them beside a line at
+    // 200% leave the 320 window and stand on a row of their own (the next test).
+    await mount(page, [fx('one', { value: 120, size: 'small' }), fx('unit', { value: 120, prefixText: '$', suffixText: 'USD', steppers: false, size: 'small' }), fx('float', { variant: 'outlined', label: 'How many copies of the printed report', steppers: false })], { system: 'm3-like' });
     // The input alone in the window: the stage's own padding is taken away.
     await page.addStyleTag({ content: '.stage:has(> tanrei-number-input) { box-sizing: border-box; inline-size: 100%; padding-inline: 0; }' });
     await frames(page);
     const before = { container: (await box(container(page, 'one'))).height, suffix: (await box(part(page, 'unit', '.suffix'))).width };
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
     await frames(page, 6);
-    const button = await resolveToken(page, '--tanrei-comp-button-container-height-medium');
+    const button = await resolveToken(page, '--tanrei-comp-button-container-height-small');
     for (const id of ['one', 'unit'] as const) {
       const c = await box(container(page, id));
       expect(c.height, `${id}: the container grew with the input’s line`).toBeGreaterThan(before.container);
-      expect(c.height, id).toBeGreaterThanOrEqual((await token(page, 'container-height-medium')) - 0.6);
-      near((await box(input(page, id))).height, (await px(input(page, id), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-medium-line-height'))), `${id}: the number stays on one line`, 1);
+      expect(c.height, id).toBeGreaterThanOrEqual((await token(page, 'container-height-small')) - 0.6);
+      near((await box(input(page, id))).height, (await px(input(page, id), 'font-size')) * Number(await css(page.locator('html'), T('input-typescale-small-line-height'))), `${id}: the number stays on one line`, 1);
       near((await box(host(page, id))).height, c.height, `${id}: exactly as tall as its container`);
       expect(c.x + c.width, `${id}: inside the window`).toBeLessThanOrEqual(320 + 0.6);
       // The row inside keeps its order, and nothing lies over another part.

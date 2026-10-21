@@ -19,9 +19,8 @@ test('every file in tokens/systems/ but the root is a system the Studio offers, 
   assert.deepEqual(studio.systems.map((system) => system.id).sort(), onDisk.filter((id) => id !== studio.rootId).sort());
   for (const id of onDisk) assert.equal(shipped[id].id, id, `${id}.system.json declares its own file name as its id`);
   assert.equal(studio.systems[0].id, studio.defaultId, 'the default system comes first');
-  // A system on a system (m3-expressive-like on m3-like today) exercises a three-layer chain and a vocabulary a base declared.
+  // A system on a system exercises a three-layer chain and a vocabulary a base declared.
   const stacked = studio.systems.filter(({ id }) => ![studio.defaultId, studio.rootId].includes(shipped[id].extends));
-  assert.ok(stacked.length > 0, 'at least one shipped system extends another preset');
   for (const { id } of stacked) assert.ok(studio.base(id).chain.length >= 3 && studio.base(id).chain.some((layer) => layer.vocabulary), id);
 });
 

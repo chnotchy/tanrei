@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions, View } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, viewStyle } from '../../testing/harness';
@@ -55,12 +54,6 @@ describe('m3-like drives the BottomSheet', () => {
 
   test('BSH-17: m3-like answers a press on the handle with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
-  });
-});
-
-describe('m3-expressive-like drives the BottomSheet', () => {
-  test('it inherits m3-like\'s bottom sheet', () => {
-    expect(m3ExpressiveLike.components.bottomSheet).toEqual(m3Like.components.bottomSheet);
   });
 });
 

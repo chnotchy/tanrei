@@ -937,7 +937,7 @@ test.describe('glyph and selection motion', () => {
       }
     });
 
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino']) {
+    for (const system of ['m3-like', 'cupertino']) {
       test(`CHK-12 (${system}, ${theme}): a preset pins the mark's weight to its icon weight, and draws what it drew`, async ({ page }) => {
         // A second document, with a preset's faces, after the describe's own: slow on a machine that is busy.
         test.setTimeout(90_000);

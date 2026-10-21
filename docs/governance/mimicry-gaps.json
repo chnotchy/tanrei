@@ -89,7 +89,7 @@
     {
       "id": "shape-morph",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "trait": "Shapes morph between arbitrary rounded polygons.",
       "kind": "behavior",
@@ -130,7 +130,7 @@
     {
       "id": "button-shape-option",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "kind": "anatomy",
       "status": "open",
@@ -140,7 +140,7 @@
     {
       "id": "per-size-state-shape",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "kind": "vocabulary",
       "status": "open",
@@ -150,7 +150,7 @@
     {
       "id": "axis-default",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "kind": "mechanism",
       "status": "open",
@@ -200,12 +200,12 @@
     {
       "id": "progress-wavy",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "trait": "Progress indicators may be drawn as a wave.",
       "kind": "anatomy",
       "status": "open",
-      "proposal": "A choice of kind for the indicator's form (flat | wavy), like sys.behavior.*, would close it; m3-expressive-like draws the flat form until then."
+      "proposal": "A choice of kind for the indicator's form (flat | wavy), like sys.behavior.*, would close it; m3-like draws the flat form until then."
     },
     {
       "id": "radio-filled-disc",
@@ -290,11 +290,11 @@
     {
       "id": "navigation-rail-expanded",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
       "kind": "anatomy",
       "status": "resolved",
-      "trait": "Material 3 Expressive's navigation rail expands in place into a wide panel with labels beside the icons; Tanrei's rail had one form, and its wide panel was the navigation drawer, a separate component.",
+      "trait": "Material 3's navigation rail expands in place into a wide panel with labels beside the icons; Tanrei's rail had one form, and its wide panel was the navigation drawer, a separate component.",
       "proposal": "Resolved: the rail is retired into the navigation drawer's collapsed form, and a collapsible drawer expands in place (`collapsible`, `expanded`, NVD-30 to NVD-40), every icon staying where it is."
     },
     {
@@ -310,11 +310,11 @@
     {
       "id": "button-group-press-expand",
       "systems": [
-        "m3-expressive-like"
+        "m3-like"
       ],
       "kind": "behavior",
       "status": "open",
-      "trait": "Material 3 Expressive's button groups answer a press by widening the pressed button and narrowing its neighbours, round a selected button of a connected group, and scale the connected inner corners and gaps with the button size. Tanrei's button group changes no width under a press (BGR-5), keeps no selection, and has one inner corner and one gap for every size. Its split button grows a pressed half's inner corners; Tanrei's split button keeps them (no per-state inner corner).",
+      "trait": "Material 3's button groups answer a press by widening the pressed button and narrowing its neighbours, round a selected button of a connected group, and scale the connected inner corners and gaps with the button size. Tanrei's button group changes no width under a press (BGR-5), keeps no selection, and has one inner corner and one gap for every size. Its split button grows a pressed half's inner corners; Tanrei's split button keeps them (no per-state inner corner).",
       "proposal": "A composition option for a press that redistributes width, and per-size inner corners if one product needs them (the group has no size axis today)."
     },
     {
@@ -324,17 +324,17 @@
       ],
       "kind": "anatomy",
       "status": "open",
-      "trait": "Material 3 Expressive's vibrant toolbars fill the bar with primary-container and recolor the items on it; Tanrei's toolbar places Buttons, icon-only or labelled, that keep their own tokens (TBR-*), so a toolbar color cannot recolor its items.",
+      "trait": "Material 3's vibrant toolbars fill the bar with primary-container and recolor the items on it; Tanrei's toolbar places Buttons, icon-only or labelled, that keep their own tokens (TBR-*), so a toolbar color cannot recolor its items.",
       "proposal": "A composition option (a toolbar color scheme its items read), or item tokens scoped to a toolbar, if one product needs it."
     },
     {
       "id": "slider-inset-icon",
       "systems": [
-        "m3-expressive-like"
+        "m3-like"
       ],
       "kind": "anatomy",
       "status": "open",
-      "trait": "Material 3 Expressive draws a glyph inside the thick track of its larger sliders (a volume or brightness icon at the track's start); Tanrei's slider has no icon slot, and the product's glyph sits beside the slider.",
+      "trait": "Material 3 draws a glyph inside the thick track of its larger sliders (a volume or brightness icon at the track's start); Tanrei's slider has no icon slot, and the product's glyph sits beside the slider.",
       "proposal": "A composition option (an icon inside the track's start, with the icon size and color it would need) if one product needs it."
     },
     {
@@ -498,14 +498,14 @@
       "proposal": "Tanrei makes the rail the navigation drawer's collapsed form, one surface that changes width, so m3-like's collapsed drawer keeps the drawer's surface-container-low. Per-form container colors (a collapsed container color token) would close the gap if one product needs the column and the panel in different tones."
     },
     {
-      "id": "navigation-drawer-expressive-widths",
+      "id": "navigation-rail-widths",
       "systems": [
-        "Material 3 Expressive"
+        "Material 3"
       ],
-      "trait": "Material 3 Expressive's navigation rail is 96 wide collapsed and 220 to 360 wide expanded, and its expanded active indicator hugs its content rather than filling the row.",
+      "trait": "Material 3's navigation rail is 96 wide collapsed and 220 to 360 wide expanded, and its expanded active indicator hugs its content rather than filling the row.",
       "kind": "appearance",
       "status": "open",
-      "proposal": "m3-expressive-like inherits m3-like's Material 3 values for the navigation drawer (80 collapsed, 360 expanded, a full-width pill). Setting comp.navigation-drawer.collapsed.container.width.regular to 96 and container.width to 220 in m3-expressive-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
+      "proposal": "m3-like values the navigation drawer 80 wide collapsed and 360 expanded, with a full-width pill. Setting comp.navigation-drawer.collapsed.container.width.regular to 96 and container.width to 220 in m3-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
     },
     {
       "id": "side-sheet-action-emphasis",
@@ -533,9 +533,9 @@
         "Material 3"
       ],
       "kind": "vocabulary",
-      "status": "open",
-      "trait": "Material's side sheet closes with a standard icon button 40 tall. Tanrei draws every host's close button at the small Button size (SSH-5), which m3-like values 32, and no token sets one host's close button apart in size: a system re-values the variant per host, not the size.",
-      "proposal": "A small enumerated token per host (comp.<host>.close-button.size, a Button size) would let m3-like keep 40. Add it if one product needs one host's close control to differ in size from the others; until then m3-like's side sheet closes with a 32 text Button."
+      "status": "resolved",
+      "trait": "Material's side sheet closes with a standard icon button 40 tall. Tanrei draws every host's close button at the small Button size (SSH-5), and no token sets one host's close button apart in size: a system re-values the variant per host, not the size.",
+      "proposal": "Resolved by value: m3-like values the small Button size 40, Material's standard icon button, so every host's close button is Material's height. A small enumerated token per host (comp.<host>.close-button.size, a Button size) would be added only if one product needs one host's close control to differ in size from the others."
     },
     {
       "id": "side-sheet-actions-in-header",
@@ -585,7 +585,7 @@
       ],
       "kind": "vocabulary",
       "status": "open",
-      "trait": "Material 3's collapsed navigation column draws a label under every icon. In Tanrei whether a collapsed cell has a label is the prop collapsedLabels, whose default is never. A system cannot default a prop, so a product on m3-like or m3-expressive-like must set collapsedLabels=\"always\" itself to get Material's column; the presets' representative collapsed fixture is collapsed-labels-always.",
+      "trait": "Material 3's collapsed navigation column draws a label under every icon. In Tanrei whether a collapsed cell has a label is the prop collapsedLabels, whose default is never. A system cannot default a prop, so a product on m3-like must set collapsedLabels=\"always\" itself to get Material's column; the preset's representative collapsed fixture is collapsed-labels-always.",
       "proposal": "A way for a system to default a prop (the text field's variant would need the same), or a choice of kind for this one prop — which fails the one-product test as a sys.behavior value, since it concerns one component, and component choices do not reach the native emitters as typed values yet. Until then the product sets the prop."
     },
     {
@@ -596,7 +596,7 @@
       ],
       "kind": "appearance",
       "status": "open",
-      "trait": "Material 3's navigation drawer has one row size, and so has the iPadOS sidebar; macOS sizes its sidebar's rows by the person's Sidebar icon size setting, not by the app. Tanrei's drawer has a compact density (NVD-65), and m3-like, m3-expressive-like and cupertino give it Tanrei's own compact values, which neither original publishes.",
+      "trait": "Material 3's navigation drawer has one row size, and so has the iPadOS sidebar; macOS sizes its sidebar's rows by the person's Sidebar icon size setting, not by the app. Tanrei's drawer has a compact density (NVD-65), and m3-like and cupertino give it Tanrei's own compact values, which neither original publishes.",
       "proposal": "Material has no compact drawer to follow, so m3-like's compact stays Tanrei's. cupertino could value compact from the macOS sidebar's small size once its fidelity map covers the macOS sidebar; until then a product on cupertino that wants Apple's own rows keeps the regular density."
     },
     {

@@ -4,7 +4,6 @@
 import { render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiSystem } from '../../generated/vocabulary';
@@ -45,16 +44,14 @@ describe('every shipped system values the ButtonGroup vocabulary', () => {
 });
 
 describe('the presets drive the ButtonGroup', () => {
+  // Material 3's pressed widening, its round selected button and its per-size inner corners are the mimicry gap
+  // button-group-press-expand.
   test('m3-like: inner corners of corner.small (8) against its full buttons; the gaps stay 8 and 2', async () => {
     const tokens = m3Like.components.buttonGroup;
     expect(tokens).toEqual({ standardGap: 8, connectedGap: 2, connectedInnerShape: m3Like.shape.small });
     expect(m3Like.shape.small).toBe(8);
     await mount(m3Like);
     expect(viewStyle(screen.getByTestId('item.0'))).toMatchObject({ borderTopStartRadius: m3Like.components.button.containerShape, borderTopEndRadius: 8 });
-  });
-
-  test('m3-expressive-like inherits m3-like\'s group (its pressed widening is the mimicry gap button-group-press-expand)', () => {
-    expect(m3ExpressiveLike.components.buttonGroup).toEqual(m3Like.components.buttonGroup);
   });
 
   test('cupertino: no change — the default\'s connected gap and extra-small inner corners under its own buttons, and the standard gap the default widened for its 48 targets where it was', async () => {
@@ -64,7 +61,7 @@ describe('the presets drive the ButtonGroup', () => {
   });
 
   test('the inner corner is tighter than the buttons\' own corners in every shipped system', () => {
-    for (const system of [tanrei, m3Like, m3ExpressiveLike, cupertino]) {
+    for (const system of [tanrei, m3Like, cupertino]) {
       expect(system.components.buttonGroup.connectedInnerShape).toBeLessThan(system.components.button.containerShape);
       expect(system.components.buttonGroup.connectedGap).toBeLessThan(system.components.buttonGroup.standardGap);
     }

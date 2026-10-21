@@ -12,8 +12,8 @@ const presets = shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM);
 const bundle = (id) => path.join(REPO_ROOT, 'tokens/generated', id);
 const gaps = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'docs/governance/mimicry-gaps.json'), 'utf8')).gaps;
 
-test('the shipped presets are the three imitations', () => {
-  assert.deepEqual(presets.sort(), ['cupertino', 'm3-expressive-like', 'm3-like']);
+test('the shipped presets are the two imitations', () => {
+  assert.deepEqual(presets.sort(), ['cupertino', 'm3-like']);
 });
 
 for (const id of presets) {

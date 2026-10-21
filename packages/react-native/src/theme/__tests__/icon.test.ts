@@ -1,5 +1,4 @@
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiFontStack, TanreiIconStyle, TanreiSystem } from '../../generated/vocabulary';
@@ -25,7 +24,7 @@ describe('system.icon (tanrei.sys.icon.* + tanrei.ref.typeface.icon)', () => {
     expect(icon).toEqual({ family: { unselected: variable, selected: variable }, weight: 300, fillUnselected: 0, fillSelected: 1, opticalSizeMin: 20, opticalSizeMax: 48 });
   });
 
-  test.each([tanrei, m3Like, m3ExpressiveLike, cupertino] as readonly TanreiSystem[])('$id values the whole group', (system) => {
+  test.each([tanrei, m3Like, cupertino] as readonly TanreiSystem[])('$id values the whole group', (system) => {
     expect(Object.keys(system.icon).sort()).toEqual(Object.keys(icon).sort());
     expect(Object.keys(system.icon.family).sort()).toEqual(['selected', 'unselected']);
     expect(system.icon.family.unselected.families.length).toBeGreaterThan(0);
@@ -53,7 +52,7 @@ describe('iconFamily / iconNeedsFillAxis', () => {
   });
 
   test('one family + two fills needs the FILL axis (the default system, every shipped preset); a family per state does not', () => {
-    for (const system of [tanrei, m3Like, m3ExpressiveLike, cupertino] as readonly TanreiSystem[]) expect(iconNeedsFillAxis(system.icon)).toBe(true);
+    for (const system of [tanrei, m3Like, cupertino] as readonly TanreiSystem[]) expect(iconNeedsFillAxis(system.icon)).toBe(true);
     expect(iconNeedsFillAxis(acme.icon)).toBe(false);
     expect(iconNeedsFillAxis({ ...icon, fillSelected: icon.fillUnselected })).toBe(false);
   });

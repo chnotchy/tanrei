@@ -4,8 +4,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
+import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
 import { formatColor } from '../../theme/paint';
@@ -72,12 +72,9 @@ describe('m3-like drives the Tabs', () => {
   test('TAB-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the Tabs', () => {
-  test('it inherits m3-like\'s tabs, with no added variant', () => {
-    expect(m3ExpressiveLike.components.tabs).toEqual(m3Like.components.tabs);
-    expect(Object.keys(m3ExpressiveLike.components.tabs.variants)).toEqual(['primary', 'secondary']);
+  test('it adds no Tabs variant', () => {
+    expect(Object.keys(m3Like.components.tabs.variants)).toEqual(Object.keys(tanrei.components.tabs.variants));
   });
 });
 

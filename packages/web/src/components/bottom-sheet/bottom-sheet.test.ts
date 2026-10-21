@@ -1062,8 +1062,8 @@ test.describe('the header and the close button', () => {
     expect(seen.join('\n')).toMatch(/close-label is empty, so the close button has no accessible name/);
   });
 
-  test('BSH-29: under m3-like and m3-expressive-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
-    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
+  test('BSH-29: under m3-like the close button is a bare glyph (text), under cupertino the tonal circle, each at the system’s own small Button size', async ({ page }) => {
+    for (const [system, variant] of [['m3-like', 'text'], ['cupertino', 'tonal']] as const) {
       await mount(page, [fixtureOf('modal-header')], { system });
       const id = 'modal-header';
       await expect(close(page, id), system).toHaveAttribute('size', 'small');

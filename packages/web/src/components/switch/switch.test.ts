@@ -772,7 +772,7 @@ test.describe('press, feedback, corners, focus style, geometry and motion', () =
       }
     });
 
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino']) {
+    for (const system of ['m3-like', 'cupertino']) {
       test(`SWT-12 (${system}, ${theme}): a preset pins the glyphs' weight to its icon weight, and draws what it drew`, async ({ page }) => {
         // A second document, with a preset's faces, after the describe's own: slow on a machine that is busy.
         test.setTimeout(90_000);

@@ -3,7 +3,6 @@
 // a literal appears only where a preset's value is pinned on purpose.
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiCoreIconButtonVariant, TanreiPaint, TanreiSystem } from '../../generated/vocabulary';
@@ -81,13 +80,9 @@ describe('m3-like drives the IconButton', () => {
   test('ICB-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the IconButton', () => {
-  test('it inherits m3-like\'s icon button: the same sizes and shape, no added axis values', () => {
-    const tokens = m3ExpressiveLike.components.iconButton;
-    expect(tokens.sizes).toEqual(m3Like.components.iconButton.sizes);
-    expect(tokens.containerShape).toBe(m3Like.components.iconButton.containerShape);
+  test('it adds no IconButton axis value', () => {
+    const tokens = m3Like.components.iconButton;
     expect(Object.keys(tokens.sizes).sort()).toEqual([...sizes].sort());
     expect(Object.keys(tokens.variants).sort()).toEqual([...variants].sort());
   });

@@ -245,7 +245,7 @@ export async function iconFamilies(defaultCss: string, systemCss: string): Promi
 
 /**
  * The @font-face rules for the text families a PRESET names first (`--tanrei-ref-typeface-brand` / `-plain` / `-mono`
- * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like and m3-expressive-like. Without
+ * in its sheet) that this repository can register — Roboto and Roboto Mono for m3-like. Without
  * them a preset's text is drawn in whatever the machine has: a Mac with Roboto installed drew m3-like's labels in Roboto
  * 500, the Linux CI image (which has no Roboto) in a fallback of another width and weight. Inter is `fontFace()`'s, and
  * a family this repository cannot ship (cupertino's -apple-system) is left to fall back, as on a machine without it.

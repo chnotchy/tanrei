@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -10,11 +9,10 @@ import '../systems.dart';
 /// Design systems differ in values, never in tokens: the default system and the shipped presets are
 /// instances of the same vocabulary types, and each must be complete on its own.
 void main() {
-  test('the package ships the default system and three presets', () {
+  test('the package ships the default system and two presets', () {
     expect(shippedSystems.map((TanreiSystem s) => s.id), <String>[
       'tanrei',
       'm3-like',
-      'm3-expressive-like',
       'cupertino',
     ]);
   });
@@ -113,11 +111,7 @@ void main() {
         expect(colors[TanreiColorRoles.accent], colors.extra[const TanreiColorRole('accent')]);
         expect(colors[TanreiColorRoles.onAccentContainer], isNot(colors.onPrimaryContainer));
       }
-      for (final TanreiSystem preset in <TanreiSystem>[
-        m3LikeSystem,
-        m3ExpressiveLikeSystem,
-        cupertinoSystem,
-      ]) {
+      for (final TanreiSystem preset in <TanreiSystem>[m3LikeSystem, cupertinoSystem]) {
         expect(preset.intents, isNot(contains(TanreiColorRoles.accent)));
         expect(preset.schemes.light.has(TanreiColorRoles.accent), isFalse);
       }

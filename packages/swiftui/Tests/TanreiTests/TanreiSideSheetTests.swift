@@ -842,7 +842,7 @@ struct TanreiSideSheetPresetSnapshotTests {
   /// The modal sheet with every part: the preset's scrim, container color, elevation, leading corners, header, close button,
   /// divider and actions.
   nonisolated static let fixtureId = "modal"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

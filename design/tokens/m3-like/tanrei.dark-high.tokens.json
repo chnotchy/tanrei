@@ -7995,7 +7995,7 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 8,
+                "value": 12,
                 "unit": "px"
               }
             },
@@ -8007,6 +8007,20 @@
               }
             },
             "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
               "$type": "dimension",
               "$value": {
                 "value": 8,
@@ -8018,18 +8032,32 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 56,
+                "value": 96,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 56,
                 "unit": "px"
               }
             },
             "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 136,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
               "$type": "dimension",
               "$value": {
                 "value": 32,
@@ -8058,27 +8086,55 @@
                 "value": 6,
                 "unit": "px"
               }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              }
             }
           },
           "padding-inline-end-with-icon": {
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 48,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 24,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -8087,21 +8143,35 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 48,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 24,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -8110,18 +8180,32 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 4,
+                "value": 12,
                 "unit": "px"
               }
             },
             "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
               "$type": "dimension",
               "$value": {
                 "value": 4,
@@ -8133,21 +8217,35 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 48,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 24,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -8156,21 +8254,35 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 24,
+                "value": 48,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 16,
+                "value": 24,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 12,
+                "value": 16,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
                 "unit": "px"
               }
             }
@@ -8187,18 +8299,32 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 72,
+                "value": 128,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 52,
+                "value": 72,
                 "unit": "px"
               }
             },
             "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 52,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 184,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
               "$type": "dimension",
               "$value": {
                 "value": 40,
@@ -11684,7 +11810,44 @@
             "large": {
               "$type": "dimension",
               "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            },
+            "medium": {
+              "$type": "dimension",
+              "$value": {
                 "value": 24,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
+              "$type": "dimension",
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              }
+            }
+          },
+          "size": {
+            "large": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
                 "unit": "px"
               }
             },
@@ -11701,27 +11864,18 @@
                 "value": 20,
                 "unit": "px"
               }
-            }
-          },
-          "size": {
-            "large": {
+            },
+            "xlarge": {
               "$type": "dimension",
               "$value": {
-                "value": 18,
+                "value": 40,
                 "unit": "px"
               }
             },
-            "medium": {
+            "xsmall": {
               "$type": "dimension",
               "$value": {
-                "value": 18,
-                "unit": "px"
-              }
-            },
-            "small": {
-              "$type": "dimension",
-              "$value": {
-                "value": 18,
+                "value": 20,
                 "unit": "px"
               }
             }
@@ -11738,18 +11892,38 @@
                   "sans-serif"
                 ],
                 "fontSize": {
-                  "value": 14,
+                  "value": 24,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              }
+            },
+            "medium": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 16,
                   "unit": "px"
                 },
                 "fontWeight": 500,
                 "letterSpacing": {
-                  "value": 0.1,
+                  "value": 0.1504,
                   "unit": "px"
                 },
-                "lineHeight": 1.4286
+                "lineHeight": 1.5
               }
             },
-            "medium": {
+            "small": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -11769,7 +11943,27 @@
                 "lineHeight": 1.4286
               }
             },
-            "small": {
+            "xlarge": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 32,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.25
+              }
+            },
+            "xsmall": {
               "$type": "typography",
               "$value": {
                 "fontFamily": [
@@ -11829,6 +12023,20 @@
                 "value": 150,
                 "unit": "ms"
               }
+            },
+            "xlarge": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
+            },
+            "xsmall": {
+              "$type": "duration",
+              "$value": {
+                "value": 150,
+                "unit": "ms"
+              }
             }
           },
           "state-easing": {
@@ -11846,7 +12054,7 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 1,
+                "value": 2,
                 "unit": "px"
               }
             },
@@ -11858,6 +12066,20 @@
               }
             },
             "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              }
+            },
+            "xlarge": {
+              "$type": "dimension",
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              }
+            },
+            "xsmall": {
               "$type": "dimension",
               "$value": {
                 "value": 1,
@@ -53911,76 +54133,17 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.0588,
-                  0.051,
-                  0.0745
+                  0.3098,
+                  0.2157,
+                  0.5451
                 ],
-                "hex": "#0f0d13",
+                "hex": "#4f378b",
                 "alpha": 1
               }
             },
             "elevation": {
               "$type": "shadow",
-              "$value": [
-                {
-                  "offsetX": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "offsetY": {
-                    "value": 1,
-                    "unit": "px"
-                  },
-                  "blur": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "spread": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "color": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.3,
-                    "hex": "#000000"
-                  },
-                  "inset": false
-                },
-                {
-                  "offsetX": {
-                    "value": 0,
-                    "unit": "px"
-                  },
-                  "offsetY": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "blur": {
-                    "value": 6,
-                    "unit": "px"
-                  },
-                  "spread": {
-                    "value": 2,
-                    "unit": "px"
-                  },
-                  "color": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.15,
-                    "hex": "#000000"
-                  },
-                  "inset": false
-                }
-              ]
+              "$value": []
             }
           },
           "indicator": {
@@ -53989,11 +54152,11 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.9255,
-                  0.902,
-                  0.9451
+                  1,
+                  1,
+                  1
                 ],
-                "hex": "#ece6f1",
+                "hex": "#ffffff",
                 "alpha": 1
               }
             }
@@ -54057,7 +54220,7 @@
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 40,
+                "value": 38,
                 "unit": "px"
               }
             },
@@ -82684,7 +82847,7 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 32,
+              "value": 40,
               "unit": "px"
             },
             "$description": "The action's height: a small Button's, so that the action stands as tall as the expand and close buttons, which are small Buttons, in the same row. A minimum, which grows with enlarged text. Every hit area meets the minimum target."

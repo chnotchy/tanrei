@@ -32,7 +32,6 @@
     "./dist/index.js",
     "./dist/all.js",
     "./dist/m3-like.js",
-    "./dist/m3-expressive-like.js",
     "./dist/cupertino.js",
     "./dist/icons.js",
     "./dist/link.js",
@@ -66,10 +65,6 @@
     "./m3-like": {
       "types": "./dist/m3-like.d.ts",
       "default": "./dist/m3-like.js"
-    },
-    "./m3-expressive-like": {
-      "types": "./dist/m3-expressive-like.d.ts",
-      "default": "./dist/m3-expressive-like.js"
     },
     "./cupertino": {
       "types": "./dist/cupertino.d.ts",

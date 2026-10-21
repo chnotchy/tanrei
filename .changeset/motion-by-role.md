@@ -20,7 +20,7 @@ in this release.
   `center`) says where an anchored surface grows from. A layer chooses the appearance, or pins one of the values.
 - The rule language has a ninth function, `pick`: one value per name of a choice of kind, and the token takes the one
   the system's choice names. A pin holds against it as it does against a dial.
-- `m3-like` (and so `m3-expressive-like`) states Material 3's durations and emphasized curves for every role and
+- `m3-like` states Material 3's durations and emphasized curves for every role and
   chooses `unfold`, so it draws the same when its components take their roles. `cupertino` takes the root's.
 - The vocabulary grows by 31 ids (`tokens/vocabulary.lock.json`). The Figma plan documents the role durations and the
   appear values as numbers without a scope. The native platforms' generated system types gain `appearance` and the four

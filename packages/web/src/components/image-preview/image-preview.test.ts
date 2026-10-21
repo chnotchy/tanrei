@@ -568,8 +568,8 @@ test.describe('the bar, the count and the controls', () => {
     expect(seen.some((text) => text.includes('IMP-8') && text.includes('close-label'))).toBe(true);
   });
 
-  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like, m3-expressive-like and cupertino give the bar’s three controls the text variant, at their own small Button size', async ({ page }) => {
-    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like and cupertino give the bar’s three controls the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'cupertino'] as const) {
       await mount(page, fx({ index: 1 }), { system });
       const small = await px(page, '--tanrei-comp-button-container-height-small');
       const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');

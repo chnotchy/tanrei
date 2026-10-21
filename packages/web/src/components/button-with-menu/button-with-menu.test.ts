@@ -1840,7 +1840,7 @@ test.describe('seams', () => {
     }
   });
 
-  for (const system of ['cupertino', 'm3-like', 'm3-expressive-like']) {
+  for (const system of ['cupertino', 'm3-like']) {
     test(`SPB-26, SPB-31: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at the seam without a pixel painted twice`, async ({ browser }) => {
       // Four pages of two dozen seams each, at two device pixels per pixel.
       test.slow();

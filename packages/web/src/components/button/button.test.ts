@@ -857,9 +857,8 @@ test.describe('icon side padding and icon-only widths', () => {
 
   // A preset keeps the narrow widths it drew — its own glyph and the inset it pins.
   for (const [system, widths] of [
-    ['m3-like', { small: 28, medium: 32, large: 48 }],
+    ['m3-like', { xsmall: 28, small: 32, medium: 48, large: 64, xlarge: 104 }],
     ['cupertino', { small: 28, medium: 32, large: 48 }],
-    ['m3-expressive-like', { xsmall: 28, small: 28, medium: 32, large: 48, xlarge: 48 }],
   ] as const) {
     test(`BTN-12, BTN-21: under ${system} a narrow icon-only button is its glyph and the inset the preset pins on each side — ${Object.values(widths).join(' / ')} — the glyph centred, at the height of its size, and its hit area reaches the target`, async ({ page }) => {
       const sizes = Object.keys(widths) as (keyof typeof widths)[];

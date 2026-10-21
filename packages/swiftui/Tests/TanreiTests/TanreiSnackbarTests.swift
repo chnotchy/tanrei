@@ -511,7 +511,7 @@ struct TanreiSnackbarSnapshotTests {
 struct TanreiSnackbarPresetSnapshotTests {
   /// The action and the close button: the preset's bar, its elevation and corners, the message and both controls.
   nonisolated static let fixtureId = "action-closable"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

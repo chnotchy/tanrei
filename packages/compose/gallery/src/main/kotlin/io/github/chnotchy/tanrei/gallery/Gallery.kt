@@ -26,7 +26,6 @@ import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.theme.color
 import io.github.chnotchy.tanrei.theme.toTextStyle
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.Tanrei
 import io.github.chnotchy.tanrei.tokens.TanreiButtonSize
@@ -35,7 +34,7 @@ import io.github.chnotchy.tanrei.tokens.TanreiColorRole
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
 
 /** Every design system the library ships. */
-val ShippedSystems: List<TanreiSystem> = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike, TanreiSystem.Cupertino)
+val ShippedSystems: List<TanreiSystem> = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.Cupertino)
 
 /** The test tag of one fixture under one system: `<component>/<system id>/<fixture id>` — unique across components. */
 fun fixtureTag(system: TanreiSystem, fixture: GalleryFixture): String = "${fixture.component}/${system.id}/${fixture.id}"

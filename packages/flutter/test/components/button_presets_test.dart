@@ -7,7 +7,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -113,6 +112,7 @@ void main() {
     const TanreiThemeData theme = TanreiThemeData(system: system);
     final TanreiColors colors = system.schemes.light;
     final TanreiButtonTokens tokens = system.button;
+    final TanreiButtonSizes sizes = tokens.sizes;
 
     testWidgets('the filled medium container is a pill filled with the primary of the system', (
       WidgetTester tester,
@@ -227,31 +227,40 @@ void main() {
       expect(containerDecoration(tester).color, isNot(colors.primary));
       expect(labelStyle(tester, 'Deploy').color, colors.extra[M3LikeColorRoles.onTertiary]);
     });
-  });
 
-  group('m3-expressive-like', () {
-    const TanreiSystem system = m3ExpressiveLikeSystem;
-    const TanreiThemeData theme = TanreiThemeData(system: system);
-    final TanreiButtonSizes sizes = system.button.sizes;
-
-    test('adds the sizes xsmall and xlarge to the three core ones and revalues all five', () {
+    test('adds the sizes xsmall and xlarge to the three core ones: Material 3\'s five', () {
       expect(sizes.keys, <TanreiButtonSize>[
         ...TanreiButtonSize.core,
-        M3ExpressiveLikeButtonSize.xsmall,
-        M3ExpressiveLikeButtonSize.xlarge,
+        M3LikeButtonSize.xsmall,
+        M3LikeButtonSize.xlarge,
       ]);
       List<double> values(TanreiButtonSizeTokens size) => <double>[
         size.containerHeight,
+        size.containerPaddingInlineStart,
+        size.containerPaddingInlineEnd,
+        size.containerPaddingInlineStartWithIcon,
+        size.containerPaddingInlineEndWithIcon,
         size.iconSize,
+        size.iconSizeWithoutLabel,
         size.containerGap,
         size.outlineWidth,
+        size.containerPaddingInlineNarrow,
+        size.containerWidthWide,
       ];
-      //                          height, icon, gap, outline width
-      expect(values(sizes.xsmall), <double>[32, 20, 8, 1]);
-      expect(values(sizes.small), <double>[40, 20, 8, 1]);
-      expect(values(sizes.medium), <double>[56, 24, 8, 1]);
-      expect(values(sizes.large), <double>[96, 32, 12, 2]);
-      expect(values(sizes.xlarge), <double>[136, 40, 16, 3]);
+      // height, padding start / end (without and with an icon), icon beside a label, icon alone,
+      // gap, outline width, narrow inset, wide width
+      expect(values(sizes.xsmall), <double>[32, 16, 16, 16, 16, 20, 20, 8, 1, 4, 40]);
+      expect(values(sizes.small), <double>[40, 16, 16, 16, 16, 20, 24, 8, 1, 4, 52]);
+      expect(values(sizes.medium), <double>[56, 24, 24, 24, 24, 24, 24, 8, 1, 12, 72]);
+      expect(values(sizes.large), <double>[96, 48, 48, 48, 48, 32, 32, 12, 2, 16, 128]);
+      expect(values(sizes.xlarge), <double>[136, 64, 64, 64, 64, 40, 40, 16, 3, 32, 184]);
+      // The label grows with the size: label, label, heading-5, heading-3, heading-1.
+      final TanreiTypescale type = system.typescale;
+      expect(sizes.xsmall.labelTypescale, same(type.label));
+      expect(sizes.small.labelTypescale, same(type.label));
+      expect(sizes.medium.labelTypescale, same(type.heading5));
+      expect(sizes.large.labelTypescale, same(type.heading3));
+      expect(sizes.xlarge.labelTypescale, same(type.heading1));
     });
 
     testWidgets('an outlined xlarge Button is 136 tall with an outline of 3 and a gap of 16', (
@@ -269,7 +278,7 @@ void main() {
           TanreiButton(
             onPressed: () {},
             variant: TanreiButtonVariant.outlined,
-            size: M3ExpressiveLikeButtonSize.xlarge,
+            size: M3LikeButtonSize.xlarge,
             icon: Builder(
               key: iconKey,
               builder: (BuildContext context) =>
@@ -280,8 +289,8 @@ void main() {
           theme: theme,
         ),
       );
-      final TanreiButtonSizeTokens xlarge = sizes[M3ExpressiveLikeButtonSize.xlarge];
-      expect(xlarge, same(sizes.extra[M3ExpressiveLikeButtonSize.xlarge]));
+      final TanreiButtonSizeTokens xlarge = sizes[M3LikeButtonSize.xlarge];
+      expect(xlarge, same(sizes.extra[M3LikeButtonSize.xlarge]));
       expect(reports, isEmpty);
 
       expect(containerSize(tester).height, xlarge.containerHeight);
@@ -304,7 +313,7 @@ void main() {
         tanreiTestApp(
           TanreiButton(
             onPressed: () {},
-            size: M3ExpressiveLikeButtonSize.xsmall,
+            size: M3LikeButtonSize.xsmall,
             child: const Text('Deploy'),
           ),
           theme: theme,
@@ -319,7 +328,7 @@ void main() {
       );
     });
 
-    testWidgets('BTN-7: under m3-like, which has no xlarge, the same Button is the default size', (
+    testWidgets('BTN-7: under tanrei, which has no xlarge, the same Button is the default size', (
       WidgetTester tester,
     ) async {
       final List<String> reports = <String>[];
@@ -332,13 +341,14 @@ void main() {
         tanreiTestApp(
           TanreiButton(
             onPressed: () {},
-            size: M3ExpressiveLikeButtonSize.xlarge,
+            size: M3LikeButtonSize.xlarge,
             child: const Text('Deploy'),
           ),
-          theme: const TanreiThemeData(system: m3LikeSystem),
+          theme: const TanreiThemeData(system: tanreiSystem),
         ),
       );
-      expect(containerSize(tester).height, m3LikeSystem.button.sizes.medium.containerHeight);
+      expect(tanreiSystem.button.sizes.has(M3LikeButtonSize.xlarge), isFalse);
+      expect(containerSize(tester).height, tanreiSystem.button.sizes.medium.containerHeight);
       expect(reports, contains('button size xlarge'));
     });
   });

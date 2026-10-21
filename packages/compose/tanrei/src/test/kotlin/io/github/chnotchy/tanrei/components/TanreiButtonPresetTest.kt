@@ -31,7 +31,6 @@ import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.theme.color
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.Tanrei
 import io.github.chnotchy.tanrei.tokens.TanreiButtonSize
@@ -60,7 +59,7 @@ import org.robolectric.annotation.GraphicsMode
  * The shipped presets drive [TanreiButton] through values alone: the component has no preset-specific
  * code, so everything asserted here is read from the system instance and then found in the pixels.
  * Covers BTN-3 (a state is drawn from that state's tokens) under `m3-like` and `cupertino`, and the sizes
- * `m3-expressive-like` adds to the vocabulary (`xsmall`, `xlarge`) together with its per-size gap and outline width.
+ * `m3-like` adds to the vocabulary (`xsmall`, `xlarge`) together with its per-size gap and outline width.
  */
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -73,7 +72,6 @@ class TanreiButtonPresetTest {
     private val tanrei = TanreiSystem.Tanrei
     private val m3 = TanreiSystem.M3Like
     private val cupertino = TanreiSystem.Cupertino
-    private val expressive = TanreiSystem.M3ExpressiveLike
 
     private fun setButton(system: TanreiSystem, variant: TanreiButtonVariant = TanreiButtonVariant.Filled, size: TanreiButtonSize = TanreiButtonSize.Medium) {
         rule.setContent {
@@ -96,12 +94,12 @@ class TanreiButtonPresetTest {
         info.flags = info.flags or ApplicationInfo.FLAG_DEBUGGABLE
         var seen = emptyList<String>()
         rule.setContent {
-            for (system in listOf(tanrei, m3, expressive, cupertino)) {
+            for (system in listOf(tanrei, m3, cupertino)) {
                 TanreiTheme(system = system) { seen = seen + TanreiTheme.tokens.id }
             }
         }
         rule.waitForIdle()
-        assertEquals(listOf(tanrei.id, m3.id, expressive.id, cupertino.id), seen.distinct())
+        assertEquals(listOf(tanrei.id, m3.id, cupertino.id), seen.distinct())
     }
 
     // ── m3-like ──────────────────────────────────────────────────────────────
@@ -145,7 +143,7 @@ class TanreiButtonPresetTest {
         val map = rule.onNodeWithTag(STAGE).captureToImage().toPixelMap()
         val surface = colors[TanreiColorRole.Surface]
         val container = tokens.variants.elevated.enabled.containerColor.resolve(colors)
-        val top = m3.space.space200 + (m3.measure.targetTouch - tokens.sizes.medium.containerHeight) / 2
+        val top = m3.space.space200 + m3.containerTop(tokens.sizes.medium.containerHeight)
         val bottom = top + tokens.sizes.medium.containerHeight
         val centerX = map.widthDp / 2
         // No ring: the container's first and last rows are the container itself, not a border.
@@ -170,7 +168,7 @@ class TanreiButtonPresetTest {
         setButton(system, TanreiButtonVariant.Elevated)
 
         val map = rule.onNodeWithTag(STAGE).captureToImage().toPixelMap()
-        val top = m3.space.space200 + (m3.measure.targetTouch - m3.button.sizes.medium.containerHeight) / 2
+        val top = m3.space.space200 + m3.containerTop(m3.button.sizes.medium.containerHeight)
         val bottom = top + m3.button.sizes.medium.containerHeight
         assertPixel("first container row", map.at(map.widthDp / 2, top + HALF_PIXEL), elevated.enabled.containerColor.resolve(colors))
         val near = map.at(map.widthDp / 2, bottom + 1.dp)
@@ -195,19 +193,19 @@ class TanreiButtonPresetTest {
         assertContainerColor(tanrei, tanrei.colors.light[accent])
     }
 
-    // ── m3-expressive-like: two added sizes, gap and outline width per size ──
+    // ── m3-like's added sizes: two of them, gap and outline width per size ────
 
     @Test
-    fun `m3-expressive-like - xlarge outlined is 136 tall with a 3dp outline and a 16dp gap, read from the system`() {
-        val metrics = expressive.button.sizes.xlarge
+    fun `m3-like - xlarge outlined is 136 tall with a 3dp outline and a 16dp gap, read from the system`() {
+        val metrics = m3.button.sizes.xlarge
         assertEquals(136.dp, metrics.containerHeight)
         assertEquals(3.dp, metrics.outlineWidth)
         assertEquals(16.dp, metrics.containerGap)
-        assertNotEquals("the size has its own outline width", expressive.button.sizes.medium.outlineWidth, metrics.outlineWidth)
-        assertNotEquals("the size has its own gap", expressive.button.sizes.medium.containerGap, metrics.containerGap)
+        assertNotEquals("the size has its own outline width", m3.button.sizes.medium.outlineWidth, metrics.outlineWidth)
+        assertNotEquals("the size has its own gap", m3.button.sizes.medium.containerGap, metrics.containerGap)
 
         rule.setContent {
-            TanreiTheme(system = expressive, theme = TanreiThemeMode.Light, contrast = TanreiContrast.Standard) {
+            TanreiTheme(system = m3, theme = TanreiThemeMode.Light, contrast = TanreiContrast.Standard) {
                 Column(Modifier.testTag(STAGE).background(TanreiColorRole.Surface.color).padding(TanreiTheme.tokens.space.space200)) {
                     TanreiButton(text = LABEL, onClick = {}, modifier = Modifier.testTag(TAG), variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Xlarge)
                     TanreiButton(
@@ -229,11 +227,11 @@ class TanreiButtonPresetTest {
 
         // Outline width: down the middle of the top edge, the outline color for exactly `outline.width`, then nothing
         // (an outlined container draws no fill, so the surface shows).
-        val colors = expressive.colors.light
-        val outline = expressive.button.variants.outlined.enabled.outlineColor.resolve(colors)
+        val colors = m3.colors.light
+        val outline = m3.button.variants.outlined.enabled.outlineColor.resolve(colors)
         val map = rule.onNodeWithTag(STAGE).captureToImage().toPixelMap()
-        val centerX = expressive.space.space200 + bounds.width / 2
-        val top = expressive.space.space200
+        val centerX = m3.space.space200 + bounds.width / 2
+        val top = m3.space.space200
         assertPixel("surface above the container", map.at(centerX, top - HALF_PIXEL), colors[TanreiColorRole.Surface])
         assertPixel("first outline row", map.at(centerX, top + HALF_PIXEL), outline)
         assertPixel("last outline row", map.at(centerX, top + metrics.outlineWidth - HALF_PIXEL), outline)
@@ -246,15 +244,15 @@ class TanreiButtonPresetTest {
     }
 
     @Test
-    fun `m3-expressive-like - xsmall is 32 tall inside the touch target`() {
-        val metrics = expressive.button.sizes.xsmall
+    fun `m3-like - xsmall is 32 tall inside the touch target`() {
+        val metrics = m3.button.sizes.xsmall
         assertEquals(32.dp, metrics.containerHeight)
-        setButton(expressive, size = TanreiButtonSize.Xsmall)
+        setButton(m3, size = TanreiButtonSize.Xsmall)
 
-        val colors = expressive.colors.light
-        val container = expressive.button.variants.filled.enabled.containerColor.resolve(colors)
+        val colors = m3.colors.light
+        val container = m3.button.variants.filled.enabled.containerColor.resolve(colors)
         val map = rule.onNodeWithTag(STAGE).captureToImage().toPixelMap()
-        val top = expressive.space.space200 + (expressive.measure.targetTouch - metrics.containerHeight) / 2
+        val top = m3.space.space200 + m3.containerTop(metrics.containerHeight)
         val bottom = top + metrics.containerHeight
         val centerX = map.widthDp / 2
         assertPixel("above the container", map.at(centerX, top - HALF_PIXEL), colors[TanreiColorRole.Surface])
@@ -342,7 +340,7 @@ class TanreiButtonPresetTest {
         val eased = button().captureToImage().toPixelMap()
         val plain = rule.onNodeWithTag(CIRCULAR_TAG).captureToImage().toPixelMap()
         assertEquals(eased.width, plain.width)
-        val top = (cupertino.measure.targetTouch - tokens.sizes.medium.containerHeight) / 2
+        val top = cupertino.containerTop(tokens.sizes.medium.containerHeight)
         val leg = tokens.containerShape * (1 + cupertino.shape.cornerSmoothing)
         var differing = 0
         for (y in 0 until eased.height) for (x in 0 until eased.width) {
@@ -359,13 +357,19 @@ class TanreiButtonPresetTest {
     private fun TanreiSystem.withFilledContainer(paint: TanreiPaint): TanreiSystem =
         copy(button = button.copy(variants = button.variants.copy(filled = button.variants.filled.copy(enabled = button.variants.filled.enabled.copy(containerColor = paint)))))
 
+    /**
+     * Where a container of [height] starts inside the button's node: the node is at least the touch target, with the
+     * container centered in it; a container taller than the target (m3-like's medium, 56) is the node.
+     */
+    private fun TanreiSystem.containerTop(height: Dp): Dp = (maxOf(measure.targetTouch, height) - height) / 2
+
     /** How far below the element this level still draws. */
     private fun List<TanreiShadowLayer>.reach(): Dp = maxOf { it.y + it.blur + it.spread }
 
     /** A pixel inside the container's inline padding, clear of the label, at the vertical center. */
     private fun assertContainerColor(system: TanreiSystem, expected: Color) {
         val map = button().captureToImage().toPixelMap()
-        assertPixel("container", map.at(system.button.sizes.medium.containerPaddingInlineStart / 2, system.measure.targetTouch / 2), expected)
+        assertPixel("container", map.at(system.button.sizes.medium.containerPaddingInlineStart / 2, maxOf(system.measure.targetTouch, system.button.sizes.medium.containerHeight) / 2), expected)
     }
 
     /**
@@ -375,7 +379,7 @@ class TanreiButtonPresetTest {
      * one axis: 1/√2 for a quarter circle.
      */
     private fun assertCornerRadius(system: TanreiSystem, radius: Dp, container: Color, diagonalReach: Float = 1f / SQRT_2, tag: String = TAG) {
-        val top = (system.measure.targetTouch - system.button.sizes.medium.containerHeight) / 2
+        val top = system.containerTop(system.button.sizes.medium.containerHeight)
         val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
         val inside = radius - (radius - CORNER_MARGIN) * diagonalReach
         val outside = radius - (radius + CORNER_MARGIN) * diagonalReach

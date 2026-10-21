@@ -123,7 +123,7 @@ function fidelityOf(id) {
   const file = path.join(REPO_ROOT, 'tokens/generated', id, 'fidelity.json');
   if (!fs.existsSync(file)) return undefined;
   const { equal, total, covered, different, unmapped, reference } = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return { equal, measured: total - covered, different: different.length, unmapped: unmapped.length, reference: { name: reference.name, version: reference.version, source: reference.source } };
+  return { equal, measured: total - covered, different: different.length, unmapped: unmapped.length, reference: reference.map(({ name, version, source }) => ({ name, version, source })) };
 }
 
 function summarizeLayer(layer, chain) {
