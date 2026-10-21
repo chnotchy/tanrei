@@ -5,7 +5,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, warnings } from '../../../test/destinations.js';
 import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { resolveEasing } from '../../../test/appear.js';
 import { motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 
 const spec = loadSpec('resizable-frame');
 type P = Page;
@@ -52,6 +54,16 @@ async function drag(page: P, target: Locator, dx: number, dy: number, steps = 6)
   await page.mouse.down();
   for (let i = 1; i <= steps; i++) await page.mouse.move(c.x + (dx * i) / steps, c.y + (dy * i) / steps);
   await page.mouse.up();
+}
+
+/**
+ * The motions of the box's own size that have started since `watchTransitions(box(page, id))`. Read two frames after
+ * the change: the engine announces a transition in the frame after the one that makes it, and kept as it announces
+ * them, a motion over before this is asked is still counted.
+ */
+async function sizeMotions(page: P, id: string) {
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+  return (await transitionsRun(box(page, id))).filter((run) => run.own && /^(inline-size|block-size|width|height)$/.test(run.property));
 }
 
 /** The pointer is taken off every frame: to the page's top corner, which no stage covers. */
@@ -181,6 +193,7 @@ test.describe('a drag', () => {
   test('RSF-4: a drag of the end, the bottom and the corner handle changes the width, the height and both, without a motion, resize in every frame and change once', async ({ page }) => {
     await mount(page, [fixtureOf('all-handles')]);
     await listen(page);
+    await watchTransitions(box(page, 'all-handles'));
     await drag(page, handle(page, 'all-handles', 'end'), 60, 0);
     expect(await size(page, 'all-handles')).toEqual([540, 240]);
     const entries = await log(page);
@@ -188,7 +201,7 @@ test.describe('a drag', () => {
     expect(entries.at(-2)).toBe('resize {"width":540,"height":240}');
     expect(entries.at(-1)).toBe('change {"width":540,"height":240}');
     expect(entries.filter((e) => e.startsWith('change'))).toHaveLength(1);
-    expect(await box(page, 'all-handles').evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await sizeMotions(page, 'all-handles')).toEqual([]);
     await clear(page);
     await drag(page, handle(page, 'all-handles', 'bottom'), 0, 40);
     expect(await size(page, 'all-handles')).toEqual([540, 280]);
@@ -273,24 +286,24 @@ test.describe('keys and activation', () => {
   test('RSF-7: on the start handle the arrow toward the start widens; a key moves the box over resize-duration with resize-easing, at once where motion is reduced', async ({ page }) => {
     await mount(page, [fixtureOf('plain-start')]);
     await tabTo(page, separator(page, 'plain-start', 'start'));
+    // The motion runs on the box's size, timed by the frame's own tokens. Kept as the engine announces it, not asked
+    // for after the key: on a slow runner the answer to a later question can arrive when the motion is over. The box's
+    // inline size moves, which every engine announces by its physical name in a horizontal writing mode: its width.
+    const duration = await ms(page, T('motion-resize-duration'));
+    const easing = await resolveEasing(page, T('motion-resize-easing'));
+    await watchTransitions(box(page, 'plain-start'));
     await page.keyboard.press('ArrowLeft');
-    // The motion runs on the box's size, timed by the frame's own tokens.
-    const timing = await box(page, 'plain-start').evaluate((el) => {
-      const style = getComputedStyle(el);
-      return { property: style.transitionProperty, duration: style.transitionDuration, easing: style.transitionTimingFunction, running: el.getAnimations().length };
-    });
-    expect(timing.running).toBeGreaterThan(0);
-    expect(timing.property).toContain('inline-size');
-    expect(Number.parseFloat(timing.duration) * 1000).toBe(await ms(page, T('motion-resize-duration')));
+    await expect.poll(() => transitionsRun(box(page, 'plain-start'))).toContainEqual({ property: 'width', pseudo: '', own: true, on: expect.any(String), duration, easing });
     await motionEnded(page);
     expect((await size(page, 'plain-start'))[0]).toBe(290);
     await page.keyboard.press('ArrowRight');
     await motionEnded(page);
     expect((await size(page, 'plain-start'))[0]).toBe(280);
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    await watchTransitions(box(page, 'plain-start'));
     await page.keyboard.press('ArrowLeft');
-    expect(await box(page, 'plain-start').evaluate((el) => el.getAnimations().length)).toBe(0);
     expect((await size(page, 'plain-start'))[0]).toBe(290);
+    expect(await sizeMotions(page, 'plain-start')).toEqual([]);
   });
 
   test('RSF-8: activating a handle makes the size its greatest, and again gives back the size it had', async ({ page }) => {
@@ -434,12 +447,13 @@ test.describe('the product and the layout', () => {
   test('RSF-12: a size the product sets is drawn at once and sends no event; a narrower layout narrows the box and gives the person’s width back when there is room', async ({ page }) => {
     await mount(page, [fixtureOf('default')]);
     await listen(page);
+    await watchTransitions(box(page, 'default'));
     await host(page, 'default').evaluate((el: any) => {
       el.width = 400;
       el.height = 300;
     });
     await expect.poll(() => size(page, 'default')).toEqual([400, 300]);
-    expect(await box(page, 'default').evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await sizeMotions(page, 'default')).toEqual([]);
     await host(page, 'default').evaluate((el: any) => (el.style.inlineSize = '360px'));
     const narrow = await bounds(room(page, 'default'));
     const end = await bounds(handle(page, 'default', 'end'));
@@ -479,6 +493,7 @@ test.describe('the product and the layout', () => {
       wrap.append(el);
       return wrap;
     });
+    await watchTransitions(box(page, 'default'));
     await holder.evaluate((el: HTMLElement) => el.setAttribute('dir', 'rtl'));
     await expect.poll(async () => {
       const b = await bounds(box(page, 'default'));
@@ -486,7 +501,7 @@ test.describe('the product and the layout', () => {
       return e.x + e.width < b.x;
     }).toBe(true);
     expect(await size(page, 'default')).toEqual([480, 240]);
-    expect(await box(page, 'default').evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await sizeMotions(page, 'default')).toEqual([]);
     // Plain: the handle's centre stays on the end edge, now the left one.
     await page.locator('[data-fixture="plain"]').evaluate((el) => el.setAttribute('dir', 'rtl'));
     const p = await bounds(box(page, 'plain'));
