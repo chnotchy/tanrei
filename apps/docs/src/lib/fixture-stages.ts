@@ -81,28 +81,73 @@ function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
   });
 }
 
-/** The scheme a stage draws in: the page's, until its switch is turned. */
+/** The page's scheme: the one the header's picker put on the root (`data-theme`), else the system's. */
 const pageScheme = () => (document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
-function scheme(stage: HTMLElement, box: HTMLElement) {
-  const toggle = stage.querySelector<HTMLElement & { selected?: boolean }>('[data-stage-theme]');
-  const frame = box.querySelector<HTMLIFrameElement>('iframe');
-  if (!toggle) return;
-  const apply = () => {
-    const dark = toggle.hasAttribute('selected') || toggle.selected === true;
-    const chosen = dark ? 'dark' : 'light';
-    box.dataset.tanreiTheme = chosen;
-    const root = frame?.contentDocument?.documentElement;
-    if (root) root.dataset.tanreiTheme = chosen;
-  };
-  if (pageScheme() === 'dark') toggle.setAttribute('selected', '');
-  toggle.addEventListener('click', () => requestAnimationFrame(apply));
-  frame?.addEventListener('load', () => {
-    if (box.dataset.tanreiTheme) apply();
-  });
-  // The stage follows the page's scheme until its own switch is turned.
-  if (pageScheme() === 'dark') apply();
+/** A stage's scheme: the page's, and every change of it, until the stage's own switch is turned; then the switch's. */
+interface StageScheme {
+  box: HTMLElement;
+  frame: HTMLIFrameElement | null;
+  toggle: (HTMLElement & { selected?: boolean }) | null;
+  turned: boolean;
 }
+const stageSchemes = new Map<HTMLElement, StageScheme>();
+
+/** What a stage draws in now. */
+const schemeOf = (stage: StageScheme): 'light' | 'dark' => {
+  if (!stage.turned) return pageScheme();
+  return stage.toggle && (stage.toggle.hasAttribute('selected') || stage.toggle.selected === true) ? 'dark' : 'light';
+};
+
+/**
+ * Draws a stage in its scheme. A stage in the page inherits the page's scheme: it is marked only where it draws its own
+ * surface (dark, or turned). A window is a document of its own, which inherits nothing from the page: its root is
+ * given the scheme, and the page's contrast with it (the contrast a live example's switch sets on the page's root).
+ */
+function drawScheme(stage: StageScheme) {
+  const chosen = schemeOf(stage);
+  if (stage.turned || chosen === 'dark') stage.box.dataset.tanreiTheme = chosen;
+  else delete stage.box.dataset.tanreiTheme;
+  if (stage.toggle && !stage.turned) stage.toggle.toggleAttribute('selected', chosen === 'dark');
+  const root = stage.frame?.contentDocument?.documentElement;
+  if (!root) return;
+  root.dataset.tanreiTheme = chosen;
+  const contrast = document.documentElement.dataset.tanreiContrast;
+  if (contrast) root.dataset.tanreiContrast = contrast;
+  else delete root.dataset.tanreiContrast;
+}
+
+/** A stage's scheme is held from the start, before its actions are drawn: a window follows the page's from its first load. */
+function holdScheme(box: HTMLElement) {
+  const stage: StageScheme = { box, frame: box.querySelector<HTMLIFrameElement>('iframe'), toggle: null, turned: false };
+  stageSchemes.set(box, stage);
+  stage.frame?.addEventListener('load', () => drawScheme(stage));
+  drawScheme(stage);
+}
+
+/** The stage's own switch, once its actions are drawn: it shows the scheme the stage follows, and turning it keeps the stage in its own. */
+function scheme(stage: HTMLElement, box: HTMLElement) {
+  const held = stageSchemes.get(box);
+  const toggle = stage.querySelector<HTMLElement & { selected?: boolean }>('[data-stage-theme]');
+  if (!held || !toggle) return;
+  held.toggle = toggle;
+  toggle.addEventListener('click', () =>
+    requestAnimationFrame(() => {
+      held.turned = true;
+      drawScheme(held);
+    }),
+  );
+  drawScheme(held);
+}
+
+// Every change of the page's scheme or contrast reaches every stage that follows it: the header's picker sets
+// `data-theme` on the root (and follows the system there while it is on "auto"), a live example's switch sets
+// `data-tanrei-contrast`.
+const followPage = () => {
+  for (const stage of stageSchemes.values()) drawScheme(stage);
+};
+new MutationObserver(followPage).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-tanrei-contrast'] });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage);
 
 /**
  * A stage's actions are written in a template and drawn when the stage comes near the view: each is a Button or a Copy
@@ -155,15 +200,7 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   if (stage.dataset.stage === 'window') windowStage(canvas, handle);
   else if (handle) inlineStage(canvas, handle);
-  // A window follows the page's scheme from its first load, before its actions are drawn.
-  const frame = box.querySelector<HTMLIFrameElement>('iframe');
-  if (frame && pageScheme() === 'dark') {
-    box.dataset.tanreiTheme = 'dark';
-    frame.addEventListener('load', () => {
-      const root = frame.contentDocument?.documentElement;
-      if (root && box.dataset.tanreiTheme) root.dataset.tanreiTheme = box.dataset.tanreiTheme;
-    });
-  }
+  holdScheme(box);
   near.observe(stage);
 }
 
