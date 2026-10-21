@@ -411,7 +411,10 @@ export const drawerStyles = css`
   }
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
-     over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion. */
+     over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion.
+     It slides out while it is still open (\`leaving\`), in the top layer over its fading scrim, and is closed once that
+     motion has ended (the element waits for it): an engine that does not keep a closed dialog in the top layer for its
+     exit (\`overlay\`) draws the whole of it all the same. */
   dialog.drawer {
     position: fixed;
     inset-block: 0;
@@ -421,14 +424,16 @@ export const drawerStyles = css`
     max-block-size: none;
     max-inline-size: 100%;
     translate: var(--_drag, 0px) 0;
-    transition-property: translate, display, overlay;
+    transition-property: translate;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
+  }
+  dialog.drawer:not([open]),
+  dialog.drawer.leaving {
+    translate: var(--_away) 0;
   }
   dialog.drawer:not([open]) {
     display: none;
-    translate: var(--_away) 0;
   }
   :host {
     --_away: -100%;
@@ -436,7 +441,7 @@ export const drawerStyles = css`
   :host(:dir(rtl)) {
     --_away: 100%;
   }
-  dialog.drawer[open] {
+  dialog.drawer[open]:not(.leaving) {
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
   }
@@ -453,48 +458,62 @@ export const drawerStyles = css`
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
-  dialog.drawer[open]::backdrop {
+  dialog.drawer[open]:not(.leaving)::backdrop {
     opacity: 1;
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
   }
+  /* (A starting style competes with the rules above by specificity: it names what they name.) */
   @starting-style {
-    dialog.drawer[open]::backdrop {
+    dialog.drawer[open]:not(.leaving)::backdrop {
       opacity: 0;
     }
   }
 
   /* NVD-40: a collapsible modal drawer does not slide: it widens over the content from its column (placed over it: the
-     column's box, measured when it opens) and narrows back to it, and its scrim fades, over the change's motion. */
+     column's box, measured when it opens) and narrows back to it, and its scrim fades, over the change's motion. Its
+     look — the container color, the elevation, the end corners and the end edge — moves between the column's (the
+     standard drawer's) and the modal variant's over the same motion, in step with its width: it opens from the column's
+     look (\`@starting-style\`) and closes to it (\`leaving\`, still in the top layer), so the frame in which the column
+     takes the dialog's place is drawn as the dialog's last one was. */
   dialog.drawer.widening {
     inset-block: auto;
     inset-block-start: var(--_top, 0px);
     inset-inline-start: var(--_start, 0px);
     block-size: var(--_height, 100%);
-    transition-property: inline-size, translate, display, overlay;
+    transition-property: inline-size, translate, background-color, box-shadow, border-radius;
+  }
+  dialog.drawer.widening,
+  dialog.drawer.widening[open]:not(.leaving) {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
-  dialog.drawer.widening:not([open]) {
-    display: none;
-    translate: 0 0;
+  dialog.drawer.widening .edge {
+    transition: background-color ${unsafeCSS(MORPH)};
   }
+  dialog.drawer.widening:not([open]),
+  dialog.drawer.widening.leaving {
+    translate: 0 0;
+    inline-size: var(--_column-width);
+  }
+  ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening.leaving'))}
   @starting-style {
     dialog.drawer.widening[open] {
       translate: 0 0;
       inline-size: var(--_column-width);
     }
+    ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening[open]'))}
+    ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening[open] .edge'))}
   }
   dialog.drawer.widening.dragging {
     transition: none;
   }
   dialog.drawer.widening::backdrop,
-  dialog.drawer.widening[open]::backdrop {
+  dialog.drawer.widening[open]:not(.leaving)::backdrop {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
@@ -509,12 +528,14 @@ export const drawerStyles = css`
     .title,
     :host([collapsed]) .title,
     dialog.drawer,
-    dialog.drawer[open],
+    dialog.drawer[open]:not(.leaving),
     dialog.drawer.widening,
+    dialog.drawer.widening[open]:not(.leaving),
+    dialog.drawer.widening .edge,
     dialog.drawer::backdrop,
-    dialog.drawer[open]::backdrop,
+    dialog.drawer[open]:not(.leaving)::backdrop,
     dialog.drawer.widening::backdrop,
-    dialog.drawer.widening[open]::backdrop {
+    dialog.drawer.widening[open]:not(.leaving)::backdrop {
       transition-duration: 0s;
       transition-delay: 0s;
     }

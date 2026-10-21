@@ -7035,14 +7035,22 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 **Modal (NVD-19…22, NVD-40).** A native `<dialog>` in the shadow root opened with `showModal()`: the top layer,
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
 waiting (`modalLayer`). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
-the exit motion (kept in the top layer by `transition-behavior: allow-discrete`; Firefox has no `overlay` transition, so
-there it leaves at once). Focus goes to the selected destination (or the group row
-that shows it), Tab wraps inside (`trapFocus()`), and returns on closing. A drag follows the pointer toward the start edge
-once past the slop; a release past half the width, or a fling, closes it. A collapsible modal drawer keeps its column in
-the host's layout box — a `<nav>` in the standard variant's look, collapsed — and, while open, replaces it with the dialog
-placed over the column's box (measured when it opens), which widens from the column's width over `motion.expand-*` in the
-modal look, its scrim fading over the same time; closing narrows it back, and the column takes its place once it has.
-Focus returns then (the element that had it — its menu button, usually — is drawn in the closing dialog until then).
+the exit motion. It slides out while it is still open (the `leaving` class), in the top layer over its fading scrim, and
+`close()` is called once the dialog's own transitions and its scrim's have finished (`getAnimations()`, as Menu leaves):
+no timer, and no `overlay` transition, which Firefox and WebKit do not run (there the drawer used to leave at once). Focus
+goes to the selected destination (or the group row that shows it), Tab wraps inside (`trapFocus()`), and returns once the
+drawer has left the top layer (until then what had it is behind the modal dialog). A drag follows the pointer toward the
+start edge once past the slop; a release past half the width, or a fling, closes it. A collapsible modal drawer keeps its
+column in the host's layout box — a `<nav>` in the standard variant's look, collapsed — and, while open, replaces it with
+the dialog placed over the column's box (measured when it opens), which widens from the column's width over
+`motion.expand-*`, its scrim fading over the same time; its container color, elevation, end corners and end edge move from
+the column's look to the modal variant's over the same motion (`@starting-style` gives the column's look to its first
+frame). Closing narrows it back while it is still open and moves its look back to the column's; once that has finished
+the dialog is closed and the column takes its place, in the same frame, drawn as the dialog's last frame was, its items
+scrolled where the dialog's were (and the dialog's where the column's were, opening). One element cannot be both: a
+closed `<dialog>` that is drawn is still exposed as a dialog (Chromium keeps the role whatever `role` says), and the
+column is a navigation landmark only (NVD-23). Focus returns then (the element that had it — its menu button, usually —
+is drawn in the closing dialog until then).
 
 **Groups (NVD-44…48).** A group's row is drawn as a destination's, with the icon set's `expand_more` at
 `item.trailing-icon.size` in place of trailing content, turned half a turn while open. Its items are revealed and hidden
