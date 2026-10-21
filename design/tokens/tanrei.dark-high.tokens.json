@@ -62027,6 +62027,69 @@
           }
         }
       },
+      "number-ticker": {
+        "animation": {
+          "$type": "number",
+          "$value": 0,
+          "$description": "How a digit changes: slide (its column moves through the window), blur, blur-slide or flip (a split-flap board). The animation prop's auto reads it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+        },
+        "blur-slide": {
+          "distance": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far a digit moves out and in during a blur-slide change, in the direction a slide would move it."
+          }
+        },
+        "blur": {
+          "radius": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How blurred a digit is at the far end of a blur or blur-slide change: the old one blurs to it as it fades out, the new one sharpens from it as it fades in."
+          }
+        },
+        "motion": {
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$description": "How long one change takes: the digits and the width move together, so it is the role of a large change of size."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of the digits' and the width's motion."
+          },
+          "reduced-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "The cross-fade from the old number to the new one while motion is reduced."
+          },
+          "stagger": {
+            "$type": "duration",
+            "$value": {
+              "value": 50,
+              "unit": "ms"
+            },
+            "$description": "How much later each digit place starts than the one before it, from the most significant to the least. Shorter than sys.motion.duration.stagger, which spaces the items of a list: the digits of one number would lag half a second behind over six places."
+          }
+        }
+      },
       "one-time-code-input": {
         "caret": {
           "width": {

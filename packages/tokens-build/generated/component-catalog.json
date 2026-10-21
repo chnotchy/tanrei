@@ -238,6 +238,13 @@
       }
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "level": "base",

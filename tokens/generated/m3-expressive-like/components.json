@@ -1039,6 +1039,13 @@
       ]
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "one-time-code-field",
       "title": "One-time-code field",
       "level": "composed",

@@ -11602,6 +11602,35 @@ public struct TanreiNumberInputTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of number-ticker (comp.number-ticker).
+public struct TanreiNumberTickerTokens: Sendable, Equatable {
+  public var animation: Double
+  public var blurSlideDistance: CGFloat
+  public var blurRadius: CGFloat
+  public var motionDuration: Double
+  public var motionEasing: TanreiCubicBezier
+  public var motionReducedDuration: Double
+  public var motionStagger: Double
+
+  public init(
+    animation: Double,
+    blurSlideDistance: CGFloat,
+    blurRadius: CGFloat,
+    motionDuration: Double,
+    motionEasing: TanreiCubicBezier,
+    motionReducedDuration: Double,
+    motionStagger: Double
+  ) {
+    self.animation = animation
+    self.blurSlideDistance = blurSlideDistance
+    self.blurRadius = blurRadius
+    self.motionDuration = motionDuration
+    self.motionEasing = motionEasing
+    self.motionReducedDuration = motionReducedDuration
+    self.motionStagger = motionStagger
+  }
+}
+
 /// A value of one-time-code-input's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -18478,6 +18507,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _numberInput.value }
     set { _numberInput.value = newValue }
   }
+  public var numberTicker: TanreiNumberTickerTokens {
+    get { _numberTicker.value }
+    set { _numberTicker.value = newValue }
+  }
   public var oneTimeCodeInput: TanreiOneTimeCodeInputTokens {
     get { _oneTimeCodeInput.value }
     set { _oneTimeCodeInput.value = newValue }
@@ -18655,6 +18688,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _navigationBar: TanreiBox<TanreiNavigationBarTokens>
   private var _navigationDrawer: TanreiBox<TanreiNavigationDrawerTokens>
   private var _numberInput: TanreiBox<TanreiNumberInputTokens>
+  private var _numberTicker: TanreiBox<TanreiNumberTickerTokens>
   private var _oneTimeCodeInput: TanreiBox<TanreiOneTimeCodeInputTokens>
   private var _pageHeader: TanreiBox<TanreiPageHeaderTokens>
   private var _pagination: TanreiBox<TanreiPaginationTokens>
@@ -18754,6 +18788,7 @@ public struct TanreiSystem: Sendable, Equatable {
     navigationBar: TanreiNavigationBarTokens,
     navigationDrawer: TanreiNavigationDrawerTokens,
     numberInput: TanreiNumberInputTokens,
+    numberTicker: TanreiNumberTickerTokens,
     oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     pageHeader: TanreiPageHeaderTokens,
     pagination: TanreiPaginationTokens,
@@ -18852,6 +18887,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._navigationBar = TanreiBox(navigationBar)
     self._navigationDrawer = TanreiBox(navigationDrawer)
     self._numberInput = TanreiBox(numberInput)
+    self._numberTicker = TanreiBox(numberTicker)
     self._oneTimeCodeInput = TanreiBox(oneTimeCodeInput)
     self._pageHeader = TanreiBox(pageHeader)
     self._pagination = TanreiBox(pagination)

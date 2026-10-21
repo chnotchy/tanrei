@@ -3598,6 +3598,20 @@ export interface TanreiNumberInputTokens {
 }
 
 /**
+ * `comp.number-ticker`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiNumberTickerTokens {
+  readonly animation: number;
+  readonly blurSlideDistance: number;
+  readonly blurRadius: number;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionReducedDuration: number;
+  readonly motionStagger: number;
+}
+
+/**
  * Every value of `comp.one-time-code-input`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `standard` (with a dev-only warning).
@@ -5672,6 +5686,7 @@ export interface TanreiComponents {
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
   readonly numberInput: TanreiNumberInputTokens;
+  readonly numberTicker: TanreiNumberTickerTokens;
   readonly oneTimeCodeInput: TanreiOneTimeCodeInputTokens;
   readonly pageHeader: TanreiPageHeaderTokens;
   readonly pagination: TanreiPaginationTokens;

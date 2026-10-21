@@ -86,6 +86,13 @@
       "listing": "default"
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",

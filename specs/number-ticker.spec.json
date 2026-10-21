@@ -1,0 +1,252 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "number-ticker",
+  "title": "Number ticker",
+  "summary": "Shows a number that changes — a count, a price, a score, a figure on a dashboard — by moving each changed digit to its new value, so that a person sees that it changed, which way and roughly by how much, while assistive technology is told only the value it settles on.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "number",
+      "description": "The formatted number, laid out as text in the style of where it stands: every digit in a column of its own, every other character (a sign, a separator, a currency, a unit, a compact suffix) as plain text between them."
+    },
+    {
+      "id": "digit",
+      "description": "One digit's place: a window one digit high showing one digit of a column of the digits 0 to 9 stacked from top to bottom, which moves through the window to show another."
+    },
+    {
+      "id": "text",
+      "description": "The label and the formatted value as one text for assistive technology, not drawn."
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 0,
+      "description": "The number shown."
+    },
+    {
+      "name": "style",
+      "type": "enum",
+      "values": ["decimal", "percent", "currency", "unit"],
+      "default": "decimal",
+      "description": "How the number is written, by the platform's number formatter. percent multiplies by 100 and adds the locale's percent sign; currency writes it as an amount of currency; unit with the unit unit names."
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "default": "",
+      "description": "The currency while style is currency, as its three-letter code (\"JPY\", \"EUR\"). Not words: the formatter writes the locale's symbol."
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "default": "",
+      "description": "The unit while style is unit, as the formatter's identifier of a unit (\"kilometer-per-hour\", \"megabyte\"). Not words: the formatter writes the locale's form."
+    },
+    {
+      "name": "notation",
+      "type": "enum",
+      "values": ["standard", "compact"],
+      "default": "standard",
+      "description": "standard writes every digit; compact writes the number short with the locale's suffix (1.2K, 1.2万)."
+    },
+    {
+      "name": "fractionDigits",
+      "type": "number",
+      "default": null,
+      "description": "How many digits after the decimal separator are always written. Null leaves it to the formatter for the style (none for a whole decimal, the currency's own for currency)."
+    },
+    {
+      "name": "signDisplay",
+      "type": "enum",
+      "values": ["auto", "always", "except-zero"],
+      "default": "auto",
+      "description": "When a sign is written: auto for a negative number only; always for every number; except-zero for every number but zero (a change: +12, −3, 0)."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "default": "",
+      "description": "The language the number is written in, as a language tag (\"ja-JP\", \"ar-EG\"). Empty takes the language of where the ticker stands, and the platform's where none is set."
+    },
+    {
+      "name": "trend",
+      "type": "enum",
+      "values": ["auto", "up", "down", "digit"],
+      "default": "auto",
+      "description": "Which way the digits move. auto: every changed digit moves the way the whole number moved — up when it grew, down when it shrank — so that 19 to 20 moves both digits up. up and down force one way. digit: each digit moves the way its own value moved, so that 19 to 20 moves the ones down from 9 to 0."
+    },
+    {
+      "name": "animation",
+      "type": "enum",
+      "values": ["auto", "slide", "blur", "blur-slide", "flip", "none"],
+      "default": "auto",
+      "description": "How a digit changes. slide: its column moves through the window. blur: the old digit blurs out as the new one sharpens in. blur-slide: both, the new one coming from the side the digit moves from. flip: the upper half of the old digit turns down over the lower half, as a split-flap board. none: at once. auto takes comp.number-ticker.animation, the design system's answer (slide in the default system)."
+    },
+    {
+      "name": "startValue",
+      "type": "number",
+      "default": null,
+      "description": "A value to move from the first time the ticker comes into view (a dashboard's figures rising to their values). Null draws the first value at once."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": null,
+      "description": "How long a change takes, in milliseconds. Null takes comp.number-ticker.motion.duration."
+    },
+    {
+      "name": "live",
+      "type": "enum",
+      "values": ["off", "polite"],
+      "default": "off",
+      "description": "Whether assistive technology is told each new value as it settles. off for a number that is not the point of the moment (most figures); polite for one a person waits for (a counter they are changing, a result arriving)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Words read before the value (\"Revenue\"), where nothing visible beside the number already says what it is. Never drawn."
+    }
+  ],
+  "events": [
+    {
+      "name": "settle",
+      "description": "The digits came to rest at value: once at the end of each change's motion (at once where there is none). Carries value."
+    }
+  ],
+  "states": ["enabled"],
+  "behavior": [
+    {
+      "id": "NTK-1",
+      "text": "THE number ticker SHALL write value with the platform's number formatter in locale (the language of where it stands while locale is empty), with style, currency, unit, notation, fractionDigits and signDisplay, SHALL draw every digit of the result — in the locale's own digits — in a digit place of its own, in tabular figures of the font of where it stands so that every digit is as wide as every other, and every other character the formatter writes as plain text in that font; it SHALL lay the number out inline, in the text style, color and direction of where it stands, as one run isolated from the text around it, and SHALL draw no fill, edge or color of its own."
+    },
+    {
+      "id": "NTK-2",
+      "text": "THE number ticker SHALL draw each digit place as a window one line high that shows one digit of a column of the locale's digits 0 to 9 stacked from top to bottom, clipped to the window, so that a greater digit lies lower in the column; to show a digit the column SHALL stand with that digit in the window."
+    },
+    {
+      "id": "NTK-3",
+      "text": "WHEN value changes while animation is slide THE number ticker SHALL move the column of every digit place whose digit changes from the old digit to the new one: WHILE trend is digit, down the column toward a greater digit (the column moving up through the window, the new digit rising from below) and up it toward a lesser one; WHILE trend is auto, every changed digit in the direction the whole number moved — toward the greater digits when value grew and toward the lesser when it shrank — going on past 9 to 0 (or back past 0 to 9) where the new digit lies the other way, so that 19 to 20 moves the ones one step on from 9 to 0 and the tens one step on from 1 to 2; WHILE trend is up or down, every changed digit in that direction as auto does for a number that grew or shrank. Each column SHALL move over the change's duration (duration, or comp.number-ticker.motion.duration while it is null) with comp.number-ticker.motion.easing, each digit place, from the most significant to the least, starting comp.number-ticker.motion.stagger after the one before it."
+    },
+    {
+      "id": "NTK-4",
+      "text": "WHEN value changes while animation is blur THE number ticker SHALL cross-fade each changed digit over the change's duration, the old digit blurring from none to comp.number-ticker.blur.radius as it fades out and the new one sharpening from that radius to none as it fades in; WHILE animation is blur-slide it SHALL do the same while moving the old digit out and the new one in by comp.number-ticker.blur-slide.distance in the direction slide would (NTK-3); WHILE animation is flip it SHALL turn the upper half of the old digit down about the digit's middle over the lower half, showing the upper half of the new digit behind it and then its lower half, as a split-flap board, over the change's duration with comp.number-ticker.motion.easing."
+    },
+    {
+      "id": "NTK-5",
+      "text": "WHEN the formatted number gains or loses characters (99 to 100, 999 to 1,000, a sign that appears) THE number ticker SHALL move its width to the new one with the digits' motion, keeping its end edge still WHILE it is aligned to the end of where it stands and its start edge still otherwise; a digit place that appears SHALL slide in with its column from the side the change moves from and fade in, one that goes SHALL slide out the other way and fade out, and a character that is not a digit SHALL fade in or out in its place."
+    },
+    {
+      "id": "NTK-6",
+      "text": "WHEN value changes again before a change's motion has ended THE number ticker SHALL move every digit place from where it is drawn at that moment to the new digit, by the rule of NTK-3 for the new change, and SHALL never jump to a digit first; the change's duration SHALL start again from that moment."
+    },
+    {
+      "id": "NTK-7",
+      "text": "WHERE motion is reduced, or WHILE animation is none, THE number ticker SHALL show the new number at once, its width included — cross-fading the old number to the new one over comp.number-ticker.motion.reduced-duration where motion is reduced and the platform can fade — and SHALL emit settle at once."
+    },
+    {
+      "id": "NTK-8",
+      "text": "WHEN the ticker first comes into view WHILE startValue is not null THE number ticker SHALL draw startValue and move to value as a change of NTK-3 and NTK-4, once; WHILE startValue is null, and on every later first drawing, it SHALL draw value at once without a motion."
+    },
+    {
+      "id": "NTK-9",
+      "text": "THE number ticker SHALL expose to assistive technology one text — label where it is not empty, then the number written as NTK-1 says — and SHALL hide every drawn digit, column and character from it, so that the number is read once, as written, and never digit by digit or as the digits passing through the windows; the text SHALL always be the current value, in place, read where the ticker stands."
+    },
+    {
+      "id": "NTK-10",
+      "text": "WHILE live is polite THE number ticker SHALL tell assistive technology the text of NTK-9, politely and without moving focus, once WHEN a change's motion ends, and SHALL tell it no value in between, nor any value of a change that a later change replaced before it ended; WHILE live is off it SHALL tell it nothing by itself."
+    },
+    {
+      "id": "NTK-11",
+      "text": "WHEN the digits come to rest at value THE number ticker SHALL emit settle once with value; a change that a later change replaces before its end SHALL emit none."
+    },
+    {
+      "id": "NTK-12",
+      "text": "IF value is not a finite number THE number ticker SHALL draw what the formatter writes for it (the locale's sign for infinity, or its word for a value that is not a number) as plain text at once, without a motion, and in debug builds report it; IF style is currency and currency is not a code the formatter knows, or style is unit and unit is not a unit it knows, THE number ticker SHALL write the number as decimal and in debug builds report the value."
+    },
+    {
+      "id": "NTK-13",
+      "text": "WHERE the layout direction is right-to-left THE number ticker SHALL lay out the number as the formatter writes it for its locale — digits in the order the locale writes them, which is left to right in every locale, isolated from the text around it — and SHALL move its columns up and down as in a left-to-right layout; only the side it stands at and the edge NTK-5 keeps still follow the direction."
+    },
+    {
+      "id": "NTK-14",
+      "text": "THE number ticker SHALL take its layout direction and its language from where it is used — the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN either changes while the ticker is shown THE number ticker SHALL write and draw the number for the new one at once, without a motion.",
+      "verify": "Test with the direction and the language set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "NTK-15",
+      "text": "WHILE the text size is enlarged THE number ticker SHALL grow with the text it stands in, its windows a line of the larger text high and its motion's distances with them."
+    },
+    {
+      "id": "NTK-16",
+      "text": "WHEN animation names a value the active design system does not have, or trend, style, notation, signDisplay or live a value the component does not define, THE number ticker SHALL use the default value (auto, decimal, standard, auto, off) and in debug builds report the unknown value; WHEN duration is not a positive number THE number ticker SHALL treat it as null and in debug builds report it."
+    },
+    {
+      "id": "NTK-17",
+      "text": "THE number ticker SHALL have no words of its own and SHALL read none of the product's words: label is about this one number, and every sign, separator, symbol and suffix is the platform's formatter's, in the locale."
+    }
+  ],
+  "accessibility": {
+    "role": "none (text)",
+    "keyboard": [],
+    "labeling": "Read as one text: label, then the number as the formatter writes it. The drawn digits are hidden. With live polite, the settled value is told once per change.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: no focus, no input, no target; minimumTarget holds trivially.",
+      "Live regions: a number that is not the point of the moment is told nothing (off); one a person waits for is told politely once it settles, never each value it passes through.",
+      "Pause, Stop, Hide (WCAG 2.2.2): one change's motion ends well within five seconds. A number the product updates by itself, again and again, alongside other content is auto-updating content: the product gives the means to pause the updates, or to set how often they come.",
+      "Animation from interactions (WCAG 2.3.3): where motion is reduced, the number changes at once (NTK-7)."
+    ]
+  },
+  "tokens": "comp.number-ticker",
+  "fixtures": [
+    { "id": "default", "props": { "value": 1234 } },
+    { "id": "currency-ja", "props": { "value": 1234, "style": "currency", "currency": "JPY", "locale": "ja-JP" } },
+    { "id": "percent", "props": { "value": 0.426, "style": "percent", "fractionDigits": 1 } },
+    { "id": "compact", "props": { "value": 1250000, "notation": "compact", "locale": "en-US" } },
+    { "id": "signed", "props": { "value": -12, "signDisplay": "except-zero" } },
+    { "id": "arabic-digits", "props": { "value": 1234, "locale": "ar-EG" } },
+    { "id": "rtl", "direction": "rtl", "props": { "value": 1234, "style": "currency", "currency": "EUR", "locale": "he-IL" } }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-number-ticker",
+      "props": { "value": "value", "style": "numberStyle", "currency": "currency", "unit": "unit", "notation": "notation", "fractionDigits": "fractionDigits", "signDisplay": "signDisplay", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
+      "events": { "settle": "settle" },
+      "notes": "`<tanrei-number-ticker value number-style currency unit notation fraction-digits sign-display locale trend animation start-value duration live label>`; `style` is spelled `numberStyle` (attribute `number-style`) because `style` is every element's own. `Intl.NumberFormat(…).formatToParts` gives the characters; each digit place is an `inline-block` column moved by `transform: translateY()` through the Web Animations API, and a retarget reads the drawn position from `getComputedStyle` first (NTK-6). The width moves with the shared size transition primitive. The text of NTK-9 is a visually hidden span; the drawn number is `aria-hidden`. The first view of NTK-8 is an `IntersectionObserver`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiNumberTicker",
+      "props": { "value": "value", "style": "format", "currency": "format", "unit": "format", "notation": "format", "fractionDigits": "format", "signDisplay": "format", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
+      "events": { "settle": "onSettle" },
+      "notes": "The six format props are one `FloatingPointFormatStyle` value (`.number`, `.percent`, `.currency(code:)`, `.measurement`, with `.notation(.compactName)`, `.precision`, `.sign(strategy:)`); `locale` is the environment's unless given. `contentTransition(.numericText(countsDown:))` is not used: it cannot follow the trend rule of NTK-3 or the retarget of NTK-6."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiNumberTicker",
+      "props": { "value": "value", "style": "format", "currency": "format", "unit": "format", "notation": "format", "fractionDigits": "format", "signDisplay": "format", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
+      "events": { "settle": "onSettle" },
+      "notes": "The six format props are one `TanreiNumberFormat` value built on ICU's `NumberFormatter` (`android.icu.number`). Each digit column is an `Animatable` offset; `liveRegion = LiveRegionMode.Polite` is set on a node whose text changes only at settle."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiNumberTicker",
+      "props": { "value": "value", "style": "format", "currency": "format", "unit": "format", "notation": "format", "fractionDigits": "format", "signDisplay": "format", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
+      "events": { "settle": "onSettle" },
+      "notes": "The six format props are one `NumberFormat` of the `intl` package. `Semantics(liveRegion:)` on a node whose label changes only at settle."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "NumberTicker",
+      "props": { "value": "value", "style": "format", "currency": "format", "unit": "format", "notation": "format", "fractionDigits": "format", "signDisplay": "format", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
+      "events": { "settle": "onSettle" },
+      "notes": "The six format props are one `format: Intl.NumberFormatOptions` (Hermes ships `Intl.NumberFormat`). `accessibilityLiveRegion=\"polite\"` on Android and `AccessibilityInfo.announceForAccessibility` on iOS, at settle only."
+    }
+  }
+}

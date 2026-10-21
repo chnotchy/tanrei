@@ -6546,6 +6546,16 @@ private let m3LikeNumberInputTokens = TanreiNumberInputTokens(
   stepperInset: 4
 )
 
+private let m3LikeNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 500,
+  motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
+)
+
 private let m3LikeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 2,
   containerGap: 6,
@@ -9908,6 +9918,7 @@ extension TanreiSystem {
     navigationBar: m3LikeNavigationBarTokens,
     navigationDrawer: m3LikeNavigationDrawerTokens,
     numberInput: m3LikeNumberInputTokens,
+    numberTicker: m3LikeNumberTickerTokens,
     oneTimeCodeInput: m3LikeOneTimeCodeInputTokens,
     pageHeader: m3LikePageHeaderTokens,
     pagination: m3LikePaginationTokens,

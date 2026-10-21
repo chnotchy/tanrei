@@ -6431,6 +6431,16 @@ private let cupertinoNumberInputTokens = TanreiNumberInputTokens(
   stepperInset: 4
 )
 
+private let cupertinoNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 400,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
+)
+
 private let cupertinoOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 2,
   containerGap: 6,
@@ -9793,6 +9803,7 @@ extension TanreiSystem {
     navigationBar: cupertinoNavigationBarTokens,
     navigationDrawer: cupertinoNavigationDrawerTokens,
     numberInput: cupertinoNumberInputTokens,
+    numberTicker: cupertinoNumberTickerTokens,
     oneTimeCodeInput: cupertinoOneTimeCodeInputTokens,
     pageHeader: cupertinoPageHeaderTokens,
     pagination: cupertinoPaginationTokens,

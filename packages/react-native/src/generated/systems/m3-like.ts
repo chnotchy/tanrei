@@ -9901,6 +9901,15 @@ export const m3Like = {
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
+    numberTicker: {
+      animation: 0,
+      blurSlideDistance: 8,
+      blurRadius: 8,
+      motionDuration: 500,
+      motionEasing: [0.27, 1.06, 0.18, 1],
+      motionReducedDuration: 100,
+      motionStagger: 50,
+    },
     oneTimeCodeInput: {
       caretWidth: 2,
       containerGap: 6,

@@ -251,6 +251,24 @@
       }
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": null,
+      "platforms": {
+        "web": "planned",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",
@@ -1890,7 +1908,7 @@
   ],
   "totals": {
     "web": {
-      "planned": 0,
+      "planned": 1,
       "lagging": 83,
       "alpha": 10,
       "beta": 0,
@@ -1898,7 +1916,7 @@
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 64,
+      "planned": 65,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1906,7 +1924,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 64,
+      "planned": 65,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1914,7 +1932,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 64,
+      "planned": 65,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1922,7 +1940,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 64,
+      "planned": 65,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

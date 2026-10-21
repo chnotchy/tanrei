@@ -101,6 +101,7 @@ private object TonePerStateSystemSource {
             navigationBar = navigationBar(typescale, elevation),
             navigationDrawer = navigationDrawer(typescale, elevation),
             numberInput = numberInput(typescale, elevation),
+            numberTicker = numberTicker(typescale, elevation),
             oneTimeCodeInput = oneTimeCodeInput(typescale, elevation),
             pageHeader = pageHeader(typescale, elevation),
             pagination = pagination(typescale, elevation),
@@ -6137,6 +6138,18 @@ private object TonePerStateSystemSource {
             motionRepeatIntervalFast = 50,
             stepperGap = 0.dp,
             stepperInset = 4.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun numberTicker(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNumberTickerTokens =
+        TanreiNumberTickerTokens(
+            animation = 0f,
+            blurSlideDistance = 8.dp,
+            blurRadius = 8.dp,
+            motionDuration = 400,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionReducedDuration = 100,
+            motionStagger = 50,
         )
 
     @Suppress("UNUSED_PARAMETER")

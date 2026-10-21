@@ -16831,6 +16831,54 @@ class TanreiNumberInputTokens {
       );
 }
 
+/// `comp.number-ticker.*`
+@immutable
+class TanreiNumberTickerTokens {
+  const TanreiNumberTickerTokens({
+    required this.animation,
+    required this.blurSlideDistance,
+    required this.blurRadius,
+    required this.motionDuration,
+    required this.motionEasing,
+    required this.motionReducedDuration,
+    required this.motionStagger,
+  });
+
+  /// `comp.number-ticker.animation`
+  final double animation;
+  /// `comp.number-ticker.blur-slide-distance`
+  final double blurSlideDistance;
+  /// `comp.number-ticker.blur-radius`
+  final double blurRadius;
+  /// `comp.number-ticker.motion-duration`
+  final int motionDuration;
+  /// `comp.number-ticker.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.number-ticker.motion-reduced-duration`
+  final int motionReducedDuration;
+  /// `comp.number-ticker.motion-stagger`
+  final int motionStagger;
+
+  /// A copy with the given tokens replaced.
+  TanreiNumberTickerTokens copyWith({
+    double? animation,
+    double? blurSlideDistance,
+    double? blurRadius,
+    int? motionDuration,
+    TanreiCubicBezier? motionEasing,
+    int? motionReducedDuration,
+    int? motionStagger,
+  }) => TanreiNumberTickerTokens(
+        animation: animation ?? this.animation,
+        blurSlideDistance: blurSlideDistance ?? this.blurSlideDistance,
+        blurRadius: blurRadius ?? this.blurRadius,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionEasing: motionEasing ?? this.motionEasing,
+        motionReducedDuration: motionReducedDuration ?? this.motionReducedDuration,
+        motionStagger: motionStagger ?? this.motionStagger,
+      );
+}
+
 /// The key of a condition of one-time-code-input (`comp.one-time-code-input`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -26402,6 +26450,7 @@ class TanreiSystem {
     required this.navigationBar,
     required this.navigationDrawer,
     required this.numberInput,
+    required this.numberTicker,
     required this.oneTimeCodeInput,
     required this.pageHeader,
     required this.pagination,
@@ -26503,6 +26552,7 @@ class TanreiSystem {
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
   final TanreiNumberInputTokens numberInput;
+  final TanreiNumberTickerTokens numberTicker;
   final TanreiOneTimeCodeInputTokens oneTimeCodeInput;
   final TanreiPageHeaderTokens pageHeader;
   final TanreiPaginationTokens pagination;
@@ -26603,6 +26653,7 @@ class TanreiSystem {
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
     TanreiNumberInputTokens? numberInput,
+    TanreiNumberTickerTokens? numberTicker,
     TanreiOneTimeCodeInputTokens? oneTimeCodeInput,
     TanreiPageHeaderTokens? pageHeader,
     TanreiPaginationTokens? pagination,
@@ -26701,6 +26752,7 @@ class TanreiSystem {
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,
         numberInput: numberInput ?? this.numberInput,
+        numberTicker: numberTicker ?? this.numberTicker,
         oneTimeCodeInput: oneTimeCodeInput ?? this.oneTimeCodeInput,
         pageHeader: pageHeader ?? this.pageHeader,
         pagination: pagination ?? this.pagination,
