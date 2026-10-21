@@ -4084,11 +4084,17 @@ test.describe('vertical', () => {
   test('TAB-52, TAB-17: Down Arrow slides the indicator down the column over the indicator motion, from its box on the one tab to its box on the next', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await mountFixtures(page, spec, { icons: true, fixtures: only(V) });
+    // The slide is held and read after the key, so it must outlast the round trips between: at the default system's
+    // indicator duration (250 ms) a loaded runner's WebKit sees it finished, and gone from the strip's animations,
+    // before the first read. A long duration through the token keeps it running; the slide is held where it is read.
+    await override(page, { [T('motion-indicator-duration')]: '60s' });
+    const duration = await resolveToken(page, T('motion-indicator-duration'), 'duration');
     const [from, to] = [await seat(page, V, 0), await seat(page, V, 1)];
     await tabAt(page, V, 0).focus();
     await page.keyboard.press('ArrowDown');
     expect(await slides(page, V)).toBeGreaterThan(0);
     const half = await holdSlide(page, V, 0.5);
+    expect(half.duration).toBe(duration);
     const mid = await pill(page, V, 0);
     expect(mid.y).toBeCloseTo(from.y + (to.y - from.y) * half.progress, 0);
     expect([mid.x, mid.width, mid.height]).toEqual([expect.closeTo(from.x, 0), expect.closeTo(from.width, 0), expect.closeTo(from.height, 0)]);
