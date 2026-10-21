@@ -180,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `input` और `change` composed इवेंट हैं। `action` रद्द किया जा सकने वाला CustomEvent है: Enter से फ़ॉर्म को सबमिट होने से रोकने के लिए उसे रद्द करें। `pickerrequest` और `entryerror` CustomEvent हैं, जिनके `detail` में `{ value, type, min, max }` और `{ reason, text }` होते हैं। उनके टाइप `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` और `TanreiTextInputEntryErrorDetail` हैं।
 - `countText` सिर्फ़ पढ़ने वाली प्रॉपर्टी है, जो मान के हर बदलाव के बाद नई होती है। इसका कोई ऐट्रिब्यूट नहीं है।
 - ऐट्रिब्यूट kebab-case में हैं, जैसे `label-hidden`, `min-rows`, `prefix-text` और `no-wrap`, जो false पर सेट किया गया `wrap` है। `readonly`, `maxlength`, `autocomplete`, `min` और `max` के नाम HTML वाले ही हैं।
-- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`।
+- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`।
 - स्लॉट: `leading-icon`, `trailing-icon` और `entries`। अंतिम आइकन आपका अपना सिर्फ़ आइकन वाला Button हो सकता है। `entries` भाग का अपना कोई बॉक्स नहीं है: उसके आइटम बॉक्स की अपनी पंक्तियों में रहते हैं।
 - `resize-label` और `segment-empty-text` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों से पढ़े जाते हैं (`setWords()`)।
 - एलिमेंट के डिफ़ाइन होने से पहले उसका कोई साइज़ नहीं होता। बॉक्स की ऊँचाई के लिए जगह रखें।

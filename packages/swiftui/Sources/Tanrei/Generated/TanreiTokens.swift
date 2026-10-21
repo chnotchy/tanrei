@@ -2060,7 +2060,6 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var handleContainerShape: CGFloat
   public var handleContainerWidth: CGFloat
   public var handleGripHeight: CGFloat
-  public var handleGripShape: CGFloat
   public var handleGripWidth: CGFloat
   public var handleMarginBlock: CGFloat
   public var headerGap: CGFloat
@@ -2102,7 +2101,6 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     handleContainerShape: CGFloat,
     handleContainerWidth: CGFloat,
     handleGripHeight: CGFloat,
-    handleGripShape: CGFloat,
     handleGripWidth: CGFloat,
     handleMarginBlock: CGFloat,
     headerGap: CGFloat,
@@ -2140,7 +2138,6 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.handleContainerShape = handleContainerShape
     self.handleContainerWidth = handleContainerWidth
     self.handleGripHeight = handleGripHeight
-    self.handleGripShape = handleGripShape
     self.handleGripWidth = handleGripWidth
     self.handleMarginBlock = handleMarginBlock
     self.headerGap = headerGap
@@ -17683,116 +17680,6 @@ public struct TanreiTagTokens: Sendable, Equatable {
   }
 }
 
-/// A value of text-input's `variant` axis.
-///
-/// The set is open: the constants are the values every design system has; a value one system
-/// adds is `TanreiTextInputVariant(rawValue: "…")`, or the typed constant generated with that system.
-public struct TanreiTextInputVariant: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
-  /// The token key of the value, for example `"medium"`.
-  public let rawValue: String
-  public init(rawValue: String) { self.rawValue = rawValue }
-  public var description: String { rawValue }
-
-  public static let stacked = TanreiTextInputVariant(rawValue: "stacked")
-  public static let filled = TanreiTextInputVariant(rawValue: "filled")
-  public static let outlined = TanreiTextInputVariant(rawValue: "outlined")
-
-  /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiTextInputVariant] = [.stacked, .filled, .outlined]
-  /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTextInputVariant.stacked
-}
-
-/// How one variant of text-input is drawn in one state.
-public struct TanreiTextInputVariantStateTokens: Sendable, Equatable {
-  public var resizeGripColor: TanreiPaint
-  public var errorResizeGripColor: TanreiPaint
-
-  public init(
-    resizeGripColor: TanreiPaint,
-    errorResizeGripColor: TanreiPaint
-  ) {
-    self.resizeGripColor = resizeGripColor
-    self.errorResizeGripColor = errorResizeGripColor
-  }
-}
-
-/// One variant of text-input: a complete set of values per state. A component draws a state from that
-/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
-public struct TanreiTextInputVariantTokens: Sendable, Equatable {
-  public var enabled: TanreiTextInputVariantStateTokens
-  public var hovered: TanreiTextInputVariantStateTokens
-  public var focused: TanreiTextInputVariantStateTokens
-  public var disabled: TanreiTextInputVariantStateTokens
-
-  public init(
-    enabled: TanreiTextInputVariantStateTokens,
-    hovered: TanreiTextInputVariantStateTokens,
-    focused: TanreiTextInputVariantStateTokens,
-    disabled: TanreiTextInputVariantStateTokens
-  ) {
-    self.enabled = enabled
-    self.hovered = hovered
-    self.focused = focused
-    self.disabled = disabled
-  }
-
-  /// The tokens of this variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `pressed`, which text-input has no group for.
-  public subscript(state state: TanreiInteraction) -> TanreiTextInputVariantStateTokens? {
-    switch state {
-    case .enabled: return enabled
-    case .hovered: return hovered
-    case .focused: return focused
-    case .pressed: return nil
-    case .disabled: return disabled
-    }
-  }
-}
-
-/// The variants of text-input: named fields for the core values, `extra` for what a design system added.
-/// Read one with `variants[key]`.
-public struct TanreiTextInputVariants: Sendable, Equatable {
-  public var stacked: TanreiTextInputVariantTokens
-  public var filled: TanreiTextInputVariantTokens
-  public var outlined: TanreiTextInputVariantTokens
-  /// What a design system added, by key. Empty in a system that adds nothing.
-  public var extra: [TanreiTextInputVariant: TanreiTextInputVariantTokens]
-
-  public init(
-    stacked: TanreiTextInputVariantTokens,
-    filled: TanreiTextInputVariantTokens,
-    outlined: TanreiTextInputVariantTokens,
-    extra: [TanreiTextInputVariant: TanreiTextInputVariantTokens] = [:]
-  ) {
-    self.stacked = stacked
-    self.filled = filled
-    self.outlined = outlined
-    self.extra = extra
-  }
-
-  /// The tokens of one text-input variant, core or added; `nil` when this design system does not have it.
-  public func value(for key: TanreiTextInputVariant) -> TanreiTextInputVariantTokens? {
-    switch key {
-    case .stacked: return stacked
-    case .filled: return filled
-    case .outlined: return outlined
-    default: return extra[key]
-    }
-  }
-
-  /// Total lookup: a text-input variant this design system does not have reads the tokens of `stacked`, the
-  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
-  public subscript(key: TanreiTextInputVariant) -> TanreiTextInputVariantTokens {
-    if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no text-input variant \"\(key.rawValue)\"; using \"stacked\"")
-    return stacked
-  }
-
-  /// Every text-input variant of this design system: the core ones, then what it added.
-  public var keys: [TanreiTextInputVariant] { TanreiTextInputVariant.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
-}
-
 /// Component tokens of text-input (comp.text-input).
 public struct TanreiTextInputTokens: Sendable, Equatable {
   public var codeTabSize: Double
@@ -17802,10 +17689,7 @@ public struct TanreiTextInputTokens: Sendable, Equatable {
   public var entriesTypingMinWidth: CGFloat
   public var motionResizeDuration: Double
   public var motionResizeEasing: TanreiCubicBezier
-  public var resizeGripInset: CGFloat
-  public var resizeGripSize: CGFloat
   public var segmentPaddingInline: CGFloat
-  public var variants: TanreiTextInputVariants
 
   public init(
     codeTabSize: Double,
@@ -17815,10 +17699,7 @@ public struct TanreiTextInputTokens: Sendable, Equatable {
     entriesTypingMinWidth: CGFloat,
     motionResizeDuration: Double,
     motionResizeEasing: TanreiCubicBezier,
-    resizeGripInset: CGFloat,
-    resizeGripSize: CGFloat,
-    segmentPaddingInline: CGFloat,
-    variants: TanreiTextInputVariants
+    segmentPaddingInline: CGFloat
   ) {
     self.codeTabSize = codeTabSize
     self.codeTypescale = codeTypescale
@@ -17827,10 +17708,7 @@ public struct TanreiTextInputTokens: Sendable, Equatable {
     self.entriesTypingMinWidth = entriesTypingMinWidth
     self.motionResizeDuration = motionResizeDuration
     self.motionResizeEasing = motionResizeEasing
-    self.resizeGripInset = resizeGripInset
-    self.resizeGripSize = resizeGripSize
     self.segmentPaddingInline = segmentPaddingInline
-    self.variants = variants
   }
 }
 

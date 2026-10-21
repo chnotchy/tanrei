@@ -2377,7 +2377,7 @@ TanreiBottomSheet(
   settles back at its lowest height if `visible` is still true. Content a drag went on to scroll up flings on release.
 - **The drag handle (BSH-11 – BSH-19).** A row of `handleMarginBlock`, a `handleContainerWidth` ×
   `handleContainerHeight` box (`handleContainerShape`) and the grip centred in it (`handleGripWidth` ×
-  `handleGripHeight`, `handleGripShape`), drawn from `controls[drag-handle][state]` (box, grip) and `opacity(state)` —
+  `handleGripHeight`, with round ends), drawn from `controls[drag-handle][state]` (box, grip) and `opacity(state)` —
   `TanreiButton`'s chain on the box: state motion, press-hold, pressed feedback and ripple (from the box's center for a
   press on the hit area outside it), keyboard focus ring. While the sheet has two heights it is one button named by
   `handleLabel`, with the platform's expand / collapse (expanded at full height); a press, Enter or Space moves the sheet

@@ -485,7 +485,7 @@ const numberInputProps = ({ readOnly, steppers, ...props }: Fixture['props']): F
 export const INPUT_BOX = '--tanrei-comp-input-box-';
 /** The five components that draw their box from that set, and the names each keeps under its own prefix for what it alone draws. */
 const INPUT_BOX_READERS: Readonly<Record<string, RegExp>> = {
-  'text-input': /^(?:entries-|motion-resize-|code-|resize-grip-|segment-)|-resize-grip-color$/,
+  'text-input': /^(?:entries-|motion-resize-|code-|segment-)/,
   select: /^(?:list-|option-|group-|divider-|separation|status-|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   combobox: /^(?:list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   'number-input': /^(?:stepper-|motion-repeat-)/,

@@ -791,7 +791,6 @@ private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
   handleContainerShape: 9999,
   handleContainerWidth: 48,
   handleGripHeight: 4,
-  handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
   headerGap: 8,
@@ -9571,65 +9570,7 @@ private let m3ExpressiveLikeTextInputTokens = TanreiTextInputTokens(
   entriesTypingMinWidth: 72,
   motionResizeDuration: 200,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  resizeGripInset: 4,
-  resizeGripSize: 16,
-  segmentPaddingInline: 2,
-  variants: TanreiTextInputVariants(
-    stacked: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    filled: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    outlined: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  )
+  segmentPaddingInline: 2
 )
 
 private let m3ExpressiveLikeTimelineTokens = TanreiTimelineTokens(

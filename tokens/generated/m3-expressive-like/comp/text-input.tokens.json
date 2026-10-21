@@ -4,40 +4,18 @@
       "text-input": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product has boxes people type in that do what no other box does: some are several lines tall and are resized by hand with a grip in their corner, following their text over a short motion; some hold a date or a time entered unit by unit; some hold code in the code face; some hold the entries a person has already given, with the typing part after the last one. The box itself — its corners, heights, edges, label, text and colors — is the one box every input control stands on, and has that set's tokens.",
+            "rationale": "One product has boxes people type in that do what no other box does: some are several lines tall and are resized by hand with a handle in their corner, following their text over a short motion; some hold a date or a time entered unit by unit; some hold code in the code face; some hold the entries a person has already given, with the typing part after the last one. The box itself — its corners, heights, edges, label, text and colors — is the one box every input control stands on, and has that set's tokens.",
             "since": "0.1.0"
           },
-          "dev.tanrei.states": {
-            "variants": [
-              "stacked",
-              "filled",
-              "outlined"
-            ],
-            "states": [
-              "hovered",
-              "focused",
-              "disabled"
-            ],
-            "perVariant": {
-              "resize-grip.color": "color",
-              "error.resize-grip.color": "color"
-            }
-          },
-          "dev.tanrei.axes": {
-            "variant": {
-              "default": "stacked",
-              "from": "states"
-            }
-          },
           "dev.tanrei.llm": {
-            "usage": "What a text input draws that no other box draws. The resize grip's size, its inset and its color in each look and state, plain and in error; the motion of an animated height; the padding of a date or time segment; the face of a code input and how far a tab character reaches in it; the gaps of the entries place inside the box and the least width the typing part keeps beside the last entry. The box is comp.input-box.*.",
+            "usage": "What a text input draws that no other box draws. The motion of an animated height; the padding of a date or time segment; the face of a code input and how far a tab character reaches in it; the gaps of the entries place inside the box and the least width the typing part keeps beside the last entry. The box is comp.input-box.*.",
             "rules": [
               "A text input is the bare box: it has no label row, no requirement tag, no help, no error text and no count. Put it in a Field for those, or use the text field, which is that pair; their tokens are comp.field.*.",
               "The box — container, edges, floating label, value text, placeholder, prefix and suffix, icons, caret, selection, heights and paddings per size, and the colors of each look in each state — is comp.input-box.*, shared with the select, the combobox, the number input and the color input. This group holds only what a text input adds.",
               "Always give it a name: the label of the Field that frames it, or its own label where its visible label is elsewhere. A placeholder is never the name.",
               "Dates and times are entered segment by segment (type date, time, date-time): each unit is focusable, stepped and typed on its own, and the focused segment is drawn as selected text (comp.input-box.selection.color behind it, comp.input-box.selection.content.color for its text). The picker button is an icon-only Button of the text variant with Button's own tokens. Clear, reveal-password and other trailing actions are the product's own icon-only Buttons in the trailing slot.",
               "For text written for a machine use type code, on one line or with multiline: a left-to-right run in the code face (code.typescale gives the family, weight and letter spacing; the size stays the box's) that the platform does not correct. Never set a code face on the input from outside. It is not an editor; to show code that is not edited use a Code block.",
-              "The grip is a glyph of the system's icon set at resize-grip.size, in the look's resize-grip.color.",
+              "A multi-line input resized by hand (resize manual) places a Handle of size small in its bottom end corner; the Handle draws it from comp.handle.*, and this group holds nothing of it.",
               "A multi-line input follows its text by default (resize auto) and changes height over motion.resize-duration; use resize manual for long free text, and fixed where the layout cannot move.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
@@ -70,66 +48,6 @@
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space25}",
             "$description": "The room on each side of a date or time segment's text, inside the highlight a focused segment is drawn with."
-          }
-        },
-        "resize-grip": {
-          "size": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.icon.extra-small}",
-            "$description": "The glyph of the resize grip of a manually resized multi-line input: the icon scale's smallest step. Its hit area is the minimum target, not this size."
-          },
-          "inset": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space50}",
-            "$description": "Distance from the container's bottom edge and from its end edge to the grip's glyph."
-          }
-        },
-        "stacked": {
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-surface-variant}"
-              }
-            }
-          }
-        },
-        "filled": {
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-surface-variant}"
-              }
-            }
-          }
-        },
-        "outlined": {
-          "resize-grip": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
-            }
-          },
-          "error": {
-            "resize-grip": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-surface-variant}"
-              }
-            }
           }
         },
         "motion": {

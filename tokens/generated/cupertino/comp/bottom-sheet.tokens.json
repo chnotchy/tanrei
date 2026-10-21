@@ -26,10 +26,10 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins; the header's height, gap and end inset, the headline's style and color, the close button's Button variant, and the divider below the header (its color, width and when it is drawn); for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
+            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins (the sheet's drag handle is a Handle, given these in place of its own); the header's height, gap and end inset, the headline's style and color, the close button's Button variant, and the divider below the header (its color, width and when it is drawn); for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
             "rules": [
               "A standard sheet sits over the bottom of the content while the content stays usable; a modal sheet dims and blocks everything else until it is dismissed. Both read the same container tokens.",
-              "The drag handle is a control, not decoration: its grip is held to the functional 3:1 boundary, and its box carries hover, focus and press.",
+              "The drag handle is a Handle (comp.handle.*): its grip is held to the functional 3:1 boundary, and its box carries hover, focus and press. The sheet gives it its own tokens, which alias the Handle's in the default system: re-value them here to change a sheet's handle alone, or comp.handle.* to change every handle.",
               "A sheet that can be dismissed only by dragging still needs a visible way out for people who cannot drag: its close button (closable) or a Close or Done button in the content.",
               "The close button is an icon-only Button of the small size in the variant comp.bottom-sheet.close-button.variant names (tonal in the default system), as every host's close button is; the sheet draws it while closable is true, in a header with the headline.",
               "Restyle through these tokens in a layer; never fork the component.",
@@ -215,18 +215,8 @@
         "handle": {
           "container-width": {
             "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
-            "$description": "The drag handle's box: where its hover, focus and press are drawn, centred on the grip.",
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
-              }
-            }
+            "$value": "{tanrei.comp.handle.container.length.medium}",
+            "$description": "The drag handle's box: where its hover, focus and press are drawn, centred on the grip."
           },
           "container-height": {
             "$type": "dimension",
@@ -245,7 +235,7 @@
           },
           "container-shape": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.full}"
+            "$value": "{tanrei.comp.handle.container.shape}"
           },
           "margin-block": {
             "$type": "dimension",
@@ -281,38 +271,20 @@
                 "by": 1.25
               }
             }
-          },
-          "grip-shape": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.full}"
           }
         },
         "drag-handle": {
           "container": {
             "color": {
               "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0,
-                  0,
-                  0
-                ],
-                "alpha": 0,
-                "hex": "#000000"
-              },
-              "$description": "The handle's box at rest: nothing is drawn; its states draw the state layer.",
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fixed": "The drag handle draws no fill at rest; its states draw the state layer."
-                }
-              }
+              "$value": "{tanrei.comp.handle.standard.container.color}",
+              "$description": "The handle's box at rest: nothing is drawn; its states draw the state layer."
             }
           },
           "grip": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.outline}",
+              "$value": "{tanrei.comp.handle.standard.line.color}",
               "$description": "The grip is how a sighted person finds a control, so it takes the functional boundary role (3:1 on every surface), not the decorative hairline."
             }
           },
@@ -326,15 +298,15 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.role.state.compact}"
+            "$value": "{tanrei.comp.handle.motion.state-duration}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.state}"
+            "$value": "{tanrei.comp.handle.motion.state-easing}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.role.feedback}",
+            "$value": "{tanrei.comp.handle.motion.feedback-duration}",
             "$description": "How long the answer to a press on the drag handle takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "enter-duration": {
