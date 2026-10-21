@@ -272,7 +272,7 @@
     },
     {
       "id": "PGN-18",
-      "text": "THE pagination SHALL change an item between its states over comp.pagination.motion.state-duration with comp.pagination.motion.state-easing, and at once where motion is reduced; WHEN the current page changes THE pagination SHALL draw the new row at once, without a motion of its own."
+      "text": "THE pagination SHALL change an item between its states over comp.pagination.motion.state-duration with comp.pagination.motion.state-easing, and at once where motion is reduced; WHEN the current page changes THE pagination SHALL change the item that was current and the item that becomes current between their states as it changes any item's, and SHALL draw at once the items whose page numbers or places change."
     },
     {
       "id": "PGN-19",
