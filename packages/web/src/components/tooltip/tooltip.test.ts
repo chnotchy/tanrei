@@ -1520,8 +1520,8 @@ test.describe('motion', () => {
     await mount(page, fixtures);
     const [enter, exit] = [await resolveToken(page, T('motion-enter-duration'), 'duration'), await resolveToken(page, T('motion-exit-duration'), 'duration')];
     const [enterEasing, exitEasing] = [await resolveEasing(page, T('motion-enter-easing')), await resolveEasing(page, T('motion-exit-easing'))];
-    // The default system leaves on standard-accelerate.
-    expect(exitEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    // It leaves on the exit role's curve (the accelerating one, in the default system).
+    expect(exitEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-exit'));
     expect(enter).not.toBe(exit);
     for (const fixture of fixtures) {
       const id = fixture.id;
