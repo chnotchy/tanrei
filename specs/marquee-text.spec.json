@@ -289,7 +289,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-marquee-text",
       "props": {
         "trigger": "trigger",

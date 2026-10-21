@@ -1087,6 +1087,11 @@ const STAGING: Record<string, Staging> = {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
   // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
+  // A marquee text is as wide as its place (MRQ-1): its stage gives it 240 in the body text style and color, which the
+  // long fixtures' text does not fit and "Short title" does.
+  'marquee-text': {
+    css: () => `tanrei-marquee-text { inline-size: 240px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+  },
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },

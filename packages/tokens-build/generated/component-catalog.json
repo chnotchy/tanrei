@@ -1734,7 +1734,14 @@
       "title": "Marquee text",
       "level": "base",
       "listing": "default",
-      "layer": "core"
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-marquee-text",
+        "module": "@tanrei/web/components/marquee-text"
+      },
+      "react": {
+        "name": "MarqueeText"
+      }
     }
   ]
 }
