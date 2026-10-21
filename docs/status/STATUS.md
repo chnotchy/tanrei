@@ -26,8 +26,8 @@ Listing: 85 default · 8 advanced. A component of the first value is shown where
 | Modal layer | base | advanced | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Dialog | composed: Modal layer | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Menu | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| List | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| List row | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| List | base | default | containment | ✓ | ◔ alpha | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| List row | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Tabs | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Tab view | composed: Tabs | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Snackbar | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
