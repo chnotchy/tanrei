@@ -124,6 +124,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  * @fires action - => tanrei-text-input
  * @fires pickerrequest - => tanrei-text-input
  * @fires entryerror - => tanrei-text-input
+ * @fires resizeend - => tanrei-text-input
  */
 export class TanreiTextField extends ComposedControl<string> {
   /** TXF-63: the one control the form meets. Its members stand in its shadow root, outside every form. */

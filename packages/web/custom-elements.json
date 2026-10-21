@@ -46659,6 +46659,13 @@
               "type": {
                 "text": "CustomEvent<TanreiTextInputEntryErrorDetail>"
               }
+            },
+            {
+              "description": "The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.",
+              "name": "resizeend",
+              "type": {
+                "text": "CustomEvent<TanreiTextInputResizeEndDetail>"
+              }
             }
           ],
           "attributes": [
