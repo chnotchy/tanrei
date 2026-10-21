@@ -108,8 +108,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
+                  "of": "{tanrei.sys.control.height.small}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }

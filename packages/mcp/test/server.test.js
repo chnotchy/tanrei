@@ -426,7 +426,7 @@ test('explain_token: an extension says who declared it and why; every token says
   // A member of a declared size.
   const height = await explain('tanrei.comp.button.container.height.3x');
   assert.deepEqual([height.extension, height.declaredBy, height.rationale], [true, 'acme', 'A hero call-to-action on the landing screen.']);
-  assert.deepEqual([height.value, height.kind, height.rule], ['84px', 'derived', { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 21 }], 'large (size.unit × 14) × 1.5');
+  assert.deepEqual([height.value, height.kind, height.rule], ['84px', 'derived', { fn: 'mul', of: '{tanrei.sys.control.height.large}', by: 1.5, min: '{tanrei.sys.target.minimum}' }], 'large (the ladder\'s large step, never below the minimum target) × 1.5');
   assert.match(height.touchedBy, /after "acme" declared it/);
   assert.deepEqual(height.howToChange[0].write, { tokens: { 'tanrei.comp.button.container.height.3x': { scale: 1.5 } } }, 'an extension takes operations like any core token');
   // A member that the layer also values under `tokens`, and the layer's own token.
@@ -686,8 +686,9 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
   // `near` is enough to name the component, the axis and `from`; the product's own layer file is where it goes.
   const near = (await propose({ kind: 'axis-value', near: 'tanrei.comp.button.container.height.small', value: 'xs', scale: 0.75, layerFile: acmeFile })).data;
   assert.deepEqual(near.write.vocabulary, { 'tanrei.comp.button.size.xs': { from: 'small', scale: 0.75, rationale: PLACEHOLDER } });
-  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '24px']);
-  assert.ok(near.verified.newWarnings.some((w) => /height\.xs/.test(w)), 'thresholds are constants for extensions too: a 24px button cannot hold its content, and the proposal says so');
+  // 32 × 0.75 is 24, held at the minimum target (32): a size scaled from a floored height keeps the floor.
+  assert.deepEqual([near.layer, near.verified.newTokens.values['tanrei.comp.button.container.height.xs']], ['acme', '32px']);
+  assert.ok(near.verified.newWarnings.some((w) => /height\.xs/.test(w)), 'thresholds are constants for extensions too: the xs button cannot hold its content, and the proposal says so');
 
   // A variant: the declaration, plus the resting colors to re-point under `tokens`; its state tokens come from the pattern rules.
   const variant = (await propose({ kind: 'axis-value', component: 'button', axis: 'variant', value: 'danger', from: 'filled' })).data;

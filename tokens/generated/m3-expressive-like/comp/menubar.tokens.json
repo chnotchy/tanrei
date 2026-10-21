@@ -101,8 +101,9 @@
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 10
+                "of": "{tanrei.sys.control.height.medium}",
+                "by": 1,
+                "min": "{tanrei.sys.target.minimum}"
               }
             },
             "$description": "Minimum height of a title's container: the medium Button's 40, because a title is pressed as a button is. It grows with enlarged text; the hit area extends to the minimum target."

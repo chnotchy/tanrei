@@ -76,7 +76,9 @@ test('all three kinds of extension become ordinary tokens, read back through a s
   assert.deepEqual(value('tanrei.comp.button.container.height.large'), { value: 56, unit: 'px' });
   assert.deepEqual(checkInvariants(model), []);
   const css = emitCss(model, { scope: 'acme' });
-  assert.match(css, /--tanrei-comp-button-container-height-3x: round\(nearest, calc\(var\(--tanrei-dial-size-unit\) \* 21\), 0\.25px\);/);
+  // The large Button reads the ladder's large step with the minimum target as its floor; the size cloned from it
+  // scales that and keeps the floor.
+  assert.match(css, /--tanrei-comp-button-container-height-3x: max\(var\(--tanrei-sys-target-minimum\), round\(nearest, calc\(var\(--tanrei-sys-control-height-large\) \* 1\.5\), 0\.25px\)\);/);
   assert.match(css, /--tanrei-comp-button-danger-hovered-container-color: color-mix\(/);
   assert.match(css, /--acme-comp-rating-star-size: round\(nearest, calc\(var\(--tanrei-dial-size-unit\) \* 5\), 0\.25px\);/);
 });

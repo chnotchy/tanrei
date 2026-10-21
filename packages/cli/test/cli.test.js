@@ -143,8 +143,8 @@ test('a product extends the vocabulary: a step, a button size in one line, and i
   assert.equal(result.status, 0, result.stderr);
   const css = read('out/web/acme.css');
   assert.match(css, /--tanrei-sys-space-space1200: round\(nearest, calc\(var\(--tanrei-dial-space-unit\) \* 12\), 0\.25px\);/);
-  assert.deepEqual({ fn: largeHeight.fn, of: largeHeight.of }, { fn: 'mul', of: '{tanrei.dial.size.unit}' }, 'the large height is a multiple of the size unit');
-  assert.match(css, new RegExp(escaped(`--tanrei-comp-button-container-height-3x: round(nearest, calc(${cssVarOf(largeHeight.of)} * ${largeHeight.by * 1.5}), 0.25px);`)), 'the added size is 1.5 × large, whatever large is');
+  assert.deepEqual({ fn: largeHeight.fn, of: largeHeight.of, min: largeHeight.min }, { fn: 'mul', of: '{tanrei.sys.control.height.large}', min: '{tanrei.sys.target.minimum}' }, 'the large height reads the ladder\'s large step, never below the minimum target');
+  assert.match(css, new RegExp(escaped(`--tanrei-comp-button-container-height-3x: max(var(--tanrei-sys-target-minimum), round(nearest, calc(${cssVarOf(largeHeight.of)} * ${largeHeight.by * 1.5}), 0.25px));`)), 'the added size is 1.5 × large, whatever large is, and keeps its floor');
   assert.match(css, /--acme-comp-rating-star-size:/);
   const recipe = JSON.parse(read('out/tokens/dial/dial.tokens.json')).$extensions['dev.tanrei.system'];
   assert.deepEqual(recipe.extensions.map((e) => e.id).sort(), ['acme.comp.rating.star.size', 'tanrei.comp.button.size.3x', 'tanrei.sys.space.space1200']);

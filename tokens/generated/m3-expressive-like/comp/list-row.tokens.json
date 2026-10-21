@@ -49,7 +49,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 14
+                    "by": 14,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               },
@@ -62,7 +65,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 10
+                    "by": 10,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               }
@@ -77,7 +83,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 18
+                    "by": 18,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               },
@@ -90,7 +99,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 14
+                    "by": 14,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               }
@@ -105,7 +117,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 22
+                    "by": 22,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               },
@@ -118,7 +133,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 18
+                    "by": 18,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               }
