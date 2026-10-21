@@ -99884,7 +99884,7 @@
         "minimum": {
           "$type": "dimension",
           "$value": {
-            "value": 32,
+            "value": 28,
             "unit": "px"
           },
           "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."

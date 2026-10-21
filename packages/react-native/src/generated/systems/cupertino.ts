@@ -595,7 +595,7 @@ export const cupertino = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 1, outerWidth: 3 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { minimum: 32, pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 28, pointer: 44, spacing: 8, touch: 48 },
   },
   typefaces: {
     brand: {

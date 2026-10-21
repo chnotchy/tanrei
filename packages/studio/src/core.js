@@ -96,13 +96,14 @@ export function stringifyLayer(layer) {
  * @param {(ids: string[], read: (id: string) => object) => Map<string, { reason: string, insteadUse: string[] }>} deps.outsideStandIns   the same module: what a system without a component that lives in a layer uses instead, as that layer says
  * @param {(chain: object[], held: Map<string, string>, standIns?: Map<string, { reason: string, insteadUse: string[] }>) => { unavailable: object, outside: Record<string, string>, replacements: Record<string, string[]> }} deps.sheetAvailability   the same module: what a system's sheet says it does not have, and what it uses instead
  * @param {(model: object) => string[]} deps.checkInvariants                      tokens-build's src/invariants.js
+ * @param {(documents: object[]) => string[]} deps.targetFloors                 tokens-build's src/invariants.js: the heights the core floors at the minimum target
  * @param {(fg: object, bg: object) => number} deps.contrast                      the same module's WCAG ratio
  * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id
  * @param {(color: object) => string} deps.cssColor                              the emitter's way of writing a color (tokens-build's src/pure.js)
  * @param {(token: object) => string[][]} [deps.declarations]                    the emitter's declarations of one token; without it a dial's drag is computed
  * @param {import('./listing.js').Catalog} [deps.catalog]  what the specs say of each component: level, listing, members (./listing.js, `catalogOf`)
  */
-export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, contrast, idToVar, cssColor, declarations, catalog }) {
+export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, targetFloors, contrast, idToVar, cssColor, declarations, catalog }) {
   const NS = config.namespace;
   const PREFIX = config.web.cssPrefix;
   const SYS_COLOR = `${NS}.sys.color.`;
@@ -149,6 +150,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return chain;
   }
 
+  const floored = targetFloors(Object.values(sources));
   /** Layers → documents → model → CSS and warnings: the build's pipeline, in memory. Throws what the engine throws. */
   function compute(layer) {
     const chain = chainOf(layer);
@@ -161,6 +163,9 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     const held = Object.values(system.vocabulary).filter((decl) => decl.kind === 'component').map((decl) => ({ $ref: componentDocumentPath(decl.component) }));
     const own = held.length ? { ...resolver, sets: { ...resolver.sets, comp: { ...resolver.sets.comp, sources: [...resolver.sets.comp.sources, ...held] } } } : resolver;
     const model = buildModel(files, { id: system.id, namespace: NS, resolver: own });
+    // The heights the core vocabulary floors at sys.target.minimum, which the target-floor check holds in every layer,
+    // as the build's model carries them.
+    model.floored = floored;
     return { chain, system, files, model, warnings: checkInvariants(model) };
   }
 

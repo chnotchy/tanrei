@@ -141,12 +141,12 @@
         },
         "minimum": {
           "$value": {
-            "value": 32,
+            "value": 28,
             "unit": "px"
           },
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "The developer's value: a floor that shrank with the dials it floors would be no floor."
+              "fixed": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
             }
           },
           "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."

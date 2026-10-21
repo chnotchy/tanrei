@@ -573,7 +573,7 @@ private object CupertinoSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
-        targetMinimum = 32.dp,
+        targetMinimum = 28.dp,
         targetPointer = 44.dp,
         targetSpacing = 8.dp,
         targetTouch = 48.dp,

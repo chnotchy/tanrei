@@ -3840,6 +3840,13 @@
               "$value": "{tanrei.sys.typescale.body-subhead}",
               "reason": "A small Apple button carries Subheadline (15pt); the medium and large sizes carry Body (17pt)."
             },
+            "tanrei.sys.target.minimum": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
+            },
             "tanrei.comp.button.container.height.small": {
               "derive": {
                 "fn": "mul",
