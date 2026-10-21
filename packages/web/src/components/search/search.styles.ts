@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import type { OpenAxis } from '../../primitives/index.js';
 import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -10,6 +11,40 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 const PREFIX = '--tanrei-comp-search';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
+
+/** The densities every design system has (SRC-53). A layer may add more; those get their rules on demand. */
+export const CORE_DENSITIES = ['regular', 'compact'] as const;
+const DEFAULT_DENSITY = 'regular';
+/** The members of the density axis (`dev.tanrei.axes.density.members`), as the view's rows read them. */
+const DENSITY_MEMBERS = ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'] as const;
+type DensityMember = (typeof DENSITY_MEMBERS)[number];
+const ref = (member: string, density: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+/**
+ * SRC-53: the search's density, set on its host as private switches that its suggestions, results and result groups —
+ * its descendants — inherit. SRC-16: a fine pointer's row is held to the pointer target, except in the compact density.
+ */
+const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
+  ${DENSITY_MEMBERS.map((member) => `--_src-${member}: ${ref(member, density, fallback)};`).join('\n  ')}
+  --_src-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+}`;
+/** What a row reads: the search's density, or the regular one where it stands outside a search. */
+const D = (member: DensityMember) => `var(--_src-${member}, var(${PREFIX}-${member}-${DEFAULT_DENSITY}))`;
+const d = (member: DensityMember) => unsafeCSS(D(member));
+const POINTER = 'var(--_src-pointer-target, var(--tanrei-sys-target-pointer))';
+/** The rows' measures that no density changes (the status row, the product's content, a group's title: SRC-53). */
+const R = (member: DensityMember) => unsafeCSS(`var(${PREFIX}-${member}-${DEFAULT_DENSITY})`);
+
+/** SRC-53: a density a layer added gets its block on demand, falling back to the default's tokens. */
+export const AXES: readonly OpenAxis[] = [
+  {
+    name: 'density',
+    core: CORE_DENSITIES,
+    default: DEFAULT_DENSITY,
+    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    probe: (value) => `${PREFIX}-suggestion-container-height-${value}` as const,
+  },
+];
 const MOTION = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
 
 /** The bar's parts every state recolors: private key → token part (`--_c-h` is the container, hovered). */
@@ -133,6 +168,16 @@ export const styles = css`
     display: block;
     min-inline-size: 0;
   }
+  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  :host {
+    /* SRC-53: the glyph's box of the density, as a property the glyph rules name. */
+    --_src-glyph: var(--_src-suggestion-leading-icon-size);
+  }
+  ${unsafeCSS(
+    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
+      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+      .join('\n'),
+  )}
   :host([hidden]) {
     display: none;
   }
@@ -543,7 +588,7 @@ export const styles = css`
   .full.hung {
     --_margin: ${t('view-viewport-margin')};
     --_room: calc(100% - max(env(safe-area-inset-bottom, 0px), var(--_keyboard, 0px)));
-    --_one-row: calc(${t('header-height')} + ${t('divider-thickness')} + 2 * ${t('view-padding-block')} + ${t('suggestion-container-height')});
+    --_one-row: calc(${t('header-height')} + ${t('divider-thickness')} + 2 * ${t('view-padding-block')} + ${d('suggestion-container-height')});
     --_top: max(var(--_margin), min(calc(${t('view-dialog-offset')} + env(safe-area-inset-top, 0px)), calc(var(--_room) - var(--_margin) - var(--_one-row))));
     inset: auto;
     inset-block-start: var(--_top);
@@ -624,8 +669,8 @@ export const styles = css`
     color: ${t('status-color')};
   }
   .status[data-shown] {
-    padding-block: ${t('suggestion-container-padding-block')};
-    padding-inline: ${t('suggestion-container-padding-inline')};
+    padding-block: ${R('suggestion-container-padding-block')};
+    padding-inline: ${R('suggestion-container-padding-inline')};
   }
   /* One line of the status text, whatever the row holds. */
   .status[data-shown]::before {
@@ -672,9 +717,9 @@ export const styles = css`
     display: flex;
     flex: none;
     align-items: center;
-    gap: ${t('suggestion-container-gap')};
-    padding-block: ${t('suggestion-container-padding-block')};
-    padding-inline: ${t('suggestion-container-padding-inline')};
+    gap: ${d('suggestion-container-gap')};
+    padding-block: ${d('suggestion-container-padding-block')};
+    padding-inline: ${d('suggestion-container-padding-inline')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-suggestion-container-shape`))}
     background: var(--_sc);
     cursor: pointer;
@@ -685,7 +730,7 @@ export const styles = css`
       background-color ${unsafeCSS(MOTION)},
       opacity ${unsafeCSS(MOTION)};
   }
-  ${rowTarget('.option', T('suggestion-container-height'))}
+  ${rowTarget('.option', D('suggestion-container-height'), POINTER)}
   /* SRC-17, SRC-20: hovered, active (the focused tokens) and pressed, in that precedence. */
   ${stateRules(onRow, {
     hovered: paint(ROW, '-h', 'hovered'),
@@ -701,7 +746,7 @@ export const styles = css`
   ${focusRing((focus) => (focus === ':focus-visible' ? '.option[data-active]' : ".option[data-active][data-focus-style='glow']"), { inside: true })}
 
   /* SRC-32: iconGlyph() mirrors a suggestion's leading glyph that GlyphMirrorController marked, in right-to-left. */
-  ${iconGlyph('.option-icon', { size: `${PREFIX}-suggestion-leading-icon-size`, selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.option-icon', { size: '--_src-glyph', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .option-icon {
     color: var(--_si);
     transition:
@@ -741,7 +786,7 @@ export const styles = css`
   /* SRC-29: the product's own content in the view, after the suggestions, in the headline color as its inherited
      foreground, inset by the suggestion padding at the sides; plain text in sys.typescale.body. */
   .content {
-    padding-inline: ${t('suggestion-container-padding-inline')};
+    padding-inline: ${R('suggestion-container-padding-inline')};
     color: ${t('standard-suggestion-headline-color')};
     font: var(--tanrei-sys-typescale-body-font);
     letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
@@ -825,6 +870,8 @@ export const rowStyles = css`
   :host {
     display: block;
     min-inline-size: 0;
+    /* SRC-53: the glyph's box of the search's density. */
+    --_src-glyph: ${d('suggestion-leading-icon-size')};
   }
   :host([hidden]) {
     display: none;
@@ -843,12 +890,12 @@ export const rowStyles = css`
     isolation: isolate;
     display: flex;
     align-items: center;
-    gap: ${t('suggestion-container-gap')};
+    gap: ${d('suggestion-container-gap')};
     inline-size: 100%;
     margin: 0;
     border: 0;
-    padding-block: ${t('suggestion-container-padding-block')};
-    padding-inline: ${t('suggestion-container-padding-inline')};
+    padding-block: ${d('suggestion-container-padding-block')};
+    padding-inline: ${d('suggestion-container-padding-inline')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-suggestion-container-shape`))}
     background: var(--_sc);
     color: inherit;
@@ -862,7 +909,7 @@ export const rowStyles = css`
       background-color ${unsafeCSS(MOTION)},
       opacity ${unsafeCSS(MOTION)};
   }
-  ${rowTarget('.row', T('suggestion-container-height'))}
+  ${rowTarget('.row', D('suggestion-container-height'), POINTER)}
   /* SRC-42: hovered, focused (where a suggestion is active) and pressed, in that precedence (SRC-17, SRC-20). */
   ${stateRules(onResult, {
     hovered: paint(ROW, '-h', 'hovered'),
@@ -878,7 +925,7 @@ export const rowStyles = css`
   ${focusRing((focus) => `.row${focus}`, { inside: true })}
 
   /* SRC-32: iconGlyph() mirrors a leading glyph the element marked, in right-to-left. */
-  ${iconGlyph('.icon', { size: `${PREFIX}-suggestion-leading-icon-size`, selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_src-glyph', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .icon {
     color: var(--_si);
     transition:
@@ -965,8 +1012,8 @@ export const groupStyles = css`
     padding-block-end: ${t('group-gap')};
   }
   .title {
-    padding-block: ${t('suggestion-container-padding-block')};
-    padding-inline: ${t('suggestion-container-padding-inline')};
+    padding-block: ${R('suggestion-container-padding-block')};
+    padding-inline: ${R('suggestion-container-padding-inline')};
     font: ${t('group-title-typescale-font')};
     letter-spacing: ${t('group-title-typescale-letter-spacing')};
     color: ${t('group-title-color')};

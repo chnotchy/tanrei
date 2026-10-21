@@ -721,7 +721,7 @@ test.describe('items', () => {
   });
 
   test('MNU-12: an item is at least the minimum target tall, and the whole row is its hit area', async ({ page, browserName }) => {
-    await override(page, { [T('container-height')]: '20px', [T('container-padding-block')]: '0px' });
+    await override(page, { [T('container-height-regular')]: '20px', [T('container-padding-block-regular')]: '0px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect((await bounds(row(page, 'actions', 0))).height).toBeCloseTo(pointer, 1);
     await wire(page);
@@ -794,7 +794,7 @@ test.describe('items', () => {
       icons: true,
       fixtures: [inline('cols', [cb('Grid', { checked: true }), it('Copy', { leadingIcon: 'content_copy', trailingText: '12', trailingIcon: 'open_in_new' }), it('Plain'), it('Cut', { shortcut: ['mod+x'], trailingIcon: 'open_in_new' })])],
     });
-    const [pad, gap, mark, icon] = await Promise.all(['container-padding-inline', 'container-gap', 'mark-size', 'leading-icon-size'].map((n) => resolveToken(page, T(n))));
+    const [pad, gap, mark, icon] = await Promise.all(['container-padding-inline-regular', 'container-gap-regular', 'mark-size-regular', 'leading-icon-size-regular'].map((n) => resolveToken(page, T(n))));
     const measure = async () => {
       const r = await bounds(row(page, 'cols', 1));
       const m = await bounds(row(page, 'cols', 1).locator('.column.mark'));
@@ -836,7 +836,7 @@ test.describe('items', () => {
         inline('icon-space-sub', [sub('Share', [it('Copy link', { leadingIcon: 'link' }), it('Send')], { open: true }), it('Print')]),
       ],
     });
-    const [pad, gap, mark, icon] = await Promise.all(['container-padding-inline', 'container-gap', 'mark-size', 'leading-icon-size'].map((n) => resolveToken(page, T(n))));
+    const [pad, gap, mark, icon] = await Promise.all(['container-padding-inline-regular', 'container-gap-regular', 'mark-size-regular', 'leading-icon-size-regular'].map((n) => resolveToken(page, T(n))));
     /** Where a row's label starts, from its row's start edge. */
     const at = async (id: string, label: string) => {
       const host = labelled(page, id, label);
@@ -884,8 +884,77 @@ test.describe('items', () => {
     await expectStarts('icon-space-sub', { Send: both, Share: both });
   });
 
+  test('MNU-64: a compact menu draws every row, its submenus’ too, from the compact tokens — lower, set in less, smaller glyphs, the same text — as low as its density gives for a mouse and the touch target for touch; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        compact,
+        inline('density-regular', compact.items!),
+        inline('density-sub', [sub('Share', [it('Copy link', { leadingIcon: 'link' }), it('Email')], { open: true, leadingIcon: 'share' }), it('Print')], { density: 'compact' }),
+        inline('density-odd', compact.items!, { density: 'huge' }),
+        inline('density-added', compact.items!, { density: 'roomy' }),
+      ],
+    });
+    const tokens = async (density: string) => {
+      const [height, padBlock, padInline, gap, icon, mark] = await Promise.all(
+        ['container-height', 'container-padding-block', 'container-padding-inline', 'container-gap', 'leading-icon-size', 'mark-size'].map((n) => resolveToken(page, T(`${n}-${density}`))),
+      );
+      return { height, padBlock, padInline, gap, icon, mark };
+    };
+    const [regular, small] = [await tokens('regular'), await tokens('compact')];
+    // The default system's compact row: the tree view's, 32 high with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const drawnRow = async (id: string, label: string) => {
+      const r = rowOf(labelled(page, id, label));
+      const [b, icon, padInline, font] = [
+        await bounds(r),
+        await r.locator('.leading-icon').evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+        await r.evaluate((el) => parseFloat(getComputedStyle(el).paddingInlineStart)),
+        await r.locator('.text .label').evaluate((el) => getComputedStyle(el).font),
+      ];
+      return { height: b.height, icon, padInline, font };
+    };
+    const cut = await drawnRow('density-compact', 'Cut');
+    const cutRegular = await drawnRow('density-regular', 'Cut');
+    expect(cut.height).toBeCloseTo(Math.max(small.height, small.padBlock * 2 + 20), 1);
+    expect(cut.height).toBeLessThan(pointer);
+    expect(cut.icon).toBe(small.icon);
+    expect(cut.padInline).toBe(small.padInline);
+    expect(cutRegular.height).toBeCloseTo(Math.max(regular.height, pointer), 1);
+    expect(cutRegular.icon).toBe(regular.icon);
+    // The density never changes a text style.
+    expect(cut.font).toBe(cutRegular.font);
+    // A checkbox item's mark column and a group's title take the density too.
+    const grid = rowOf(labelled(page, 'density-compact', 'Show grid'));
+    expect((await bounds(grid)).height).toBeCloseTo(small.height, 1);
+    expect((await bounds(grid.locator('.column.mark'))).width).toBeCloseTo(small.mark, 1);
+    // Every submenu takes the menu's density.
+    expect((await drawnRow('density-sub', 'Copy link')).height).toBeCloseTo(small.height, 1);
+    expect((await drawnRow('density-sub', 'Copy link')).icon).toBe(small.icon);
+    // An unknown density is drawn as regular, and a debug build says so.
+    expect((await drawnRow('density-odd', 'Cut')).height).toBeCloseTo(cutRegular.height, 1);
+    await expect.poll(() => seen.filter((w) => w.includes('MNU-64') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await rootTokens(page, { [T('container-height-roomy')]: '60px', [T('leading-icon-size-roomy')]: '28px' });
+    await expect.poll(async () => (await drawnRow('density-added', 'Cut')).height).toBeCloseTo(60, 1);
+    expect((await drawnRow('density-added', 'Cut')).icon).toBe(28);
+    expect((await drawnRow('density-added', 'Cut')).padInline).toBe(regular.padInline);
+    // A change is drawn at once.
+    await menu(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(async () => (await drawnRow('density-regular', 'Cut')).height).toBeCloseTo(cut.height, 1);
+    // MNU-12: for touch a compact row is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await expect.poll(async () => (await drawnRow('density-compact', 'Cut')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 1);
+  });
+
   test('MNU-20: at least container.height tall, padded above and below, texts in their roles, growing with the content and enlarged text', async ({ page }) => {
-    const [height, pad] = await Promise.all([resolveToken(page, T('container-height')), resolveToken(page, T('container-padding-block'))]);
+    const [height, pad] = await Promise.all([resolveToken(page, T('container-height-regular')), resolveToken(page, T('container-padding-block-regular'))]);
     expect((await bounds(row(page, 'actions', 0))).height).toBeCloseTo(height, 1);
     const size = (locator: Locator) => css(locator, 'font-size');
     expect(await size(row(page, 'actions', 0).locator('.label'))).toBe(`${await resolveToken(page, T('label-typescale-font-size'))}px`);
@@ -921,8 +990,8 @@ test.describe('items', () => {
 
   test('MNU-21: icons at their sizes in the family and fill of the item’s condition; an empty name draws nothing', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, inline('checked-icon', [cb('Bold', { leadingIcon: 'format_bold', checked: true }), cb('Italic', { leadingIcon: 'format_italic' })])] });
-    expect(await css(row(page, 'icons-shortcut', 0).locator('.leading-icon'), 'font-size')).toBe(`${await resolveToken(page, T('leading-icon-size'))}px`);
-    expect(await css(row(page, 'trailing-icon', 0).locator('.trailing-icon'), 'font-size')).toBe(`${await resolveToken(page, T('trailing-icon-size'))}px`);
+    expect(await css(row(page, 'icons-shortcut', 0).locator('.leading-icon'), 'font-size')).toBe(`${await resolveToken(page, T('leading-icon-size-regular'))}px`);
+    expect(await css(row(page, 'trailing-icon', 0).locator('.trailing-icon'), 'font-size')).toBe(`${await resolveToken(page, T('trailing-icon-size-regular'))}px`);
     const fill = (n: number) => css(row(page, 'checked-icon', n).locator('.leading-icon'), '--tanrei-icon-fill').then((v) => v.trim());
     expect(await fill(0)).toBe(await token(page, '--tanrei-sys-icon-fill-selected'));
     expect(await fill(1)).toBe(await token(page, '--tanrei-sys-icon-fill-unselected'));
@@ -939,8 +1008,8 @@ test.describe('items', () => {
     await mountFixtures(page, spec, { icons: true });
     // checkbox-check-mark names the glyph check, so it draws the plain check under every design system.
     const check = (n: number) => row(page, 'checkbox-check-mark', n).locator('.check');
-    const size = await resolveToken(page, T('mark-size'));
-    expect(size).toBe(await resolveToken(page, T('leading-icon-size')));
+    const size = await resolveToken(page, T('mark-size-regular'));
+    expect(size).toBe(await resolveToken(page, T('leading-icon-size-regular')));
     await expect(check(0)).toHaveAttribute('data-drawn', '');
     // The glyph `check` of the icon set, as a ligature: no path, shape or character of the menu's own, and no control look.
     expect(await check(0).textContent()).toBe('check');
@@ -990,7 +1059,7 @@ test.describe('items', () => {
     expect(await css(check(0), 'transform')).toBe('none');
     const r = await bounds(row(page, 'checkbox-check-mark', 0));
     const rtl = await bounds(check(0));
-    expect(r.x + r.width - (rtl.x + rtl.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 1);
+    expect(r.x + r.width - (rtl.x + rtl.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline-regular')), 1);
     // Where motion is reduced, at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await css(check(1), 'transition-duration')).toBe('0s');
@@ -1022,7 +1091,7 @@ test.describe('items', () => {
     const [selected, unselected] = await Promise.all(['selected', 'unselected'].map((s) => token(page, `--tanrei-sys-icon-family-${s}`).then(unquote)));
     expect(selected).not.toBe(unselected);
     expect(unquote(await css(check, 'font-family')).startsWith(selected.split(',')[0].trim())).toBe(true);
-    expect(await css(check, 'font-size')).toBe(`${await resolveToken(page, T('mark-size'))}px`);
+    expect(await css(check, 'font-size')).toBe(`${await resolveToken(page, T('mark-size-regular'))}px`);
   });
 
   test('MNU-30: until the icon set can draw a glyph the menu draws — a mark’s check, the check in a checked box, the submenu indicator — nothing in its place, never its name; the column kept, the box and the ring still drawn, the states still exposed; then the glyph, without the fade', async ({ page }) => {
@@ -1033,9 +1102,9 @@ test.describe('items', () => {
     await expect(check).not.toHaveAttribute('data-drawn');
     expect(await css(check, 'visibility')).toBe('hidden');
     // What the browser would print is the name, spelled out in a text face: far wider than a glyph.
-    expect(await check.locator('.check-ink').evaluate((el) => (el as HTMLElement).offsetWidth)).toBeGreaterThan((await resolveToken(page, T('mark-size'))) * 1.5);
+    expect(await check.locator('.check-ink').evaluate((el) => (el as HTMLElement).offsetWidth)).toBeGreaterThan((await resolveToken(page, T('mark-size-regular'))) * 1.5);
     await expect(host).toHaveAttribute('aria-checked', 'true');
-    const [pad, gap, size] = await Promise.all(['container-padding-inline', 'container-gap', 'mark-size'].map((n) => resolveToken(page, T(n))));
+    const [pad, gap, size] = await Promise.all(['container-padding-inline-regular', 'container-gap-regular', 'mark-size-regular'].map((n) => resolveToken(page, T(n))));
     const r = await bounds(row(page, 'checkbox-check-mark', 0));
     expect((await bounds(row(page, 'checkbox-check-mark', 0).locator('.column.mark'))).width).toBeCloseTo(size, 1);
     expect((await bounds(row(page, 'checkbox-check-mark', 0).locator('.label'))).x - r.x).toBeCloseTo(pad + size + gap, 1);
@@ -1050,7 +1119,7 @@ test.describe('items', () => {
     const indicator = rowOf(labelled(page, 'submenu-open', 'Open recent')).locator('.submenu-indicator');
     await expect(indicator).not.toHaveAttribute('data-drawn');
     expect(await css(indicator, 'visibility')).toBe('hidden');
-    expect((await bounds(indicator)).width).toBeCloseTo(await resolveToken(page, T('trailing-icon-size')), 1);
+    expect((await bounds(indicator)).width).toBeCloseTo(await resolveToken(page, T('trailing-icon-size-regular')), 1);
     await expect(labelled(page, 'submenu-open', 'Open recent')).toHaveAttribute('aria-expanded', 'true');
     // The face can draw it: the glyphs are there at once, with no fade.
     await check.evaluate((el) => {
@@ -1196,7 +1265,7 @@ test.describe('items', () => {
         const rect = range.getBoundingClientRect();
         return { start: rect.left, end: rect.right };
       });
-    const inset = await resolveToken(page, T('group-title-padding-inline'));
+    const inset = await resolveToken(page, T('group-title-padding-inline-regular'));
     // group-titles: the mark column; group-titles-icons: the mark and leading icon columns. Either way, over the marks.
     for (const id of ['group-titles', 'group-titles-icons']) {
       expect(Number.parseFloat(await css(title(id), 'padding-inline-start'))).toBe(inset);
@@ -1219,14 +1288,14 @@ test.describe('items', () => {
     // same): this page's 1,400 elements took four to seven seconds for this token, and the poll's five ran out before
     // its first read had come back. The stage's few elements are what the sentence is about.
     const stage = page.locator('[data-fixture="group-titles"]');
-    await stage.evaluate((el: HTMLElement, [name, value]) => el.style.setProperty(name, value), [T('group-title-padding-inline'), `${inset + 20}px`] as const);
+    await stage.evaluate((el: HTMLElement, [name, value]) => el.style.setProperty(name, value), [T('group-title-padding-inline-regular'), `${inset + 20}px`] as const);
     await expect.poll(async () => (await textBox('group-titles')).start - group.x).toBeCloseTo(inset + 20, 0);
     expect(await bounds(row(page, 'group-titles', 0).locator('.label'))).toEqual(before);
-    await stage.evaluate((el: HTMLElement, name) => el.style.removeProperty(name), T('group-title-padding-inline'));
+    await stage.evaluate((el: HTMLElement, name) => el.style.removeProperty(name), T('group-title-padding-inline-regular'));
     const t = title('group-titles');
     expect(await css(t, 'font-size')).toBe(`${await resolveToken(page, T('group-title-typescale-font-size'))}px`);
     expect(await css(t, 'color')).toBe(await resolveColor(page, T('group-title-color')));
-    const pad = await resolveToken(page, T('container-padding-block'));
+    const pad = await resolveToken(page, T('container-padding-block-regular'));
     expect(Number.parseFloat(await css(t, 'padding-top'))).toBe(pad);
     await expect(t).toHaveAttribute('aria-hidden', 'true');
     await expect(t).not.toHaveAttribute('tabindex');
@@ -2570,7 +2639,7 @@ test.describe('separation, selection and marks', () => {
   });
 
   test('MNU-36: under gap each group, and each run of items outside a group, is a tile of its own — the surface’s color, corners, elevation and padding — comp.menu.group.gap apart, the surface drawing no sheet around them; nothing drawn between them and no separator exposed, the groups still groups; no space before the first or after the last tile; a title keeps its own padding inside its tile', async ({ page }) => {
-    const [gap, padB, padI, padRow] = await Promise.all(['group-gap', 'surface-padding-block', 'surface-padding-inline', 'container-padding-block'].map((n) => resolveToken(page, T(n))));
+    const [gap, padB, padI, padRow] = await Promise.all(['group-gap', 'surface-padding-block', 'surface-padding-inline', 'container-padding-block-regular'].map((n) => resolveToken(page, T(n))));
     const tiles = menu(page, 'groups-gap').locator('.tile');
     await expect(tiles).toHaveCount(2);
     const [first, second] = [await bounds(tiles.nth(0)), await bounds(tiles.nth(1))];
@@ -2705,7 +2774,7 @@ test.describe('separation, selection and marks', () => {
         await mountFixtures(page, spec, { theme, icons: true, fixtures });
         await inContrast(page, 'high');
         const [checked, unchecked] = [row(page, 'checkbox-checked', 0), row(page, 'checkbox-checked', 1)];
-        expect(await resolveToken(page, T('container-padding-inline')), 'the sampled pixel is in the row’s padding').toBeGreaterThan(IN_PADDING);
+        expect(await resolveToken(page, T('container-padding-inline-regular')), 'the sampled pixel is in the row’s padding').toBeGreaterThan(IN_PADDING);
         await page.mouse.move(0, 0);
         // The sheet shows through an unchecked row at rest: its container is no color at all.
         const sheet = await paintedIn(page, unchecked);
@@ -2852,7 +2921,7 @@ test.describe('separation, selection and marks', () => {
     await menu(page, 'named').locator('tanrei-menu-group').evaluate((el: any) => (el.markIcon = ''));
     await expect.poll(() => marks('named', 1)).toEqual({ box: true, ring: false, check: false, named: null });
     // In the mark column: the first column, before the leading icon, the label and the shortcut, centred in mark.size.
-    const size = await resolveToken(page, T('mark-size'));
+    const size = await resolveToken(page, T('mark-size-regular'));
     for (const n of [0, 2]) {
       const r = row(page, 'marks-icons-shortcut', n);
       const [column, control, icon, label, shortcut] = [await bounds(r.locator('.column.mark')), await bounds(r.locator('.control')), await bounds(r.locator('.leading-icon')), await bounds(r.locator('.text .label')), await bounds(r.locator('.shortcut'))];
@@ -3069,7 +3138,7 @@ test.describe('separation, selection and marks', () => {
     await expect(indicator).toHaveAttribute('data-drawn', '');
     expect(await indicator.textContent()).toBe('chevron_right');
     await expect(rowOf(host).locator('svg, path')).toHaveCount(0);
-    const size = await resolveToken(page, T('trailing-icon-size'));
+    const size = await resolveToken(page, T('trailing-icon-size-regular'));
     expect(await css(indicator, 'font-size')).toBe(`${size}px`);
     expect((await bounds(indicator)).width).toBeCloseTo(size, 1);
     expect(await settledCss(indicator, 'color')).toBe(await resolveColor(page, T('unselected-trailing-icon-color')));
@@ -3079,7 +3148,7 @@ test.describe('separation, selection and marks', () => {
     const [own, other] = [await bounds(rowOf(host)), await bounds(row(page, 'submenu', 0))];
     expect(own.height).toBeCloseTo(other.height, 1);
     expect((await bounds(rowOf(host).locator('.label'))).x).toBeCloseTo((await bounds(row(page, 'submenu', 0).locator('.label'))).x, 1);
-    const [pad, gap] = [await resolveToken(page, T('container-padding-inline')), await resolveToken(page, T('container-gap'))];
+    const [pad, gap] = [await resolveToken(page, T('container-padding-inline-regular')), await resolveToken(page, T('container-gap-regular'))];
     expect(own.x + own.width - ((await bounds(indicator)).x + size)).toBeCloseTo(pad, 1);
     // Its trailing text is in the trailing column, before the indicator; a row with a shortcut and one with the indicator align.
     const language = rowOf(labelled(page, 'submenu-icons-trailing-text', 'Language'));
@@ -3152,7 +3221,7 @@ test.describe('separation, selection and marks', () => {
     const after = await bounds(glyph(0));
     expect(after.width).toBeCloseTo(before.width, 1);
     const r = await bounds(row(page, 'named', 0));
-    expect(r.x + r.width - (after.x + after.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 1);
+    expect(r.x + r.width - (after.x + after.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline-regular')), 1);
   });
 });
 
@@ -3444,7 +3513,7 @@ test.describe('link items', () => {
   test('MNU-55, MNU-19, MNU-24: a link item whose target is new opens a new tab that has no handle to its opener, ends in the icon set’s open_in_new in the trailing icon column — at the trailing icon’s size and color, hidden, every row keeping the column — and is described by targetLabel; without the words it still renders and is reported', async ({ page, browserName }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures.filter((f) => f.id === 'links'), inline('own', [link('Delete forever', '/gone/', { target: 'new', targetLabel: 'opens in a new tab', destructive: true, supportingText: 'Cannot be undone' }), link('Quiet', '/quiet/', { target: 'new' }), link('Here', '/here/', { targetLabel: 'ignored' })])] });
-    const size = await resolveToken(page, T('trailing-icon-size'));
+    const size = await resolveToken(page, T('trailing-icon-size-regular'));
     expect(size).toBe(24);
     const source = labelled(page, 'links', 'Source');
     await expect(linkRow(page, 'links', 'Source').locator('.link-mark')).toHaveAttribute('data-drawn', '');
@@ -3452,7 +3521,7 @@ test.describe('link items', () => {
     expect(mark).toMatchObject({ glyph: 'open_in_new', hidden: true, width: size, height: size, transform: 'none' });
     expect(await settledCss(linkRow(page, 'links', 'Source').locator('.link-mark'), 'color')).toBe(await resolveColor(page, T('unselected-trailing-icon-color')));
     expect(await css(linkRow(page, 'links', 'Source').locator('.link-mark'), 'font-size')).toBe(`${size}px`);
-    const pad = await resolveToken(page, T('container-padding-inline'));
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
     expect(mark.right).toBeCloseTo(pad, 1);
     await expect(linkRow(page, 'links', 'Source')).toHaveAttribute('part', 'container');
     await expect(linkRow(page, 'links', 'Source').locator('.link-mark')).toHaveAttribute('part', 'trailing-icon link-mark');
@@ -3482,8 +3551,8 @@ test.describe('link items', () => {
 
   test('MNU-55, MNU-33: in links-rtl the mark is at the left, mirrored by the icon helper; in links-trailing a shortcut keeps its column and draws no mark, trailing text and the mark stand side by side, the product’s own trailing icon stands and no mark is added, and the mark is in the column the submenu indicator stands in', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'links' || f.id === 'links-rtl' || f.id === 'links-trailing') });
-    const pad = await resolveToken(page, T('container-padding-inline'));
-    const gap = await resolveToken(page, T('container-gap'));
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    const gap = await resolveToken(page, T('container-gap-regular'));
     const rtl = (await markOf(labelled(page, 'links-rtl', 'Source'), '.link-mark'))!;
     expect(rtl).toMatchObject({ glyph: 'open_in_new', hidden: true, mirrored: true, transform: MIRRORED });
     expect(rtl.left).toBeCloseTo(pad, 1);
@@ -3560,7 +3629,7 @@ test.describe('link items', () => {
     const mark = linkRow(page, 'links', 'Source').locator('.link-mark');
     await expect(mark).not.toHaveAttribute('data-drawn');
     await expect(mark).toHaveCSS('visibility', 'hidden');
-    expect((await bounds(linkRow(page, 'links', 'Source').locator('.trailing-icon-column'))).width).toBeCloseTo(await resolveToken(page, T('trailing-icon-size')), 1);
+    expect((await bounds(linkRow(page, 'links', 'Source').locator('.trailing-icon-column'))).width).toBeCloseTo(await resolveToken(page, T('trailing-icon-size-regular')), 1);
     await iconFaceArrives(page);
     await expect(mark).toHaveAttribute('data-drawn', '');
     await expect(mark).toHaveCSS('visibility', 'visible');
@@ -4121,7 +4190,7 @@ test.describe('before definition', () => {
         }));
       const before = await measure();
       // It holds a size and draws nothing: a menu of one row is at least a row tall.
-      for (const menu of before.menus) expect(menu.height, `${separation} ${menu.id} before`).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height')));
+      for (const menu of before.menus) expect(menu.height, `${separation} ${menu.id} before`).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-regular')));
       await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
       await page.waitForFunction(() => !!customElements.get('tanrei-menu'));
       await page.evaluate(async () => {

@@ -177,6 +177,25 @@ test.describe('behavior', () => {
     await expect(rows.nth(2).locator('.leading-room')).toHaveCount(0);
   });
 
+  test('LRW-17: in an item of a list the row draws the list’s density and not its own; taken out of the list it draws its own; a change of the list’s density is drawn at once', async ({ page }) => {
+    await mountHtml(page, {
+      compact: listOf('density="compact"', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="regular" ')}</tanrei-list-item>`]),
+      regular: listOf('', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="compact" ')}</tanrei-list-item>`]),
+      out: '<div id="out"></div>',
+    });
+    const [regular, compact] = [await token(page, T('container-height-two-line-regular')), await token(page, T('container-height-two-line-compact'))];
+    near((await box(row(page, 'compact'))).height, compact, 'a regular row in a compact list');
+    near((await box(row(page, 'regular'))).height, regular, 'a compact row in a regular list');
+    // Out of the list, its own density.
+    await page.evaluate(() => document.querySelector('#out')!.append(document.querySelector('[data-fixture="compact"] tanrei-list-row')!));
+    await settled(page);
+    near((await box(page.locator('#out tanrei-list-row'))).height, regular, 'standing alone');
+    // The list's density changed: its rows follow at once.
+    await page.evaluate(() => ((document.querySelector('[data-fixture="regular"] tanrei-list') as HTMLElement & { density: string }).density = 'compact'));
+    await settled(page);
+    near((await box(row(page, 'regular'))).height, compact, 'the list made compact');
+  });
+
   test('LRW-6: the trailing text, the slot’s content and the glyph, in that order at the end; the value never more than half of the row; the chevron mirrored in right-to-left', async ({ page }) => {
     await mount(page, [...spec.fixtures, fx('both-ends', { headline: 'Display', trailingText: '12 GB', trailingIcon: 'chevron_right' }, { slots: { trailing: 'more_vert' } }), fx('long-value', { headline: 'Name', trailingText: 'A very long value that would take far more than half of the row by itself' })]);
     const host = row(page, 'both-ends');

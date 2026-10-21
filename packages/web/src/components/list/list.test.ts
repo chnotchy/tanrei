@@ -238,10 +238,10 @@ test.describe('items', () => {
 
   test('LST-8: an action, a link or an option is one padded box at least container.height tall, the mark container.gap after its content, handing it the content color and text style; the whole box is the hit area', async ({ page }) => {
     const box = await bounds(row(page, 'single-selected', 0));
-    expect(box.height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height')));
+    expect(box.height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-regular')));
     expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-left'))).toBe(await resolveToken(page, T('container-padding-inline-start')));
     expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-right'))).toBe(await resolveToken(page, T('container-padding-inline-end')));
-    expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-top'))).toBe(await resolveToken(page, T('container-padding-block')));
+    expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-top'))).toBe(await resolveToken(page, T('container-padding-block-regular')));
     const content = await bounds(item(page, 'single-selected', 0).locator('.content').first());
     const mark = await bounds(item(page, 'single-selected', 0).locator('.mark'));
     expect(mark.x - (content.x + content.width)).toBeCloseTo(await resolveToken(page, T('container-gap')), 1);
@@ -299,7 +299,7 @@ test.describe('items', () => {
   });
 
   test('LST-11: an action, a link or an option is at least sys.target.pointer tall and wide; a coarse pointer makes it sys.target.touch', async ({ page, browserName }) => {
-    await override(page, { [T('container-height')]: '10px', [T('container-padding-block')]: '0px', [T('container-padding-inline-start')]: '0px', [T('container-padding-inline-end')]: '0px' });
+    await override(page, { [T('container-height-regular')]: '10px', [T('container-padding-block-regular')]: '0px', [T('container-padding-inline-start')]: '0px', [T('container-padding-inline-end')]: '0px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const b = await bounds(row(page, 'line-single-selected', 0));
     expect(b.height).toBeGreaterThanOrEqual(pointer);
@@ -310,7 +310,7 @@ test.describe('items', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await page.reload();
     await mountFixtures(page, spec, { fixtures: [byId('interactive')] });
-    await override(page, { [T('container-height')]: '10px', [T('container-padding-block')]: '0px' });
+    await override(page, { [T('container-height-regular')]: '10px', [T('container-padding-block-regular')]: '0px' });
     if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect((await bounds(row(page, 'interactive', 0))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
   });
 
@@ -1112,20 +1112,20 @@ test.describe('a List row as an item’s content', () => {
         fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[ROW('Home')], [ROW('Office')]]),
       ],
     });
-    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true });
+    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     expect(await item(page, 'static', 1).evaluate((el) => (el.querySelector('tanrei-list-row') as any).listItemFrame)).toBeNull();
-    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false, leadingRoom: true });
-    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true, leadingRoom: true });
-    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false, leadingRoom: true });
+    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false, leadingRoom: true, density: 'regular' });
+    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true, leadingRoom: true, density: 'regular' });
+    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     // Every change is told at once: the item becomes interactive, the selection moves, the list stops being reorderable.
     await page.evaluate(() => {
       document.querySelector('[data-fixture="static"] tanrei-list-item')!.setAttribute('interactive', '');
       (document.querySelector('[data-fixture="options"] tanrei-list') as HTMLElement & { value: string }).value = 'b';
       document.querySelector('[data-fixture="reorder"] tanrei-list')!.removeAttribute('reorderable');
     });
-    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true });
-    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true });
-    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true });
+    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
+    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
+    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     // A row moved out of the item is told that it stands alone.
     await page.evaluate(() => {
       const row = document.querySelector('[data-fixture="static"] tanrei-list-row')!;
@@ -1247,6 +1247,57 @@ test.describe('iconSpace', () => {
 });
 
 test.describe('accessibility', () => {
+  test('LST-51: a compact list draws its actions, links and options from the compact tokens, as low as its density gives for a mouse and the touch target for touch, and every List row of an item draws the list’s density in place of its own; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = byId('density-compact');
+    const regularFixture = { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } } as Fixture;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [compact, regularFixture, { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } } as Fixture, { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } } as Fixture],
+    });
+    const [height, padBlock, rowOneLine, pointer] = await Promise.all([
+      resolveToken(page, T('container-height-compact')),
+      resolveToken(page, T('container-padding-block-compact')),
+      resolveToken(page, '--tanrei-comp-list-row-container-height-one-line-compact'),
+      resolveToken(page, '--tanrei-sys-target-pointer'),
+    ]);
+    // The default system's compact item: the tree view's compact row.
+    expect(height).toBe(32);
+    const heightOf = async (id: string, n: number) => (await bounds(item(page, id, n))).height;
+    // An option of plain text is the density's height, lower than the pointer target; one holding a row is the row's.
+    expect(await heightOf('density-compact', 2)).toBeCloseTo(height, 0);
+    expect(await heightOf('density-compact', 2)).toBeLessThan(pointer);
+    expect(await css(row(page, 'density-compact', 2), 'padding-top')).toBe(`${padBlock}px`);
+    expect(await heightOf('density-compact', 0)).toBeCloseTo(rowOneLine, 0);
+    const listRow = (id: string, n: number) => item(page, id, n).locator('tanrei-list-row');
+    expect(await listRow('density-compact', 0).evaluate((el: any) => el.drawnDensity)).toBe('compact');
+    // A regular list: the regular item and row.
+    expect(await heightOf('density-regular', 2)).toBeCloseTo(Math.max(await resolveToken(page, T('container-height-regular')), pointer), 0);
+    expect(await heightOf('density-regular', 0)).toBeCloseTo(await resolveToken(page, '--tanrei-comp-list-row-container-height-one-line-regular'), 0);
+    // LRW-17: a row's own density is not read in an item of a list: the list's is drawn.
+    await listRow('density-compact', 0).evaluate((el: any) => (el.density = 'regular'));
+    await expect.poll(() => heightOf('density-compact', 0)).toBeCloseTo(rowOneLine, 0);
+    // An unknown density is drawn as regular, and a debug build says so.
+    expect(await heightOf('density-odd', 2)).toBeCloseTo(await heightOf('density-regular', 2), 0);
+    await expect.poll(() => seen.filter((w) => w.includes('LST-51') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await override(page, { [T('container-height-roomy')]: '64px', '--tanrei-comp-list-row-container-height-one-line-roomy': '80px', '--tanrei-comp-list-row-container-padding-block-roomy': '12px' });
+    await expect.poll(() => heightOf('density-added', 2)).toBeCloseTo(64, 0);
+    await expect.poll(() => heightOf('density-added', 0)).toBeCloseTo(80, 0);
+    // A change is drawn at once, the rows with it.
+    await list(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(() => heightOf('density-regular', 2)).toBeCloseTo(height, 0);
+    await expect.poll(() => heightOf('density-regular', 0)).toBeCloseTo(rowOneLine, 0);
+    // LST-11: for touch a compact option is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await page.reload();
+    await mountFixtures(page, spec, { icons: true, fixtures: [compact] });
+    if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect(await heightOf('density-compact', 2)).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-touch')) - 0.5);
+  });
+
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });

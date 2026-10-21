@@ -11,6 +11,7 @@ import {
   LinkController,
   type LinkForm,
   NativeTextController,
+  OpenAxesController,
   PressController,
   SHORTCUT_UPDATE,
   SystemWatchController,
@@ -42,7 +43,8 @@ import '../loading-indicator/loading-indicator.js';
 import { placeMenu } from '../menu/menu.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
-import { groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import type { TanreiSearchDensityRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -70,6 +72,8 @@ export type TanreiSearchStatus = 'idle' | 'loading' | 'error';
 const STATUSES: readonly TanreiSearchStatus[] = ['idle', 'loading', 'error'];
 /** Whether a row of the view keeps the leading icon column where it has no icon (SRC-52). A closed set: the menu's values. */
 export type TanreiSearchIconSpace = 'auto' | 'always' | 'never';
+/** How much room a row of the view takes (SRC-53): `regular`, `compact`, or a density a design system added. */
+export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
 const ICON_SPACES: readonly TanreiSearchIconSpace[] = ['auto', 'always', 'never'];
 
 /**
@@ -588,6 +592,7 @@ export class TanreiSearch extends TanreiElement {
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
     name: { type: String, reflect: true },
     suggestions: { state: true },
@@ -673,6 +678,17 @@ export class TanreiSearch extends TanreiElement {
    * result of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).
    */
   iconSpace: TanreiSearchIconSpace = 'auto';
+
+  /**
+   * How much room a row of the view takes (SRC-53) — a suggestion, a result, a result group's linked heading —: its least
+   * height, paddings, the gap after its icon column and the size of its glyph, never its text style; the bar is not
+   * changed. `regular` (the default) is for a product used by touch as well as by pointer; `compact` for a tool used with
+   * a pointer. For touch a row is never lower than the touch target (SRC-16). A design system may add values.
+   */
+  density: TanreiSearchDensity = 'regular';
+
+  /** SRC-53: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly densities = new OpenAxesController(this, { component: 'search', behavior: 'SRC-53', axes: AXES });
 
   /** For tests and documentation: draws the open view in place, without the overlay's behaviour. */
   inline = false;

@@ -12,6 +12,7 @@ import {
   LONG_PRESS,
   LinkController,
   type LinkForm,
+  OpenAxesController,
   PressController,
   RovingKeys,
   SEPARATION_VALUES,
@@ -40,7 +41,8 @@ import {
 // MNU-31: an item draws its shortcut with the keyboard shortcut, which the menu defines wherever it is imported.
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
-import { groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
+import { AXES, groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
+import type { TanreiMenuDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
@@ -92,6 +94,8 @@ export type TanreiMenuSeparation = SeparationProp;
  * another item of its section draws in the column, `always` on every row, `never` only where the row itself draws in it.
  */
 export type TanreiMenuIconSpace = 'auto' | 'always' | 'never';
+/** How much room a row takes (MNU-64): `regular`, `compact`, or a density a design system added. */
+export type TanreiMenuDensity = keyof TanreiMenuDensityRegistry;
 const ICON_SPACES: readonly TanreiMenuIconSpace[] = ['auto', 'always', 'never'];
 
 type Condition = 'unselected' | 'selected' | 'current' | 'destructive' | 'expanded';
@@ -1364,6 +1368,8 @@ export class TanreiMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'menu');
   /** MNU-35, MNU-38: where a browser has no style queries, the choices are read when the menu renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);
+  /** MNU-64: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly axes = new OpenAxesController(this, { component: 'menu', behavior: 'MNU-64', axes: AXES });
   static override styles = [menuStyles, hiddenHost];
 
   // The menu places each child in a slot of its own, so that a divider or a gap can be drawn between two of them (MNU-23, MNU-36).
@@ -1375,6 +1381,7 @@ export class TanreiMenu extends TanreiElement {
     trigger: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     anchor: { type: String, reflect: true },
     inline: { type: Boolean, reflect: true },
     blocks: { state: true },
@@ -1412,6 +1419,14 @@ export class TanreiMenu extends TanreiElement {
    * row keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.
    */
   iconSpace: TanreiMenuIconSpace = 'auto';
+
+  /**
+   * How much room a row takes (MNU-64): its least height, paddings, the gap between its columns and the size of its
+   * glyphs, never its text style. `regular` (the default) is for a product used by touch as well as by pointer;
+   * `compact` (the tree view's compact row) for a tool used with a pointer. For touch a row is never lower than the touch
+   * target (MNU-12). It applies to the menu and to every submenu of it. A design system may add values.
+   */
+  density: TanreiMenuDensity = 'regular';
 
   /** The id of the anchor element, in the menu's own document or shadow root (as the HTML `anchor` attribute). */
   anchor = '';
