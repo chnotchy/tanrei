@@ -280,11 +280,11 @@ export class TanreiListRow extends TanreiElement {
     return note ? { title: name, text: note } : { text: name };
   }
 
-  private onLeadingChange(event: Event) {
+  #onLeadingChange(event: Event) {
     this.leadingFilled = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || spoken(node.textContent) !== '');
   }
 
-  private onTrailingChange(event: Event) {
+  #onTrailingChange(event: Event) {
     this.trailingFilled = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || spoken(node.textContent) !== '');
   }
 
@@ -333,7 +333,7 @@ export class TanreiListRow extends TanreiElement {
       >
         <div class="parts">
           <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon || keepsRoom })}>
-            <slot name="leading" @slotchange=${this.onLeadingChange}></slot>
+            <slot name="leading" @slotchange=${this.#onLeadingChange}></slot>
             ${drawsIcon
               ? html`<span part="leading-icon" class="leading-icon" aria-hidden="true"><span class="ink">${leadingIcon}</span></span>`
               : keepsRoom
@@ -348,7 +348,7 @@ export class TanreiListRow extends TanreiElement {
               : nothing}
           </span>
           ${trailingText ? html`<span part="trailing-text" class="trailing-text"><bdi>${trailingText}</bdi></span>` : nothing}
-          <span part="trailing" class=${classMap({ trailing: true, has: this.trailingFilled })}><slot name="trailing" @slotchange=${this.onTrailingChange}></slot></span>
+          <span part="trailing" class=${classMap({ trailing: true, has: this.trailingFilled })}><slot name="trailing" @slotchange=${this.#onTrailingChange}></slot></span>
           ${trailingIcon ? html`<span part="trailing-icon" class="trailing-icon" aria-hidden="true"><span class="ink">${trailingIcon}</span></span>` : nothing}
         </div>
       </div>

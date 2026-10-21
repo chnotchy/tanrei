@@ -165,11 +165,11 @@ export class TanreiMainActionButton extends TanreiElement {
   }
 
   /** MAB-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -238,10 +238,10 @@ export class TanreiMainActionButton extends TanreiElement {
         @keydown=${this.press.onKeyDown}
         @keyup=${this.press.onKeyUp}
         @blur=${this.press.onBlur}
-        @focus=${this.onFocus}
+        @focus=${this.#onFocus}
       >
         <span class="content">
-          <span class="icon-box"><span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span></span>
+          <span class="icon-box"><span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span></span>
           <span class="label-box"><span class="label-clip"><span part="label" class="label">${this.label}</span></span></span>
         </span>
       </button>

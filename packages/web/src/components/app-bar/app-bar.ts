@@ -340,7 +340,7 @@ export class TanreiAppBar extends TanreiElement {
   }
 
   /** APB-4, APB-13: which slots hold items; more than one navigation item or three actions still render, and are reported. */
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const items = slot.assignedElements();
     if ((BRAND_SLOTS as readonly string[]).includes(slot.name)) {
@@ -432,7 +432,7 @@ export class TanreiAppBar extends TanreiElement {
     // APB-21, APB-22: the slots stay, so that the bar hears what they hold; the ones not shown are in no box. The images
     // are the picture of one link (or one image) named by brand-label.
     // APB-24: a lockup's symbol stands at the wordmark's height.
-    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.onSlotChange}></slot>`)}</span>`;
+    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.#onSlotChange}></slot>`)}</span>`;
     const label = this.brandLabel.trim() || nothing;
     const brand = !hasBrand
       ? html`<span class="brand" hidden>${images}</span>`
@@ -446,13 +446,13 @@ export class TanreiAppBar extends TanreiElement {
           class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-actions': this.hasActions })}
         >
           <div class="lead">
-            <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
+            <div class="navigation"><slot name="navigation" @slotchange=${this.#onSlotChange}></slot></div>
             ${brand}
           </div>
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}
           </div>
-          <div class="actions"><slot name="actions" @slotchange=${this.onSlotChange}></slot></div>
+          <div class="actions"><slot name="actions" @slotchange=${this.#onSlotChange}></slot></div>
         </div>
         ${showsExpanded
           ? html`<div part="expanded" class="expanded" aria-hidden=${covered >= 1 ? 'true' : nothing}>

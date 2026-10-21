@@ -663,7 +663,7 @@ export class TanreiCalendar extends TanreiElement {
       if (clock.playState === 'finished') {
         pages.style.setProperty(PROGRESS, String(to));
         this.endTravel();
-        this.onTravelEnd();
+        this.#onTravelEnd();
         return;
       }
       pages.style.setProperty(PROGRESS, String(this.travelAt(travel)));
@@ -756,7 +756,7 @@ export class TanreiCalendar extends TanreiElement {
   }
 
   /** CAL-14, CAL-31: the travel has ended — the grid holds the displayed month's view alone again. */
-  private onTravelEnd() {
+  #onTravelEnd() {
     if (this.drag?.taken || this.wheel?.following) return;
     if (this.views.length > 1 && !this.travelling) this.rest();
   }

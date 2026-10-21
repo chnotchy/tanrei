@@ -1761,7 +1761,7 @@ export class TanreiTreeView extends TanreiLightElement {
    * the middle of the gap after the chevron's box, and at least the target wide. The lengths are the row's own, as the
    * cascade computes them.
    */
-  private onChevron(item: Item, row: HTMLElement, x: number): boolean {
+  #onChevron(item: Item, row: HTMLElement, x: number): boolean {
     const style = getComputedStyle(row);
     const rtl = style.direction === 'rtl';
     const box = row.getBoundingClientRect();
@@ -1860,7 +1860,7 @@ export class TanreiTreeView extends TanreiLightElement {
     if (!item || !row || click.button !== 0 || !this.answers(item)) return;
     // (A click that names no place — one made by script — is a press on the row.)
     const placed = click.detail > 0 || click.clientX !== 0 || click.clientY !== 0;
-    const chevron = placed && isParent(item) && this.canChoose(item) && this.onChevron(item, row, click.clientX);
+    const chevron = placed && isParent(item) && this.canChoose(item) && this.#onChevron(item, row, click.clientX);
     // TRV-52: a press with Shift selects from the anchor to the pressed row.
     if (!chevron && click.shiftKey && this.mode === 'multiple' && this.canChoose(item)) {
       this.selectRange(this.anchor ?? this.active ?? item, item);

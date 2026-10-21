@@ -201,7 +201,7 @@ export class TanreiFieldGroup extends TanreiElement {
   }
 
   /** FGR-23: a control came, left or moved. */
-  private onSlotChange() {
+  #onSlotChange() {
     this.requestUpdate();
   }
 
@@ -282,7 +282,7 @@ export class TanreiFieldGroup extends TanreiElement {
         ?data-disabled=${disabled}
       >
         ${this.label ? html`<legend class="legend" id=${radioGroup ? LEGEND : nothing} ?data-unseen=${!rows.labelled}>${rows.labelled ? rows.label : this.label}</legend>` : nothing} ${rows.description}
-        <div class="controls" data-orientation=${groupOrientation(this.orientation)} data-spacing=${spacing}><slot @slotchange=${this.onSlotChange}></slot></div>
+        <div class="controls" data-orientation=${groupOrientation(this.orientation)} data-spacing=${spacing}><slot @slotchange=${this.#onSlotChange}></slot></div>
         ${rows.error} ${rows.unseen}
       </fieldset>
     `;

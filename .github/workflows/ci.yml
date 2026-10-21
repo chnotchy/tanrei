@@ -534,15 +534,16 @@ jobs:
           path: packages/web/test-results
           retention-days: 7
           if-no-files-found: ignore
-      # What needs no browser runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
+      # What is not a Playwright test runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
       # here never costs a shard its Playwright results): the web package's Node tests — the links build helper and the
-      # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests, which read both
+      # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests (their types, and the
+      # wrappers rendered by React in each of the image's three browsers, a few seconds), which read both
       # packages' builds. Locally, `pnpm test` runs the same scripts (turbo.json). A targeted run skips them: its pattern
       # selects Playwright tests only.
       - name: Node tests of the web package (the links build helper, the manifest against the built elements)
         if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 && needs.changes.outputs.targeted != 'true' }}
         run: pnpm --filter @tanrei/web test:node
-      - name: React bindings (their types compile against the elements; their Node tests)
+      - name: React bindings (their types compile against the elements; their Node tests; the wrappers in three browsers)
         if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 && needs.changes.outputs.targeted != 'true' }}
         run: pnpm --filter @tanrei/react build && pnpm --filter @tanrei/react test
       # The shard's blob report (playwright.config.ts, on CI): every result, with each failure's screenshots, diffs and

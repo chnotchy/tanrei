@@ -945,18 +945,18 @@ export class TanreiCodeBlock extends TanreiElement {
   };
 
   /** COD-11: the block's own events, for its copy button's. */
-  private onCopied(event: CustomEvent<TanreiCopyButtonCopiedDetail>) {
+  #onCopied(event: CustomEvent<TanreiCopyButtonCopiedDetail>) {
     event.stopPropagation();
     this.dispatchEvent(new CustomEvent<TanreiCodeBlockCopiedDetail>('copied', { bubbles: true, detail: { text: event.detail.text } }));
   }
 
-  private onCopyFailed(event: CustomEvent<TanreiCopyButtonCopyFailedDetail>) {
+  #onCopyFailed(event: CustomEvent<TanreiCopyButtonCopyFailedDetail>) {
     event.stopPropagation();
     this.dispatchEvent(new CustomEvent<TanreiCodeBlockCopyFailedDetail>('copyfailed', { bubbles: true, detail: { reason: event.detail.reason } }));
   }
 
   /** COD-7: where style queries are missing, the focus style is read when focus arrives. */
-  private onBodyFocus() {
+  #onBodyFocus() {
     syncFocusStyle(this, this.body);
   }
 
@@ -1007,8 +1007,8 @@ export class TanreiCodeBlock extends TanreiElement {
           label=${this.words.get('copyLabel', this.copyLabel)}
           copied-label=${this.words.get('copiedLabel', this.copiedLabel)}
           failed-label=${this.words.get('copyFailedLabel', this.copyFailedLabel)}
-          @copied=${this.onCopied}
-          @copyfailed=${this.onCopyFailed}
+          @copied=${this.#onCopied}
+          @copyfailed=${this.#onCopyFailed}
         ></tanrei-copy-button>`
       : nothing;
     return html`
@@ -1032,7 +1032,7 @@ export class TanreiCodeBlock extends TanreiElement {
           aria-label=${name || nothing}
           tabindex=${this.scrollable ? '0' : nothing}
           style=${capped ? `--_max-lines: ${cap}` : nothing}
-          @focus=${this.onBodyFocus}
+          @focus=${this.#onBodyFocus}
         >
           <slot></slot>
         </div>
