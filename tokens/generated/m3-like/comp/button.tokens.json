@@ -71,7 +71,9 @@
               "values": [
                 "small",
                 "medium",
-                "large"
+                "large",
+                "xsmall",
+                "xlarge"
               ],
               "members": [
                 "container.height",
@@ -88,6 +90,16 @@
                 "container.gap",
                 "outline.width",
                 "motion.state-duration"
+              ],
+              "extensions": [
+                {
+                  "value": "xsmall",
+                  "declaredBy": "m3-like"
+                },
+                {
+                  "value": "xlarge",
+                  "declaredBy": "m3-like"
+                }
               ]
             },
             "variant": {
@@ -108,19 +120,6 @@
             "$description": "The container's height, per size, and the width of an icon-only button at its default width.",
             "small": {
               "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
-                }
-              }
-            },
-            "medium": {
-              "$value": {
                 "value": 40,
                 "unit": "px"
               },
@@ -132,7 +131,7 @@
                 }
               }
             },
-            "large": {
+            "medium": {
               "$value": {
                 "value": 56,
                 "unit": "px"
@@ -142,6 +141,55 @@
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
                   "by": 14
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 96,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 24
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                },
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 136,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 34
+                },
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
                 }
               }
             }
@@ -156,14 +204,36 @@
               }
             },
             "small": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": "{tanrei.sys.space.space50}",
+              "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
-            },
-            "large": {
               "$value": "{tanrei.sys.space.space150}",
               "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            },
+            "xsmall": {
+              "$value": "{tanrei.sys.space.space50}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": "{tanrei.sys.space.space400}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
             }
           },
           "width-wide": {
@@ -177,19 +247,6 @@
             },
             "small": {
               "$value": {
-                "value": 40,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 10
-                }
-              }
-            },
-            "medium": {
-              "$value": {
                 "value": 52,
                 "unit": "px"
               },
@@ -201,7 +258,7 @@
                 }
               }
             },
-            "large": {
+            "medium": {
               "$value": {
                 "value": 72,
                 "unit": "px"
@@ -213,66 +270,370 @@
                   "by": 18
                 }
               }
+            },
+            "large": {
+              "$value": {
+                "value": 128,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 32
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                },
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 184,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 46
+                },
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
             }
           },
           "gap": {
             "$type": "dimension",
             "$description": "Distance between the icon and the label, per size. The same at every size by default.",
             "small": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 1
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 1
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 1.5
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
             }
           },
           "padding-inline-start": {
             "$type": "dimension",
             "$description": "Leading padding (start side in the reading direction).",
             "small": {
-              "$value": "{tanrei.sys.space.space150}",
-              "$extensions": {}
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space200}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 3
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space300}",
-              "$extensions": {}
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 8
+                }
+              }
             }
           },
           "padding-inline-end": {
             "$type": "dimension",
             "small": {
-              "$value": "{tanrei.sys.space.space150}",
-              "$extensions": {}
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space200}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 3
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space300}",
-              "$extensions": {}
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 8
+                }
+              }
             }
           },
           "padding-inline-start-with-icon": {
             "$type": "dimension",
             "$description": "Leading padding when the icon is at the leading side: a step tighter than padding-inline-start (4 less at small and medium, 8 less at large), as the main action button pads its icon's side, because a glyph carries empty space inside its box and the same padding as a label's reads as wider.",
             "small": {
-              "$value": "{tanrei.sys.space.space150}",
-              "$extensions": {}
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space200}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 3
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space300}",
-              "$extensions": {}
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 8
+                }
+              }
             }
           },
           "padding-inline-end-with-icon": {
@@ -285,16 +646,79 @@
               }
             },
             "small": {
-              "$value": "{tanrei.sys.space.space150}",
-              "$extensions": {}
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space200}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 3
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space300}",
-              "$extensions": {}
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.space.unit}",
+                  "by": 8
+                }
+              }
             }
           },
           "padding-block": {
@@ -308,6 +732,26 @@
             },
             "large": {
               "$value": "{tanrei.sys.space.space75}"
+            },
+            "xsmall": {
+              "$value": "{tanrei.sys.space.space75}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": "{tanrei.sys.space.space75}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
             }
           }
         },
@@ -316,13 +760,36 @@
             "$type": "typography",
             "$description": "The label's text style, per size: a small button may carry a smaller label. The same style at every size by default.",
             "small": {
-              "$value": "{tanrei.sys.typescale.label}"
+              "$value": "{tanrei.sys.typescale.label}",
+              "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.typescale.label}"
+              "$value": "{tanrei.sys.typescale.heading-5}",
+              "$extensions": {}
             },
             "large": {
-              "$value": "{tanrei.sys.typescale.label}"
+              "$value": "{tanrei.sys.typescale.heading-3}",
+              "$extensions": {}
+            },
+            "xsmall": {
+              "$value": "{tanrei.sys.typescale.label}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": "{tanrei.sys.typescale.heading-1}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
             }
           }
         },
@@ -332,34 +799,76 @@
             "$description": "The icon box beside a label, per size. By default a small button draws a small glyph and a medium one the standard glyph; a large one keeps the standard glyph, because the next step would not leave room in its height.",
             "small": {
               "$value": {
-                "value": 18,
+                "value": 20,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fixed": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
                 }
               }
             },
             "medium": {
               "$value": {
-                "value": 18,
+                "value": 24,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fixed": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
                 }
               }
             },
             "large": {
               "$value": {
-                "value": 18,
+                "value": 32,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fixed": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
                 }
               }
             }
@@ -374,16 +883,79 @@
               }
             },
             "small": {
-              "$value": "{tanrei.sys.icon.small}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "$extensions": {}
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "$extensions": {}
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
             }
           }
         },
@@ -392,13 +964,79 @@
             "$type": "dimension",
             "$description": "Width of the outline, per size: a much larger button may carry a heavier outline. The same at every size by default.",
             "small": {
-              "$value": "{tanrei.sys.border.hairline}"
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 1
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.border.hairline}"
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 1
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.border.hairline}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "xsmall": {
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "xlarge": {
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 3
+                }
+              }
             }
           }
         },
@@ -1308,6 +1946,26 @@
             },
             "large": {
               "$value": "{tanrei.sys.motion.role.state.large}"
+            },
+            "xsmall": {
+              "$value": "{tanrei.sys.motion.role.state.compact}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its smallest (32dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
+            },
+            "xlarge": {
+              "$value": "{tanrei.sys.motion.role.state.large}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "Material 3 has five button sizes; this is its largest (136dp).",
+                  "declaredBy": "m3-like",
+                  "extension": true
+                }
+              }
             }
           },
           "state-easing": {

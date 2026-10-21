@@ -25,10 +25,10 @@ under the Apache License, Version 2.0:
   Copyright The Android Open Source Project
   https://github.com/androidx/androidx
   The token names and values in
-  tokens/fidelity/reference/androidx-material3-buttons.json are taken from
-  the published token files, version v0_11_0. Values of the m3-like and
-  m3-expressive-like presets (tokens/systems/ and the files generated from
-  them) are taken from the same token files.
+  tokens/fidelity/reference/androidx-material3.json are taken from the
+  published token files, versions v0_11_0, v0_7_0 and 14_1_0. Values of the
+  m3-like preset (tokens/systems/m3-like.system.json and the files generated
+  from it) are taken from the same token files.
 
 The source repository also contains the Gradle wrapper
 (packages/compose/gradlew, gradlew.bat and gradle/wrapper/) — Copyright 2015

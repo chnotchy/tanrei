@@ -75,7 +75,7 @@ test('resolved values still equal the oracle, except where they differ on purpos
       /\.comp\.button\.container\.shape$/.test(id) ||
       // The icon scale moved up (medium 24; extra-small 16, small 20, large 32), and a button's glyph with it.
       /\.sys\.icon\.(extra-small|small|medium|large)$/.test(id) || /\.comp\.button\.icon\.size$/.test(id) ||
-      // The default button sizes are Material 3 Expressive's three smallest, 32 / 40 / 56.
+      // The default button sizes are Material 3's three smallest, 32 / 40 / 56.
       /\.comp\.button\.container\.height\.(medium|large)$/.test(id) ||
       // The outlined button's edge is the hairline role.
       /\.comp\.button\.outlined\.outline\.color$/.test(id) ||

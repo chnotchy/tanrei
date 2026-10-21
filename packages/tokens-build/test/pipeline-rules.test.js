@@ -295,7 +295,7 @@ test('a component focus-ring color is held at 3:1 against the container of the s
   assert.equal(fixed.length, 6, 'a full model carries six schemes of component colors');
 
   // The presets: m3-like draws the inverse bar and stays clean; nothing here adds a warning to a shipped system.
-  for (const id of ['m3-like', 'm3-expressive-like', 'cupertino']) assert.deepEqual(about(await (await resolveSystem({ system: id })).warnings()), [], id);
+  for (const id of ['m3-like', 'cupertino']) assert.deepEqual(about(await (await resolveSystem({ system: id })).warnings()), [], id);
 });
 
 // `comp.snackbar.action.tonal-layer.opacity` stands under a control's name and is one number for

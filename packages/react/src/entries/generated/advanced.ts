@@ -1,6 +1,6 @@
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/generated/<id>/components.json, the components manifests. Regenerate with `pnpm generate`.
-// @tanrei/react/advanced: the components listed as advanced — building blocks of the others — in every system that has them (cupertino, m3-expressive-like, m3-like, tanrei).
+// @tanrei/react/advanced: the components listed as advanced — building blocks of the others — in every system that has them (cupertino, m3-like, tanrei).
 import { ColorInput as ColorInputWrapper, type ColorInputMarks } from '../../generated/wrappers/color-input.js';
 import { Combobox as ComboboxWrapper, type ComboboxMarks } from '../../generated/wrappers/combobox.js';
 import { EmbeddedTextInput as EmbeddedTextInputWrapper, type EmbeddedTextInputMarks } from '../../generated/wrappers/embedded-text-input.js';

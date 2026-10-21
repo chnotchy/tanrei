@@ -108,6 +108,5 @@ Listing: 85 default · 8 advanced. A component of the first value is shown where
 A system can leave a component, or some of its variants, out; the implementation above still exists.
 
 - `cupertino`: navigation-bar (filled)
-- `m3-expressive-like`: navigation-bar (filled), tabs (tonal)
 - `m3-like`: navigation-bar (filled), tabs (tonal)
 - `tanrei`: segmented-button, text-input (filled, outlined), select (filled, outlined), combobox (filled, outlined), number-input (filled, outlined), color-input (filled, outlined)

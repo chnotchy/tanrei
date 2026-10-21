@@ -8,6 +8,20 @@
       ],
       "extensions": [
         {
+          "id": "tanrei.comp.button.size.xsmall",
+          "kind": "axis-value",
+          "from": "small",
+          "declaredBy": "m3-like",
+          "rationale": "Material 3 has five button sizes; this is its smallest (32dp)."
+        },
+        {
+          "id": "tanrei.comp.button.size.xlarge",
+          "kind": "axis-value",
+          "from": "large",
+          "declaredBy": "m3-like",
+          "rationale": "Material 3 has five button sizes; this is its largest (136dp)."
+        },
+        {
           "id": "tanrei.comp.fab-menu",
           "kind": "component",
           "document": "comp/fab-menu.tokens.json",
@@ -2700,6 +2714,14 @@
             "accent": null
           },
           "vocabulary": {
+            "tanrei.comp.button.size.xsmall": {
+              "from": "small",
+              "rationale": "Material 3 has five button sizes; this is its smallest (32dp)."
+            },
+            "tanrei.comp.button.size.xlarge": {
+              "from": "large",
+              "rationale": "Material 3 has five button sizes; this is its largest (136dp)."
+            },
             "tanrei.comp.fab-menu": {
               "document": "comp/fab-menu.tokens.json",
               "rationale": "Material 3 opens a short list of related actions from its floating action button (the FAB menu); no product built on Tanrei's own look needs one, so the component lives in this layer, and every system that descends from it has it.",
@@ -4123,65 +4145,415 @@
             "tanrei.comp.button.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"
             },
-            "tanrei.comp.button.container.height.small": {
+            "tanrei.comp.button.container.height.xsmall": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 8
               }
             },
-            "tanrei.comp.button.container.padding-inline-start.small": {
-              "$value": "{tanrei.sys.space.space150}"
+            "tanrei.comp.button.container.padding-inline-start.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              }
             },
-            "tanrei.comp.button.container.padding-inline-end.small": {
-              "$value": "{tanrei.sys.space.space150}"
+            "tanrei.comp.button.container.padding-inline-start-with-icon.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              },
+              "reason": "Material 3 keeps an extra small button's leading and trailing space with an icon as without one."
             },
-            "tanrei.comp.button.container.padding-inline-start-with-icon.small": {
-              "$value": "{tanrei.sys.space.space150}"
+            "tanrei.comp.button.container.padding-inline-end-with-icon.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              },
+              "reason": "Material 3 keeps an extra small button's leading and trailing space with an icon as without one."
             },
-            "tanrei.comp.button.container.padding-inline-end-with-icon.small": {
-              "$value": "{tanrei.sys.space.space150}",
-              "reason": "The mirror of this preset's padding-inline-start-with-icon."
+            "tanrei.comp.button.container.padding-inline-end.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              }
             },
-            "tanrei.comp.button.container.height.medium": {
+            "tanrei.comp.button.container.gap.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.icon.size.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 5
+              }
+            },
+            "tanrei.comp.button.icon.size-without-label.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 5
+              },
+              "reason": "Material 3's XSmallIconButton draws its glyph at 20 (its icon button is an icon-only Button of the same size)."
+            },
+            "tanrei.comp.button.outline.width.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.stroke.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-narrow.xsmall": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "Material 3's XSmallIconButton is narrow at its glyph and 4 on each side."
+            },
+            "tanrei.comp.button.container.width-wide.xsmall": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "Material 3's wide XSmallIconButton is 40 wide: its glyph and its wide leading and trailing space."
+            },
+            "tanrei.comp.button.label.typescale.xsmall": {
+              "$value": "{tanrei.sys.typescale.label}",
+              "reason": "Material 3 sets an extra small button's label in labelLarge (ButtonDefaults.textStyleFor)."
+            },
+            "tanrei.comp.button.container.height.small": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
               }
             },
-            "tanrei.comp.button.container.padding-inline-start.medium": {
-              "$value": "{tanrei.sys.space.space200}"
+            "tanrei.comp.button.container.padding-inline-start.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              }
             },
-            "tanrei.comp.button.container.padding-inline-end.medium": {
-              "$value": "{tanrei.sys.space.space200}"
+            "tanrei.comp.button.container.padding-inline-start-with-icon.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              },
+              "reason": "Material 3 keeps a small button's leading and trailing space with an icon as without one."
             },
-            "tanrei.comp.button.container.padding-inline-start-with-icon.medium": {
-              "$value": "{tanrei.sys.space.space200}"
+            "tanrei.comp.button.container.padding-inline-end-with-icon.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              },
+              "reason": "Material 3 keeps a small button's leading and trailing space with an icon as without one."
             },
-            "tanrei.comp.button.container.padding-inline-end-with-icon.medium": {
-              "$value": "{tanrei.sys.space.space200}",
-              "reason": "The mirror of this preset's padding-inline-start-with-icon; it does not tighten an icon's side as the default system does."
+            "tanrei.comp.button.container.padding-inline-end.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              }
             },
-            "tanrei.comp.button.container.height.large": {
+            "tanrei.comp.button.container.gap.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.icon.size.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 5
+              }
+            },
+            "tanrei.comp.button.icon.size-without-label.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6
+              },
+              "reason": "Material 3's SmallIconButton draws its glyph at 24 (its icon button is an icon-only Button of the same size)."
+            },
+            "tanrei.comp.button.outline.width.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.stroke.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-narrow.small": {
+              "$value": "{tanrei.sys.space.space50}",
+              "reason": "Material 3's SmallIconButton is narrow at its glyph and 4 on each side."
+            },
+            "tanrei.comp.button.container.width-wide.small": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 13
+              },
+              "reason": "Material 3's wide SmallIconButton is 52 wide: its glyph and its wide leading and trailing space."
+            },
+            "tanrei.comp.button.label.typescale.small": {
+              "$value": "{tanrei.sys.typescale.label}",
+              "reason": "Material 3 sets a small button's label in labelLarge (ButtonDefaults.textStyleFor)."
+            },
+            "tanrei.comp.button.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
               }
             },
-            "tanrei.comp.button.container.padding-inline-start.large": {
-              "$value": "{tanrei.sys.space.space300}"
+            "tanrei.comp.button.container.padding-inline-start.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 3
+              }
             },
-            "tanrei.comp.button.container.padding-inline-end.large": {
-              "$value": "{tanrei.sys.space.space300}"
+            "tanrei.comp.button.container.padding-inline-start-with-icon.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 3
+              },
+              "reason": "Material 3 keeps a medium button's leading and trailing space with an icon as without one."
+            },
+            "tanrei.comp.button.container.padding-inline-end-with-icon.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 3
+              },
+              "reason": "Material 3 keeps a medium button's leading and trailing space with an icon as without one."
+            },
+            "tanrei.comp.button.container.padding-inline-end.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 3
+              }
+            },
+            "tanrei.comp.button.container.gap.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.icon.size.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6
+              }
+            },
+            "tanrei.comp.button.icon.size-without-label.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6
+              },
+              "reason": "Material 3's MediumIconButton draws its glyph at 24 (its icon button is an icon-only Button of the same size)."
+            },
+            "tanrei.comp.button.outline.width.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.stroke.unit}",
+                "by": 1
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-narrow.medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "reason": "Material 3's MediumIconButton is narrow at its glyph and 12 on each side."
+            },
+            "tanrei.comp.button.container.width-wide.medium": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 18
+              },
+              "reason": "Material 3's wide MediumIconButton is 72 wide: its glyph and its wide leading and trailing space."
+            },
+            "tanrei.comp.button.label.typescale.medium": {
+              "$value": "{tanrei.sys.typescale.heading-5}",
+              "reason": "Material 3 sets a medium button's label in titleMedium (ButtonDefaults.textStyleFor)."
+            },
+            "tanrei.comp.button.container.height.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 24
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-start.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 6
+              }
             },
             "tanrei.comp.button.container.padding-inline-start-with-icon.large": {
-              "$value": "{tanrei.sys.space.space300}"
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 6
+              },
+              "reason": "Material 3 keeps a large button's leading and trailing space with an icon as without one."
             },
             "tanrei.comp.button.container.padding-inline-end-with-icon.large": {
-              "$value": "{tanrei.sys.space.space300}",
-              "reason": "The mirror of this preset's padding-inline-start-with-icon; it does not tighten an icon's side as the default system does."
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 6
+              },
+              "reason": "Material 3 keeps a large button's leading and trailing space with an icon as without one."
+            },
+            "tanrei.comp.button.container.padding-inline-end.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 6
+              }
+            },
+            "tanrei.comp.button.container.gap.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 1.5
+              }
+            },
+            "tanrei.comp.button.icon.size.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              }
+            },
+            "tanrei.comp.button.icon.size-without-label.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              },
+              "reason": "Material 3's LargeIconButton draws its glyph at 32 (its icon button is an icon-only Button of the same size)."
+            },
+            "tanrei.comp.button.outline.width.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.stroke.unit}",
+                "by": 2
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-narrow.large": {
+              "$value": "{tanrei.sys.space.space200}",
+              "reason": "Material 3's LargeIconButton is narrow at its glyph and 16 on each side."
+            },
+            "tanrei.comp.button.container.width-wide.large": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 32
+              },
+              "reason": "Material 3's wide LargeIconButton is 128 wide: its glyph and its wide leading and trailing space."
+            },
+            "tanrei.comp.button.label.typescale.large": {
+              "$value": "{tanrei.sys.typescale.heading-3}",
+              "reason": "Material 3 sets a large button's label in headlineSmall (ButtonDefaults.textStyleFor)."
+            },
+            "tanrei.comp.button.container.height.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 34
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-start.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 8
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-start-with-icon.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 8
+              },
+              "reason": "Material 3 keeps an extra large button's leading and trailing space with an icon as without one."
+            },
+            "tanrei.comp.button.container.padding-inline-end-with-icon.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 8
+              },
+              "reason": "Material 3 keeps an extra large button's leading and trailing space with an icon as without one."
+            },
+            "tanrei.comp.button.container.padding-inline-end.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 8
+              }
+            },
+            "tanrei.comp.button.container.gap.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.space.unit}",
+                "by": 2
+              }
+            },
+            "tanrei.comp.button.icon.size.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            },
+            "tanrei.comp.button.icon.size-without-label.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              },
+              "reason": "Material 3's XLargeIconButton draws its glyph at 40 (its icon button is an icon-only Button of the same size)."
+            },
+            "tanrei.comp.button.outline.width.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.stroke.unit}",
+                "by": 3
+              }
+            },
+            "tanrei.comp.button.container.padding-inline-narrow.xlarge": {
+              "$value": "{tanrei.sys.space.space400}",
+              "reason": "Material 3's XLargeIconButton is narrow at its glyph and 32 on each side."
+            },
+            "tanrei.comp.button.container.width-wide.xlarge": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 46
+              },
+              "reason": "Material 3's wide XLargeIconButton is 184 wide: its glyph and its wide leading and trailing space."
+            },
+            "tanrei.comp.button.label.typescale.xlarge": {
+              "$value": "{tanrei.sys.typescale.heading-1}",
+              "reason": "Material 3 sets an extra large button's label in headlineLarge (ButtonDefaults.textStyleFor)."
             },
             "tanrei.comp.button.elevated.container.color": {
               "$value": "{tanrei.sys.color.surface-container-low}"
@@ -4705,39 +5077,6 @@
             "tanrei.comp.button.outlined.focused.outline.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
-            "tanrei.comp.button.icon.size.small": {
-              "$value": {
-                "value": 18,
-                "unit": "px"
-              },
-              "reason": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
-            },
-            "tanrei.comp.button.icon.size.medium": {
-              "$value": {
-                "value": 18,
-                "unit": "px"
-              },
-              "reason": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
-            },
-            "tanrei.comp.button.icon.size.large": {
-              "$value": {
-                "value": 18,
-                "unit": "px"
-              },
-              "reason": "Material 3 draws button icons at 18dp, between Tanrei's icon steps."
-            },
-            "tanrei.comp.button.icon.size-without-label.small": {
-              "$value": "{tanrei.sys.icon.small}",
-              "reason": "Material 3's icon button draws its glyph at 20 in the 32 box (its icon button is an icon-only Button)."
-            },
-            "tanrei.comp.button.icon.size-without-label.medium": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "reason": "Material 3's icon button draws its glyph at 24 in the 40 box, where a glyph beside a label is 18."
-            },
-            "tanrei.comp.button.icon.size-without-label.large": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "reason": "Material 3's icon button keeps the 24 glyph; its large icon-only box grows from 48 to the button's 56 (m3-like's own step)."
-            },
             "tanrei.comp.button.text.icon.color": {
               "$value": "{tanrei.sys.color.on-surface-variant}",
               "reason": "Material 3's standard icon button draws its glyph in on-surface-variant while a text button's label is primary."
@@ -4851,8 +5190,21 @@
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
-                "by": 10
-              }
+                "by": 9.5
+              },
+              "reason": "Material 3's loading indicator is 38 (LoadingIndicatorTokens.ActiveSize), in a 48 container."
+            },
+            "tanrei.comp.loading-indicator.contained.container.color": {
+              "$value": "{tanrei.sys.color.primary-container}",
+              "reason": "Material 3's contained loading indicator sits on primary-container (LoadingIndicatorTokens.ContainedContainerColor)."
+            },
+            "tanrei.comp.loading-indicator.contained.container.elevation": {
+              "$value": "{tanrei.sys.elevation.level0}",
+              "reason": "Material 3's contained loading indicator has no elevation token: its container is flat."
+            },
+            "tanrei.comp.loading-indicator.contained.indicator.color": {
+              "$value": "{tanrei.sys.color.on-primary-container}",
+              "reason": "Material 3's contained loading indicator draws in on-primary-container (LoadingIndicatorTokens.ContainedActiveColor)."
             },
             "tanrei.comp.loading-indicator.indicator.size.large": {
               "derive": {
@@ -6793,10 +7145,6 @@
                 "amount": "{tanrei.sys.state.disabled-content-opacity}"
               },
               "reason": "This preset does not draw its outlined edges and joined-control rules in the hairline as the default system does; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.button.container.padding-inline-narrow.large": {
-              "$value": "{tanrei.sys.space.space150}",
-              "reason": "This preset's own narrow width, where the default system's narrow icon-only button is its glyph and an inset of 4 on each side; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.button-with-menu.trailing.padding-inline-narrow.large": {
               "$value": "{tanrei.sys.space.space150}",

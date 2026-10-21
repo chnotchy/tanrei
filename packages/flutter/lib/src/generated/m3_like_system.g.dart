@@ -1372,22 +1372,6 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
       small: TanreiButtonSizeTokens(
-        containerHeight: 32.0,
-        containerPaddingInlineNarrow: 4.0,
-        containerWidthWide: 40.0,
-        containerPaddingInlineStart: 12.0,
-        containerPaddingInlineEnd: 12.0,
-        containerPaddingInlineStartWithIcon: 12.0,
-        containerPaddingInlineEndWithIcon: 12.0,
-        containerPaddingBlock: 6.0,
-        labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
-        iconSizeWithoutLabel: 20.0,
-        containerGap: 8.0,
-        outlineWidth: 1.0,
-        motionStateDuration: 150,
-      ),
-      medium: TanreiButtonSizeTokens(
         containerHeight: 40.0,
         containerPaddingInlineNarrow: 4.0,
         containerWidthWide: 52.0,
@@ -1397,13 +1381,13 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerPaddingInlineEndWithIcon: 16.0,
         containerPaddingBlock: 6.0,
         labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
+        iconSize: 20.0,
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
         motionStateDuration: 150,
       ),
-      large: TanreiButtonSizeTokens(
+      medium: TanreiButtonSizeTokens(
         containerHeight: 56.0,
         containerPaddingInlineNarrow: 12.0,
         containerWidthWide: 72.0,
@@ -1412,13 +1396,63 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerPaddingInlineStartWithIcon: 24.0,
         containerPaddingInlineEndWithIcon: 24.0,
         containerPaddingBlock: 6.0,
-        labelTypescale: _typescaleLabel,
-        iconSize: 18.0,
+        labelTypescale: _typescaleHeading5,
+        iconSize: 24.0,
         iconSizeWithoutLabel: 24.0,
         containerGap: 8.0,
         outlineWidth: 1.0,
         motionStateDuration: 150,
       ),
+      large: TanreiButtonSizeTokens(
+        containerHeight: 96.0,
+        containerPaddingInlineNarrow: 16.0,
+        containerWidthWide: 128.0,
+        containerPaddingInlineStart: 48.0,
+        containerPaddingInlineEnd: 48.0,
+        containerPaddingInlineStartWithIcon: 48.0,
+        containerPaddingInlineEndWithIcon: 48.0,
+        containerPaddingBlock: 6.0,
+        labelTypescale: _typescaleHeading3,
+        iconSize: 32.0,
+        iconSizeWithoutLabel: 32.0,
+        containerGap: 12.0,
+        outlineWidth: 2.0,
+        motionStateDuration: 150,
+      ),
+      extra: <TanreiButtonSize, TanreiButtonSizeTokens>{
+        M3LikeButtonSize.xsmall: TanreiButtonSizeTokens(
+          containerHeight: 32.0,
+          containerPaddingInlineNarrow: 4.0,
+          containerWidthWide: 40.0,
+          containerPaddingInlineStart: 16.0,
+          containerPaddingInlineEnd: 16.0,
+          containerPaddingInlineStartWithIcon: 16.0,
+          containerPaddingInlineEndWithIcon: 16.0,
+          containerPaddingBlock: 6.0,
+          labelTypescale: _typescaleLabel,
+          iconSize: 20.0,
+          iconSizeWithoutLabel: 20.0,
+          containerGap: 8.0,
+          outlineWidth: 1.0,
+          motionStateDuration: 150,
+        ),
+        M3LikeButtonSize.xlarge: TanreiButtonSizeTokens(
+          containerHeight: 136.0,
+          containerPaddingInlineNarrow: 32.0,
+          containerWidthWide: 184.0,
+          containerPaddingInlineStart: 64.0,
+          containerPaddingInlineEnd: 64.0,
+          containerPaddingInlineStartWithIcon: 64.0,
+          containerPaddingInlineEndWithIcon: 64.0,
+          containerPaddingBlock: 6.0,
+          labelTypescale: _typescaleHeading1,
+          iconSize: 40.0,
+          iconSizeWithoutLabel: 40.0,
+          containerGap: 16.0,
+          outlineWidth: 3.0,
+          motionStateDuration: 150,
+        ),
+      },
     ),
     variants: TanreiButtonVariants(
       filled: TanreiButtonVariantTokens(
@@ -5412,9 +5446,9 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
   ),
   loadingIndicator: TanreiLoadingIndicatorTokens(
-    containedContainerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLowest),
-    containedContainerElevation: _elevationLevel2,
-    containedIndicatorColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    containedContainerColor: TanreiPaint.role(TanreiColorRole.primaryContainer),
+    containedContainerElevation: _elevationLevel0,
+    containedIndicatorColor: TanreiPaint.role(TanreiColorRole.onPrimaryContainer),
     containerShape: 9999.0,
     indicatorColor: TanreiPaint.role(TanreiColorRole.primary),
     motionCycleDuration: 1000,
@@ -5429,7 +5463,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         containerSize: 32.0,
       ),
       medium: TanreiLoadingIndicatorSizeTokens(
-        indicatorSize: 40.0,
+        indicatorSize: 38.0,
         indicatorThickness: 4.0,
         containerSize: 48.0,
       ),
@@ -8050,7 +8084,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     containerPaddingInlineStart: 16.0,
     containerShape: 4.0,
     controlsGap: 4.0,
-    controlsHeight: 32.0,
+    controlsHeight: 40.0,
     controlsLabelTypescale: _typescaleLabel,
     controlsPaddingInline: 14.0,
     controlsShape: 9999.0,
@@ -9806,6 +9840,21 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
 // ── VOCABULARY EXTENSIONS ────────────────────────────────────
 // What "m3-like" adds to the Tanrei vocabulary, typed. The values are in `extra` above; a design system that
 // adds nothing has no such section.
+
+/// The sizes "m3-like" adds to button: `TanreiButton(size: M3LikeButtonSize.xsmall)`.
+abstract final class M3LikeButtonSize {
+  /// `comp.button` size `xsmall`
+  static const xsmall = TanreiButtonSize('xsmall');
+  /// `comp.button` size `xlarge`
+  static const xlarge = TanreiButtonSize('xlarge');
+}
+
+extension M3LikeButtonSizes on TanreiButtonSizes {
+  /// The tokens of the size `xsmall`; in a design system without it, the default size's.
+  TanreiButtonSizeTokens get xsmall => this[M3LikeButtonSize.xsmall];
+  /// The tokens of the size `xlarge`; in a design system without it, the default size's.
+  TanreiButtonSizeTokens get xlarge => this[M3LikeButtonSize.xlarge];
+}
 
 extension M3LikeTypescale on TanreiTypescale {
   /// `display-large`. In a design system without it: the value "m3-like" gives it (reported in debug builds).

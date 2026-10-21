@@ -134,6 +134,16 @@ export function writeComponentFiles(root = ROOT) {
     const text = `${JSON.stringify(content, null, 2)}\n`;
     if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== text) fs.writeFileSync(file, text);
   }
+  // A system that is no longer shipped leaves no manifest behind (the React entries are read from the manifests), and
+  // its bundle directory goes once nothing else is in it.
+  const generated = path.join(root, path.dirname(path.dirname(manifestFile(ROOT_SYSTEM))));
+  const shipped = new Set(shippedSystems(root));
+  for (const id of fs.existsSync(generated) ? fs.readdirSync(generated) : []) {
+    const dir = path.join(generated, id);
+    if (shipped.has(id) || !fs.statSync(dir).isDirectory() || !fs.existsSync(path.join(dir, 'components.json'))) continue;
+    fs.rmSync(path.join(dir, 'components.json'));
+    if (!fs.readdirSync(dir, { recursive: true }).some((entry) => fs.statSync(path.join(dir, entry)).isFile())) fs.rmSync(dir, { recursive: true });
+  }
   return Object.keys(files);
 }
 

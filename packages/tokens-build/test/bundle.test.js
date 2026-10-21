@@ -103,10 +103,9 @@ test('a layer that invents a color role is told to declare a palette', () => {
 test('what a system does not ship is worked out down its chain, and every system stylesheet carries it', () => {
   const read = (id) => loadSystem(REPO_ROOT, id);
   assert.ok(availabilityOf(layerChain('tanrei', read)).components.includes('segmented-button'));
-  // m3-expressive-like says nothing of its components, so it ships what m3-like ships (Material's bar has no filled
-  // form; its tabs have no tonal kind).
-  assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), availabilityOf(layerChain('m3-like', read)));
-  assert.deepEqual(availabilityOf(layerChain('m3-expressive-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
+  // m3-like ships every component of the root, but not every form: Material's bar has no filled form, and its tabs have
+  // no tonal kind.
+  assert.deepEqual(availabilityOf(layerChain('m3-like', read)), { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
   assert.deepEqual(availabilityOf([{ id: 'a', components: { omit: { x: { reason: 'Not drawn here.' } } } }, { id: 'b' }]), { components: ['x'], variants: {} });
   const css = (unavailable) => emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { scope: 'b', unavailable });
   assert.match(css({ components: ['fab-menu'], variants: { 'text-field': ['filled'] } }), /--tanrei-unavailable: "fab-menu text-field:filled";/);

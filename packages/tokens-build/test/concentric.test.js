@@ -75,6 +75,5 @@ test('the presets keep the corners their rows had', async () => {
     return Object.fromEntries(ROWS.map(([inner]) => [inner.split('.').slice(2).join('.'), tokens[inner].value.value]));
   };
   assert.deepEqual(await corners('m3-like'), { 'menu.container.shape': 0, 'select.option.shape': 0, 'combobox.option.shape': 0, 'search.suggestion.container.shape': 8 });
-  assert.deepEqual(await corners('m3-expressive-like'), await corners('m3-like'));
   assert.deepEqual(await corners('cupertino'), { 'menu.container.shape': 8, 'select.option.shape': 8, 'combobox.option.shape': 8, 'search.suggestion.container.shape': 8 });
 });

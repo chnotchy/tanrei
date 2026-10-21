@@ -20,6 +20,5 @@ export const iconSets: Readonly<Record<string, IconSet>> = {
 export const systemIconSets: Readonly<Record<string, string | null>> = {
   "tanrei": "material-symbols",
   "cupertino": "material-symbols",
-  "m3-expressive-like": "material-symbols",
   "m3-like": "material-symbols",
 };

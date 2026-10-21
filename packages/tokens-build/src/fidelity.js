@@ -13,10 +13,21 @@ const REM = 16;
 export const fidelityMaps = (repoRoot = REPO_ROOT) =>
   fs.existsSync(path.join(repoRoot, DIR)) ? fs.readdirSync(path.join(repoRoot, DIR)).filter((f) => f.endsWith('.fidelity.json')).map((f) => f.replace('.fidelity.json', '')).sort() : [];
 
+/**
+ * A map names one reference snapshot, or several (`reference: [<file>, …]`) whose token ids do not overlap: the
+ * snapshots are read as one reference, and the result lists each snapshot's description.
+ */
 export function loadFidelityMap(system, repoRoot = REPO_ROOT) {
   const map = JSON.parse(fs.readFileSync(path.join(repoRoot, DIR, `${system}.fidelity.json`), 'utf8'));
-  const reference = JSON.parse(fs.readFileSync(path.join(repoRoot, DIR, map.reference), 'utf8'));
-  return { map, reference };
+  const files = [map.reference].flat();
+  const snapshots = files.map((file) => JSON.parse(fs.readFileSync(path.join(repoRoot, DIR, file), 'utf8')));
+  if (snapshots.length === 1) return { map, reference: snapshots[0] };
+  const tokens = {};
+  for (const [i, snapshot] of snapshots.entries()) for (const [id, value] of Object.entries(snapshot.tokens)) {
+    if (id in tokens) throw new Error(`${system}.fidelity.json: ${id} is in more than one reference (${files[i]})`);
+    tokens[id] = value;
+  }
+  return { map, reference: { reference: snapshots.map((snapshot) => snapshot.reference), tokens } };
 }
 
 const hex = ({ r, g, b, a }) => `#${[r, g, b].map((n) => Math.round(n).toString(16).padStart(2, '0')).join('')}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
@@ -45,7 +56,7 @@ export function measureFidelity(model, { map, reference }) {
   const tokenIn = (id, scheme) => (id.startsWith('tanrei.sys.color.') ? model.colors[scheme][id.slice('tanrei.sys.color.'.length)] : (model.componentColors[scheme][id] ?? model.tokens[id]));
   const stateEntries = Object.entries(map.states ?? {});
   const unmapped = new Map((map.unmapped ?? []).map((u) => [u.ref, u]));
-  const result = { system: map.system, reference: reference.reference, scope: map.scope, total: 0, equal: 0, covered: 0, different: [], unmapped: [], unaccounted: [] };
+  const result = { system: map.system, reference: [reference.reference].flat(), scope: map.scope, total: 0, equal: 0, covered: 0, different: [], unmapped: [], unaccounted: [] };
 
   // Every color role the reference publishes, by name (extensions included: `primary-fixed`, `background`…).
   if (map.colors) {
@@ -103,22 +114,34 @@ export function measureFidelity(model, { map, reference }) {
   }
 
   // A reference keyed by SIZE (one token object per size): `{size}` in the target is the Tanrei size it maps to.
-  if (map.sizes) {
-    const skipped = new Map((map.sizes.unmapped ?? []).map((u) => [u.ref, u]));
-    for (const [object, size] of Object.entries(map.sizes.objects)) {
+  // `sizes` is one block or a list of them, each with its own objects and rules (a button's IconSize is not an icon
+  // button's). Kinds: equal (default, a dimension) · shape (the reference names a corner; Tanrei's token must alias the
+  // corner of the same name) · role (the reference names a color role; Tanrei's token must alias that role) · across
+  // (Tanrei's token is a width: the reference's space on each side of the object's `glyph` token, twice, plus the
+  // glyph). A rule with `covered-by` names a rule of the same object that measures the same thing.
+  const kebab = (raw) => raw.split('.').at(-1).replace(/^Corner/, '').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  for (const block of [map.sizes ?? []].flat()) {
+    const skipped = new Map((block.unmapped ?? []).map((u) => [u.ref, u]));
+    for (const [object, size] of Object.entries(block.objects)) {
       const prefix = `androidx.${object}.`;
       for (const id of Object.keys(reference.tokens).filter((k) => k.startsWith(prefix))) {
         const key = id.slice(prefix.length);
         result.total += 1;
         if (skipped.has(key)) { result.unmapped.push({ ref: id, ...skipped.get(key) }); continue; }
-        const rule = map.sizes.map.find((r) => r.ref === key);
+        const rule = block.map.find((r) => r.ref === key);
         if (!rule) { result.unaccounted.push(id); continue; }
+        if (rule['covered-by']) {
+          if (`${prefix}${rule['covered-by']}` in reference.tokens) { result.covered += 1; continue; }
+          result.unaccounted.push(`${id} (its covering token ${rule['covered-by']} is absent)`); continue;
+        }
         const tanrei = rule.tanrei.replaceAll('{size}', size);
         const token = model.tokens[tanrei];
         const raw = reference.tokens[id];
         let expected, actual;
         if (!token) { expected = raw; actual = `no token ${tanrei}`; }
-        else if (rule.kind === 'shape') { expected = raw.split('.').at(-1).replace(/^Corner/, '').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); actual = (token.aliasFinal ?? token.alias ?? '').split('.').at(-1); }
+        else if (rule.kind === 'shape') { expected = kebab(raw); actual = (token.aliasFinal ?? token.alias ?? '').split('.').at(-1); }
+        else if (rule.kind === 'role') { expected = kebab(raw); actual = (token.alias ?? '').startsWith('tanrei.sys.color.') ? token.alias.split('.').at(-1) : `alias ${token.alias}`; }
+        else if (rule.kind === 'across') { expected = 2 * parseFloat(raw) + parseFloat(reference.tokens[`${prefix}${rule.glyph}`]); actual = token.value.value; }
         else { expected = parseFloat(raw); actual = token.value.value; }
         if (expected !== actual) result.different.push({ ref: id, tanrei, problems: [{ scheme: 'all', expected, actual }] });
         else result.equal += 1;
@@ -145,6 +168,11 @@ export function measureFidelity(model, { map, reference }) {
       if (unmapped.has(id) || unmapped.has(key)) { result.unmapped.push({ ref: id, ...(unmapped.get(id) ?? unmapped.get(key)) }); continue; }
       const rule = rules.get(key);
       if (!rule) { result.unaccounted.push(id); continue; }
+      // A reference value that a newer reference in the same map replaces: measured there, counted here as covered.
+      if (rule['superseded-by']) {
+        if (rule['superseded-by'] in reference.tokens) { result.covered += 1; continue; }
+        result.unaccounted.push(`${id} (the token that supersedes it, ${rule['superseded-by']}, is absent)`); continue;
+      }
       if (rule['covered-by']) {
         if (keys.includes(rule['covered-by'])) { result.covered += 1; continue; }
         result.unaccounted.push(`${id} (its covering token ${rule['covered-by']} is absent)`); continue;

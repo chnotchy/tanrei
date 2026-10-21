@@ -1,24 +1,193 @@
 {
   "system": "m3-like",
-  "reference": {
-    "name": "material-web",
-    "source": "https://github.com/material-components/material-web/tree/main/tokens/versions",
-    "version": "v0_192",
-    "license": "Apache-2.0",
-    "description": "Google Material 3, audience 3P, platform Web, dynamic scheme with the baseline palette."
-  },
-  "scope": "Every color role and every text style the reference publishes, and Button (five variants) at the reference's single size (40px = Tanrei's medium).",
-  "total": 288,
-  "equal": 273,
-  "covered": 14,
+  "reference": [
+    {
+      "name": "material-web",
+      "source": "https://github.com/material-components/material-web/tree/main/tokens/versions",
+      "version": "v0_192",
+      "license": "Apache-2.0",
+      "description": "Google Material 3, audience 3P, platform Web, dynamic scheme with the baseline palette."
+    },
+    {
+      "name": "androidx.compose.material3 tokens",
+      "source": "https://github.com/androidx/androidx/tree/androidx-main/compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/tokens",
+      "version": "14_1_0, v0_11_0, v0_7_0",
+      "license": "Apache-2.0",
+      "description": "Material 3: the five button sizes and the five icon button sizes (XSmall … XLarge), and the loading indicator."
+    }
+  ],
+  "scope": "Every color role and every text style material-web publishes, and Button (five variants) at its single size (40px = Tanrei's small); from androidx, the five button sizes, the five icon button sizes (height, spaces, icon size, outline width, shape) and the loading indicator.",
+  "total": 420,
+  "equal": 344,
+  "covered": 35,
   "different": [],
   "unmapped": [
     {
       "ref": "scrim",
       "gap": "scrim-color-and-opacity",
       "note": "m3-like draws black at 32%, the reference's rendered result; the reference token itself is opaque black."
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "ContainerShapeSquare",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "PressedContainerShape",
+      "gap": "per-size-state-shape"
+    },
+    {
+      "ref": "SelectedContainerShapeRound",
+      "gap": "button-shape-option"
+    },
+    {
+      "ref": "SelectedContainerShapeSquare",
+      "gap": "button-shape-option"
     }
   ],
   "unaccounted": [],
-  "fidelity": 0.996
+  "fidelity": 0.894
 }

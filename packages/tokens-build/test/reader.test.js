@@ -50,7 +50,6 @@ const FAR_APART = ['light', 'dark-high'];
 for (const [name, input, schemes] of [
   ['the default system', { system: 'tanrei' }, SCHEMES],
   ['m3-like', { system: 'm3-like' }, FAR_APART],
-  ['m3-expressive-like', { system: 'm3-expressive-like' }, FAR_APART],
   ['cupertino', { system: 'cupertino' }, FAR_APART],
   ['a product that extends the vocabulary (fixtures/acme)', { layers: [fixture('acme')] }, FAR_APART],
   ['a product whose state colors are tones per scheme (fixtures/tone-per-state)', { layers: [fixture('tone-per-state')] }, FAR_APART],
