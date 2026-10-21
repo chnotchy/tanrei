@@ -184,7 +184,7 @@ test.describe('elements', () => {
     await expect.poll(() => seen.length).toBe(1);
     expect(seen[0]).toContain('[tanrei] <tanrei-fab-menu>: fab-menu lives in the layer "m3-like", which the active design system does not extend');
     seen.length = 0;
-    for (const system of ['m3-like', 'm3-expressive-like']) {
+    for (const system of ['m3-like']) {
       await mount(page, `<tanrei-fab-menu label="Create"></tanrei-fab-menu>`, { system });
       await page.waitForFunction(() => !!customElements.get('tanrei-fab-menu'));
       // A report that does not come has no event to wait for: the read runs in a microtask after the host's first

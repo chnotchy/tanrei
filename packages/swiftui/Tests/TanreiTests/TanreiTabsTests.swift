@@ -777,7 +777,7 @@ struct TanreiTabsSnapshotTests {
 struct TanreiTabsPresetSnapshotTests {
   /// Primary tabs with icons: the preset's indicator, its selected and unselected colors, icon size and label style.
   nonisolated static let fixtureId = "primary-icons"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

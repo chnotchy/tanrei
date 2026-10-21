@@ -88,7 +88,6 @@ import io.github.chnotchy.tanrei.theme.color
 import io.github.chnotchy.tanrei.theme.glyph
 import io.github.chnotchy.tanrei.theme.toTextStyle
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.Tanrei
 import io.github.chnotchy.tanrei.tokens.TanreiColorRole
@@ -947,7 +946,7 @@ class TanreiExtendedFabTest {
     }
 
     /** Every shipped system: the default and the three presets. */
-    private val shipped = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.M3ExpressiveLike, TanreiSystem.Cupertino)
+    private val shipped = listOf(TanreiSystem.Tanrei, TanreiSystem.M3Like, TanreiSystem.Cupertino)
 
     @Test
     fun `EFB-13 in every shipped system a collapsed extended FAB has the tokens of the FAB of its size and variant`() {

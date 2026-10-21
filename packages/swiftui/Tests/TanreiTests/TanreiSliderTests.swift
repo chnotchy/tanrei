@@ -1060,7 +1060,7 @@ struct TanreiSliderRenderedTests {
 @Suite("TanreiSlider under the shipped presets")
 struct TanreiSliderPresetTests {
   /// The presets' values, read from the instances: cupertino's white 28 thumb on its own level2 shadow at every size, no
-  /// stop dots, a surface-container-highest track; m3-like and m3-expressive-like draw the default's slider.
+  /// stop dots, a surface-container-highest track; m3-like draws the default's slider.
   @Test("SLD-8 SLD-9 the presets' own values reach the slider")
   func presetValues() throws {
     let cupertino = TanreiSystem.cupertino.slider
@@ -1162,7 +1162,7 @@ struct TanreiSliderSnapshotTests {
 struct TanreiSliderPresetSnapshotTests {
   /// Discrete with stops: the preset's track, active track, handle (its size and elevation) and dots (none in cupertino).
   nonisolated static let fixtureId = "discrete-stops"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

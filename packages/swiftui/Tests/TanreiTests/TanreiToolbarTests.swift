@@ -981,7 +981,7 @@ struct TanreiToolbarSnapshotTests {
 struct TanreiToolbarPresetSnapshotTests {
   /// The floating toolbar: the preset's raised surface, its corners and elevation, with toggles on and off.
   nonisolated static let fixtureId = "floating"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

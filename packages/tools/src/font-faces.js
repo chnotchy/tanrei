@@ -48,7 +48,7 @@ export const FONT_PACKAGES = {
   'Roboto Mono': ['@fontsource-variable/roboto-mono', 'wght.css'],
   // `full.css` carries every axis: FILL, wght, GRAD, opsz — sys.icon sets FILL and wght, the browser sets opsz.
   'Material Symbols Rounded': ['@fontsource-variable/material-symbols-rounded', 'full.css'],
-  // m3-like and m3-expressive-like.
+  // m3-like.
   Roboto: ['@fontsource-variable/roboto', 'wght.css'],
   'Material Symbols Outlined': ['@fontsource-variable/material-symbols-outlined', 'full.css'],
   // A face of a further script that a site of ours is shown in (the Theme Studio app in Arabic): the stack's first

@@ -8,7 +8,6 @@ import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
 import io.github.chnotchy.tanrei.tokens.Cupertino
-import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
 import io.github.chnotchy.tanrei.tokens.M3Like
 import io.github.chnotchy.tanrei.tokens.TanreiSystem
 import org.junit.Rule
@@ -18,12 +17,12 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * One representative fixture per shipped preset, at `src/test/snapshots/time-picker/<system-id>/<fixture-id>.png`
- * — apart from the default system's baselines, which belong to [TanreiTimePickerSnapshotTest] and the parity checker. The
+ * One representative fixture per shipped preset, at `src/test/snapshots/time-picker/<system-id>/<fixture-id>.png` —
+ * apart from the default system's baselines, which belong to [TanreiTimePickerSnapshotTest] and the parity checker. The
  * representative is picked for what the preset changes: `dial-hour` for m3-like (the surface-container-high surface at
- * corner.extra-large, the larger selectors, dial and handle, the primary-container selected selector without an edge, the
- * tertiary-container period) and for cupertino (the surface-container-highest selectors and face, the tinted edge), and
- * `dial-minute` for m3-expressive-like (which inherits m3-like's picker: its minute dial). Same harness as the default's.
+ * corner.extra-large, the larger selectors, dial and handle, the primary-container selected selector without an edge,
+ * the tertiary-container period) and for cupertino (the surface-container-highest selectors and face, the tinted edge).
+ * Same harness as the default's.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -34,9 +33,6 @@ class TanreiTimePickerPresetSnapshotTest {
 
     @Test
     fun `m3-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3Like, "dial-hour")
-
-    @Test
-    fun `m3-expressive-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3ExpressiveLike, "dial-minute")
 
     @Test
     fun `cupertino - the representative fixture matches its baseline`() = verify(TanreiSystem.Cupertino, "dial-hour")

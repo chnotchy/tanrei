@@ -46,7 +46,6 @@ The design system presets other than tanrei (tokens/systems/) are independent
 approximations, named for what they resemble:
 
   m3-like — resembles Material Design 3.
-  m3-expressive-like — resembles Material Design 3 Expressive.
   cupertino — resembles what the Apple Human Interface Guidelines describe.
 
 Tanrei is not affiliated with, endorsed by, or sponsored by Google LLC,

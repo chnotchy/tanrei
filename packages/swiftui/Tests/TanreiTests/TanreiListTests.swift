@@ -1017,7 +1017,7 @@ struct TanreiListPresetSnapshotTests {
   /// Multiple-selected: it shows the preset's row heights, paddings, text styles, icons, fill and check of a selected
   /// option, and two-line rows.
   nonisolated static let fixtureId = "multiple-selected"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {

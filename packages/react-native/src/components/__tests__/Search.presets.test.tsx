@@ -4,7 +4,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiSystem } from '../../generated/vocabulary';
@@ -40,12 +39,11 @@ describe('every shipped system values the Search vocabulary', () => {
 });
 
 describe('the presets drive the Search', () => {
-  test('m3-like and m3-expressive-like draw the default\'s search: it takes none of Material\'s values for it — only the system\'s own corners and state-layer opacities differ, and the gaps the default widened for its 48 targets stay where they were', () => {
+  test('m3-like draws the default\'s search: it takes none of Material\'s values for it — only the system\'s own corners and state-layer opacities differ, and the gaps the default widened for its 48 targets stay where they were', () => {
     const { conditions: _m3Conditions, suggestionContainerShape, viewContainerShape, ...m3 } = m3Like.components.search;
     const { conditions: _conditions, suggestionContainerShape: _s, viewContainerShape: _v, ...base } = tanrei.components.search;
     expect(m3).toEqual({ ...base, containerGap: m3Like.space.space100, containerPaddingInlineWithButton: m3Like.space.space50 });
     expect([suggestionContainerShape, viewContainerShape]).toEqual([m3Like.shape.small, m3Like.shape.medium]);
-    expect(m3ExpressiveLike.components.search).toEqual(m3Like.components.search);
   });
 
   test('cupertino (UISearchBar): a 36 field at corner.medium on surface-container-high with 8 padding', async () => {

@@ -589,7 +589,7 @@ test.describe('the close button', () => {
   });
 
   test('SSH-5: under m3-like the close button is a bare glyph (text) at m3-like’s small Button size; cupertino keeps the tonal circle at its own small size', async ({ page }) => {
-    for (const [system, variant] of [['m3-like', 'text'], ['m3-expressive-like', 'text'], ['cupertino', 'tonal']] as const) {
+    for (const [system, variant] of [['m3-like', 'text'], ['cupertino', 'tonal']] as const) {
       await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'modal') });
       const button = page.locator('[data-fixture="modal"] tanrei-side-sheet').locator('tanrei-button.close');
       await expect(button, system).toHaveAttribute('size', 'small');

@@ -1206,9 +1206,7 @@ void main() {
       });
     }
 
-    testWidgets('ICB-12: the default values, by role', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('ICB-12: the default values, by role', (WidgetTester tester) async {
       const TanreiThemeData theme = TanreiThemeData.dark;
       final TanreiColors colors = system.schemes.dark;
       const Color none = Color(0x00000000);

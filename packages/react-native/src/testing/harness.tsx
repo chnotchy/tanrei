@@ -14,7 +14,6 @@ import { Fragment, type ReactElement, type ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AccessibilityInfo, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 import { cupertino } from '../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../generated/systems/m3-expressive-like';
 import { m3Like } from '../generated/systems/m3-like';
 import { tanrei } from '../generated/systems/tanrei';
 import type { TanreiComponents, TanreiPaint, TanreiScheme, TanreiSystem } from '../generated/vocabulary';
@@ -30,7 +29,7 @@ import { loadSpec, type Fixture, type FixtureItem, type SlotFixtureKind, type Sp
 const PACKAGE = path.resolve(__dirname, '../..');
 
 /** Every system the package ships, the default first. */
-export const SHIPPED_SYSTEMS: readonly TanreiSystem[] = [tanrei, m3Like, m3ExpressiveLike, cupertino];
+export const SHIPPED_SYSTEMS: readonly TanreiSystem[] = [tanrei, m3Like, cupertino];
 
 /** The six schemes, and the provider settings that select each. */
 export const SCHEME_SETTINGS: readonly { scheme: TanreiScheme; theme: 'light' | 'dark'; contrast: TanreiContrast }[] = [

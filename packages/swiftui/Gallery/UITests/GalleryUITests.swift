@@ -141,7 +141,7 @@ final class GalleryUITests: XCTestCase {
   /// BTN-1 by touch, under every shipped pressed-feedback: `ripple` (m3-like) watches the touch with a
   /// simultaneous gesture, which must neither swallow nor double the tap.
   func testTapFiresExactlyOnceUnderEverySystem() throws {
-    for system in ["tanrei", "m3-like", "m3-expressive-like", "cupertino", "acme"] {
+    for system in ["tanrei", "m3-like", "cupertino", "acme"] {
       // Button's section only: over the whole gallery one query of the tree takes about as long as `waitForFired` waits.
       let app = try launch("button", system: system)
       app.buttons["fixture.button.tonal-medium"].tap()

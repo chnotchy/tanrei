@@ -1194,7 +1194,7 @@ test.describe('seams', () => {
     }
   });
 
-  for (const system of ['cupertino', 'm3-like', 'm3-expressive-like']) {
+  for (const system of ['cupertino', 'm3-like']) {
     test(`BGR-22, BGR-24: the same under ${system} — its outline widths, its corners, its fills and its elevation meet at a seam without a pixel painted twice`, async ({ browser }) => {
       for (const theme of ['light', 'dark'] as const) {
         for (const offset of [0, 0.5]) {

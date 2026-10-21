@@ -757,7 +757,6 @@ struct TanreiBehaviorChoiceTests {
   func shippedValues() {
     #expect(TanreiSystem.tanrei.behavior == TanreiBehavior(focusStyle: .ring, pressedFeedback: .overlay))
     #expect(TanreiSystem.m3Like.behavior.pressedFeedback == .ripple)
-    #expect(TanreiSystem.m3ExpressiveLike.behavior.pressedFeedback == .ripple)  // inherited from m3-like
     #expect(TanreiSystem.cupertino.behavior == TanreiBehavior(focusStyle: .ring, pressedFeedback: .dim))
   }
 
@@ -1171,7 +1170,7 @@ struct TanreiButtonIconHeightTests {
 
   /// An icon — the size's own, or one far taller than the container — never changes the height: the
   /// container is its height token (a minimum the LABEL may exceed), with or without an icon.
-  /// Before the fix: m3-expressive-like `xsmall` (32) with its 20pt icon rendered 36.
+  /// Before the fix: an `xsmall` (32) with a 20pt icon (now m3-like's) rendered 36.
   @Test("an icon never grows the container: every size of every shipped system keeps its token height", arguments: cases)
   func tokenHeight(item: Case) throws {
     let system = item.shipped.system
@@ -1189,13 +1188,13 @@ struct TanreiButtonIconHeightTests {
     }
   }
 
-  @Test("the cases cover the sizes a preset adds, and the reported one: m3-expressive-like xsmall is 32 with a 20pt icon")
+  @Test("the cases cover the sizes a preset adds, and the reported one: m3-like xsmall is 32 with a 20pt icon")
   func reportedCase() throws {
-    #expect(Self.cases.contains { $0.shipped == .m3ExpressiveLike && $0.size == .xsmall })
-    #expect(Self.cases.contains { $0.shipped == .m3ExpressiveLike && $0.size == .xlarge })
-    let sizes = TanreiSystem.m3ExpressiveLike.button.sizes
+    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .xsmall })
+    #expect(Self.cases.contains { $0.shipped == .m3Like && $0.size == .xlarge })
+    let sizes = TanreiSystem.m3Like.button.sizes
     #expect(sizes[.xsmall].containerHeight == 32 && sizes[.xsmall].iconSize == 20)
-    let rendered = try height(TanreiButton("Deploy", size: .xsmall, action: {}) { Rectangle() }, .m3ExpressiveLike)
+    let rendered = try height(TanreiButton("Deploy", size: .xsmall, action: {}) { Rectangle() }, .m3Like)
     #expect(rendered == 32)
   }
 

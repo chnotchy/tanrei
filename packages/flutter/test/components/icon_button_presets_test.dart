@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -228,11 +227,7 @@ void main() {
         .cast<Map<String, dynamic>>()
         .singleWhere((Map<String, dynamic> f) => f['id'] == recorded);
 
-    for (final TanreiSystem system in <TanreiSystem>[
-      m3LikeSystem,
-      m3ExpressiveLikeSystem,
-      cupertinoSystem,
-    ]) {
+    for (final TanreiSystem system in <TanreiSystem>[m3LikeSystem, cupertinoSystem]) {
       testWidgets('golden: ${system.id}/$recorded', (WidgetTester tester) async {
         await expectIconButtonGolden(
           tester,

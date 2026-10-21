@@ -4,7 +4,6 @@
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import type { TanreiColorRole, TanreiCoreExtendedFabVariant, TanreiSystem } from '../../generated/vocabulary';
 import { SHIPPED_SYSTEMS, byTestID, describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
@@ -89,12 +88,9 @@ describe('m3-like drives the ExtendedFloatingActionButton', () => {
   test('EFB-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the ExtendedFloatingActionButton', () => {
-  test('it inherits m3-like\'s extended FAB, with no added axis values', () => {
-    const tokens = m3ExpressiveLike.components.extendedFab;
-    expect(tokens).toEqual(m3Like.components.extendedFab);
+  test('it adds no extended FAB axis value', () => {
+    const tokens = m3Like.components.extendedFab;
     expect(Object.keys(tokens.sizes).sort()).toEqual([...sizes].sort());
     expect(Object.keys(tokens.variants).sort()).toEqual([...variants].sort());
   });

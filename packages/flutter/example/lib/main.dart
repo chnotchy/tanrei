@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' show SynchronousFuture, kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -2278,7 +2277,6 @@ class GalleryItem {
 const List<TanreiSystem> gallerySystems = <TanreiSystem>[
   tanreiSystem,
   m3LikeSystem,
-  m3ExpressiveLikeSystem,
   cupertinoSystem,
 ];
 

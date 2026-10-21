@@ -3,7 +3,6 @@
 // a literal appears only where a preset's value is pinned on purpose.
 import { render, screen } from '@testing-library/react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
@@ -33,7 +32,6 @@ describe('every shipped system values the Badge vocabulary', () => {
 
 describe.each([
   ['m3-like', m3Like],
-  ['m3-expressive-like', m3ExpressiveLike],
 ] as const)('%s drives the Badge', (_id, system) => {
   const tokens = system.components.badge;
 

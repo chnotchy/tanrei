@@ -4,8 +4,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Dimensions } from 'react-native';
 import { cupertino } from '../../generated/systems/cupertino';
-import { m3ExpressiveLike } from '../../generated/systems/m3-expressive-like';
 import { m3Like } from '../../generated/systems/m3-like';
+import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiColorRole, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, describeSharedVocabulary, settleMotion, textStyle, viewStyle } from '../../testing/harness';
 import { evaluatePaint, formatColor } from '../../theme/paint';
@@ -70,13 +70,10 @@ describe('m3-like drives the List', () => {
   test('LST-9: m3-like answers a press with a ripple', () => {
     expect(system.behavior.pressedFeedback).toBe('ripple');
   });
-});
 
-describe('m3-expressive-like drives the List', () => {
-  test('it inherits m3-like\'s list, with no added condition', () => {
-    const tokens = m3ExpressiveLike.components.list;
-    expect(tokens).toEqual(m3Like.components.list);
-    expect(Object.keys(tokens.conditions)).toEqual(['unselected', 'selected']);
+  test('it adds no List condition', () => {
+    const tokens = m3Like.components.list;
+    expect(Object.keys(tokens.conditions)).toEqual(Object.keys(tanrei.components.list.conditions));
   });
 });
 

@@ -4671,7 +4671,7 @@ test.describe('values a design system adds', () => {
 test.describe('the box is the one set every input box is drawn from', () => {
   test('TXI-68: the text input holds no token of the box under its own name — its own family is a segment, the code face, the entries place and the motion of a height, in the default system and in each preset', async () => {
     const dist = new URL('../../../dist/', import.meta.url);
-    const sheets = ['tokens.css', 'systems/m3-like.css', 'systems/m3-expressive-like.css', 'systems/cupertino.css'].map((file) => fs.readFileSync(new URL(file, dist), 'utf8'));
+    const sheets = ['tokens.css', 'systems/m3-like.css', 'systems/cupertino.css'].map((file) => fs.readFileSync(new URL(file, dist), 'utf8'));
     expect(inputBoxCopies(sheets, 'text-input')).toEqual([]);
     const mine = [...new Set([...sheets[0]!.matchAll(/--tanrei-comp-text-input-([a-z0-9-]+)(?=:)/g)].map((m) => m[1]!))];
     expect(mine.filter((name) => !/^(entries-|motion-resize-|code-|segment-)/.test(name))).toEqual([]);

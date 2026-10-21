@@ -374,7 +374,7 @@ test.describe('behavior', () => {
 
   test('MAB-13: collapsed, it is a square of its height with the size’s corners and the icon centered in every shipped system', async ({ page }) => {
     const sizes = ['small', 'medium', 'large'] as const;
-    for (const system of [undefined, 'm3-like', 'm3-expressive-like', 'cupertino']) {
+    for (const system of [undefined, 'm3-like', 'cupertino']) {
       await mountFixtures(page, spec, { ...(system ? { system } : {}), reducedMotion: true, fixtures: sizes.map((size) => fixture(`collapsed-${size}`, { size, extended: false, label: 'Compose' })) });
       for (const size of sizes) {
         const id = `collapsed-${size}`;

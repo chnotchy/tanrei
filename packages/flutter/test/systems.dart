@@ -1,5 +1,4 @@
 import 'package:tanrei/systems/cupertino.dart';
-import 'package:tanrei/systems/m3_expressive_like.dart';
 import 'package:tanrei/systems/m3_like.dart';
 import 'package:tanrei/tanrei.dart';
 
@@ -8,7 +7,6 @@ import 'package:tanrei/tanrei.dart';
 const List<TanreiSystem> shippedSystems = <TanreiSystem>[
   tanreiSystem,
   m3LikeSystem,
-  m3ExpressiveLikeSystem,
   cupertinoSystem,
 ];
 

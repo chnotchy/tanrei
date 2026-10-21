@@ -774,7 +774,7 @@ struct TanreiMenuSnapshotTests {
 struct TanreiMenuPresetSnapshotTests {
   /// Group titles: it shows the preset's surface, rows, label and title styles, the check and the divider between groups.
   nonisolated static let fixtureId = "group-titles"
-  nonisolated static let presets: [ShippedSystem] = [.m3Like, .m3ExpressiveLike, .cupertino]
+  nonisolated static let presets: [ShippedSystem] = [.m3Like, .cupertino]
 
   @Test("every shipped preset has one, and it is one of the spec's fixtures")
   func fixtureList() {
