@@ -26,7 +26,7 @@ npm install @tanrei/web
 ```js
 import '@tanrei/web/tokens.css';   // the default system's tokens, once, as early as possible
 import '@tanrei/web';              // the elements the default system ships; or one at a time: '@tanrei/web/components/button'
-// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, m3-expressive-like, cupertino);
+// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, cupertino);
 // every element of the package: '@tanrei/web/all'
 ```
 
@@ -56,7 +56,7 @@ setWords({ requiredText: 'Required', optionalText: 'Optional', closeLabel: 'Clos
 
 ## Systems, themes and contrast
 
-The default system is `tanrei`. Three presets ship beside it — `m3-like`, `m3-expressive-like` and `cupertino` — and a
+The default system is `tanrei`. Two presets ship beside it — `m3-like` and `cupertino` — and a
 product's own design system, built from one layer file with [`@tanrei/cli`](https://www.npmjs.com/package/@tanrei/cli)
 (`tanrei build`), works the same way: one more stylesheet, scoped to `[data-tanrei-system="<id>"]`. Put the attribute
 on `<html>` or on any subtree; several systems can live on one page.

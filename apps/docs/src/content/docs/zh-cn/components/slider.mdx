@@ -297,7 +297,7 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 - React Native：布局、拖动及其让位给滚动视图的方式，以及可调节的手柄，都还没有在真机上验证过。
 - SwiftUI、Compose、Flutter 和 React Native 仍然绘制以前的外观：实心的手柄，所有尺寸都用同一种大小的刻度圆点，轨道在手柄处截断，而不是在它下方相接。在截断的地方，它们收尾的方式各不相同：SwiftUI 是平头，Flutter 和 React Native 是带缺口的圆头，Compose 则按手柄的形状截断。
 - 在 `cupertino` 下，浅色配色方案中白色手柄放在白色页面上的对比度为 1.0:1，低于显示数值的部件所需的 3:1。它按 Apple 的画法没有轮廓，靠阴影和旁边着色的活动轨道来区分；没有任何不变式检查手柄相对于页面的对比度。这个 1.0:1 是作为参考信息保留的测量值：Tanrei 的无障碍准则不适用于模仿预设。在 `cupertino` 下，滑块也不绘制刻度圆点，连轨道两端的也没有。
-- 在 `m3-like` 下，滑块按 Material 公布的尺寸绘制 Material 的竖条。这些尺寸还没有对照保真度参考验证过。在 `m3-expressive-like` 下，Material 画在粗轨道里的图标没有位置可放（模仿差距 `slider-inset-icon`）：请把你的图标放在滑块旁边。
+- 在 `m3-like` 下，滑块按 Material 公布的尺寸绘制 Material 的竖条。这些尺寸还没有对照保真度参考验证过。Material 画在粗轨道里的图标没有位置可放（模仿差距 `slider-inset-icon`）：请把你的图标放在滑块旁边。
 
 ### 需要你做的事
 

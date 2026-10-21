@@ -2241,8 +2241,8 @@ public struct TanreiSystem: Sendable, Equatable {
   exception is `extra`, below, which defaults to empty).
 - `Generated/TanreiSystem+Tanrei.swift` holds the **values** of the default system:
   `extension TanreiSystem { public static let tanrei = TanreiSystem(…) }`.
-- The shipped presets are generated the same way: `.m3Like`, `.m3ExpressiveLike` (extends
-  `m3-like`; adds the button sizes `.xsmall` and `.xlarge` and revalues all five) and `.cupertino`.
+- The shipped presets are generated the same way: `.m3Like` (adds the button sizes `.xsmall` and
+  `.xlarge` and revalues all five) and `.cupertino`.
 
 **Supplying your own system.** A product describes its system as a layer file
 (`tokens/systems/<id>.system.json`) and generates it. The Swift emitter turns a system's
@@ -2323,7 +2323,7 @@ a lookup by key.
 Per size a button reads `containerHeight`, `containerPaddingInlineStart`, `…End`,
 `…StartWithIcon`, `containerPaddingBlock`, `labelTypescale`, `iconSize`, `containerGap` (between
 icon and label) and `outlineWidth` (`TanreiButtonSizeTokens`). The last two are the same at every
-size in the default system (8 and 1); a system such as `m3-expressive-like` grows them with the size. The component does `tokens.sizes[size]` and `tokens.variants[variant]`;
+size in the default system (8 and 1); a system such as `m3-like` grows them with the size. The component does `tokens.sizes[size]` and `tokens.variants[variant]`;
 there is no switch over sizes or variants anywhere. Interaction states are **not** extensible.
 
 `extra` defaults to empty, so the generated file of a system that adds nothing never mentions it.

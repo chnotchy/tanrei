@@ -2567,8 +2567,7 @@ ships three presets, each behind its own import so an app only compiles what it 
 
 | Import | Constant | Notes |
 |---|---|---|
-| `package:tanrei/systems/m3_like.dart` | `m3LikeSystem` | declares the `tertiary` palette and more roles (`M3LikeColorRoles`) |
-| `package:tanrei/systems/m3_expressive_like.dart` | `m3ExpressiveLikeSystem` | extends `m3-like`; adds the Button sizes `M3ExpressiveLikeButtonSize.xsmall` / `.xlarge` and revalues all five (heights 32 / 40 / 56 / 96 / 136, gap up to 16, outline width up to 3) |
+| `package:tanrei/systems/m3_like.dart` | `m3LikeSystem` | declares the `tertiary` palette and more roles (`M3LikeColorRoles`); adds the Button sizes `M3LikeButtonSize.xsmall` / `.xlarge` and revalues all five (heights 32 / 40 / 56 / 96 / 136, gap up to 16, outline width up to 3) |
 | `package:tanrei/systems/cupertino.dart` | `cupertinoSystem` | |
 
 ### Fonts
@@ -2622,7 +2621,7 @@ What a product installs, and how — in its own `pubspec.yaml`, under exactly th
 | System | Families to register |
 |---|---|
 | default (`tanreiSystem`) | `Inter` (the variable font, for the in-between weights 450 / 550), `Noto Sans JP`, optionally `Noto Sans`; `Roboto Mono` for code; `Material Symbols Rounded` (variable) for icons |
-| `m3-like`, `m3-expressive-like` | `Roboto` (already the OS font on Android), `Roboto Mono`, `Material Symbols Outlined` (variable) |
+| `m3-like` | `Roboto` (already the OS font on Android), `Roboto Mono`, `Material Symbols Outlined` (variable) |
 | `cupertino` | nothing for text (the OS font); `Material Symbols Rounded` for icons |
 
 ```yaml

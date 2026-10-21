@@ -10,7 +10,7 @@ import '@tanrei/web/tanrei.css';   // every stylesheet below in one file, with t
 import '@tanrei/web/tokens.css';   // the default system, on :root
 import '@tanrei/web/base.css';     // optional: the page on the surface, its text on-surface in the body face, no margin on <body>
 import '@tanrei/web';              // the elements the default system ships; or one at a time: '@tanrei/web/components/button'
-// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, m3-expressive-like, cupertino);
+// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, cupertino);
 // every element of the package: '@tanrei/web/all'
 import '@tanrei/web/icons.css';    // optional: .tanrei-icon
 import '@tanrei/web/text.css';     // optional: .tanrei-text-<role>
@@ -1399,7 +1399,7 @@ A box that scrolls the product's content and marks, at each edge it watches, tha
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `scrollEdge` / `scroll-edge` | `auto` \| `shadow` \| `fade` \| `line` \| `blur` \| `none` | `auto` | how an edge with content beyond it is marked; `auto` takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge` (shadow in the default system, line in m3-like and m3-expressive-like, blur in cupertino). Anything else is `auto`, reported (SCA-15); reflected |
+| `scrollEdge` / `scroll-edge` | `auto` \| `shadow` \| `fade` \| `line` \| `blur` \| `none` | `auto` | how an edge with content beyond it is marked; `auto` takes `comp.scroll-area.scroll-edge`, which follows `sys.behavior.scroll-edge` (shadow in the default system, line in m3-like, blur in cupertino). Anything else is `auto`, reported (SCA-15); reflected |
 | `edges` | `('top' \| 'bottom' \| 'start' \| 'end')[]` | `['top', 'bottom']` | the edges watched; the attribute is space-separated. `start` is the left in left-to-right and the right in right-to-left. An unknown name is ignored, reported |
 | `label` | string | `""` | the name of the box while it is a focus stop of its own (SCA-10); never drawn |
 
@@ -4074,7 +4074,7 @@ the web). Forced colors: a `ButtonText` edge, since the shadow is dropped.
 
 A floating action button that opens a short list of related actions, and turns into the list's close button while they
 show (`specs/fab-menu.spec.json`, FBM-1…24). It lives in the m3-like layer: `import '@tanrei/web/m3-like'` registers it,
-and its tokens are in the m3-like systems' sheets (`@tanrei/web/systems/m3-like.css`, `m3-expressive-like.css`) and in
+and its tokens are in m3-like's sheet (`@tanrei/web/systems/m3-like.css`) and in
 the sheet of a product that includes it.
 
 ```html
@@ -4563,7 +4563,7 @@ keyboard's), and the arrow keys continue from there.
 the chords separated by spaces, `shortcut="mod+c"`). The item draws it in its trailing column with
 `<tanrei-keyboard-shortcut>` (the `shortcut` part), hosted (KBS-13): size `small`, the form
 `--tanrei-comp-menu-shortcut-variant` names (read from the cascade each time the menu opens or changes — `keycap` in the
-default system, `plain` in m3-like, m3-expressive-like and cupertino; an empty value is `keycap`), convention `auto` (set
+default system, `plain` in m3-like and cupertino; an empty value is `keycap`), convention `auto` (set
 `data-tanrei-keyboard-convention` on the menu or any ancestor to choose it), disabled with its item; its legends and
 separators in `comp.menu.trailing-text.typescale` and the trailing-text color of the item's condition and state (painted
 and moved with the state motion like the trailing text), its caps the keyboard shortcut's own tokens. An item with both a
@@ -5069,8 +5069,8 @@ surface in the top layer that the row is not inside, and to a row that is covere
 What this leaves out: the band shows no hover and no press feedback, a drag cannot start in it, and the tab is not
 focused by the press.
 
-**Presets.** A tonal row is left out of m3-like and m3-expressive-like (its `components.variants`, reported in debug builds); drawn
-there it has the default's layer on the preset's trackless, square row. m3-like and m3-expressive-like draw what they drew before this revision, by value, with one recorded
+**Presets.** A tonal row is left out of m3-like (its `components.variants`, reported in debug builds); drawn
+there it has the default's layer on the preset's trackless, square row. m3-like draws what it drew before this revision, by value, with one recorded
 difference (mimicry gap `tabs-state-layer-follows-indicator`): in a row that hugs, a tab whose content is not wider than
 it is tall (an icon alone, a one-letter label) draws its state layer and focus ring as wide as the row is tall, and is
 itself never narrower than that (a one-letter tab is 48 wide where it was 44). cupertino inherits the default's track

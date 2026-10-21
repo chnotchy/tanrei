@@ -76,7 +76,6 @@ A design system is a layer file, `tokens/systems/<id>.system.json`, validated by
 core.system.json              the root layer: palettes, the role → tone table, the per-state rules; leaves nothing out
   ├─ tanrei.system.json         the default system: the components and variants it leaves out
   ├─ m3-like.system.json        extends core; holds the FAB menu (m3-like/comp/fab-menu.tokens.json)
-  │    └─ m3-expressive-like.system.json   extends m3-like
   └─ cupertino.system.json      extends core
 (a product's own <id>.system.json extends any of them but the root, in the product's repository)
 ```
@@ -127,7 +126,7 @@ On the native platforms every token is read through a **system instance** carrie
 
 ## Presets and the fidelity harness
 
-The shipped presets (`m3-like`, `m3-expressive-like`, `cupertino`) prove the mechanism and are starting points for products. A preset that reproduces a published system carries a **fidelity map**: `tokens/fidelity/<id>.fidelity.json` maps the reference's resolved tokens (snapshots in `tokens/fidelity/reference/`) to Tanrei ids. `packages/tokens-build/src/fidelity.js` measures it, `packages/tokens-build/test/fidelity.test.js` requires every reference token in scope to be equal, covered, or unmapped under a registered gap, and the result is written to `tokens/generated/<system>/fidelity.json`. What a design system still cannot express is a defect of Tanrei, filed in `docs/governance/mimicry-gaps.json`.
+The shipped presets (`m3-like`, `cupertino`) prove the mechanism and are starting points for products. A preset that reproduces a published system carries a **fidelity map**: `tokens/fidelity/<id>.fidelity.json` maps the reference's resolved tokens (snapshots in `tokens/fidelity/reference/`) to Tanrei ids. `packages/tokens-build/src/fidelity.js` measures it, `packages/tokens-build/test/fidelity.test.js` requires every reference token in scope to be equal, covered, or unmapped under a registered gap, and the result is written to `tokens/generated/<system>/fidelity.json`. What a design system still cannot express is a defect of Tanrei, filed in `docs/governance/mimicry-gaps.json`.
 
 ## Accessibility severity
 
