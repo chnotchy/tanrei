@@ -195,7 +195,7 @@ export const RULES = {
       'src/components/accordion/accordion.test.ts': 1,
       'src/components/button-with-menu/button-with-menu.test.ts': 1,
       'src/components/copy-button/copy-button.test.ts': 2,
-      'src/components/image-preview/image-preview.test.ts': 5,
+      'src/components/image-preview/image-preview.test.ts': 2,
       'src/components/modal-layer/modal-layer.test.ts': 1,
       'src/components/navigation-bar/navigation-bar.test.ts': 3,
       'src/components/segmented-button/segmented-button.test.ts': 1,

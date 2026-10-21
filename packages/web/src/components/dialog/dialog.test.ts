@@ -9,6 +9,7 @@ import { buildSync } from 'esbuild';
 import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
@@ -255,7 +256,8 @@ test.describe('presentation and focus', () => {
     expectNoFlicker(closing);
     expectAnimated(closing, 'opacity');
     const exit = await resolveEasing(page, T('motion-exit-easing'));
-    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    // The exit role's curve (the accelerating one under the default system), as the scrim's fade is.
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-exit'));
     for (const motion of drawn(closing)) {
       expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
       expect(motion.easing, motion.name).toBe(exit);
@@ -354,7 +356,7 @@ test.describe('presentation and focus', () => {
     await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
     const native = page.locator('tanrei-dialog').locator('dialog');
     await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
-    await native.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+    await motionEnded(native);
     expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
     // The entrance would move the scale (0.96 under the default system); the scrim's fade is the modal layer's (WebKit
     // names no pseudo-element for it, so its opacity is not told from the container's there).
