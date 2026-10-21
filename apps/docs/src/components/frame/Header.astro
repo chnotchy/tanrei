@@ -3,42 +3,51 @@
 // component replaces Starlight's `Header`, and with it its `SiteTitle`, `ThemeSelect`, `LanguageSelect` and
 // `SocialIcons` (the link to the source repository stands at the foot of every page, Footer.astro). PageFrame.astro puts it in the shell's `<header>`.
 //
-//   the menu button   an icon-only Button the shell shows only while the navigation has no place in the layout, and
-//                     answers (`data-app-shell-menu`, APS-6);
+//   the menu button   the bar's navigation item, at every width, on pages that have a sidebar: the navigation's one
+//                     menu button, so the drawer has no row of its own for one. Two icon-only Buttons that look the
+//                     same take turns by the shell's window class: in a compact window the shell's own menu button
+//                     (`data-app-shell-menu`, APS-6, APS-7), which opens the drawer over the content; in a wider one
+//                     the site's, which asks the drawer for its other form — collapsed or expanded where it stands
+//                     beside the content, opened over it where it is a column (its presentation, NVD-53) — and says
+//                     which, as the drawer's own menu button would (NVD-37);
 //   the brand         the bar's brand (APB-19 to APB-23): a link to the language's first page (`brand-href`) named by
 //                     the site's name (`brand-label`), drawn as Tanrei's wordmark (design/brand/wordmark.svg, inline,
 //                     in `comp.app-bar.brand.color`) at every width — the name is read here, so the wordmark, never
-//                     the symbol. The bar draws it `comp.app-bar.brand.wordmark.height` high in an icon button's
-//                     cell after the menu button: its frame's centre on the row's centre line, its inset the menu
-//                     icon's. Until the bar is defined the image holds that box (styles/frame.css) and is named by
-//                     the site's name; once defined the bar hides it from assistive technology and names its link.
-//                     The bar's own title (`headline`) is text and a heading: a site's name leads home and is not a
-//                     heading of the page, so the bar is given none;
+//                     the symbol. Until the bar is defined the image holds the box the bar will give it
+//                     (styles/frame.css). The bar's own title (`headline`) is text and a heading: a site's name leads
+//                     home and is not a heading of the page, so the bar is given none;
+//   the system        the bar's context (APB-25): a text Button that says the design system the lists of components
+//                     show and opens a Menu (SystemMenu.astro) — the shipped systems as radio items, read from the
+//                     components manifests, and then Theme Studio's link, "Edit theme". The choice is kept under the
+//                     docs' key for the shared choice `system` (lib/listing.mjs), which the head's script reads before
+//                     the first paint. A compact window has no room for it beside the wordmark and three actions: there
+//                     the same button and menu stand first in the drawer's list (Sidebar.astro), and the bar's is not
+//                     drawn;
 //   the search        Tanrei's Search as the bar's first action (Search.astro): a button trigger with its shortcut
 //                     that opens a dialog, and in a compact window an icon-only Button that opens the full-screen
 //                     view; the site's search index answers it;
-//   the theme         a small Select with its label hidden: one of three values, kept on this device under the key
-//                     the framework's own theme script reads before first paint;
+//   the appearance    an icon-only Button that opens a Menu of three sections: the color scheme (auto, light, dark,
+//                     kept on this device under the key the framework's own theme script reads before first paint),
+//                     the contrast (standard, medium, high, kept under the key the head's script reads, and shared with
+//                     the contrast rows of the live examples, ContrastSwitch.astro), and Theme Studio's link;
 //   the language      an icon-only Button that opens a Menu of links — a language is a place to go, the same page
 //                     at another address, and a list of places is a menu of links, never options.
 //
-// A compact window has no room for five items (and a bar holds three actions, APB-13): there the theme and the
-// language are one icon-only Button that opens one Menu — the theme as a group of radio items, the languages as a
-// group of links. The shell's window class decides which arrangement the bar holds: only that one's items are given
-// the `actions` slot (the other's stay unassigned, and the bar draws nothing of them), first by the script that
+// The bar holds three actions (APB-13) and one navigation item: of the two menu buttons, only the one of the window's
+// class is given its slot (the other's stays unassigned, and the bar draws nothing of it), first by the script that
 // follows the bar, before the bar is defined, then whenever the class changes. Until the bar is defined, and where no
-// script runs, the stylesheet shows one arrangement or the other (styles/frame.css). The two theme controls are kept
-// alike by the script below.
+// script runs, the stylesheet shows the one or the other (styles/frame.css).
 //
 // The menus stand beside the bar, not in it: the bar draws its own slots only, and a menu is drawn where it is
 // written (its surface is in the top layer).
 import Search from './Search.astro';
 import { translations, source } from '../../../i18n/locales.mjs';
-import { strings } from '../../lib/i18n';
+import { localeBase, strings } from '../../lib/i18n';
 import { frameWords, homeHref } from './frame';
 import { inlineMark } from '../../lib/brand.mjs';
 import { frameOf } from '../../lib/brand-geometry.mjs';
 import { marks } from '../../lib/brand-marks';
+import SystemMenu from '../SystemMenu.astro';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
@@ -52,61 +61,79 @@ const WORDMARK_HEIGHT = 40;
 const frame = frameOf(marks.wordmark);
 const wordmark = inlineMark(marks.wordmark, { width: Math.round((WORDMARK_HEIGHT * frame.width) / frame.height), height: WORDMARK_HEIGHT, slot: 'brand-wordmark', class: 'docs-brand', role: 'img', 'aria-label': route.siteTitle, focusable: 'false', translate: 'no' });
 const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
+const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
 ---
 
 <tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle}>
   {
     route.hasSidebar && (
-      <tanrei-button slot="navigation" data-app-shell-menu variant="text" label={words.menu}>
-        <span slot="icon">menu</span>
-      </tanrei-button>
+      <>
+        <tanrei-button slot="navigation" class="docs-compact-only" data-docs-slot="navigation" data-app-shell-menu variant="text" label={words.menu}>
+          <span slot="icon">menu</span>
+        </tanrei-button>
+        <tanrei-button slot="navigation" id="docs-drawer-toggle" class="docs-wide-only" data-docs-slot="navigation" variant="text" label={words.menu} aria-controls="docs-sidebar" aria-expanded="true">
+          <span slot="icon">menu</span>
+        </tanrei-button>
+      </>
     )
   }
   <Fragment set:html={wordmark} />
+  <SystemMenu id="docs-system" part="button" slot="context" />
   <Search />
-  <tanrei-select slot="actions" class="docs-theme docs-wide-only" size="medium" label={words.theme} label-hidden value="auto">
-    <tanrei-option value="auto" leading-icon="computer">{words.themeAuto}</tanrei-option>
-    <tanrei-option value="light" leading-icon="light_mode">{t.light}</tanrei-option>
-    <tanrei-option value="dark" leading-icon="dark_mode">{t.dark}</tanrei-option>
-  </tanrei-select>
-  <tanrei-button slot="actions" id="docs-language" class="docs-wide-only" variant="text" label={words.language}>
+  <tanrei-button slot="actions" id="docs-appearance" variant="text" label={words.theme}>
+    <span slot="icon">contrast</span>
+  </tanrei-button>
+  <tanrei-button slot="actions" id="docs-language" variant="text" label={words.language}>
     <span slot="icon">translate</span>
   </tanrei-button>
-  <tanrei-button slot="actions" id="docs-more" class="docs-compact-only" variant="text" label={words.themeAndLanguage}>
-    <span slot="icon">more_vert</span>
-  </tanrei-button>
 </tanrei-app-bar>
-<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">
-  {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
-</tanrei-menu>
-<tanrei-menu class="docs-frame-menu" anchor="docs-more" placement="bottom-end">
-  <tanrei-menu-group class="docs-theme-group" label={words.theme} value="auto">
+<SystemMenu id="docs-system" part="menu" />
+<tanrei-menu class="docs-frame-menu" anchor="docs-appearance" placement="bottom-end">
+  <tanrei-menu-group class="docs-scheme-group" label={words.appearance} value="auto">
     <tanrei-menu-radio-item value="auto" label={words.themeAuto} leading-icon="computer" />
     <tanrei-menu-radio-item value="light" label={t.light} leading-icon="light_mode" />
     <tanrei-menu-radio-item value="dark" label={t.dark} leading-icon="dark_mode" />
   </tanrei-menu-group>
-  <tanrei-menu-group label={words.language}>
-    {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
+  <tanrei-menu-group class="docs-contrast-group" label={t.contrast} value="standard">
+    <tanrei-menu-radio-item value="standard" label={t.contrastStandard} />
+    <tanrei-menu-radio-item value="medium" label={t.contrastMedium} />
+    <tanrei-menu-radio-item value="high" label={t.contrastHigh} />
   </tanrei-menu-group>
+  <tanrei-menu-item label={words.editTheme} leading-icon="format_paint" href={studio} />
+</tanrei-menu>
+<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">
+  {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
 </tanrei-menu>
 
 {
-  /* Before first paint: the reader's stored theme as the select's value (the attribute is what the element starts
-   from), and the bar's actions for the window's class, read from the shell's stylesheet — before the bar is defined,
-   so that it never holds both arrangements. */
+  /* Before first paint: the reader's stored choices as the menus' values and the system button's words (an attribute
+   is what an element starts from; the head's scripts have already applied each choice to the root), and the bar's
+   menu button for the window's class, read from the shell's stylesheet — before the bar is defined, so that it never
+   holds both. */
 }
 <script is:inline>
   {
     const frame = document.currentScript.parentElement;
+    const root = document.documentElement;
     try {
-      const theme = localStorage.getItem('starlight-theme');
-      if (theme === 'light' || theme === 'dark') for (const control of frame.querySelectorAll('.docs-theme, .docs-theme-group')) control.setAttribute('value', theme);
+      const scheme = localStorage.getItem('starlight-theme');
+      if (scheme === 'light' || scheme === 'dark') frame.querySelector('.docs-scheme-group')?.setAttribute('value', scheme);
     } catch {}
+    const contrast = root.getAttribute('data-tanrei-contrast');
+    if (contrast === 'medium' || contrast === 'high') frame.querySelector('.docs-contrast-group')?.setAttribute('value', contrast);
+    const system = root.getAttribute('data-docs-system');
+    if (system) {
+      for (const button of frame.querySelectorAll('.docs-system')) {
+        button.querySelector('.docs-system-name').textContent = system;
+        button.setAttribute('label', button.dataset.label.replace('{system}', system));
+      }
+      for (const group of frame.querySelectorAll('.docs-system-group')) group.setAttribute('value', system);
+    }
     const bar = frame.querySelector('tanrei-app-bar.docs-app-bar');
     if (bar) {
       const compact = getComputedStyle(bar).getPropertyValue('--tanrei-app-shell-window-class').trim() === 'compact';
       for (const item of bar.querySelectorAll(':scope > .docs-wide-only, :scope > .docs-compact-only')) {
-        if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', 'actions');
+        if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', item.dataset.docsSlot);
         else item.removeAttribute('slot');
       }
     }
@@ -116,49 +143,99 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
 <script>
   import '@tanrei/web/components/app-bar';
   import '@tanrei/web/components/button';
-  import '@tanrei/web/components/select';
   import '@tanrei/web/components/menu';
+  import { tabsKey } from '../tabs/keys.mjs';
+  import { SYSTEM_SYNC_KEY } from '../../lib/listing.mjs';
+  import { showSystem, shownSystem } from '../../lib/list-filter';
 
-  // The theme: the framework's script in the head has already applied the stored choice (`data-theme` on the root,
-  // which styles/tanrei-theme.css turns into `color-scheme`). Here the select changes it, stores it under the same
-  // key, and follows the system while the choice is "auto".
-  const KEY = 'starlight-theme';
-  const system = matchMedia('(prefers-color-scheme: light)');
-  const stored = () => {
+  type Choice = HTMLElement & { value: string | null };
+  const store = (key: string, value: string | null) => {
     try {
-      const theme = localStorage.getItem(KEY);
-      return theme === 'light' || theme === 'dark' ? theme : 'auto';
+      if (value) localStorage.setItem(key, value);
+      else localStorage.removeItem(key);
+    } catch {}
+  };
+
+  // The color scheme: the framework's script in the head has already applied the stored choice (`data-theme` on the
+  // root, which styles/tanrei-theme.css turns into `color-scheme`). Here the menu changes it, stores it under the same
+  // key, and follows the system while the choice is "auto".
+  const SCHEME_KEY = 'starlight-theme';
+  const system = matchMedia('(prefers-color-scheme: light)');
+  const storedScheme = () => {
+    try {
+      const scheme = localStorage.getItem(SCHEME_KEY);
+      return scheme === 'light' || scheme === 'dark' ? scheme : 'auto';
     } catch {
       return 'auto';
     }
   };
-  const apply = (theme: string) => {
-    document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : system.matches ? 'light' : 'dark';
+  const applyScheme = (scheme: string) => {
+    document.documentElement.dataset.theme = scheme === 'light' || scheme === 'dark' ? scheme : system.matches ? 'light' : 'dark';
   };
-  // The select of a wider window and the radio group of a compact one: a change of either is the reader's choice,
-  // and the other is set to it (setting `value` from script fires no `change`).
-  const controls = [...document.querySelectorAll<HTMLElement & { value: string }>('tanrei-select.docs-theme, tanrei-menu-group.docs-theme-group')];
-  for (const control of controls) {
-    control.addEventListener('change', () => {
-      const theme = control.value;
-      for (const other of controls) if (other !== control) other.value = theme;
-      apply(theme);
-      try {
-        localStorage.setItem(KEY, theme === 'light' || theme === 'dark' ? theme : '');
-      } catch {}
-    });
-  }
+  const schemes = document.querySelector<Choice>('tanrei-menu-group.docs-scheme-group');
+  schemes?.addEventListener('change', () => {
+    const scheme = schemes.value ?? 'auto';
+    applyScheme(scheme);
+    store(SCHEME_KEY, scheme === 'light' || scheme === 'dark' ? scheme : null);
+  });
   system.addEventListener('change', () => {
-    if (stored() === 'auto') apply('auto');
+    if (storedScheme() === 'auto') applyScheme('auto');
   });
 
-  // The bar's actions follow the window's class (the script after the bar chose them before the bar was defined):
-  // the arrangement of the class has the `actions` slot, and the other none, so the bar holds three actions at most.
+  // The contrast: `data-tanrei-contrast` on the root (component tokens are resolved at :root, so a subtree cannot be
+  // forced), kept under the key the head's script reads. The contrast rows of the live examples are one group of
+  // tabs (ContrastSwitch.astro): the product setting one row's value makes it the group's choice, which every row
+  // follows (TAB-37), and a row chosen on sets the menu's value in turn.
+  const CONTRAST_KEY = 'tanrei-docs-contrast';
+  const CONTRAST_ATTR = 'data-tanrei-contrast';
+  const contrasts = document.querySelector<Choice>('tanrei-menu-group.docs-contrast-group');
+  const applyContrast = (value: string) => {
+    if (value === 'medium' || value === 'high') document.documentElement.setAttribute(CONTRAST_ATTR, value);
+    else document.documentElement.removeAttribute(CONTRAST_ATTR);
+  };
+  contrasts?.addEventListener('change', () => {
+    const value = contrasts.value ?? 'standard';
+    applyContrast(value);
+    store(CONTRAST_KEY, value);
+    for (const row of document.querySelectorAll<Choice>('[data-docs-contrast]')) row.value = value;
+  });
+  document.addEventListener('change', (event) => {
+    const row = event.target as Choice;
+    if (contrasts && row instanceof HTMLElement && row.matches('[data-docs-contrast]') && row.value) contrasts.value = row.value;
+  });
+
+  // The design system the lists show: kept under the docs' key for the shared choice `system`, so that a set of tabs
+  // with `syncKey="system"` opens on it; the lists take out what it does not have (lib/list-filter.ts).
+  // The bar's button and menu, and in a compact window the drawer's (Sidebar.astro): every one says the same.
+  const showOn = (id: string) => {
+    for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-system')) {
+      const name = button.querySelector('.docs-system-name');
+      if (name) name.textContent = id;
+      button.setAttribute('label', (button.dataset.label ?? '{system}').replace('{system}', id));
+    }
+    for (const group of document.querySelectorAll<Choice>('tanrei-menu-group.docs-system-group')) group.value = id;
+    // The index's select field (SystemSelect.astro) says the same.
+    for (const select of document.querySelectorAll<Choice>('[data-docs-system-select]')) select.value = id;
+  };
+  const found = shownSystem();
+  if (found) showOn(found);
+  document.addEventListener('change', (event) => {
+    const control = event.target as Choice;
+    if (!(control instanceof HTMLElement) || !control.value) return;
+    if (control.matches('tanrei-menu-group.docs-system-group')) {
+      store(tabsKey(SYSTEM_SYNC_KEY), control.value);
+      showSystem(control.value);
+      showOn(control.value);
+    } else if (control.matches('[data-docs-system-select]')) showOn(control.value);
+  });
+
+  // The bar's menu button follows the window's class (the script after the bar chose it before the bar was defined):
+  // the button of the class has its slot, and the other none, so the bar holds one navigation item.
   const bar = document.querySelector('tanrei-app-bar.docs-app-bar');
   const arrange = (windowClass: string) => {
     const compact = windowClass.trim() === 'compact';
-    for (const item of bar?.querySelectorAll(':scope > .docs-wide-only, :scope > .docs-compact-only') ?? []) {
-      if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', 'actions');
+    for (const item of bar?.querySelectorAll<HTMLElement>(':scope > .docs-wide-only, :scope > .docs-compact-only') ?? []) {
+      if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', item.dataset.docsSlot ?? '');
       else item.removeAttribute('slot');
     }
   };
@@ -166,6 +243,23 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   shell?.addEventListener('windowclasschange', (event) => arrange((event as CustomEvent<{ windowClass: string }>).detail.windowClass));
   const decided = shell?.getAttribute('data-window-class');
   if (decided) arrange(decided);
+
+  // The site's menu button of a wider window: it asks the drawer for its other form, as the drawer's own menu button
+  // would (NVD-37) — collapsed or expanded where the drawer stands beside the content, open over it where the drawer
+  // is a column — and says whether the navigation is expanded.
+  type Drawer = HTMLElement & { presentation: string | null; expanded: boolean; open: boolean };
+  const toggle = document.getElementById('docs-drawer-toggle');
+  const drawer = document.getElementById('docs-sidebar') as Drawer | null;
+  if (toggle && drawer) {
+    const say = () => toggle.setAttribute('aria-expanded', String(drawer.presentation === 'column' ? drawer.open : drawer.expanded));
+    toggle.addEventListener('click', () => {
+      if (drawer.presentation === 'column') drawer.open = !drawer.open;
+      else if (drawer.presentation === 'standard') drawer.expanded = !drawer.expanded;
+      say();
+    });
+    for (const type of ['presentationchange', 'expandedchange', 'close']) drawer.addEventListener(type, () => queueMicrotask(say));
+    void customElements.whenDefined('tanrei-navigation-drawer').then(say);
+  }
 
   // A menu opens from its button and closes when it asks to (the menu never closes itself, MNU-1).
   for (const menu of document.querySelectorAll<HTMLElement & { open: boolean }>('tanrei-menu.docs-frame-menu')) {

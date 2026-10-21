@@ -1,5 +1,6 @@
 ---
-// "Design system": the choice of the system whose components the lists show, Tanrei's Select field — its label is
+// "Design system" on the index of components: the choice of the system whose components the lists show (the header's
+// menu beside the brand, Header.astro, is the same choice on every page), Tanrei's Select field — its label is
 // drawn, so the choice says what it is a choice of (WCAG 3.3.2) — with one option for each shipped system (its id, and its name as the option's supporting text), read from the components manifests. Before a
 // reader chooses, the lists show the default system's components; a component the chosen system does not have is not
 // drawn in the sidebar or the index, and the index says what that system uses in its stead (lib/listing.mjs). The page
@@ -17,13 +18,11 @@ import { strings } from '../lib/i18n';
 interface Props {
   /** The page's language. */
   lang: string | undefined;
-  /** The slot of the element the select is a child of (the navigation drawer's `header`), where it has one. */
-  into?: string;
 }
 const t = strings(Astro.props.lang);
 ---
 
-<tanrei-select-field class="docs-system" slot={Astro.props.into} size="small" label={t.system.choice} value={manifests[0]?.system} data-docs-system-select>
+<tanrei-select-field class="docs-system" size="small" label={t.system.choice} value={manifests[0]?.system} data-docs-system-select>
   {manifests.map((manifest) => <tanrei-option value={manifest.system} supporting-text={manifest.name}>{manifest.system}</tanrei-option>)}
 </tanrei-select-field>
 
