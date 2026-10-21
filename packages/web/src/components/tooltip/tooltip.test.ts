@@ -2,7 +2,9 @@
 // fixture has a baseline (drawn on a 320 × 200 window, the spec's stage), and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
 
@@ -442,20 +444,7 @@ async function openedEdges(page: P, id: string): Promise<[Edges, Edges]> {
   const [a, s] = await openIt(page, id);
   return [edges(a), edges(s)];
 }
-/**
- * The running motions of the wrapper, held at their first frame (0) or their last (1). They are kept for `endMotion()`:
- * held at its end a transition is no longer among the element's animations, and it has not finished either.
- */
-const holdMotion = (page: P, id: string, progress: 0 | 1) =>
-  motion(page, id).evaluate((el, at) => {
-    const held = ((el as any).held = el.getAnimations());
-    for (const animation of held) {
-      animation.pause();
-      animation.currentTime = at ? Number(animation.effect!.getComputedTiming().endTime) : 0;
-    }
-    return held.length;
-  }, progress);
-/** Lets the motions end now: those running, and those held. */
+/** Lets the motions end now: those running, and those a test held (kept as the element's `held`). */
 const endMotion = (page: P, id: string) =>
   motion(page, id).evaluate((el) => {
     for (const animation of new Set<Animation>([...((el as any).held ?? []), ...el.getAnimations()])) animation.finish();
@@ -1268,7 +1257,7 @@ test.describe('drawing', () => {
     await settle(page);
     // The container gives up its own shadow for the one drawn round both.
     expect(await css(container(page, 'a'), 'box-shadow')).toBe('none');
-    expect(await css(motion(page, 'a'), 'filter')).toMatch(/url\(.*#shade.*\)/);
+    expect(await css(surface(page, 'a'), 'filter')).toMatch(/url\(.*#shade.*\)/);
     const [s, tipBox] = [edges(await bounds(surface(page, 'a'))), edges(await bounds(arrow(page, 'a')))];
     const pixels = decodePng(await page.screenshot({ scale: 'css' }));
     const rgb = (x: number, y: number) => {
@@ -1291,7 +1280,7 @@ test.describe('drawing', () => {
     await set(page, 'a', { inverse: true });
     await settle(page);
     await expect.poll(() => surface(page, 'a').evaluate((el: HTMLElement) => el.dataset.arrow)).toBe('flat');
-    expect(await css(motion(page, 'a'), 'filter')).toBe('none');
+    expect(await css(surface(page, 'a'), 'filter')).toBe('none');
   });
 
   test('TIP-26: each form in both looks — inverse true, false, or null as its form’s choice says; a set inverse wins over the choice; colors and elevation only; a change while shown redraws at once and stays open', async ({ page }) => {
@@ -1508,114 +1497,165 @@ test.describe('motion', () => {
       const style = getComputedStyle(el);
       return { opacity: Number(style.opacity), box: { x: r.x, y: r.y, width: r.width, height: r.height }, duration: style.transitionDuration, easing: style.transitionTimingFunction, origin: style.transformOrigin };
     });
-  const easingOf = (page: P, name: string) =>
-    page.evaluate((n) => {
-      const probe = document.createElement('div');
-      probe.style.transitionTimingFunction = `var(${n})`;
-      document.body.append(probe);
-      const value = getComputedStyle(probe).transitionTimingFunction;
-      probe.remove();
-      return value;
-    }, name);
   const near = (actual: { x: number; y: number; width: number; height: number }, expected: { x: number; y: number; width: number; height: number }, label: string) => {
     for (const key of ['x', 'y', 'width', 'height'] as const) expect(actual[key], `${label} ${key}`).toBeCloseTo(expected[key], 0);
   };
   /**
-   * Sets props and, in the task of the update that draws them, holds the motion that update starts at its first frame (0)
-   * or its last (1), as `holdMotion` does; returns how many motions it held. A motion of the token's 150 or 200 ms that
-   * is asked for a round trip later may be over where a frame takes longer than that.
+   * The tooltip's own motions in a sampling: the wrapper's opacity and scale. (A distance and a blur of 0, the default
+   * system's, still start transitions of `translate` and `filter` that draw nothing.)
    */
-  const setAndHold = (page: P, id: string, props: Record<string, unknown>, progress: 0 | 1) =>
-    tip(page, id).evaluate(
-      async (el: any, [p, at]) => {
-        Object.assign(el, p);
-        await el.updateComplete;
-        const moving = el.shadowRoot.querySelector('.motion');
-        const held: Animation[] = (moving.held = moving.getAnimations());
-        for (const animation of held) {
-          animation.pause();
-          animation.currentTime = at ? Number(animation.effect!.getComputedTiming().endTime) : 0;
-        }
-        return held.length;
-      },
-      [props, progress] as const,
-    );
+  const own = (seen: Frames) => seen.motions.filter((each) => each.on === 'div.motion' && ['opacity', 'scale'].includes(each.name));
+  /** Where the wrapper grows from, as a share of its own box at rest (`[0.5, 1]`: the middle of its bottom edge). */
+  const originShare = (page: P, id: string) =>
+    motion(page, id).evaluate((el: HTMLElement) => {
+      const [x, y] = getComputedStyle(el).transformOrigin.split(' ').map(Number.parseFloat);
+      return [Math.round((x! / el.offsetWidth) * 100) / 100, Math.round((y! / el.offsetHeight) * 100) / 100];
+    });
+  const ORIGIN: Record<string, number[]> = { top: [0.5, 1], bottom: [0.5, 0], left: [1, 0.5], right: [0, 0.5] };
+  const isClosed = (page: P, id: string) => surface(page, id).evaluate((el) => !el.matches(':popover-open'));
 
-  test('TIP-15: it fades in while it grows from the enter scale and travels the enter offset out of the anchor’s side, fixed at the point of its edge that faces the anchor — above, below, at the start, at the end and after a flip — and goes back the same way; the placed box does not move', async ({ page }) => {
+  test('TIP-15: opening, it appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown from the middle of the edge that faces the anchor (above, below, at the start, at the end and after a flip), over the enter motion; closing, it leaves the same way back over the exit motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and the placed box never moves', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
     const fixtures = [f('top', { placement: 'top' }), f('bottom', { placement: 'bottom' }), f('start', { placement: 'start' }), f('end', { placement: 'end' }), f('flip', { placement: 'top-start' })];
     await mount(page, fixtures);
-    // The tokens' own times and curves, and a scale and a travel large enough to see which way it goes.
     const [enter, exit] = [await resolveToken(page, T('motion-enter-duration'), 'duration'), await resolveToken(page, T('motion-exit-duration'), 'duration')];
-    expect(Number(await token(page, T('motion-enter-scale')))).toBeGreaterThan(0.5);
-    await override(page, { [T('motion-enter-scale')]: '0.5', [T('motion-enter-offset')]: '16px' });
-    const seconds = (value: string) => value.split(',').map((each) => Number.parseFloat(each) * 1000);
+    const [enterEasing, exitEasing] = [await resolveEasing(page, T('motion-enter-easing')), await resolveEasing(page, T('motion-exit-easing'))];
+    // The default system leaves on standard-accelerate.
+    expect(exitEasing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    expect(enter).not.toBe(exit);
     for (const fixture of fixtures) {
       const id = fixture.id;
       await anchorAt(page, id, 380, id === 'flip' ? 2 : 280);
-      // The first frame, held in the task that opens it: clear, half its size, 16 nearer the anchor, and fixed where its
-      // edge faces the anchor's centre.
-      expect(await setAndHold(page, id, { open: true }, 0), id).toBeGreaterThan(0);
-      const [a, s] = [edges(await bounds(anchor(page, id))), edges(await bounds(surface(page, id)))];
-      const first = await drawnNow(page, id);
+      const opening = await sampleFrames(tip(page, id), () => set(page, id, { open: true }), { probe: appearProbe });
       const facing = (await side(page, id))!;
       expect(facing, id).toBe({ top: 'top', bottom: 'bottom', start: 'left', end: 'right', flip: 'bottom' }[id]);
-      expect(first.opacity, id).toBe(0);
-      expect(first.box.width, id).toBeCloseTo((s.right - s.left) / 2, 0);
-      expect(first.box.height, id).toBeCloseTo((s.bottom - s.top) / 2, 0);
-      const box = edges(first.box);
-      // Halved about a fixed point, every edge is half as far from that point as it is at rest: the point is on the edge
-      // that faces the anchor, at the anchor's centre (where an arrow would point), and that edge is 16 nearer the anchor.
-      const halved = (from: number, fixed: number) => fixed + (from - fixed) / 2;
-      if (facing === 'top') expect([box.bottom, box.left, box.right].map(Math.round), id).toEqual([s.bottom + 16, halved(s.left, a.centerX), halved(s.right, a.centerX)].map(Math.round));
-      if (facing === 'bottom') expect([box.top, box.left, box.right].map(Math.round), id).toEqual([s.top - 16, halved(s.left, a.centerX), halved(s.right, a.centerX)].map(Math.round));
-      if (facing === 'left') expect([box.right, box.top, box.bottom].map(Math.round), id).toEqual([s.right + 16, halved(s.top, a.centerY), halved(s.bottom, a.centerY)].map(Math.round));
-      if (facing === 'right') expect([box.left, box.top, box.bottom].map(Math.round), id).toEqual([s.left - 16, halved(s.top, a.centerY), halved(s.bottom, a.centerY)].map(Math.round));
-      // Over the entering motion's time and curve.
-      expect(seconds(first.duration), id).toEqual([enter, enter]);
-      expect(first.easing.split(/,(?![^(]*\))/)[0].trim(), id).toBe(await easingOf(page, T('motion-enter-easing')));
-      // The last frame: whole, in its place — the placed box, which the motion never moved.
-      await holdMotion(page, id, 1);
-      const last = await drawnNow(page, id);
-      expect(last.opacity, id).toBe(1);
-      near(last.box, await bounds(surface(page, id)), `${id} last`);
-      expect(edges(await bounds(surface(page, id))), id).toEqual(s);
-      await endMotion(page, id);
-      // Closing: back the same way, over the leaving motion's time and curve, and then out of the top layer.
-      expect(await setAndHold(page, id, { open: false }, 1), id).toBeGreaterThan(0);
-      const gone = await drawnNow(page, id);
-      expect(gone.opacity, id).toBe(0);
-      near(gone.box, first.box, `${id} gone`);
-      expect(seconds(gone.duration), id).toEqual([exit, exit]);
-      expect(gone.easing.split(/,(?![^(]*\))/)[0].trim(), id).toBe(await easingOf(page, T('motion-exit-easing')));
-      expect(await shown(page, id), id).toBe(true); // still leaving
-      await endMotion(page, id);
-      await expect.poll(() => shown(page, id), id).toBe(false);
+      expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+      expect(opening.rest.probe, id).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+      expect(await originShare(page, id), id).toEqual(ORIGIN[facing]);
+      expectNoFlicker(opening);
+      expectAnimated(opening, 'opacity');
+      expect(own(opening).map((each) => each.name).sort(), id).toEqual(['opacity', 'scale']);
+      for (const each of own(opening)) {
+        expect(each.duration, `${id} ${each.name}`).toBe(enter);
+        expect(each.easing, `${id} ${each.name}`).toBe(enterEasing);
+      }
+      // The place and the room are those of the tooltip at rest: the placed box is never transformed.
+      const placed = await bounds(surface(page, id));
+      expect(await surface(page, id).evaluate((el) => [getComputedStyle(el).transform, getComputedStyle(el).scale]), id).toEqual(['none', 'none']);
+      near((await drawnNow(page, id)).box, placed, `${id} at rest`);
+
+      const closing = await sampleFrames(tip(page, id), () => set(page, id, { open: false }), { probe: appearProbe });
+      // The same way back, to where it started.
+      expect(closing.rest.probe, id).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+      expectNoFlicker(closing);
+      expectAnimated(closing, 'opacity');
+      expect(own(closing).map((each) => each.name).sort(), id).toEqual(['opacity', 'scale']);
+      for (const each of own(closing)) {
+        expect(each.duration, `${id} ${each.name}`).toBe(exit);
+        expect(each.easing, `${id} ${each.name}`).toBe(exitEasing);
+      }
+      expectExitEnd(closing, { duration: exit, easing: bezierOf(exitEasing) });
+      // Out of the top layer once its exit has played.
+      await expect.poll(() => isClosed(page, id), id).toBe(true);
     }
-    expect(enter).not.toBe(exit);
   });
 
-  test('TIP-15: a scale of 1 and an offset of 0 is a fade alone, and where motion is reduced it fades without growing or travelling, over the same times', async ({ page }) => {
+  test('TIP-15: a system that sets sys.motion.appear.distance sees it travel out of the anchor’s side, toward the anchor and back; where appear.origin is center it grows from its centre on every side', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
-    for (const reduced of [false, true]) {
-      await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
-      await mount(page, [f('a', {})]);
-      await anchorAt(page, 'a', 380, 280);
-      const enter = await resolveToken(page, T('motion-enter-duration'), 'duration');
-      // Reduced motion ignores a scale and a travel however large; otherwise a system sets them to nothing.
-      await override(page, reduced ? { [T('motion-enter-scale')]: '0.5', [T('motion-enter-offset')]: '16px' } : { [T('motion-enter-scale')]: '1', [T('motion-enter-offset')]: '0px' });
-      expect(await setAndHold(page, 'a', { open: true }, 0)).toBeGreaterThan(0);
-      const first = await drawnNow(page, 'a');
-      expect(first.opacity).toBe(0);
-      near(first.box, await bounds(surface(page, 'a')), reduced ? 'reduced' : 'fade');
-      expect(Number.parseFloat(first.duration) * 1000).toBe(enter);
-      await endMotion(page, 'a');
-      expect((await drawnNow(page, 'a')).opacity).toBe(1);
-      expect(await setAndHold(page, 'a', { open: false }, 1)).toBeGreaterThan(0);
-      near((await drawnNow(page, 'a')).box, first.box, 'leaving');
-      await endMotion(page, 'a');
-      await expect.poll(() => shown(page, 'a')).toBe(false);
+    const fixtures = [f('top', { placement: 'top' }), f('bottom', { placement: 'bottom' }), f('start', { placement: 'start' }), f('end', { placement: 'end' })];
+    await mount(page, fixtures);
+    await override(page, { '--tanrei-sys-motion-appear-distance': '16px' });
+    // Toward the anchor: up from below it, down from above it, and so on round.
+    const TOWARD: Record<string, { tx: number; ty: number }> = { top: { tx: 0, ty: 16 }, bottom: { tx: 0, ty: -16 }, left: { tx: 16, ty: 0 }, right: { tx: -16, ty: 0 } };
+    for (const fixture of fixtures) {
+      const id = fixture.id;
+      await anchorAt(page, id, 380, 280);
+      const opening = await sampleFrames(tip(page, id), () => set(page, id, { open: true }), { probe: appearProbe });
+      const facing = (await side(page, id))!;
+      expect(opening.frames[0]!.probe, id).toMatchObject({ opacity: 0, ...TOWARD[facing] });
+      expect(opening.rest.probe, id).toMatchObject({ opacity: 1, tx: 0, ty: 0 });
+      expectNoFlicker(opening);
+      const closing = await sampleFrames(tip(page, id), () => set(page, id, { open: false }), { probe: appearProbe });
+      expect(closing.rest.probe, id).toMatchObject({ opacity: 0, ...TOWARD[facing] });
+      await expect.poll(() => isClosed(page, id), id).toBe(true);
     }
+    // appear.origin: center — read with a style query on the custom property.
+    await override(page, { '--tanrei-sys-motion-appear-origin': 'center' });
+    for (const id of ['top', 'end']) {
+      await set(page, id, { open: true });
+      await expect.poll(() => shown(page, id), id).toBe(true);
+      expect(await originShare(page, id), id).toEqual([0.5, 0.5]);
+      await set(page, id, { open: false });
+      await expect.poll(() => isClosed(page, id), id).toBe(true);
+    }
+  });
+
+  test('TIP-15: under the unfold appearance (m3-like) it unfolds from the edge that faces the anchor at its full width, on the hint role’s times and the curves the system keeps, and folds back the same way', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountFixtures(page, spec, { icons: true, system: 'm3-like', fixtures: [f('a', { placement: 'top' })] });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    await anchorAt(page, 'a', 380, 280);
+    const opening = await sampleFrames(tip(page, 'a'), () => set(page, 'a', { open: true }), { probe: appearProbe });
+    // Above its anchor: the height, from the bottom edge.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0, axis: 'y' });
+    expect(await originShare(page, 'a')).toEqual([0.5, 1]);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const opacity = own(opening).find((each) => each.name === 'opacity')!;
+    expect(opacity.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-appear-hint-enter', 'duration'));
+    expect(opacity.easing).toBe(await resolveEasing(page, T('motion-enter-easing')));
+    const closing = await sampleFrames(tip(page, 'a'), () => set(page, 'a', { open: false }), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 0 });
+    const out = own(closing).find((each) => each.name === 'opacity')!;
+    expect(out.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-appear-hint-exit', 'duration'));
+    expect(out.easing).toBe(await resolveEasing(page, T('motion-exit-easing')));
+  });
+
+  test('TIP-15: where motion is reduced it only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [f('a', {})]);
+    await anchorAt(page, 'a', 380, 280);
+    // However far a system asks it to travel.
+    await override(page, { '--tanrei-sys-motion-appear-distance': '16px' });
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const opening = await sampleFrames(tip(page, 'a'), () => set(page, 'a', { open: true }), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.tx === 0 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    const fades = (seen: Frames) => seen.motions.filter((each) => each.on === 'div.motion').map((each) => [each.name, each.duration]);
+    expect(fades(opening)).toEqual([['opacity', reduced]]);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1 });
+    const closing = await sampleFrames(tip(page, 'a'), () => set(page, 'a', { open: false }), { probe: appearProbe });
+    expect(fades(closing)).toEqual([['opacity', reduced]]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
+    await expect.poll(() => isClosed(page, 'a')).toBe(true);
+  });
+
+  test('TIP-15: a tooltip in the page’s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await mountFixtures(page, spec, { icons: true, fixtures: [] });
+    // Mounted open after the document was painted: it enters.
+    const main = page.locator('main');
+    const late = '<tanrei-tooltip id="late" text="Archive" open style="position: fixed; left: 380px; top: 280px"><button type="button">Archive</button></tanrei-tooltip>';
+    const mounted = await sampleFrames(main, () => main.evaluate((el, html) => el.insertAdjacentHTML('beforeend', html), late), { probe: appearProbe });
+    expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs (every transition that
+    // starts in a shadow root is counted from before the first element is made).
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + event.propertyName)); return root; };</script>`;
+    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}${late.replace('id="late"', 'id="early"')}` });
+    await page.route('http://tooltip.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://tooltip.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-tooltip'));
+    await page.evaluate(async () => {
+      await (document.querySelector('tanrei-tooltip') as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      for (let i = 0; i < 3; i++) await new Promise(requestAnimationFrame);
+    });
+    const early = page.locator('tanrei-tooltip#early');
+    expect(await early.locator('.surface').evaluate((el) => el.matches(':popover-open') && el.classList.contains('open'))).toBe(true);
+    expect(await early.locator('.motion').evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
+    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-tooltip motion'))).toEqual([]);
   });
 
   test('TIP-28: a tooltip that takes over from one that is open, or still fading out, or that closed within the warm time because the pointer left its anchor, appears whole at once without its show delay, and the other disappears at once; after the warm time the next one waits and moves again', async ({ page }) => {
@@ -1749,7 +1789,7 @@ test.describe('motion', () => {
     await mount(page, [f('a', { showDelay: 0, hideDelay: 0 })]);
     // Motions of 40 s, so that what a slow machine does between two readings (a round trip of half a second) moves the
     // opacity by a hundredth: the readings below are compared within 0.15, which at 4 s was 600 ms of the machine's time.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s', [T('motion-enter-easing')]: 'linear', [T('motion-exit-easing')]: 'linear', [T('motion-enter-scale')]: '0.5' });
+    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s', [T('motion-enter-easing')]: 'linear', [T('motion-exit-easing')]: 'linear', '--tanrei-sys-motion-appear-scale': '0.5' });
     await page.evaluate(() => document.querySelector('[data-fixture="a"]')!.addEventListener('pointerdown', (e) => (window as any).log.push(`stage:${(e.target as Element).localName}`)));
     const remaining = () => motion(page, 'a').evaluate((el) => Math.max(...el.getAnimations().map((animation) => Number(animation.effect!.getComputedTiming().endTime) - Number(animation.currentTime))));
     // Entering…

@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   FollowController,
   SHORTCUT_UPDATE,
@@ -17,6 +18,7 @@ import {
   registerOverlay,
   report,
   shadeFilter,
+  shadeOn,
   shadowLayers,
   styleQueries,
   swallowRelease,
@@ -88,10 +90,12 @@ function warmFor(duration: number) {
  * `touchTimeout` in milliseconds (0 is at once), or the tokens `motion.show-delay`, `motion.hide-delay` and
  * `timeout.touch` while unset. Opening and closing by itself fires `toggle`; setting `open` does not.
  *
- * It comes out of the anchor's side: it fades in while it grows from `motion.enter-scale` and travels
- * `motion.enter-offset`, the growth fixed where an arrow points or would point, and goes back the same way; a motion that
- * is interrupted turns round from where it is, a warm tooltip appears whole at once, and where motion is reduced it
- * fades alone. Its place is never animated.
+ * It comes out of the anchor's side as every surface appears (`sys.motion.appear.*`: a fade and a growth from 0.96
+ * under the default system), grown from the middle of the edge that faces the anchor, over `motion.enter-duration` and
+ * `-easing`, and goes back the same way over `motion.exit-duration` and `-easing`; a motion that is interrupted turns
+ * round from where it is, a warm tooltip appears whole at once, one mounted open before the page's first paint is there
+ * without its motion, and where motion is reduced it cross-fades over `sys.motion.role.reduced`. Its place is never
+ * animated.
  *
  * `arrow` draws a triangle that points at the anchor, one shape with the container; `inverse` draws it in the opposite
  * scheme's colors (true) or on a surface of the scheme (false). Left unset, each takes the system's choice:
@@ -238,8 +242,6 @@ export class TanreiTooltip extends TanreiElement {
   /** TIP-9: the side it stands on, kept while that side has room; and the placement and direction it was taken for. */
   private side: TooltipSide | null = null;
   private placedFor = '';
-  /** TIP-29: which closing motion is running; an earlier one that ends late changes nothing. */
-  private motionRun = 0;
   /** TIP-25: the elevation's layers, drawn round the container and its arrow as one shape; and what they were read from. */
   private layers: ShadowLayer[] = [];
   private shade = '';
@@ -249,6 +251,8 @@ export class TanreiTooltip extends TanreiElement {
   /** TIP-27: the element this tooltip put `aria-keyshortcuts` on, and what it wrote. */
   private keyed: { element: Element; keys: string } | null = null;
   private unregister: (() => void) | null = null;
+  /** TIP-15, TIP-28, TIP-29: its appearance — opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear = new AppearController(this, { motion: () => this.motion });
 
   constructor() {
     super();
@@ -627,10 +631,9 @@ export class TanreiTooltip extends TanreiElement {
     this.side = at.side;
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
+    // TIP-15: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
-    // TIP-15: it grows from the point of its edge where an arrow points or would point; over the anchor, from its middle.
-    const edge = { top: `${at.point}px 100%`, bottom: `${at.point}px 0`, left: `100% ${at.point}px`, right: `0 ${at.point}px` };
-    motion.style.transformOrigin = at.held ? '' : edge[at.side];
+    surface.toggleAttribute('data-held', at.held);
     // TIP-25: the arrow on the edge that faces the anchor, and the elevation round the container and the arrow together.
     if (at.arrow) {
       surface.style.setProperty('--_arrow-at', `${at.point}px`);
@@ -641,8 +644,8 @@ export class TanreiTooltip extends TanreiElement {
       }
       surface.dataset.arrow = this.layers.length ? 'shaded' : 'flat';
     } else delete surface.dataset.arrow;
-    // The filter is named from the element's own style, so that the name is looked up in this shadow root.
-    motion.style.filter = surface.dataset.arrow === 'shaded' ? 'url(#shade)' : '';
+    // On the placed box: what moves inside it keeps `filter` for the appearance's blur.
+    shadeOn(surface);
   }
 
   /** What a frame can change besides the boxes: the direction, whether an arrow is asked for, and the look. */
@@ -702,13 +705,14 @@ export class TanreiTooltip extends TanreiElement {
     if (fading && fading !== this) fading.hide(false);
     if (fading === this) fading = null;
     showing = this;
-    this.motionRun++;
-    // TIP-29: where the closing motion has got to, before the popover is taken out and put back.
-    const reached = leaving ? getComputedStyle(motion) : null;
-    const from = reached ? { opacity: reached.opacity, transform: reached.transform } : null;
-    // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since.
-    if (surface.matches(':popover-open')) surface.hidePopover();
-    surface.showPopover();
+    // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since — and, still
+    // leaving, put back where its exit has got to (TIP-29).
+    if (surface.matches(':popover-open'))
+      this.appear.keep(() => {
+        surface.hidePopover();
+        surface.showPopover();
+      });
+    else surface.showPopover();
     this.shown = true;
     if (!leaving) this.side = null;
     this.place();
@@ -716,16 +720,11 @@ export class TanreiTooltip extends TanreiElement {
     this.following.start();
     document.addEventListener('pointerdown', this.onDocumentPress, true);
     window.addEventListener('keydown', this.onEscape, true);
-    // The first frame, without a transition: closed (the start of the entering motion), where it had got to, or whole.
-    motion.style.transition = 'none';
-    if (from) Object.assign(motion.style, from);
-    if (whole) surface.classList.add('open');
-    void motion.offsetWidth;
-    // …and from there to open, over the entering motion.
-    motion.style.transition = '';
-    motion.style.opacity = '';
-    motion.style.transform = '';
+    // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a tooltip
+    // still leaving goes on from where it is; one that takes over is whole at once (TIP-28).
+    if (!leaving) this.appear.drawAtOnce();
     surface.classList.add('open');
+    this.appear.enter(whole);
   }
 
   /**
@@ -748,16 +747,17 @@ export class TanreiTooltip extends TanreiElement {
     };
     if (!this.shown) {
       // Already leaving: told to go at once, it goes (TIP-28).
-      if (!fade) finish();
+      if (!fade) {
+        void this.appear.exit(true);
+        finish();
+      }
       return;
     }
     this.shown = false;
-    const run = ++this.motionRun;
     if (!fade) {
-      motion.style.transition = 'none';
       surface.classList.remove('open');
+      void this.appear.exit(true);
       finish();
-      motion.style.transition = '';
       return;
     }
     // TIP-28: tooltips stay warm from now, for the warm time.
@@ -766,9 +766,8 @@ export class TanreiTooltip extends TanreiElement {
       fading = this;
     }
     surface.classList.remove('open');
-    const running = motion.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(() => run === this.motionRun && finish());
+    // Out of the top layer once its exit has played; told to open again before that, it stays.
+    void this.appear.exit().then((gone) => gone && finish());
   }
 
   /** TIP-14: the text (after the title, for a rich tooltip) as the anchor's description, or nothing. */
