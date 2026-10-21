@@ -9309,6 +9309,8 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     ),
   ),
   tagGroup: TanreiTagGroupTokens(
+    motionMoveDuration: 350,
+    motionMoveEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
     spacings: TanreiTagGroupSpacings(
       tags: TanreiTagGroupSpacingTokens(
         gap: 8.0,

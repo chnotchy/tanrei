@@ -3,7 +3,10 @@
 // where the spec's own `verify` names the default system's value.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tag-group');
 type P = Page;
@@ -624,40 +627,140 @@ test.describe('behavior', () => {
     expect(await host(page, 'rewritten').evaluate((el) => [...el.children].map((child) => child.getAttribute('label')))).toEqual(['Inter', 'Roboto']);
   });
 
-  test('TGR-10: a member that is added, is removed or changes its size is placed again at once, without a motion; a member that has focus while it moves to another line keeps it, and adding a member moves no focus', async ({ page }) => {
-    await mount(page, only('chips-filters'));
+  // TGR-10: where each member is drawn in a frame, from the group's corner, by its label.
+  const placesProbe = (root: Element) => {
+    const origin = root.getBoundingClientRect();
+    const out: Record<string, number> = {};
+    for (const el of Array.from(root.children)) {
+      const label = el.getAttribute('label') ?? '';
+      const r = el.getBoundingClientRect();
+      out[`x:${label}`] = Math.round((r.left - origin.left) * 10) / 10;
+      out[`y:${label}`] = Math.round((r.top - origin.top) * 10) / 10;
+      out[`right:${label}`] = Math.round((r.right - origin.left) * 10) / 10;
+    }
+    return out;
+  };
+  /** TGR-10, MOT-2: in every frame `name` lies on the way from where it was drawn before the change to where it rests, and never turns back. */
+  const onTheWay = (seen: Frames, name: string) => {
+    const from = Number(seen.before.probe[name]);
+    const to = Number(seen.rest.probe[name]);
+    let last = from;
+    for (const frame of seen.frames) {
+      const value = Number(frame.probe[name]);
+      expect(Math.min(from, to) - 0.5 <= value && value <= Math.max(from, to) + 0.5, `${name} in frame ${frame.index}: ${value} on the way ${from} → ${to}`).toBe(true);
+      expect((value - last) * Math.sign(to - from), `${name} in frame ${frame.index}: ${last} → ${value} goes toward ${to}`).toBeGreaterThanOrEqual(-0.5);
+      last = value;
+    }
+  };
+  /** The moves the group made, as the frames sampler held them: scripts' animations on the members. */
+  const moves = (seen: Frames) => seen.motions.filter((motion) => motion.kind === 'script' && /^tanrei-(chip|tag)\b/.test(motion.on));
+  const expectMoveTiming = async (page: P, seen: Frames) => {
+    const duration = await resolveToken(page, T('motion-move-duration'), 'duration');
+    expect(duration, 'move-duration aliases sys.motion.role.selection.travel').toBe(await resolveToken(page, '--tanrei-sys-motion-role-selection-travel', 'duration'));
+    const easing = await resolveEasing(page, T('motion-move-easing'));
+    expect(easing, 'move-easing aliases sys.motion.easing.spatial').toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    expect(moves(seen).length).toBeGreaterThan(0);
+    for (const motion of moves(seen)) expect([motion.duration, motion.easing], motion.on).toEqual([Math.round(duration), easing]);
+  };
+
+  test('TGR-10: a member that is removed leaves at once, and the members after it move toward the start from where they were drawn, over the move motion (sys.motion.role.selection.travel on the spatial curve), without fading or scaling; the ones before it stay, and focus stays where it was', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
+    const id = 'chips-filters';
+    expect((await layout(page, id)).lines.length).toBe(1);
+    // MOT-3: nothing moved while the group was first drawn.
+    expect(await members(page, id).evaluateAll((all) => all.flatMap((el) => el.getAnimations()).length)).toBe(0);
+    await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.remove()), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
+    expect(seen.frames[0]!.probe['x:Assigned to me'], 'the removed member is gone in the first frame').toBeUndefined();
+    for (const label of ['Needs review', 'Blocked', 'Has a design']) {
+      expectAnimated(seen, `x:${label}`);
+      onTheWay(seen, `x:${label}`);
+      expect(seen.frames.every((frame) => frame.probe[`y:${label}`] === seen.rest.probe[`y:${label}`]), `${label} stays on its line`).toBe(true);
+    }
+    expect(seen.frames.every((frame) => frame.probe['x:Open'] === seen.before.probe['x:Open']), 'the member before it does not move').toBe(true);
+    await expectMoveTiming(page, seen);
+    // Only a translation: no opacity, scale or filter on the members at any frame.
+    expect(await members(page, id).evaluateAll((all) => all.map((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale, getComputedStyle(el).translate]))).toEqual(Array(4).fill(['1', 'none', 'none']));
+    const closed = await layout(page, id);
+    near(closed.placed[1].x - closed.placed[0].right, await token(page, 'gap-chips'), 'the rest stand a gap apart');
+    expect(await focusPath(page)).toBe(onChip('Has a design'));
+  });
+
+  test('TGR-10: a member that is added appears in its place at once, the members after it move aside, and adding a member moves no focus', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
+    const id = 'chips-filters';
+    await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => host(page, id).evaluate((el) => el.insertAdjacentHTML('afterbegin', '<tanrei-chip kind="filter" label="Added"></tanrei-chip>')), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
+    // The new member is drawn whole, where it rests, from the first frame.
+    for (const frame of seen.frames) expect([frame.probe['x:Added'], frame.probe['right:Added']], `frame ${frame.index}`).toEqual([seen.rest.probe['x:Added'], seen.rest.probe['right:Added']]);
+    // The first member that stood after it moves aside; one that goes to another line moves there.
+    expectAnimated(seen, 'x:Open');
+    onTheWay(seen, 'x:Open');
+    const rest = await layout(page, id);
+    const later = rest.placed.filter((m) => m.label !== 'Added');
+    for (const one of later) {
+      const moved = seen.before.probe[`x:${one.label}`] !== seen.rest.probe[`x:${one.label}`] || seen.before.probe[`y:${one.label}`] !== seen.rest.probe[`y:${one.label}`];
+      if (moved) expectAnimated(seen, seen.before.probe[`y:${one.label}`] !== seen.rest.probe[`y:${one.label}`] ? `y:${one.label}` : `x:${one.label}`);
+    }
+    await expect(stage(page, id).getByRole('listitem')).toHaveCount(6);
+    expect(await focusPath(page)).toBe(onChip('Has a design'));
+  });
+
+  test('TGR-10: a member that grows until the last one no longer fits sends that one to the next line over the move motion, in both directions; it keeps focus; the line is placed again by TGR-2', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
     const id = 'chips-filters';
     const before = await layout(page, id);
     expect(before.lines.length).toBe(1);
     await tabTo(page, member(page, id, 4).locator('.container'));
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
-    // Added: placed in the same task's layout, and focus is where it was.
-    const after = await host(page, id).evaluate((el) => {
-      el.insertAdjacentHTML('afterbegin', '<tanrei-chip kind="filter" label="Added first"></tanrei-chip>');
-      el.insertAdjacentHTML('beforeend', '<tanrei-chip kind="filter" label="Added last"></tanrei-chip>');
-      return [...el.children].map((child) => child.getBoundingClientRect().width > 0 || child.localName);
-    });
-    expect(after.length).toBe(7);
-    await expect(stage(page, id).getByRole('listitem')).toHaveCount(7);
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
-    // A member grows: the ones after it go to the next line — the focused one among them — and focus stays on it.
-    await member(page, id, 1).evaluate((el) => el.setAttribute('label', 'Open and waiting for a review by someone on the design system team'));
-    await expect.poll(async () => (await layout(page, id)).lines.length).toBeGreaterThan(1);
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.setAttribute('label', 'Assigned to me and waiting for a review')), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
     const grown = await layout(page, id);
-    const focused = grown.placed.find((m) => m.label === 'Has a design')!;
-    expect(focused.y).toBeGreaterThan(before.placed[4].y);
+    expect(grown.lines.length).toBeGreaterThan(1);
+    const sent = grown.lines[1]![0]!.label;
+    expectAnimated(seen, `y:${sent}`);
+    onTheWay(seen, `y:${sent}`);
+    onTheWay(seen, `x:${sent}`);
+    expect(seen.frames.every((frame) => frame.probe['x:Open'] === seen.before.probe['x:Open'] && frame.probe['y:Open'] === seen.before.probe['y:Open']), 'the member before the one that grew does not move').toBe(true);
+    await expectMoveTiming(page, seen);
     expect(await focusPath(page)).toBe(onChip('Has a design'));
-    near(top(grown.lines[1]) - bottom(grown.lines[0]), await token(page, 'row-gap-chips'), 'placed again by TGR-2');
-    // Without a motion of its own: nothing in the group animates or transitions.
-    expect(await host(page, id).evaluate((el) => [el.getAnimations({ subtree: false }).length, getComputedStyle(el.shadowRoot!.querySelector('[role="list"]')!).transitionDuration, getComputedStyle(el).transitionDuration])).toEqual([0, '0s', '0s']);
-    // A size that changes: the line is as tall as its tallest member again.
-    await members(page, id).evaluateAll((all) => all.forEach((el) => el.setAttribute('size', 'small')));
-    await expect.poll(async () => (await layout(page, id)).placed[0].height).toBe(await resolveToken(page, '--tanrei-comp-chip-container-height-small'));
-    // Removed: the rest close up at once.
-    await member(page, id, 1).evaluate((el) => el.remove());
-    const closed = await layout(page, id);
-    near(closed.placed[1].x - closed.placed[0].right, await token(page, 'gap-chips'), 'the rest stand a gap apart');
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
+    near(top(grown.lines[1]!) - bottom(grown.lines[0]!), await token(page, 'row-gap-chips'), 'placed again by TGR-2');
+  });
+
+  test('TGR-10: a line that keeps its members follows a member that changes its size over its own motion at once — a filter chip that is switched on carries the chips after it, a gap away in every frame, and the group moves none of them', async ({ page }) => {
+    await mount(page, [fx('carried', { spacing: 'chips', label: 'Filters' }, filters('Open', 'Mine', 'Review'))], { reducedMotion: false });
+    const id = 'carried';
+    const probe = (root: Element) => {
+      const [a, b, c] = Array.from(root.children).map((el) => el.getBoundingClientRect());
+      return { width: a!.width, gap: Math.round((b!.left - a!.right) * 10) / 10, next: Math.round((c!.left - b!.right) * 10) / 10 };
+    };
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 0).evaluate((el) => ((el as HTMLElement & { selected: boolean }).selected = true)), { probe });
+    expect(seen.complete).toBe(true);
+    expect((await layout(page, id)).lines.length).toBe(1);
+    // The chip grows over its own selection motion (CHP-10) …
+    expectAnimated(seen, 'width');
+    // … and the chips after it keep their gap in every frame: carried, not chased.
+    for (const frame of seen.frames) near(Number(frame.probe.gap), await token(page, 'gap-chips'), `frame ${frame.index}: the gap after the chip that grows`);
+    for (const frame of seen.frames) near(Number(frame.probe.next), await token(page, 'gap-chips'), `frame ${frame.index}: the gap after that`);
+    expect(moves(seen)).toEqual([]);
+  });
+
+  test('TGR-10: where motion is reduced, and when the width the layout gives the group changes, every member is placed again at once', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: true });
+    const id = 'chips-filters';
+    const removed = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.remove()), { probe: placesProbe });
+    expectFirstFrameAtRest(removed);
+    expect(moves(removed)).toEqual([]);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const width = (await layout(page, id)).group.width;
+    const narrowed = await sampleFrames(host(page, id), () => host(page, id).evaluate((el, w) => (el.style.inlineSize = `${Math.round(w / 2)}px`), width), { probe: placesProbe });
+    expect((await layout(page, id)).lines.length).toBeGreaterThan(1);
+    expectFirstFrameAtRest(narrowed);
+    expect(moves(narrowed)).toEqual([]);
   });
 
   test('TGR-11: content that is not a tag or a chip is still laid out and exposed as a member, and reported; an element with a role of its own keeps it', async ({ page }) => {
@@ -684,6 +787,8 @@ test.describe('behavior', () => {
     const heightBefore = (await layout(page, 'chips-filters-wrap')).placed[0].height;
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
     await frames(page);
+    // TGR-10: the members that change line move there; what is read is where they rest.
+    await motionEnded(page);
     for (const [id, spacing] of [['tags-wrap', 'tags'], ['chips-filters-wrap', 'chips'], ['chips-input-add', 'chips'], ['tags-long-member', 'tags']] as const) {
       const { group, placed, lines } = await layout(page, id);
       const [gap, rowGap] = [await token(page, `gap-${spacing}`), await token(page, `row-gap-${spacing}`)];

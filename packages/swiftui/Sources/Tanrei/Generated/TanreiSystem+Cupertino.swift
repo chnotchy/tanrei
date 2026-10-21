@@ -9198,6 +9198,8 @@ private let cupertinoTabsTokens = TanreiTabsTokens(
 )
 
 private let cupertinoTagGroupTokens = TanreiTagGroupTokens(
+  motionMoveDuration: 250,
+  motionMoveEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   spacings: TanreiTagGroupSpacings(
     tags: TanreiTagGroupSpacingTokens(
       gap: 8,

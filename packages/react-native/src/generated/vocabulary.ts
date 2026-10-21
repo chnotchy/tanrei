@@ -5249,6 +5249,8 @@ export type TanreiTagGroupSpacings = { readonly [Key in TanreiCoreTagGroupSpacin
  * `<state><Part>`), then one holder per axis (`spacings`), keyed by the axis value.
  */
 export interface TanreiTagGroupTokens {
+  readonly motionMoveDuration: number;
+  readonly motionMoveEasing: TanreiCubicBezier;
   readonly spacings: TanreiTagGroupSpacings;
 }
 

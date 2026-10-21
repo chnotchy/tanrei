@@ -8169,6 +8169,8 @@
     --tanrei-comp-tabs-track-visible: on;
     --tanrei-comp-tag-group-gap-chips: var(--tanrei-sys-space-space100);
     --tanrei-comp-tag-group-gap-tags: var(--tanrei-sys-space-space100);
+    --tanrei-comp-tag-group-motion-move-duration: var(--tanrei-sys-motion-role-selection-travel);
+    --tanrei-comp-tag-group-motion-move-easing: var(--tanrei-sys-motion-easing-spatial);
     --tanrei-comp-tag-group-row-gap-chips: var(--tanrei-sys-space-space200);
     --tanrei-comp-tag-group-row-gap-tags: var(--tanrei-sys-space-space100);
     --tanrei-comp-tag-container-gap: var(--tanrei-sys-space-space50);

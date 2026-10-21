@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, OpenAxesController, parseValues, report } from '../../primitives/index.js';
+import { AvailabilityController, OpenAxesController, Settle, documentPainted, parseValues, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -31,6 +31,16 @@ const isText = (node: Node): node is Text => node.nodeType === Node.TEXT_NODE;
 /** What the group holds: its element children, and text that is more than the white space between them. */
 const isContent = (node: Node) => node.nodeType === Node.ELEMENT_NODE || (isText(node) && node.data.trim() !== '');
 const sameOrder = (a: readonly Node[], b: readonly Node[]) => a.length === b.length && a.every((node, i) => node === b[i]);
+
+/** Whether motion is reduced for this person (TGR-10). */
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** TGR-10: where a member was laid out at the last look, from the list's corner and without its move, and the line it stood on. */
+interface Place {
+  x: number;
+  y: number;
+  line: readonly Element[];
+}
 
 /**
  * Whether the group may give this member the list item role: it has no `role` of its own, and it is an element that
@@ -83,6 +93,13 @@ function holdsFocus(member: Element): boolean {
  * off, because each chip is a toggle. The set is then one Tab stop — the chip that last had focus, else the first chip
  * that is on, else the first — and the arrow keys (the way they point, in right-to-left too), Home and End move between
  * its chips without switching anything; Space switches the focused filter chip, Backspace or Delete removes an input chip.
+ *
+ * When a member is added, removed or changes its size, the members whose place that changes move there from where
+ * they were drawn, over `--tanrei-comp-tag-group-motion-move-duration` with `-move-easing`, along a line and from one
+ * line to another (TGR-10). A line that keeps the same members follows the change at once: a chip that grows with its
+ * own motion carries the chips after it. A member that is added appears and one that is removed leaves at once; with
+ * reduced motion, or when the group's width changes, every member is placed at once. The motion is a `translate` added
+ * to the member's own, so a member keeps focus, and its focus indicator, while it moves.
  *
  * It supplies no words: the name of the set is yours, in `label`.
  *
@@ -162,23 +179,27 @@ export class TanreiTagGroup extends TanreiElement {
   private focused: Element | null = null;
 
   /**
-   * TGR-10: a member that comes or goes is placed at once — the layout is the browser's, in the same frame; the group
-   * reads who is there, gives and takes back the item role, and (TGR-9) sees a member leave while focus was on it.
+   * The group reads who is there, gives and takes back the item role, and (TGR-9) sees a member leave while focus was
+   * on it. TGR-10: then, once the members that came have rendered — still before the frame is drawn — it places them
+   * again, and the members that changed place move from where they were drawn.
    */
   private readonly children$ = new MutationObserver((records) => {
     const before = this.content;
     this.read();
     this.select();
     this.afterLeave(before, records);
+    const came = records.flatMap((record) => [...record.addedNodes]).map((node) => (node as Node & { updateComplete?: Promise<unknown> }).updateComplete);
+    void Promise.all(came).then(() => this.place(true));
   });
 
   /**
-   * TGR-5: whether the members stand on more than one line, read when the list's box changes — a set that wraps, or
-   * stops wrapping, changes its height — and kept as the custom state `wrapped`, which the styles read. Nothing is
-   * measured at rest.
+   * TGR-5, TGR-10: the list's box and each member's are watched while they are in the page, and the members placed
+   * again when one of them changes — after its layout, before it is drawn. Nothing is measured at rest.
    */
-  private readonly lines$ = typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.readLines()) : null;
+  private readonly lines$ = typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.place()) : null;
   private observed: Element | null = null;
+  /** TGR-10: the members whose box is watched. */
+  private readonly sized = new Set<Element>();
 
   /** TGR-5: the list is watched while it is rendered (an empty group has none) and the group is in the page. */
   private watchLines() {
@@ -186,15 +207,149 @@ export class TanreiTagGroup extends TanreiElement {
     if (rendered === this.observed) return;
     if (this.observed) this.lines$?.unobserve(this.observed);
     if (rendered) this.lines$?.observe(rendered);
-    else this.readLines();
     this.observed = rendered;
+    if (!rendered) this.place();
   }
 
-  private readLines() {
-    const boxes = [...this.children].map((child) => child.getBoundingClientRect()).filter((box) => box.width > 0 || box.height > 0);
-    const first = boxes[0];
-    // More than one line: some member stands wholly below the first.
-    const wrapped = !!first && boxes.some((box) => box.top >= first.bottom);
+  /** TGR-10: each member's box is watched while it is here: a member that changes its size moves the others. */
+  private watchMembers() {
+    for (const member of this.sized) {
+      if (member.parentNode === this) continue;
+      this.lines$?.unobserve(member);
+      this.sized.delete(member);
+    }
+    for (const member of this.children) {
+      if (this.sized.has(member)) continue;
+      this.lines$?.observe(member);
+      this.sized.add(member);
+    }
+  }
+
+  /** TGR-10, MOT-3: no member moves while the group draws its first frames. */
+  private readonly settle = new Settle(this);
+
+  /** TGR-10: where each member was laid out at the last look. */
+  private places = new Map<Element, Place>();
+  /**
+   * TGR-10, TGR-14, TGR-16: what laid the members out at the last look besides themselves — the list's direction and its
+   * two gaps — and its width. When one of them has changed, every member is placed at once: the width not when a member
+   * came or went (a group as wide as its content changes its width with them).
+   */
+  private placedBy = '';
+  private placedWidth = -1;
+  /** TGR-10: the motion moving each member to its place, and how far from it the member set out. */
+  private readonly moves = new Map<Element, { motion: Animation; x: number; y: number }>();
+
+  /** TGR-10: how far a member's move draws it from where it is laid out, now. */
+  private shownOffset(member: Element): { x: number; y: number } {
+    const move = this.moves.get(member);
+    const progress = move?.motion.effect?.getComputedTiming().progress;
+    if (!move || progress === null || progress === undefined) return { x: 0, y: 0 };
+    return { x: move.x * (1 - progress), y: move.y * (1 - progress) };
+  }
+
+  /** TGR-10: the time and the curve of a move, as the cascade computes them on the list, which carries them (tag-group.styles.ts). */
+  private moveTiming(): { duration: number; easing: string } {
+    const carrier = this.observed;
+    if (!carrier) return { duration: 0, easing: 'ease' };
+    const style = getComputedStyle(carrier);
+    const duration = Number.parseFloat(style.transitionDuration) * 1000;
+    return { duration: duration > 0 ? duration : 0, easing: style.transitionTimingFunction.split(/,(?![^(]*\))/)[0].trim() || 'ease' };
+  }
+
+  /** TGR-10: the moves end, each member where it is laid out — all of them, or those `keep` does not keep. */
+  private stopMoves(keep: (member: Element) => boolean = () => false) {
+    for (const [member, move] of this.moves) {
+      if (keep(member)) continue;
+      move.motion.cancel();
+      this.moves.delete(member);
+    }
+  }
+
+  /**
+   * TGR-5, TGR-10: where the members are laid out now, without their moves, gathered into lines. The group wraps while
+   * there is more than one (the custom state `wrapped`, which the styles read). Then each member that was here, stands
+   * somewhere else, and is not carried — a line that holds the same members in the same order follows its members'
+   * sizes at once — moves from where it is drawn to its new place: a change that comes during a move takes the member
+   * on from where it is. A member that came appears at once; one that left is gone. At a new width, direction or gap
+   * (TGR-14, TGR-16), while the first frames are drawn, while a font face is loading and where motion is reduced,
+   * everything is placed at once.
+   */
+  private place(byMembers = false) {
+    const list = this.observed;
+    if (!list || !this.isConnected) {
+      this.stopMoves();
+      this.places = new Map();
+      this.placedBy = '';
+      this.placedWidth = -1;
+      this.wrap(false);
+      return;
+    }
+    const origin = list.getBoundingClientRect();
+    const laid: { member: Element; x: number; y: number; bottom: number; shown: { x: number; y: number } }[] = [];
+    for (const member of this.children) {
+      const box = member.getBoundingClientRect();
+      if (box.width === 0 && box.height === 0) continue;
+      const shown = this.shownOffset(member);
+      const y = box.top - origin.top - shown.y;
+      laid.push({ member, x: box.left - origin.left - shown.x, y, bottom: y + box.height, shown });
+    }
+    // A member starts a line when it stands wholly below the line before (TGR-1: each is centred on its line's middle).
+    const lines: Element[][] = [];
+    let bottom = Number.NEGATIVE_INFINITY;
+    for (const one of laid) {
+      if (!lines.length || one.y >= bottom - 0.5) {
+        lines.push([one.member]);
+        bottom = one.bottom;
+      } else {
+        lines[lines.length - 1]!.push(one.member);
+        bottom = Math.max(bottom, one.bottom);
+      }
+    }
+    this.wrap(lines.length > 1);
+    const lineOf = new Map(lines.flatMap((line) => line.map((member) => [member, line] as const)));
+    const before = this.places;
+    const style = getComputedStyle(list);
+    const by = [style.direction, style.columnGap, style.rowGap].join(' ');
+    const relaid = by !== this.placedBy || (!byMembers && Math.abs(origin.width - this.placedWidth) >= 0.5);
+    this.places = new Map(laid.map((one) => [one.member, { x: one.x, y: one.y, line: lineOf.get(one.member)! }]));
+    this.placedBy = by;
+    this.placedWidth = origin.width;
+    const { duration, easing } = this.moveTiming();
+    // A face that arrives while the page loads resizes members without anyone's act: they are placed at once (MOT-1).
+    const loading = typeof document !== 'undefined' && document.fonts?.status === 'loading';
+    if (relaid || !before.size || !duration || loading || this.settle.settling || !documentPainted() || reducedMotion()) {
+      this.stopMoves();
+      return;
+    }
+    this.stopMoves((member) => this.places.has(member));
+    for (const one of laid) {
+      const was = before.get(one.member);
+      if (!was || sameOrder(was.line, lineOf.get(one.member)!)) continue;
+      const x = was.x + one.shown.x - one.x;
+      const y = was.y + one.shown.y - one.y;
+      if (Math.abs(x) < 0.5 && Math.abs(y) < 0.5) continue;
+      this.moves.get(one.member)?.motion.cancel();
+      this.moves.delete(one.member);
+      if (typeof one.member.animate !== 'function') continue;
+      const frames = [{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }];
+      let motion: Animation;
+      try {
+        motion = one.member.animate(frames, { duration, easing, composite: 'add' });
+      } catch {
+        motion = one.member.animate(frames, { duration, easing: 'ease', composite: 'add' });
+      }
+      const move = { motion, x, y };
+      this.moves.set(one.member, move);
+      const done = () => {
+        if (this.moves.get(one.member) === move) this.moves.delete(one.member);
+      };
+      motion.finished.then(done, done);
+    }
+  }
+
+  /** TGR-5: whether the members stand on more than one line, kept as the custom state `wrapped`. */
+  private wrap(wrapped: boolean) {
     try {
       if (wrapped) this.internals?.states.add('wrapped');
       else this.internals?.states.delete('wrapped');
@@ -358,6 +513,7 @@ export class TanreiTagGroup extends TanreiElement {
     // A group put back in the page — or upgraded after its members — reads them again.
     this.read();
     this.select();
+    this.watchMembers();
     if (this.hasUpdated) this.watchLines();
   }
 
@@ -367,6 +523,11 @@ export class TanreiTagGroup extends TanreiElement {
     this.members$.disconnect();
     this.lines$?.disconnect();
     this.observed = null;
+    this.sized.clear();
+    this.stopMoves();
+    this.places = new Map();
+    this.placedBy = '';
+    this.placedWidth = -1;
     this.removeEventListener('focusin', this.onFocusIn);
     this.removeEventListener('focusout', this.onFocusOut);
     this.removeEventListener('keydown', this.onKeyDown);
@@ -411,6 +572,7 @@ export class TanreiTagGroup extends TanreiElement {
     } catch {
       // A browser without custom states: the empty group is an empty block.
     }
+    if (this.isConnected) this.watchMembers();
     this.check(members);
   }
 

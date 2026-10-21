@@ -91085,6 +91085,25 @@
             }
           }
         },
+        "motion": {
+          "move-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long a member takes to move to its new place when a member is added, removed or changes its size and the set is laid out again (TGR-10): along its line, or from one line to another. Longer than a change of color: the member crosses the length of a neighbour, or a whole line."
+          },
+          "move-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
         "row-gap": {
           "chips": {
             "$type": "dimension",

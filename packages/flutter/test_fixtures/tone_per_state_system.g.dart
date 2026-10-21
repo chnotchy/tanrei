@@ -9015,6 +9015,8 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     ),
   ),
   tagGroup: TanreiTagGroupTokens(
+    motionMoveDuration: 250,
+    motionMoveEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     spacings: TanreiTagGroupSpacings(
       tags: TanreiTagGroupSpacingTokens(
         gap: 8.0,

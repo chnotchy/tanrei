@@ -10578,6 +10578,8 @@ public data class TanreiTagGroupSpacings(
 /** `comp.tag-group`. Members are flat tokens, then per-state tokens, then one holder per axis (`spacings[spacing]`). */
 @Immutable
 public data class TanreiTagGroupTokens(
+    public val motionMoveDuration: Int,
+    public val motionMoveEasing: TanreiCubicBezier,
     public val spacings: TanreiTagGroupSpacings,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {

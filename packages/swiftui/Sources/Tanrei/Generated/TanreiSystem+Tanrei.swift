@@ -9220,6 +9220,8 @@ private let tanreiTabsTokens = TanreiTabsTokens(
 )
 
 private let tanreiTagGroupTokens = TanreiTagGroupTokens(
+  motionMoveDuration: 250,
+  motionMoveEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   spacings: TanreiTagGroupSpacings(
     tags: TanreiTagGroupSpacingTokens(
       gap: 8,
