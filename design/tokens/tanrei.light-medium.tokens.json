@@ -67430,6 +67430,217 @@
           }
         }
       },
+      "resizable-frame": {
+        "container": {
+          "min-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The least height a person can give while the product sets none: room for a few lines of the content and its own header."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The least width a person can give while the product sets none: 320 CSS pixels, the width at which content must reflow without scrolling sideways (WCAG 1.4.10), so that a person checking a design reaches that width and no narrower by accident."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "The outlined box's corners: the step of a card, so that a preview reads as one of the page's blocks. The content is clipped to them. The plain frame has no corners of its own."
+          }
+        },
+        "handle": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far each handle's box stands outside the outlined box's edge, so that it covers none of the content. The plain frame centres its handle on its edge instead."
+          }
+        },
+        "motion": {
+          "indicator-enter-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long the size indicator takes to fade in: a hint, as a tooltip is."
+          },
+          "indicator-enter-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          },
+          "indicator-exit-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the size indicator takes to fade out."
+          },
+          "indicator-exit-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              1,
+              1
+            ]
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the box takes to reach a size a key or an activation gave it. A drag is followed without a motion."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.44,
+              "hex": "#000000"
+            },
+            "$description": "The outlined box's edge: decoration that shows where the content's room ends, in the color a divider and an outlined card draw theirs in. What a person drags is the handle, which is held to the 3:1 boundary of a control."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The width of the outlined box's edge, drawn inside its size."
+          }
+        },
+        "size-indicator": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1216,
+                  0.1216,
+                  0.1216
+                ],
+                "hex": "#1f1f1f",
+                "alpha": 1
+              },
+              "$description": "The size indicator's fill: the inverse surface, which reads over whatever the content draws beneath it."
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$description": "The size indicator's height: the least height of a plain tooltip, a label of the same kind laid over content."
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$description": "Before and after the size indicator's numbers."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$description": "The size indicator's corners."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9451,
+                  0.9451,
+                  0.9451
+                ],
+                "hex": "#f1f1f1",
+                "alpha": 1
+              },
+              "$description": "The size indicator's numbers, on the inverse surface."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto Mono",
+                  "Noto Sans JP",
+                  "ui-monospace",
+                  "monospace"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              },
+              "$description": "The size indicator's numbers: a face whose digits are all one width, so that the label does not shake as the numbers change under a drag."
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far the size indicator stands in from the box's top edge and its end edge."
+          }
+        },
+        "snap-distance": {
+          "$type": "dimension",
+          "$value": {
+            "value": 8,
+            "unit": "px"
+          },
+          "$description": "How near a drag must come to one of the widths the frame snaps to for the width to be taken as that one."
+        }
+      },
       "scroll-area": {
         "blur": {
           "extent": {

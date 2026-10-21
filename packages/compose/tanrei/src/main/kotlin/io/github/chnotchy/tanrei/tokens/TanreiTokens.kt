@@ -8137,6 +8137,37 @@ public data class TanreiRadioButtonTokens(
     }
 }
 
+/** `comp.resizable-frame`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiResizableFrameTokens(
+    public val containerMinHeight: Dp,
+    public val containerMinWidth: Dp,
+    public val containerShape: Dp,
+    public val handleGap: Dp,
+    public val motionIndicatorEnterDuration: Int,
+    public val motionIndicatorEnterEasing: TanreiCubicBezier,
+    public val motionIndicatorExitDuration: Int,
+    public val motionIndicatorExitEasing: TanreiCubicBezier,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val sizeIndicatorContainerColor: TanreiPaint,
+    public val sizeIndicatorContainerHeight: Dp,
+    public val sizeIndicatorContainerPaddingInline: Dp,
+    public val sizeIndicatorContainerShape: Dp,
+    public val sizeIndicatorLabelColor: TanreiPaint,
+    public val sizeIndicatorLabelTypescale: TanreiTextStyle,
+    public val sizeIndicatorOffset: Dp,
+    public val snapDistance: Dp,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(outlineColor.roles())
+        addAll(sizeIndicatorContainerColor.roles())
+        addAll(sizeIndicatorLabelColor.roles())
+    }
+}
+
 /** `comp.scroll-area`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiScrollAreaTokens(
@@ -11415,6 +11446,7 @@ public data class TanreiSystem(
     public val progressIndicator: TanreiProgressIndicatorTokens,
     public val prose: TanreiProseTokens,
     public val radioButton: TanreiRadioButtonTokens,
+    public val resizableFrame: TanreiResizableFrameTokens,
     public val scrollArea: TanreiScrollAreaTokens,
     public val search: TanreiSearchTokens,
     public val segmentedButton: TanreiSegmentedButtonTokens,
@@ -11503,6 +11535,7 @@ public data class TanreiSystem(
         addAll(progressIndicator.referencedRoles())
         addAll(prose.referencedRoles())
         addAll(radioButton.referencedRoles())
+        addAll(resizableFrame.referencedRoles())
         addAll(scrollArea.referencedRoles())
         addAll(search.referencedRoles())
         addAll(segmentedButton.referencedRoles())

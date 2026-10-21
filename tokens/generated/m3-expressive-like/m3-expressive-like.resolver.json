@@ -163,6 +163,9 @@
           "$ref": "comp/handle.tokens.json"
         },
         {
+          "$ref": "comp/resizable-frame.tokens.json"
+        },
+        {
           "$ref": "comp/scroll-area.tokens.json"
         },
         {

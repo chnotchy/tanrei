@@ -1175,6 +1175,17 @@
       }
     },
     {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "variants": [
+        "outlined",
+        "plain"
+      ]
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "level": "base",

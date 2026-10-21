@@ -13052,6 +13052,74 @@ public struct TanreiRadioButtonTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of resizable-frame (comp.resizable-frame).
+public struct TanreiResizableFrameTokens: Sendable, Equatable {
+  public var containerMinHeight: CGFloat
+  public var containerMinWidth: CGFloat
+  public var containerShape: CGFloat
+  public var handleGap: CGFloat
+  public var motionIndicatorEnterDuration: Double
+  public var motionIndicatorEnterEasing: TanreiCubicBezier
+  public var motionIndicatorExitDuration: Double
+  public var motionIndicatorExitEasing: TanreiCubicBezier
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
+  public var outlineColor: TanreiPaint
+  public var outlineWidth: CGFloat
+  public var sizeIndicatorContainerColor: TanreiPaint
+  public var sizeIndicatorContainerHeight: CGFloat
+  public var sizeIndicatorContainerPaddingInline: CGFloat
+  public var sizeIndicatorContainerShape: CGFloat
+  public var sizeIndicatorLabelColor: TanreiPaint
+  public var sizeIndicatorLabelTypescale: TanreiTextStyle
+  public var sizeIndicatorOffset: CGFloat
+  public var snapDistance: CGFloat
+
+  public init(
+    containerMinHeight: CGFloat,
+    containerMinWidth: CGFloat,
+    containerShape: CGFloat,
+    handleGap: CGFloat,
+    motionIndicatorEnterDuration: Double,
+    motionIndicatorEnterEasing: TanreiCubicBezier,
+    motionIndicatorExitDuration: Double,
+    motionIndicatorExitEasing: TanreiCubicBezier,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier,
+    outlineColor: TanreiPaint,
+    outlineWidth: CGFloat,
+    sizeIndicatorContainerColor: TanreiPaint,
+    sizeIndicatorContainerHeight: CGFloat,
+    sizeIndicatorContainerPaddingInline: CGFloat,
+    sizeIndicatorContainerShape: CGFloat,
+    sizeIndicatorLabelColor: TanreiPaint,
+    sizeIndicatorLabelTypescale: TanreiTextStyle,
+    sizeIndicatorOffset: CGFloat,
+    snapDistance: CGFloat
+  ) {
+    self.containerMinHeight = containerMinHeight
+    self.containerMinWidth = containerMinWidth
+    self.containerShape = containerShape
+    self.handleGap = handleGap
+    self.motionIndicatorEnterDuration = motionIndicatorEnterDuration
+    self.motionIndicatorEnterEasing = motionIndicatorEnterEasing
+    self.motionIndicatorExitDuration = motionIndicatorExitDuration
+    self.motionIndicatorExitEasing = motionIndicatorExitEasing
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
+    self.outlineColor = outlineColor
+    self.outlineWidth = outlineWidth
+    self.sizeIndicatorContainerColor = sizeIndicatorContainerColor
+    self.sizeIndicatorContainerHeight = sizeIndicatorContainerHeight
+    self.sizeIndicatorContainerPaddingInline = sizeIndicatorContainerPaddingInline
+    self.sizeIndicatorContainerShape = sizeIndicatorContainerShape
+    self.sizeIndicatorLabelColor = sizeIndicatorLabelColor
+    self.sizeIndicatorLabelTypescale = sizeIndicatorLabelTypescale
+    self.sizeIndicatorOffset = sizeIndicatorOffset
+    self.snapDistance = snapDistance
+  }
+}
+
 /// Component tokens of scroll-area (comp.scroll-area).
 public struct TanreiScrollAreaTokens: Sendable, Equatable {
   public var blurExtent: CGFloat
@@ -18510,6 +18578,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _radioButton.value }
     set { _radioButton.value = newValue }
   }
+  public var resizableFrame: TanreiResizableFrameTokens {
+    get { _resizableFrame.value }
+    set { _resizableFrame.value = newValue }
+  }
   public var scrollArea: TanreiScrollAreaTokens {
     get { _scrollArea.value }
     set { _scrollArea.value = newValue }
@@ -18663,6 +18735,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _progressIndicator: TanreiBox<TanreiProgressIndicatorTokens>
   private var _prose: TanreiBox<TanreiProseTokens>
   private var _radioButton: TanreiBox<TanreiRadioButtonTokens>
+  private var _resizableFrame: TanreiBox<TanreiResizableFrameTokens>
   private var _scrollArea: TanreiBox<TanreiScrollAreaTokens>
   private var _search: TanreiBox<TanreiSearchTokens>
   private var _segmentedButton: TanreiBox<TanreiSegmentedButtonTokens>
@@ -18762,6 +18835,7 @@ public struct TanreiSystem: Sendable, Equatable {
     progressIndicator: TanreiProgressIndicatorTokens,
     prose: TanreiProseTokens,
     radioButton: TanreiRadioButtonTokens,
+    resizableFrame: TanreiResizableFrameTokens,
     scrollArea: TanreiScrollAreaTokens,
     search: TanreiSearchTokens,
     segmentedButton: TanreiSegmentedButtonTokens,
@@ -18860,6 +18934,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._progressIndicator = TanreiBox(progressIndicator)
     self._prose = TanreiBox(prose)
     self._radioButton = TanreiBox(radioButton)
+    self._resizableFrame = TanreiBox(resizableFrame)
     self._scrollArea = TanreiBox(scrollArea)
     self._search = TanreiBox(search)
     self._segmentedButton = TanreiBox(segmentedButton)

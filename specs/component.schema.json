@@ -490,9 +490,10 @@
             "boolean",
             "string",
             "number",
-            "strings"
+            "strings",
+            "numbers"
           ],
-          "description": "`strings` is a list of strings (the values selected in a multiple-select list); its default is an array."
+          "description": "`strings` is a list of strings (the values selected in a multiple-select list); `numbers` is a list of numbers (the widths a resizable frame snaps to). The default of either is an array."
         },
         "values": {
           "type": "array",
@@ -516,7 +517,10 @@
             "array"
           ],
           "items": {
-            "type": "string"
+            "type": [
+              "string",
+              "number"
+            ]
           }
         },
         "description": {
