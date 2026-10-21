@@ -86,6 +86,8 @@ export const styles = css`
     outline: none;
     touch-action: none;
     translate: 0 var(--_drag, 0px);
+    /* The header's lift above the content (z-index 1) stays inside the sheet. */
+    isolation: isolate;
     --_row: 0px;
   }
   .sheet[data-tanrei-shape] {
