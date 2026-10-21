@@ -53,6 +53,7 @@ export { ListItem } from './wrappers/list-item.js';
 export { ListRow } from './wrappers/list-row.js';
 export { LoadingIndicator } from './wrappers/loading-indicator.js';
 export { MainActionButton } from './wrappers/main-action-button.js';
+export { MarqueeText } from './wrappers/marquee-text.js';
 export { Menu } from './wrappers/menu.js';
 export { MenuCheckboxItem } from './wrappers/menu-checkbox-item.js';
 export { MenuGroup } from './wrappers/menu-group.js';
