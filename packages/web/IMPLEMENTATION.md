@@ -4839,7 +4839,7 @@ own row, or linked to it — whose panels take their place.
 | `track` | boolean \| `null` | `null` | whether the track is filled (TAB-49): the attribute is absent for null (the system's choice, `--tanrei-comp-tabs-track-visible`), bare for true and `track="false"` for false. Off fills nothing and changes nothing else |
 | `transition` | `auto` \| `slide` \| `none` | `auto` | how a new selection is drawn (TAB-43): `none` whole in one frame; `auto` — and any other value, reported — takes `--tanrei-comp-tabs-motion-transition`; reflected |
 | `value` | string \| `null` | `null` | the selected tab's value, as a `<select>`'s; `null` selects the first enabled tab. A value naming no tab selects none and shows no panel (reported, TAB-11). Not reflected |
-| `label` | string | `""` | the tab list's accessible name |
+| `label` | string | `""` | the accessible name of the tab list, or of the radio group a row without panels is (TAB-42) |
 | `indicatorOffset` | number | `0` | property only, no attribute (TAB-26): draws the indicator and the underline between the selected tab (0) and the next (1) or previous (−1) enabled tab, each edge interpolated, clamped to 1, in the frame it is set and without a slide; on the selected tab where there is no enabled tab in that direction. A linked Tab view writes it while it is swiped; leave it at 0 otherwise. While it is not 0 the row follows no drag of its own. A drag across the row does not pass through this property |
 | `group` | string | `""` | names a choice this row shares with every other `<tanrei-tabs>` of the document that names the same group, compared exactly — placed by the product or drawn by a `<tanrei-tab-view>`, in shadow trees too (TAB-36). Empty: the row's choice is its own. Not reflected |
 | `rememberAs` / `remember-as` | string | `""` | the key of the origin's `localStorage` under which a person's choice on this row is kept, and from which it is restored before the row is first drawn (TAB-39). Used exactly as given; only the tab's value is stored. Empty: no storage is read or written. Not reflected |
@@ -4868,6 +4868,17 @@ the tabs (their slot); the panels are slotted after it, so the list owns nothing
 `hidden`. A panel with nothing focusable gets `tabindex="0"`. Tabs and panels without an id get one. The icon, the
 container, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
 are `aria-hidden`, and the track is the scroller's own background, so each label is exposed once.
+
+**A row without panels is a radio group (TAB-42).** While the row has no panel — no `<tanrei-tab-panel>` of its own, and
+no panel of a linked `<tanrei-tab-view>` (or of the view that draws it) for any of its tabs' values — the same element
+is `role="radiogroup"`, named by `label`, with no `aria-orientation`, and each tab's host is a `radio` with
+`aria-checked` in place of `aria-selected`, and no `aria-controls`; position, name, disabled state and the one Tab stop
+are unchanged. Every arrow key then moves and selects, in either orientation (Right and Left mirrored in right-to-left),
+as a radio group's arrows do. The row reads which it is in each `sync()`, from the panels it would associate, and draws
+the role again when that changes; there is no prop for it, so it cannot disagree with what the row holds. An element of
+the library that draws a row and the panel it switches separately links that panel as a view does (`linkView()` with an
+object answering `panelFor()`; the `LinkedTabView` interface asks only `isConnected` of it): the date-time picker
+links its time section to the entry-mode tabs (DTM-13), which are then a tab list controlling it.
 
 **A truncated label (TAB-25).** While a tab's drawn label is cut short (`text-overflow: ellipsis`, measured as its
 `scrollWidth` exceeding its box, again whenever the label's box resizes), the tab holds a plain `<tanrei-tooltip>` over
