@@ -6,7 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { type Frames, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -1308,6 +1308,63 @@ test.describe('the collapsed form', () => {
     expectFirstFrameAtRest(seen);
   });
 
+  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was; 390 wide the modal drawer slides all the way out over its fading scrim before it leaves; 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
+    const docs = (open: boolean) => [rail('r', MAIL, { responsive: true, open, expanded: true })];
+    // 1280: the docked drawer collapses to its column (NVD-35); its look is the standard drawer's throughout.
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await mount(page, docs(false));
+    expect(await drawer(page, 'r').evaluate((el: any) => el.presentation)).toBe('standard');
+    const docking = await sampleFrames(page.locator('[data-fixture="r"]'), () => menu(page, 'r').locator('button').click(), { probe: panelLook, elements: false });
+    expect(docking.complete).toBe(true);
+    expectSteady(docking, LOOK);
+    expectNoJump(docking, ['width']);
+    const docked = docking.rest.probe;
+    expect(docked).toMatchObject({ tag: 'nav', width: 72 });
+
+    // 800: the column opens over the content from its own look, and closes back to it.
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, docs(false));
+    expect(await drawer(page, 'r').evaluate((el: any) => el.presentation)).toBe('column');
+    const column = await drawer(page, 'r').evaluate(panelLook);
+    expect(lookOf(column), 'the column at rest is the docked column').toEqual(lookOf(docked));
+    const opening = await sampleFrames(page.locator('[data-fixture="r"]'), () => menu(page, 'r').locator('button').click(), { probe: panelLook, elements: false });
+    expect(opening.complete).toBe(true);
+    expect(opening.rest.probe).toMatchObject({ tag: 'dialog', modal: true, width: 240, scrim: 1 });
+    // Its first frame is the column it widens from; then every part of its look moves, none of it at once.
+    expect(lookOf(opening.frames[0]!.probe), 'the first frame opening').toEqual(lookOf(column));
+    expectNoJump(opening, [...LOOK, 'width', 'scrim']);
+    const closing = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Escape'), { probe: panelLook, elements: false });
+    expect(closing.complete).toBe(true);
+    // Still in the top layer, over its scrim, until its motion has ended; then the column, in the last frame's look.
+    expect(closing.frames.filter((frame) => frame.probe.modal).length).toBeGreaterThan(4);
+    expectNoJump(closing, [...LOOK, 'width', 'scrim']);
+    const last = [closing.before, ...closing.frames].filter((frame) => frame.probe.modal).at(-1)!;
+    expect(lookOf(last.probe), 'the last frame in the top layer').toEqual(lookOf(docked));
+    expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72, x: column.x, y: column.y });
+    expect(lookOf(closing.rest.probe), 'the column after closing is the docked column').toEqual(lookOf(docked));
+    // The panel is drawn in every frame: never a frame without it.
+    expect(closing.frames.filter((frame) => !frame.probe.shown).map((frame) => frame.index)).toEqual([]);
+    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+
+    // 390: the modal drawer slides out, and its look stays the modal drawer's while it does.
+    await page.setViewportSize({ width: 390, height: 720 });
+    await mount(page, docs(false));
+    expect(await drawer(page, 'r').evaluate((el: any) => el.presentation)).toBe('modal');
+    await drawer(page, 'r').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+    });
+    await motionEnded(drawer(page, 'r'));
+    const sliding = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Escape'), { probe: panelLook, elements: false });
+    expect(sliding.complete).toBe(true);
+    const shown = [sliding.before, ...sliding.frames].filter((frame) => frame.probe.shown);
+    expect(shown.length).toBeGreaterThan(4);
+    expectSteady({ ...sliding, frames: shown.slice(1), rest: shown.at(-1)! }, LOOK);
+    // What of it is on screen goes to nothing, and its scrim to 0, without a frame that cuts either short.
+    expectNoJump(sliding, ['reach', 'scrim']);
+    expect(sliding.rest.probe).toMatchObject({ shown: false, modal: false, reach: 0, scrim: 0 });
+  });
+
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
     await mount(page, [fixture('e', MAIL), rail('c', MAIL), ...only('collapsed-labels-selected')], { reducedMotion: false });
     // The two motions are told apart only where the selection's is the longer: a system may time them alike (the
@@ -1730,11 +1787,13 @@ test.describe('forms and focus', () => {
     await page.keyboard.press('Escape');
     const dialog = drawer(page, 'm').locator('dialog');
     expect(Number.parseFloat(await css(dialog, 'transition-duration'))).toBeCloseTo(exit / 1000, 3);
-    expect(await activeValue(page)).toBe('menu');
+    // Focus goes back once the drawer has left the top layer: until then what had it is behind a modal dialog.
+    await expect.poll(() => activeValue(page)).toBe('menu');
     await drawer(page, 'm').evaluate((el: any) => (el.open = true));
     await expect.poll(() => activeValue(page)).toBe('inbox');
     await page.locator('#menu').evaluate((el) => el.remove());
     await page.keyboard.press('Escape');
+    await expect.poll(() => dialog.evaluate((el: HTMLDialogElement) => el.open)).toBe(false);
     expect(await page.evaluate(() => document.activeElement?.localName)).toBe('body');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await css(dialog, 'transition-duration')).toBe('0s');
@@ -1743,10 +1802,23 @@ test.describe('forms and focus', () => {
     await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })]);
     await menu(page, 'mc').locator('button').click();
     await expect.poll(() => activeValue(page)).toBe('inbox');
+    // Read as it closes: the dialog narrows in the top layer, and is the column again once that has ended.
+    await drawer(page, 'mc').evaluate((el: any) =>
+      el.addEventListener(
+        'close',
+        () => {
+          const dialog = el.shadowRoot.querySelector('dialog');
+          (window as any).narrowing = { modal: dialog.matches(':modal'), duration: getComputedStyle(dialog).transitionDuration };
+        },
+        { once: true },
+      ),
+    );
     await page.keyboard.press('Escape');
-    const narrowing = drawer(page, 'mc').locator('dialog');
-    expect(Number.parseFloat(await css(narrowing, 'transition-duration'))).toBeCloseTo((await resolveToken(page, T('motion-expand-duration'), 'duration')) / 1000, 3);
+    const narrowing = await page.evaluate(() => (window as any).narrowing);
+    expect(narrowing.modal).toBe(true);
+    expect(Number.parseFloat(narrowing.duration)).toBeCloseTo((await resolveToken(page, T('motion-expand-duration'), 'duration')) / 1000, 3);
     await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+    await expect(drawer(page, 'mc').locator('nav.column')).toHaveCount(1);
   });
 });
 
@@ -3359,6 +3431,84 @@ test.describe('accessibility', () => {
     }
   });
 });
+
+/**
+ * NVD-40: the drawer's panel — whichever element draws it, the column's `<nav>` or the `<dialog>` — as one frame paints
+ * it: its look (the container color and the end edge's as premultiplied channels, the end corner's radius, the
+ * elevation's alpha and blur), its box, how much of it is on screen, whether it is in the top layer, and the scrim.
+ */
+const panelLook = (root: Element) => {
+  const host = (root.localName === 'tanrei-navigation-drawer' ? root : root.querySelector('tanrei-navigation-drawer')) as HTMLElement;
+  const panel = host.shadowRoot!.querySelector<HTMLElement>('[part="container"]')!;
+  const style = getComputedStyle(panel);
+  const channels = (value: string) => {
+    const [r = 0, g = 0, b = 0, a = 1] = (value.match(/[\d.]+/g) ?? []).map(Number);
+    return [r * a, g * a, b * a, a * 255].map((channel) => Math.round(channel * 10) / 10);
+  };
+  const [bgR, bgG, bgB, bgA] = channels(style.backgroundColor);
+  const [edgeR, edgeG, edgeB, edgeA] = channels(getComputedStyle(panel.querySelector('.edge')!).backgroundColor);
+  // Each shadow of the list: its colour's alpha and its blur.
+  const shadows = style.boxShadow === 'none' ? [] : style.boxShadow.split(/,(?![^(]*\))/);
+  const shadowAlpha = shadows.reduce((sum, shadow) => sum + (Number(shadow.match(/rgba?\([^)]*?,\s*([\d.]+)\)/)?.[1] ?? (/transparent/.test(shadow) ? 0 : 1))), 0);
+  const shadowBlur = shadows.reduce((sum, shadow) => sum + (Number.parseFloat(shadow.replace(/rgba?\([^)]*\)|transparent/g, '').trim().split(/\s+/)[2] ?? '0') || 0), 0);
+  const box = panel.getBoundingClientRect();
+  const shown = style.display !== 'none' && box.width > 0;
+  const dialog = panel instanceof HTMLDialogElement ? panel : null;
+  const round = (n: number) => Math.round(n * 10) / 10;
+  return {
+    tag: panel.localName,
+    shown,
+    modal: !!dialog?.matches(':modal'),
+    x: round(box.x),
+    y: round(box.y),
+    width: shown ? round(box.width) : 0,
+    reach: shown ? round(Math.max(0, Math.min(box.right, innerWidth) - Math.max(box.left, 0))) : 0,
+    bgR,
+    bgG,
+    bgB,
+    bgA,
+    edgeR,
+    edgeG,
+    edgeB,
+    edgeA,
+    radius: round(Number.parseFloat(style.borderStartEndRadius) || 0),
+    shadowAlpha: round(shadowAlpha * 100) / 100,
+    shadowBlur: round(shadowBlur),
+    scrim: dialog?.open ? Number(getComputedStyle(dialog, '::backdrop').opacity) : 0,
+  };
+};
+/** The parts of the panel's look NVD-40 moves between the column's and the modal variant's. */
+const LOOK = ['bgR', 'bgG', 'bgB', 'bgA', 'edgeR', 'edgeG', 'edgeB', 'edgeA', 'radius', 'shadowAlpha', 'shadowBlur'];
+const lookOf = (probe: Record<string, unknown>) => Object.fromEntries(LOOK.map((name) => [name, probe[name]]));
+/** The frames of a change, from before it to where it rests. */
+const course = (seen: Frames) => [seen.before, ...seen.frames, ...(seen.complete ? [seen.rest] : [])];
+/**
+ * No frame changes what `names` read at once: each one either stays where it was or goes from where it started to where
+ * it rests on its way (never past either end, beyond rounding) and in no step of more than a third of the whole way —
+ * an instant change, or a motion finished in one frame, is one step.
+ */
+function expectNoJump(seen: Frames, names: string[]) {
+  const frames = course(seen);
+  const jumps: string[] = [];
+  for (const name of names) {
+    const values = frames.map((frame) => Number(frame.probe[name]));
+    const start = values[0]!;
+    const end = values.at(-1)!;
+    const total = Math.abs(end - start);
+    const tolerance = Math.max(0.6, total * 0.01);
+    values.forEach((value, i) => {
+      if (value < Math.min(start, end) - tolerance || value > Math.max(start, end) + tolerance) jumps.push(`${name} leaves its way in frame ${frames[i]!.index}: ${value} (from ${start} to ${end})`);
+      if (i > 0 && total > tolerance && Math.abs(value - values[i - 1]!) > total / 3) jumps.push(`${name} jumps in frame ${frames[i]!.index}: ${values[i - 1]} → ${value} (of ${start} → ${end})`);
+    });
+  }
+  expect(jumps, 'no frame changes the panel at once').toEqual([]);
+}
+/** What `names` read is the same in every frame of the change. */
+function expectSteady(seen: Frames, names: string[]) {
+  const frames = course(seen);
+  const changed = names.filter((name) => frames.some((frame) => frame.probe[name] !== frames[0]!.probe[name]));
+  expect(changed.map((name) => `${name}: ${frames.map((frame) => frame.probe[name]).join(' → ')}`), 'the panel keeps its look').toEqual([]);
+}
 
 /** An open modal fixture's window and its drawing: opened after a pointer press, as from a menu button (no focus ring). */
 async function modalWindow(page: P, fixture: Fixture, options: Parameters<typeof mountFixtures>[2] = {}) {
