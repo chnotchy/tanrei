@@ -6,7 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
@@ -417,6 +417,39 @@ test.describe('presentation', () => {
     expect(await host(page).evaluate((el) => [getComputedStyle(el).display, el.getClientRects().length, (el.shadowRoot!.querySelector('.surface') as HTMLElement).getClientRects().length])).toEqual(['contents', 0, 0]);
     await expect(page.getByRole('dialog')).toHaveCount(0);
     expect(await page.locator('#in').evaluate((el) => [el.getClientRects().length, el.checkVisibility()])).toEqual([0, false]);
+  });
+
+  test('POP-27: turned round, the container carries the motions it turns to and none of those it turns from — closed while it opens, and opened again while it closes, where it is taken out of the top layer and put back — and the close that follows ends', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: false });
+    // Long enough that neither motion ends between two answers on a slow machine; each turn is read where it is held.
+    await rootTokens(page, { [T('motion-open-duration')]: '6s', [T('motion-close-duration')]: '6s' });
+    const motion = surface(page).locator('> .motion');
+    await set(page, { open: true });
+    const closedMidway = await turnHeld(host(page), false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.99);
+    expectTurnedAlone(closedMidway);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.sy).toBeCloseTo(closedMidway.held.sy, 3);
+    await motion.evaluate((el) => el.getAnimations().forEach((animation) => animation.play()));
+    // Opened again while it closes: hidden and shown again, to be the newest in the top layer, and put back where its
+    // exit has got to (AppearController.keep).
+    const openedMidway = await turnHeld(host(page), true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expectTurnedAlone(openedMidway);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.sy).toBeCloseTo(openedMidway.held.sy, 3);
+    expect(await isShown(page)).toBe(true);
+    await motion.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
+    expect(await css(motion, 'opacity')).toBe('1');
+    // Closed now, it leaves the top layer once its exit has played: no motion left behind holds it there.
+    await host(page).evaluate(async (el) => {
+      Object.assign(el, { open: false });
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+      // Asking flushes style: the exit has begun, and is played to its end at once.
+      (el.shadowRoot!.querySelector('.motion') as HTMLElement).getAnimations().forEach((animation) => animation.finish());
+    });
+    await expect.poll(() => surface(page).evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 });
 

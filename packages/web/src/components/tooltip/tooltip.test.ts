@@ -3,7 +3,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
-import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
@@ -1850,6 +1850,38 @@ test.describe('motion', () => {
     await page.waitForTimeout(100);
     expect(await isOpen(page, 'a')).toBe(false);
     expect((await log(page)).slice(-1)).toEqual(['stage:div']);
+  });
+
+  test('TIP-29: turned round, the bubble carries the motions it turns to and none of those it turns from — closed while it enters, and opened again while it leaves, where it is taken out of the top layer and put back — and the close that follows ends', async ({ page }) => {
+    await mount(page, [f('a', { showDelay: 0, hideDelay: 0 })]);
+    // Long enough that neither motion ends between two answers on a slow machine; each turn is read where it is held.
+    await override(page, { [T('motion-enter-duration')]: '6s', [T('motion-exit-duration')]: '6s' });
+    await tip(page, 'a').evaluate((el: any) => (el.open = true));
+    const closedMidway = await turnHeld(tip(page, 'a'), false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.99);
+    expectTurnedAlone(closedMidway);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.sy).toBeCloseTo(closedMidway.held.sy, 3);
+    await motion(page, 'a').evaluate((el) => el.getAnimations().forEach((animation) => animation.play()));
+    // Opened again while it leaves: hidden and shown again, to be the newest in the top layer, and put back where its
+    // exit has got to (AppearController.keep).
+    const openedMidway = await turnHeld(tip(page, 'a'), true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expectTurnedAlone(openedMidway);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.sy).toBeCloseTo(openedMidway.held.sy, 3);
+    expect(await shown(page, 'a')).toBe(true);
+    await motion(page, 'a').evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
+    expect(await css(motion(page, 'a'), 'opacity')).toBe('1');
+    // Closed now, it leaves the top layer once its exit has played: no motion left behind holds it there.
+    await tip(page, 'a').evaluate(async (el: any) => {
+      el.open = false;
+      await el.updateComplete;
+      // Asking flushes style: the exit has begun, and is played to its end at once.
+      (el.shadowRoot.querySelector('.motion') as HTMLElement).getAnimations().forEach((animation) => animation.finish());
+    });
+    await expect.poll(() => shown(page, 'a')).toBe(false);
   });
 });
 
