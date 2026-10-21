@@ -26,6 +26,8 @@ const SUBJECTS = [
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
   subject('meter', (fixture) => fixture.id === 'linear'),
+  // A dashboard's figure: each preset's text style around it (the ticker has none of its own) and its tabular digits.
+  subject('number-ticker', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // Scrolled to the middle, both edges marked: each preset's scroll edge (shadow in the default system, a line in the m3
   // presets, a blur in cupertino), its depth and its color over the same content.
   // Each fixture is its own axe unit: a scroll box that is a focus stop is a region, and a page of every fixture would
