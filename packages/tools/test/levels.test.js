@@ -203,7 +203,9 @@ test('the repository as it is today: which components are put together and which
   // The snackbar is a single part that uses the Button for its expand and close buttons: the fifty-fifth.
   assert.equal(specs.filter((each) => namedComponents(each).length).length, 55);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
-  assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button']);
+  // The text input uses the Button for its picker button and the Handle for its resize handle; the bottom sheet uses
+  // the Handle for its drag handle too (neither is a new name among the fifty-five: both named the Button already).
+  assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button', 'handle']);
   assert.deepEqual(specs.find((each) => each.name === 'file-upload').builtFrom, ['file-picker', 'file-item']);
 });
 
