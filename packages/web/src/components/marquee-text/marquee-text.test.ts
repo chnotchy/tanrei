@@ -325,7 +325,9 @@ test.describe('behavior', () => {
     await pastStartDelay(page);
     await expect.poll(async () => (await state(line)).animations).toBe(2);
     const passes = (await run(line))!;
-    await seek(line, passes.duration * passes.frames[1]!.offset!);
+    // Mid-way through the rest at its end (frames 1 and 2): at the rest's first moment exactly, the time a seek gives
+    // back may round to just before it, into the ramp that leads to it.
+    await seek(line, (passes.duration * (passes.frames[1]!.offset! + passes.frames[2]!.offset!)) / 2);
     expect(await mask(line)).toEqual({ size: `calc(100% + ${fade}px) 100%`, position: '0px 0px' });
   });
 
