@@ -1462,6 +1462,40 @@
         "pickerRequest": "pickerrequest",
         "entryError": "entryerror"
       },
+      "parts": {
+        "field": "field",
+        "field.label": "field-label",
+        "field.label-icon": "label-icon",
+        "field.requirement-label": "field-requirement-label",
+        "field.value-text": {
+          "noBox": "A text field's value is in its input: the frame draws no value text, and does not export the part."
+        },
+        "field.control": "text-input",
+        "field.supporting-text": "supporting-text",
+        "field.error-text": "error-text",
+        "field.counter": "counter",
+        "text-input": "text-input",
+        "text-input.container": "container",
+        "text-input.active-indicator": "active-indicator",
+        "text-input.outline": "outline",
+        "text-input.label": "text-input-label",
+        "text-input.required-asterisk": "text-input-requirement-label",
+        "text-input.input": "input",
+        "text-input.segment": "segment",
+        "text-input.placeholder": {
+          "noBox": "The browser draws the placeholder in the input's text box (::placeholder), which has no box of its own to measure."
+        },
+        "text-input.prefix": "prefix",
+        "text-input.suffix": "suffix",
+        "text-input.leading-icon": "leading-icon",
+        "text-input.trailing-icon": "trailing-icon",
+        "text-input.picker-button": "picker-button",
+        "text-input.resize-grip": "resize-grip",
+        "text-input.caret": {
+          "noBox": "The browser draws the caret in the input's text: it has no element to measure."
+        },
+        "text-input.entries": "entries"
+      },
       "notes": "The tag is `tanrei-text-field`, the class `TanreiTextField`, the React name `TextField`. Members: `<tanrei-field>` holding one `<tanrei-text-input>` in its default slot; the product places none. The host is `display: block`, as wide as its place, and the input fills it (TXF-62). Value member: `tanrei-text-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`. On the text input: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, `multiline`, `minRows`, `maxRows`, `resize`, `resizeAxis`, `resizeLabel`, `noWrap` (the inverse of `wrap`, attribute `no-wrap`), `maxLength`, `counter`, `prefixText`, `suffixText`, `autocomplete`, `locale`, `min`, `max`, `disabledDates`, `invalidText`, `unavailableText`, `segmentEmptyText`, `picker`, `pickerLabel`. Attributes are the members' own: kebab-case, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `action`, `pickerrequest`, `entryerror` are the text input's own composed events and leave by themselves, with the host as their target and `value` already new; `action` stays cancelable. None is stopped and none is copied. Slots: `label-icon` is passed to the Field, `leading-icon` and `trailing-icon` to the text input, each by a slot element of the same name rendered only while the host has a child for it; the product's own Button in `trailing-icon` stays the product's element. Parts: the member hosts are `field` and `text-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter`. Exported from the text input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `text-input-label`, `field-requirement-label`, `text-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it — while its control draws the label itself the Field draws no label row and no requirement tag, and a stacked input draws neither (TXI-13, TXI-50). So `tanrei-text-field::part(label)` keeps meaning the drawn label. Focus: the shadow root does not delegate. `focus()` and `blur()` call the text input's; a press on the label row — the label, its glyph, the requirement mark — focuses the input by FLD-12, the Field's own sentence (the Field calls `focus()` on its control, which stands beside it in the same tree); a press on the box, and on a label that floats in it, by TXI-8; and a press on the supporting row — the help, the error text, the count — or on the gap between a row and the box does nothing (FLD-12). The connection is the Field's with its control, in both directions (FLD-25, FLD-26, FLD-28, TXI-62); the element takes no part in it. A member's prop it sets itself (`fills`): the Field's `countText`, from the text input's read-only `countText` after each of the input's updates, in the same task (TXF-67). Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` reach the members by inheritance, and one text field is set apart by setting any of them on the element. What its twin cannot do that it does: keep the Field's count text equal to the input's count as the person types (TXF-67); nothing else. The twin: `<tanrei-field label=\"Email\" supporting-text=\"We never share your address.\" required><tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>`. Its Field draws the help and the error text together (FLD-7, FLD-31), and the five fixtures *-supporting-error* hold the pair to its twin."
     },
     "swiftui": {

@@ -4715,6 +4715,27 @@
         "expandedChange": "expandedchange",
         "presentationChange": "presentationchange"
       },
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "scrim": "container@backdrop",
+        "header": "header",
+        "header-button": "slot:header-button",
+        "main-action": "slot:main-action",
+        "section": "tanrei-navigation-drawer-section",
+        "heading": "tanrei-navigation-drawer-section heading",
+        "divider": "tanrei-navigation-drawer-section tanrei-divider",
+        "group": "tanrei-navigation-drawer-group",
+        "group.chevron": "tanrei-navigation-drawer-group chevron",
+        "item": "tanrei-navigation-drawer-item cell",
+        "item.container": "tanrei-navigation-drawer-item container",
+        "item.icon-indicator": "tanrei-navigation-drawer-item icon-indicator",
+        "item.icon": "tanrei-navigation-drawer-item icon",
+        "item.label": "tanrei-navigation-drawer-item label",
+        "item.trailing": "tanrei-navigation-drawer-item trailing-text",
+        "item.badge": "tanrei-navigation-drawer-item tanrei-badge",
+        "focus-ring": "tanrei-navigation-drawer-item container@focus-ring"
+      },
       "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's. `selectableGroups` is the `selectable-groups` attribute. The attributes are `chevron`, `guides`, `indent` (auto or a number), `highlight`, `icon-space`, `expandable` (`expandable=\"false\"` turns it off), `label-wrap`, `supporting-wrap`, `sticky-parents`, `sticky-max` and `loading-label`; on the items `supporting-text`, `supporting-position`, and on a group `open-icon`, `trailing-text`, `loading` and the `trailing` slot.",
       "items": {
         "destination": {

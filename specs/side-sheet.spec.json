@@ -449,6 +449,17 @@
       "events": {
         "close": "close"
       },
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "scrim": "container@backdrop",
+        "header": "header",
+        "headline": "headline",
+        "close-button": "close-button",
+        "content": "content",
+        "divider": "divider",
+        "actions": "actions"
+      },
       "notes": "`closable` is a boolean property that defaults to true; its attribute is the inverse `not-closable` (an HTML boolean attribute cannot default to true), as the chip's `removable` is. `closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-side-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders.",
       "items": {
         "action": {
