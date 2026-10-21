@@ -1728,6 +1728,13 @@
       "react": {
         "name": "ScrollArea"
       }
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
     }
   ]
 }

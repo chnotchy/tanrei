@@ -1,0 +1,392 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "marquee-text",
+  "title": "Marquee text",
+  "summary": "One line of text that does not fit its place and, when its trigger says — while hovered or focused, or all the time — scrolls sideways at a steady pace to show all of it, resting at its start between passes, and otherwise rests cut with an ellipsis; it moves only when the text overflows, never where motion is reduced, and is read once, whole.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "viewport",
+      "description": "The line's box: as wide as its place, one line high, clipping the text. While the text moves, its clipped edges fade out."
+    },
+    {
+      "id": "text",
+      "description": "The product's text, on one line, in the text style of where it stands. At rest it starts at the line's start and ends with an ellipsis where it is cut."
+    },
+    {
+      "id": "copy",
+      "description": "While the text repeats, a second drawing of it a gap after the first, so that the line never empties. Hidden from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "playback-control",
+      "description": "While the text scrolls by itself all the time, an icon-only Button of the text variant and the small size at the line's end, pausing and playing the motion.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "trigger",
+      "type": "enum",
+      "values": [
+        "hover-or-focus",
+        "hover",
+        "focus",
+        "always"
+      ],
+      "default": "hover-or-focus",
+      "description": "When the text scrolls. hover: while a fine pointer is over the line or the control it stands in. focus: while that control, or something in the line, has keyboard focus. hover-or-focus: either. always: from when the line is shown, by itself, with a way to pause it."
+    },
+    {
+      "name": "loop",
+      "type": "enum",
+      "values": [
+        "repeat",
+        "bounce"
+      ],
+      "default": "repeat",
+      "description": "How a pass goes. repeat: the text moves toward its start until its end has passed, a copy following it a gap behind, so that the line comes back to where it began. bounce: the text moves until its end is in view, pauses, and moves back."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": null,
+      "description": "How fast the text moves, in pixels per second, so that a long text and a short one move at the same pace. Null takes comp.marquee-text.speed."
+    },
+    {
+      "name": "startPause",
+      "type": "number",
+      "default": null,
+      "description": "How long the text rests at its start before each pass, in milliseconds; 0 rests none. Null takes comp.marquee-text.motion.start-pause."
+    },
+    {
+      "name": "endPause",
+      "type": "number",
+      "default": null,
+      "description": "While loop is bounce: how long the text rests with its end in view before it moves back, in milliseconds. Null takes comp.marquee-text.motion.end-pause."
+    },
+    {
+      "name": "iterations",
+      "type": "number",
+      "default": null,
+      "description": "How many passes a trigger plays before the text rests at its start. Null plays passes without end while the trigger holds: until the pointer leaves or focus moves away for hover, focus and hover-or-focus, and for as long as the line is shown for always."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "description": "Holds the motion where it is: set by the playback control, or by the product's own control that pauses every moving part of the page."
+    },
+    {
+      "name": "playbackControl",
+      "type": "boolean",
+      "default": false,
+      "description": "While trigger is always: whether the line draws its playback control. Off by default: a product that moves text all the time gives a way to pause it — this control, or its own control that pauses every moving part of the page and sets paused; without either, a person cannot stop the motion, which WCAG 2.2.2 requires of motion that lasts more than five seconds."
+    },
+    {
+      "name": "playLabel",
+      "type": "string",
+      "default": "",
+      "words": "marqueePlayLabel",
+      "description": "The playback control's accessible name while the motion is paused (\"Play scrolling text\"). Required while the control is drawn."
+    },
+    {
+      "name": "pauseLabel",
+      "type": "string",
+      "default": "",
+      "words": "marqueePauseLabel",
+      "description": "The playback control's accessible name while the text moves (\"Pause scrolling text\"). Required while the control is drawn."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The text: plain text, or inline content of the product's (a bold run, an inline mark). A fixture's string is drawn as plain text.",
+      "fixture": "text"
+    }
+  ],
+  "events": [
+    {
+      "name": "pausedChange",
+      "description": "The person paused or played the motion with the playback control; carries paused. The product that sets paused emits nothing."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "MRQ-1",
+      "text": "THE marquee text SHALL lay its content out on one line, in the text style, color and direction of where it stands, in a viewport as wide as its place and one line high, and SHALL clip it there; WHILE the content fits, THE marquee text SHALL draw it as plain text, start nothing, draw no copy and no playback control, and be in every way a line of text."
+    },
+    {
+      "id": "MRQ-2",
+      "text": "WHILE the content does not fit and does not move THE marquee text SHALL rest it with its start at the viewport's start, cut at the viewport's end with an ellipsis of the platform's text, so that the line reads as any cut line does."
+    },
+    {
+      "id": "MRQ-3",
+      "text": "WHILE its trigger holds — trigger hover: a fine pointer is over the line or over the nearest element around it that takes presses or focus; focus: that element, or something inside the line, has keyboard focus; hover-or-focus: either; always: the line is shown and in view — and the content does not fit, THE marquee text SHALL wait comp.marquee-text.motion.start-delay (for always, startPause) and then play its passes (MRQ-4, MRQ-5): iterations passes where iterations is not null, and without end while the trigger holds where it is null; after the last pass it SHALL rest as MRQ-2 says. WHEN the trigger ends before the passes do THE marquee text SHALL return the content to its start over comp.marquee-text.motion.return-duration with comp.marquee-text.motion.return-easing and rest; a new trigger SHALL play its passes again from the start."
+    },
+    {
+      "id": "MRQ-4",
+      "text": "WHILE loop is repeat THE marquee text SHALL play a pass by moving the content toward its start edge at speed (comp.marquee-text.speed while speed is null) in pixels per second, steadily, with comp.marquee-text.motion.easing, a copy of the content following it comp.marquee-text.gap behind, until the copy stands where the content began — then the line looks as it did — and SHALL rest there startPause (comp.marquee-text.motion.start-pause while it is null) before the next pass."
+    },
+    {
+      "id": "MRQ-5",
+      "text": "WHILE loop is bounce THE marquee text SHALL play a pass by moving the content toward its start edge at speed until its end stands at the viewport's end, resting there endPause (comp.marquee-text.motion.end-pause while it is null), moving it back at the same speed until its start stands at the viewport's start, and resting there startPause before the next pass; it SHALL draw no copy."
+    },
+    {
+      "id": "MRQ-6",
+      "text": "WHILE the marquee text plays its passes — moving, or resting between two passes — THE marquee text SHALL draw no ellipsis and SHALL fade each edge of the viewport behind which content lies hidden over comp.marquee-text.fade.extent, from clear to the content's full color; WHEN it rests after its passes, or because its trigger ended, it SHALL draw the ellipsis of MRQ-2 again and no fade."
+    },
+    {
+      "id": "MRQ-7",
+      "text": "THE marquee text SHALL move the content in the direction its text is written: toward the left for text whose direction is left to right and toward the right for text whose direction is right to left, the direction being the content's own — the base direction of its first strong character, or the layout direction where it has none — so that the line always moves to bring the text's hidden end into view; it SHALL rest it at the start edge of that direction, cut at the other."
+    },
+    {
+      "id": "MRQ-8",
+      "text": "WHERE motion is reduced THE marquee text SHALL NOT move its content; WHILE a trigger other than always holds it SHALL instead show the hidden part at once, without a motion, by placing the content so that the next viewport's width of it lies in view, the last view ending at the content's end, with the fade of MRQ-6 at each edge behind which content lies hidden, resting startPause on each such view and returning to the start at once after the last, so that every part of the text can be seen; it SHALL go through the views iterations times, or without end while the trigger holds where iterations is null. WHILE trigger is always it SHALL rest as MRQ-2 says and draw no playback control."
+    },
+    {
+      "id": "MRQ-9",
+      "text": "WHILE trigger is always and the content moves THE marquee text SHALL hold its motion where it is while a pointer is over the line or focus is within it, and go on from there when neither is; WHILE paused is true it SHALL hold its motion where it is until paused is false; WHILE the line is out of view or its page is hidden it SHALL hold its motion and start the pass again from the start when it is back. Holding on hover and focus SHALL NOT be taken as the way to stop the motion: that is MRQ-10."
+    },
+    {
+      "id": "MRQ-10",
+      "text": "WHILE trigger is always, playbackControl is true, the content does not fit and motion is not reduced, THE marquee text SHALL draw at the end of its line, comp.marquee-text.playback.gap after the viewport, an icon-only Button of the text variant and the small size, showing the icon set's pause glyph while the text moves and play_arrow while it is paused, named by pauseLabel while it moves and playLabel while it is paused; WHEN the person activates it THE marquee text SHALL toggle paused and emit pausedChange once, keeping focus on the button. WHILE trigger is always, the content does not fit, motion is not reduced and playbackControl is false, THE marquee text SHALL in debug builds report once that the product must give the page a control that sets paused, or set playbackControl (WCAG 2.2.2)."
+    },
+    {
+      "id": "MRQ-11",
+      "text": "THE marquee text SHALL expose its content to assistive technology once, whole, as the text it is, read where the line stands, and SHALL hide the copy, the ellipsis and the fade from it; the motion SHALL change nothing it exposes, SHALL make no announcement, and SHALL take no focus: the line itself is not a focus stop."
+    },
+    {
+      "id": "MRQ-12",
+      "text": "WHILE playbackControl would be drawn and playLabel or pauseLabel is empty THE marquee text SHALL read the missing name from the product's words, still draw the control where neither gives it, and in debug builds report that it has no accessible name; THE marquee text SHALL have no words of its own."
+    },
+    {
+      "id": "MRQ-13",
+      "text": "WHILE the text size is enlarged THE marquee text SHALL grow its line with the text and move it at speed times the ratio of its text's size to the size of that text style at the default text size, so that as many characters pass in a second at every text size; the fade and the gap SHALL keep their sizes."
+    },
+    {
+      "id": "MRQ-14",
+      "text": "WHEN the content, the viewport's width or the text size changes THE marquee text SHALL measure again whether the content fits, and WHILE a pass is playing SHALL end it at once and start again from the start where it still does not fit, or rest as MRQ-1 says where it now does; WHEN speed, startPause, endPause, loop or trigger changes it SHALL take the new value from the next pass."
+    },
+    {
+      "id": "MRQ-15",
+      "text": "IF speed is not a positive number, or startPause, endPause or iterations is negative, THE marquee text SHALL treat it as null and in debug builds report it; WHEN trigger or loop names a value the component does not define THE marquee text SHALL use the default value (hover-or-focus, repeat) and in debug builds report the unknown value."
+    },
+    {
+      "id": "MRQ-16",
+      "text": "WHERE the layout direction is right-to-left THE marquee text SHALL place its playback control at the left end of the line, and the content SHALL move and rest by its own direction as MRQ-7 says, whatever the layout direction."
+    },
+    {
+      "id": "MRQ-17",
+      "text": "THE marquee text SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the line is shown THE marquee text SHALL rest at once and draw itself for the new direction.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "MRQ-18",
+      "text": "WHERE the platform draws with a person's own forced colors THE marquee text SHALL draw its text in the color the platform gives the element around it, and its fade SHALL be no fade: the content is clipped at the viewport's edge."
+    }
+  ],
+  "accessibility": {
+    "role": "none (text)",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Reaches the playback control while it is drawn; the line itself is not a stop. Focus on the control the line stands in (a row, a chip) starts the motion for trigger focus and hover-or-focus, and moving focus away stops it."
+      },
+      {
+        "keys": "Enter or Space on the playback control",
+        "action": "Pauses or plays the motion."
+      }
+    ],
+    "labeling": "The text is read once, whole, as text; the copy is hidden. The playback control is named by pauseLabel and playLabel, from the instance and then the product's words.",
+    "minimumTarget": true,
+    "notes": [
+      "Pause, Stop, Hide (WCAG 2.2.2): motion that starts without a person's direct action and lasts more than five seconds beside other content needs a way to pause, stop or hide it, and the Understanding document counts motion started by a hover, a focus or scrolling into view, and stopped only while focused, as not meeting that. The defaults can conflict with it: trigger always draws no playback control (playbackControl is false), and a hover or a focus plays passes until it ends (iterations is null). A product meets it by drawing the playback control or binding its page-wide pause control to paused for trigger always, and by setting iterations so that the motion a hover or a focus starts ends within five seconds, or by keeping such lines where nothing else is read beside them.",
+      "Animation from interactions (WCAG 2.3.3): where motion is reduced, the line never moves; the hidden part is still shown, a viewport at a time, without a motion (MRQ-8).",
+      "The minimum target is the playback control's, a Button's; the line takes no input of its own."
+    ]
+  },
+  "tokens": "comp.marquee-text",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {},
+      "slots": {
+        "default": "Track 7 — A very long title that does not fit in the row it stands in"
+      }
+    },
+    {
+      "id": "fits",
+      "props": {},
+      "slots": {
+        "default": "Short title"
+      }
+    },
+    {
+      "id": "bounce",
+      "props": {
+        "loop": "bounce"
+      },
+      "slots": {
+        "default": "Track 7 — A very long title that does not fit in the row it stands in"
+      }
+    },
+    {
+      "id": "always",
+      "props": {
+        "trigger": "always"
+      },
+      "slots": {
+        "default": "Now playing: a very long title of a song by an artist with a long name"
+      }
+    },
+    {
+      "id": "always-control",
+      "props": {
+        "trigger": "always",
+        "playbackControl": true,
+        "playLabel": "Play scrolling text",
+        "pauseLabel": "Pause scrolling text"
+      },
+      "slots": {
+        "default": "Now playing: a very long title of a song by an artist with a long name"
+      }
+    },
+    {
+      "id": "always-paused",
+      "props": {
+        "trigger": "always",
+        "playbackControl": true,
+        "paused": true,
+        "playLabel": "Play scrolling text",
+        "pauseLabel": "Pause scrolling text"
+      },
+      "slots": {
+        "default": "Now playing: a very long title of a song by an artist with a long name"
+      }
+    },
+    {
+      "id": "rtl",
+      "direction": "rtl",
+      "props": {
+        "trigger": "always",
+        "playbackControl": true,
+        "playLabel": "Play scrolling text",
+        "pauseLabel": "Pause scrolling text"
+      },
+      "slots": {
+        "default": "כותרת ארוכה מאוד שאינה נכנסת בשורה שבה היא עומדת"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-marquee-text",
+      "props": {
+        "trigger": "trigger",
+        "loop": "loop",
+        "speed": "speed",
+        "startPause": "startPause",
+        "endPause": "endPause",
+        "iterations": "iterations",
+        "paused": "paused",
+        "playbackControl": "playbackControl",
+        "playLabel": "playLabel",
+        "pauseLabel": "pauseLabel"
+      },
+      "events": {
+        "pausedChange": "pausedchange"
+      },
+      "notes": "`<tanrei-marquee-text trigger loop speed start-pause end-pause iterations paused playback-control play-label pause-label>text</tanrei-marquee-text>`. The slotted text is drawn once; the copy of MRQ-4 is a clone in the shadow root with `aria-hidden=\"true\"` and `inert`. Whether the text fits is read with a `ResizeObserver` on the viewport and when the slotted text changes; the motion of a whole run of passes is one Web Animations API `translate` animation whose keyframes hold the pauses, each pass's travel lasting the distance divided by speed. The fade is a `mask-image` gradient. The trigger's area is the nearest ancestor, across shadow roots, that takes presses or focus, and the host where there is none; hover is read from `pointerenter` and `pointerleave` of a mouse or a pen, focus from `focusin` and `focusout` of an element that matches `:focus-visible`. The playback control is a `<tanrei-button variant=\"text\" size=\"small\">` in the shadow root. The text size of MRQ-13 is the ratio of the browser's default font size (`font-size: medium`) to 16 px. The element `<marquee>` is not used: it is deprecated, ignores reduced motion and cannot be paused by the person."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiMarqueeText",
+      "props": {
+        "trigger": "trigger",
+        "loop": "loop",
+        "speed": "speed",
+        "startPause": "startPause",
+        "endPause": "endPause",
+        "iterations": "iterations",
+        "paused": "isPaused",
+        "playbackControl": "showsPlaybackControl",
+        "playLabel": "playLabel",
+        "pauseLabel": "pauseLabel"
+      },
+      "events": {
+        "pausedChange": "isPaused binding"
+      },
+      "notes": "A `TimelineView(.animation)` offset inside a clipped `ViewThatFits`-measured line; the copy is `accessibilityHidden(true)`; `accessibilityReduceMotion` from the environment."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiMarqueeText",
+      "props": {
+        "trigger": "trigger",
+        "loop": "loop",
+        "speed": "speed",
+        "startPause": "startPause",
+        "endPause": "endPause",
+        "iterations": "iterations",
+        "paused": "paused",
+        "playbackControl": "playbackControl",
+        "playLabel": "playLabel",
+        "pauseLabel": "pauseLabel"
+      },
+      "events": {
+        "pausedChange": "onPausedChange"
+      },
+      "notes": "Not `Modifier.basicMarquee` alone: it cannot pause, has no bounce, and ignores the motion settings by design (it runs under a fixed motion scale). Built on the same measurement (no motion when the content fits) with an `Animatable` offset, and reads the animator duration scale for reduced motion."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiMarqueeText",
+      "props": {
+        "trigger": "trigger",
+        "loop": "loop",
+        "speed": "speed",
+        "startPause": "startPause",
+        "endPause": "endPause",
+        "iterations": "iterations",
+        "paused": "paused",
+        "playbackControl": "playbackControl",
+        "playLabel": "playLabel",
+        "pauseLabel": "pauseLabel"
+      },
+      "events": {
+        "pausedChange": "onPausedChanged"
+      },
+      "notes": "A `Ticker`-driven offset in a `ClipRect`; the copy inside `ExcludeSemantics`; `MediaQuery.disableAnimationsOf` for reduced motion."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "MarqueeText",
+      "props": {
+        "trigger": "trigger",
+        "loop": "loop",
+        "speed": "speed",
+        "startPause": "startPause",
+        "endPause": "endPause",
+        "iterations": "iterations",
+        "paused": "paused",
+        "playbackControl": "playbackControl",
+        "playLabel": "playLabel",
+        "pauseLabel": "pauseLabel"
+      },
+      "events": {
+        "pausedChange": "onPausedChange"
+      },
+      "notes": "An `Animated` offset on the native driver; the copy with `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden`; `AccessibilityInfo.isReduceMotionEnabled` for reduced motion. hover applies where the platform has a pointer (iPadOS, the web build)."
+    }
+  }
+}

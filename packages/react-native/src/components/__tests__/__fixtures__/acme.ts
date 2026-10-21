@@ -8966,6 +8966,18 @@ export const acme = {
         },
       },
     },
+    marqueeText: {
+      fadeExtent: 16,
+      gap: 48,
+      motionEasing: [0, 0, 1, 1],
+      motionEndPause: 1200,
+      motionReturnDuration: 250,
+      motionReturnEasing: [0.2, 0, 0, 1],
+      motionStartDelay: 300,
+      motionStartPause: 1200,
+      playbackGap: 8,
+      speed: 30,
+    },
     menu: {
       checkboxItemMark: 0,
       containerGap: 12,

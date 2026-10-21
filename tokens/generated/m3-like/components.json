@@ -889,6 +889,13 @@
       ]
     },
     {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "level": "base",
+      "listing": "default",
+      "layer": "core"
+    },
+    {
       "name": "menu",
       "title": "Menu",
       "level": "base",

@@ -166,6 +166,9 @@
           "$ref": "comp/scroll-area.tokens.json"
         },
         {
+          "$ref": "comp/marquee-text.tokens.json"
+        },
+        {
           "$ref": "comp/side-sheet.tokens.json"
         },
         {

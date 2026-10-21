@@ -3152,6 +3152,23 @@ export interface TanreiMainActionButtonTokens {
 }
 
 /**
+ * `comp.marquee-text`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiMarqueeTextTokens {
+  readonly fadeExtent: number;
+  readonly gap: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionEndPause: number;
+  readonly motionReturnDuration: number;
+  readonly motionReturnEasing: TanreiCubicBezier;
+  readonly motionStartDelay: number;
+  readonly motionStartPause: number;
+  readonly playbackGap: number;
+  readonly speed: number;
+}
+
+/**
  * Every value of `comp.menu`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `unselected` (with a dev-only warning).
@@ -5665,6 +5682,7 @@ export interface TanreiComponents {
   readonly list: TanreiListTokens;
   readonly loadingIndicator: TanreiLoadingIndicatorTokens;
   readonly mainActionButton: TanreiMainActionButtonTokens;
+  readonly marqueeText: TanreiMarqueeTextTokens;
   readonly menu: TanreiMenuTokens;
   readonly menubar: TanreiMenubarTokens;
   readonly meter: TanreiMeterTokens;

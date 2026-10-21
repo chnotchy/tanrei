@@ -48000,6 +48000,94 @@
           }
         }
       },
+      "marquee-text": {
+        "fade": {
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "While the text plays: how deep each edge behind which text lies hidden fades, from clear at the edge to the text's full color."
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 48,
+            "unit": "px"
+          },
+          "$description": "While the text repeats: the distance from the text's end to the copy that follows it, so that the end and the start are not read as one sentence."
+        },
+        "motion": {
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "$description": "The motion of a pass: steady, so that the speed means pixels per second all the way."
+          },
+          "end-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "While the text bounces: how long it rests with its end in view before it moves back. Unless the instance gives another (endPause)."
+          },
+          "return-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long the text takes to return to its start when its trigger ends before its passes do."
+          },
+          "return-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          },
+          "start-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long a hover or a focus holds before the text starts to move, so that a pointer passing over a list sets no row moving."
+          },
+          "start-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "How long the text rests at its start before each pass, so that the line's beginning can be read. Unless the instance gives another (startPause)."
+          }
+        },
+        "playback": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The distance from the line's end to its playback control."
+          }
+        },
+        "speed": {
+          "$type": "number",
+          "$value": 30,
+          "$description": "How fast the text moves, in pixels per second at the default text size (it grows with the text). Unless the instance gives another (speed)."
+        }
+      },
       "menu": {
         "checkbox-item": {
           "mark": {

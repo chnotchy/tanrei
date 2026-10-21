@@ -652,6 +652,13 @@
       "category": "containment",
       "level": "base",
       "listing": "default"
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }
