@@ -5,6 +5,11 @@
 //                                                        min is a floor applied after rounding, absent = none)
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
+//   pad    { of: "{id}", height: "{id}" }            → max(0, of + (height − height₁) / 2), on 0.25px: the block padding
+//                                                       of a box whose height follows a density — it gives up half of
+//                                                       what the height lost and takes half of what it gained, so the
+//                                                       box stays 2 × padding + one line. height₁ is the height with
+//                                                       every `times` read as 1 and no `min` (`unscaledLookup`)
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
 //                                                       one at an inset (the concentric radius); never below zero
 //   em     { by: n }                                  → this token's fontSize × by   (typography.letterSpacing only)
@@ -48,9 +53,9 @@ export function roundToStep(value, step) {
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · mul { times, round, min } · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { times, round, min } · pad { of, height } · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
-  return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
+  return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
 
 const sameUnit = (fn, field, rule, term, of) => {
@@ -58,10 +63,10 @@ const sameUnit = (fn, field, rule, term, of) => {
 };
 
 /** The optional terms of `mul`: the factor `times`, the step `round` and the floor `min` (undefined when absent). */
-function mulTerms(rule, of, lookup) {
+function mulTerms(rule, of, lookup, ctx) {
   for (const field of ['times', 'round', 'min']) if (rule[field] !== undefined && !isRef(rule[field])) throw new Error(`"mul" ${field} must be a token, as "{id}"`);
   let times = 1;
-  if (rule.times !== undefined) {
+  if (rule.times !== undefined && !ctx.unscaling) {
     const factor = lookup(refId(rule.times));
     if (factor.unit !== undefined) throw new Error(`"mul" times ${rule.times} must be a number token; it is in ${factor.unit}`);
     times = factor.value;
@@ -74,7 +79,7 @@ function mulTerms(rule, of, lookup) {
     step = grid.value;
   }
   let min;
-  if (rule.min !== undefined) {
+  if (rule.min !== undefined && !ctx.unscaling) {
     const floor = lookup(refId(rule.min));
     sameUnit('mul', 'min', rule, floor, of);
     min = floor.value;
@@ -87,7 +92,9 @@ function mulTerms(rule, of, lookup) {
  * @param {object} rule
  * @param {(id: string) => {value: number, unit?: string, names?: string[]}} lookup resolved value of another token;
  *   for a choice of kind, `value` is its index and `names` its list (`dev.tanrei.enum.values`)
- * @param {{ type: string, fontSize?: number }} ctx
+ * @param {{ type: string, fontSize?: number, unscaled?: (id: string) => {value: number, unit?: string}, unscaling?: boolean }} ctx
+ *   `unscaled`: a token's value with every `times` read as 1 and no `min` (`unscaledLookup`), which `pad` measures a
+ *   height's change from; `unscaling`: this evaluation is one of those (set by `unscaledLookup`)
  */
 export function evaluateNumeric(rule, lookup, ctx) {
   const num = (v) => (isRef(v) ? lookup(refId(v)).value : v);
@@ -96,10 +103,20 @@ export function evaluateNumeric(rule, lookup, ctx) {
       const of = lookup(refId(rule.of));
       const exp = rule.exp === undefined ? 1 : num(rule.exp);
       const coefficient = exp === 1 ? rule.by : rule.by ** exp;
-      const [times, step, min] = mulTerms(rule, of, lookup);
+      const [times, step, min] = mulTerms(rule, of, lookup, ctx);
       const product = of.value * coefficient * times;
       const rounded = step === undefined ? roundTo(product, ROUND[ctx.type] ?? ROUND.number) : roundToStep(product, step);
       return { value: min === undefined ? rounded : Math.max(min, rounded), unit: of.unit };
+    }
+    case 'pad': {
+      if (!isRef(rule.of) || !isRef(rule.height)) throw new Error('"pad" needs "of" and "height", each a token as "{id}"');
+      const of = lookup(refId(rule.of));
+      // Where no height has moved, nothing has been given up or taken.
+      if (ctx.unscaling) return { value: of.value, unit: of.unit };
+      if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with "times" at 1 and no "min" (ctx.unscaled; see unscaledLookup)');
+      const [height, height1] = [lookup(refId(rule.height)), ctx.unscaled(refId(rule.height))];
+      sameUnit('pad', 'height', rule, height, of);
+      return { value: Math.max(0, roundTo(of.value + (height.value - height1.value) / 2, ROUND[ctx.type] ?? ROUND.number)), unit: of.unit };
     }
     case 'scale': {
       const base = lookup(refId(rule.base));
@@ -134,6 +151,34 @@ export function evaluateNumeric(rule, lookup, ctx) {
     default:
       throw new Error(`unknown rule function "${rule.fn}"`);
   }
+}
+
+/**
+ * The values tokens take with every `times` read as 1 and no `min`: the height a `pad` measures its box's change from.
+ * Each token is described by the caller, so the engine, the build and Theme Studio walk their own structures alike.
+ * @param {(id: string) => { alias?: string, rule?: object, type?: string, value?: {value: number, unit?: string} }} describe
+ *   a token as an alias (`alias`: the id it points at), a numeric rule to evaluate (`rule`, `type`), or its value
+ * @returns {(id: string) => {value: number, unit?: string}} memoized
+ */
+export function unscaledLookup(describe) {
+  const memo = new Map();
+  const unscaled = (id) => {
+    if (memo.has(id)) {
+      if (memo.get(id) === null) throw new Error(`cycle through {${id}}`);
+      return memo.get(id);
+    }
+    memo.set(id, null);
+    try {
+      const { alias, rule, type, value } = describe(id);
+      const result = alias ? unscaled(alias) : rule && typeof rule.fn === 'string' ? evaluateNumeric(rule, unscaled, { type, unscaling: true, unscaled }) : value;
+      memo.set(id, result);
+      return result;
+    } catch (error) {
+      memo.delete(id);
+      throw error;
+    }
+  };
+  return unscaled;
 }
 
 /** Walk a DTCG document, yielding leaf tokens with inherited `$type` and vocabulary rationale. */
@@ -193,6 +238,14 @@ export function checkSources(documents) {
     if (isRef(v)) return lookup(refId(v));
     return typeof v === 'number' ? { value: v, names: target.token.$extensions?.[ENUM]?.values } : v;
   };
+  const unscaled = unscaledLookup((id) => {
+    const target = tokens.get(id);
+    if (!target) throw new Error(`references unknown token {${id}}`);
+    const { token, type } = target;
+    if (isRef(token.$value)) return { alias: refId(token.$value) };
+    const rule = token.$extensions?.[DERIVE];
+    return rule && !('fixed' in rule) && type !== 'typography' && id.split('.')[1] !== 'dial' ? { rule, type } : { value: lookup(id) };
+  });
   const problems = [];
   for (const { id, token, type, rationale } of tokens.values()) {
     if (!rationale) problems.push(`${id}: no vocabulary rationale — state why one product needs this distinction`);
@@ -215,7 +268,7 @@ export function checkSources(documents) {
         if (size.value !== value.fontSize.value) problems.push(`${id}: fontSize rule gives ${size.value}, $value says ${value.fontSize.value}`);
         if (tracking.value !== value.letterSpacing.value) problems.push(`${id}: letterSpacing rule gives ${tracking.value}, $value says ${value.letterSpacing.value}`);
       } else {
-        const result = evaluateNumeric(rule, lookup, { type });
+        const result = evaluateNumeric(rule, lookup, { type, unscaled });
         const literal = typeof value === 'number' ? value : value.value;
         if (result.value !== literal) problems.push(`${id}: rule gives ${result.value}, $value says ${literal}`);
       }

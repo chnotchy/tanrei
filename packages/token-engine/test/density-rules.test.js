@@ -1,9 +1,9 @@
 // The rule forms a height that follows a density is written in: `mul` with `times` (a number token, the density),
-// `round` (the step its result lands on) and `min` (a floor applied after rounding). No token of the default system
-// uses them yet; these tests hold the arithmetic on its own.
+// `round` (the step its result lands on) and `min` (a floor applied after rounding), and `pad`, the block padding of
+// such a box. No token of the default system uses them yet; these tests hold the arithmetic on its own.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DERIVE, VOCABULARY, checkSources, evaluateNumeric, mergeLayers, resolveNumericTokens, roundToStep, ruleDependencies, walkTokens } from '../src/index.js';
+import { DERIVE, VOCABULARY, checkSources, evaluateNumeric, mergeLayers, resolveNumericTokens, roundToStep, ruleDependencies, unscaledLookup, walkTokens } from '../src/index.js';
 
 const px = (value) => ({ value, unit: 'px' });
 const dim = { type: 'dimension' };
@@ -108,4 +108,115 @@ test('resolveNumericTokens: a layer that sets the density or the minimum moves t
   assert.deepEqual(resolved({ 'tanrei.sys.target.minimum': { $value: px(24), reason: 'A dense tool for a fine pointer.' } }), px(32));
   assert.deepEqual(resolved({ 'tanrei.dial.density': { $value: 0.75, reason: 'A dense tool.' }, 'tanrei.sys.target.minimum': { $value: px(24), reason: 'A dense tool for a fine pointer.' } }), px(24));
   assert.deepEqual(resolved({ 'tanrei.comp.button.height': { scale: 0.5 } }), px(36), 'a scale keeps the floor: 16 is held at 36');
+});
+
+// `pad`: the block padding of a box whose height follows a density gives up half of what the height lost, and takes
+// half of what it gained from the density or from the floor, so the box stays 2 × padding + one line.
+const tableOf = ({ density = 1, minimum = 36, padding = 6 } = {}) => ({
+  unit: { rule: { fn: 'mul', of: '{dial}', by: 1 }, type: 'dimension' },
+  dial: { value: px(4) },
+  density: { value: { value: density } },
+  minimum: { value: px(minimum) },
+  padding: { value: px(padding) },
+  // The ladder step follows the density; the pressable height aliases it, floored.
+  step: { rule: { fn: 'mul', of: '{unit}', by: 8, times: '{density}', round: '{unit}' }, type: 'dimension' },
+  height: { rule: { fn: 'mul', of: '{step}', by: 1, min: '{minimum}' }, type: 'dimension' },
+  alias: { alias: 'height' },
+});
+/** A lookup and its unscaled companion over a table of described tokens, as the engine builds them. */
+function graph(table) {
+  const describe = (id) => {
+    if (!(id in table)) throw new Error(`unknown {${id}}`);
+    return table[id];
+  };
+  const unscaled = unscaledLookup(describe);
+  const lookup = (id) => {
+    const { alias, rule, type, value } = describe(id);
+    return alias ? lookup(alias) : rule ? evaluateNumeric(rule, lookup, { type, unscaled }) : value;
+  };
+  return { lookup, unscaled, pad: (heightId = 'height') => evaluateNumeric({ fn: 'pad', of: '{padding}', height: `{${heightId}}` }, lookup, { type: 'dimension', unscaled }) };
+}
+
+test('pad: the height₁ it measures from reads every times as 1 and drops every min, through aliases and of', () => {
+  const { lookup, unscaled } = graph(tableOf({ density: 1.5, minimum: 36 }));
+  assert.deepEqual(lookup('height'), px(48));
+  assert.deepEqual(unscaled('height'), px(32));
+  assert.deepEqual(unscaled('alias'), px(32));
+  assert.deepEqual(graph(tableOf({ density: 1 })).lookup('height'), px(36), 'held at the floor');
+  assert.deepEqual(graph(tableOf({ density: 1 })).unscaled('height'), px(32), 'without the floor');
+});
+
+test('pad: a box that shrinks gives up half of what it lost', () => {
+  // density 0.9 with no floor in reach: 28.8 → 28, from 32: 2 px less above and below.
+  assert.deepEqual(graph(tableOf({ density: 0.9, minimum: 24 })).pad(), px(4));
+});
+
+test('pad: a box the floor or the density grows takes half of what it gained', () => {
+  assert.deepEqual(graph(tableOf({ density: 1, minimum: 36 })).pad(), px(8), 'a small Button held at 36: 6 + 2');
+  assert.deepEqual(graph(tableOf({ density: 1.5, minimum: 36 })).pad(), px(14), '48 from 32: 6 + 8');
+  assert.deepEqual(graph(tableOf({ density: 1, minimum: 24 })).pad(), px(6), 'nothing moved: the padding as it was');
+});
+
+test('pad: never below zero', () => {
+  assert.deepEqual(graph(tableOf({ density: 0.5, minimum: 0, padding: 2 })).pad(), px(0), '16 from 32 would take 8 from 2');
+});
+
+test('pad: the box stays 2 × padding + one line wherever the padding is above zero', () => {
+  for (const density of [0.75, 0.9, 1, 1.25, 1.5]) {
+    for (const minimum of [24, 32, 36, 48]) {
+      const { lookup, pad } = graph(tableOf({ density, minimum }));
+      assert.equal(lookup('height').value - 2 * pad().value, 32 - 2 * 6, `density ${density}, minimum ${minimum}`);
+    }
+  }
+});
+
+test('pad: rounds to 0.25px', () => {
+  // 4 × 7 × 1.1 = 30.8 → 30.75 on the 0.25 grid, from 28: 6 + 1.375 → 7.5.
+  const table = { ...tableOf({ density: 1.1 }), step: { rule: { fn: 'mul', of: '{unit}', by: 7, times: '{density}' }, type: 'dimension' }, height: { alias: 'step' } };
+  assert.deepEqual(graph(table).pad(), px(7.5));
+});
+
+test('pad: a height with no rule (a pinned value) has moved nothing', () => {
+  const table = { ...tableOf({ density: 1.5 }), pinned: { value: px(40) } };
+  assert.deepEqual(graph(table).pad('pinned'), px(6));
+});
+
+test('pad: unscaled, a padding is its of; it needs the unscaled lookup, two tokens and one unit', () => {
+  const { unscaled } = graph({ ...tableOf({ density: 1.5 }), padded: { rule: { fn: 'pad', of: '{padding}', height: '{height}' }, type: 'dimension' } });
+  assert.deepEqual(unscaled('padded'), px(6));
+  const lookup = values({ padding: px(6), height: px(36), ms: { value: 36, unit: 'ms' } });
+  assert.throws(() => evaluateNumeric({ fn: 'pad', of: '{padding}', height: '{height}' }, lookup, dim), /ctx\.unscaled/);
+  assert.throws(() => evaluateNumeric({ fn: 'pad', of: '{padding}', height: 36 }, lookup, { ...dim, unscaled: lookup }), /each a token/);
+  assert.throws(() => evaluateNumeric({ fn: 'pad', of: '{padding}', height: '{ms}' }, lookup, { ...dim, unscaled: lookup }), /height \{ms\} \(ms\) is not in the unit of \{padding\} \(px\)/);
+  assert.deepEqual(ruleDependencies({ fn: 'pad', of: '{padding}', height: '{height}' }), ['padding', 'height']);
+});
+
+test('unscaledLookup refuses a cycle', () => {
+  const unscaled = unscaledLookup((id) => ({ a: { alias: 'b' }, b: { alias: 'a' } })[id]);
+  assert.throws(() => unscaled('a'), /cycle/);
+});
+
+// Through the documents: a padding beside a floored height.
+const padSources = (literal = 8) => {
+  const docs = sources();
+  docs['sys/space.tokens.json'] = { tanrei: { sys: { space: { $type: 'dimension', $extensions: voc, space75: { $value: px(6), $extensions: { [DERIVE]: { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 1.5 } } } } } } };
+  docs['comp/button.tokens.json'].tanrei.comp.button['padding-block'] = { $value: px(literal), $extensions: { [DERIVE]: { fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.height}' } } };
+  return docs;
+};
+
+test('checkSources holds a pad rule to the literal beside it', () => {
+  assert.deepEqual(checkSources(Object.values(padSources(8))), []);
+  assert.deepEqual(checkSources(Object.values(padSources(6))), ['tanrei.comp.button.padding-block: rule gives 8, $value says 6']);
+});
+
+test('resolveNumericTokens: the padding follows the density and the floor its height follows', () => {
+  const resolved = (tokens) => {
+    const docs = resolveNumericTokens(padSources(), layer(tokens));
+    return [valueOf(docs, 'tanrei.comp.button.height').value, valueOf(docs, 'tanrei.comp.button.padding-block').value];
+  };
+  assert.deepEqual(resolved({}), [36, 8]);
+  assert.deepEqual(resolved({ 'tanrei.dial.density': { $value: 1.5, reason: 'A product used mostly by touch.' } }), [48, 14]);
+  assert.deepEqual(resolved({ 'tanrei.sys.target.minimum': { $value: px(24), reason: 'A dense tool for a fine pointer.' } }), [32, 6]);
+  assert.deepEqual(resolved({ 'tanrei.dial.density': { $value: 0.75, reason: 'A dense tool.' }, 'tanrei.sys.target.minimum': { $value: px(24), reason: 'A dense tool for a fine pointer.' } }), [24, 2]);
+  assert.deepEqual(resolved({ 'tanrei.comp.button.height': { $value: px(44), reason: 'A product pins its Button.' } }), [44, 6], 'a pinned height has moved nothing');
 });
