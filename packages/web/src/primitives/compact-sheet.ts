@@ -101,10 +101,9 @@ export function sheetLookStyles({ sheet, paddingBlockEnd = '0px', scrim }: Sheet
     opacity: 1;
     scale: none;
     translate: none;
-    transition-property: translate, display, overlay;
+    transition-property: translate;
     transition-duration: ${S('motion-exit-duration')};
     transition-timing-function: ${S('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   /* Over the keyboard, nothing is under the bottom inset. */
   ${sheet}.keyboard {
@@ -129,10 +128,9 @@ export function sheetLookStyles({ sheet, paddingBlockEnd = '0px', scrim }: Sheet
     background: ${scrimColor};
     backdrop-filter: ${SCRIM_FILTER.cssText};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${S('motion-exit-duration')};
     transition-timing-function: ${S('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   ${sheet}[open]::backdrop {
     opacity: 1;
@@ -147,7 +145,7 @@ export function sheetLookStyles({ sheet, paddingBlockEnd = '0px', scrim }: Sheet
   /* Where motion is reduced it fades in place. */
   @media (prefers-reduced-motion: reduce) {
     ${sheet} {
-      transition-property: opacity, display, overlay;
+      transition-property: opacity;
       translate: none;
     }
     ${sheet}:not([open]) {

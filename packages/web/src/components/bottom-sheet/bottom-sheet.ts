@@ -6,6 +6,7 @@ import {
   type DividerVisibilityProp,
   SHEET_FLING_VELOCITY,
   SheetDrag,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
@@ -17,6 +18,7 @@ import {
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openModal,
   report,
   returnFocus,
   syncDividerVisibility,
@@ -320,7 +322,7 @@ export class TanreiBottomSheet extends TanreiElement {
     const dialog = this.dialog;
     if (!this.shown || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.modal) dialog.showModal();
+    if (this.open && this.modal) openModal(dialog);
   };
 
   private readonly onClick = (event: MouseEvent) => {
@@ -654,7 +656,7 @@ export class TanreiBottomSheet extends TanreiElement {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.shown = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -677,7 +679,7 @@ export class TanreiBottomSheet extends TanreiElement {
     holdPageScroll(this, false);
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }

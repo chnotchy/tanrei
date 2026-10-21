@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { SCRIM_FILTER, actionBoxStyles, appearStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -90,10 +90,9 @@ export const styles = css`
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog[open]::backdrop {
     opacity: 1;
@@ -115,6 +114,8 @@ export const styles = css`
   dialog.compact {
     filter: none;
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* DLG-8: the parts, container.gap apart, the empty ones left out; the actions actions.margin-block-start below. */
   .scroll {

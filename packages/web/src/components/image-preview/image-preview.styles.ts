@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { appearStyles, focusRing, iconGlyph } from '../../primitives/index.js';
+import { appearStyles, focusRing, iconGlyph, modalExitStyles } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -36,13 +36,12 @@ export const styles = css`
     color: ${t('caption-color')};
     text-align: start;
     outline: none;
-    /* IMP-33: out, all of it fades over the exit motion — kept in the top layer and displayed until it has. */
+    /* IMP-33: out, all of it fades over the exit motion — kept drawn in the top layer until it has (closeModal). */
     opacity: 0;
     pointer-events: none;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog[open] {
     display: grid;
@@ -60,6 +59,8 @@ export const styles = css`
   dialog::backdrop {
     background: transparent;
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* IMP-1: the fill, behind the image, so that the image's clear parts show it (IMP-11) and so that the downward drag
      can make the fill clearer and leave the image as it is (IMP-22). */

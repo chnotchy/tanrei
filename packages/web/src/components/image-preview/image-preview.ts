@@ -13,14 +13,17 @@ import {
   SHEET_TOUCH_SLOP,
   SystemWatchController,
   WordsController,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
   focusOverlay,
   giveVariant,
   holdPageScroll,
+  isLeaving,
   modalLayer,
   modalSheetKeys,
+  openModal,
   report,
   returnFocus,
   stoppedBefore,
@@ -363,8 +366,6 @@ export class TanreiImagePreview extends TanreiElement {
    * (MOT-4), turned round from what it shows (MOT-2). The pages are what appears; the container fades round them.
    */
   private readonly appear = new AppearController(this, { motion: () => this.pagesElement });
-  /** Closed and still playing its exit: opened again, the image goes on from what it shows. */
-  private leaving = false;
   /** IMP-43: an opening with nothing to show was reported, until there is something. */
   private reportedEmpty = false;
 
@@ -895,7 +896,7 @@ export class TanreiImagePreview extends TanreiElement {
     const dialog = this.dialog;
     if (!this.presented || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.presented) dialog.showModal();
+    if (this.open && this.presented) openModal(dialog);
   };
 
   /** IMP-25: focus that reaches a control shows the controls. IMP-26, IMP-27: the focus style of the stage and of the caption, where style queries are missing. */
@@ -1312,13 +1313,10 @@ export class TanreiImagePreview extends TanreiElement {
     this.pagesElement?.classList.remove('settling');
     this.pagesElement?.style.removeProperty('--_drag-x');
     this.pagesElement?.style.removeProperty('--_drag-y');
-    // IMP-33: still leaving, it is put back into the top layer where the image's exit has got to (MOT-2): an element
-    // taken out and put back is drawn anew, from the start of its entrance otherwise.
-    if (!dialog.open) {
-      if (this.leaving) this.appear.keep(() => dialog.showModal());
-      else dialog.showModal();
-    }
-    this.leaving = false;
+    // IMP-33: opened modally — or, still leaving, taken back where the image's exit has got to (MOT-2): the image is
+    // drawn as it was shown while the dialog changes hands (src/primitives/modal-exit.ts).
+    if (isLeaving(dialog)) this.appear.keep(() => openModal(dialog));
+    else openModal(dialog);
     this.appear.enter();
     this.presented = true;
     modalLayer.add(this);
@@ -1350,13 +1348,10 @@ export class TanreiImagePreview extends TanreiElement {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
-    // IMP-4, IMP-33: out of the top layer at once — the page and focus are given back now — and drawn there until it has
-    // faded (its `display` and `overlay` change at the fade's end), the image going back the way it came.
-    if (dialog?.open) dialog.close();
-    this.leaving = true;
-    void this.appear.exit(!this.isConnected).then((left) => {
-      if (left) this.leaving = false;
-    });
+    // IMP-4, IMP-33: no longer modal at once — the page and focus are given back now — and drawn in the top layer until
+    // it has faded (closeModal), in every engine, the image going back the way it came.
+    if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);

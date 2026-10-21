@@ -42,8 +42,6 @@ function reports(page: P) {
   });
   return seen;
 }
-/** Whether the engine can keep a closed dialog drawn in the top layer while it leaves (`overlay`): Firefox cannot. */
-const holdsExit = (page: P) => page.evaluate(() => CSS.supports('overlay', 'auto'));
 const isOpen = (page: P, id: string) => dialog(page, id).evaluate((el) => (el as HTMLDialogElement).open);
 /** The deepest focused element: its id, a dialog's `dialog`, or its text. */
 const focused = (page: P) =>
@@ -244,14 +242,8 @@ test.describe('presentation and focus', () => {
       const native = el.shadowRoot.querySelector('dialog') as HTMLDialogElement;
       return { open: native.open, focused: document.activeElement?.id ?? null };
     })), { probe: appearProbe });
-    // Out of the top layer and focus back at once; drawn until the exit has played — where the engine can hold a closed
-    // dialog in the top layer (`overlay`); one that cannot takes it away at once, as the docs say.
+    // No longer modal and focus back at once; drawn in the top layer until the exit has played, in every engine (MDL-7).
     expect(afterClose).toEqual({ open: false, focused: 'open-d' });
-    if (!(await holdsExit(page))) {
-      expect(drawn(closing)).toEqual([]);
-      expect(await css(dialog(page, 'd'), 'display')).toBe('none');
-      return;
-    }
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
     expectNoFlicker(closing);
     expectAnimated(closing, 'opacity');
@@ -289,14 +281,13 @@ test.describe('presentation and focus', () => {
     expect(own(opening)).toContainEqual(['opacity', reduced]);
     expect(own(opening).filter(([name]) => name !== 'opacity')).toEqual([]);
     const closing = await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe });
-    if (await holdsExit(page)) expect(own(closing)).toContainEqual(['opacity', reduced]);
+    expect(own(closing)).toContainEqual(['opacity', reduced]);
     expect(own(closing).filter(([name]) => name !== 'opacity')).toEqual([]);
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
   });
 
-  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page, browserName }) => {
+  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page }) => {
     await mount(page, [f('d')]);
-    test.skip(!(await holdsExit(page)), `${browserName} cannot hold a closed dialog in the top layer (no overlay property): it has no exit to turn round`);
     await override(page, { [T('motion-enter-duration')]: '600ms', [T('motion-exit-duration')]: '600ms' });
     // A turn is read where the motion is held at half its length, not where a clock has let it get to; the new state is
     // set and read in the same task, before a frame has passed.
@@ -930,21 +921,15 @@ test.describe('compact window', () => {
       await el.updateComplete;
       return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
     });
-    // A closed dialog stays in the top layer for its exit only where the engine can transition `overlay`. Where it
-    // cannot (Firefox) it is gone at once and nothing is left to move, so what is read there is what the exit is
-    // declared to be — the same properties and time.
-    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) {
-      expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
-      expect(leaving.map((l) => l.property)).not.toContain('scale');
-    } else {
-      expect(leaving).toEqual([]);
-      expect(await css(d, 'display')).toBe('none');
-    }
+    // A closed dialog stays drawn in the top layer for its exit, in every engine (MDL-7).
+    expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    expect(leaving.map((l) => l.property)).not.toContain('scale');
+    expect(await css(d, 'display')).not.toBe('none');
     const out = await d.evaluate((el) => {
       const style = getComputedStyle(el);
       return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000, scale: style.scale };
     });
-    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
+    expect(out.properties).toContain('translate');
     expect(out.duration).toBe(40_000);
     expect(out.scale).toBe('none');
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));

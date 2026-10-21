@@ -309,9 +309,8 @@ test.describe('motion', () => {
     expect(ms(await css(container(page, 'l'), 'transition-duration', '::backdrop'))).toBe(enter);
     expect(await css(container(page, 'l'), 'transition-property')).toContain('opacity');
     await close(page, 'l');
-    // Closed, it fades out over the exit motion — still displayed while it runs, where the browser can keep a closed
-    // dialog in the top layer for its transition (the `overlay` property; the spec's web note says what happens without).
-    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) expect(await css(container(page, 'l'), 'display')).not.toBe('none');
+    // Closed, it fades out over the exit motion — still displayed in the top layer while it runs, in every engine.
+    expect(await css(container(page, 'l'), 'display')).not.toBe('none');
     expect(ms(await css(container(page, 'l'), 'transition-duration'))).toBe(exit);
     await expect.poll(() => css(container(page, 'l'), 'display')).toBe('none');
     // Reduced motion: opacity is all that moves, so it still fades, over the same times.
