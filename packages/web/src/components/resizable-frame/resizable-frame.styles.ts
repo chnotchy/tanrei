@@ -187,6 +187,7 @@ export const styles = css`
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     pointer-events: none;
+    -webkit-user-select: none;
     user-select: none;
     opacity: 0;
     transition: opacity ${t('motion-indicator-exit-duration')} ${t('motion-indicator-exit-easing')};
