@@ -1899,6 +1899,161 @@ test.describe('seams', () => {
   });
 });
 
+test.describe('destructive', () => {
+  const VARIANTS = ['filled', 'tonal', 'elevated', 'outlined'] as const;
+  const HALVES = ['leading', 'trailing'] as const;
+  /** What a half draws: its fill, its label color, and its outline's ring with its elevation (its ::after's). */
+  const look = (page: P, id: string, half: 'leading' | 'trailing') =>
+    host(page, id)
+      .locator(`button.${half}`)
+      .evaluate((el) => {
+        const [own, after] = [getComputedStyle(el), getComputedStyle(el, '::after')];
+        return { background: own.backgroundColor, color: own.color, shadow: after.boxShadow, opacity: own.opacity };
+      });
+  const dividerColor = (page: P, id: string) => host(page, id).locator('.divider').evaluate((el) => getComputedStyle(el, '::before').backgroundColor);
+  /** The layers of a box-shadow after the outline's ring: the elevation. */
+  const elevation = (value: string) => value.split(/,\s*(?![^(]*\))/).slice(1).join(', ');
+  const B = (name: string) => `--tanrei-comp-button-${name}`;
+
+  test('SPB-34: a destructive button with menu draws both halves and the divider from its variant’s destructive parts — a destructive Button’s, the error role at the variant’s emphasis — with the elevation of its variant', async ({ page }) => {
+    const [error, onError, errorContainer, onErrorContainer] = await Promise.all(['error', 'on-error', 'error-container', 'on-error-container'].map((role) => resolveColor(page, `--tanrei-sys-color-${role}`)));
+    for (const variant of VARIANTS) {
+      const id = `${variant}-destructive`;
+      for (const half of HALVES) {
+        const drawn = await look(page, id, half);
+        const at = `${id} ${half}`;
+        expect(drawn.background, at).toBe(await resolveColor(page, T(`${variant}-destructive-container-color`)));
+        expect(drawn.color, at).toBe(await resolveColor(page, T(`${variant}-destructive-label-color`)));
+        expect(drawn.shadow, at).toContain(await resolveColor(page, T(`${variant}-destructive-outline-color`)));
+        // The tokens are Button's destructive parts in every shipped system, so the two components agree.
+        expect(drawn.background, at).toBe(await resolveColor(page, B(`${variant}-destructive-container-color`)));
+        expect(drawn.color, at).toBe(await resolveColor(page, B(`${variant}-destructive-label-color`)));
+        // The elevation is the variant's: the same layers after the outline as the plain button with menu's.
+        expect(elevation(drawn.shadow), at).toBe(elevation((await look(page, `${variant}-medium`, half)).shadow));
+        // Without destructive the variant draws its own parts, and the two are told apart.
+        const plain = await look(page, `${variant}-medium`, half);
+        expect([plain.background, plain.color], at).not.toEqual([drawn.background, drawn.color]);
+      }
+      expect(await dividerColor(page, id), id).toBe(await resolveColor(page, T(`${variant}-destructive-divider-color`)));
+    }
+    // The default system's values: the error role at each emphasis, on both halves.
+    for (const half of HALVES) {
+      expect(await look(page, 'filled-destructive', half)).toMatchObject({ background: error, color: onError });
+      expect(await look(page, 'tonal-destructive', half)).toMatchObject({ background: errorContainer, color: onErrorContainer });
+      for (const variant of ['elevated', 'outlined'] as const) {
+        const drawn = await look(page, `${variant}-destructive`, half);
+        expect(drawn.color, variant).toBe(error);
+        expect(drawn.background, variant).toBe((await look(page, `${variant}-medium`, half)).background);
+      }
+      expect((await look(page, 'outlined-destructive', half)).shadow).toContain(error);
+    }
+    // The chevron is drawn in its half's label color: the error color on an outlined one.
+    expect(await trailing(page, 'outlined-destructive').locator('.chevron').first().evaluate((el) => getComputedStyle(el).color)).toBe(error);
+    // An outlined one's divider is its edge color, as the plain outlined divider is; the others keep their own divider.
+    expect(await dividerColor(page, 'outlined-destructive')).toBe(error);
+    expect(await dividerColor(page, 'filled-destructive')).toBe(await dividerColor(page, 'filled-medium'));
+  });
+
+  test('SPB-34, SPB-4: hovered, pressed and keyboard-focused, each half of a destructive button with menu renders from the destructive parts of its own state, and the other half stays at rest', async ({ page }) => {
+    const bg = (half: 'leading' | 'trailing') => () => css(page, 'outlined-destructive', half, 'background-color');
+    const [rest, hovered, focusedColor, pressed] = await Promise.all(['', 'hovered-', 'focused-', 'pressed-'].map((s) => resolveColor(page, T(`outlined-${s}destructive-container-color`))));
+    expect(await bg('leading')()).toBe(rest);
+    expect(hovered).not.toBe(rest);
+    await trailing(page, 'outlined-destructive').hover();
+    await expect.poll(bg('trailing')).toBe(hovered);
+    expect(await bg('leading')()).toBe(rest);
+    await page.mouse.down();
+    await expect.poll(bg('trailing')).toBe(pressed);
+    await page.mouse.up();
+    await page.mouse.move(1, 1);
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, leading(page, 'outlined-destructive'));
+    await expect.poll(bg('leading')).toBe(focusedColor);
+    expect(await css(page, 'outlined-destructive', 'leading', 'color')).toBe(await resolveColor(page, T('outlined-focused-destructive-label-color')));
+    await expect.poll(bg('trailing')).toBe(rest);
+  });
+
+  test('SPB-34, SPB-7: disabled, a destructive button with menu looks exactly like a disabled button with menu of its variant', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spec.fixtures.filter((f) => ['filled-disabled', 'outlined-disabled', 'filled-destructive-disabled'].includes(f.id)),
+        fixture('outlined-destructive-disabled', { variant: 'outlined', destructive: true, disabled: true, label: 'Delete', menuLabel: 'More delete options' }),
+      ],
+    });
+    for (const variant of ['filled', 'outlined'] as const) {
+      for (const half of HALVES) expect(await look(page, `${variant}-destructive-disabled`, half), `${variant} ${half}`).toEqual(await look(page, `${variant}-disabled`, half));
+      expect(await dividerColor(page, `${variant}-destructive-disabled`), variant).toBe(await dividerColor(page, `${variant}-disabled`));
+    }
+    const outlined = await look(page, 'outlined-destructive-disabled', 'trailing');
+    expect(outlined.background).toBe(await resolveColor(page, T('outlined-disabled-container-color')));
+    expect(outlined.shadow).toContain(await resolveColor(page, T('outlined-disabled-outline-color')));
+  });
+
+  test('SPB-34: filled-destructive-gap, -narrow and -open are filled-gap, filled-narrow and filled-open in the destructive colors, with the same trailing half and corners', async ({ page }) => {
+    await measured(page);
+    for (const [id, plain] of [['filled-destructive-gap', 'filled-gap'], ['filled-destructive-narrow', 'filled-narrow'], ['filled-destructive-open', 'filled-open']] as const) {
+      for (const half of HALVES) {
+        expect(await look(page, id, half), `${id} ${half}`).toMatchObject({ background: await resolveColor(page, T('filled-destructive-container-color')), color: await resolveColor(page, T('filled-destructive-label-color')) });
+        const [a, b] = [await bounds(host(page, id).locator(`button.${half}`)), await bounds(host(page, plain).locator(`button.${half}`))];
+        // The label differs (Delete, not Save), so the leading half's width does; its height and the trailing half do not.
+        expect(half === 'leading' ? a.height : [a.width, a.height], `${id} ${half}`).toEqual(half === 'leading' ? b.height : [b.width, b.height]);
+        expect(await css(page, id, half, 'border-top-left-radius'), `${id} ${half}`).toBe(await css(page, plain, half, 'border-top-left-radius'));
+      }
+    }
+    expect(await trailing(page, 'filled-destructive-open').evaluate((el) => el.classList.contains('open'))).toBe(true);
+  });
+
+  test('SPB-34, MNU-18: destructive is not passed to the menu’s items — an item without its own destructive is drawn as in a plain button with menu, and an item with it as a destructive item', async ({ page }) => {
+    const items = '<tanrei-menu-item slot="menu" label="Delete this version"></tanrei-menu-item><tanrei-menu-item slot="menu" label="Delete all versions" destructive></tanrei-menu-item>';
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [withMenu('destructive', { destructive: true, label: 'Delete', menuLabel: 'More delete options' }, items), withMenu('plain', { label: 'Delete', menuLabel: 'More delete options' }, items)],
+    });
+    await wire(page);
+    const rows = (id: string) =>
+      host(page, id).evaluate((el) =>
+        [...el.querySelectorAll('tanrei-menu-item')].map((item) => {
+          const root = item.shadowRoot!;
+          return { destructive: item.hasAttribute('destructive'), bg: getComputedStyle(root.querySelector('.row')!).backgroundColor, label: getComputedStyle(root.querySelector('.label')!).color };
+        }),
+      );
+    // Each menu open in turn (opening one closes the other). The first item then has focus: compare the second whole,
+    // and the first by its label color, which focus does not change.
+    const opened = async (id: string) => {
+      await trailing(page, id).click();
+      await expect.poll(() => menuOpen(page, id)).toBe(true);
+      await expect.poll(() => focused(page)).toBe('tanrei-menu-item[Delete this version]');
+      const drawn = await rows(id);
+      await page.keyboard.press('Escape');
+      await expect.poll(() => menuOpen(page, id)).toBe(false);
+      return drawn;
+    };
+    const drawn = await opened('destructive');
+    const plain = await opened('plain');
+    expect(drawn.map((r) => r.destructive)).toEqual([false, true]);
+    expect(drawn[0]!.label).toBe(plain[0]!.label);
+    expect(drawn[0]!.label).toBe(await resolveColor(page, '--tanrei-comp-menu-unselected-label-color'));
+    expect(drawn[1]).toEqual(plain[1]);
+    expect(drawn[1]!.label).toBe(await resolveColor(page, '--tanrei-comp-menu-destructive-label-color'));
+    expect(drawn[0]!.label).not.toBe(drawn[1]!.label);
+  });
+
+  test('SPB-35: destructive adds a color and nothing else — the same roles, names, states and attributes on both halves as without it', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('destructive', { destructive: true, label: 'Delete project', menuLabel: 'More delete options' }), fixture('plain', { label: 'Delete project', menuLabel: 'More delete options' })],
+    });
+    const attributes = (id: string, half: 'leading' | 'trailing') =>
+      host(page, id)
+        .locator(`button.${half}`)
+        .evaluate((el) => el.getAttributeNames().filter((name) => name.startsWith('aria-') || name === 'role').map((name) => `${name}=${name === 'aria-controls' ? '…' : el.getAttribute(name)}`));
+    for (const half of HALVES) expect(await attributes('destructive', half), half).toEqual(await attributes('plain', half));
+    expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="plain"]').ariaSnapshot());
+    expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe('- button "Delete project"\n- button "More delete options"');
+  });
+});
+
 test.describe('React wrappers', () => {
   // Each wrapper is generated into a module of its own, named after its tag without the prefix (MenuItem: menu-item.ts).
   const wrapper = (name: string) =>

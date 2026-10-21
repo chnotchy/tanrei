@@ -2290,7 +2290,7 @@
           "type": {
             "text": "readonly OpenAxis[]"
           },
-          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`, probe: (value) => `${PREFIX}-${value}-container-color` }, ]",
           "description": "The open axes (SPB-8): a size or variant a layer added gets its block on demand, built by the same functions\nas the core blocks and falling back to the default's tokens; a value the active system lacks is reported in debug builds."
         },
         {
@@ -2422,6 +2422,18 @@
               "default": "'filled'",
               "description": "Emphasis, as Button's variants of the same names.",
               "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "destructive",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-34, SPB-35: the main action deletes or discards something a person may not get back. Both halves keep their\nvariant's emphasis in the error role's color, as a destructive Button does; nothing more is exposed to assistive\ntechnology, so the label says what is destroyed. The menu's items are not marked by it: an item that deletes\ncarries its own `destructive`.",
+              "attribute": "destructive",
               "reflects": true
             },
             {
@@ -2564,6 +2576,15 @@
               "default": "'filled'",
               "description": "Emphasis, as Button's variants of the same names.",
               "fieldName": "variant"
+            },
+            {
+              "name": "destructive",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPB-34, SPB-35: the main action deletes or discards something a person may not get back. Both halves keep their\nvariant's emphasis in the error role's color, as a destructive Button does; nothing more is exposed to assistive\ntechnology, so the label says what is destroyed. The menu's items are not marked by it: an item that deletes\ncarries its own `destructive`.",
+              "fieldName": "destructive"
             },
             {
               "name": "size",

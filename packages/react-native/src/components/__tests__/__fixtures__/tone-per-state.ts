@@ -1330,6 +1330,11 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outline" },
             stateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: { kind: "role", role: "error" },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outline" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           hovered: {
             containerColor: {
@@ -1343,6 +1348,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outline" },
             stateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.08,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outline" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           focused: {
             containerColor: {
@@ -1356,6 +1371,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outline" },
             stateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outline" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           pressed: {
             containerColor: {
@@ -1369,6 +1394,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outline" },
             stateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outline" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           disabled: {
             containerColor: {
@@ -1393,6 +1428,27 @@ export const tonePerState = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
           },
         },
         tonal: {
@@ -1403,6 +1459,11 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            destructiveContainerColor: { kind: "role", role: "errorContainer" },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           hovered: {
             containerColor: {
@@ -1416,6 +1477,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.08,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           focused: {
             containerColor: {
@@ -1429,6 +1500,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           pressed: {
             containerColor: {
@@ -1442,6 +1523,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           disabled: {
             containerColor: {
@@ -1458,6 +1549,23 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -1472,6 +1580,11 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: { kind: "role", role: "surfaceContainerLowest" },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           hovered: {
             containerColor: {
@@ -1485,6 +1598,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.08,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           focused: {
             containerColor: {
@@ -1498,6 +1621,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           pressed: {
             containerColor: {
@@ -1511,6 +1644,16 @@ export const tonePerState = {
             outlineColor: { kind: "none" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           disabled: {
             containerColor: {
@@ -1531,6 +1674,23 @@ export const tonePerState = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
           },
         },
         outlined: {
@@ -1541,6 +1701,11 @@ export const tonePerState = {
             outlineColor: { kind: "role", role: "outlineVariant" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveDividerColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           hovered: {
             containerColor: {
@@ -1554,6 +1719,16 @@ export const tonePerState = {
             outlineColor: { kind: "role", role: "outlineVariant" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.08,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveDividerColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           focused: {
             containerColor: {
@@ -1567,6 +1742,16 @@ export const tonePerState = {
             outlineColor: { kind: "role", role: "outlineVariant" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveDividerColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           pressed: {
             containerColor: {
@@ -1580,6 +1765,16 @@ export const tonePerState = {
             outlineColor: { kind: "role", role: "outlineVariant" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.1,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveDividerColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           disabled: {
             containerColor: { kind: "none" },
@@ -1592,6 +1787,19 @@ export const tonePerState = {
             outlineColor: { kind: "role", role: "outlineVariant" },
             dividerColor: { kind: "role", role: "outlineVariant" },
             stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "role", role: "outlineVariant" },
+            destructiveDividerColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,

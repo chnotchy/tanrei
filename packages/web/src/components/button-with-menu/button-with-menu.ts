@@ -130,6 +130,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
+    destructive: { type: Boolean, reflect: true },
     size: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     trailingWidth: { type: String, reflect: true, attribute: 'trailing-width' },
@@ -150,6 +151,14 @@ export class TanreiButtonWithMenu extends TanreiElement {
 
   /** Emphasis, as Button's variants of the same names. */
   variant: TanreiButtonWithMenuVariant = 'filled';
+
+  /**
+   * SPB-34, SPB-35: the main action deletes or discards something a person may not get back. Both halves keep their
+   * variant's emphasis in the error role's color, as a destructive Button does; nothing more is exposed to assistive
+   * technology, so the label says what is destroyed. The menu's items are not marked by it: an item that deletes
+   * carries its own `destructive`.
+   */
+  destructive = false;
 
   /** Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target. */
   size: TanreiButtonWithMenuSize = 'medium';

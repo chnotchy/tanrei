@@ -2551,6 +2551,11 @@ public struct TanreiButtonWithMenuVariantStateTokens: Sendable, Equatable {
   public var outlineColor: TanreiPaint
   public var dividerColor: TanreiPaint
   public var stateLayerColor: TanreiPaint
+  public var destructiveContainerColor: TanreiPaint
+  public var destructiveLabelColor: TanreiPaint
+  public var destructiveOutlineColor: TanreiPaint
+  public var destructiveDividerColor: TanreiPaint
+  public var destructiveStateLayerColor: TanreiPaint
 
   public init(
     containerColor: TanreiPaint,
@@ -2558,7 +2563,12 @@ public struct TanreiButtonWithMenuVariantStateTokens: Sendable, Equatable {
     labelColor: TanreiPaint,
     outlineColor: TanreiPaint,
     dividerColor: TanreiPaint,
-    stateLayerColor: TanreiPaint
+    stateLayerColor: TanreiPaint,
+    destructiveContainerColor: TanreiPaint,
+    destructiveLabelColor: TanreiPaint,
+    destructiveOutlineColor: TanreiPaint,
+    destructiveDividerColor: TanreiPaint,
+    destructiveStateLayerColor: TanreiPaint
   ) {
     self.containerColor = containerColor
     self.containerElevation = containerElevation
@@ -2566,6 +2576,11 @@ public struct TanreiButtonWithMenuVariantStateTokens: Sendable, Equatable {
     self.outlineColor = outlineColor
     self.dividerColor = dividerColor
     self.stateLayerColor = stateLayerColor
+    self.destructiveContainerColor = destructiveContainerColor
+    self.destructiveLabelColor = destructiveLabelColor
+    self.destructiveOutlineColor = destructiveOutlineColor
+    self.destructiveDividerColor = destructiveDividerColor
+    self.destructiveStateLayerColor = destructiveStateLayerColor
   }
 }
 
