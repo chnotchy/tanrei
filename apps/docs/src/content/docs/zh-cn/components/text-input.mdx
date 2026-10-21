@@ -180,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `input` 和 `change` 是 composed 事件。`action` 是可以取消的 CustomEvent：取消它，Enter 就不会提交表单。`pickerrequest` 和 `entryerror` 是 CustomEvent，它们的 `detail` 分别是 `{ value, type, min, max }` 和 `{ reason, text }`。它们的类型是 `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
 - `countText` 是只读属性，值每次变化之后都是新的。它没有对应的属性（attribute）。
 - 属性（attribute）用 kebab-case 书写，例如 `label-hidden`、`min-rows`、`prefix-text`，以及表示 `wrap` 为 false 的 `no-wrap`。`readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 沿用 HTML 的名称。
-- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle`。
 - 插槽：`leading-icon`、`trailing-icon` 和 `entries`。后置图标可以是你自己的纯图标 Button。`entries` 部件没有自己的方框：它里面的项就排在方框自己的各行里。
 - `resize-label` 和 `segment-empty-text` 留空时，从产品的文字里读取（`setWords()`）。
 - 在元素完成定义之前，它没有尺寸。请预留方框的高度。

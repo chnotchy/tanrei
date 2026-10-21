@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
+This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a handle (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
 :::
 
 <DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
@@ -39,7 +39,7 @@ It is a block as wide as the place it is put in, and its box fills it. It has no
       <tanrei-text-field name="company" label="Company" optional optional-text="Optional"></tanrei-text-field>
       <!-- Follows its text from 3 lines to 8, then scrolls. -->
       <tanrei-text-field name="message" label="Message" multiline min-rows="3" max-rows="8"></tanrei-text-field>
-      <!-- Resized by hand, with a grip. -->
+      <!-- Resized by hand, with a handle. -->
       <tanrei-text-field name="notes" label="Notes" multiline resize="manual" resize-label="Resize notes"></tanrei-text-field>
     </form>
 
@@ -259,7 +259,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="Email" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
-<DemoFrame label="Several lines: following the text, resized by a grip (down, and both ways), and fixed" plain column>
+<DemoFrame label="Several lines: following the text, resized by a handle (down, and both ways), and fixed" plain column>
   <tanrei-text-field label="Message" multiline min-rows="2" max-rows="5" placeholder="Type a few lines: the field grows to five, then scrolls"></tanrei-text-field>
   <tanrei-text-field label="Notes" multiline resize="manual" max-rows="10" resize-label="Resize notes"></tanrei-text-field>
   <tanrei-text-field label="Description" multiline resize="manual" resize-axis="both" resize-label="Resize description"></tanrei-text-field>
@@ -318,7 +318,7 @@ The text field has no token of its own. Its box reads the [text input's tokens](
 - The element is a block that fills its place, not an inline box as wide as the browser's own text input.
 - The element is form-associated. It takes `name` and `form`, submits the value — nothing while disabled —, resets to the `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `required` is set and it is empty. Its two members add no entry to the form. Enter in a single-line field presses the default button of the element's form; cancel `action` to prevent it.
 - `input`, `change`, `action`, `pickerrequest` and `entryerror` are the text input's own events. Their target is the element, and `event.target.value` is the new value in every listener. The detail types are the input's: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
-- Parts: `field` and `text-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `text-input-label`, `field-requirement-label` and `text-input-requirement-label` name one member's.
+- Parts: `field` and `text-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `text-input-label`, `field-requirement-label` and `text-input-requirement-label` name one member's.
 - The element is not focusable itself and has no role: `focus()` goes to the input. A press on the label row, on the box or on a floating label focuses the input. A press on the help, the error text, the count or the gap between a row and the box does nothing.
 - Name it with `label` — with `label-hidden` where the label is not to be drawn — and never with `aria-label`, which names nothing here.
 - The attributes are the members' own: kebab-case, such as `supporting-text`, `error-text`, `min-rows` and `no-wrap`, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. There is no `required` attribute: say `required`.
@@ -400,7 +400,7 @@ Add `autocomplete` with an HTML autofill name (`email`, `current-password`, `one
 
 `multiline` accepts line breaks and shows several lines. `resize` says how the field gets its height:
 
-| `resize` | Height | Grip | `minRows` and `maxRows` |
+| `resize` | Height | Handle | `minRows` and `maxRows` |
 | --- | --- | --- | --- |
 | `auto` (default) | Follows the number of lines, with a short motion | None | The fewest and the most lines. Past the most it scrolls; 0 is no limit |
 | `manual` | What the person gives it. It starts at `minRows` | In the bottom corner at the end edge | The smallest and the tallest it can be made |
@@ -409,7 +409,7 @@ Add `autocomplete` with an HTML autofill name (`email`, `current-password`, `one
 - **Auto** suits most fields: a comment, a message, a description. Set `maxRows` where a long text must not push the rest of the form away.
 - **Manual** suits text a person reads back and arranges: notes, a long description, code. `resizeAxis` is `vertical` by default; `both` also lets the person change the field's width, within what its layout allows. The size is kept, and the text wraps and scrolls inside it.
 - **Fixed** suits a form whose layout must not move, such as an address block.
-- **The grip works without a drag.** It is a focus stop named by `resizeLabel`. The arrow keys resize by a line, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Where `resizeAxis` is `both`, the same click also makes the field as wide as its place, and the next one gives back the width it had, so a pointer can change the width without dragging. Its target is the minimum target, though its glyph is small. A disabled field draws no grip; a read-only one keeps it, because reading may need the room.
+- **The handle works without a drag.** It is a [handle](/components/handle/) of the small size in the bottom end corner, out of sight until a pointer is over the field or the field has focus, and a focus stop named by `resizeLabel`. The arrow keys resize by a line, Page Up and Page Down by `minRows` lines, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Where `resizeAxis` is `both`, the same click also makes the field as wide as its place, and the next one gives back the width it had, so a pointer can change the width without dragging. Its target is the minimum target, though its line is small. When the person has changed the size, the field fires `resizeend` with the lines it shows (and its width, where it resizes both ways), so you can keep the size they chose. A disabled field has no handle; a read-only one keeps it, because reading may need the room.
 - **Nothing above the text moves.** A multi-line field's first line stands where a single-line field draws its line, and its icons, prefix and suffix are centred on that line. Every further line lies below, so the label and the first line stay put while the height changes.
 
 A product cannot yet learn the size a person gave a field: resizing emits nothing.
@@ -418,7 +418,7 @@ A product cannot yet learn the size a person gave a field: resizing emits nothin
 
 `type="code"` is for text written for a machine rather than for a reader: a pattern, an identifier, a key, a query, a snippet of JSON or YAML. It is the same field — the same label, help, error, counter, sizes and form behaviour — with an input line that holds the code exactly as it is written.
 
-- **Left to right, in every language.** The value, its caret, the placeholder, the prefix and the suffix are one left-to-right row that begins at the left, also in a right-to-left page and whatever the code's first letter is: an empty field, one that holds `{` alone and one whose first string is Arabic are laid out alike. Everything else follows the page: the label, the icons, the help or error text, the counter and the resize grip. A string or a comment in a right-to-left script is laid out inside its line and reorders nothing around it.
+- **Left to right, in every language.** The value, its caret, the placeholder, the prefix and the suffix are one left-to-right row that begins at the left, also in a right-to-left page and whatever the code's first letter is: an empty field, one that holds `{` alone and one whose first string is Arabic are laid out alike. Everything else follows the page: the label, the icons, the help or error text, the counter and the resize handle. A string or a comment in a right-to-left script is laid out inside its line and reorders nothing around it.
 - **The code face, at the input's size.** The family is the code role's; the size and the line height stay the input's, so a code field is as tall as the text field beside it. Every space is kept, a tab character reaches the next tab stop, and no two characters are joined into a ligature. Nothing is colored by what it means.
 - **Left alone.** The platform is asked not to correct, capitalise, spell-check, translate or complete the value, and not to turn straight quotation marks into curved ones. A paste is plain text, character for character. The value is never trimmed, parsed or validated: whether it is well formed is yours to say, with `error` and `errorText`.
 - **One line or several.** One line suits a pattern or a key. With `multiline`, a line that does not fit continues on following rows by default; the value holds only the line breaks of the code.
@@ -482,7 +482,7 @@ A field's clock is its locale's: it has no setting for 12 or 24 hours and no min
 - Text is edited in the platform's own text element, so input methods, dictation, autofill, selection and the clipboard work as they do elsewhere on the platform. A date or a time is the stated exception: its row of segments is the field's own.
 - A date or time field is a group named by the label. Each segment is a spin button named by its unit and the label ("month, Start date"), with its range and its value; an empty one reads `segmentEmptyText`.
 - A required field is exposed as required. The mark itself is hidden from assistive technology, so it is not read twice; the optional text is read with the field's description.
-- The resize grip is a focus stop named by `resizeLabel`, exposed as a separator whose value is the number of lines. The arrow keys, Home and End resize, so nothing depends on a drag, and its hit area meets the minimum target.
+- The resize handle is a focus stop named by `resizeLabel`, exposed as a separator whose value is the number of lines. The arrow keys, Home and End resize, so nothing depends on a drag, and its hit area meets the minimum target.
 - The label is the accessible name, whether it is drawn or hidden. The placeholder never is.
 - The shown supporting or error text and the count are the field's description. So are the prefix and suffix while they are shown, so a unit or currency is read with the value.
 - It exposes the disabled state, and the invalid, required and read-only states where the platform has them. An entry error in a date or time field is exposed exactly as `error` is.
@@ -497,7 +497,7 @@ A field's clock is its locale's: it has no setting for 12 or 24 hours and no min
 
 Known platform gaps:
 
-- SwiftUI, Compose, Flutter and React Native keep the `required` flag, which draws no mark, and have no resize modes, no grip and no segments.
+- SwiftUI, Compose, Flutter and React Native keep the `required` flag, which draws no mark, and have no resize modes, no handle and no segments.
 - Web: the row of segments shifts by a few pixels when a month or a minute takes its first digit; `input` can fire twice where the locale's last segment has two digits; on an Android on-screen keyboard, Backspace on an empty segment cannot move back; and a row wider than a narrow field overflows instead of scrolling.
 - A product cannot empty a half-filled date row by setting `value` to the empty string it already has.
 - Web: under the glow focus style, a filled field's glow is rounded at the bottom corners, which are square.
@@ -527,7 +527,7 @@ Known platform gaps:
 - Write error text that says how to fix the value, and set `error` yourself. On SwiftUI and React Native, that text is the only way the error is heard. For a date or time field, also write `invalidText` and `unavailableText`, and give `segmentEmptyText`: without it an empty segment is read with no value.
 - Give the picker button its `pickerLabel` in your product's language, and open the picker from `pickerRequest`.
 - Set `required` or `optional`, and give `requiredText` and `optionalText`: on the field, or once for the whole product with `setWords({ requiredText, optionalText })` — as `resizeLabel` and `segmentEmptyText` can be. Tanrei ships no words on the web; a missing one is reported in development. See [The product's words](/foundations/words/). Until SwiftUI, Compose, Flutter and React Native catch up, their fields draw no mark, and SwiftUI and React Native do not announce the required state: say "required" in the label there.
-- Name the resize grip with `resizeLabel`. Without it the grip is drawn and works, and has no name.
+- Name the resize handle with `resizeLabel`. Without it the handle is drawn and works, and has no name.
 - Put a unit or currency in `prefixText` or `suffixText`, not in the value, so that it is read with the value and not typed.
 - For a code field, say what the code must be in `label` and `supportingText` ("Webhook body", "JSON"), and say what is wrong with it in `errorText`: the field does not know the language.
 - Give a trailing icon button its own name in your product's language.

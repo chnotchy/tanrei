@@ -180,7 +180,7 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - `input` と `change` は composed なイベントです。`action` はキャンセルできる CustomEvent で、キャンセルすると Enter でフォームが送信されません。`pickerrequest` と `entryerror` は、`detail` に `{ value, type, min, max }` と `{ reason, text }` を持つ CustomEvent です。型は `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail`、`TanreiTextInputEntryErrorDetail` です。
 - `countText` は読み取り専用のプロパティで、値が変わるたびに新しくなります。属性はありません。
 - 属性はケバブケースです。`label-hidden`、`min-rows`、`prefix-text` などで、`no-wrap` は `wrap` を false にしたものです。`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。
-- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle`。
 - スロット: `leading-icon`、`trailing-icon`、`entries`。末尾のアイコンには、自前のアイコンだけのボタンを置けます。`entries` のパーツは自分のボックスを持ちません。置いたものは、ボックスの行にそのまま並びます。
 - `resize-label` と `segment-empty-text` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
 - 要素が定義されるまでは、大きさがありません。ボックスの高さを確保してください。
