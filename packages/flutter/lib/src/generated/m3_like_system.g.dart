@@ -4498,9 +4498,11 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     sizes: TanreiInputBoxSizes(
       small: TanreiInputBoxSizeTokens(
         containerHeight: 40.0,
+        stackedContainerHeight: 40.0,
         containerPaddingInline: 12.0,
         containerPaddingInlineWithIcon: 8.0,
         containerPaddingBlock: 8.0,
+        stackedContainerPaddingBlock: 8.0,
         containerPaddingBlockWithLabel: 2.0,
         containerGap: 8.0,
         labelTypescale: _typescaleBodyLarge,
@@ -4511,9 +4513,11 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
       ),
       medium: TanreiInputBoxSizeTokens(
         containerHeight: 56.0,
+        stackedContainerHeight: 56.0,
         containerPaddingInline: 16.0,
         containerPaddingInlineWithIcon: 12.0,
         containerPaddingBlock: 16.0,
+        stackedContainerPaddingBlock: 16.0,
         containerPaddingBlockWithLabel: 8.0,
         containerGap: 16.0,
         labelTypescale: _typescaleBodyLarge,
@@ -4524,9 +4528,11 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
       ),
       large: TanreiInputBoxSizeTokens(
         containerHeight: 56.0,
+        stackedContainerHeight: 56.0,
         containerPaddingInline: 16.0,
         containerPaddingInlineWithIcon: 12.0,
         containerPaddingBlock: 16.0,
+        stackedContainerPaddingBlock: 16.0,
         containerPaddingBlockWithLabel: 8.0,
         containerGap: 16.0,
         labelTypescale: _typescaleBodyLarge,

@@ -2643,9 +2643,11 @@ export type TanreiCoreInputBoxSize = "small" | "medium" | "large";
 /** The tokens of one `size` of `comp.input-box`. */
 export interface TanreiInputBoxSizeTokens {
   readonly containerHeight: number;
+  readonly stackedContainerHeight: number;
   readonly containerPaddingInline: number;
   readonly containerPaddingInlineWithIcon: number;
   readonly containerPaddingBlock: number;
+  readonly stackedContainerPaddingBlock: number;
   readonly containerPaddingBlockWithLabel: number;
   readonly containerGap: number;
   readonly labelTypescale: TanreiTypescaleRole;

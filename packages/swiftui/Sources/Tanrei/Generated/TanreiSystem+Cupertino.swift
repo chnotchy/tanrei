@@ -4348,9 +4348,11 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
       containerHeight: 34,
+      stackedContainerHeight: 34,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 6,
+      stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.bodyLarge,
@@ -4361,9 +4363,11 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 34,
+      stackedContainerHeight: 34,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 6,
+      stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 4,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.bodyLarge,
@@ -4374,9 +4378,11 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 44,
+      stackedContainerHeight: 44,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 6,
+      stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 4,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.bodyLarge,

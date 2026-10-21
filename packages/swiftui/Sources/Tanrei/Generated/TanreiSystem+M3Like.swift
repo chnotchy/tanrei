@@ -4463,9 +4463,11 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
       containerHeight: 40,
+      stackedContainerHeight: 40,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 8,
+      stackedContainerPaddingBlock: 8,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
       labelTypescale: m3LikeTypescale.bodyLarge,
@@ -4476,9 +4478,11 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 56,
+      stackedContainerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 16,
+      stackedContainerPaddingBlock: 16,
       containerPaddingBlockWithLabel: 8,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.bodyLarge,
@@ -4489,9 +4493,11 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 56,
+      stackedContainerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 16,
+      stackedContainerPaddingBlock: 16,
       containerPaddingBlockWithLabel: 8,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.bodyLarge,

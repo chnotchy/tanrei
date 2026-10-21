@@ -614,6 +614,19 @@ export function auditInvariants(model) {
     }
   }
 
+  // One height per size name. A stacked input box — the box that draws no label inside it, the only look the default
+  // system ships — is as tall as a Button of the same size, so that an input and a Button set side by side in one row
+  // stand as tall as each other. Held in the default system: a preset keeps its original's fields, and says so in its
+  // own layer.
+  if (model.system === CONFIG.namespace) {
+    for (const size of ['small', 'medium', 'large']) {
+      const [boxId, buttonId] = [`${CONFIG.namespace}.comp.input-box.stacked.container.height.${size}`, `${CONFIG.namespace}.comp.button.container.height.${size}`];
+      const [box, button] = [model.tokens[boxId]?.value?.value, model.tokens[buttonId]?.value?.value];
+      if (typeof box !== 'number' || typeof button !== 'number') failures.push(`${short(boxId)} and ${short(buttonId)} must both be dimensions: a stacked input box is as tall as a Button of the same size`);
+      else if (box !== button) failures.push(`${short(boxId)}: ${box}px, but a stacked input box is as tall as a Button of the same size — ${short(buttonId)} is ${button}px; alias it, { "$value": "{${buttonId}}" }`);
+    }
+  }
+
   // A link that is not underlined at rest (WCAG 1.4.1, failure F73, technique G183). A component whose
   // underline choice is `hover` or `never` — its own token, or the system's choice it follows — leaves
   // color alone to tell a link from the text beside it, so its link color is held 3:1 apart from that text's color in

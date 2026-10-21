@@ -4467,9 +4467,11 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     sizes: TanreiInputBoxSizes(
       small: TanreiInputBoxSizeTokens(
         containerHeight: 34.0,
+        stackedContainerHeight: 34.0,
         containerPaddingInline: 12.0,
         containerPaddingInlineWithIcon: 8.0,
         containerPaddingBlock: 6.0,
+        stackedContainerPaddingBlock: 6.0,
         containerPaddingBlockWithLabel: 2.0,
         containerGap: 8.0,
         labelTypescale: _typescaleBodyLarge,
@@ -4480,9 +4482,11 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       ),
       medium: TanreiInputBoxSizeTokens(
         containerHeight: 34.0,
+        stackedContainerHeight: 34.0,
         containerPaddingInline: 12.0,
         containerPaddingInlineWithIcon: 8.0,
         containerPaddingBlock: 6.0,
+        stackedContainerPaddingBlock: 6.0,
         containerPaddingBlockWithLabel: 4.0,
         containerGap: 8.0,
         labelTypescale: _typescaleBodyLarge,
@@ -4493,9 +4497,11 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       ),
       large: TanreiInputBoxSizeTokens(
         containerHeight: 44.0,
+        stackedContainerHeight: 44.0,
         containerPaddingInline: 16.0,
         containerPaddingInlineWithIcon: 12.0,
         containerPaddingBlock: 6.0,
+        stackedContainerPaddingBlock: 6.0,
         containerPaddingBlockWithLabel: 4.0,
         containerGap: 8.0,
         labelTypescale: _typescaleBodyLarge,

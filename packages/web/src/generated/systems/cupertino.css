@@ -3699,6 +3699,12 @@
     --tanrei-comp-input-box-stacked-affix-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-input-box-stacked-caret-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-input-box-stacked-container-color: var(--tanrei-sys-color-surface-container-high);
+    --tanrei-comp-input-box-stacked-container-height-large: var(--tanrei-comp-input-box-container-height-large);
+    --tanrei-comp-input-box-stacked-container-height-medium: var(--tanrei-comp-input-box-container-height-medium);
+    --tanrei-comp-input-box-stacked-container-height-small: var(--tanrei-comp-input-box-container-height-small);
+    --tanrei-comp-input-box-stacked-container-padding-block-large: var(--tanrei-comp-input-box-container-padding-block-large);
+    --tanrei-comp-input-box-stacked-container-padding-block-medium: var(--tanrei-comp-input-box-container-padding-block-medium);
+    --tanrei-comp-input-box-stacked-container-padding-block-small: var(--tanrei-comp-input-box-container-padding-block-small);
     --tanrei-comp-input-box-stacked-disabled-active-indicator-color: var(--tanrei-comp-input-box-stacked-active-indicator-color);
     --tanrei-comp-input-box-stacked-disabled-affix-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-input-box-stacked-disabled-caret-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
