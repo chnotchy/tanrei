@@ -4090,6 +4090,30 @@
               "$value": "{tanrei.sys.color.on-surface}",
               "reason": "Keeps the selected text this preset drew: on its tinted highlight the text stays in the input's color (on-surface in every variant); the default system draws it in on-primary on its primary highlight."
             },
+            "tanrei.comp.input-box.stacked.container.height.small": {
+              "$value": "{tanrei.comp.input-box.container.height.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.height.medium": {
+              "$value": "{tanrei.comp.input-box.container.height.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.height.large": {
+              "$value": "{tanrei.comp.input-box.container.height.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.small": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.medium": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.large": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
             "tanrei.comp.input-box.container.shape": {
               "$value": "{tanrei.sys.shape.corner.medium}"
             },

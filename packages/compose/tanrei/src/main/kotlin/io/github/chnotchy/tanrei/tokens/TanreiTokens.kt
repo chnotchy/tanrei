@@ -5233,9 +5233,11 @@ public value class TanreiInputBoxSize(public val key: String) {
 @Immutable
 public data class TanreiInputBoxSizeTokens(
     public val containerHeight: Dp,
+    public val stackedContainerHeight: Dp,
     public val containerPaddingInline: Dp,
     public val containerPaddingInlineWithIcon: Dp,
     public val containerPaddingBlock: Dp,
+    public val stackedContainerPaddingBlock: Dp,
     public val containerPaddingBlockWithLabel: Dp,
     public val containerGap: Dp,
     public val labelTypescale: TanreiTextStyle,

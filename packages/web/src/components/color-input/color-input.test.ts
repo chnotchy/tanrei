@@ -340,12 +340,12 @@ test.describe('behavior: the box, its name and its Field', () => {
     await mountSpec(page, ['stacked-filled', 'stacked-large', 'stacked-small', 'stacked-picker', 'stacked-picker-large', 'filled-filled']);
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small'], ['stacked-picker', 'medium'], ['stacked-picker-large', 'large']] as const) {
       const [c, s, field] = [await box(container(page, id)), await box(swatch(page, id)), await box(input(page, id))];
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       near(s.x - c.x, await token(page, `container-padding-inline-with-icon-${size}`), `${id}: the swatch from the start edge`);
       near(field.x - (s.x + s.width), await token(page, `container-gap-${size}`), `${id}: container.gap after the swatch`);
       near(s.y + s.height / 2, c.y + c.height / 2, `${id} swatch centred`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
-      expect((c.height - Math.max(s.height, field.height)) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - Math.max(s.height, field.height)) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
       if (id.includes('picker')) {
@@ -356,8 +356,8 @@ test.describe('behavior: the box, its name and its Field', () => {
       } else near(c.x + c.width - (field.x + field.width), await token(page, `container-padding-inline-${size}`), `${id}: the input ends padding-inline from the end edge`);
       near(c.width, (await box(host(page, id))).width, `${id}: as wide as the field`);
     }
-    // The default system's numbers: 48 and 56 high; the swatch 24, 12 from the start edge; the value 16 after it.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([48, 56, 24, 12, 16]);
+    // The default system's numbers: a stacked box 40 and 56 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([40, 56, 24, 12, 16]);
     // As wide as its layout gives it: the host is a block.
     expect(await css(host(page, 'stacked-filled'), 'display')).toBe('block');
     await host(page, 'stacked-filled').evaluate((el) => (el.parentElement!.style.inlineSize = '400px'));
@@ -1147,7 +1147,7 @@ test.describe('behavior: the value and its text', () => {
     // The hit area: the container's ::before reaches the minimum target, and the container keeps its height.
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect(await container(page, 'one').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBeGreaterThanOrEqual(target - 0.6);
-    await override(page, { [T('container-height-medium')]: '32px', [T('container-padding-block-medium')]: '0px' });
+    await override(page, { [T('stacked-container-height-medium')]: '32px', [T('stacked-container-padding-block-medium')]: '0px' });
     await frames(page);
     near((await box(container(page, 'one'))).height, 32, 'a short container stays short');
     expect(await container(page, 'one').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height)), 'and its hit area reaches the target').toBeGreaterThanOrEqual(target - 0.6);
@@ -1658,7 +1658,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await page.addStyleTag({ content: '.stage:has(> tanrei-color-input) { box-sizing: border-box; inline-size: 100%; padding-inline: 0; }' });
     await frames(page);
     const before = (await box(container(page, 'one'))).height;
-    near(before, await token(page, 'container-height-medium'), 'at its size’s height');
+    near(before, await token(page, 'stacked-container-height-medium'), 'at its size’s height');
     await page.evaluate(() => (document.documentElement.style.fontSize = '300%'));
     await frames(page, 6);
     const [c, s, field, button] = [await box(container(page, 'one')), await box(swatch(page, 'one')), await box(input(page, 'one')), await box(pickerButton(page, 'one'))];
@@ -1675,7 +1675,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     // At 200% the minimum still holds where the line is shorter than it.
     await page.evaluate(() => (document.documentElement.style.fontSize = '100%'));
     await frames(page, 4);
-    near((await box(container(page, 'one'))).height, await token(page, 'container-height-medium'), 'the height of its size is the minimum');
+    near((await box(container(page, 'one'))).height, await token(page, 'stacked-container-height-medium'), 'the height of its size is the minimum');
     // Narrower than its text: one line, scrolling inside the input, never cut with an ellipsis, the caret in view.
     await host(page, 'narrow').evaluate((el) => (el.style.inlineSize = '96px'));
     await frames(page);
@@ -1689,7 +1689,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await expect.poll(() => narrow.evaluate((el) => el.scrollLeft), { message: 'scrolled to keep the caret in view' }).toBeGreaterThan(0);
     for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowLeft');
     await expect.poll(() => narrow.evaluate((el) => el.scrollLeft)).toBe(0);
-    near((await box(container(page, 'narrow'))).height, await token(page, 'container-height-medium'), 'and the container keeps its height');
+    near((await box(container(page, 'narrow'))).height, await token(page, 'stacked-container-height-medium'), 'and the container keeps its height');
   });
 
   test('CLI-34: in forced colors the label that floats in the box and its asterisk are drawn in the text color, and no color of its own tells an error: the invalid state does, and the words of the Field that frames it', async ({ page, browserName }) => {

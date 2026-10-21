@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
-import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
+import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -102,6 +102,7 @@ export const styles = css`
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   ${unsafeCSS(lookBlock('plain', '.field'))}
   ${unsafeCSS(lookBlock('error', '.field[data-error]'))}
+  ${stackedBoxStyles()}
 
   .field {
     ${unsafeCSS(paint('-r', ''))}

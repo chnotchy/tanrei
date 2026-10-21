@@ -5619,9 +5619,9 @@ export const cupertino = {
       selectionColor: { kind: "role", role: "primaryContainer" },
       selectionContentColor: { kind: "role", role: "onSurface" },
       sizes: {
-        small: { containerHeight: 34, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 6, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
-        medium: { containerHeight: 34, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 20, motionStateDuration: 250 },
-        large: { containerHeight: 44, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
+        small: { containerHeight: 34, stackedContainerHeight: 34, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 6, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
+        medium: { containerHeight: 34, stackedContainerHeight: 34, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 6, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 20, motionStateDuration: 250 },
+        large: { containerHeight: 44, stackedContainerHeight: 44, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 6, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
       },
       variants: {
         stacked: {

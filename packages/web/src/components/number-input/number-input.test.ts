@@ -314,19 +314,19 @@ test.describe('behavior: the box', () => {
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-prefix', 'stacked-no-steppers', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
       const down = await box(stepper(page, id, 'down'));
       near(field.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
       near(down.x - (field.x + field.width), await token(page, `container-gap-${size}`), `${id} container.gap after the input line`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
       near(down.y + down.height / 2, c.y + c.height / 2, `${id} steppers centred`);
-      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: the text input's 48 and 56, and 16.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([48, 56, 16]);
+    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, and 16.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([40, 56, 16]);
     // The row: the prefix, the input, the suffix, the steppers — in that order, on one line.
     const id = 'stacked-prefix';
     const [prefix, field, suffix, down, up] = [await box(part(page, id, '.prefix')), await box(input(page, id)), await box(part(page, id, '.suffix')), await box(stepper(page, id, 'down')), await box(stepper(page, id, 'up'))];

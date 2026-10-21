@@ -38,12 +38,17 @@ const PARTS = {
 } as const;
 /** The two looks of each variant (TXI-11): the plain parts, and their `error.` twins while error is true. */
 const LOOKS = { plain: '', error: 'error-' } as const;
-/** The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: font and tracking. */
+/**
+ * The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: font and tracking. A stacked
+ * field has a height and a block padding of its own, as tall as a Button of the same size (TXI-16).
+ */
 const SIZE_MEMBERS = {
   height: 'container-height',
+  'stacked-height': 'stacked-container-height',
   pad: 'container-padding-inline',
   'pad-icon': 'container-padding-inline-with-icon',
   'pad-block': 'container-padding-block',
+  'stacked-pad-block': 'stacked-container-padding-block',
   'pad-label': 'container-padding-block-with-label',
   gap: 'container-gap',
   label: 'label-typescale',
@@ -211,6 +216,12 @@ export const styles = css`
     flex-direction: column;
     min-inline-size: 0;
     transition: opacity var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+  }
+  /* TXI-16: a stacked field is as tall as a Button of the same size, with the block padding that leaves room for its line
+     in that height; a filled or an outlined field keeps the taller height, which holds the label floated in it. */
+  ${unsafeCSS(STACKED)} {
+    --_height: var(--_stacked-height);
+    --_pad-block: var(--_stacked-pad-block);
   }
   /* TXI-51: a filled field that draws its label sets the line under the floated label's band, as a single-line one does —
      centred in what container.height leaves below the band, where that is more than a line. */

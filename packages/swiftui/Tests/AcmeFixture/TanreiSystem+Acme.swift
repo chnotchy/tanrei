@@ -4622,9 +4622,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
       containerHeight: 40,
+      stackedContainerHeight: 32,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 8,
+      stackedContainerPaddingBlock: 4,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
       labelTypescale: acmeTypescale.label,
@@ -4635,9 +4637,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 48,
+      stackedContainerHeight: 40,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 10,
+      stackedContainerPaddingBlock: 6,
       containerPaddingBlockWithLabel: 4,
       containerGap: 16,
       labelTypescale: acmeTypescale.label,
@@ -4648,9 +4652,11 @@ private let acmeInputBoxTokens = TanreiInputBoxTokens(
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 56,
+      stackedContainerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 14,
+      stackedContainerPaddingBlock: 14,
       containerPaddingBlockWithLabel: 4,
       containerGap: 16,
       labelTypescale: acmeTypescale.label,

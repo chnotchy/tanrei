@@ -817,14 +817,14 @@ test.describe('behavior', () => {
     expect(await radius('filled-filled', 'bottom-right')).toBe(bottom);
     for (const corner of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) expect(await radius('stacked-filled', corner), `stacked ${corner}`).toBe(shape);
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
-      expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
+      expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`stacked-container-height-${size}`)));
     }
-    // Small: the box's small step — the select's (40 high, 12 of padding, the body text style) — for a bar or a toolbar;
+    // Small: the box's small step — as tall as a small Button (32 high, 12 of padding, the body text style) — for a bar or a toolbar;
     // its hit area still meets the minimum target.
     {
       const small = await bounds(part(page, 'stacked-small', '.container'));
-      expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
-      expect([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([40, 12]);
+      expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
+      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([32, 12]);
       expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
       const target = await part(page, 'stacked-small', '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));
@@ -905,7 +905,7 @@ test.describe('behavior', () => {
     // Not multiline: resize, resizeAxis, minRows and maxRows are ignored.
     expect(await input(page, 'single').evaluate((el) => el.localName)).toBe('input');
     await expect(part(page, 'single', '.grip')).toHaveCount(0);
-    expect((await bounds(part(page, 'single', '.container'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    expect((await bounds(part(page, 'single', '.container'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     // Password: one line, reported. A date, time or date-time too.
     expect(await input(page, 'secret').evaluate((el) => el.localName)).toBe('input');
     await expect(host(page, 'when').locator('textarea')).toHaveCount(0);
@@ -1140,7 +1140,7 @@ test.describe('behavior', () => {
     await expect(part(page, 'stacked-filled', 'label')).toHaveCount(0);
     await expect(input(page, 'nameless')).not.toHaveAttribute('aria-label');
     expect(await host(page, 'nameless').getByRole('textbox').evaluate((el) => (el as HTMLInputElement).labels?.length ?? 0)).toBe(0);
-    expect((await bounds(part(page, 'nameless', '.container'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    expect((await bounds(part(page, 'nameless', '.container'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     await expect.poll(() => seen.filter((w) => w.includes('TXI-23')).length).toBe(1);
     expect(seen.find((w) => w.includes('TXI-23'))).toContain('no accessible name');
     // A bare input is never required, and has no requirement to set.
@@ -2170,7 +2170,7 @@ test.describe('behavior', () => {
     const check = async (note: string) => {
       for (const { id, variant, size } of cases) {
         const lineOf = await line(page, T(`input-typescale-${size}`));
-        const height = await resolveToken(page, T(`container-height-${size}`));
+        const height = await resolveToken(page, T(`${variant === 'stacked' ? 'stacked-' : ''}container-height-${size}`));
         for (const suffix of ['one', 'empty']) {
           const [single, multi, tall] = [await placesOf(page, `${id}-${suffix}-single`), await placesOf(page, `${id}-${suffix}-multi`), await placesOf(page, `${id}-${suffix}-tall`)];
           const name = `${id}-${suffix} ${note}`;
@@ -2183,7 +2183,7 @@ test.describe('behavior', () => {
           // …at a distance that more height does not change: four rows of room start there, and what the container is
           // higher by lies below the first line — down to the block padding under the last row.
           expect(tall.text, name).toBe(multi.text);
-          const below = await resolveToken(page, T(variant === 'filled' ? `container-padding-block-with-label-${size}` : `container-padding-block-${size}`));
+          const below = await resolveToken(page, T(variant === 'filled' ? `container-padding-block-with-label-${size}` : `${variant === 'stacked' ? 'stacked-' : ''}container-padding-block-${size}`));
           expect(tall.height, name).toBeCloseTo(tall.text + 4 * lineOf + below, 1);
           expect(tall.height, name).toBeGreaterThan(multi.height + 2 * lineOf);
           // Half of container.height below the top edge in a stacked and an outlined field (or lower, where the text is
@@ -2220,7 +2220,7 @@ test.describe('behavior', () => {
     // (The fields are widened first, so that the one line is still one line.)
     await page.addStyleTag({ content: '.stage > tanrei-text-input { inline-size: 720px !important; }' });
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
-    await expect.poll(async () => (await placesOf(page, 'stacked-medium-one-single')).height).toBeGreaterThan(await resolveToken(page, T('container-height-medium')) - 1);
+    await expect.poll(async () => (await placesOf(page, 'stacked-medium-one-single')).height).toBeGreaterThan(await resolveToken(page, T('stacked-container-height-medium')) - 1);
     await check('at 200 %');
   });
 
@@ -2232,17 +2232,17 @@ test.describe('behavior', () => {
       fixtures: [
         fixture('manual', { label: 'Message', multiline: true, resize: 'manual', minRows: 2, resizeLabel: 'Resize', value: 'One\nTwo', supportingText: 'Shown to your team' }, 'leading-icon=search trailing-icon=close'),
         ...only(/^(stacked|filled|outlined)-multiline$/, /^stacked-multiline-auto-grown-icons$/),
-        fixture('single', { label: 'Message', value: 'One' }, 'leading-icon=search trailing-icon=close'),
+        fixture('single', { label: 'Message', value: 'One' }, 'leading-icon=search trailing-icon=close'), fixture('single-outlined', { label: 'Message', value: 'One', variant: 'outlined' }, 'leading-icon=search trailing-icon=close'),
       ],
     });
     const lineOf = await line(page, T('input-typescale-medium'));
-    const pad = await resolveToken(page, T('container-padding-block-medium'));
-    const single = await placesOf(page, 'single');
-    // The fixtures: two lines of text in three rows of room — the text starts at the top and the spare row is below it.
+    const [pad, stackedPad] = [await resolveToken(page, T('container-padding-block-medium')), await resolveToken(page, T('stacked-container-padding-block-medium'))];
+    const [single, singleOutlined] = [await placesOf(page, 'single'), await placesOf(page, 'single-outlined')];
+    // The fixtures: two lines of text in three rows of room — the text starts at the top and the spare row is below it; the first line is where a single-line field of its variant draws its one line.
     for (const id of ['stacked-multiline', 'outlined-multiline']) {
       const places = await placesOf(page, id);
-      expect(places.text, id).toBe(single.text);
-      expect(places.height, id).toBeCloseTo(places.text + 3 * lineOf + pad, 1);
+      expect(places.text, id).toBe((id.startsWith('stacked') ? single : singleOutlined).text);
+      expect(places.height, id).toBeCloseTo(places.text + 3 * lineOf + (id.startsWith('stacked') ? stackedPad : pad), 1);
     }
     const filled = await placesOf(page, 'filled-multiline');
     expect(filled.height).toBeCloseTo(filled.text + 3 * lineOf + (await resolveToken(page, T('container-padding-block-with-label-medium'))), 1);
@@ -2250,7 +2250,7 @@ test.describe('behavior', () => {
     const grown = await placesOf(page, 'stacked-multiline-auto-grown-icons');
     expect([grown.leading, grown.trailing]).toEqual([single.leading, single.trailing]);
     expect(grown.text).toBe(single.text);
-    expect(grown.height).toBeCloseTo(grown.text + 5 * lineOf + pad, 1);
+    expect(grown.height).toBeCloseTo(grown.text + 5 * lineOf + stackedPad, 1);
     // The grip: its distance from the bottom edge and the end edge, before, during and after a drag and the keys' motion.
     const inset = await resolveToken(page, T('resize-grip-inset'));
     const rest = await placesOf(page, 'manual');
@@ -2305,7 +2305,7 @@ test.describe('behavior', () => {
       if (!multiline) {
         // TXI-16: the single input line is centred in a container of container.height.
         const [container, field] = [await bounds(part(page, 'field', '.container')), await bounds(input(page, 'field'))];
-        expect(container.height).toBe(await resolveToken(page, T('container-height-medium')));
+        expect(container.height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
         expect(field.y + field.height / 2).toBeCloseTo(container.y + container.height / 2, 1);
         expect(await css(part(page, 'field', '.body'), 'align-items')).toBe('center');
       }
@@ -4257,7 +4257,7 @@ test.describe('the input and the Field that frames it', () => {
       // No row of its own, in any look.
       expect(await one(id).evaluate((el) => el.shadowRoot!.querySelectorAll('.label-row, .above, tanrei-tag, .chip, .supporting, .supporting-text, .counter, [name="label-icon"]').length), id).toBe(0);
     }
-    expect((await bounds(one('bare'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    expect((await bounds(one('bare'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     // Bare it is complete: named by its own label, with its placeholder, typed in, and heard.
     await expect(one('bare').getByRole('textbox', { name: 'Filter tokens', exact: true })).toHaveCount(1);
     await listen(one('bare'));
@@ -4288,7 +4288,7 @@ test.describe('the input and the Field that frames it', () => {
       withEntries('none', []) + withEntries('one', ['ada@example.com']) + withEntries('two', ['ada', 'grace']) + withEntries('wrapped', ['ada@example.com', 'grace.hopper@example.org']) + withEntries('long', ['ada', long]) + withEntries('rtl', ['ada', 'grace'], 'dir="rtl"'),
     );
     const one = (id: string) => page.locator(`#${id}`);
-    const [gap, rowGap, least, height] = [await resolveToken(page, T('entries-gap')), await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('entries-typing-min-width')), await resolveToken(page, T('container-height-medium'))];
+    const [gap, rowGap, least, height] = [await resolveToken(page, T('entries-gap')), await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('entries-typing-min-width')), await resolveToken(page, T('stacked-container-height-medium'))];
     const chipsOf = async (id: string) => Promise.all((await one(id).locator('tanrei-chip').all()).map((each) => bounds(each)));
     const body = async (id: string) => {
       const box = await bounds(one(id).locator('.body'));
