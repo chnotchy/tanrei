@@ -195,11 +195,13 @@ test('a split field has no group of its own: the box is the one set, its input h
   // The color field: 391, then 236 the color input's; three are — the swatch's shape and its hairline.
   assert.equal(count('color-field'), 0);
   assert.equal(count('color-input'), 3);
-  // The select: 739, then 548 for the box and the list; 206 are — the list (with its greatest width), the rows' own state motion and opacity, and the status row.
-  assert.equal(count('select'), 206);
+  // The select: 739, then 548 for the box and the list; 206 were — the list (with its greatest width), the rows' own state
+  // motion and opacity, and the status row —, and 213 are since seven measures of a row are one per density (regular, compact).
+  assert.equal(count('select'), 213);
   assert.equal(count('select-field'), 0);
-  // The combobox: 765, then 574; 206 are — the list, the matched letters, the status row, the gap of its two actions.
-  assert.equal(count('combobox'), 206);
+  // The combobox: 765, then 574; 206 were — the list, the matched letters, the status row, the gap of its two actions —,
+  // and 213 are since seven measures of a row are one per density.
+  assert.equal(count('combobox'), 213);
   assert.equal(count('combobox-field'), 0);
 });
 
