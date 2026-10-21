@@ -10,6 +10,7 @@ import { tabsBootstrap, tabsKey } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
 import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
+import { modulePreload } from './src/lib/module-preload.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { sitemapLastmod } from './src/lib/lastmod.mjs';
 
@@ -192,6 +193,8 @@ export default defineConfig({
     tanreiMarkdown(),
     // Each language's not-found page also as `<language>/404.html`, for a host that answers with the nearest one.
     notFoundFiles(translations),
+    // Each page asks for every module its scripts import, in its head, instead of a level at a time (src/lib/module-preload.mjs).
+    modulePreload(),
   ],
   // No highlighter of the Markdown engine's: a fence reaches the docs' own step as it was written.
   markdown: { syntaxHighlight: false },
