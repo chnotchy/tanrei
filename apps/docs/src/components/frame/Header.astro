@@ -64,7 +64,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   }
   <Fragment set:html={wordmark} />
   <Search />
-  <tanrei-select slot="actions" class="docs-theme docs-wide-only" size="small" label={words.theme} label-hidden value="auto">
+  <tanrei-select slot="actions" class="docs-theme docs-wide-only" size="medium" label={words.theme} label-hidden value="auto">
     <tanrei-option value="auto" leading-icon="computer">{words.themeAuto}</tanrei-option>
     <tanrei-option value="light" leading-icon="light_mode">{t.light}</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">{t.dark}</tanrei-option>
