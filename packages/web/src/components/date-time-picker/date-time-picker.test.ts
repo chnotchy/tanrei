@@ -1750,14 +1750,12 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     }
     // (WebKit reports the scrim's fade as the surface's own — its pseudo-element unnamed — so the properties are counted once each.)
     expect([...new Set(drawn(opening).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
-    // Where the engine cannot hold a closed dialog in the top layer (no `overlay`: Firefox, Playwright's WebKit) it is
-    // gone at once, with no exit.
-    const holdsExit = await page.evaluate(() => CSS.supports('overlay', 'auto'));
+    // Closed, it is drawn in the top layer until its exit has played, in every engine (MDL-7).
     const closing = await sampleFrames(s, () => host(page, 'm').evaluate((el: any) => (el.open = false)), { probe: appearProbe, elements: false });
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
     // (The exit is read from the probe alone: every element of a picker read in every frame is more than a slow machine
     // draws in time.)
-    if (!holdsExit) expect(drawn(closing)).toEqual([]);
+    expect([...new Set(drawn(closing).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
     const exit = await resolveEasing(page, T('modal-motion-close-easing'));
     for (const motion of drawn(closing)) {
       expect(motion.duration, motion.name).toBe(await resolveToken(page, T('modal-motion-close-duration'), 'duration'));

@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, appearStyles, conditionBlock, focusRing, minimumTarget, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -110,10 +110,9 @@ export const styles = css`
     background: ${t('modal-scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('modal-motion-close-duration')};
     transition-timing-function: ${t('modal-motion-close-easing')};
-    transition-behavior: allow-discrete;
   }
   .surface.modal[open]::backdrop {
     opacity: 1;
@@ -125,6 +124,8 @@ export const styles = css`
       opacity: 0;
     }
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('.surface.modal')}
 
   /* DTM-2: a docked picker is a manual popover in the top layer, placed by script below its anchor; its color,
      elevation and corners. Its placement reads its two lengths through real properties. */

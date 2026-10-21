@@ -9,6 +9,7 @@ import {
   OpenAxesController,
   type VariantHost,
   assignSlot,
+  closeModal,
   compChoice,
   giveVariant,
   SHEET_FLING_VELOCITY,
@@ -22,6 +23,7 @@ import {
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openModal,
   report,
   returnFocus,
   syncDividerVisibility,
@@ -269,7 +271,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     const dialog = this.dialog;
     if (!this.shown || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.modal) dialog.showModal();
+    if (this.open && this.modal) openModal(dialog);
   };
 
   /**
@@ -510,7 +512,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
         report(this, 'SSH-16', 'a modal side sheet opened with no action; it must offer at least one: add a <tanrei-button slot="actions">', { once: false, level: 'error' });
       }
     };
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.shown = true;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', count, { once: true });
     else count();
@@ -532,7 +534,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     const hadFocus = focusWithin(this);
     const dialog = this.dialog;
     dialog?.classList.remove('dragging');
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }

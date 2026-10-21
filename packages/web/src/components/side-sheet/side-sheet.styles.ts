@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, SCRIM_FILTER, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, scrimFilter, shape, whenChosen, whenScroll } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, modalExitStyles, scrimFilter, shape, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -294,10 +294,9 @@ export const styles = css`
     max-block-size: none;
     translate: var(--_drag, 0px) 0;
     touch-action: pan-y;
-    transition-property: translate, opacity, display, overlay;
+    transition-property: translate, opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet:not([open]) {
     display: none;
@@ -317,10 +316,9 @@ export const styles = css`
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet[open]::backdrop {
     opacity: 1;
@@ -342,6 +340,8 @@ export const styles = css`
   dialog.sheet.instant::backdrop {
     transition: none;
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* SSH-1, SSH-2, SSH-4: where motion is reduced, a standard sheet opens and closes at once, and a modal one fades in and
      out in place without sliding (from wherever a drag left it); a released drag goes back at once. */
@@ -352,7 +352,7 @@ export const styles = css`
       transition-delay: 0s;
     }
     dialog.sheet {
-      transition-property: opacity, display, overlay;
+      transition-property: opacity;
     }
     dialog.sheet:not([open]) {
       translate: var(--_drag, 0px) 0;

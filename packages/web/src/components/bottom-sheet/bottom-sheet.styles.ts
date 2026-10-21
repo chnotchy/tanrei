@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, dividerVisibilityHost, focusRing, scrimFilter, whenScroll } from '../../primitives/index.js';
+import { SCRIM_FILTER, dividerVisibilityHost, focusRing, modalExitStyles, scrimFilter, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -155,10 +155,9 @@ export const styles = css`
     inset-inline: 0;
     inset-block: auto var(--_keyboard, 0px);
     --_area-top: var(--_inset-top);
-    transition-property: translate, opacity, display, overlay;
+    transition-property: translate, opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet:not([open]) {
     display: none;
@@ -178,10 +177,9 @@ export const styles = css`
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet[open]::backdrop {
     opacity: 1;
@@ -193,6 +191,8 @@ export const styles = css`
       opacity: 0;
     }
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host
      fills that parent (which the product positions) and lets every press reach the content; the sheet is docked to its

@@ -12,6 +12,7 @@ import {
   HOST_VARIANT,
   type VariantHost,
   assignSlot,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
@@ -20,6 +21,7 @@ import {
   isDividerVisibility,
   keyboardCover,
   modalLayer,
+  openModal,
   report,
   syncDividerVisibility,
   trapFocus,
@@ -186,8 +188,6 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
    * (MOT-4), turned round from what it shows (MOT-2). The `<dialog>` is the surface that appears.
    */
   private readonly appear = new AppearController(this, { motion: () => this.dialog });
-  /** Closed, and still playing its exit: opened again, it goes on from what it shows. */
-  private leaving = false;
 
   /** DLG-4: where focus was when it opened. */
   private opener: Element | null = null;
@@ -384,13 +384,8 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
     this.giveVariant();
     this.layout();
-    // DLG-13: still leaving, it is put back into the top layer where its exit has got to (MOT-2): an element taken out
-    // and put back is drawn anew, from the start of its entrance otherwise.
-    if (!dialog.open) {
-      if (this.leaving) this.appear.keep(() => dialog.showModal());
-      else dialog.showModal();
-    }
-    this.leaving = false;
+    // DLG-13: opened modally — or, still leaving, taken back where its exit has got to (MOT-2, src/primitives/modal-exit.ts).
+    openModal(dialog);
     this.appear.enter();
     this.shown = true;
     // DLG-19, DLG-2: counted, and the marked element looked for, when it opens — or, in a document that is still being
@@ -436,13 +431,10 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
-    // DLG-13: out of the top layer at once — the page and focus are given back now — and drawn there until its exit has
-    // played (its `display` and `overlay` change at the exit's end).
-    if (dialog?.open) dialog.close();
-    this.leaving = true;
-    void this.appear.exit(!this.isConnected).then((left) => {
-      if (left) this.leaving = false;
-    });
+    // DLG-13: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its
+    // exit and its scrim's have played (closeModal), in every engine.
+    if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     const opener = this.opener as HTMLElement | null;
     this.opener = null;
     if (restoreFocus) {
