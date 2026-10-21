@@ -71,6 +71,7 @@ export { NavigationDrawerItem } from './wrappers/navigation-drawer-item.js';
 export { NavigationDrawerSection } from './wrappers/navigation-drawer-section.js';
 export { NumberField, type NumberFieldMarks } from './wrappers/number-field.js';
 export { NumberInput, type NumberInputMarks } from './wrappers/number-input.js';
+export { NumberTicker } from './wrappers/number-ticker.js';
 export { OneTimeCodeField, type OneTimeCodeFieldMarks } from './wrappers/one-time-code-field.js';
 export { OneTimeCodeInput, type OneTimeCodeInputMarks } from './wrappers/one-time-code-input.js';
 export { Option } from './wrappers/option.js';

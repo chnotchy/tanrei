@@ -69,6 +69,7 @@ export { NavigationDrawer } from '../../generated/wrappers/navigation-drawer.js'
 export { NavigationDrawerGroup } from '../../generated/wrappers/navigation-drawer-group.js';
 export { NavigationDrawerItem } from '../../generated/wrappers/navigation-drawer-item.js';
 export { NavigationDrawerSection } from '../../generated/wrappers/navigation-drawer-section.js';
+export { NumberTicker } from '../../generated/wrappers/number-ticker.js';
 export { OneTimeCodeField, type OneTimeCodeFieldMarks } from '../../generated/wrappers/one-time-code-field.js';
 export { Option } from '../../generated/wrappers/option.js';
 export { OptionGroup } from '../../generated/wrappers/option-group.js';
