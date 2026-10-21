@@ -14,7 +14,7 @@ The package is private: it is not published on its own. It ships two ways —
 | Level | What it shows |
 |---|---|
 | **Essentials** | A base, a brand color and four sliders. Enough for a quick setup; everything else follows. |
-| **Groups** | All seven dials, every palette, each component, and what the layer adds to the vocabulary. Typefaces, Icons, Shape (the corner-smoothing slider) and Behaviour write pins, each asking for one reason. |
+| **Groups** | All eight dials, every palette, each component, and what the layer adds to the vocabulary. Typefaces, Icons, Shape (the corner-smoothing slider) and Behaviour write pins, each asking for one reason. |
 | **Every token** | Every token of the system, in two panes: a tree that only chooses (`<tanrei-tree-view>`, one stop of the Tab key; a group's rows are written when it opens) and, beside it — under it where the panel is narrow — the chosen token's editor. Each token offers exactly the operations a layer may write for it (`legalOperations` of the engine): a choice of kind is picked by name, never typed as a number. |
 | **Source** | The layer file itself. The other three levels are views of this JSON. |
 

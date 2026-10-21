@@ -47,7 +47,7 @@ const en = {
     source: 'Source',
     help: open({
       essentials: 'A base, a brand color and four sliders. Enough for a quick setup — everything else follows.',
-      groups: 'All seven dials, every palette, each component and what your layer adds to the vocabulary.',
+      groups: 'All eight dials, every palette, each component and what your layer adds to the vocabulary.',
       tokens: 'Every token of this system. Each one offers exactly the operations a layer may write for it.',
       source: 'The layer file itself. The other three levels are views of this JSON — edit whichever you like.',
     }),
@@ -73,7 +73,7 @@ const en = {
   },
   dials: {
     title: 'Dials',
-    help: 'Seven numbers sit under every value. The preview applies the sheet the build would write, so every derived token follows — on every platform, not only here.',
+    help: 'Eight numbers sit under every value. The preview applies the sheet the build would write, so every derived token follows — on every platform, not only here.',
     reason: 'Reason (written into the layer)',
     reasonPlaceholder: 'Why this value? e.g. Our audience reads at arm’s length.',
     value: 'value',
@@ -82,6 +82,7 @@ const en = {
       'type.contrast': ['Type contrast', 'how far headings stand apart from body text'],
       'space.unit': ['Space unit', 'every distance'],
       'size.unit': ['Size unit', 'control heights, icons, hit targets'],
+      density: ['Density', 'how tall controls and rows are, and the room around their content'],
       'shape.unit': ['Shape unit', 'every corner'],
       'stroke.unit': ['Stroke unit', 'borders and the focus ring'],
       'motion.unit': ['Motion unit', 'every duration'],
@@ -295,6 +296,10 @@ const en = {
     by: '× coefficient',
     exp: 'raised to',
     expNone: '— (no exponent)',
+    times: '× number',
+    round: 'rounded to a multiple of',
+    min: 'never below',
+    termNone: '— (none)',
     palette: 'Palette',
     // The accessible name of a role color's table of tones: light and dark by the three contrast levels.
     tones: 'Tones by theme and contrast',
