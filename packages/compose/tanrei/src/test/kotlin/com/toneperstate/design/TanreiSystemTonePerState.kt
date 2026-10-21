@@ -19,7 +19,7 @@ private object TonePerStateSystemSource {
         val elevation = elevation()
         TanreiSystem(
             id = "tone-per-state",
-            dials = TanreiDials(motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
+            dials = TanreiDials(density = 1f, motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
             intents = listOf(TanreiColorRole("accent"), TanreiColorRole("brand"), TanreiColorRole.Error, TanreiColorRole.Info, TanreiColorRole.Primary, TanreiColorRole.Secondary, TanreiColorRole.Success, TanreiColorRole.Warning),
             colors = TanreiColorSchemes(
                 light = lightColors(),
@@ -607,6 +607,7 @@ private object TonePerStateSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
+        targetMinimum = 32.dp,
         targetPointer = 44.dp,
         targetSpacing = 8.dp,
         targetTouch = 48.dp,

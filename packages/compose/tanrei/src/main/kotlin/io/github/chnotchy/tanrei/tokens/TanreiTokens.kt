@@ -352,6 +352,7 @@ public data class TanreiColorSchemes(
 /** The dials the values were derived from. Informational: derivation happens at build time. */
 @Immutable
 public data class TanreiDials(
+    public val density: Float,
     public val motionUnit: Float,
     public val shapeUnit: Float,
     public val sizeUnit: Float,
@@ -527,6 +528,7 @@ public data class TanreiMeasure(
     public val iconLarge: Dp,
     public val iconMedium: Dp,
     public val iconSmall: Dp,
+    public val targetMinimum: Dp,
     public val targetPointer: Dp,
     public val targetSpacing: Dp,
     public val targetTouch: Dp,
@@ -546,6 +548,7 @@ public data class TanreiMeasure(
         "icon-large" -> iconLarge
         "icon-medium" -> iconMedium
         "icon-small" -> iconSmall
+        "target-minimum" -> targetMinimum
         "target-pointer" -> targetPointer
         "target-spacing" -> targetSpacing
         "target-touch" -> targetTouch

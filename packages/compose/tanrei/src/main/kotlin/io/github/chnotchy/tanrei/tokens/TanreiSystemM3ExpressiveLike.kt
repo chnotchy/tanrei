@@ -27,7 +27,7 @@ private object M3ExpressiveLikeSystemSource {
         val elevation = elevation()
         TanreiSystem(
             id = "m3-expressive-like",
-            dials = TanreiDials(motionUnit = 50f, shapeUnit = 4f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
+            dials = TanreiDials(density = 1f, motionUnit = 50f, shapeUnit = 4f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
             intents = listOf(TanreiColorRole.Error, TanreiColorRole.Info, TanreiColorRole.Primary, TanreiColorRole.Secondary, TanreiColorRole.Success, TanreiColorRole("tertiary"), TanreiColorRole.Warning),
             colors = TanreiColorSchemes(
                 light = lightColors(),
@@ -685,6 +685,7 @@ private object M3ExpressiveLikeSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
+        targetMinimum = 32.dp,
         targetPointer = 44.dp,
         targetSpacing = 8.dp,
         targetTouch = 48.dp,

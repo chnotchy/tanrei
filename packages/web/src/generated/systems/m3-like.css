@@ -8634,6 +8634,7 @@
     --tanrei-comp-tree-view-unselected-state-layer-color: var(--tanrei-comp-tree-view-unselected-label-color);
     --tanrei-comp-tree-view-unselected-supporting-text-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-tree-view-unselected-trailing-text-color: var(--tanrei-sys-color-on-surface-variant);
+    --tanrei-dial-density: 1;
     --tanrei-dial-motion-unit: 50ms;
     --tanrei-dial-shape-unit: 4px;
     --tanrei-dial-size-unit: 0.25rem;
@@ -8933,6 +8934,11 @@
     --tanrei-sys-border-thick: round(nearest, calc(var(--tanrei-dial-stroke-unit) * 2), 0.25px);
     --tanrei-sys-breakpoint-expanded: 64rem;
     --tanrei-sys-breakpoint-medium: 37.5rem;
+    --tanrei-sys-control-height-extra-large: round(nearest, calc(var(--tanrei-dial-size-unit) * 18 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit));
+    --tanrei-sys-control-height-extra-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 6 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit));
+    --tanrei-sys-control-height-large: round(nearest, calc(var(--tanrei-dial-size-unit) * 14 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit));
+    --tanrei-sys-control-height-medium: round(nearest, calc(var(--tanrei-dial-size-unit) * 10 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit));
+    --tanrei-sys-control-height-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 8 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit));
     --tanrei-sys-elevation-level0: 0 0 0 0 transparent;
     --tanrei-sys-elevation-level0-inset-ring: 0 0 0 0 transparent;
     --tanrei-sys-elevation-level1: 0 1px 2px 0 var(--tanrei-sys-color-elevation-shadow-3), 0 1px 3px 1px var(--tanrei-sys-color-elevation-shadow-1);
@@ -9102,6 +9108,7 @@
     --tanrei-sys-state-hover-state-layer-opacity: 0.08;
     --tanrei-sys-state-pressed-state-layer-opacity: 0.12;
     --tanrei-sys-state-selected-state-layer-opacity: 0.16;
+    --tanrei-sys-target-minimum: 2rem;
     --tanrei-sys-target-pointer: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);
     --tanrei-sys-target-spacing: round(nearest, calc(var(--tanrei-dial-size-unit) * 2), 0.25px);
     --tanrei-sys-target-touch: round(nearest, calc(var(--tanrei-dial-size-unit) * 12), 0.25px);

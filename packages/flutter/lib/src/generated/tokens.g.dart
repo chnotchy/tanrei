@@ -1278,6 +1278,7 @@ class TanreiMeasure {
     required this.iconLarge,
     required this.iconMedium,
     required this.iconSmall,
+    required this.targetMinimum,
     required this.targetPointer,
     required this.targetSpacing,
     required this.targetTouch,
@@ -1306,6 +1307,8 @@ class TanreiMeasure {
   final double iconMedium;
   /// `sys.icon.small`
   final double iconSmall;
+  /// `sys.target.minimum`
+  final double targetMinimum;
   /// `sys.target.pointer`
   final double targetPointer;
   /// `sys.target.spacing`
@@ -1330,6 +1333,7 @@ class TanreiMeasure {
     double? iconLarge,
     double? iconMedium,
     double? iconSmall,
+    double? targetMinimum,
     double? targetPointer,
     double? targetSpacing,
     double? targetTouch,
@@ -1346,6 +1350,7 @@ class TanreiMeasure {
         iconLarge: iconLarge ?? this.iconLarge,
         iconMedium: iconMedium ?? this.iconMedium,
         iconSmall: iconSmall ?? this.iconSmall,
+        targetMinimum: targetMinimum ?? this.targetMinimum,
         targetPointer: targetPointer ?? this.targetPointer,
         targetSpacing: targetSpacing ?? this.targetSpacing,
         targetTouch: targetTouch ?? this.targetTouch,
@@ -1366,6 +1371,7 @@ class TanreiMeasure {
         'icon-large' => iconLarge,
         'icon-medium' => iconMedium,
         'icon-small' => iconSmall,
+        'target-minimum' => targetMinimum,
         'target-pointer' => targetPointer,
         'target-spacing' => targetSpacing,
         'target-touch' => targetTouch,

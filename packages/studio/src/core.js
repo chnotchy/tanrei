@@ -45,6 +45,7 @@ export const ESSENTIALS = ['type.base', 'space.unit', 'shape.unit', 'type.contra
 const DIAL_RANGES = {
   'type.base': { min: 12, max: 22, step: 0.5 },
   'type.contrast': { min: 0.6, max: 1.5, step: 0.05 },
+  density: { min: 0.75, max: 1.5, step: 0.05 },
   'space.unit': { min: 4, max: 14, step: 0.5 },
   'size.unit': { min: 3, max: 7, step: 0.25 },
   'shape.unit': { min: 0, max: 8, step: 0.5 },

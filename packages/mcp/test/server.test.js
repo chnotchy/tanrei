@@ -219,7 +219,7 @@ test('search_tokens: substring, glob, filters and pagination', async () => {
   assert.ok(substring.tokens.some((t) => t.id === 'tanrei.sys.color.focus-ring'));
 
   const dials = (await server.call('search_tokens', { tier: 'dial' })).data;
-  assert.equal(dials.total, 7);
+  assert.equal(dials.total, 8);
   assert.ok(dials.tokens.every((t) => t.kind === 'dial'));
   assert.ok(dials.tokens.every((t) => typeof t.description === 'string' && t.description.length > 10 && t.description.length <= 140), 'a short description: its own, or the vocabulary rationale');
   const durations = (await server.call('search_tokens', { type: 'duration', kind: 'derived', limit: 5 })).data;
