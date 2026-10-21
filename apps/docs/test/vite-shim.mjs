@@ -7,7 +7,8 @@
 // - `import x from './picture.png?inline'`: the file as a `data:` address;
 // - `import x from './mark.svg?raw'`: the file's text;
 // - `import.meta.glob('<pattern>', { eager: true, import: 'default' })` over JSON files: the object of path → value
-//   (a `*` in a file's or a folder's name).
+//   (a `*` in a file's or a folder's name, and one choice of names in braces, `{sys,comp,ref}`); a list of patterns is
+//   every file of each.
 //
 // Anything else a module asks of Vite is not known here and fails the import with a sentence that says so.
 import fs from 'node:fs';
@@ -18,7 +19,7 @@ import ts from 'typescript';
 const INLINE = /\?inline$/;
 const RAW = /\?raw$/;
 const MEDIA = { '.png': 'image/png', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.webp': 'image/webp' };
-const GLOB = /import\.meta\.glob(?:<[^>]*>)?\(\s*'([^']+)'\s*,\s*\{\s*eager:\s*true\s*,\s*import:\s*'default'\s*\}\s*\)/g;
+const GLOB = /import\.meta\.glob(?:<[^>]*>)?\(\s*('[^']+'|\[\s*'[^']+'(?:\s*,\s*'[^']+')*\s*\])\s*,\s*\{\s*eager:\s*true\s*,\s*import:\s*'default'\s*\}\s*\)/g;
 
 export async function resolve(specifier, context, nextResolve) {
   const fromTs = context.parentURL?.endsWith('.ts');
@@ -31,11 +32,21 @@ export async function resolve(specifier, context, nextResolve) {
 }
 
 /**
- * `import.meta.glob`, eager, default import, over JSON: the files the pattern names beside `file`. A `*` stands for
- * any part of one name, the file's or a folder's (a folder of each system, then its `components.json`); `**` and
- * braces are not known here.
+ * `import.meta.glob`, eager, default import, over JSON: the files the patterns name beside `file` — one pattern or a
+ * list of them, and a choice of names in braces is a pattern for each name. A `*` stands for any part of one name, the
+ * file's or a folder's (a folder of each system, then its `components.json`); `**` and braces in braces are not known
+ * here.
  */
-function glob(pattern, file) {
+function glob(written, file) {
+  const patterns = [...written.matchAll(/'([^']+)'/g)].flatMap(([, pattern]) => {
+    // One choice of names in braces is each name in turn.
+    const choice = pattern.match(/\{([^{}]+)\}/);
+    return choice ? choice[1].split(',').map((name) => pattern.replace(choice[0], name)) : [pattern];
+  });
+  return `({${patterns.map((pattern) => filesOf(pattern, file)).filter(Boolean).join(',')}})`;
+}
+
+function filesOf(pattern, file) {
   const name = path.basename(pattern);
   if (pattern.includes('**') || /[{}]/.test(pattern) || !name.endsWith('.json')) throw new Error(`${file}: import.meta.glob('${pattern}') is a form this test's shim does not know (test/vite-shim.mjs).`);
   const like = (part) => new RegExp(`^${part.split('*').map((piece) => piece.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
@@ -50,7 +61,7 @@ function glob(pattern, file) {
     });
   }
   const files = found.filter((rel) => fs.existsSync(path.resolve(path.dirname(file), rel)) && fs.statSync(path.resolve(path.dirname(file), rel)).isFile());
-  return `({${files.map((rel) => `${JSON.stringify(rel)}: ${fs.readFileSync(path.resolve(path.dirname(file), rel), 'utf8')}`).join(',')}})`;
+  return files.map((rel) => `${JSON.stringify(rel)}: ${fs.readFileSync(path.resolve(path.dirname(file), rel), 'utf8')}`).join(',');
 }
 
 export async function load(url, context, nextLoad) {

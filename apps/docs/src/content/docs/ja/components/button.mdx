@@ -2,7 +2,7 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: 538f59c8417819fe23a46e12eafbca3176795eb2
+sourceHash: 1f36f0bae5338228cbecfc2e4a454e81bf6bbfb9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,18 +10,19 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
 
 ## 概要
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="バリアント">
+<VisualFrame label="バリアント" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### 使い方
 

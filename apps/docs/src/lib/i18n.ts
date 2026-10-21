@@ -254,6 +254,28 @@ const en = {
     inverse: 'Inverse',
     utility: 'Utility',
   } as Record<string, string>,
+  // The docs' figures (components/visuals/, lib/visuals/): the help of the switch that draws a figure under another
+  // shipped system (components/visuals/SystemSwitch.astro; the word before its row is `system.choice`), the text that
+  // stands for an anatomy figure — one sentence for each plural form the language has (`Intl.PluralRules`), `{component}`
+  // the component's title, `{count}` its number of parts and `{list}` their ids as a list in the language — and the
+  // titles and controls of the other kinds of figure.
+  visuals: {
+    systemHelp: 'Draws this figure under a shipped design system. Nothing else on the page changes.',
+    anatomyAlt: { one: '{component}: 1 part, {list}.', other: '{component}: {count} parts — {list}.' } as Record<string, string>,
+    measureTitle: 'Measurements',
+    motionTitle: 'Motion',
+    play: 'Play',
+    replay: 'Play again',
+    speed: 'Speed',
+    slow: 'Slow motion',
+    reducedMotionNote: 'Your device asks for reduced motion, so each motion is shown as still frames.',
+    playgroundTitle: 'Playground',
+    colorRolesTitle: 'Color roles',
+    focusOrderTitle: 'Focus order',
+    do: 'Do',
+    dont: 'Don’t',
+    caution: 'Caution',
+  },
 };
 
 const ja: typeof en = {
@@ -459,6 +481,23 @@ const ja: typeof en = {
     outline: 'アウトライン',
     inverse: 'インバース',
     utility: 'ユーティリティ',
+  },
+  visuals: {
+    systemHelp: 'この図を、提供しているデザインシステムで描き直します。ページのほかの部分は変わりません。',
+    anatomyAlt: { other: '{component}: {count} 個のパーツ（{list}）。' },
+    measureTitle: '寸法',
+    motionTitle: '動き',
+    play: '再生',
+    replay: 'もう一度再生',
+    speed: '速さ',
+    slow: 'スローモーション',
+    reducedMotionNote: 'この端末は動きを減らす設定のため、それぞれの動きを静止したコマで示します。',
+    playgroundTitle: 'プレイグラウンド',
+    colorRolesTitle: '色のロール',
+    focusOrderTitle: 'フォーカス順',
+    do: '推奨',
+    dont: '非推奨',
+    caution: '注意',
   },
 };
 
@@ -668,6 +707,23 @@ const zh: typeof en = {
     inverse: '反色（Inverse）',
     utility: '辅助（Utility）',
   },
+  visuals: {
+    systemHelp: '用所提供的某个设计系统重新绘制此图。页面的其他部分不变。',
+    anatomyAlt: { other: '{component}：{count} 个部分（{list}）。' },
+    measureTitle: '尺寸',
+    motionTitle: '动效',
+    play: '播放',
+    replay: '再次播放',
+    speed: '速度',
+    slow: '慢动作',
+    reducedMotionNote: '你的设备要求减少动态效果，因此每个动效都以静止的画面呈现。',
+    playgroundTitle: '交互演示',
+    colorRolesTitle: '颜色角色',
+    focusOrderTitle: '焦点顺序',
+    do: '推荐',
+    dont: '避免',
+    caution: '注意',
+  },
 };
 
 // Spanish (neutral, international). Terms follow i18n/glossary.md.
@@ -875,6 +931,23 @@ const es: typeof en = {
     inverse: 'Inverso',
     utility: 'Utilidad',
   },
+  visuals: {
+    systemHelp: 'Dibuja esta figura con uno de los sistemas de diseño incluidos. El resto de la página no cambia.',
+    anatomyAlt: { one: '{component}: 1 parte, {list}.', other: '{component}: {count} partes: {list}.' },
+    measureTitle: 'Medidas',
+    motionTitle: 'Movimiento',
+    play: 'Reproducir',
+    replay: 'Reproducir de nuevo',
+    speed: 'Velocidad',
+    slow: 'Cámara lenta',
+    reducedMotionNote: 'Tu dispositivo pide reducir el movimiento, así que cada movimiento se muestra en fotogramas fijos.',
+    playgroundTitle: 'Área de pruebas',
+    colorRolesTitle: 'Roles de color',
+    focusOrderTitle: 'Orden del foco',
+    do: 'Recomendado',
+    dont: 'Evita',
+    caution: 'Precaución',
+  },
 };
 
 // Hindi (standard, Devanagari; technical terms stay English where Hindi technical writing keeps them). Terms follow i18n/glossary.md.
@@ -1081,6 +1154,23 @@ const hi: typeof en = {
     outline: 'आउटलाइन',
     inverse: 'इनवर्स',
     utility: 'यूटिलिटी',
+  },
+  visuals: {
+    systemHelp: 'इस चित्र को शामिल किए गए किसी डिज़ाइन सिस्टम में दिखाता है। पेज का बाक़ी हिस्सा नहीं बदलता।',
+    anatomyAlt: { one: '{component}: 1 हिस्सा — {list}।', other: '{component}: {count} हिस्से — {list}।' },
+    measureTitle: 'माप',
+    motionTitle: 'मोशन',
+    play: 'चलाएँ',
+    replay: 'फिर से चलाएँ',
+    speed: 'गति',
+    slow: 'स्लो मोशन',
+    reducedMotionNote: 'आपके डिवाइस में कम मोशन की सेटिंग है, इसलिए हर मोशन स्थिर फ़्रेम में दिखाया जाता है।',
+    playgroundTitle: 'प्लेग्राउंड',
+    colorRolesTitle: 'कलर रोल',
+    focusOrderTitle: 'फ़ोकस का क्रम',
+    do: 'करें',
+    dont: 'न करें',
+    caution: 'सावधानी',
   },
 };
 
@@ -1290,6 +1380,24 @@ const ar: typeof en = {
     outline: 'الحدّ',
     inverse: 'المعكوس',
     utility: 'المساعدة',
+  },
+  // The count takes the form its number asks for.
+  visuals: {
+    systemHelp: 'يرسم هذا الشكل بأحد أنظمة التصميم المضمّنة. لا يتغيّر شيء آخر في الصفحة.',
+    anatomyAlt: { one: '{component}: جزء واحد، هو {list}.', two: '{component}: جزءان، هما {list}.', few: '{component}: {count} أجزاء، هي {list}.', many: '{component}: {count} جزءًا، هي {list}.', other: '{component}: {count} جزء، هي {list}.' },
+    measureTitle: 'القياسات',
+    motionTitle: 'الحركة',
+    play: 'تشغيل',
+    replay: 'إعادة التشغيل',
+    speed: 'السرعة',
+    slow: 'حركة بطيئة',
+    reducedMotionNote: 'يطلب جهازك تقليل الحركة، لذلك تُعرض كل حركة في لقطات ثابتة.',
+    playgroundTitle: 'ساحة التجربة',
+    colorRolesTitle: 'أدوار الألوان',
+    focusOrderTitle: 'ترتيب التركيز',
+    do: 'افعل',
+    dont: 'لا تفعل',
+    caution: 'تنبيه',
   },
 };
 
