@@ -1,0 +1,140 @@
+---
+title: 数字滚动器
+description: 显示一个会变化的数字——计数、价格、分数、仪表板上的数据——只把变化的位移动到新值，让人看出它变了、朝哪个方向、大约变了多少，而辅助技术只得知它最终停下的值。
+translationOf: components/number-ticker.mdx
+sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="进入视野时升到各自数值的数据">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="订单数"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="收入"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="转化率"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 示例遵循当前规格。SwiftUI、Compose、Flutter 和 React Native 已在计划中，尚未提供数字滚动器。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="订单数"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="收入"></tanrei-number-ticker>
+
+    <!-- 仪表板上的数据在第一次进入视野时从 0 升起。 -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- 用户正在改变的数：每次变化停下后只播报一次。 -->
+    <tanrei-number-ticker value="2" live="polite" label="购物车中的商品"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="订单数" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="收入" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="购物车中的商品" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="动画：slide（默认系统的选择）、blur、blur-slide 和 flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="滑动"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="模糊"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="模糊加滑动"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="翻页"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="trend：auto（19 到 20 两位都向上）和 digit（个位从 9 向下到 0）" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="自动"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="按位"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## 指南
+
+### 何时使用
+
+当一个数字在人观看时变化，而且变化本身值得被看到时，使用数字滚动器：随订单到来而增加的计数、变动的价格、分数、页面打开时升到各自数值的仪表板数据。动作表明数字变了、朝哪个方向、大约变了多少。
+
+很少变化或没人看着它变化的数字，用普通文本即可。已知范围内的水平——例如配额中已用的存储——用[计量条](/zh-cn/components/meter/)。时间和日期不是数字：请用平台的日期和时间格式书写。
+
+### 数字如何书写
+
+数字滚动器没有自己的文字，也没有自己的数字规则。平台的数字格式化器用读者的语言书写数字：分组符和小数点、货币符号、百分号、大数的简写（1.2K、1.2万），以及数字本身（埃及阿拉伯语写作 ١٢٣٤）。你可以选择样式（decimal、percent、currency 或 unit）、货币代码或单位、简写记法、固定的小数位数，以及何时写正负号；不指定语言时，它使用所在位置的语言。
+
+它也没有自己的字体、字号和颜色：它以所在位置的文字样式、等宽的数字绘制，所以位数变化时数字不会左右移动。它既可以是仪表板卡片上的大数字，也可以是句子中的一个计数。
+
+### 如何选择动画
+
+| 动画 | 适用于 |
+| --- | --- |
+| Slide | 大多数数字。每个变化的位的数字列滚动到新数字。默认系统的选择。 |
+| Blur | 更安静的变化：旧数字模糊淡出，新数字清晰浮现。 |
+| Blur slide | 同上，并且数字朝变化的方向移动一小段。 |
+| Flip | 翻页式显示板：发车信息、倒计时、外观偏机械的产品。 |
+| None | 必须立即变化的数字。 |
+
+在整个产品中只用一种动画：在设计系统中设定一次（`comp.number-ticker.animation`），而不是在每个滚动器上设定。
+
+### 如何选择 trend
+
+默认情况下，每个变化的位都朝整个数字变化的方向移动：增大时向上，减小时向下，所以 19 到 20 两位都向上。这读起来是一个数字的一次变化。当每一位本身都有含义时选择 `digit`——每一位按自己的变化移动，于是个位从 9 向下到 0。`up` 和 `down` 固定一个方向，适用于只朝一个方向计数的数字。
+
+### 建议
+
+- 把它放在文本中，或给它的容器设定你想要的文字样式。它的一切都取自那里。
+- 当数字旁边没有可见的内容说明它是什么时，给它一个标签：“收入”“订单数”。
+- 对自行变化的数据保持 live 关闭。只有对用户正在等待或正在改变的数字才打开。
+- 在仪表板上使用起始值，让数据在第一次被看到时升起一次。
+
+### 不建议
+
+- 不要通过滚动器把增加涂成绿色、把减少涂成红色：它没有这样的颜色。如果变化有含义，在数字旁边说明——标签、文字、带标签的箭头。
+- 不要每秒多次更新一个数字。每次变化都要花一个动作的时长；接连不断的变化看起来像噪声。按人能跟上的节奏更新。
+- 不要用它显示时间。时钟的位在 59 而不是 9 时进位。
+
+## 无障碍
+
+<ComponentAccessibility name="number-ticker" />
+
+### 组件负责的部分
+
+- 辅助技术读取一段文本：标签，然后是按格式书写的数字。绘制出的数字被隐藏，所以数字不会被逐位朗读，也不会读出经过窗口的数字。
+- 默认不播报任何内容：大多数数据不是当下的重点。把 live 设为 polite 后，每次变化停下时礼貌地播报一次，从不播报经过的值，也不播报被后来的变化取代的值。
+- 在请求减少动态效果时，新数字立即出现，旧数字短暂淡出。
+- 它采用所在位置的语言和方向，任一变化时立即重新书写数字。
+- 未知的 animation、trend、style、notation、sign display 或 live 值、非正数的 duration、格式化器不认识的货币或单位，以及不是数字的值，会在调试版本中报告。
+
+### 你需要做的
+
+- 如果你的产品在其他内容旁边一再自行更新一个数字，请提供暂停更新或选择更新频率的方式（WCAG 2.2.2 暂停、停止、隐藏）。
+- 在重要的地方用文字说明变化的含义。动作只表明数字变了，不说明这是好是坏。
