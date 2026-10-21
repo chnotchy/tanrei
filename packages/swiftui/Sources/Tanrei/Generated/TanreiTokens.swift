@@ -10272,6 +10272,44 @@ public struct TanreiMainActionButtonTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of marquee-text (comp.marquee-text).
+public struct TanreiMarqueeTextTokens: Sendable, Equatable {
+  public var fadeExtent: CGFloat
+  public var gap: CGFloat
+  public var motionEasing: TanreiCubicBezier
+  public var motionEndPause: Double
+  public var motionReturnDuration: Double
+  public var motionReturnEasing: TanreiCubicBezier
+  public var motionStartDelay: Double
+  public var motionStartPause: Double
+  public var playbackGap: CGFloat
+  public var speed: Double
+
+  public init(
+    fadeExtent: CGFloat,
+    gap: CGFloat,
+    motionEasing: TanreiCubicBezier,
+    motionEndPause: Double,
+    motionReturnDuration: Double,
+    motionReturnEasing: TanreiCubicBezier,
+    motionStartDelay: Double,
+    motionStartPause: Double,
+    playbackGap: CGFloat,
+    speed: Double
+  ) {
+    self.fadeExtent = fadeExtent
+    self.gap = gap
+    self.motionEasing = motionEasing
+    self.motionEndPause = motionEndPause
+    self.motionReturnDuration = motionReturnDuration
+    self.motionReturnEasing = motionReturnEasing
+    self.motionStartDelay = motionStartDelay
+    self.motionStartPause = motionStartPause
+    self.playbackGap = playbackGap
+    self.speed = speed
+  }
+}
+
 /// A value of menu's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -18720,6 +18758,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _mainActionButton.value }
     set { _mainActionButton.value = newValue }
   }
+  public var marqueeText: TanreiMarqueeTextTokens {
+    get { _marqueeText.value }
+    set { _marqueeText.value = newValue }
+  }
   public var menu: TanreiMenuTokens {
     get { _menu.value }
     set { _menu.value = newValue }
@@ -18922,6 +18964,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _list: TanreiBox<TanreiListTokens>
   private var _loadingIndicator: TanreiBox<TanreiLoadingIndicatorTokens>
   private var _mainActionButton: TanreiBox<TanreiMainActionButtonTokens>
+  private var _marqueeText: TanreiBox<TanreiMarqueeTextTokens>
   private var _menu: TanreiBox<TanreiMenuTokens>
   private var _menubar: TanreiBox<TanreiMenubarTokens>
   private var _meter: TanreiBox<TanreiMeterTokens>
@@ -19022,6 +19065,7 @@ public struct TanreiSystem: Sendable, Equatable {
     list: TanreiListTokens,
     loadingIndicator: TanreiLoadingIndicatorTokens,
     mainActionButton: TanreiMainActionButtonTokens,
+    marqueeText: TanreiMarqueeTextTokens,
     menu: TanreiMenuTokens,
     menubar: TanreiMenubarTokens,
     meter: TanreiMeterTokens,
@@ -19121,6 +19165,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._list = TanreiBox(list)
     self._loadingIndicator = TanreiBox(loadingIndicator)
     self._mainActionButton = TanreiBox(mainActionButton)
+    self._marqueeText = TanreiBox(marqueeText)
     self._menu = TanreiBox(menu)
     self._menubar = TanreiBox(menubar)
     self._meter = TanreiBox(meter)

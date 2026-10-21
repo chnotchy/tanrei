@@ -14903,6 +14903,69 @@ class TanreiMainActionButtonTokens {
       };
 }
 
+/// `comp.marquee-text.*`
+@immutable
+class TanreiMarqueeTextTokens {
+  const TanreiMarqueeTextTokens({
+    required this.fadeExtent,
+    required this.gap,
+    required this.motionEasing,
+    required this.motionEndPause,
+    required this.motionReturnDuration,
+    required this.motionReturnEasing,
+    required this.motionStartDelay,
+    required this.motionStartPause,
+    required this.playbackGap,
+    required this.speed,
+  });
+
+  /// `comp.marquee-text.fade-extent`
+  final double fadeExtent;
+  /// `comp.marquee-text.gap`
+  final double gap;
+  /// `comp.marquee-text.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.marquee-text.motion-end-pause`
+  final int motionEndPause;
+  /// `comp.marquee-text.motion-return-duration`
+  final int motionReturnDuration;
+  /// `comp.marquee-text.motion-return-easing`
+  final TanreiCubicBezier motionReturnEasing;
+  /// `comp.marquee-text.motion-start-delay`
+  final int motionStartDelay;
+  /// `comp.marquee-text.motion-start-pause`
+  final int motionStartPause;
+  /// `comp.marquee-text.playback-gap`
+  final double playbackGap;
+  /// `comp.marquee-text.speed`
+  final double speed;
+
+  /// A copy with the given tokens replaced.
+  TanreiMarqueeTextTokens copyWith({
+    double? fadeExtent,
+    double? gap,
+    TanreiCubicBezier? motionEasing,
+    int? motionEndPause,
+    int? motionReturnDuration,
+    TanreiCubicBezier? motionReturnEasing,
+    int? motionStartDelay,
+    int? motionStartPause,
+    double? playbackGap,
+    double? speed,
+  }) => TanreiMarqueeTextTokens(
+        fadeExtent: fadeExtent ?? this.fadeExtent,
+        gap: gap ?? this.gap,
+        motionEasing: motionEasing ?? this.motionEasing,
+        motionEndPause: motionEndPause ?? this.motionEndPause,
+        motionReturnDuration: motionReturnDuration ?? this.motionReturnDuration,
+        motionReturnEasing: motionReturnEasing ?? this.motionReturnEasing,
+        motionStartDelay: motionStartDelay ?? this.motionStartDelay,
+        motionStartPause: motionStartPause ?? this.motionStartPause,
+        playbackGap: playbackGap ?? this.playbackGap,
+        speed: speed ?? this.speed,
+      );
+}
+
 /// The key of a condition of menu (`comp.menu`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -26746,6 +26809,7 @@ class TanreiSystem {
     required this.list,
     required this.loadingIndicator,
     required this.mainActionButton,
+    required this.marqueeText,
     required this.menu,
     required this.menubar,
     required this.meter,
@@ -26848,6 +26912,7 @@ class TanreiSystem {
   final TanreiListTokens list;
   final TanreiLoadingIndicatorTokens loadingIndicator;
   final TanreiMainActionButtonTokens mainActionButton;
+  final TanreiMarqueeTextTokens marqueeText;
   final TanreiMenuTokens menu;
   final TanreiMenubarTokens menubar;
   final TanreiMeterTokens meter;
@@ -26949,6 +27014,7 @@ class TanreiSystem {
     TanreiListTokens? list,
     TanreiLoadingIndicatorTokens? loadingIndicator,
     TanreiMainActionButtonTokens? mainActionButton,
+    TanreiMarqueeTextTokens? marqueeText,
     TanreiMenuTokens? menu,
     TanreiMenubarTokens? menubar,
     TanreiMeterTokens? meter,
@@ -27048,6 +27114,7 @@ class TanreiSystem {
         list: list ?? this.list,
         loadingIndicator: loadingIndicator ?? this.loadingIndicator,
         mainActionButton: mainActionButton ?? this.mainActionButton,
+        marqueeText: marqueeText ?? this.marqueeText,
         menu: menu ?? this.menu,
         menubar: menubar ?? this.menubar,
         meter: meter ?? this.meter,

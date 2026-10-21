@@ -889,6 +889,22 @@
       ]
     },
     {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-marquee-text",
+        "import": "@tanrei/web/m3-like",
+        "module": "@tanrei/web/components/marquee-text"
+      },
+      "react": {
+        "name": "MarqueeText",
+        "import": "@tanrei/react/m3-like"
+      }
+    },
+    {
       "name": "menu",
       "title": "Menu",
       "level": "base",

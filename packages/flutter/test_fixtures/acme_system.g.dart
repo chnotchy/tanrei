@@ -5729,6 +5729,18 @@ const TanreiSystem acmeSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  marqueeText: TanreiMarqueeTextTokens(
+    fadeExtent: 16.0,
+    gap: 48.0,
+    motionEasing: TanreiCubicBezier(0.0, 0.0, 1.0, 1.0),
+    motionEndPause: 1200,
+    motionReturnDuration: 250,
+    motionReturnEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionStartDelay: 300,
+    motionStartPause: 1200,
+    playbackGap: 8.0,
+    speed: 30.0,
+  ),
   menu: TanreiMenuTokens(
     checkboxItemMark: 0.0,
     containerShape: 4.0,

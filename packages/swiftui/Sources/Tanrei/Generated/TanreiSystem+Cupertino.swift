@@ -5455,6 +5455,19 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
   )
 )
 
+private let cupertinoMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 250,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let cupertinoMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
   containerShape: 8,
@@ -9901,6 +9914,7 @@ extension TanreiSystem {
     list: cupertinoListTokens,
     loadingIndicator: cupertinoLoadingIndicatorTokens,
     mainActionButton: cupertinoMainActionButtonTokens,
+    marqueeText: cupertinoMarqueeTextTokens,
     menu: cupertinoMenuTokens,
     menubar: cupertinoMenubarTokens,
     meter: cupertinoMeterTokens,

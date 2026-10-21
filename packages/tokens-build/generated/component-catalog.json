@@ -1742,6 +1742,20 @@
       "react": {
         "name": "ScrollArea"
       }
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-marquee-text",
+        "module": "@tanrei/web/components/marquee-text"
+      },
+      "react": {
+        "name": "MarqueeText"
+      }
     }
   ]
 }

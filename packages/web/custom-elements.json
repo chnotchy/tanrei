@@ -23945,6 +23945,400 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/marquee-text/marquee-text.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "TRIGGERS",
+          "type": {
+            "text": "['hover-or-focus', 'hover', 'focus', 'always']"
+          },
+          "default": "['hover-or-focus', 'hover', 'focus', 'always']",
+          "description": "The `trigger` prop, the default first (MRQ-3, MRQ-15)."
+        },
+        {
+          "kind": "variable",
+          "name": "LOOPS",
+          "type": {
+            "text": "['repeat', 'bounce']"
+          },
+          "default": "['repeat', 'bounce']",
+          "description": "The `loop` prop, the default first (MRQ-4, MRQ-5, MRQ-15)."
+        },
+        {
+          "kind": "variable",
+          "name": "SPEED",
+          "default": "`${PREFIX}-speed`",
+          "description": "The component token of the speed, in pixels per second, read by the script (MRQ-4)."
+        },
+        {
+          "kind": "variable",
+          "name": "FADE",
+          "default": "`${PREFIX}-fade-extent`",
+          "description": "The component token of the fade's depth, read by the script for the fade's keyframes (MRQ-6)."
+        },
+        {
+          "kind": "variable",
+          "name": "GAP",
+          "default": "`${PREFIX}-gap`",
+          "description": "The component token of the copy's gap, read by the script for the distance of a pass (MRQ-4)."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ directionProbeStyles, css` :host { display: flex; align-items: center; min-inline-size: 0; max-inline-size: 100%; gap: ${unsafeCSS(T('playback-gap'))}; /* The fade's mask: the line's own box, widened by the fade's depth beyond each edge where no text lies hidden. */ --_fade: ${unsafeCSS(T('fade-extent'))}; } /* MRQ-1: one line high, as wide as its place, clipping the text. */ .viewport { flex: 1 1 auto; min-inline-size: 0; overflow: hidden; white-space: nowrap; } /* MRQ-2: at rest, the line cut with the platform's ellipsis at the end of the text's direction. */ .track { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* MRQ-4, MRQ-5: while it plays, the text and its copy on one row as wide as they are, which the motion moves. */ .viewport[data-playing] .track { display: flex; inline-size: max-content; overflow: visible; text-overflow: clip; } .text { white-space: nowrap; } .copy { white-space: nowrap; margin-inline-start: ${unsafeCSS(T('gap'))}; } /* MRQ-6: the fade of the edges behind which text lies hidden. One mask layer, the line's box with a band of the fade's depth at each side: widened past a side (and moved) where no text lies hidden there, so that side shows no fade. The script's keyframes move it with the text; at rest there is none. Without them — before the run's animation exists, or where it is cancelled — the line looks as it does resting at its start: only the end edge of the text's direction fades. */ .viewport[data-playing] { mask-image: linear-gradient(to right, transparent 0, black var(--_fade), black calc(100% - var(--_fade)), transparent 100%); mask-repeat: no-repeat; mask-size: calc(100% + var(--_fade)) 100%; mask-position: calc(-1 * var(--_fade)) 0; } .viewport[data-playing][dir='rtl'] { mask-position: 0 0; } .copy[hidden], .control[hidden] { display: none; } .timing { position: absolute; inline-size: 0; block-size: 0; overflow: hidden; visibility: hidden; pointer-events: none; transition-property: opacity; transition-duration: 0s; } .timing.start-pause { transition-delay: ${unsafeCSS(T('motion-start-pause'))}; } .timing.end-pause { transition-delay: ${unsafeCSS(T('motion-end-pause'))}; } .timing.start-delay { transition-delay: ${unsafeCSS(T('motion-start-delay'))}; } .timing.pass { transition-timing-function: ${unsafeCSS(T('motion-easing'))}; } .timing.return { transition-delay: ${unsafeCSS(T('motion-return-duration'))}; transition-timing-function: ${unsafeCSS(T('motion-return-easing'))}; } /* MRQ-13: the browser's default text size, against which an enlarged text size is measured. */ .timing.medium { font-size: medium; } /* MRQ-18: in forced colors there is no fade; the text is clipped at the viewport's edge. Important, so that it holds over the fade's keyframes. */ @media (forced-colors: active) { .viewport, .viewport[data-playing] { mask-image: none !important; } } `, hiddenHost, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TRIGGERS",
+          "declaration": {
+            "name": "TRIGGERS",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "LOOPS",
+          "declaration": {
+            "name": "LOOPS",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SPEED",
+          "declaration": {
+            "name": "SPEED",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FADE",
+          "declaration": {
+            "name": "FADE",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "GAP",
+          "declaration": {
+            "name": "GAP",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/marquee-text/marquee-text.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "textDirection",
+          "return": {
+            "type": {
+              "text": "'ltr' | 'rtl' | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The base direction of a text: that of its first strong character (MRQ-7), or null where it has none."
+        },
+        {
+          "kind": "class",
+          "description": "One line of text that does not fit its place and, while its trigger holds, moves sideways at a steady pace to show\nall of it, resting at its start between passes; at rest it is cut with an ellipsis.\n\nContract: specs/marquee-text.spec.json. The line is as wide as its place and drawn in the text style, color and\ndirection of where it stands; it moves only while the text does not fit, never where motion is reduced, and is read\nonce, whole. It is never a focus stop: `focus` is the focus of the control it stands in (a row, a chip).\n\n`trigger` — `hover-or-focus` (the default), `hover`, `focus` or `always`. `loop` — `repeat` (a copy follows a gap\nbehind) or `bounce`. `speed` is in pixels per second; `start-pause`, `end-pause` in milliseconds; `iterations` the\npasses a trigger plays (none: until the trigger ends). With `always`, `playback-control` draws a pause button at the\nline's end; without it the product must give the page a control that sets `paused` (WCAG 2.2.2), which a debug build\nreports.\n\nThe motion of a run of passes is one Web Animations API animation of the text's `translate` (and one of the fade's\nmask, with the same timing), its keyframes holding the pauses: nothing is measured while it runs.",
+          "name": "TanreiMarqueeText",
+          "cssParts": [
+            {
+              "description": "The line's box, which clips the text.",
+              "name": "viewport"
+            },
+            {
+              "description": "The playback control, a small text `<tanrei-button>`.",
+              "name": "playback"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text: plain text, or inline content (a bold run, an inline mark).",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "trigger",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMarqueeTextTrigger"
+              },
+              "default": "'hover-or-focus'",
+              "description": "When the text scrolls (MRQ-3): `hover-or-focus` (the default), `hover`, `focus` or `always`. Anything else is the default, reported in debug builds. Reflected.",
+              "attribute": "trigger",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "loop",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMarqueeTextLoop"
+              },
+              "default": "'repeat'",
+              "description": "How a pass goes: `repeat` (the default) or `bounce` (MRQ-4, MRQ-5). Anything else is `repeat`, reported in debug builds. Reflected.",
+              "attribute": "loop",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "speed",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How fast the text moves, in pixels per second; null takes `comp.marquee-text.speed`. Not positive: null, reported in debug builds.",
+              "attribute": "speed"
+            },
+            {
+              "kind": "field",
+              "name": "startPause",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long the text rests at its start before each pass, in ms; 0 rests none; null takes `comp.marquee-text.motion.start-pause`.",
+              "attribute": "start-pause"
+            },
+            {
+              "kind": "field",
+              "name": "endPause",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "While loop is bounce: how long the text rests with its end in view, in ms; null takes `comp.marquee-text.motion.end-pause`.",
+              "attribute": "end-pause"
+            },
+            {
+              "kind": "field",
+              "name": "iterations",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many passes a trigger plays before the text rests; null plays until the trigger ends (and without end for always).",
+              "attribute": "iterations"
+            },
+            {
+              "kind": "field",
+              "name": "paused",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Holds the motion where it is: set by the playback control, or by the product's control that pauses every moving part of the page. Reflected.",
+              "attribute": "paused",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "playbackControl",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "While trigger is always: draws the playback control at the line's end. Off by default: give the page a control that sets `paused` instead (WCAG 2.2.2).",
+              "attribute": "playback-control",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "playLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the motion is paused (\"Play scrolling text\"); empty reads the product's words.",
+              "attribute": "play-label"
+            },
+            {
+              "kind": "field",
+              "name": "pauseLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the text moves (\"Pause scrolling text\"); empty reads the product's words.",
+              "attribute": "pause-label"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<TanreiMarqueeTextPausedChangeDetail>"
+              },
+              "description": "The person paused or played the motion with the playback control; `detail.paused` is the new value. Not fired when `paused` is set.",
+              "name": "pausedchange"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "trigger",
+              "type": {
+                "text": "TanreiMarqueeTextTrigger"
+              },
+              "default": "'hover-or-focus'",
+              "description": "When the text scrolls (MRQ-3): `hover-or-focus` (the default), `hover`, `focus` or `always`. Anything else is the default, reported in debug builds. Reflected.",
+              "fieldName": "trigger"
+            },
+            {
+              "name": "loop",
+              "type": {
+                "text": "TanreiMarqueeTextLoop"
+              },
+              "default": "'repeat'",
+              "description": "How a pass goes: `repeat` (the default) or `bounce` (MRQ-4, MRQ-5). Anything else is `repeat`, reported in debug builds. Reflected.",
+              "fieldName": "loop"
+            },
+            {
+              "name": "speed",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How fast the text moves, in pixels per second; null takes `comp.marquee-text.speed`. Not positive: null, reported in debug builds.",
+              "fieldName": "speed"
+            },
+            {
+              "name": "start-pause",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long the text rests at its start before each pass, in ms; 0 rests none; null takes `comp.marquee-text.motion.start-pause`.",
+              "fieldName": "startPause"
+            },
+            {
+              "name": "end-pause",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "While loop is bounce: how long the text rests with its end in view, in ms; null takes `comp.marquee-text.motion.end-pause`.",
+              "fieldName": "endPause"
+            },
+            {
+              "name": "iterations",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many passes a trigger plays before the text rests; null plays until the trigger ends (and without end for always).",
+              "fieldName": "iterations"
+            },
+            {
+              "name": "paused",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Holds the motion where it is: set by the playback control, or by the product's control that pauses every moving part of the page. Reflected.",
+              "fieldName": "paused"
+            },
+            {
+              "name": "playback-control",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "While trigger is always: draws the playback control at the line's end. Off by default: give the page a control that sets `paused` instead (WCAG 2.2.2).",
+              "fieldName": "playbackControl"
+            },
+            {
+              "name": "play-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the motion is paused (\"Play scrolling text\"); empty reads the product's words.",
+              "fieldName": "playLabel"
+            },
+            {
+              "name": "pause-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the text moves (\"Pause scrolling text\"); empty reads the product's words.",
+              "fieldName": "pauseLabel"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-marquee-text",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "textDirection",
+          "declaration": {
+            "name": "textDirection",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiMarqueeText",
+          "declaration": {
+            "name": "TanreiMarqueeText",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-marquee-text",
+          "declaration": {
+            "name": "TanreiMarqueeText",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/menu/menu.styles.ts",
       "declarations": [
         {

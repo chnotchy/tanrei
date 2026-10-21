@@ -54,6 +54,7 @@ export { ListItem } from '../../generated/wrappers/list-item.js';
 export { ListRow } from '../../generated/wrappers/list-row.js';
 export { LoadingIndicator } from '../../generated/wrappers/loading-indicator.js';
 export { MainActionButton } from '../../generated/wrappers/main-action-button.js';
+export { MarqueeText } from '../../generated/wrappers/marquee-text.js';
 export { Menu } from '../../generated/wrappers/menu.js';
 export { MenuCheckboxItem } from '../../generated/wrappers/menu-checkbox-item.js';
 export { MenuGroup } from '../../generated/wrappers/menu-group.js';

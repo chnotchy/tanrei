@@ -664,6 +664,24 @@
       ]
     },
     {
+      "key": "marqueePauseLabel",
+      "readers": [
+        {
+          "component": "marquee-text",
+          "prop": "pauseLabel"
+        }
+      ]
+    },
+    {
+      "key": "marqueePlayLabel",
+      "readers": [
+        {
+          "component": "marquee-text",
+          "prop": "playLabel"
+        }
+      ]
+    },
+    {
       "key": "menubarOverflowLabel",
       "readers": [
         {

@@ -33,6 +33,8 @@ const SUBJECTS = [
   // Each fixture is its own axe unit: a scroll box that is a focus stop is a region, and a page of every fixture would
   // hold the spec's regions (named alike, or not at all) side by side, which no product page does.
   subject('scroll-area', (fixture) => fixture.id === 'default', { reducedMotion: true, axeEach: true }),
+  // At rest, cut with its ellipsis: the line drawn in the text style around it under each preset (it has no style of its own).
+  subject('marquee-text', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.
