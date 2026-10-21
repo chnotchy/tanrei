@@ -4931,7 +4931,7 @@ private object CupertinoSystemSource {
             ),
             densitys = TanreiListDensitys(
                 regular = TanreiListDensityTokens(containerHeight = 44.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp),
+                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
             ),
         )
 
@@ -6769,7 +6769,7 @@ private object CupertinoSystemSource {
             ),
             densitys = TanreiSearchDensitys(
                 regular = TanreiSearchDensityTokens(suggestionContainerHeight = 44.dp, suggestionContainerPaddingInline = 12.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 12.dp, suggestionLeadingIconSize = 20.dp),
-                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 

@@ -5052,7 +5052,7 @@ private object M3ExpressiveLikeSystemSource {
             ),
             densitys = TanreiListDensitys(
                 regular = TanreiListDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 8.dp),
-                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 6.dp),
+                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
             ),
         )
 
@@ -6890,7 +6890,7 @@ private object M3ExpressiveLikeSystemSource {
             ),
             densitys = TanreiSearchDensitys(
                 regular = TanreiSearchDensityTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
-                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 6.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 

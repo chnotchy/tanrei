@@ -7919,7 +7919,7 @@ export const m3ExpressiveLike = {
       },
       densitys: {
         regular: { containerHeight: 56, containerPaddingBlock: 8 },
-        compact: { containerHeight: 32, containerPaddingBlock: 6 },
+        compact: { containerHeight: 32, containerPaddingBlock: 4 },
       },
     },
     loadingIndicator: {
@@ -10859,7 +10859,7 @@ export const m3ExpressiveLike = {
       },
       densitys: {
         regular: { suggestionContainerHeight: 56, suggestionContainerPaddingInline: 16, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 16, suggestionLeadingIconSize: 24 },
-        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
       },
     },
     segmentedButton: {

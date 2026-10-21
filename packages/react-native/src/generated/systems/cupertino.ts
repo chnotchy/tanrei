@@ -6422,7 +6422,7 @@ export const cupertino = {
       },
       densitys: {
         regular: { containerHeight: 44, containerPaddingBlock: 8 },
-        compact: { containerHeight: 32, containerPaddingBlock: 6 },
+        compact: { containerHeight: 32, containerPaddingBlock: 4 },
       },
     },
     loadingIndicator: {
@@ -8858,7 +8858,7 @@ export const cupertino = {
       },
       densitys: {
         regular: { suggestionContainerHeight: 44, suggestionContainerPaddingInline: 12, suggestionContainerPaddingBlock: 8, suggestionContainerGap: 12, suggestionLeadingIconSize: 20 },
-        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 6, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
+        compact: { suggestionContainerHeight: 32, suggestionContainerPaddingInline: 8, suggestionContainerPaddingBlock: 4, suggestionContainerGap: 8, suggestionLeadingIconSize: 20 },
       },
     },
     segmentedButton: {

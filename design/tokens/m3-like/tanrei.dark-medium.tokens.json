@@ -51369,9 +51369,10 @@
             "compact": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 4,
                 "unit": "px"
-              }
+              },
+              "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row."
             },
             "regular": {
               "$type": "dimension",
@@ -73038,9 +73039,10 @@
               "compact": {
                 "$type": "dimension",
                 "$value": {
-                  "value": 6,
+                  "value": 4,
                   "unit": "px"
-                }
+                },
+                "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row."
               },
               "regular": {
                 "$type": "dimension",

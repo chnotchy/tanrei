@@ -5314,7 +5314,7 @@ private let acmeListTokens = TanreiListTokens(
     ),
     compact: TanreiListDensityTokens(
       containerHeight: 32,
-      containerPaddingBlock: 6
+      containerPaddingBlock: 4
     )
   ),
   hovered: TanreiListStateTokens(
@@ -7378,7 +7378,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
     compact: TanreiSearchDensityTokens(
       suggestionContainerHeight: 32,
       suggestionContainerPaddingInline: 8,
-      suggestionContainerPaddingBlock: 6,
+      suggestionContainerPaddingBlock: 4,
       suggestionContainerGap: 8,
       suggestionLeadingIconSize: 20
     )

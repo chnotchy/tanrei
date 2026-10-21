@@ -4078,7 +4078,7 @@
     --tanrei-comp-list-container-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-list-container-height-compact: var(--tanrei-comp-tree-view-container-height-compact);
     --tanrei-comp-list-container-height-regular: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);
-    --tanrei-comp-list-container-padding-block-compact: var(--tanrei-comp-tree-view-container-padding-block-compact);
+    --tanrei-comp-list-container-padding-block-compact: var(--tanrei-sys-space-space50);
     --tanrei-comp-list-container-padding-block-regular: var(--tanrei-sys-space-space100);
     --tanrei-comp-list-container-padding-inline-end: var(--tanrei-sys-space-space200);
     --tanrei-comp-list-container-padding-inline-start: var(--tanrei-sys-space-space200);
@@ -5945,7 +5945,7 @@
     --tanrei-comp-search-suggestion-container-gap-regular: var(--tanrei-sys-space-space150);
     --tanrei-comp-search-suggestion-container-height-compact: var(--tanrei-comp-tree-view-container-height-compact);
     --tanrei-comp-search-suggestion-container-height-regular: round(nearest, calc(var(--tanrei-dial-size-unit) * 11), 0.25px);
-    --tanrei-comp-search-suggestion-container-padding-block-compact: var(--tanrei-comp-tree-view-container-padding-block-compact);
+    --tanrei-comp-search-suggestion-container-padding-block-compact: var(--tanrei-sys-space-space50);
     --tanrei-comp-search-suggestion-container-padding-block-regular: var(--tanrei-sys-space-space100);
     --tanrei-comp-search-suggestion-container-padding-inline-compact: var(--tanrei-comp-tree-view-container-padding-inline-compact);
     --tanrei-comp-search-suggestion-container-padding-inline-regular: var(--tanrei-sys-space-space150);

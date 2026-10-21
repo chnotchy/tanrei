@@ -5419,7 +5419,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
       ),
       compact: TanreiListDensityTokens(
         containerHeight: 32.0,
-        containerPaddingBlock: 6.0,
+        containerPaddingBlock: 4.0,
       ),
     ),
     hovered: TanreiListStateTokens(
@@ -7464,7 +7464,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
       compact: TanreiSearchDensityTokens(
         suggestionContainerHeight: 32.0,
         suggestionContainerPaddingInline: 8.0,
-        suggestionContainerPaddingBlock: 6.0,
+        suggestionContainerPaddingBlock: 4.0,
         suggestionContainerGap: 8.0,
         suggestionLeadingIconSize: 20.0,
       ),
