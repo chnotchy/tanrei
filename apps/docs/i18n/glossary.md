@@ -104,6 +104,11 @@ A translation is natural technical writing in its language, not word for word: s
 | scroll edge (the mark at an edge of a box that scrolls while content lies beyond it) | スクロールエッジ | 滚动边缘 |
 | fade (the scroll edge that fades the content itself; a state change that fades is フェードする / 渐变) | フェード | 渐隐 |
 | blur (a scroll edge, a surface's appearance) | ぼかし | 模糊 |
+| pass (one run of a marquee text's motion) | 流れ（1 回の流れ） | 一轮 |
+| trigger (of a marquee text: what makes it move) | トリガー | 触发条件 |
+| playback control (a pause and play button) | 再生コントロール | 播放控件 |
+| ellipsis (where a cut line ends) | 省略記号 | 省略号 |
+| copy (a second drawing of a text that repeats) | コピー | 副本 |
 | overlay | オーバーレイ | 浮层 |
 | motion | モーション | 动效 |
 | duration, easing | 時間、イージング | 时长、缓动 |
@@ -208,6 +213,7 @@ As common nouns: page titles, headings, running text.
 | List row | リスト行 — its parts: オーバーライン, 見出し (headline), 補足テキスト, 末尾テキスト | 列表行 — its parts: 上标文本 (overline), 标题 (headline), 辅助文本, 后置文本 |
 | Loading indicator | ローディングインジケーター | 加载指示器 |
 | Main action button | メインアクションボタン | 主操作按钮 |
+| Marquee text | マーキーテキスト | 跑马灯文本 |
 | Menu | メニュー | 菜单 |
 | Menubar | メニューバー | 菜单栏 |
 | Meter (a level in a known range; a task under way is the Progress indicator) | メーター | 计量条 |
@@ -336,6 +342,11 @@ As common nouns: page titles, headings, running text.
 | scroll edge | borde de desplazamiento | स्क्रॉल एज | حافة التمرير |
 | fade (the scroll edge that fades the content itself) | desvanecido — «el contenido se desvanece» | फ़ेड | التلاشي — «يتلاشى المحتوى» |
 | blur (a scroll edge) | desenfoque | ब्लर | التمويه |
+| pass (one run of a marquee text's motion) | pasada | दौर (masculine) | الدورة |
+| trigger (of a marquee text: what makes it move) | activador | ट्रिगर | المحفِّز — `المشغِّل` stays the trigger of a select |
+| playback control (a pause and play button) | control de reproducción | प्लेबैक कंट्रोल (masculine) | عنصر التحكم في التشغيل |
+| ellipsis (where a cut line ends) | puntos suspensivos | एलिप्सिस (…) | علامة الحذف (…) |
+| copy (a second drawing of a text that repeats) | copia | कॉपी (feminine) | النسخة |
 | overlay | superposición | ओवरले | التراكب |
 | motion | movimiento | मोशन | الحركة |
 | duration, easing | duración, curva de aceleración | अवधि, ईज़िंग | المدة، منحنى التسارع |
@@ -437,6 +448,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | List row | Fila de lista — its parts: sobretítulo (overline), titular (headline), texto de apoyo, texto final | लिस्ट पंक्ति — its parts: ओवरलाइन, हेडलाइन, सहायक टेक्स्ट, अंतिम टेक्स्ट | صف القائمة — its parts: السطر العلوي (overline)، العنوان الرئيسي (headline)، النص المساعد، النص في النهاية |
 | Loading indicator | Indicador de carga | लोडिंग इंडिकेटर | مؤشر التحميل |
 | Main action button | Botón de acción principal | मुख्य ऐक्शन बटन | زر الإجراء الرئيسي |
+| Marquee text | Texto en marquesina — masculine, «el texto en marquesina»; the effect alone is «la marquesina» | मार्की टेक्स्ट (masculine) — the line it draws is लाइन (feminine) | النص المتحرك (marquee) — the gloss on a page's first mention |
 | Menu | Menú | मेन्यू | قائمة الخيارات |
 | Menubar | Barra de menús | मेन्यू बार | شريط القوائم |
 | Meter | Medidor | मीटर | العدّاد |
