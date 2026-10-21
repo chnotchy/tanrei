@@ -2274,7 +2274,9 @@ test.describe('compact window', () => {
     });
     expect(out.properties).toContain('translate');
     expect(out.duration).toBe(40_000);
-    await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // The exit ended — the slide and the scrim (on the `::backdrop`) — the sheet has left the top layer.
+    await d.evaluate((el) => el.getAnimations({ subtree: true }).forEach((a) => a.finish()));
+    await expect.poll(() => d.evaluate((el) => getComputedStyle(el).display)).toBe('none');
     // Reduced: it fades in place.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const reduced = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
