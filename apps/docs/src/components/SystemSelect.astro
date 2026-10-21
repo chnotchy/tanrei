@@ -56,7 +56,7 @@ const t = strings(Astro.props.lang);
      select's height — so that nothing beside it moves when it is drawn. */
   .docs-system:not(:defined) {
     display: block;
-    min-block-size: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap) + var(--tanrei-comp-input-box-container-height-small));
+    min-block-size: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap) + var(--tanrei-comp-input-box-stacked-container-height-small));
     visibility: hidden;
   }
   .docs-system:not(:defined) > tanrei-option {

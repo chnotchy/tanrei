@@ -181,7 +181,7 @@
      lines with no height, drawn nowhere, and the widest of them is the box's width. */
   tanrei-select.docs-theme:not(:defined) {
     flex-direction: column;
-    block-size: var(--tanrei-comp-input-box-container-height-small, var(--tanrei-sys-target-pointer));
+    block-size: var(--tanrei-comp-input-box-stacked-container-height-small, var(--tanrei-sys-target-pointer));
     padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-small) + var(--tanrei-comp-input-box-icon-size-small) + var(--tanrei-comp-input-box-container-gap-small));
     font: var(--tanrei-comp-input-box-input-typescale-small-font);
     letter-spacing: var(--tanrei-comp-input-box-input-typescale-small-letter-spacing);

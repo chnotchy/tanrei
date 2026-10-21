@@ -122,7 +122,7 @@ What changes one level down is where things are said. `name`, `value`, the limit
 | Steppers | The number input's: two buttons at the end, the first steps down, the second up. Leave them out with `steppers` false |
 | Supporting text | The field's: a line of help. While the field is in error the error text takes its place (below it, where the design system keeps both) — `errorText` while `error` is true, and `invalidText` while the text is not a number. It starts and ends at the box's text padding, with and without steppers |
 
-The three variants and the three sizes, `small` (40), `medium` (48) and `large` (56), are the text field's. The default system ships `stacked` only.
+The three variants and the three sizes, `small` (32), `medium` (40) and `large` (56), are the text field's. The default system ships `stacked` only.
 
 The number field has no token of its own. Its box reads the [number input's tokens](/components/number-input/#specs), its rows read the [field's tokens](/components/field/#specs), and its two steppers the [Button's](/components/button/#specs), wherever they are set. To change one instance, set a member's token on it: `style="--tanrei-comp-field-label-gap: 0.75rem"`.
 
