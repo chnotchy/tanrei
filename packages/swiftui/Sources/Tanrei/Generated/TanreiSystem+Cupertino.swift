@@ -7358,6 +7358,9 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   optionShape: 8,
   optionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: cupertinoTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(

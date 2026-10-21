@@ -822,6 +822,15 @@
       ]
     },
     {
+      "key": "noOptionsText",
+      "readers": [
+        {
+          "component": "select",
+          "prop": "emptyText"
+        }
+      ]
+    },
+    {
       "key": "optionalText",
       "readers": [
         {

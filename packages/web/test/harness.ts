@@ -486,7 +486,7 @@ export const INPUT_BOX = '--tanrei-comp-input-box-';
 /** The five components that draw their box from that set, and the names each keeps under its own prefix for what it alone draws. */
 const INPUT_BOX_READERS: Readonly<Record<string, RegExp>> = {
   'text-input': /^(?:entries-|motion-resize-|code-|resize-grip-|segment-)|-resize-grip-color$/,
-  select: /^(?:list-|option-|group-|divider-|separation|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
+  select: /^(?:list-|option-|group-|divider-|separation|status-|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   combobox: /^(?:list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   'number-input': /^(?:stepper-|motion-repeat-)/,
   'color-input': /^swatch-(?:shape|outline-)/,
@@ -2053,10 +2053,12 @@ const STAGING: Record<string, Staging> = {
   // is cut (the fixture long-value). An open fixture draws its list in place below the trigger — the `inline` test
   // attribute — in a stage 440 high that stands for the window (it holds a large container and a list at its greatest
   // height, and the rows of a Field around them); a test's own fixture with `inline: false` is the real overlay
-  // instead. `readOnly` keeps HTML's attribute name on the web (`readonly`): `selectProps`.
+  // instead. `readOnly` keeps HTML's attribute name on the web (`readonly`): `selectProps`. A loading select's status row
+  // shows its indicator from the first frame, without its show delay and its entrance (SEL-68), as dialog-loading does.
   select: {
     css: () => `.stage:has(> tanrei-select) { box-sizing: content-box; inline-size: 280px; }
-      .stage:has(> tanrei-select[open][inline]) { position: relative; block-size: 440px; }`,
+      .stage:has(> tanrei-select[open][inline]) { position: relative; block-size: 440px; }
+      .stage:has(> tanrei-select[status='loading']) { --tanrei-comp-loading-indicator-motion-show-delay: 0ms; --tanrei-comp-loading-indicator-motion-enter-duration: 0ms; }`,
     props: (props) => selectProps(props),
   },
   // A select field is as wide as its place (SEF-1, SEL-49: a composed field fills the width its layout gives it, and

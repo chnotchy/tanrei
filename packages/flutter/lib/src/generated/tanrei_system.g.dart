@@ -7466,6 +7466,9 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     optionShape: 4.0,
     optionSupportingTextTypescale: _typescaleBodySmall,
     separation: 0.0,
+    statusColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    statusErrorColor: TanreiPaint.role(TanreiColorRole.error),
+    statusTypescale: _typescaleBodySmall,
     variants: TanreiSelectVariants(
       stacked: TanreiSelectVariantTokens(
         enabled: TanreiSelectVariantStateTokens(

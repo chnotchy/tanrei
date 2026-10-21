@@ -177,6 +177,29 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 
 An option whose value is the empty string is a choice like any other, for "None" or "Any". The select has no way of its own back to nothing chosen: where no choice is allowed, give an option that says so.
 
+### Loading, a failure and nothing to choose
+
+Where the options come from somewhere that takes time or can fail, say so in the list. `status`, `statusText` and `emptyText` are the [combobox](/components/combobox/)'s and the [search](/components/search/)'s properties, with the same values and meaning.
+
+| You set | The list shows after its options |
+| --- | --- |
+| `status="loading"` and `statusText` | A small loading indicator, named by `statusText` ("Loading projects"). The list is marked busy and nothing is announced. Options already there can still be chosen |
+| `status="error"` and `statusText` | The text in the error color, read at once ("Projects could not be loaded") |
+| `statusText` alone | The text, read politely ("Your 3 most recent projects") |
+| `emptyText`, while there is no option | The text in place of the options ("No projects yet") |
+
+This status row stays in view while the options scroll. It is not an option: a press on it does nothing, and the arrow keys never reach it. What it already says when the list opens is read as the list opens.
+
+The select never fetches, waits or retries. Set `status` to `loading` when you start, give the options and set it back to `idle` when they arrive, or set `error` with words for the failure.
+
+A select with no option, no status and no `emptyText` does not open. Give it an `emptyText`, or the product's `noOptionsText` once with `setWords()`, so that a person who opens it learns why there is nothing to choose.
+
+<DemoFrame label="Loading, a failure, and nothing to choose" column>
+  <tanrei-select class="not-content" label="Project" placeholder="Choose a project" status="loading" status-text="Loading projects"></tanrei-select>
+  <tanrei-select class="not-content" label="Project" placeholder="Choose a project" status="error" status-text="Projects could not be loaded. Check your connection."></tanrei-select>
+  <tanrei-select class="not-content" label="Project" placeholder="Choose a project" empty-text="No projects yet"></tanrei-select>
+</DemoFrame>
+
 ### Opening, moving and choosing
 
 | Input | What happens |
@@ -204,7 +227,8 @@ The value changes only when the person confirms an option in the open list: a pr
 - The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
 - A floating label (`filled`, `outlined`) lies inside the container, so a press on it opens the list.
 - `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` and `optional-text`, and a child for a `label-icon` slot, are the select field's and the field's. On a select they draw nothing; a debug build says so once and names `<tanrei-select-field>`.
-- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- `empty-text` left empty is read from the product's words (`setWords({ noOptionsText })`).
 - Before the element is defined, its options are running text. Hide `tanrei-select:not(:defined) > *` and reserve the height.
 - The web has no back gesture of its own, so `toggle` never carries the reason `back`.
 - `readOnly` is the `readonly` attribute.
@@ -268,7 +292,8 @@ The value changes only when the person confirms an option in the open list: a pr
 - At 200% text the options and the titles wrap. Only the value in the container stays on one line, and the list and assistive technology still give it in full.
 - In forced colors the trigger and the list gain an edge, the active option takes the highlight colors, and the chosen option is shown by its check.
 - In a right-to-left layout the trigger and each row are mirrored, and each text keeps its own direction. The chevron and the check are not mirrored.
-- It has no words of its own and reads none.
+- The status row is a live region outside the list box. What it says is read when the list opens and when it changes: politely, and at once when the source failed. While loading, the list box is marked busy and nothing is announced.
+- It has no words of its own. Left empty, `emptyText` is read from the product's words (`noOptionsText`).
 
 Known gaps on the web:
 
@@ -281,3 +306,4 @@ Known gaps on the web:
 - Name every bare select with `label`, and give every option a label. A visible text beside the select does not name it.
 - Where a bare select can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the select.
 - Keep option values unique within a select.
+- Write `statusText` while loading, because it names the loading indicator, and write `emptyText` where a select can be left without options.

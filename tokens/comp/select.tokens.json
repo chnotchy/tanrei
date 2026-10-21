@@ -50,7 +50,7 @@
               "A select is the bare box and its list: it has no label row, no requirement tag, no help and no error text. In a form use the select field, which is a Field around a select; the tokens of those rows are comp.field.*.",
               "The box — container, edges, floating label, the line that shows the chosen value (input), the chevron (trailing-icon, at icon.size), heights and paddings at small, medium and large, and the colors of each look in each state — is comp.input-box.*, shared with the text input, the combobox, the number input and the color input. This group holds only the list.",
               "Every value of the list and of an option equals the menu's (comp.menu.surface.color, …). Change them together in a layer, or a product's lists stop reading as one kind.",
-              "The list's parts are list.*, option.*, group-title.*, divider.* and group.gap; an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
+              "The list's parts are list.*, option.*, group-title.*, divider.*, group.gap and status.* (the row after the options that says the source is loading, failed, or gave nothing); an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
               "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
@@ -241,6 +241,30 @@
             "$type": "dimension",
             "$value": "{tanrei.comp.select.option.padding-inline}",
             "$description": "Inset of a group's heading from the rows' edges."
+          }
+        },
+        "status": {
+          "typescale": {
+            "$description": "The status row's text and the text shown while the select holds no option.",
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}"
+          },
+          "color": {
+            "$description": "The status row's text while nothing is wrong, and the text shown while the select holds no option: secondary to the options.",
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          },
+          "error": {
+            "color": {
+              "$description": "The status row's text while status is error. The words say what failed; the color says that something did.",
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product fills some of its selects from a source that takes time or can fail — the projects of an account, the people of a team — and must say, in the list, that it is waiting, that it failed, or that there is nothing to choose; how quiet that line is beside the options is its choice."
+            }
           }
         },
         "group": {

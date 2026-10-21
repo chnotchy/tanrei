@@ -38336,6 +38336,10 @@
             {
               "description": "The line between two groups while the separation is divider.",
               "name": "divider"
+            },
+            {
+              "description": "The status row after the options: what the product's source is doing, or the empty text.",
+              "name": "status"
             }
           ],
           "slots": [
@@ -38557,7 +38561,7 @@
               },
               "attribute": "open",
               "reflects": true,
-              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or holds no option. Reflected.",
+              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected.",
               "default": "false"
             },
             {
@@ -38583,6 +38587,40 @@
               "attribute": "icon-space",
               "reflects": true,
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one."
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectStatus"
+              },
+              "default": "'idle'",
+              "attribute": "status",
+              "reflects": true,
+              "description": "What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected."
+            },
+            {
+              "kind": "field",
+              "name": "statusText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "status-text",
+              "description": "The status row's text, in the product's language (`status-text`), read when the list opens and when it changes: a count, that loading failed, or, while loading, the loading indicator's name."
+            },
+            {
+              "kind": "field",
+              "name": "emptyText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "empty-text",
+              "description": "Shown in the list while the select holds no option, `status` is idle and `statusText` is empty (`empty-text`): this instance's words, else the product's (`setWords({ noOptionsText })`). Tanrei has none: without them a select with no option does not open."
             },
             {
               "kind": "field",
@@ -38931,7 +38969,7 @@
                 "text": "boolean"
               },
               "fieldName": "open",
-              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or holds no option. Reflected.",
+              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected.",
               "default": "false"
             },
             {
@@ -38951,6 +38989,33 @@
               "default": "'auto'",
               "fieldName": "iconSpace",
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one."
+            },
+            {
+              "name": "status",
+              "type": {
+                "text": "TanreiSelectStatus"
+              },
+              "default": "'idle'",
+              "fieldName": "status",
+              "description": "What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected."
+            },
+            {
+              "name": "status-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "statusText",
+              "description": "The status row's text, in the product's language (`status-text`), read when the list opens and when it changes: a count, that loading failed, or, while loading, the loading indicator's name."
+            },
+            {
+              "name": "empty-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "emptyText",
+              "description": "Shown in the list while the select holds no option, `status` is idle and `statusText` is empty (`empty-text`): this instance's words, else the product's (`setWords({ noOptionsText })`). Tanrei has none: without them a select with no option does not open."
             },
             {
               "name": "name",
@@ -39004,6 +39069,14 @@
           "name": "TanreiSelectSize",
           "declaration": {
             "name": "TanreiSelectSize",
+            "module": "src/components/select-field/select-field.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiSelectStatus",
+          "declaration": {
+            "name": "TanreiSelectStatus",
             "module": "src/components/select-field/select-field.ts"
           }
         },
@@ -39248,6 +39321,10 @@
             {
               "description": "The line between two groups while the separation is divider.",
               "name": "divider"
+            },
+            {
+              "description": "The status row after the options: what the product's source is doing, or the empty text.",
+              "name": "status"
             }
           ],
           "slots": [
@@ -39395,7 +39472,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or holds no option. Reflected.",
+              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected.",
               "attribute": "open",
               "reflects": true
             },
@@ -39422,6 +39499,40 @@
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one.",
               "attribute": "icon-space",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSelectStatus"
+              },
+              "default": "'idle'",
+              "description": "What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected.",
+              "attribute": "status",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "statusText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The status row's text, in the product's language (`status-text`), read when the list opens and when it changes: a count, that loading failed, or, while loading, the loading indicator's name.",
+              "attribute": "status-text"
+            },
+            {
+              "kind": "field",
+              "name": "emptyText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Shown in the list while the select holds no option, `status` is idle and `statusText` is empty (`empty-text`): this instance's words, else the product's (`setWords({ noOptionsText })`). Tanrei has none: without them a select with no option does not open.",
+              "attribute": "empty-text"
             },
             {
               "kind": "field",
@@ -39644,7 +39755,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or holds no option. Reflected.",
+              "description": "Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected.",
               "fieldName": "open"
             },
             {
@@ -39664,6 +39775,33 @@
               "default": "'auto'",
               "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section —\nan option group, or a run of options outside any group — start on one line (SEL-66): `auto` while another option of\nits section has a `leading-icon`, `always` in every option, `never` only where it has one.",
               "fieldName": "iconSpace"
+            },
+            {
+              "name": "status",
+              "type": {
+                "text": "TanreiSelectStatus"
+              },
+              "default": "'idle'",
+              "description": "What the product's source of options is doing (SEL-68): `idle`, `loading` (the status row shows a loading indicator and the list is marked busy) or `error` (the status row shows `statusText` as an error, announced at once). The combobox's and the search's values. Reflected.",
+              "fieldName": "status"
+            },
+            {
+              "name": "status-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The status row's text, in the product's language (`status-text`), read when the list opens and when it changes: a count, that loading failed, or, while loading, the loading indicator's name.",
+              "fieldName": "statusText"
+            },
+            {
+              "name": "empty-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Shown in the list while the select holds no option, `status` is idle and `statusText` is empty (`empty-text`): this instance's words, else the product's (`setWords({ noOptionsText })`). Tanrei has none: without them a select with no option does not open.",
+              "fieldName": "emptyText"
             },
             {
               "name": "inline",

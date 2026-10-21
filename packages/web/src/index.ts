@@ -152,6 +152,7 @@ export {
   type TanreiSelectIconSpace,
   type TanreiSelectSeparation,
   type TanreiSelectSize,
+  type TanreiSelectStatus,
   type TanreiSelectToggleDetail,
   type TanreiSelectToggleReason,
   type TanreiSelectVariant,

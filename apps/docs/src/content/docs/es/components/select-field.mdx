@@ -2,7 +2,7 @@
 title: Campo de selección
 description: Permite elegir un valor de una lista cerrada como un campo completo de un formulario. Una etiqueta que puede decir que el campo es obligatorio u opcional, un activador que muestra la opción elegida y abre una lista de opciones, y una línea de ayuda o un error debajo, todo ello vinculado para la tecnología de apoyo y presente en un formulario como un solo control.
 translationOf: components/select-field.mdx
-sourceHash: 95f1fb821622fa51e25b0cd7baf6e20568c8ae50
+sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
 
 | Aspecto | Del campo | Del select |
 | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, `iconSpace` |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, `iconSpace`, `status`, `statusText`, `emptyText` |
 | Eventos | — | `change`, `toggle` |
 | Slots | `label-icon` | `leading-icon`, y las opciones |
 | Tokens | `comp.field.*` | `comp.input-box.*` para la caja, que leen todas las cajas de entrada; `comp.select.*` para la lista |
@@ -187,7 +187,7 @@ El campo de selección no tiene ningún token propio. Su marco lee los tokens de
 - Las opciones siguen siendo tus hijos de `<tanrei-select-field>`. Nunca se mueven ni se copian: llegan al select de dentro a través de un slot, y el select las vuelve a leer cuando cambian. Sustituirlas a mano (`replaceChildren()`) funciona como en un select.
 - El elemento está asociado a formularios. Recibe `name` y `form`, envía solo el valor (nada mientras está deshabilitado, y lo sigue enviando mientras es de solo lectura), se restablece al valor del atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y el valor está vacío. Sus dos miembros no añaden ninguna entrada al formulario.
 - `change` es el evento del select, compuesto y que se propaga. `toggle` es el CustomEvent del select, con `detail.open` y `detail.reason`: es compuesto y no se propaga, de modo que se oye en el elemento y nunca en un ancestro como un `<details>`. El destino de los dos es el elemento, y `event.target.value` y `event.target.open` son los nuevos en todos los listeners.
-- Partes: `field` y `select` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. `label` y `requirement-label` son la que se dibuja de las dos (la fila del campo, o la etiqueta flotante del select), y `field-label`, `select-label`, `field-requirement-label` y `select-requirement-label` nombran la de un solo miembro.
+- Partes: `field` y `select` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. `label` y `requirement-label` son la que se dibuja de las dos (la fila del campo, o la etiqueta flotante del select), y `field-label`, `select-label`, `field-requirement-label` y `select-requirement-label` nombran la de un solo miembro.
 - El elemento no puede recibir el foco por sí mismo: `focus()` va al activador, y un `<label for>` propio de la página lleva el foco allí. Una pulsación en la fila de etiqueta da el foco al activador y no abre nada; una pulsación en el activador abre la lista; una pulsación en la ayuda no hace nada.
 - El elemento no tiene rol. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
 - Los atributos son los de los propios miembros: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `readonly`.

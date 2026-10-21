@@ -4336,6 +4336,9 @@ export interface TanreiSelectTokens {
   readonly optionSupportingTextTypescale: TanreiTypescaleRole;
   readonly pressedOpacity: number;
   readonly separation: number;
+  readonly statusColor: TanreiPaint;
+  readonly statusErrorColor: TanreiPaint;
+  readonly statusTypescale: TanreiTypescaleRole;
   readonly variants: TanreiSelectVariants;
 }
 
