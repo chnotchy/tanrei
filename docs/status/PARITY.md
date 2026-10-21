@@ -108,6 +108,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `open` | <img src="../../packages/web/snapshots/modal-layer/open.png" alt="web open" width="160"> |
 | `no-scrim` | <img src="../../packages/web/snapshots/modal-layer/no-scrim.png" alt="web no-scrim" width="160"> |
 
+## Number ticker
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/number-ticker/default.png" alt="web default" width="160"> |
+| `currency-ja` | <img src="../../packages/web/snapshots/number-ticker/currency-ja.png" alt="web currency-ja" width="160"> |
+| `percent` | <img src="../../packages/web/snapshots/number-ticker/percent.png" alt="web percent" width="160"> |
+| `compact` | <img src="../../packages/web/snapshots/number-ticker/compact.png" alt="web compact" width="160"> |
+| `signed` | <img src="../../packages/web/snapshots/number-ticker/signed.png" alt="web signed" width="160"> |
+| `arabic-digits` | <img src="../../packages/web/snapshots/number-ticker/arabic-digits.png" alt="web arabic-digits" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/number-ticker/rtl.png" alt="web rtl" width="160"> |
+
 ## Pagination
 
 | Fixture | Web Components |

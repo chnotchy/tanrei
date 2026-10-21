@@ -261,7 +261,7 @@
       "hasSpec": true,
       "docs": "/components/number-ticker/",
       "platforms": {
-        "web": "lagging",
+        "web": "alpha",
         "swiftui": "planned",
         "compose": "planned",
         "flutter": "planned",
@@ -1909,8 +1909,8 @@
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 84,
-      "alpha": 10,
+      "lagging": 83,
+      "alpha": 11,
       "beta": 0,
       "stable": 0,
       "deprecated": 0

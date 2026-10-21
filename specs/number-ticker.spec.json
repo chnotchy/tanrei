@@ -214,7 +214,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-number-ticker",
       "props": { "value": "value", "style": "numberStyle", "currency": "currency", "unit": "unit", "notation": "notation", "fractionDigits": "fractionDigits", "signDisplay": "signDisplay", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
       "events": { "settle": "settle" },

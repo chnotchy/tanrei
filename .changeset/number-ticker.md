@@ -28,5 +28,4 @@ while assistive technology is told only the value it settles on.
   `motion.stagger`, `motion.reduced-duration` (the reduced role), `blur.radius`, `blur-slide.distance`. No new `sys`
   token.
 - Glyph list: `flip` and `percent` join the names the components may draw, as values of the ticker's props.
-- Baselines: the web stays lagging until the images for its 7 fixtures, and one per preset, are recorded (new, not
-  changed).
+- Baselines: new images for the ticker's 7 fixtures, and one per preset — new, not changed.
