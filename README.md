@@ -39,7 +39,7 @@ To build **your own design system** on Tanrei's vocabulary — one layer file in
 
 | Platform | Package | Components |
 |---|---|---|
-| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 10 alpha · 84 lagging |
+| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 11 alpha · 83 lagging |
 | SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 65 planned |
 | Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 65 planned |
 | Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 65 planned |

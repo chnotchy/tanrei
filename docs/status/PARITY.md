@@ -129,6 +129,19 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
 
+## Resizable frame
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/resizable-frame/default.png" alt="web default" width="160"> |
+| `all-handles` | <img src="../../packages/web/snapshots/resizable-frame/all-handles.png" alt="web all-handles" width="160"> |
+| `bottom-only` | <img src="../../packages/web/snapshots/resizable-frame/bottom-only.png" alt="web bottom-only" width="160"> |
+| `indicator-always` | <img src="../../packages/web/snapshots/resizable-frame/indicator-always.png" alt="web indicator-always" width="160"> |
+| `no-handles` | <img src="../../packages/web/snapshots/resizable-frame/no-handles.png" alt="web no-handles" width="160"> |
+| `plain` | <img src="../../packages/web/snapshots/resizable-frame/plain.png" alt="web plain" width="160"> |
+| `plain-start` | <img src="../../packages/web/snapshots/resizable-frame/plain-start.png" alt="web plain-start" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/resizable-frame/rtl.png" alt="web rtl" width="160"> |
+
 ## Scroll area
 
 | Fixture | Web Components |

@@ -264,7 +264,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-resizable-frame",
       "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
       "events": { "resize": "resize", "change": "change" },
