@@ -183,6 +183,8 @@ export class TanreiMarqueeText extends TanreiElement {
   private sight: IntersectionObserver | null = null;
   private motionQuery: MediaQueryList | null = null;
   private reportedPause = false;
+  /** A width was read while a face was loading: it is read again once the faces are ready. */
+  private facesPending = false;
 
   /** MRQ-17: a change of the layout direction rests the line at once and draws it for the new direction. */
   private readonly direction = new DirectionController(this, () => {
@@ -286,6 +288,7 @@ export class TanreiMarqueeText extends TanreiElement {
     this.motionQuery?.removeEventListener('change', this.onMotionChange);
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.mutations?.disconnect();
+    document.fonts?.removeEventListener?.('loadingdone', this.onFaces);
     this.sizes?.disconnect();
     this.sight?.disconnect();
     this.mutations = this.sizes = this.sight = null;
@@ -358,7 +361,24 @@ export class TanreiMarqueeText extends TanreiElement {
       }
     });
     this.sight.observe(this);
-    document.fonts?.addEventListener?.('loadingdone', () => this.measure(), { once: false });
+    document.fonts?.addEventListener?.('loadingdone', this.onFaces);
+  }
+
+  private readonly onFaces = () => this.measure();
+
+  /**
+   * A text drawn while its face is loading is drawn, and measured, in a fallback face of another width. The width is
+   * read again once the faces are ready: `loadingdone` is not enough, as WebKit on Linux does not always fire it for a
+   * face that was loading when the listener was added (the run's distance was then the fallback's, 26 px short).
+   */
+  private measureWhenFacesReady() {
+    const fonts = typeof document === 'undefined' ? undefined : document.fonts;
+    if (!fonts || fonts.status !== 'loading' || this.facesPending) return;
+    this.facesPending = true;
+    void fonts.ready.then(() => {
+      this.facesPending = false;
+      if (this.isConnected) this.measure();
+    });
   }
 
   // ── Measuring (MRQ-1, MRQ-7, MRQ-14) ───────────────────────────────────────────────────────────
@@ -377,6 +397,8 @@ export class TanreiMarqueeText extends TanreiElement {
     const dir = own ?? (this.direction.rtl ? 'rtl' : 'ltr');
     const textWidth = text.getBoundingClientRect().width;
     const viewWidth = viewport.getBoundingClientRect().width;
+    // After the layout the reads forced: a face the text first asked for in it is loading now.
+    this.measureWhenFacesReady();
     const fits = viewWidth === 0 || textWidth <= viewWidth + SAME;
     const changed = Math.abs(textWidth - this.textWidth) > SAME || Math.abs(viewWidth - this.viewWidth) > SAME || dir !== this.textDir || fits !== this.fits;
     this.textWidth = textWidth;

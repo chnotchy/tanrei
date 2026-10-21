@@ -1489,8 +1489,10 @@ ends within five seconds.
 
 **Fit and measure** (MRQ-1, MRQ-14). Whether the text fits is read from the slotted text's inline box against the
 viewport — when the viewport's size changes (a `ResizeObserver`, which also sees a change of text size through the line's
-height), when the slotted text changes (a `MutationObserver` on the host) and when fonts finish loading; never while the
-text moves. A text that fits is a plain line: no copy, no control, and no trigger starts anything. At rest the track is
+height), when the slotted text changes (a `MutationObserver` on the host) and when fonts finish loading (`loadingdone`,
+and `document.fonts.ready` after a read taken while a face was loading: WebKit on Linux does not always fire
+`loadingdone` for a face already loading, and the width read in its fallback face is another); never while the text
+moves. A text that fits is a plain line: no copy, no control, and no trigger starts anything. At rest the track is
 the cut line (`text-overflow: ellipsis`).
 
 **Motion** (MRQ-3…6). A run of passes is one Web Animations API animation of the track's `translate`, and one of the
