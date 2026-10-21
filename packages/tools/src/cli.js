@@ -8,6 +8,7 @@ import { GENERATORS, regenerate } from './drift.js';
 import { citationFiles, writeCitation } from './citation.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
+import { draftParts, manifestElements, withParts } from './parts.js';
 import { wordPackProblems } from './words.js';
 
 function report(title, problems) {
@@ -122,8 +123,39 @@ function syncVersions() {
   return true;
 }
 
+/**
+ * `parts <component>… [--write]`: a first `platforms.web.parts` for each spec named that has none — the anatomy ids
+ * the element exports a CSS part of the same name for — and the ids left for the author. `--write` writes it into
+ * the spec; `validate` then names what is still to map.
+ */
+function parts() {
+  const args = process.argv.slice(3);
+  const write = args.includes('--write');
+  const names = args.filter((a) => a !== '--write');
+  if (!names.length) {
+    console.error('usage: tanrei parts <component>… [--write]');
+    return false;
+  }
+  const tags = manifestElements(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/web/custom-elements.json'), 'utf8')));
+  let ok = true;
+  for (const name of names) {
+    const rel = `specs/${name}.spec.json`;
+    const text = safeRead(rel);
+    if (text === null) { console.error(`✖ ${rel} does not exist`); ok = false; continue; }
+    const spec = JSON.parse(text);
+    if (spec.platforms.web.parts) { console.log(`– ${name}: has parts already`); continue; }
+    const draft = draftParts(spec, tags);
+    console.log(`${name}: ${Object.keys(draft.parts).length} of ${spec.anatomy.length} by name${draft.open.length ? `; left to map: ${draft.open.join(', ')}` : ''}`);
+    if (!write) continue;
+    const next = withParts(text, draft.parts);
+    if (next === null) { console.error(`✖ ${rel} is not in canonical JSON form; write its parts by hand`); ok = false; continue; }
+    fs.writeFileSync(path.join(REPO_ROOT, rel), next);
+  }
+  return ok;
+}
+
 const parity = () => report('spec ↔ implementation parity', checkParity());
-const commands = { validate, status, parity, drift, 'sync-versions': syncVersions };
+const commands = { validate, status, parity, drift, parts, 'sync-versions': syncVersions };
 const command = commands[process.argv[2]];
 if (!command) {
   console.error(`usage: tanrei <${Object.keys(commands).join('|')}>\nplatforms: ${CONFIG.platforms.map((p) => PLATFORMS[p].label).join(', ')}`);
