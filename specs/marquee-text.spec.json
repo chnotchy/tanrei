@@ -289,7 +289,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-marquee-text",
       "props": {
         "trigger": "trigger",

@@ -78,6 +78,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
 | `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
 
+## Marquee text
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/marquee-text/default.png" alt="web default" width="160"> |
+| `fits` | <img src="../../packages/web/snapshots/marquee-text/fits.png" alt="web fits" width="160"> |
+| `bounce` | <img src="../../packages/web/snapshots/marquee-text/bounce.png" alt="web bounce" width="160"> |
+| `always` | <img src="../../packages/web/snapshots/marquee-text/always.png" alt="web always" width="160"> |
+| `always-control` | <img src="../../packages/web/snapshots/marquee-text/always-control.png" alt="web always-control" width="160"> |
+| `always-paused` | <img src="../../packages/web/snapshots/marquee-text/always-paused.png" alt="web always-paused" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/marquee-text/rtl.png" alt="web rtl" width="160"> |
+
 ## Meter
 
 | Fixture | Web Components |
