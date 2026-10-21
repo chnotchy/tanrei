@@ -1802,6 +1802,10 @@ test.describe('forms and focus', () => {
     await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })]);
     await menu(page, 'mc').locator('button').click();
     await expect.poll(() => activeValue(page)).toBe('inbox');
+    // Wide before it closes: a close asked before the widening has drawn its first frame finds the dialog at its
+    // column's width and look, the leaving style equal to the current value, so the transitions are cancelled (CSS
+    // Transitions, starting of transitions) and nothing is left to narrow: the dialog closes at once, before `close`.
+    await motionEnded(drawer(page, 'mc'));
     // Read as it closes: the dialog narrows in the top layer, and is the column again once that has ended.
     await drawer(page, 'mc').evaluate((el: any) =>
       el.addEventListener(
