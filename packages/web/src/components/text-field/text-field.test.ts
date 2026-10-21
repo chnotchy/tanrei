@@ -215,6 +215,10 @@ test.describe('behavior', () => {
     await page.locator('#send').click();
     expect(await page.evaluate(() => (window as unknown as { submitted: number }).submitted)).toBe(0);
     await one(page, 'email').evaluate((el) => ((el as HTMLElement & { value: string }).value = 'ada@example.com'));
+    // The submission that was refused shows the browser's own message under the input it focused, and Firefox on Linux
+    // draws it as a popup that takes the next press anywhere on the page to close itself: under a box as tall as a
+    // Button the date field's segments stand under that message. It closes when focus leaves the input.
+    await blurAll(page);
     // A date after max, committed: the input's entry error is the text field's validity, with the input's words.
     await box(one(page, 'due')).locator('.segment[data-unit="month"]').click();
     await page.keyboard.type('01052027');
