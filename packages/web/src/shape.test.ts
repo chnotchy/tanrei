@@ -116,7 +116,9 @@ test('the emitter marks every comp shape token by whether its alias chain reache
   expect(marks).toContain(1);
   // Only shape tokens get one: nothing that does not alias a sys.shape.corner step.
   expect(tokensCss).not.toMatch(/--tanrei-comp-button-container-height-[a-z]+-pill/);
-  expect(tokensCss).not.toMatch(/--tanrei-comp-[a-z0-9-]+-(?:height|width|size|color|padding)[a-z0-9-]*-pill:/);
+  // A part may be named with one of these words (the resizable frame's size indicator): the word is the token's
+  // property only when no `shape` follows it.
+  expect(tokensCss).not.toMatch(/--tanrei-comp-[a-z0-9-]+-(?:height|width|size|color|padding)(?:-(?!shape\b)[a-z0-9]+)*-pill:/);
 });
 
 test('a comp shape aliasing corner.full draws round caps under cupertino’s smoothing 0.6; a non-pill beside it stays eased', async ({ page }) => {
