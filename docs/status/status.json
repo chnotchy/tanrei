@@ -259,7 +259,7 @@
       "builtFrom": [],
       "uses": [],
       "hasSpec": true,
-      "docs": null,
+      "docs": "/components/number-ticker/",
       "platforms": {
         "web": "lagging",
         "swiftui": "planned",
