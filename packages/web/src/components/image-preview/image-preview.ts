@@ -12,6 +12,7 @@ import {
   SHEET_TOUCH_SLOP,
   SystemWatchController,
   WordsController,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
@@ -20,6 +21,7 @@ import {
   holdPageScroll,
   modalLayer,
   modalSheetKeys,
+  openModal,
   report,
   returnFocus,
   stoppedBefore,
@@ -886,7 +888,7 @@ export class TanreiImagePreview extends TanreiElement {
     const dialog = this.dialog;
     if (!this.presented || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.presented) dialog.showModal();
+    if (this.open && this.presented) openModal(dialog);
   };
 
   /** IMP-25: focus that reaches a control shows the controls. IMP-26, IMP-27: the focus style of the stage and of the caption, where style queries are missing. */
@@ -1303,7 +1305,7 @@ export class TanreiImagePreview extends TanreiElement {
     this.pagesElement?.classList.remove('settling');
     this.pagesElement?.style.removeProperty('--_drag-x');
     this.pagesElement?.style.removeProperty('--_drag-y');
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.presented = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -1334,7 +1336,7 @@ export class TanreiImagePreview extends TanreiElement {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);

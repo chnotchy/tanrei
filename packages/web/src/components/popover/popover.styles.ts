@@ -8,6 +8,7 @@ import {
   cornerRadius,
   dividerVisibilityHost,
   focusRing,
+  modalExitStyles,
   quietFocus,
   shape,
   sheetLookStyles,
@@ -323,6 +324,8 @@ export const styles = css`
     color: ${t('content-color')};
   }
   ${sheetLookStyles({ sheet: ':host dialog.container.sheet' })}
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
   :host dialog.container.sheet:not([open]) {
     display: none;
   }

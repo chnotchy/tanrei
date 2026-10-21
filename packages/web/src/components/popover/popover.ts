@@ -21,6 +21,7 @@ import {
   type VariantHost,
   assignSlot,
   choiceAttribute,
+  closeModal,
   closeRequestReason,
   compChoice,
   crossOffsetAttribute,
@@ -38,6 +39,7 @@ import {
   modalSheetKeys,
   numericAttribute,
   onBackdrop,
+  openModal,
   overlayDepth,
   registerOverlay,
   report,
@@ -685,7 +687,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     this.lastReason = null;
     this.arrange();
     dialog.classList.toggle('instant', instant);
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     modalLayer.add(this);
     holdPageScroll(this, true);
     window.visualViewport?.addEventListener('resize', this.onViewport);
@@ -713,9 +715,9 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     this.presentedAs = null;
     this.releaseSheet();
     const dialog = this.sheetDialog;
-    if (!dialog?.open) return;
+    if (!dialog) return;
     dialog.classList.toggle('instant', !slide);
-    dialog.close();
+    void closeModal(dialog, { instant: !slide });
     if (!slide) requestAnimationFrame(() => dialog.classList.remove('instant'));
   }
 

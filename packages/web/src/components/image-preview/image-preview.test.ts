@@ -173,11 +173,6 @@ const stopped = async (page: P) => {
     )
     .toBe(true);
 };
-/**
- * Whether the engine can hold a closed dialog where it was — displayed, in the top layer — while it fades (the
- * `overlay` property). Where it cannot, a closed preview is gone at once, as a closed Dialog is.
- */
-const fadesOut = (page: P) => page.evaluate(() => CSS.supports('overlay', 'auto'));
 const centre = (box: Box) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 const style = (page: P, selector: string, property: string) => part(page, selector).first().evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const px = (page: P, name: string) => resolveToken(page, name);
@@ -1444,10 +1439,9 @@ test.describe('moving between images', () => {
     seen = await look(page);
     expect(seen.open).toBe(false);
     expect(seen.modal).toBe(false);
-    if (await fadesOut(page)) {
-      near(seen.image!.y - from.image!.y, 220, 'held where it was left while it fades', 2);
-      await expect.poll(async () => (await begun(page, 'dialog')).map((transition) => transition.property)).toContain('opacity');
-    } else expect(await style(page, 'dialog', 'display'), 'gone at once where a closed dialog cannot be held').toBe('none');
+    // Held where it was left while it fades, drawn in the top layer in every engine (MDL-7).
+    near(seen.image!.y - from.image!.y, 220, 'held where it was left while it fades', 2);
+    await expect.poll(async () => (await begun(page, 'dialog')).map((transition) => transition.property)).toContain('opacity');
     // Opened again, nothing of the drag is left.
     await override(page, { [T('motion-exit-duration')]: '0ms' });
     await set(page, { open: true });
@@ -2129,8 +2123,7 @@ test.describe('motion', () => {
     await watchRuns(page);
     await set(page, { open: false });
     await settled(page);
-    if (await fadesOut(page)) await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 1500 }]));
-    else expect(await style(page, 'dialog', 'display'), 'gone at once where a closed dialog cannot be held').toBe('none');
+    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 1500 }]));
     expect(await style(page, 'dialog', 'transition-duration')).toBe('1.5s');
     expect(await running(page, '.pages')).toEqual([]);
   });

@@ -2261,19 +2261,18 @@ test.describe('compact window', () => {
     expect(moving).toBeGreaterThan(0);
     expect(moving).toBeLessThanOrEqual(height + 0.5);
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    // Closing slides it down (where the engine keeps a closed dialog in the top layer for its exit), the scrim fading.
+    // Closing slides it down, drawn in the top layer in every engine until it has (MDL-7), the scrim fading.
     const leaving = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
       el.open = false;
       await el.updateComplete;
       return (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
     });
-    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
-    else expect(leaving).toEqual([]);
+    expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
     const out = await d.evaluate((el) => {
       const style = getComputedStyle(el);
       return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000 };
     });
-    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
+    expect(out.properties).toContain('translate');
     expect(out.duration).toBe(40_000);
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
     // Reduced: it fades in place.

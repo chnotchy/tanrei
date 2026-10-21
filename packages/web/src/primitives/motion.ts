@@ -73,9 +73,10 @@ export interface AppearOptions {
   motion: string;
   /**
    * The condition that holds while the surface is open, on the motion element or an element round it in the same
-   * shadow root (`.surface.open`, `[open]`). Keep it apart from the top layer's own state (`:popover-open`, a modal
-   * `<dialog>`'s `[open]`) where the browser may take the surface out of it at once: the surface is taken out after
-   * `exit()` resolves.
+   * shadow root (`.surface.open`, `[open]`). Keep it apart from the top layer's own state (`:popover-open`) where the
+   * browser may take the surface out of it at once: the surface is taken out after `exit()` resolves. A modal
+   * `<dialog>` is opened and closed with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts), which keep it
+   * drawn in the top layer, its `[open]` gone, until its exit and its scrim's have played: `[open]` is its condition.
    */
   open: string;
   role: AppearRole;
@@ -97,9 +98,10 @@ export interface AppearOptions {
 /** The properties an appearance moves; what an exit waits for. `transform` too, for a surface still drawn with it. */
 const APPEAR_PROPERTIES = new Set(['opacity', 'scale', 'translate', 'filter', 'transform', 'display', 'overlay']);
 const MOVED = 'opacity, scale, translate, filter, display, overlay';
-// `display` and `overlay` change discretely, and only with `allow-discrete`: a surface the browser takes out of the top
-// layer (a light dismiss) stays drawn, and in the top layer, until its exit has played. Written as a longhand, so that an
-// engine without it drops only this declaration.
+// `display` and `overlay` change discretely, and only with `allow-discrete`: a popover the browser takes out of the top
+// layer (a light dismiss) stays drawn, and in the top layer, until its exit has played — in Chromium; WebKit and
+// Firefox take it away at once. A modal `<dialog>` does not rely on it: `closeModal()` keeps it drawn in every engine.
+// Written as a longhand, so that an engine without it drops only this declaration.
 const BEHAVIOUR = 'normal, normal, normal, normal, allow-discrete, allow-discrete';
 
 /** `:is(<condition>)` on the motion element or on an element round it. */

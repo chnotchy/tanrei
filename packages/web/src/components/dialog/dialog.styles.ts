@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, actionBoxStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { SCRIM_FILTER, actionBoxStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, modalExitStyles, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -51,12 +51,11 @@ export const styles = css`
     color: ${t('content-color')};
     text-align: start;
     outline: none;
-    /* DLG-13, DLG-18: out, it fades over the exit motion — kept in the top layer and displayed until it has. */
+    /* DLG-13, DLG-18: out, it fades over the exit motion — kept drawn in the top layer until it has (closeModal). */
     opacity: 0;
-    transition-property: opacity, scale, translate, display, overlay;
+    transition-property: opacity, scale, translate;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   /* DLG-27: small, medium or large — the fixed width the size names, whatever the parts would ask and not held between
      min-width and max-width, but never wider than the window less the margins. A compact window places every width as
@@ -94,10 +93,9 @@ export const styles = css`
     background: ${t('scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog[open]::backdrop {
     opacity: 1;
@@ -112,7 +110,7 @@ export const styles = css`
   /* DLG-13: where motion is reduced it only fades. */
   @media (prefers-reduced-motion: reduce) {
     dialog {
-      transition-property: opacity, display, overlay;
+      transition-property: opacity;
     }
   }
   /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
@@ -121,6 +119,8 @@ export const styles = css`
      and down with the bottom sheet's motion over the dialog's own scrim (src/primitives/compact-sheet.ts). After the
      rules above, which it overrides. */
   ${sheetLookStyles({ sheet: 'dialog.compact', paddingBlockEnd: T('container-padding'), scrim: { color: T('scrim-color'), blur: T('scrim-blur') } })}
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* DLG-8: the parts, container.gap apart, the empty ones left out; the actions actions.margin-block-start below. */
   .scroll {

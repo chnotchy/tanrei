@@ -800,21 +800,15 @@ test.describe('compact window', () => {
       await el.updateComplete;
       return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
     });
-    // A closed dialog stays in the top layer for its exit only where the engine can transition `overlay`. Where it
-    // cannot (Firefox) it is gone at once and nothing is left to move, so what is read there is what the exit is
-    // declared to be — the same properties and time.
-    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) {
-      expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
-      expect(leaving.map((l) => l.property)).not.toContain('scale');
-    } else {
-      expect(leaving).toEqual([]);
-      expect(await css(d, 'display')).toBe('none');
-    }
+    // A closed dialog stays drawn in the top layer for its exit, in every engine (MDL-7).
+    expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    expect(leaving.map((l) => l.property)).not.toContain('scale');
+    expect(await css(d, 'display')).not.toBe('none');
     const out = await d.evaluate((el) => {
       const style = getComputedStyle(el);
       return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000, scale: style.scale };
     });
-    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
+    expect(out.properties).toContain('translate');
     expect(out.duration).toBe(40_000);
     expect(out.scale).toBe('none');
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));

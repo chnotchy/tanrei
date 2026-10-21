@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  closeModal,
   closeRequestReason,
   deepActive,
   focusWithin,
@@ -10,6 +11,7 @@ import {
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openModal,
   report,
   returnFocus,
   watchEscape,
@@ -136,7 +138,7 @@ export class TanreiModalLayer extends TanreiElement {
     const dialog = this.dialog;
     if (!this.shown || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open) dialog.showModal();
+    if (this.open) openModal(dialog);
   };
 
   /** MDL-6: a press that starts and ends on the scrim (outside the container) asks to close. */
@@ -173,7 +175,7 @@ export class TanreiModalLayer extends TanreiElement {
     if (!dialog || this.shown || !this.isConnected) return;
     watchEscape();
     this.opener = deepActive();
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.shown = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -188,7 +190,7 @@ export class TanreiModalLayer extends TanreiElement {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);

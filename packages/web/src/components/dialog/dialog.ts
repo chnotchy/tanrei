@@ -11,6 +11,7 @@ import {
   HOST_VARIANT,
   type VariantHost,
   assignSlot,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
@@ -19,6 +20,7 @@ import {
   isDividerVisibility,
   keyboardCover,
   modalLayer,
+  openModal,
   report,
   syncDividerVisibility,
   trapFocus,
@@ -375,7 +377,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
     this.giveVariant();
     this.layout();
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.shown = true;
     // DLG-19, DLG-2: counted, and the marked element looked for, when it opens — or, in a document that is still being
     // read, once it has been. A dialog written open whose element was defined before its markup opens at its start
@@ -420,7 +422,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     window.visualViewport?.removeEventListener('resize', this.onViewport);
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     const opener = this.opener as HTMLElement | null;
     this.opener = null;
     if (restoreFocus) {
