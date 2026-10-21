@@ -154,11 +154,11 @@
     },
     {
       "id": "NTK-9",
-      "text": "THE number ticker SHALL expose to assistive technology one text — label where it is not empty, then the number written as NTK-1 says — and SHALL hide every drawn digit, column and character from it, so that the number is read once, as written, and never digit by digit or as the digits passing through the windows; the text SHALL always be the current value, in place, read where the ticker stands."
+      "text": "THE number ticker SHALL expose to assistive technology one text — label where it is not empty, then the number written as NTK-1 says — and SHALL hide every drawn digit, column and character from it, so that the number is read once, as written, and never digit by digit or as the digits passing through the windows; the text SHALL be the current value, in place, read where the ticker stands — WHILE live is polite, the value of the last change that settled (NTK-10)."
     },
     {
       "id": "NTK-10",
-      "text": "WHILE live is polite THE number ticker SHALL tell assistive technology the text of NTK-9, politely and without moving focus, once WHEN a change's motion ends, and SHALL tell it no value in between, nor any value of a change that a later change replaced before it ended; WHILE live is off it SHALL tell it nothing by itself."
+      "text": "WHILE live is polite THE number ticker SHALL tell assistive technology the text of NTK-9, politely and without moving focus, once WHEN a change's motion ends — the text itself changing only then, so that what a region holds is what it says — and SHALL tell it no value in between, nor any value of a change that a later change replaced before it ended; WHILE live is off it SHALL tell it nothing by itself."
     },
     {
       "id": "NTK-11",
@@ -183,7 +183,7 @@
     },
     {
       "id": "NTK-16",
-      "text": "WHEN animation names a value the active design system does not have, or trend, style, notation, signDisplay or live a value the component does not define, THE number ticker SHALL use the default value (auto, decimal, standard, auto, off) and in debug builds report the unknown value; WHEN duration is not a positive number THE number ticker SHALL treat it as null and in debug builds report it."
+      "text": "WHEN animation names a value the active design system does not have, or trend, style, notation, signDisplay or live a value the component does not define, THE number ticker SHALL use the default value (auto, decimal, standard, auto, off) and in debug builds report the unknown value; WHEN duration is not a positive number, or fractionDigits not a whole number from 0 to 100, THE number ticker SHALL treat it as null and in debug builds report it."
     },
     {
       "id": "NTK-17",
@@ -214,11 +214,11 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-number-ticker",
       "props": { "value": "value", "style": "numberStyle", "currency": "currency", "unit": "unit", "notation": "notation", "fractionDigits": "fractionDigits", "signDisplay": "signDisplay", "locale": "locale", "trend": "trend", "animation": "animation", "startValue": "startValue", "duration": "duration", "live": "live", "label": "label" },
       "events": { "settle": "settle" },
-      "notes": "`<tanrei-number-ticker value number-style currency unit notation fraction-digits sign-display locale trend animation start-value duration live label>`; `style` is spelled `numberStyle` (attribute `number-style`) because `style` is every element's own. `Intl.NumberFormat(…).formatToParts` gives the characters; each digit place is an `inline-block` column moved by `transform: translateY()` through the Web Animations API, and a retarget reads the drawn position from `getComputedStyle` first (NTK-6). The width moves with the shared size transition primitive. The text of NTK-9 is a visually hidden span; the drawn number is `aria-hidden`. The first view of NTK-8 is an `IntersectionObserver`."
+      "notes": "`<tanrei-number-ticker value number-style currency unit notation fraction-digits sign-display locale trend animation start-value duration live label>`; `style` is spelled `numberStyle` (attribute `number-style`) because `style` is every element's own. `Intl.NumberFormat(…).formatToParts` gives the characters; each digit place is an `inline-block` column moved by `transform: translateY()` through the Web Animations API, and a retarget reads the drawn position from `getComputedStyle` first (NTK-6). The width moves with the shared size transition primitive. The text of NTK-9 is a visually hidden span; the drawn number is `aria-hidden`. The first view of NTK-8 is an `IntersectionObserver`. The characters are laid out as flex items in the locale's direction, the digits and their separators in one left-to-right run (NTK-13). A change of an ancestor's `lang` is seen by one `MutationObserver` shared by every ticker (NTK-14)."
     },
     "swiftui": {
       "status": "planned",

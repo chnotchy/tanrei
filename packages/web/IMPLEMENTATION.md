@@ -1040,6 +1040,85 @@ region; nothing of `status` is exposed. A size the active system lacks draws med
 the meter does not define draws linear, auto or default; each is reported (MTR-11). Parts: `track`, `indicator`,
 `stop-indicator`.
 
+## `<tanrei-number-ticker>`
+
+A number that changes, its changed digits moved to the new value (`specs/number-ticker.spec.json`, NTK-1…17).
+
+```html
+<tanrei-number-ticker value="1234"></tanrei-number-ticker>
+<tanrei-number-ticker value="1234" number-style="currency" currency="JPY" label="Revenue"></tanrei-number-ticker>
+<tanrei-number-ticker value="0.426" number-style="percent" fraction-digits="1" trend="digit"></tanrei-number-ticker>
+<tanrei-number-ticker value="512" start-value="0" live="polite"></tanrei-number-ticker>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `value` | number | `0` | not a finite number is written as `Intl` writes it, at once (NTK-12) |
+| `numberStyle` / `number-style` | `decimal` \| `percent` \| `currency` \| `unit` | `decimal` | the spec's `style`, renamed: `style` is every element's own |
+| `currency`, `unit` | string | `""` | a code `Intl.supportedValuesOf('currency')` lists, a unit `Intl.NumberFormat` accepts; anything else writes decimal (NTK-12) |
+| `notation` | `standard` \| `compact` | `standard` | |
+| `fractionDigits` / `fraction-digits` | number \| null | `null` | minimum and maximum fraction digits at once |
+| `signDisplay` / `sign-display` | `auto` \| `always` \| `except-zero` | `auto` | |
+| `locale` | string | `""` | empty: the nearest `lang` through shadow roots, then the browser's |
+| `trend` | `auto` \| `up` \| `down` \| `digit` | `auto` | NTK-3 |
+| `animation` | `auto` \| `slide` \| `blur` \| `blur-slide` \| `flip` \| `none` | `auto` | `auto` reads `--tanrei-comp-number-ticker-animation` when a change starts (never cached) |
+| `startValue` / `start-value` | number \| null | `null` | NTK-8, by an `IntersectionObserver` |
+| `duration` | number \| null | `null` | ms; null: `motion.duration` |
+| `live` | `off` \| `polite` | `off` | NTK-10 |
+| `label` | string | `""` | read before the number, never drawn |
+
+Event: `settle` (`detail.value`), once per change at its end; a replaced change emits none (NTK-11).
+
+**Drawing.** `Intl.NumberFormat(…).formatToParts()` gives the characters. The `.digits` box lays them out as flex
+items in the locale's own direction (`localeDirection()`, NTK-13), the digits with their group and decimal separators in
+one `.core` run that is always left to right; every other character is a `.char` (inline-block, `white-space: pre`).
+Each digit is a `.place`: an in-flow sizer (the locale's zero, hidden) that makes the window one digit wide and one line
+high, clipped above and below (`clip-path: inset(0 -1em)`, so a blur still shows sideways), and an absolute `.column`
+of the locale's digits 0…9 three times over, moved by `transform: translateY(-p × 100 / 30 %)`. A column rests in the
+middle copy (position `10 + digit`), so a digit going on past 9 to 0, or back, has the next copy to go to; at the end
+of a change it is put back in the middle copy, which looks the same. Keys keep a place from one value to the next: `i<n>`
+is the digit of 10^n, `f<n>` a fraction digit, `g<n>` the separator before `i<n>`, other characters their part type and
+count. A character keeps no font, size or color: the host inherits all of them and draws in `tabular-nums`.
+
+**A change** (NTK-3…6). What is drawn is read first: each character's box and each column's position, from its computed
+transform (so a change in the middle of another goes on from where it is, NTK-6; a reading within 1/50 of a step of a
+whole step is that step — the engine rounds a percentage transform). Every motion under way is cancelled, the new
+characters replace the old (each place that stays is the same element), and then:
+
+- the width: the shared `AnimatedSize` on `.number`, inline axis, with the ticker's duration and easing; the number
+  stands at the box's start edge, so a box whose end stays still (the ticker set at the end of its line) carries the
+  number with its start edge;
+- every character that stays: from where it was drawn to its new place, a `translate` animation over the same duration
+  and curve (a FLIP), counted from where the box's start edge was and will be, so that it moves in a straight line
+  with the width;
+- what comes fades in, a digit's column one step before its digit moving in; what goes is made absolute where it was
+  drawn and fades out, its column moving on one step, its drift with the box compensated;
+- each place whose digit changes: `slide` animates its column from its position to the target the trend gives (NTK-3),
+  each place `motion.stagger` after the one before, most significant first; `blur` and `blur-slide` put the old digit
+  in a `.layer` that fades and blurs out (and moves by `blur-slide.distance`) while the column fades and sharpens in
+  (a layer fading out runs on through a later change); `flip` draws four half `.layer`s — the new upper half behind,
+  the old lower half until the middle of the change, the old upper half turning down to 90° and the new lower half
+  turning down from 90° — under `perspective` on the place.
+
+The duration, stagger, reduced duration, curve, blur radius and distance are read from one hidden probe whose
+`transition-duration`, `transition-timing-function`, `inline-size` and `block-size` are the tokens. `settle` waits for
+every animation of the change (`Promise.allSettled` of their `finished`) and is emitted only for the latest change.
+
+**At once** (NTK-7, NTK-12, NTK-14): `animation="none"`, a value or a previous value that is not finite, a change of
+the locale's digits, a change of formatting props without a change of value, and a change of an ancestor's `lang` (one
+`MutationObserver` of `lang` on the document and each shadow root on the way, shared by every ticker). Under
+`prefers-reduced-motion: reduce` the new number and its width are there at once and a copy of the old number fades out
+over `motion.reduced-duration` while the new one fades in; `settle` is emitted at once. A change of the direction around
+it (`DirectionController`) finishes every motion under way.
+
+**Semantics** (NTK-9, NTK-10). A visually hidden `.text` holds `label` and the formatted number; `.number` is
+`aria-hidden`. The host has no role. With `live="polite"` the `.text` is `aria-live="polite" aria-atomic="true"` and
+is written when a change settles, so what the region holds is what it says once; a replaced change never reaches it.
+
+**Not continuous.** A `flip` interrupted by a new change starts the new flip from the digit the interrupted one was
+going to (the half-turned flap is not carried over); a `blur` interrupted keeps its fading layer and starts the new
+cross-fade from the column at full opacity.
+
 ## `<tanrei-loading-indicator>`
 
 A short wait of unknown length (`specs/loading-indicator.spec.json`, LDG-1…16).

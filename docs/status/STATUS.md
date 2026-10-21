@@ -21,7 +21,7 @@ Listing: 86 default · 8 advanced. A component of the first value is shown where
 | Badge | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Progress indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Meter | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
-| Number ticker | base | default | communication | ✓ | · planned | · planned | · planned | · planned | · planned |
+| Number ticker | base | default | communication | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Loading indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Chip | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Modal layer | base | advanced | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |

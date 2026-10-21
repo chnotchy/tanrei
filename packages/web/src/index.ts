@@ -330,6 +330,16 @@ export {
   type TanreiProgressIndicatorVariant,
 } from './components/progress-indicator/progress-indicator.js';
 export { TanreiMeter, type TanreiMeterSeparation, type TanreiMeterSize, type TanreiMeterStatus, type TanreiMeterVariant } from './components/meter/meter.js';
+export {
+  TanreiNumberTicker,
+  type TanreiNumberTickerAnimation,
+  type TanreiNumberTickerLive,
+  type TanreiNumberTickerNotation,
+  type TanreiNumberTickerNumberStyle,
+  type TanreiNumberTickerSettleDetail,
+  type TanreiNumberTickerSignDisplay,
+  type TanreiNumberTickerTrend,
+} from './components/number-ticker/number-ticker.js';
 export { TanreiRadioButton, type TanreiRadioButtonChangeDetail, type TanreiRadioButtonOwner } from './components/radio-button/radio-button.js';
 export {
   TanreiRadioGroup,
