@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: e283b3d07c42a3f20dea3f6217380b566a820839
+sourceHash: aebc72514beb1205b636cffd3f901604571a9171
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -176,6 +176,8 @@ Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (5
 ### Los glifos de la lista
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
+
+`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
 
 <ComponentSpecs name="combobox" />
 

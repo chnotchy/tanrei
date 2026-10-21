@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: e283b3d07c42a3f20dea3f6217380b566a820839
+sourceHash: aebc72514beb1205b636cffd3f901604571a9171
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -176,6 +176,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 列表中的字形
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
+
+`density` 决定一个选项占多大空间：`regular`（默认，高 48）或 `compact`（高 32，图标 20，即[菜单](/zh-cn/components/menu/)的紧凑行），后者适用于用鼠标操作、列表很长的工具。文字大小不变，无论密度如何，容器都由 `size` 决定。触摸时选项绝不低于触摸目标。
 
 <ComponentSpecs name="combobox" />
 

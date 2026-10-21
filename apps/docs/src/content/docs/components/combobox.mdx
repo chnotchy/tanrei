@@ -175,6 +175,8 @@ The three variants and the three sizes, `small` (40), `medium` (48) and `large` 
 
 An option's glyph stands in a column before its label. `iconSpace` says where that column is kept in an option without a glyph. `auto` (the default) keeps it in a section where another option has a glyph, so that the labels of the section start on one line, and keeps none in a section without glyphs; a section is a group, or a run of options outside any group. `always` keeps it in every option, and `never` only in an option that has a glyph. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default. Only the options the filter shows count.
 
+`density` sets how much room an option takes: `regular` (the default, 48 high) or `compact` (32 high with 20 glyphs, the [menu](/components/menu/)'s compact row), for a tool used with a mouse whose lists are long. The text keeps its size, and the container is `size`'s whatever the density. For touch an option is never lower than the touch target.
+
 <ComponentSpecs name="combobox" />
 
 ### What the web draws differently

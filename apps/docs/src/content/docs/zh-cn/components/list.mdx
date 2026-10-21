@@ -2,7 +2,7 @@
 title: "列表"
 description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: bf75f2f97ba2d0af8b821c151d8a855e118e6725
+sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -261,6 +261,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 | `never` | 不保留空间：文本从行的起始处开始。 |
 
 无论怎样排列、处于哪种模式，列表都统一决定它的所有行。行的 `leading` 插槽中的头像、图片或控件不计入，也不在其旁边保留空间，因为它的尺寸由你决定，并且每行不同。[菜单](/zh-cn/components/menu/)、[树视图](/zh-cn/components/tree-view/)和[导航抽屉](/zh-cn/components/navigation-drawer/)也有同样的 `iconSpace`，取值和默认值都相同。
+
+`density` 决定一个项目占多大空间：`regular`（默认）或 `compact`，后者适用于用鼠标操作、需要浏览大量项目的工具。在紧凑列表中，操作、链接或纯文本选项高 32，项目中的每个[列表行](/zh-cn/components/list-row/)都以紧凑方式绘制，不论其自身的 `density`，因此同一列表的行只有一种密度。触摸时项目绝不低于触摸目标。
 
 ### 推荐做法
 
