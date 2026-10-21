@@ -1203,6 +1203,8 @@ public data class TanreiAvatarTokens(
     public val groupOutlineWidth: Dp,
     public val iconColor: TanreiPaint,
     public val labelColor: TanreiPaint,
+    public val motionPictureDuration: Int,
+    public val motionPictureEasing: TanreiCubicBezier,
     public val sizes: TanreiAvatarSizes,
     public val shapes: TanreiAvatarShapes,
 ) {

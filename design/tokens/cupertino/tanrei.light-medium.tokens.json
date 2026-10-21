@@ -2346,6 +2346,26 @@
               }
             }
           }
+        },
+        "motion": {
+          "picture-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$description": "How long a picture that has arrived takes to fade in over the fallback, which fades out beneath it: a change of what a medium-sized box draws in place. A picture the platform already holds is drawn at once."
+          },
+          "picture-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that cross-fade: a change of opacity in place."
+          }
         }
       },
       "badge": {

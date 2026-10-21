@@ -670,6 +670,8 @@ export interface TanreiAvatarTokens {
   readonly groupOutlineWidth: number;
   readonly iconColor: TanreiPaint;
   readonly labelColor: TanreiPaint;
+  readonly motionPictureDuration: number;
+  readonly motionPictureEasing: TanreiCubicBezier;
   readonly sizes: TanreiAvatarSizes;
   readonly shapes: TanreiAvatarShapes;
 }

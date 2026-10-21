@@ -635,6 +635,8 @@ private let tanreiAvatarTokens = TanreiAvatarTokens(
   groupOutlineWidth: 2,
   iconColor: .role(.onSurfaceVariant),
   labelColor: .role(.onSurfaceVariant),
+  motionPictureDuration: 250,
+  motionPictureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiAvatarSizes(
     small: TanreiAvatarSizeTokens(
       containerSize: 24,

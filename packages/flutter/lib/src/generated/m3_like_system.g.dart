@@ -798,6 +798,8 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     groupOutlineWidth: 2.0,
     iconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     labelColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    motionPictureDuration: 150,
+    motionPictureEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     sizes: TanreiAvatarSizes(
       small: TanreiAvatarSizeTokens(
         containerSize: 24.0,

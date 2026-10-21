@@ -280,6 +280,8 @@
     --tanrei-comp-avatar-label-typescale-small-letter-spacing: var(--tanrei-sys-typescale-caption-letter-spacing);
     --tanrei-comp-avatar-label-typescale-small-line-height: var(--tanrei-sys-typescale-caption-line-height);
     --tanrei-comp-avatar-label-typescale-small-font: var(--tanrei-sys-typescale-caption-font);
+    --tanrei-comp-avatar-motion-picture-duration: var(--tanrei-sys-motion-role-state-default);
+    --tanrei-comp-avatar-motion-picture-easing: var(--tanrei-sys-motion-easing-state);
     --tanrei-comp-badge-container-color: var(--tanrei-sys-color-error);
     --tanrei-comp-badge-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 4.5), 0.25px);
     --tanrei-comp-badge-container-offset: var(--tanrei-sys-space-space0);
