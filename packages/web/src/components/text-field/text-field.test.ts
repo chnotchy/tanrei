@@ -308,7 +308,7 @@ test.describe('behavior', () => {
       'tanrei-text-field#stops textarea#input.input',
       // The product's own Button in the trailing slot: its child, and a stop of its own.
       'tanrei-button button.has-icon',
-      'tanrei-text-field#stops div.grip',
+      'tanrei-text-field#stops div.container',
       'button#after button#after',
     ]);
   });
@@ -357,7 +357,7 @@ test.describe('behavior', () => {
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveCount(0);
     await expect(field(one(page, 'required')).locator('.label-row .asterisk')).toBeVisible();
     await expect(field(one(page, 'optional')).locator('.label-row tanrei-tag')).toHaveCount(0);
-    await expect(box(one(page, 'grip')).locator('.grip')).not.toHaveAttribute('aria-label', /.*/);
+    await expect(box(one(page, 'grip')).locator('.resize-handle .container')).not.toHaveAttribute('aria-label', /.*/);
     await expect(box(one(page, 'date')).locator('.segment').first()).not.toHaveAttribute('aria-valuetext', /.*/);
     await expect(field(one(page, 'own')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Needed');
     expect(await missingWords(page)).toEqual(['optionalText', 'requiredText', 'resizeLabel', 'segmentEmptyText']);
@@ -370,7 +370,7 @@ test.describe('behavior', () => {
     await setWords(page, { requiredText: 'Required', optionalText: 'Optional', resizeLabel: 'Resize', segmentEmptyText: 'Empty' });
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Required');
     await expect(field(one(page, 'optional')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Optional');
-    await expect(box(one(page, 'grip')).locator('.grip')).toHaveAttribute('aria-label', 'Resize');
+    await expect(box(one(page, 'grip')).locator('.resize-handle .container')).toHaveAttribute('aria-label', 'Resize');
     await expect(box(one(page, 'date')).locator('.segment').first()).toHaveAttribute('aria-valuetext', 'Empty');
     await expect(field(one(page, 'own')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Needed');
     expect(await missingWords(page)).toEqual([]);

@@ -1,12 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import { SCRIM_FILTER, dividerVisibilityHost, focusRing, pressHold, rippleStyles, scrimFilter, stateRules, whenScroll } from '../../primitives/index.js';
+import { SCRIM_FILTER, dividerVisibilityHost, focusRing, scrimFilter, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/bottom-sheet.tokens.json). Both forms read the same container tokens: the
-// scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is the
-// `drag-handle` control: its box, grip and state layer per state; its geometry is `handle.*`.
+// scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is a
+// <tanrei-handle> given the sheet's tokens: the `drag-handle` control (its box, grip and state layer per state) and
+// `handle.*` (its geometry).
 const PREFIX = '--tanrei-comp-bottom-sheet';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
@@ -22,18 +23,33 @@ const partialCap = (of: string) => `min(calc(${of} * ${T('container-partial-frac
 /** BSH-6: at full, the area less the top margin. */
 const fullCap = (of: string) => `max(0px, calc(${of} - ${T('container-margin-block-start')}))`;
 
-/** The drag handle's colors in every state, as `--_c-h` (box, hovered), `--_g-p` (grip, pressed)… */
-const STATES = { '': '-r', hovered: '-h', focused: '-f', pressed: '-p' } as const;
-const handleBlock = Object.entries(STATES)
-  .flatMap(([state, suffix]) => [
-    `  --_c${suffix}: var(${PREFIX}-drag-handle-${state ? `${state}-` : ''}container-color);`,
-    `  --_g${suffix}: var(${PREFIX}-drag-handle-${state ? `${state}-` : ''}grip-color);`,
-  ])
-  .join('\n');
-/** Where each state is read (BSH-13): on the interactive handle only (a native button); a handle at rest answers nothing. */
-const on = (state: string) => `button.handle${state}`;
-const paint = (suffix: string, container = true) => `${container ? `\n    background-color: var(--_c${suffix});` : ''}
-    --_g: var(--_g${suffix});`;
+/**
+ * BSH-12: the sheet's tokens, given to its Handle as the Handle's own custom properties — the box and the line of size
+ * medium, the colors and opacity of each state, and the state and press motion. In the default system each sheet token
+ * aliases the Handle's, so the two are drawn alike until a layer re-values the sheet's.
+ */
+const HANDLE = '--tanrei-comp-handle';
+const STATES = ['', 'hovered', 'focused', 'pressed'] as const;
+const handleTokens = [
+  `${HANDLE}-container-length-medium: ${T('handle-container-width')};`,
+  `${HANDLE}-container-breadth-medium: ${T('handle-container-height')};`,
+  `${HANDLE}-container-shape: ${T('handle-container-shape')};`,
+  `${HANDLE}-container-shape-pill: ${T('handle-container-shape-pill')};`,
+  `${HANDLE}-line-length-medium: ${T('handle-grip-width')};`,
+  `${HANDLE}-line-thickness-medium: ${T('handle-grip-height')};`,
+  ...STATES.flatMap((state) => {
+    const at = state ? `${state}-` : '';
+    return [
+      `${HANDLE}-standard-${at}container-color: ${T(`drag-handle-${at}container-color`)};`,
+      `${HANDLE}-standard-${at}line-color: ${T(`drag-handle-${at}grip-color`)};`,
+      `${HANDLE}-standard-${at}state-layer-color: ${T(`drag-handle-${at}state-layer-color`)};`,
+      ...(state ? [`${HANDLE}-${state}-opacity: ${T(`${state}-opacity`)};`] : []),
+    ];
+  }),
+  `${HANDLE}-motion-state-duration: ${T('motion-state-duration')};`,
+  `${HANDLE}-motion-state-easing: ${T('motion-state-easing')};`,
+  `${HANDLE}-motion-feedback-duration: ${T('motion-feedback-duration')};`,
+].join('\n    ');
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
 
@@ -238,83 +254,10 @@ export const styles = css`
   .sheet.has-handle {
     --_row: calc(${t('handle-container-height')} + 2 * ${t('handle-margin-block')});
   }
+  /* BSH-12 to BSH-19: the drag handle is a Handle — its box, grip, states, hit area (HDL-5), focus ring, press hold and
+     pressed answer are the Handle's, drawn from the sheet's tokens. */
   .handle {
-    ${unsafeCSS(handleBlock)}
-    all: unset;
-    box-sizing: border-box;
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    inline-size: ${t('handle-container-width')};
-    block-size: ${t('handle-container-height')};
-    ${unsafeCSS(cornerRadius(`${PREFIX}-handle-container-shape`))}
-    ${unsafeCSS(paint('-r'))}
-    -webkit-tap-highlight-color: transparent;
-    transition-property: background-color, opacity;
-    transition-duration: ${t('motion-state-duration')};
-    transition-timing-function: ${t('motion-state-easing')};
-  }
-  button.handle {
-    cursor: pointer;
-  }
-  /* BSH-12: the grip, centred in the box; decorative. */
-  .grip {
-    display: block;
-    flex: none;
-    inline-size: ${t('handle-grip-width')};
-    block-size: ${t('handle-grip-height')};
-    ${unsafeCSS(cornerRadius(`${PREFIX}-handle-grip-shape`))}
-    background-color: var(--_g);
-    pointer-events: none;
-    transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')};
-  }
-  /* BSH-15: the hit area is the handle's whole row across its box, and at least sys.target.pointer (a fine pointer) or
-     sys.target.touch (a coarse one) wide and high, without changing the drawn box. */
-  button.handle::before {
-    content: '';
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    inline-size: max(100%, var(--tanrei-sys-target-pointer));
-    block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-pointer));
-    transform: translate(-50%, -50%);
-  }
-  @media (pointer: coarse) {
-    button.handle::before {
-      inline-size: max(100%, var(--tanrei-sys-target-touch));
-      block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-touch));
-    }
-  }
-  :host(:dir(rtl)) button.handle::before {
-    transform: translate(50%, -50%);
-  }
-
-  /* BSH-13, BSH-16, BSH-17: each state paints the handle's box, grip and opacity from that state's tokens; pressed >
-     focused > hovered. */
-  ${stateRules(on, {
-    hovered: `${paint('-h')}
-    opacity: ${T('hovered-opacity')};`,
-    focused: `${paint('-f')}
-    opacity: ${T('focused-opacity')};`,
-    pressed: `${paint('-p')}
-    opacity: ${T('pressed-opacity')};`,
-    pressedContent: `${paint('-p', false)}
-    opacity: ${T('pressed-opacity')};`,
-    disabled: '',
-  })}
-  button.handle[data-pressed]:not([data-pressed='none']) .grip {
-    transition-duration: 0s;
-  }
-  /* BSH-17 ripple: grows over motion.feedback-duration, fades over motion.state-duration. */
-  ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  /* BSH-14, BSH-18: the ring (or the glow) around the handle's box, never animated. */
-  ${focusRing(on)}
-  ${pressHold('.hold')}
-  .hold {
-    display: none;
+    ${unsafeCSS(handleTokens)}
   }
 
   /* BSH-28: the header — below the handle's row (or at the top without one), a row at least header.height high: the
@@ -446,20 +389,10 @@ export const styles = css`
   /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */
   ${shape}
 
-  @media (prefers-reduced-motion: reduce) {
-    .handle,
-    .grip {
-      transition: none;
-    }
-  }
   @media (forced-colors: active) {
     .sheet {
       border: 1px solid CanvasText;
       border-block-end: 0;
-    }
-    .grip {
-      forced-color-adjust: none;
-      background-color: CanvasText;
     }
     .divider {
       background: CanvasText;

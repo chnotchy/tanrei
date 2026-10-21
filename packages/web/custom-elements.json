@@ -1556,11 +1556,11 @@
               "name": "container"
             },
             {
-              "description": "The drag handle's box: a `<button>` while the sheet has two heights, drawn at rest otherwise.",
+              "description": "The drag handle's box: the `container` of its `<tanrei-handle>`, a button while the sheet has two heights, drawn at rest otherwise.",
               "name": "handle"
             },
             {
-              "description": "The grip drawn in the handle's box (hidden from assistive technology).",
+              "description": "The grip drawn in the handle's box: the `line` of its `<tanrei-handle>` (hidden from assistive technology).",
               "name": "grip"
             },
             {
@@ -45970,8 +45970,8 @@
               "name": "picker-button"
             },
             {
-              "description": "The grip of a multi-line field resized by hand (TXI-39).",
-              "name": "resize-grip"
+              "description": "The `<tanrei-handle>` of a multi-line field resized by hand (TXI-39).",
+              "name": "resize-handle"
             }
           ],
           "slots": [
@@ -46239,7 +46239,7 @@
               "default": "'auto'",
               "attribute": "resize",
               "reflects": true,
-              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no grip. `manual`: it starts at `minRows` lines and the person resizes it with the grip\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no grip."
+              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no handle. `manual`: it starts at `minRows` lines and the person resizes it with the handle\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no handle."
             },
             {
               "kind": "field",
@@ -46262,7 +46262,7 @@
               },
               "default": "''",
               "attribute": "resize-label",
-              "description": "The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name."
+              "description": "The accessible name of the resize handle (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the handle is drawn and works, and has no name."
             },
             {
               "kind": "field",
@@ -46855,7 +46855,7 @@
               },
               "default": "'auto'",
               "fieldName": "resize",
-              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no grip. `manual`: it starts at `minRows` lines and the person resizes it with the grip\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no grip."
+              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no handle. `manual`: it starts at `minRows` lines and the person resizes it with the handle\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no handle."
             },
             {
               "name": "resize-axis",
@@ -46873,7 +46873,7 @@
               },
               "default": "''",
               "fieldName": "resizeLabel",
-              "description": "The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name."
+              "description": "The accessible name of the resize handle (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the handle is drawn and works, and has no name."
             },
             {
               "name": "no-wrap",
@@ -47895,7 +47895,7 @@
         },
         {
           "kind": "class",
-          "description": "The box people type in, and everything typed in it — one line, or several that follow the text or are resized by\nhand, or a date or a time entered unit by unit in the locale's form — with optional icons, a prefix and a suffix, a\npicker button, and, in the two looks that have one, the label that floats inside the box. It has no label row, no\nhelp and no error text of its own: put it in a `<tanrei-field>`, which names it, describes it and marks it — or use\n`<tanrei-text-field>`, which is the two as one element. Bare, it is for a place whose label stands elsewhere: a\nfilter in a toolbar, a cell of a table, a row with its label beside it; give it `label` there.\n\nContract: specs/text-input.spec.json. `<tanrei-field label=\"Email\"><tanrei-text-input name=\"email\" type=\"email\">\n</tanrei-text-input></tanrei-field>`, or bare: `<tanrei-text-input name=\"q\" type=\"search\" label=\"Filter tokens\">\n</tanrei-text-input>`. The box is drawn from `--tanrei-comp-input-box-*`, the one set of\ntokens every input box is drawn from (TXI-68), one set per variant, look (plain or error) and state — how a state\nlooks is the active design system's decision — and what a text input alone draws (the resize grip, a segment, the\ncode face, the entries place) from `--tanrei-comp-text-input-*`. The text is edited in a native\n`<input>` — a `<textarea>` while `multiline` — in the shadow root, so input methods, autofill,\nselection and the clipboard work as the browser does. The name (its own `label`, else its Field's), the description\n(the prefix and the suffix while shown, the count, then what its Field gives) and the invalid, required, read-only\nand disabled states are set on that element.\n\nIt is a block as wide as its place, framed and bare alike (TXI-63): it has no width of its own. A narrower box is a\nnarrower place.\n\nIt tells the Field around it what only it knows, through the Field's own connection (`src/primitives/field.ts`):\nthat it draws the label itself while its look floats one, how far its text stands from its edges — the Field's\nsupporting row starts and ends there — and its own refusal of a date or a time, with its words (TXI-62). It takes\nfrom that Field its name, its description, the required, invalid and disabled states, whether the label is hidden,\nand whether an asterisk or the optional word follows a floating label. `countText` is the count it keeps while `counter` is set, as text\n(\"12/40\"): it describes and announces the count and draws none — a Field draws it, given it as `count-text`.\n\n`stacked` (the default) draws no label — the label above it is its Field's row — and marks focus and error with a\nline inside the container's edge; `filled` and `outlined` float the label inside the box. A design system may leave some out\n: they still work, and a debug build says so.\n\n`multiline` with `resize=\"auto\"` (the default) follows its lines between `min-rows` and `max-rows` with an animated\nheight; `resize=\"manual\"` draws a grip in the bottom end corner that is dragged, moved with the arrow keys, or\nactivated to fit the text (`resize-axis=\"both\"` resizes the width too); `resize=\"fixed\"` stays at `min-rows`.\n\n`type=\"code\"` is a field whose value is written for a machine — a pattern, a key, a snippet of configuration — on one\nline or, with `multiline`, on many: the input line (prefix, value, placeholder, suffix) is one left-to-right row in\nthe code face that begins at the left in every layout direction, while the label, the icons, the messages and the\ngrip follow the page; the browser is asked not to correct, capitalise, spell-check, translate or complete it; a paste\nis plain text, character for character; Tab still moves focus. `no-wrap` keeps each line of a multi-line code field\non one row and scrolls it sideways inside the container. It is a field, not an editor: no syntax colors, no line\nnumbers, no Tab that indents.\n\n`date`, `time` and `date-time` are the stated exception to the native element: a row of segments — one spin button\nper unit, in the locale's order — that are focused, stepped, typed into and cleared on their own, held as ISO 8601\n(`2026-09-27`, `14:30`, `2026-09-27T14:30`) or empty while a segment is empty or the value is not available. A whole\ndate can be pasted. With `picker`, the field shows a picker button that asks the product to present a picker\n(`pickerrequest`); the field presents none itself.\n\nForm-associated: with a `name` it submits `value`, resets to its `value` attribute, restores on navigation, joins\nconstraint validation (a missing value while its Field says it is required; a date or time field's entry error as badInput,\nrangeUnderflow, rangeOverflow or a custom error) and is left out while disabled — its own or a `<fieldset>`'s.",
+          "description": "The box people type in, and everything typed in it — one line, or several that follow the text or are resized by\nhand, or a date or a time entered unit by unit in the locale's form — with optional icons, a prefix and a suffix, a\npicker button, and, in the two looks that have one, the label that floats inside the box. It has no label row, no\nhelp and no error text of its own: put it in a `<tanrei-field>`, which names it, describes it and marks it — or use\n`<tanrei-text-field>`, which is the two as one element. Bare, it is for a place whose label stands elsewhere: a\nfilter in a toolbar, a cell of a table, a row with its label beside it; give it `label` there.\n\nContract: specs/text-input.spec.json. `<tanrei-field label=\"Email\"><tanrei-text-input name=\"email\" type=\"email\">\n</tanrei-text-input></tanrei-field>`, or bare: `<tanrei-text-input name=\"q\" type=\"search\" label=\"Filter tokens\">\n</tanrei-text-input>`. The box is drawn from `--tanrei-comp-input-box-*`, the one set of\ntokens every input box is drawn from (TXI-68), one set per variant, look (plain or error) and state — how a state\nlooks is the active design system's decision — and what a text input alone draws (a segment, the\ncode face, the entries place) from `--tanrei-comp-text-input-*`. The text is edited in a native\n`<input>` — a `<textarea>` while `multiline` — in the shadow root, so input methods, autofill,\nselection and the clipboard work as the browser does. The name (its own `label`, else its Field's), the description\n(the prefix and the suffix while shown, the count, then what its Field gives) and the invalid, required, read-only\nand disabled states are set on that element.\n\nIt is a block as wide as its place, framed and bare alike (TXI-63): it has no width of its own. A narrower box is a\nnarrower place.\n\nIt tells the Field around it what only it knows, through the Field's own connection (`src/primitives/field.ts`):\nthat it draws the label itself while its look floats one, how far its text stands from its edges — the Field's\nsupporting row starts and ends there — and its own refusal of a date or a time, with its words (TXI-62). It takes\nfrom that Field its name, its description, the required, invalid and disabled states, whether the label is hidden,\nand whether an asterisk or the optional word follows a floating label. `countText` is the count it keeps while `counter` is set, as text\n(\"12/40\"): it describes and announces the count and draws none — a Field draws it, given it as `count-text`.\n\n`stacked` (the default) draws no label — the label above it is its Field's row — and marks focus and error with a\nline inside the container's edge; `filled` and `outlined` float the label inside the box. A design system may leave some out\n: they still work, and a debug build says so.\n\n`multiline` with `resize=\"auto\"` (the default) follows its lines between `min-rows` and `max-rows` with an animated\nheight; `resize=\"manual\"` places a `<tanrei-handle size=\"small\">` in the bottom end corner that is dragged, moved\nwith the arrow keys, or activated to fit the text, and fires `resizeend` when the person has changed the size (`resize-axis=\"both\"` resizes the width too); `resize=\"fixed\"` stays at `min-rows`.\n\n`type=\"code\"` is a field whose value is written for a machine — a pattern, a key, a snippet of configuration — on one\nline or, with `multiline`, on many: the input line (prefix, value, placeholder, suffix) is one left-to-right row in\nthe code face that begins at the left in every layout direction, while the label, the icons, the messages and the\nhandle follow the page; the browser is asked not to correct, capitalise, spell-check, translate or complete it; a paste\nis plain text, character for character; Tab still moves focus. `no-wrap` keeps each line of a multi-line code field\non one row and scrolls it sideways inside the container. It is a field, not an editor: no syntax colors, no line\nnumbers, no Tab that indents.\n\n`date`, `time` and `date-time` are the stated exception to the native element: a row of segments — one spin button\nper unit, in the locale's order — that are focused, stepped, typed into and cleared on their own, held as ISO 8601\n(`2026-09-27`, `14:30`, `2026-09-27T14:30`) or empty while a segment is empty or the value is not available. A whole\ndate can be pasted. With `picker`, the field shows a picker button that asks the product to present a picker\n(`pickerrequest`); the field presents none itself.\n\nForm-associated: with a `name` it submits `value`, resets to its `value` attribute, restores on navigation, joins\nconstraint validation (a missing value while its Field says it is required; a date or time field's entry error as badInput,\nrangeUnderflow, rangeOverflow or a custom error) and is left out while disabled — its own or a `<fieldset>`'s.",
           "name": "TanreiTextInput",
           "cssParts": [
             {
@@ -47951,8 +47951,8 @@
               "name": "picker-button"
             },
             {
-              "description": "The grip of a multi-line field resized by hand (TXI-39).",
-              "name": "resize-grip"
+              "description": "The `<tanrei-handle>` of a multi-line field resized by hand (TXI-39).",
+              "name": "resize-handle"
             }
           ],
           "slots": [
@@ -48146,7 +48146,7 @@
                 "text": "TanreiTextInputResize"
               },
               "default": "'auto'",
-              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no grip. `manual`: it starts at `minRows` lines and the person resizes it with the grip\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no grip.",
+              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no handle. `manual`: it starts at `minRows` lines and the person resizes it with the handle\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no handle.",
               "attribute": "resize",
               "reflects": true
             },
@@ -48170,7 +48170,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name.",
+              "description": "The accessible name of the resize handle (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the handle is drawn and works, and has no name.",
               "attribute": "resize-label"
             },
             {
@@ -48505,6 +48505,13 @@
               "description": "The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value."
             },
             {
+              "name": "resizeend",
+              "type": {
+                "text": "CustomEvent<TanreiTextInputResizeEndDetail>"
+              },
+              "description": "The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`."
+            },
+            {
               "type": {
                 "text": "CustomEvent<TanreiTextInputActionDetail>"
               },
@@ -48642,7 +48649,7 @@
                 "text": "TanreiTextInputResize"
               },
               "default": "'auto'",
-              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no grip. `manual`: it starts at `minRows` lines and the person resizes it with the grip\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no grip.",
+              "description": "How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with\nan animated change, and has no handle. `manual`: it starts at `minRows` lines and the person resizes it with the handle\nin its bottom end corner. `fixed`: it stays at `minRows` lines, with no handle.",
               "fieldName": "resize"
             },
             {
@@ -48660,7 +48667,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name.",
+              "description": "The accessible name of the resize handle (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the handle is drawn and works, and has no name.",
               "fieldName": "resizeLabel"
             },
             {

@@ -1608,7 +1608,7 @@ labels and an indicator whose dots do not fit. Parts: `row`, `list`, `controls`,
 ## `<tanrei-text-input>`
 
 The box people type in, and everything typed in it: one line of text, or several that follow the text or are resized by
-a grip, or a date or a time entered unit by unit in the locale's form — or code, held exactly as it is written — with
+a handle, or a date or a time entered unit by unit in the locale's form — or code, held exactly as it is written — with
 icons, a prefix and a suffix, a picker button, and, in the two looks that have one, the label that floats inside the
 box (`specs/text-input.spec.json`, TXI-1…63; `listing: advanced`). **It draws no label row, no requirement tag, no
 help, no error text and no count** (TXI-63): those are the rows of the `<tanrei-field>` that frames it — and
@@ -1632,7 +1632,7 @@ whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row wi
 ```
 
 - **A block as wide as its place**, framed and bare alike (`display: block`, TXI-63). It has no width of its own: a narrower box is a narrower
-  place. The one width it keeps is the one a person gives it with the resize grip (`resize-axis="both"`, TXI-39).
+  place. The one width it keeps is the one a person gives it with the resize handle (`resize-axis="both"`, TXI-39).
 - **What it says to its Field, and takes from it** (TXI-62) goes through the Field's own connection
   (`src/primitives/field.ts`; see `<tanrei-field>`): it says `drawsLabel` while its variant floats a label, `inset` —
   where its text starts and the padding it keeps at its end, as lengths of its own size tokens (`INSET()` in its
@@ -1673,8 +1673,8 @@ In a box that scrolls, the field's parts — its live region too — are laid ou
 | `error` | boolean | `false` | the error parts, `aria-invalid`; validation is the product's; reflected |
 | `disabled`, `readOnly` / `readonly` | boolean | `false` | reflected |
 | `multiline`, `minRows` / `min-rows`, `maxRows` / `max-rows` | boolean, number, number | `false`, `2`, `0` | a `<textarea>` of `minRows` to `maxRows` lines (0: no limit; a `minRows` below 1 is 1); ignored (and reported) for `password`, `date`, `time` and `date-time` |
-| `resize` | `auto` \| `manual` \| `fixed` | `auto` | `auto`: the height follows the lines, with an animated change, and scrolls past `maxRows`; `manual`: it starts at `minRows` and is resized with the grip, between `minRows` and `maxRows`; `fixed`: `minRows` lines. An unknown value is `auto`, reported |
-| `resizeAxis` / `resize-axis`, `resizeLabel` / `resize-label` | `vertical` \| `both`, string | `vertical`, `""` | what the grip resizes, and its accessible name: the instance's, else the product's words; without it the grip is drawn, works and has no name (TXI-41) |
+| `resize` | `auto` \| `manual` \| `fixed` | `auto` | `auto`: the height follows the lines, with an animated change, and scrolls past `maxRows`; `manual`: it starts at `minRows` and is resized with the handle, between `minRows` and `maxRows`; `fixed`: `minRows` lines. An unknown value is `auto`, reported |
+| `resizeAxis` / `resize-axis`, `resizeLabel` / `resize-label` | `vertical` \| `both`, string | `vertical`, `""` | what the handle resizes, and its accessible name: the instance's, else the product's words; without it the handle is drawn, works and has no name (TXI-41) |
 | `noWrap` / `no-wrap` | boolean | `false` | the spec's `wrap: false` (an HTML boolean cannot default to true): every line of a multi-line code field stays on one row and scrolls sideways inside the container. Read only while `type` is `code` and `multiline` is set; set anywhere else it is ignored and reported once; reflected |
 | `maxLength` / `maxlength` | number | `0` | the most **user-perceived characters** (grapheme clusters, `Intl.Segmenter`) the user can enter — not the native attribute, which counts UTF-16 units. Ignored for the date types |
 | `counter` | boolean | `false` | keeps the count (`12/40` with `maxLength`): described, announced and read as `countText`; a Field draws it |
@@ -1709,12 +1709,15 @@ never its text (TXI-38, TXI-51): the textarea's box is the new number of lines a
 nothing to scroll, so the browser cannot scroll the first line away to show the caret — and `--_lag`, the lines the
 room shown still differs by, goes to 0 as a bottom margin and as a `clip-path` that uncovers a new line from its top
 while the container's bottom edge passes it. It
-shows no scrollbar while every line fits. **Manual** draws the grip: a `role="separator"` focus stop
-(`aria-orientation="horizontal"`, `aria-valuenow|min|max` in lines, `aria-controls` the textarea) holding `drag_handle`
-or `drag_indicator`, never mirrored, hidden until the icon font can draw it. Its hit area is the minimum target, centred
-on the glyph and reaching past the container. A drag (pointer capture; the press never reaches the text) follows the
-pointer; Down / Up Arrow add and remove a line, Home and End go to `minRows` and `maxRows` (without one: every line of
-the text), Enter, Space or a click that ends where it began fit the height to the text and back. With
+shows no scrollbar while every line fits. **Manual** places a `<tanrei-handle size="small">` (part `resize-handle`) with
+its box against the container's bottom end corner: axis `vertical`, or `both` (an arc) with `resize-axis="both"`;
+`revealed` while a pointer is over the container or the input has focus. Everything it draws, its target, its cursor,
+its keys and its separator role are the Handle's; the field gives it `value` (the lines shown), `min` (`minRows`) and
+`max` (`maxRows`, or without one the lines the text needs, measured when the value changes and when the handle is used)
+and answers its events, which stay in the shadow root: `resize` follows the pointer, `step` adds and removes a line
+(`large`: `minRows` lines), Home and End go to `minRows` and `maxRows` (without one: every line of the text), and
+`activate` (Enter, Space or a click that ends where it began) fits the height to the text and back. When a drag ends
+or a step or an activation changed the size the element fires `resizeend` (composed) with `{ lines, width }`. With
 `resize-axis="both"` a drag and the horizontal arrows (the one toward the end edge widens) set the **host's inline
 size** — never narrower than its paddings, its icons and `sys.target.touch`; the host also gets `max-inline-size: 100%`
 while it has none of its own, so it is no wider than its containing block. The size the person gave lasts until
@@ -1784,7 +1787,7 @@ key, a snippet of JSON. It is the same field — frame, variants, sizes, states,
   left in every layout direction and whatever the first strong character is — empty, holding `{` alone, or beginning
   with an Arabic string. It never takes the `dir="auto"` path of prose, also when `type` changes on a live element.
   Everything outside the row mirrors as usual: the label, the icons (the row keeps `container.gap` from each, written
-  from the layout's side), the supporting row, the grip. An `email`, `url`, `tel`, `number` or `password` value is not
+  from the layout's side), the supporting row, the handle. An `email`, `url`, `tel`, `number` or `password` value is not
   changed: left to right at the field's start edge, the right.
 - *The face.* `font-family`, `font-weight` and `letter-spacing` from `--tanrei-comp-text-input-code-typescale-*` on the
   row, at the input's own `font-size` and `line-height` — so no height moves — with `font-variant-ligatures: none` and
@@ -1800,8 +1803,8 @@ key, a snippet of JSON. It is the same field — frame, variants, sizes, states,
   beyond its content and padding, which is a sideways scrollbar where the browser draws one that takes room, and
   nothing where it draws it over the content. A headless browser draws none, so that room is tested with a stand-in
  .
-- *The grip in right-to-left.* A code field resized by hand has `padding-block-end` of `resize-grip.size` and
-  `resize-grip.inset` on the text area: scrolling room after the last line, in the corner where a line of code begins.
+- *The handle in right-to-left.* A code field resized by hand has `padding-block-end` of the small Handle's box
+  (`comp.handle.container.breadth.small`) on the text area: scrolling room after the last line, in the corner where a line of code begins.
   The box is the lines the field gives it, so the field is as tall as in a left-to-right layout.
 - *What the browsers differ in.* A read-only field whose lines do not wrap is scrolled from the keyboard as each
   browser scrolls text it does not edit: with the caret in Firefox, with the arrow keys in Chromium (which draws no
@@ -1813,8 +1816,8 @@ container's top edge — where a single-line field of the same variant, size, la
 half of `container.height` less half a line, or `padding-block` where enlarged text makes the field taller; under the
 floated label's band in a filled field) — and the icons, a slot's Button, the prefix, the suffix and an outlined field's
 resting label are centred on that line; every further line, the room `min-rows` asks for and the height given with the
-grip lie below it, down to `padding-block`. Nothing above moves when the height changes; the grip and the supporting
-row keep their distance from the bottom edge. A single-line field is not affected.
+handle lie below it, down to `padding-block`. Nothing above moves when the height changes; the handle stays against the
+bottom edge and the supporting row keeps its distance from it. A single-line field is not affected.
 
 **Filled and outlined: the floating label (TXI-13).** It rests centred in the container (in a multi-line field: an
 outlined one's on the first line, a filled one's where a single-line filled field rests it) and floats while the input is focused, the text is not empty, or the browser marks the field
@@ -2551,7 +2554,7 @@ tanrei-combobox { --tanrei-comp-input-box-container-shape: var(--tanrei-sys-shap
 ```
 
 A design system sets the box in its layer, once (`tanrei.comp.input-box.*`); it cannot give one kind of control a
-different box as its default. What each control keeps under its own name: the text input its resize grip, segments,
+different box as its default. What each control keeps under its own name: the text input its segments,
 code face and entries place; the select and the combobox their list and options (and the rows' own `motion-state-*`
 and `<state>-opacity`); the number input where its steppers stand and how a hold repeats; the color input its swatch's
 shape and hairline (its size is the box's `icon-size-*`). `size` and `variant` of the five are the box's
@@ -6396,12 +6399,14 @@ than `container.max-width`, centred, on `container.color` with `container.elevat
 (eased by the smoothing) and its bottom corners square; its color reaches under `env(safe-area-inset-bottom)`, which is
 its own bottom padding (none while the keyboard is shown). The content is inset by `container.padding` at the start, end
 and bottom (and the top without a handle), or reaches the edges with `flush`, clipped to the container's corners. The
-handle's row is `handle.margin-block`, the box (`handle.container-*`) and `handle.margin-block` again; the grip
-(`handle.grip-*`) is centred in the box. The box's hit area is its whole row, at least `sys.target.pointer` wide and high
-(`touch` for a coarse pointer), without changing its drawn size. Its states, press-hold, answers to a press and focus ring
-are the Button's (the `drag-handle` control's tokens, see "Choices of kind"); a drag that starts on it does not leave it
-pressed. Everything is logical, so right-to-left keeps it centred and the content follows the direction. Parts:
-`container` (and its `::backdrop`), `handle`, `grip`, `content`. The web has no gallery app; the fixtures are drawn by the
+handle's row is `handle.margin-block`, the handle and `handle.margin-block` again. The handle is a `<tanrei-handle>`
+(vertical, medium, no value, `revealed`; `inert` and `aria-hidden` at one height), and the sheet sets the Handle's custom
+properties on it to its own tokens: the box from `handle.container-*`, the line from `handle.grip-*`, the colors and
+opacity of each state from the `drag-handle` control, the motion from `motion.state-*` and `motion.feedback-duration`.
+Its hit area, cursor, states, press-hold, answers to a press and focus ring are the Handle's; a drag that starts on it
+is the sheet's drag, and the handle keeps the pointer and stays pressed while it lasts. Its `activate` moves the sheet
+to its other height. Everything is logical, so right-to-left keeps it centred and the content follows the direction. Parts:
+`container` (and its `::backdrop`), `handle` and `grip` (the Handle's `container` and `line`, exported), `content`. The web has no gallery app; the fixtures are drawn by the
 test harness (`test/harness.ts`) in a 400 × 720 window on a `surface` page.
 
 ## `<tanrei-handle>`
