@@ -2,7 +2,7 @@
 title: बटन
 description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
 translationOf: components/button.mdx
-sourceHash: 1f36f0bae5338228cbecfc2e4a454e81bf6bbfb9
+sourceHash: a587774eb5411058152f514ed38199d856c52a81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## अवलोकन
 
@@ -343,6 +344,8 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
+
+<StateMatrix name="button" />
 
 <ComponentSpecs name="button" />
 

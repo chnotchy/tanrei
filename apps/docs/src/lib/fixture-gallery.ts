@@ -135,7 +135,7 @@ function layoutWidth(html: string): { width: string; html: string } | undefined 
 }
 
 /** The padding of the web harness's stage around a fixture, on each side, in CSS pixels. */
-const HARNESS_STAGE_PADDING = 16;
+export const HARNESS_STAGE_PADDING = 16;
 
 /**
  * The room a fixture is drawn in, read from its baseline in the web package (packages/web/snapshots/<spec>/<id>.png:
