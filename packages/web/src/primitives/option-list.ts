@@ -6,6 +6,7 @@ import { productText } from '../styles/product-text.js';
 import { cornerRadius } from '../styles/shape.js';
 import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
+import type { OpenAxis } from './axes.js';
 import { itemRowStyles, rowTarget } from './item-row.js';
 import { PressController, pressHold } from './press.js';
 import { RovingKeys } from './roving.js';
@@ -334,6 +335,36 @@ export interface OptionListStyleOptions {
   maxWidth?: string;
 }
 
+/** The densities every design system has (SEL-70, CMB-68). A layer may add more; those get their rules on demand. */
+export const OPTION_DENSITIES = ['regular', 'compact'] as const;
+const DEFAULT_DENSITY = 'regular';
+/** The members of the field's density axis (`dev.tanrei.axes.density.members`), as the rows read them. */
+const DENSITY_MEMBERS = ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'] as const;
+
+/**
+ * The rows' measures of one density, as private switches on the field's host (`--_opt-<member>`); a value the core does
+ * not have falls back to the default's tokens where the active design system lacks it. For a fine pointer a compact
+ * row is as tall as its density gives (SEL-37, CMB-34); every other density holds it to the pointer target.
+ */
+export function optionDensityRules(prefix: string, density: string, selector: string, fallback: string | null = null): string {
+  const ref = (member: string) => (fallback ? `var(${prefix}-${member}-${density}, var(${prefix}-${member}-${fallback}))` : `var(${prefix}-${member}-${density})`);
+  return `${selector} {
+  ${DENSITY_MEMBERS.map((member) => `--_opt-${member}: ${ref(member)};`).join('\n  ')}
+  --_opt-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+}`;
+}
+
+/** The field's open density axis (`OpenAxesController`): a density a layer added gets its rules on demand. */
+export function optionDensityAxis(prefix: `--${string}`): OpenAxis {
+  return {
+    name: 'density',
+    core: OPTION_DENSITIES,
+    default: DEFAULT_DENSITY,
+    rules: (value, selector) => optionDensityRules(prefix, value, selector, DEFAULT_DENSITY),
+    probe: (value) => `${prefix}-option-height-${value}` as const,
+  };
+}
+
 /** The most the list may be now: what the placement allows (the window less its margins, or the room its side leaves). */
 const MAX_INLINE = 'var(--_anchored-max-inline, 100vw)';
 const MAX_BLOCK = 'var(--_anchored-max-block, 100vh)';
@@ -370,6 +401,11 @@ export function optionListStyles({ prefix, variants, minWidth, maxWidth }: Optio
     ${ROW}-container-shape-pill: var(${prefix}-option-shape-pill, 0);
 ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-shape')};\n    ${ROW}-${state}-container-shape-pill: var(${prefix}-option-shape-pill, 0);\n    ${ROW}-${state}-opacity: ${T(`${state}-opacity`)};`).join('\n')}
   }
+  /* SEL-70, CMB-68: the rows' measures of the field's density. */
+  ${optionDensityRules(prefix, DEFAULT_DENSITY, ':host')}
+  ${OPTION_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
+    .map((density) => optionDensityRules(prefix, density, `:host([density='${density}'])`))
+    .join('\n  ')}
   /* What separates the groups: the field's attribute, else its separation token. */
   ${separationHost(`${prefix}-separation`)}
 
@@ -450,8 +486,8 @@ ${
   /* A group's title: above its options, inset from the rows' edges, wrapping; never a choice. */
   .group-title {
     display: block;
-    padding-block: ${T('option-padding-block')};
-    padding-inline: ${T('group-title-padding-inline')};
+    padding-block: var(--_opt-option-padding-block);
+    padding-inline: var(--_opt-group-title-padding-inline);
     font: ${T('group-title-typescale-font')};
     letter-spacing: ${T('group-title-typescale-letter-spacing')};
     color: ${T('group-title-color')};
@@ -482,8 +518,8 @@ ${
   )}
 
   /* The glyphs: an option's own, in the family and fill of its condition, and the check, always the selected ones. */
-  ${iconGlyph('.option-icon', { size: `${prefix}-option-leading-icon-size`, selected: '.row.selected', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
-  ${iconGlyph('.check', { size: `${prefix}-option-mark-size`, selected: '.mark', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
+  ${iconGlyph('.option-icon', { size: '--_opt-option-leading-icon-size', selected: '.row.selected', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
+  ${iconGlyph('.check', { size: '--_opt-option-mark-size', selected: '.mark', duration: `${prefix}-motion-state-duration`, easing: `${prefix}-motion-state-easing` })}
 
   /* The conditions, the states and their precedence, the paints, the ripple and the state motion (item-row.ts). */
   ${itemRowStyles({
@@ -505,17 +541,17 @@ ${
     display: flex;
     flex: none;
     align-items: center;
-    padding-block: ${T('option-padding-block')};
-    padding-inline: ${T('option-padding-inline')};
+    padding-block: var(--_opt-option-padding-block);
+    padding-inline: var(--_opt-option-padding-inline);
   }
-  ${rowTarget('.row', T('option-height'))}
+  ${rowTarget('.row', 'var(--_opt-option-height)', 'var(--_opt-pointer-target)')}
   /* The columns — the leading icon, the texts, the check's box — a gap apart, each centred on the label's first line. */
   .row-content {
-    --_first: max(1lh, ${T('option-mark-size')}, ${T('option-leading-icon-size')});
+    --_first: max(1lh, var(--_opt-option-mark-size), var(--_opt-option-leading-icon-size));
     display: flex;
     flex: 1 1 auto;
     align-items: flex-start;
-    gap: ${T('option-gap')};
+    gap: var(--_opt-option-gap);
     min-inline-size: 0;
     font: ${T('option-label-typescale-font')};
     letter-spacing: ${T('option-label-typescale-letter-spacing')};
@@ -527,12 +563,12 @@ ${
     justify-content: center;
   }
   .row-column.leading {
-    margin-block-start: calc((var(--_first) - ${T('option-leading-icon-size')}) / 2);
+    margin-block-start: calc((var(--_first) - var(--_opt-option-leading-icon-size)) / 2);
   }
   .row-column.mark {
-    inline-size: ${T('option-mark-size')};
-    block-size: ${T('option-mark-size')};
-    margin-block-start: calc((var(--_first) - ${T('option-mark-size')}) / 2);
+    inline-size: var(--_opt-option-mark-size);
+    block-size: var(--_opt-option-mark-size);
+    margin-block-start: calc((var(--_first) - var(--_opt-option-mark-size)) / 2);
   }
   .row-text {
     display: flex;

@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import type { OpenAxis } from '../../primitives/index.js';
 import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -7,6 +8,33 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 // says which condition and which state's tokens are drawn — never how a state looks.
 const PREFIX = '--tanrei-comp-list';
 const T = (name: string) => `var(${PREFIX}-${name})`;
+
+/** The densities every design system has (LST-51). A layer may add more; those get their rules on demand. */
+export const CORE_DENSITIES = ['regular', 'compact'] as const;
+const DEFAULT_DENSITY = 'regular';
+const ref = (member: string, density: string, fallback: string | null) =>
+  fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
+/**
+ * LST-51: the list's density, set on its host as private switches its items inherit: an action's, a link's and an
+ * option's least height and its padding above and below. LST-11: a fine pointer's item is held to the pointer target,
+ * except in the compact density.
+ */
+const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
+  --_lst-height: ${ref('container-height', density, fallback)};
+  --_lst-padding-block: ${ref('container-padding-block', density, fallback)};
+  --_lst-pointer-target: ${density === 'compact' ? '0px' : 'var(--tanrei-sys-target-pointer)'};
+}`;
+
+/** LST-51: a density a layer added gets its block on demand, falling back to the default's tokens. */
+export const AXES: readonly OpenAxis[] = [
+  {
+    name: 'density',
+    core: CORE_DENSITIES,
+    default: DEFAULT_DENSITY,
+    rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
+    probe: (value) => `${PREFIX}-container-height-${value}` as const,
+  },
+];
 
 /** The parts each condition colors in every state (private key → token part). */
 const PARTS = {
@@ -37,6 +65,12 @@ export const listStyles = css`
        items read it too: the divider stands in the middle of it (LST-3). */
     --_gap: 0px;
   }
+  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(
+    CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
+      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+      .join('\n'),
+  )}
   :host([gap='small']) {
     --_gap: ${unsafeCSS(T('gap-small'))};
   }
@@ -140,7 +174,7 @@ export const itemStyles = css`
      beside it container.gap apart; it grows with its content, never clipping it. */
   .row.p {
     gap: ${unsafeCSS(T('container-gap'))};
-    padding-block: ${unsafeCSS(T('container-padding-block'))};
+    padding-block: var(--_lst-padding-block, ${unsafeCSS(T('container-padding-block-regular'))});
     padding-inline: ${unsafeCSS(T('container-padding-inline-start'))} ${unsafeCSS(T('container-padding-inline-end'))};
   }
   .row.p .content {
@@ -153,7 +187,7 @@ export const itemStyles = css`
     text-decoration: none;
   }
   /* LST-11: an action, a link or an option is at least the minimum target tall and wide. */
-  ${rowTarget('.row.p', T('container-height'))}
+  ${rowTarget('.row.p', `var(--_lst-height, ${T('container-height-regular')})`, 'var(--_lst-pointer-target, var(--tanrei-sys-target-pointer))')}
   .row.p {
     min-inline-size: var(--tanrei-sys-target-pointer);
   }

@@ -12,13 +12,15 @@ import { CONFIG, REPO_ROOT, buildModel } from '../src/model.js';
 const NS = `${CONFIG.namespace}.comp`;
 const MENU = `${NS}.menu`;
 const STATE = '(?:(?:hovered|focused|pressed|disabled)\\.)?';
+// A measure of a row is one token per density, and each is the menu's of the same density.
+const DENSITY = '(\\.(?:regular|compact))?';
 
 /** A component's list names → the menu's. First match wins; `$n` are the match's groups. */
 const AS_THE_MENU = [
   [/^list\.(color|elevation|shape|padding-block|padding-inline|min-width|max-width|offset|viewport-margin)$/, 'surface.$1'],
-  [/^option\.(height|shape|padding-inline|padding-block|gap)$/, 'container.$1'],
-  [/^option\.(label\.typescale|supporting-text\.typescale|leading-icon\.size|mark\.size)$/, '$1'],
-  [/^(group-title\.(?:color|padding-inline|typescale)|group\.gap|divider\.(?:color|space|thickness)|separation)$/, '$1'],
+  [new RegExp(`^option\\.(height|shape|padding-inline|padding-block|gap)${DENSITY}$`), 'container.$1$2'],
+  [new RegExp(`^option\\.(label\\.typescale|supporting-text\\.typescale|leading-icon\\.size|mark\\.size)${DENSITY}$`), '$1$2'],
+  [new RegExp(`^(group-title\\.(?:color|padding-inline${DENSITY}|typescale)|group\\.gap|divider\\.(?:color|space|thickness)|separation)$`), '$1'],
   [/^(motion\.(?:feedback-duration|open-duration|open-easing|close-duration|close-easing))$/, '$1'],
   // An option at rest and chosen, per look of the field and per state: the menu's plain row and its checked row.
   [new RegExp(`^[a-z-]+\\.(${STATE})option\\.([a-z-]+\\.color)$`), 'unselected.$1$2'],
@@ -30,10 +32,10 @@ const OF_THE_LIST = new RegExp(`^(?:list|option|group-title|group|divider)\\.|^s
 /** `own`: list tokens the menu has no counterpart for, by name, so that nothing is left out by accident. */
 export const LISTS = {
   // A long list scrolls inside a height of its own; a menu is short by its rules and has none.
-  select: { own: ['list.max-height'], pairs: 196 },
+  select: { own: ['list.max-height'], pairs: 203 },
   // A combobox's list is exactly as wide as its field, so it has no least width (CMB-22); the weight of the letters
   // that matched what was typed is its own.
-  combobox: { own: ['list.max-height', 'option.match.emphasis'], pairs: 194 },
+  combobox: { own: ['list.max-height', 'option.match.emphasis'], pairs: 201 },
 };
 
 const systems = [DEFAULT_SYSTEM, ...shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM)];
@@ -105,7 +107,9 @@ test('the list comparison is not vacuous: the chosen row is the menu\'s checked 
   assert.equal(pair('outlined.hovered.selected-option.container.color'), `${MENU}.selected.hovered.container.color`);
   assert.equal(pair('filled.disabled.option.label.color'), `${MENU}.unselected.disabled.label.color`);
   assert.equal(pair('list.color'), `${MENU}.surface.color`);
-  assert.equal(pair('option.height'), `${MENU}.container.height`);
+  assert.equal(pair('option.height.regular'), `${MENU}.container.height.regular`);
+  assert.equal(pair('option.height.compact'), `${MENU}.container.height.compact`);
+  assert.equal(pair('group-title.padding-inline.compact'), `${MENU}.group-title.padding-inline.compact`);
   // The default system draws a checked row as a layer of its content color, per scheme: the value
   // compared is the one in force in that scheme.
   const id = `${NS}.select.stacked.selected-option.container.color`;

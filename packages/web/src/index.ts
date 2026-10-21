@@ -149,6 +149,7 @@ export {
 export { TanreiOption, TanreiOptionGroup } from './components/option/option.js';
 export {
   TanreiSelect,
+  type TanreiSelectDensity,
   type TanreiSelectIconSpace,
   type TanreiSelectSeparation,
   type TanreiSelectSize,
@@ -161,6 +162,7 @@ export { TanreiSelectField } from './components/select-field/select-field.js';
 export {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
+  type TanreiComboboxDensity,
   type TanreiComboboxFilter,
   type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
@@ -267,6 +269,7 @@ export {
 export {
   TanreiList,
   type TanreiListChangeDetail,
+  type TanreiListDensity,
   type TanreiListGap,
   TanreiListItem,
   type TanreiListMoveDetail,
@@ -290,6 +293,7 @@ export {
   type TanreiMenuCloseReason,
   type TanreiMenuContextInput,
   type TanreiMenuContextRequestDetail,
+  type TanreiMenuDensity,
   TanreiMenuGroup,
   type TanreiMenuGroupChangeDetail,
   TanreiMenuItem,
@@ -341,6 +345,7 @@ export {
   TanreiSearch,
   type TanreiSearchBar,
   type TanreiSearchCloseReason,
+  type TanreiSearchDensity,
   type TanreiSearchPresentation,
   TanreiSearchResult,
   TanreiSearchResultGroup,

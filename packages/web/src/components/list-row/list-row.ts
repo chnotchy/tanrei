@@ -112,8 +112,16 @@ export class TanreiListRow extends TanreiElement {
   /** The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says. */
   trailingIcon = '';
 
-  /** How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). A design system may add values. */
+  /**
+   * How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). Inside an item of a list the list's
+   * density is drawn in its place (LRW-17). A design system may add values.
+   */
   density: TanreiListRowDensity = 'regular';
+
+  /** @internal LRW-17: the density the row draws — the one its list tells it inside an item of a list, else its own. */
+  get drawnDensity(): string {
+    return this.listItemFrame?.density ?? String(this.density ?? '');
+  }
 
   /**
    * @internal LST-48: what the list item this row is the direct child of says it is; null while the row stands alone (or
@@ -321,6 +329,7 @@ export class TanreiListRow extends TanreiElement {
       <div
         part="container"
         class=${classMap({ row: true, two: lines === 2, three: lines === 3, boxed: !!frame?.boxed, handled: !!frame?.handled, selected: !!frame?.selected, disabled: !!frame?.disabled })}
+        data-density=${this.drawnDensity}
       >
         <div class="parts">
           <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon || keepsRoom })}>

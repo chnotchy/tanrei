@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
+sourceHash: b2bc5159dc19cbc953a578fe9a624af119a5a8e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -429,6 +429,10 @@ La marca de un elemento de casilla de verificación o de opción está en la col
 - **`never`** da una columna solo a la fila que dibuja en ella, así que cada etiqueta empieza justo después de su propia marca o icono.
 
 Cada superficie decide por sí misma, y un submenú sigue el `iconSpace` de su menú. El título de un grupo empieza donde empieza el contenido de las filas, guarden lo que guarden. La [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
+### Densidad
+
+`density` fija cuánto espacio ocupa una fila. `regular` (el valor por defecto: una fila de 48 con glifos de 24) es para un producto que se usa tanto con el tacto como con un puntero. `compact` (una fila de 32 con glifos de 20, la fila compacta de la [vista de árbol](/es/components/tree-view/)) es para una herramienta que se usa con el ratón, cuyos menús son largos y se abren a menudo. El texto conserva su tamaño en ambas. Con el tacto una fila nunca es más baja que el objetivo táctil, así que un menú compacto en un teléfono sigue teniendo filas de 48. Cada submenú toma la densidad de su menú.
 
 ### Enlaces
 

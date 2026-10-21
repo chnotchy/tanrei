@@ -641,7 +641,7 @@ test.describe('one line, and what is folded away', () => {
     const glyph = docs.locator('.leading-icon');
     await expect(glyph).toHaveText('home');
     await expect(glyph).toHaveAttribute('aria-hidden', 'true');
-    const size = await resolveToken(page, '--tanrei-comp-menu-leading-icon-size');
+    const size = await resolveToken(page, '--tanrei-comp-menu-leading-icon-size-regular');
     expect(size).toBeGreaterThan(0);
     // (Layout sizes: the surface may still be arriving, and a box read then would be the scaled one.)
     expect(await glyph.evaluate((el: HTMLElement) => [el.offsetWidth, el.offsetHeight, getComputedStyle(el).fontSize])).toEqual([size, size, `${size}px`]);

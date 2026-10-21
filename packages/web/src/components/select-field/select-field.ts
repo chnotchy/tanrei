@@ -4,7 +4,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
 import { report } from '../../primitives/report.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
-import { TanreiSelect, type TanreiSelectIconSpace, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectStatus, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
+import { TanreiSelect, type TanreiSelectDensity, type TanreiSelectIconSpace, type TanreiSelectSeparation, type TanreiSelectSize, type TanreiSelectStatus, type TanreiSelectToggleDetail, type TanreiSelectToggleReason, type TanreiSelectVariant } from '../select/select.js';
 
 // The members' own types are the select field's: it has no detail type and no type for a prop of its own.
 export type { TanreiFieldRequiredMark, TanreiSelectIconSpace, TanreiSelectSeparation, TanreiSelectSize, TanreiSelectStatus, TanreiSelectToggleDetail, TanreiSelectToggleReason, TanreiSelectVariant };
@@ -15,7 +15,7 @@ const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', '
  * SEF-1: the eleven props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
  * they reach the select through its Field's connection.
  */
-const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation', 'iconSpace', 'status', 'statusText', 'emptyText'] as const;
+const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation', 'iconSpace', 'density', 'status', 'statusText', 'emptyText'] as const;
 
 /**
  * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
@@ -132,6 +132,7 @@ export class TanreiSelectField extends ComposedControl<string> {
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
@@ -229,6 +230,9 @@ export class TanreiSelectField extends ComposedControl<string> {
 
   /** @from tanrei-select.iconSpace */
   iconSpace: TanreiSelectIconSpace = 'auto';
+
+  /** @from tanrei-select.density */
+  density: TanreiSelectDensity = 'regular';
 
   /** @from tanrei-select.status */
   status: TanreiSelectStatus = 'idle';

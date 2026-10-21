@@ -3177,7 +3177,6 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
@@ -3195,14 +3194,8 @@ private object M3ExpressiveLikeSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 48.dp,
             optionLabelTypescale = typescale.label,
-            optionLeadingIconSize = 24.dp,
-            optionMarkSize = 24.dp,
             optionMatchEmphasis = 200f,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 0.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -3415,6 +3408,10 @@ private object M3ExpressiveLikeSystemSource {
                         selectedOptionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiComboboxDensitys(
+                regular = TanreiComboboxDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiComboboxDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -5067,8 +5064,6 @@ private object M3ExpressiveLikeSystemSource {
     fun list(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiListTokens =
         TanreiListTokens(
             containerGap = 16.dp,
-            containerHeight = 56.dp,
-            containerPaddingBlock = 8.dp,
             containerPaddingInlineEnd = 24.dp,
             containerPaddingInlineStart = 16.dp,
             containerShape = 0.dp,
@@ -5156,6 +5151,10 @@ private object M3ExpressiveLikeSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                 ),
+            ),
+            densitys = TanreiListDensitys(
+                regular = TanreiListDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 8.dp),
+                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
             ),
         )
 
@@ -5299,10 +5298,6 @@ private object M3ExpressiveLikeSystemSource {
     fun menu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMenuTokens =
         TanreiMenuTokens(
             checkboxItemMark = 1f,
-            containerGap = 12.dp,
-            containerHeight = 48.dp,
-            containerPaddingBlock = 8.dp,
-            containerPaddingInline = 12.dp,
             containerShape = 0.dp,
             controlBoxShape = 4.dp,
             controlBoxSize = 18.dp,
@@ -5318,12 +5313,9 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             labelTypescale = typescale.label,
-            leadingIconSize = 24.dp,
-            markSize = 24.dp,
             markWidth = 2.dp,
             motionCloseDuration = 100,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
@@ -5347,7 +5339,6 @@ private object M3ExpressiveLikeSystemSource {
             surfacePaddingInline = 0.dp,
             surfaceShape = 4.dp,
             surfaceViewportMargin = 8.dp,
-            trailingIconSize = 24.dp,
             trailingTextTypescale = typescale.labelSmall,
             hovered = TanreiMenuStateTokens(containerShape = 0.dp, opacity = 1f),
             focused = TanreiMenuStateTokens(containerShape = 0.dp, opacity = 1f),
@@ -5664,6 +5655,10 @@ private object M3ExpressiveLikeSystemSource {
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiMenuDensitys(
+                regular = TanreiMenuDensityTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiMenuDensityTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 
@@ -6893,13 +6888,8 @@ private object M3ExpressiveLikeSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
-            suggestionContainerGap = 16.dp,
-            suggestionContainerHeight = 56.dp,
-            suggestionContainerPaddingBlock = 8.dp,
-            suggestionContainerPaddingInline = 16.dp,
             suggestionContainerShape = 8.dp,
             suggestionHeadlineTypescale = typescale.body,
-            suggestionLeadingIconSize = 24.dp,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
             triggerContainerHeight = 40.dp,
@@ -6999,6 +6989,10 @@ private object M3ExpressiveLikeSystemSource {
                         suggestionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiSearchDensitys(
+                regular = TanreiSearchDensityTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
             ),
         )
 
@@ -7112,7 +7106,6 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
@@ -7132,13 +7125,7 @@ private object M3ExpressiveLikeSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 48.dp,
             optionLabelTypescale = typescale.label,
-            optionLeadingIconSize = 24.dp,
-            optionMarkSize = 24.dp,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 0.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -7351,6 +7338,10 @@ private object M3ExpressiveLikeSystemSource {
                         selectedOptionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+            densitys = TanreiSelectDensitys(
+                regular = TanreiSelectDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiSelectDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
             ),
         )
 

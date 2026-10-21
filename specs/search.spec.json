@@ -210,6 +210,17 @@
       ],
       "default": "auto",
       "description": "Whether a row of the view — a suggestion, a result, a result group's linked heading — keeps the room of the leading icon column where it has no icon, so that the headlines of the view start on one line. auto: every row keeps the column while any suggestion or result of the view has a leading icon, and none while none has. always: every row keeps it. never: only a row that has an icon has the column. The view is decided as a whole. The menu's iconSpace, with the same values and default (SRC-52)."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room a row of the view takes — a suggestion, a result, a result group's linked heading —: its least height, its paddings, the gap after its icon column and the size of its glyph, and never its text style. regular (a 56 row in the default system) is for a product used by touch as well as by pointer; compact (a 32 row with a 20 glyph, the tree view's compact row) is for a tool used with a pointer, a command palette looked through with the keyboard. For touch a row is never lower than the touch target in either (SRC-16). The bar, the trigger and the view's header are not changed. A design system may add values.",
+      "axis": "tanrei.comp.search.density"
     }
   ],
   "items": [
@@ -459,7 +470,7 @@
     },
     {
       "id": "SRC-16",
-      "text": "THE search SHALL lay out each suggestion as one row, at least comp.search.suggestion.container.height tall and at least sys.target.touch tall for touch input and sys.target.pointer for fine pointers (rows that touch cannot extend a hit area over each other): comp.search.suggestion.container.padding-inline from each edge, the leading icon column as SRC-52 says, then the headline with the supporting text under it, comp.search.suggestion.container.gap after the icon column, padded by comp.search.suggestion.container.padding-block above and below. It SHALL draw the headline in comp.search.suggestion.headline.typescale and the supporting text in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut; the leading icon at comp.search.suggestion.leading-icon.size with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the row's highlight rounded by comp.search.suggestion.container.shape. Right-to-left layouts SHALL mirror the row, and the whole row SHALL be the suggestion's hit area."
+      "text": "THE search SHALL lay out each suggestion as one row, at least comp.search.suggestion.container.height.regular tall and at least sys.target.touch tall for touch input, in both densities, and for fine pointers at least sys.target.pointer tall WHILE density is regular and as tall as its density gives WHILE density is compact (SRC-53) (rows that touch cannot extend a hit area over each other): comp.search.suggestion.container.padding-inline.regular from each edge, the leading icon column as SRC-52 says, then the headline with the supporting text under it, comp.search.suggestion.container.gap.regular after the icon column, padded by comp.search.suggestion.container.padding-block.regular above and below. It SHALL draw the headline in comp.search.suggestion.headline.typescale and the supporting text in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut; the leading icon at comp.search.suggestion.leading-icon.size.regular with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the row's highlight rounded by comp.search.suggestion.container.shape. Right-to-left layouts SHALL mirror the row, and the whole row SHALL be the suggestion's hit area."
     },
     {
       "id": "SRC-17",
@@ -513,7 +524,7 @@
     },
     {
       "id": "SRC-29",
-      "text": "THE search SHALL hand the default slot's content comp.search.standard.suggestion.headline.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context), inset by comp.search.suggestion.container.padding-inline at the sides, and plain text given as that content, where the platform must style it, SHALL take sys.typescale.body."
+      "text": "THE search SHALL hand the default slot's content comp.search.standard.suggestion.headline.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context), inset by comp.search.suggestion.container.padding-inline.regular at the sides, and plain text given as that content, where the platform must style it, SHALL take sys.typescale.body."
     },
     {
       "id": "SRC-30",
@@ -572,7 +583,7 @@
     },
     {
       "id": "SRC-42",
-      "text": "THE search SHALL lay out a result as a suggestion's row is laid out (SRC-16), from the same tokens: the leading icon column, then the headline in comp.search.suggestion.headline.typescale with the excerpt under it in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut, the row at least comp.search.suggestion.container.height tall and at least the minimum target, and the whole row the result's hit area. The leading icon column SHALL be kept as SRC-52 says, the suggestions and the results of the view decided together, so that they align. WHILE a result is hovered, focused or pressed THE search SHALL render its row from the suggestion tokens of that state (comp.search.standard.suggestion.container.color and the leading icon, headline and supporting-text colors, the excerpt taking the supporting-text color) with the precedence, the focus ring inside the row and the press answer that SRC-17, SRC-19 and SRC-20 give a suggestion, focused standing where active stands there."
+      "text": "THE search SHALL lay out a result as a suggestion's row is laid out (SRC-16), from the same tokens: the leading icon column, then the headline in comp.search.suggestion.headline.typescale with the excerpt under it in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut, the row at least comp.search.suggestion.container.height.regular tall and at least the minimum target, and the whole row the result's hit area. The leading icon column SHALL be kept as SRC-52 says, the suggestions and the results of the view decided together, so that they align. WHILE a result is hovered, focused or pressed THE search SHALL render its row from the suggestion tokens of that state (comp.search.standard.suggestion.container.color and the leading icon, headline and supporting-text colors, the excerpt taking the supporting-text color) with the precedence, the focus ring inside the row and the press answer that SRC-17, SRC-19 and SRC-20 give a suggestion, focused standing where active stands there."
     },
     {
       "id": "SRC-43",
@@ -581,7 +592,7 @@
     },
     {
       "id": "SRC-44",
-      "text": "THE search SHALL draw a result group as its heading followed by its results in order, comp.search.group.gap below whatever stands above it in the view and above whatever follows it. WHILE the group's href is empty its heading SHALL be the headline in comp.search.group-title.typescale and comp.search.group-title.color, wrapping, inset by comp.search.suggestion.container.padding-inline at the sides and padded by comp.search.suggestion.container.padding-block above and below, taking no input and no state. WHILE href is not empty the heading SHALL be a result's row (SRC-42, SRC-45) made of the group's headline, excerpt and leading icon, and the group's results SHALL be inset at the start by comp.search.group.indent, their hit areas and highlights with them, so that they read as parts of it. A group SHALL hold results only, and SHALL NOT hold a group. Right-to-left layouts SHALL mirror the inset."
+      "text": "THE search SHALL draw a result group as its heading followed by its results in order, comp.search.group.gap below whatever stands above it in the view and above whatever follows it. WHILE the group's href is empty its heading SHALL be the headline in comp.search.group-title.typescale and comp.search.group-title.color, wrapping, inset by comp.search.suggestion.container.padding-inline.regular at the sides and padded by comp.search.suggestion.container.padding-block.regular above and below, taking no input and no state. WHILE href is not empty the heading SHALL be a result's row (SRC-42, SRC-45) made of the group's headline, excerpt and leading icon, and the group's results SHALL be inset at the start by comp.search.group.indent, their hit areas and highlights with them, so that they read as parts of it. A group SHALL hold results only, and SHALL NOT hold a group. Right-to-left layouts SHALL mirror the inset."
     },
     {
       "id": "SRC-45",
@@ -593,7 +604,7 @@
     },
     {
       "id": "SRC-47",
-      "text": "WHILE statusText is not empty or status is loading THE search SHALL draw a status row: inset by comp.search.suggestion.container.padding-inline at the sides and padded by comp.search.suggestion.container.padding-block above and below, taking no input and no state. WHILE status is idle it SHALL draw statusText, wrapping, in comp.search.status.typescale and comp.search.status.color; WHILE status is error it SHALL draw it in comp.search.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The results the product leaves in the view WHILE status is loading SHALL stay drawn and usable.",
+      "text": "WHILE statusText is not empty or status is loading THE search SHALL draw a status row: inset by comp.search.suggestion.container.padding-inline.regular at the sides and padded by comp.search.suggestion.container.padding-block.regular above and below, taking no input and no state. WHILE status is idle it SHALL draw statusText, wrapping, in comp.search.status.typescale and comp.search.status.color; WHILE status is error it SHALL draw it in comp.search.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The results the product leaves in the view WHILE status is loading SHALL stay drawn and usable.",
       "verify": "The fixture dialog-loading is drawn with the hosted indicator's show delay and enter duration at 0, as the loading indicator's own fixtures are."
     },
     {
@@ -615,8 +626,13 @@
     },
     {
       "id": "SRC-52",
-      "text": "THE search SHALL decide the leading icon column for its view as a whole — its suggestions, its results and the linked headings of its result groups (SRC-16, SRC-42, SRC-44) — as iconSpace says. WHILE iconSpace is auto every row SHALL keep the column, empty where it has no icon, WHERE any suggestion or result of the view has a leading icon, so that the headlines of the view start on one line, and no row SHALL keep it WHERE none has one; WHILE iconSpace is always every row SHALL keep the column, whether or not any has an icon; WHILE iconSpace is never a row SHALL have the column only where it has a leading icon itself. The column kept is comp.search.suggestion.leading-icon.size wide with comp.search.suggestion.container.gap after it, draws nothing and is nothing to assistive technology. WHEN a suggestion or a result is added or removed, or its leadingIcon changes, THE search SHALL decide again; WHEN iconSpace names a value the search does not define THE search SHALL treat it as auto and in debug builds report the unknown value.",
+      "text": "THE search SHALL decide the leading icon column for its view as a whole — its suggestions, its results and the linked headings of its result groups (SRC-16, SRC-42, SRC-44) — as iconSpace says. WHILE iconSpace is auto every row SHALL keep the column, empty where it has no icon, WHERE any suggestion or result of the view has a leading icon, so that the headlines of the view start on one line, and no row SHALL keep it WHERE none has one; WHILE iconSpace is always every row SHALL keep the column, whether or not any has an icon; WHILE iconSpace is never a row SHALL have the column only where it has a leading icon itself. The column kept is comp.search.suggestion.leading-icon.size.regular wide with comp.search.suggestion.container.gap.regular after it, draws nothing and is nothing to assistive technology. WHEN a suggestion or a result is added or removed, or its leadingIcon changes, THE search SHALL decide again; WHEN iconSpace names a value the search does not define THE search SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto: the suggestions invoices and invoice template have the glyph history and Invoices has none, so Invoices' headline starts where theirs do. Fixture icon-space-always: the same. Fixture icon-space-never: Invoices' headline starts at the row's padding. Test a view whose suggestions have no icon (auto: none keeps the column; always: every row keeps it), the results of a view keeping the column of its suggestions' icons, a leadingIcon given and taken away, and an unknown value (auto, reported)."
+    },
+    {
+      "id": "SRC-53",
+      "text": "THE search SHALL draw every row of its view — a suggestion, a result, a result group's linked heading — at its density. WHILE density is regular a row SHALL take the regular value of every token of the density axis this spec names (comp.search.suggestion.container.height.regular, comp.search.suggestion.container.padding-block.regular, comp.search.suggestion.container.padding-inline.regular, comp.search.suggestion.container.gap.regular, comp.search.suggestion.leading-icon.size.regular); WHILE density is compact it SHALL take the compact value of each in its place (comp.search.suggestion.container.height.compact, comp.search.suggestion.container.padding-block.compact, comp.search.suggestion.container.padding-inline.compact, comp.search.suggestion.container.gap.compact, comp.search.suggestion.leading-icon.size.compact), so that a compact row is lower, set in less from its edges and draws a smaller glyph, the room kept for an empty leading icon column (SRC-52) shrinking with it. The text styles, the group titles, the status row, the view's surface, its header and the bar SHALL be the same in both. WHEN density names a value the active design system does not have THE search SHALL draw the default density's rows and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the view is shown THE search SHALL draw the new rows at once, without a motion, keeping the active row.",
+      "verify": "Fixture density-compact under the default system: with a mouse every suggestion is 32 high (one with supporting text grows with it), its glyph 20, its content 8 from the row's edges; under touch emulation every row is 48. The bar is as high as the regular one's."
     }
   ],
   "accessibility": {
@@ -665,7 +681,8 @@
       "Who closes the view: the search emits toggle; where expanded is a binding or controller (SwiftUI, Flutter) or the element's own property (the web) the search closes it itself, and on Compose and React Native the product sets expanded from toggle, as for the menu.",
       "The input edits text as the text field does (TXI-1, TXI-4, TXI-20, TXI-24), and its selection is the text field's pair: comp.input-box.selection.color behind the text, comp.input-box.selection.content.color for it.",
       "Heights are minimums: at 200% text size the bar and the header grow, the value stays on one line, and suggestion rows wrap.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WCAG 2.5.8 (target size): for touch every row of the view is at least the touch target high in both densities (SRC-16). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse and the keyboard, it stays above the 24 by 24 the criterion asks, and its rows reach across the view's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.search",
@@ -1293,6 +1310,43 @@
           }
         }
       ]
+    },
+    {
+      "id": "density-compact",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages"
+          }
+        }
+      ]
     }
   ],
   "platforms": {
@@ -1313,7 +1367,8 @@
         "bindShortcut": "bindShortcut",
         "status": "status",
         "statusText": "statusText",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "density": "density"
       },
       "events": {
         "input": "input",
@@ -1378,7 +1433,8 @@
         "bindShortcut": "bindsShortcut",
         "status": "status",
         "statusText": "statusText",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "density": "density"
       },
       "events": {
         "input": "text",
@@ -1443,7 +1499,8 @@
         "bindShortcut": "bindShortcut",
         "status": "status",
         "statusText": "statusText",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "density": "density"
       },
       "events": {
         "input": "onValueChange",
@@ -1508,7 +1565,8 @@
         "bindShortcut": "bindShortcut",
         "status": "status",
         "statusText": "statusText",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "density": "density"
       },
       "events": {
         "input": "onChanged",
@@ -1573,7 +1631,8 @@
         "bindShortcut": "bindShortcut",
         "status": "status",
         "statusText": "statusText",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "density": "density"
       },
       "events": {
         "input": "onChangeText",

@@ -201,6 +201,31 @@ export interface TanreiListRowDensityRegistry {
   compact: true;
 }
 
+export interface TanreiListDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiMenuDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiSelectDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiComboboxDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiSearchDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
 export interface TanreiPageHeaderSizeRegistry {
   small: true;
   medium: true;

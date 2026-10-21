@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: 4411a99a32ab8adee270398cbe94503b9490d9de
+sourceHash: 97f95e60d839a24193665f1fe2462d0f38f436f5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -176,6 +176,8 @@ La lista se abre a una distancia de `comp.select.list.offset` por debajo del con
 | Opción deshabilitada | Se llega a ella con las teclas de flecha, para que las personas sepan que existe, y nunca se elige |
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
+`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
 
 Una opción cuyo valor es la cadena vacía es una opción como cualquier otra, para «Ninguno» o «Cualquiera». El select no tiene una forma propia de volver a no tener nada elegido: donde se permita no elegir, ofrece una opción que lo diga.
 

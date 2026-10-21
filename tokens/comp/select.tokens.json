@@ -40,10 +40,26 @@
             "variant": {
               "default": "stacked",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "option.height",
+                "option.padding-inline",
+                "option.padding-block",
+                "option.gap",
+                "option.leading-icon.size",
+                "option.mark.size",
+                "group-title.padding-inline"
+              ]
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; an option's row, text styles, glyph and check sizes; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
             "rules": [
               "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
               "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
@@ -54,6 +70,7 @@
               "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
           }
@@ -151,17 +168,22 @@
         "option": {
           "height": {
             "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
             "$description": "An option's minimum height.",
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
+            "regular": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
               }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.height.compact}"
             }
           },
           "shape": {
@@ -185,18 +207,33 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "Padding at the sides of an option's row."
+            "$description": "Padding at the sides of an option's row.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
+            }
           },
           "padding-block": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}",
-            "$description": "Padding above and below an option's content."
+            "$description": "Padding above and below an option's content.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-block.compact}"
+            }
           },
           "gap": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "Distance between an option's glyph, its text and its check."
+            "$description": "Distance between an option's glyph, its text and its check.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.gap.compact}"
+            }
           },
           "label": {
             "typescale": {
@@ -215,15 +252,25 @@
           "leading-icon": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}",
-              "$description": "An option's glyph."
+              "$description": "An option's glyph.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.leading-icon.size.compact}"
+              }
             }
           },
           "mark": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}",
-              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike."
+              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.mark.size.compact}"
+              }
             }
           }
         },
@@ -239,8 +286,13 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.comp.select.option.padding-inline}",
-            "$description": "Inset of a group's heading from the rows' edges."
+            "$description": "Inset of a group's heading from the rows' edges.",
+            "regular": {
+              "$value": "{tanrei.comp.select.option.padding-inline.regular}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.select.option.padding-inline.compact}"
+            }
           }
         },
         "status": {

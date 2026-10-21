@@ -132,6 +132,17 @@
       ],
       "default": "auto",
       "description": "Whether a row keeps the room of the mark column and of the leading icon column where it has nothing to draw there, so that the labels of a section start on one line — a section being a group, or a run of adjacent items outside any group. auto: a row keeps a column's room while another item of its section draws in that column (a checkbox or radio item its mark, an item its leading icon), so that a section without marks or icons draws its labels where the row's content starts. always: every row keeps both. never: only a row that draws in a column has it. The tree view's and the navigation drawer's iconSpace, with the same values and default. It applies to the menu and to every submenu of it (MNU-59)."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room a row takes: its least height, its paddings, the gap between its columns and the size of its glyphs (the mark, the leading and the trailing icon), and never its text style. regular (a 48 row with 24 glyphs in the default system) is the menu of a product used by touch as well as by pointer. compact (a 32 row with 20 glyphs, the tree view's compact row) is for a tool used with a pointer, whose menus are long and opened often. For touch a row is never lower than the touch target in either (MNU-12). It applies to the menu and to every submenu of it (MNU-64). A design system may add values.",
+      "axis": "tanrei.comp.menu.density"
     }
   ],
   "items": [
@@ -497,7 +508,7 @@
     },
     {
       "id": "MNU-12",
-      "text": "WHERE an item is shorter than the minimum target THE menu SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because stacked items cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row SHALL be the item's hit area."
+      "text": "WHERE an item is shorter than the minimum target THE menu SHALL make its container at least sys.target.touch tall for touch input, in both densities, because stacked items cannot extend a hit area over each other, and for fine pointers at least sys.target.pointer tall WHILE density is regular and as tall as its density gives WHILE density is compact (MNU-64), the one place where a row of the menu is lower than the pointer target; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row SHALL be the item's hit area."
     },
     {
       "id": "MNU-13",
@@ -527,21 +538,21 @@
     },
     {
       "id": "MNU-19",
-      "text": "THE menu SHALL lay out an item as one row: comp.menu.container.padding-inline from each edge, the mark column and the leading icon column, each where MNU-59 keeps it, the label with the supporting text below it taking the remaining width, then the trailing column, which holds the shortcut or the trailing text, and the trailing icon column, which holds the trailing icon or, in a submenu item, the submenu indicator (MNU-42) or, in a link item that opens a new context and names no trailing icon, its mark (MNU-55), each comp.menu.container.gap from the next; an empty trailing icon column SHALL keep its width in every item of the same surface so that shortcuts, trailing text and trailing icons align, each surface — the menu's and each submenu's — reserving its own, and WHEN the layout direction is right-to-left THE menu SHALL mirror the row.",
+      "text": "THE menu SHALL lay out an item as one row: comp.menu.container.padding-inline.regular from each edge, the mark column and the leading icon column, each where MNU-59 keeps it, the label with the supporting text below it taking the remaining width, then the trailing column, which holds the shortcut or the trailing text, and the trailing icon column, which holds the trailing icon or, in a submenu item, the submenu indicator (MNU-42) or, in a link item that opens a new context and names no trailing icon, its mark (MNU-55), each comp.menu.container.gap.regular from the next; an empty trailing icon column SHALL keep its width in every item of the same surface so that shortcuts, trailing text and trailing icons align, each surface — the menu's and each submenu's — reserving its own, and WHEN the layout direction is right-to-left THE menu SHALL mirror the row.",
       "verify": "Fixtures render the open menu in place: the harness draws the surface at its natural size, with its elevation and without an anchor, placement or open motion (on the web the `inline` test attribute; on the other platforms the test-only in-place initializer each README names). The fixture's items are the menu's items in order, a group item and a submenu item holding their own; open, placement and separation apply to the menu. A submenu item whose open is true is drawn with its submenu's surface placed against it as MNU-46 says, on a stage wide enough for every open level (so the harness never flips or overlaps a submenu), without the open motion and without moving focus; a submenu item whose open is false draws its row only. A fixture's direction is set on the stage. Every harness sets the ambient keyboard convention to apple (KBS-2), so every platform draws the same keys."
     },
     {
       "id": "MNU-20",
-      "text": "THE menu SHALL make an item at least comp.menu.container.height tall, pad its content by comp.menu.container.padding-block above and below, draw the label in comp.menu.label.typescale, the supporting text in comp.menu.supporting-text.typescale and the trailing text and the shortcut's legends in comp.menu.trailing-text.typescale, and grow with its content and with enlarged text rather than clip or truncate it."
+      "text": "THE menu SHALL make an item at least comp.menu.container.height.regular tall, pad its content by comp.menu.container.padding-block.regular above and below, draw the label in comp.menu.label.typescale, the supporting text in comp.menu.supporting-text.typescale and the trailing text and the shortcut's legends in comp.menu.trailing-text.typescale, and grow with its content and with enlarged text rather than clip or truncate it."
     },
     {
       "id": "MNU-21",
-      "text": "THE menu SHALL draw leadingIcon at comp.menu.leading-icon.size and trailingIcon at comp.menu.trailing-icon.size through the icon helper, with the family and fill of the item's condition (selected for a checked item and for a current link item, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; an empty name SHALL draw nothing."
+      "text": "THE menu SHALL draw leadingIcon at comp.menu.leading-icon.size.regular and trailingIcon at comp.menu.trailing-icon.size.regular through the icon helper, with the family and fill of the item's condition (selected for a checked item and for a current link item, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; an empty name SHALL draw nothing."
     },
     {
       "id": "MNU-22",
-      "text": "WHILE a checkbox or radio item is checked and its mark is a glyph (MNU-38) THE menu SHALL draw that glyph of the system's icon set — check where the design system's choice is check, the named glyph where markIcon names one — in its mark column, centered in a box of side comp.menu.mark.size, in the mark color of its condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL draw nothing in that column while the item is not checked; it SHALL NOT mirror the check when the layout direction is right-to-left, a glyph that markIcon names following MNU-33; THE menu SHALL draw no mark of its own (no path, shape or character of its own for the check). WHEN checked changes while the menu is open THE menu SHALL fade the glyph in or out over comp.menu.motion.state-duration with comp.menu.motion.state-easing without moving or scaling it, and at once where motion is reduced.",
-      "verify": "The fixtures checkbox-check-mark and radio-check-mark name the glyph check, so they draw the plain check under every design system; mark-icon-custom names other glyphs. Under m3-like and cupertino, which choose check for both kinds of item, checkbox-checked and radio-checked draw the same plain check. Under the `acme` fixture system, whose icon set is static (a family per selection state), the glyph is drawn in its selected family; the glyph's box is comp.menu.mark.size, the same as comp.menu.leading-icon.size in the default system."
+      "text": "WHILE a checkbox or radio item is checked and its mark is a glyph (MNU-38) THE menu SHALL draw that glyph of the system's icon set — check where the design system's choice is check, the named glyph where markIcon names one — in its mark column, centered in a box of side comp.menu.mark.size.regular, in the mark color of its condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL draw nothing in that column while the item is not checked; it SHALL NOT mirror the check when the layout direction is right-to-left, a glyph that markIcon names following MNU-33; THE menu SHALL draw no mark of its own (no path, shape or character of its own for the check). WHEN checked changes while the menu is open THE menu SHALL fade the glyph in or out over comp.menu.motion.state-duration with comp.menu.motion.state-easing without moving or scaling it, and at once where motion is reduced.",
+      "verify": "The fixtures checkbox-check-mark and radio-check-mark name the glyph check, so they draw the plain check under every design system; mark-icon-custom names other glyphs. Under m3-like and cupertino, which choose check for both kinds of item, checkbox-checked and radio-checked draw the same plain check. Under the `acme` fixture system, whose icon set is static (a family per selection state), the glyph is drawn in its selected family; the glyph's box is comp.menu.mark.size.regular, the same as comp.menu.leading-icon.size.regular in the default system."
     },
     {
       "id": "MNU-23",
@@ -565,7 +576,7 @@
     },
     {
       "id": "MNU-28",
-      "text": "WHILE a group's title is not empty THE menu SHALL draw it above the group's items in comp.menu.group-title.typescale and comp.menu.group-title.color, starting comp.menu.group-title.padding-inline from the rows' start edge and ending comp.menu.group-title.padding-inline from their end edge, whether or not the menu draws the mark and leading icon columns (so that, at the default values, the title starts where each row's first column starts: the mark, the leading icon or the label), with comp.menu.container.padding-block above and below, wrapping and growing with enlarged text rather than clipping; WHEN the layout direction is right-to-left start and end SHALL mirror. The title SHALL take no focus and SHALL NOT be read as an item.",
+      "text": "WHILE a group's title is not empty THE menu SHALL draw it above the group's items in comp.menu.group-title.typescale and comp.menu.group-title.color, starting comp.menu.group-title.padding-inline.regular from the rows' start edge and ending comp.menu.group-title.padding-inline.regular from their end edge, whether or not the menu draws the mark and leading icon columns (so that, at the default values, the title starts where each row's first column starts: the mark, the leading icon or the label), with comp.menu.container.padding-block.regular above and below, wrapping and growing with enlarged text rather than clipping; WHEN the layout direction is right-to-left start and end SHALL mirror. The title SHALL take no focus and SHALL NOT be read as an item.",
       "verify": "Fixtures group-titles (the mark column) and group-titles-icons (the mark and leading icon columns): in the default system the title's text starts at the same inline offset as the rows' marks, not their labels."
     },
     {
@@ -612,7 +623,7 @@
     },
     {
       "id": "MNU-38",
-      "text": "THE menu SHALL draw the mark of a checkbox or radio item as the first of these that applies: the glyph the item's markIcon names; the glyph its group's markIcon names; otherwise what the design system chooses for the item's kind — comp.menu.checkbox-item.mark for a checkbox item (checkbox: the checkbox look of MNU-39; check: the icon set's check, as MNU-22 draws it) and comp.menu.radio-item.mark for a radio item (radio: the radio look of MNU-40; check: the same check). Whatever the mark is THE menu SHALL place it in the mark column, the first column of the row (MNU-19), before the leading icon, centered in a box of side comp.menu.mark.size, SHALL hide it from assistive technology, SHALL NOT make it a control of its own (it takes no focus and no press and has no role apart from its item's), and SHALL keep exposing the item as a menu item checkbox or a menu item radio with its checked state (MNU-24). A platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "text": "THE menu SHALL draw the mark of a checkbox or radio item as the first of these that applies: the glyph the item's markIcon names; the glyph its group's markIcon names; otherwise what the design system chooses for the item's kind — comp.menu.checkbox-item.mark for a checkbox item (checkbox: the checkbox look of MNU-39; check: the icon set's check, as MNU-22 draws it) and comp.menu.radio-item.mark for a radio item (radio: the radio look of MNU-40; check: the same check). Whatever the mark is THE menu SHALL place it in the mark column, the first column of the row (MNU-19), before the leading icon, centered in a box of side comp.menu.mark.size.regular, SHALL hide it from assistive technology, SHALL NOT make it a control of its own (it takes no focus and no press and has no role apart from its item's), and SHALL keep exposing the item as a menu item checkbox or a menu item radio with its checked state (MNU-24). A platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
       "verify": "In the default system checkbox-checked draws boxes and radio-checked rings; marks-icons-shortcut draws the mark, a leading icon and a shortcut in one row, in that order. Test both choices of each token under a system that sets them, a markIcon on an item inside a group that names another (the item's wins), and a markIcon under m3-like (the named glyph, not the system's check)."
     },
     {
@@ -631,7 +642,7 @@
     },
     {
       "id": "MNU-42",
-      "text": "THE menu SHALL draw a submenu item as an item's row (MNU-19, MNU-20) with the submenu indicator in its trailing icon column: the glyph chevron_right of the system's icon set at comp.menu.trailing-icon.size in the trailing-icon color of the item's condition and state, drawn through the icon helper with sys.icon.family.unselected, sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; its trailing text, where it has one, SHALL be drawn in the trailing column before the indicator, and a submenu item SHALL have no shortcut, no trailing icon of the product's and no mark. THE menu SHALL draw no chevron of its own (no path, shape or character of its own).",
+      "text": "THE menu SHALL draw a submenu item as an item's row (MNU-19, MNU-20) with the submenu indicator in its trailing icon column: the glyph chevron_right of the system's icon set at comp.menu.trailing-icon.size.regular in the trailing-icon color of the item's condition and state, drawn through the icon helper with sys.icon.family.unselected, sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; its trailing text, where it has one, SHALL be drawn in the trailing column before the indicator, and a submenu item SHALL have no shortcut, no trailing icon of the product's and no mark. THE menu SHALL draw no chevron of its own (no path, shape or character of its own).",
       "verify": "Fixtures submenu, submenu-icons-trailing-text and submenu-disabled show the closed item; the indicator's column is the trailing icon's, so a row with a shortcut and a row with the indicator align (submenu-icons-trailing-text)."
     },
     {
@@ -695,7 +706,7 @@
     },
     {
       "id": "MNU-55",
-      "text": "WHILE an item is a link item and its target is new THE menu SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and, WHILE the item's trailingIcon is empty, SHALL draw the glyph open_in_new of the system's icon set in the item's trailing icon column, as MNU-21 draws trailingIcon: at comp.menu.trailing-icon.size, in the trailing-icon color of the item's condition and state (comp.menu.unselected.trailing-icon.color at rest, comp.menu.destructive.trailing-icon.color for a destructive item), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name (MNU-33), hidden from assistive technology, and held to MNU-30 while the icon set cannot draw it. The mark SHALL reserve the trailing icon column in its surface as a trailing icon does (MNU-19), and the item's shortcut or trailing text SHALL keep its own column before it: the mark stands where a glyph of the product's would, not where the keys are written. WHILE trailingIcon names a glyph THE menu SHALL draw that glyph and no mark of its own: the product has chosen what that place shows. Whether a mark is drawn or not THE menu SHALL expose targetLabel as the end of the item's description, after its supporting text and whatever else MNU-24 puts there, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE menu SHALL draw no mark and SHALL ignore targetLabel.",
+      "text": "WHILE an item is a link item and its target is new THE menu SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and, WHILE the item's trailingIcon is empty, SHALL draw the glyph open_in_new of the system's icon set in the item's trailing icon column, as MNU-21 draws trailingIcon: at comp.menu.trailing-icon.size.regular, in the trailing-icon color of the item's condition and state (comp.menu.unselected.trailing-icon.color at rest, comp.menu.destructive.trailing-icon.color for a destructive item), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name (MNU-33), hidden from assistive technology, and held to MNU-30 while the icon set cannot draw it. The mark SHALL reserve the trailing icon column in its surface as a trailing icon does (MNU-19), and the item's shortcut or trailing text SHALL keep its own column before it: the mark stands where a glyph of the product's would, not where the keys are written. WHILE trailingIcon names a glyph THE menu SHALL draw that glyph and no mark of its own: the product has chosen what that place shows. Whether a mark is drawn or not THE menu SHALL expose targetLabel as the end of the item's description, after its supporting text and whatever else MNU-24 puts there, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE menu SHALL draw no mark and SHALL ignore targetLabel.",
       "verify": "Fixture links: the third row ends in the mark, 24 large under the default system, and is described as \"opens in a new tab\"; no other row has one, and every row keeps the column. Fixture links-rtl shows it at the left, mirrored. Fixture links-trailing: a shortcut with no mark, trailing text and the mark side by side, the product's own glyph with no mark, and the mark in the column the submenu indicator below it stands in."
     },
     {
@@ -715,7 +726,7 @@
     },
     {
       "id": "MNU-59",
-      "text": "THE menu SHALL decide the mark column and the leading icon column for each section of a surface — a group, with the items of a group inside it (MNU-29), or a run of adjacent items outside any group: the parts MNU-36 draws as tiles — and each of the two columns by itself. WHILE iconSpace is auto a row SHALL keep a column, empty where it draws nothing in it, WHERE an item of its section draws in it — a checkbox or radio item its mark, whether checked or not and whatever the mark is (MNU-38), an item its leading icon — so that the labels of a section start on one line, and a section where no item draws in a column SHALL keep no room for it, its labels starting that much nearer the row's start; WHILE iconSpace is always every row SHALL keep both columns, whether or not any item of the surface draws in them; WHILE iconSpace is never a row SHALL have a column only where it draws in it itself. The room kept is the column's box (comp.menu.mark.size for the mark, comp.menu.leading-icon.size for the icon) and comp.menu.container.gap after it, draws nothing and is nothing to assistive technology. A submenu item has no mark and so draws nothing in the mark column (MNU-42). Each surface SHALL be decided by itself, every submenu with the menu's iconSpace; a group's title SHALL keep its own place whatever the columns of its section are (MNU-28). WHEN an item is added or removed, or an item's kind or leadingIcon changes, THE menu SHALL decide the item's section again; WHEN iconSpace names a value the menu does not define THE menu SHALL treat it as auto and in debug builds report the unknown value.",
+      "text": "THE menu SHALL decide the mark column and the leading icon column for each section of a surface — a group, with the items of a group inside it (MNU-29), or a run of adjacent items outside any group: the parts MNU-36 draws as tiles — and each of the two columns by itself. WHILE iconSpace is auto a row SHALL keep a column, empty where it draws nothing in it, WHERE an item of its section draws in it — a checkbox or radio item its mark, whether checked or not and whatever the mark is (MNU-38), an item its leading icon — so that the labels of a section start on one line, and a section where no item draws in a column SHALL keep no room for it, its labels starting that much nearer the row's start; WHILE iconSpace is always every row SHALL keep both columns, whether or not any item of the surface draws in them; WHILE iconSpace is never a row SHALL have a column only where it draws in it itself. The room kept is the column's box (comp.menu.mark.size.regular for the mark, comp.menu.leading-icon.size.regular for the icon) and comp.menu.container.gap.regular after it, draws nothing and is nothing to assistive technology. A submenu item has no mark and so draws nothing in the mark column (MNU-42). Each surface SHALL be decided by itself, every submenu with the menu's iconSpace; a group's title SHALL keep its own place whatever the columns of its section are (MNU-28). WHEN an item is added or removed, or an item's kind or leadingIcon changes, THE menu SHALL decide the item's section again; WHEN iconSpace names a value the menu does not define THE menu SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto (in the default system): Cut and Copy have icons and Paste has none, so Paste's label starts where Copy's does, with no mark column before any of them; in the group View, Show grid and Show rulers are checkbox items and Zoom to fit an action, whose label starts where theirs do, after the mark column and with no icon column; in the last group, Settings and Help have neither, so their labels start at the row's content start, 16 from the sheet's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same items, every label after both columns. Fixture icon-space-never: Paste's and Zoom to fit's labels start at the row's content start, each other label after its own mark or icon only. Test a leadingIcon given to Settings (its group then keeps the icon's room on Help), a submenu, and an unknown value (auto, reported)."
     },
     {
@@ -737,6 +748,11 @@
       "id": "MNU-63",
       "text": "WHILE trigger is context THE menu SHALL NOT expose on its area that it opens a menu, whether it is open or which element it is (no aria-haspopup, aria-expanded or aria-controls on the web), because the area is not a button: a context menu is found by the platform's own convention — a secondary click, a long press, Shift+F10, the ContextMenu key, the context-menu command of assistive technology. THE menu SHALL NOT be named by its area; it SHALL take the name the product gives it (aria-label on the web), and have none where the product gives none, as the platform's own context menus have none.",
       "verify": "Test: the area carries no aria-haspopup, aria-expanded or aria-controls, open or closed, and keeps a product's own; the open menu has the menu role, no aria-labelledby, and the product's aria-label where it gives one; axe finds no violation."
+    },
+    {
+      "id": "MNU-64",
+      "text": "THE menu SHALL draw the rows of every surface at its density. WHILE density is regular each row SHALL take the regular value of every token of the density axis this spec names (comp.menu.container.height.regular, comp.menu.container.padding-block.regular, comp.menu.container.padding-inline.regular, comp.menu.container.gap.regular, comp.menu.leading-icon.size.regular, comp.menu.trailing-icon.size.regular, comp.menu.mark.size.regular, comp.menu.group-title.padding-inline.regular); WHILE density is compact it SHALL take the compact value of each in its place (comp.menu.container.height.compact, comp.menu.container.padding-block.compact, comp.menu.container.padding-inline.compact, comp.menu.container.gap.compact, comp.menu.leading-icon.size.compact, comp.menu.trailing-icon.size.compact, comp.menu.mark.size.compact, comp.menu.group-title.padding-inline.compact), so that a compact row is lower, set in less from its edges and draws smaller glyphs, the room a row keeps for an empty column (MNU-59) shrinking with them. The text styles, the surface and its paddings, the dividers, the group gap and the control of a checkbox or radio item SHALL be the same in both. Every submenu SHALL take the menu's density. WHEN density names a value the active design system does not have THE menu SHALL draw the default density's rows and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the menu is open THE menu SHALL draw the new rows at once, without a motion, keeping focus where it is.",
+      "verify": "Fixture density-compact under the default system: with a mouse every row is 32 high, its glyphs 20, its content 8 from the row's edges; under touch emulation every row is 48. Its labels are drawn in the regular rows' text style."
     }
   ],
   "accessibility": {
@@ -806,7 +822,8 @@
       "A menu holds only its items. A field, slider or switch inside a menu would take arrow keys and typing that the menu needs.",
       "Text size does not clip an item: items grow at 200% text size, and the surface scrolls when it no longer fits the viewport.",
       "An item's shortcut is drawn by the keyboard shortcut component (KBS-13), which writes the keys for the keyboard the person uses and only shows them: the product binds them. Trailing text is never read as a shortcut; a product that typed its shortcut there keeps the text but not the keyboard shortcut semantics until it moves the keys to shortcut.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WCAG 2.5.8 (target size): for touch every row is at least the touch target high in both densities (MNU-12). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its rows reach across the surface's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.menu",
@@ -2420,6 +2437,93 @@
           ]
         }
       ]
+    },
+    {
+      "id": "density-compact",
+      "props": {
+        "open": true,
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut",
+            "leadingIcon": "content_cut",
+            "shortcut": [
+              "mod+x"
+            ]
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy",
+            "leadingIcon": "content_copy",
+            "shortcut": [
+              "mod+c"
+            ]
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste",
+            "leadingIcon": "content_paste",
+            "shortcut": [
+              "mod+v"
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "submenu",
+              "props": {
+                "label": "Share",
+                "leadingIcon": "share"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "Copy link"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "Email"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "platforms": {
@@ -2431,6 +2535,7 @@
         "placement": "placement",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "trigger": "trigger"
       },
       "events": {
@@ -2518,7 +2623,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip. The group sets its own `value` before firing `change`."
         }
       },
-      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the current condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36). `trigger` is the `trigger` attribute; with `context`, `anchor` names the area. `contextRequest` is `contextrequest`, a cancelable event whose `detail` is `{ x, y, element, input }`: client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. The menu listens on the area for `contextmenu` (a secondary click, Android's long press, the context-menu command of assistive technology) and cancels it unless the product cancels the request; for a touch or a pen held still, which WebKit on iOS answers with no `contextmenu`; and for Shift+F10 and the ContextMenu key on `keydown`, whose own `contextmenu` it then cancels. After a long press the release of that press, and its click, go no further. On iOS a long press may also select text: an area whose text is not to be selected says so in its own styles (`user-select`, `-webkit-touch-callout`)."
+      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline-regular` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the current condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36). `trigger` is the `trigger` attribute; with `context`, `anchor` names the area. `contextRequest` is `contextrequest`, a cancelable event whose `detail` is `{ x, y, element, input }`: client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. The menu listens on the area for `contextmenu` (a secondary click, Android's long press, the context-menu command of assistive technology) and cancels it unless the product cancels the request; for a touch or a pen held still, which WebKit on iOS answers with no `contextmenu`; and for Shift+F10 and the ContextMenu key on `keydown`, whose own `contextmenu` it then cancels. After a long press the release of that press, and its click, go no further. On iOS a long press may also select text: an area whose text is not to be selected says so in its own styles (`user-select`, `-webkit-touch-callout`)."
     },
     "swiftui": {
       "status": "lagging",
@@ -2528,6 +2633,7 @@
         "placement": "placement",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "trigger": "trigger"
       },
       "events": {
@@ -2627,6 +2733,7 @@
         "placement": "placement",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "trigger": "trigger"
       },
       "events": {
@@ -2724,6 +2831,7 @@
         "placement": "placement",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "trigger": "trigger"
       },
       "events": {
@@ -2823,6 +2931,7 @@
         "placement": "placement",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "trigger": "trigger"
       },
       "events": {

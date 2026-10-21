@@ -197,6 +197,17 @@
       "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section start on one line — a section being an option group, or a run of adjacent options outside any group. auto: an option keeps the column while another option of its section has a leading icon, so that a section without icons starts its labels where the row's content starts. always: every option keeps it. never: only an option that has an icon has the column. The menu's iconSpace, with the same values and default (SEL-66)."
     },
     {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room an option of the list takes: its least height, its paddings, the gap between its columns and the size of its glyphs (the leading icon, the check), and never its text style. regular (a 48 row in the default system) is for a product used by touch as well as by pointer; compact (a 32 row with 20 glyphs, the menu's compact row) is for a tool used with a pointer, whose lists are long. For touch an option is never lower than the touch target in either (SEL-37). The field's own box is not changed: its height is size's. A design system may add values.",
+      "axis": "tanrei.comp.select.density"
+    },
+    {
       "name": "status",
       "type": "enum",
       "values": [
@@ -420,7 +431,7 @@
     },
     {
       "id": "SEL-37",
-      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (as SEL-66 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
+      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline.regular from each edge, the leading icon column (as SEL-66 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size.regular for the check (SEL-39), each comp.select.option.gap.regular from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.select.option.height.regular tall, and at least sys.target.touch tall for touch input, in both densities, and for fine pointers at least sys.target.pointer tall WHILE density is regular and as tall as its density gives WHILE density is compact (SEL-70), because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block.regular above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
       "verify": "Under the default system an option's label starts 16 from the list's edge (4 of the list's padding and 12 of the row's), which is where the value starts in a medium or large container of the same width."
     },
     {
@@ -434,7 +445,7 @@
     },
     {
       "id": "SEL-40",
-      "text": "THE select SHALL draw an option's leadingIcon at comp.select.option.leading-icon.size through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
+      "text": "THE select SHALL draw an option's leadingIcon at comp.select.option.leading-icon.size.regular through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
     },
     {
       "id": "SEL-41",
@@ -450,7 +461,7 @@
     },
     {
       "id": "SEL-44",
-      "text": "WHILE a group's title is not empty THE select SHALL draw it above the group's options in comp.select.group-title.typescale and comp.select.group-title.color, starting comp.select.group-title.padding-inline from the rows' start edge and ending comp.select.group-title.padding-inline from their end edge, with comp.select.option.padding-block above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be reached by typing and SHALL scroll with its options. WHEN a group holds another group THE select SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
+      "text": "WHILE a group's title is not empty THE select SHALL draw it above the group's options in comp.select.group-title.typescale and comp.select.group-title.color, starting comp.select.group-title.padding-inline.regular from the rows' start edge and ending comp.select.group-title.padding-inline.regular from their end edge, with comp.select.option.padding-block.regular above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be reached by typing and SHALL scroll with its options. WHEN a group holds another group THE select SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
     },
     {
       "id": "SEL-45",
@@ -539,18 +550,23 @@
     },
     {
       "id": "SEL-66",
-      "text": "THE select SHALL decide the leading icon column for each section of its list — an option group, with the options of a group inside it (SEL-44), or a run of adjacent options outside any group: the parts SEL-45 separates. WHILE iconSpace is auto an option SHALL keep the column, empty where it has no icon, WHERE an option of its section has a leading icon, so that the labels of a section start on one line, and a section where no option has one SHALL keep no column, its labels starting at the row's content start; WHILE iconSpace is always every option SHALL keep the column, whether or not any option of the list has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.select.option.leading-icon.size wide with comp.select.option.gap after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (SEL-44). WHEN an option is added or removed, or an option's leadingIcon changes, THE select SHALL decide its section again; WHEN iconSpace names a value the select does not define THE select SHALL treat it as auto and in debug builds report the unknown value.",
+      "text": "THE select SHALL decide the leading icon column for each section of its list — an option group, with the options of a group inside it (SEL-44), or a run of adjacent options outside any group: the parts SEL-45 separates. WHILE iconSpace is auto an option SHALL keep the column, empty where it has no icon, WHERE an option of its section has a leading icon, so that the labels of a section start on one line, and a section where no option has one SHALL keep no column, its labels starting at the row's content start; WHILE iconSpace is always every option SHALL keep the column, whether or not any option of the list has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.select.option.leading-icon.size.regular wide with comp.select.option.gap.regular after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (SEL-44). WHEN an option is added or removed, or an option's leadingIcon changes, THE select SHALL decide its section again; WHEN iconSpace names a value the select does not define THE select SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto: in the group Apps, Mail and Messages have icons and Copy link has none, so Copy link's label starts where Messages' does; in the group Files, Print and Save as PDF have none, so their labels start at the row's content start, 16 from the list's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same options, every label after the column. Fixture icon-space-never: Copy link's label starts at the row's content start, Mail's and Messages' after their icons. Test options outside any group (a run of its own), a leadingIcon given to Print (its group then keeps the column on Save as PDF) and taken away, and an unknown value (auto, reported)."
     },
     {
       "id": "SEL-68",
-      "text": "WHILE the list is open and statusText is not empty or status is loading THE select SHALL draw, after the last option, a status row, outside the region that scrolls, under it and inside the list's surface, so that the region that scrolls is the list box the keys move through and the row stays in view while the options scroll (SEL-25): inset by comp.select.option.padding-inline at the sides and padded by comp.select.option.padding-block above and below, taking no input, no state and no focus, never the active option and never reached by typing (SEL-33). WHILE status is idle it SHALL draw statusText, wrapping, in comp.select.status.typescale and comp.select.status.color; WHILE status is error it SHALL draw it in comp.select.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading or error SHALL stay drawn and choosable. WHILE the select holds no option, status is idle and statusText is empty THE select SHALL draw its empty text — emptyText, else the product's words (SEL-62) — in the status row's place and style, so that a person who opens a list with nothing in it is told why instead of facing a select that does not open; WHILE neither gives it the select has nothing to show (SEL-61). The row and the empty text are the combobox's (CMB-32) with the select's own tokens, which hold the combobox's values in every shipped design system; a select filters nothing, so its list is empty only while it holds no option.",
+      "text": "WHILE the list is open and statusText is not empty or status is loading THE select SHALL draw, after the last option, a status row, outside the region that scrolls, under it and inside the list's surface, so that the region that scrolls is the list box the keys move through and the row stays in view while the options scroll (SEL-25): inset by comp.select.option.padding-inline.regular at the sides and padded by comp.select.option.padding-block.regular above and below, taking no input, no state and no focus, never the active option and never reached by typing (SEL-33). WHILE status is idle it SHALL draw statusText, wrapping, in comp.select.status.typescale and comp.select.status.color; WHILE status is error it SHALL draw it in comp.select.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading or error SHALL stay drawn and choosable. WHILE the select holds no option, status is idle and statusText is empty THE select SHALL draw its empty text — emptyText, else the product's words (SEL-62) — in the status row's place and style, so that a person who opens a list with nothing in it is told why instead of facing a select that does not open; WHILE neither gives it the select has nothing to show (SEL-61). The row and the empty text are the combobox's (CMB-32) with the select's own tokens, which hold the combobox's values in every shipped design system; a select filters nothing, so its list is empty only while it holds no option.",
       "verify": "Fixtures open-loading, open-status, open-status-error and open-empty. Unit: the row stands after the last option and outside the list box, inset and padded as an option, in status.typescale and status.color, status.error.color in error; while loading one small loading indicator named by statusText at the row's start and no text, the row one line tall; the options left in the list while loading are chosen by a press; a press on the row keeps the list open and an arrow key never makes it active; with no status the row takes no room."
     },
     {
       "id": "SEL-69",
       "text": "THE select SHALL expose the status row as a live region that is present while the list is shown and holds nothing while it is closed: WHEN the list has been shown, and WHILE it is open WHEN statusText changes or the empty text appears, THE select SHALL have assistive technology read the row's text — politely, after what it is saying, WHILE status is idle (the status role on the web), and at once WHILE status is error (the alert role) — so that what the row already says as the list opens is read as well as what it comes to say, focus staying on the container (SEL-26). WHILE status is loading it SHALL announce nothing — the loading indicator does not announce itself (LDG-6) — and SHALL mark the list box as busy (aria-busy on the web) until status leaves loading. THE select SHALL NOT compose, count or translate a text: the number of options is already exposed by the list (SEL-48), and the words are the product's.",
       "verify": "Unit: with the list closed both regions are empty; once open-empty's list is shown the polite region holds the empty text, and open-status's statusText; open-status-error's text is in the assertive region; while loading both are empty and the list box is busy; a statusText changed while open is a change of the same region; closed, the regions are empty again."
+    },
+    {
+      "id": "SEL-70",
+      "text": "THE select SHALL draw the options and the group titles of its list at its density. WHILE density is regular they SHALL take the regular value of every token of the density axis this spec names (comp.select.option.height.regular, comp.select.option.padding-block.regular, comp.select.option.padding-inline.regular, comp.select.option.gap.regular, comp.select.option.leading-icon.size.regular, comp.select.option.mark.size.regular, comp.select.group-title.padding-inline.regular); WHILE density is compact they SHALL take the compact value of each in its place (comp.select.option.height.compact, comp.select.option.padding-block.compact, comp.select.option.padding-inline.compact, comp.select.option.gap.compact, comp.select.option.leading-icon.size.compact, comp.select.option.mark.size.compact, comp.select.group-title.padding-inline.compact), so that a compact option is lower, set in less from its edges and draws smaller glyphs, the room kept for an empty leading icon column (SEL-66) shrinking with them. The text styles, the list's surface and its paddings, the dividers, the group gap and the status row SHALL be the same in both, and so SHALL the field's box. WHEN density names a value the active design system does not have THE select SHALL draw the default density's rows and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN density changes while the list is open THE select SHALL draw the new rows at once, without a motion, keeping the active option.",
+      "verify": "Fixture density-compact under the default system: with a mouse every option is 32 high, its glyphs 20, its content 8 from the row's edges; under touch emulation every option is 48. The field is as high as the regular one's."
     }
   ],
   "accessibility": {
@@ -604,7 +620,8 @@
       "An error is never shown by color alone: the invalid state carries it and the error text of the Field that frames the select says it; the line inside a stacked select's edge supports them.",
       "The hit area of the container meets the minimum target although a small select is 40 high, and options are at least the minimum target tall (WCAG 2.5.8).",
       "A disabled option stays reachable by the arrow keys and is read as unavailable; a select with a single option, or none, is still a select and says so, rather than turning into text.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (SEL-37). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular."
     ]
   },
   "tokens": "comp.select",
@@ -2906,6 +2923,71 @@
       ]
     },
     {
+      "id": "density-compact",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link",
+                "supportingText": "Anyone with the link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "open-loading",
       "props": {
         "label": "Project",
@@ -2987,6 +3069,7 @@
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3033,6 +3116,7 @@
         "open": "isPresented",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3079,6 +3163,7 @@
         "open": "expanded",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3125,6 +3210,7 @@
         "open": "controller",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
@@ -3171,6 +3257,7 @@
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
+        "density": "density",
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText"
