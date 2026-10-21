@@ -1,5 +1,6 @@
 // @ts-check
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
@@ -10,8 +11,16 @@ import { starlightLocales, translations } from './i18n/locales.mjs';
 import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
+import { sitemapLastmod } from './src/lib/lastmod.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
+// When each page of the sitemap last changed: the newest commit of its own source and, for a component's page, of its
+// spec, read from git when the site is built (src/lib/lastmod.mjs).
+const lastmod = sitemapLastmod({
+  repoRoot,
+  contentDir: path.relative(repoRoot, fileURLToPath(new URL('./src/content/docs', import.meta.url))).split(path.sep).join('/'),
+  languages: translations.map(({ dir }) => dir),
+});
 // The generated status file: a row for each component, with the address of its page (written from specs/).
 const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json', import.meta.url), 'utf8'));
 // The shipped systems, each of which has its components manifest (tokens/generated/<id>/components.json), and the
@@ -168,9 +177,15 @@ export default defineConfig({
     }),
     // The sitemap, with Starlight's languages as Starlight configures its own (which it leaves out once the site has
     // one): every page but the documents the fixtures' windows draw (src/pages/fixtures/), which are no reader's page.
+    // Each page says when it last changed (`lastmod`, from git; never the time of the build).
+    lastmod.integration,
     sitemap({
       i18n: { defaultLocale: 'root', locales: Object.fromEntries(Object.entries(starlightLocales).map(([locale, { lang }]) => [locale, lang])) },
       filter: (page) => !new URL(page).pathname.startsWith('/fixtures/'),
+      serialize: (item) => {
+        const date = lastmod.of(item.url);
+        return date ? { ...item, lastmod: date } : item;
+      },
     }),
     // After Starlight, so that its passes run after Starlight's: Markdown's tables, notices and fenced code are drawn by
     // Tanrei's Table, Callout and Code block (src/lib/markdown.mjs).
