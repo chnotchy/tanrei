@@ -46,15 +46,7 @@ const VIEWPORTS = [
  * Pages known to shift by more than the budget, and why: each is still measured and reported, as a TODO rather than a
  * failure. Once a fix brings one within the budget its test says so: take it off this list then.
  */
-const KNOWN = {
-  '/components/field/ at 1440': [
-    'Over the budget: the live example under the head draws its fields only once they are defined, and its stage grows',
-    'from 80 to 248 px, which moves the text below it; and the sidebar\'s rows move 26 px down when the navigation drawer is',
-    'defined, because its header (the menu button and the "All components" switch, whose label takes two lines there) is',
-    'taller than the plain links\' stand-in for it in frame.css. What is missing: the room an example takes before its',
-    'elements are defined, and a stand-in for the drawer\'s header of the defined header\'s height.',
-  ].join(' '),
-};
+const KNOWN = {};
 
 // ── A static host ────────────────────────────────────────────────────────────────────────────────────────────────
 
