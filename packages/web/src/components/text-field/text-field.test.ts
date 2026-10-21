@@ -215,6 +215,10 @@ test.describe('behavior', () => {
     await page.locator('#send').click();
     expect(await page.evaluate(() => (window as unknown as { submitted: number }).submitted)).toBe(0);
     await one(page, 'email').evaluate((el) => ((el as HTMLElement & { value: string }).value = 'ada@example.com'));
+    // The submission that was refused shows the browser's own message under the input it focused, and Firefox on Linux
+    // draws it as a popup that takes the next press anywhere on the page to close itself: under a box as tall as a
+    // Button the date field's segments stand under that message. It closes when focus leaves the input.
+    await blurAll(page);
     // A date after max, committed: the input's entry error is the text field's validity, with the input's words.
     await box(one(page, 'due')).locator('.segment[data-unit="month"]').click();
     await page.keyboard.type('01052027');
@@ -275,11 +279,21 @@ test.describe('behavior', () => {
       expect(await focused(), `a press on ${selector}`).toBe('body');
     }
     const [container, row, label] = [await bounds(box(plain).locator('.container')), await bounds(field(plain).locator('.supporting')), await bounds(field(plain).locator('.label-row'))];
-    expect(row.y - (container.y + container.height), 'there is a gap below the box').toBeGreaterThan(1);
-    await page.mouse.click(container.x + 20, (container.y + container.height + row.y) / 2);
+    // The box's hit area reaches the minimum target beyond its drawn edges (TXI-8): a box shorter than the target (a
+    // stacked box as tall as a Button) takes a press in that reach. A press in the gap beyond it does nothing.
+    const reach = await box(plain).locator('.container').evaluate((el) => Math.max(0, (Number.parseFloat(getComputedStyle(el, '::before').height) - el.getBoundingClientRect().height) / 2));
+    const [bottom, top] = [container.y + container.height + reach, container.y - reach];
+    expect(row.y - bottom, 'there is a gap below the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (bottom + row.y) / 2);
     expect(await focused(), 'the gap between the box and the supporting row').toBe('body');
-    await page.mouse.click(container.x + 20, (label.y + label.height + container.y) / 2);
+    expect(top - (label.y + label.height), 'there is a gap above the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (label.y + label.height + top) / 2);
     expect(await focused(), 'the gap between the label row and the box').toBe('body');
+    if (reach > 1) {
+      await page.mouse.click(container.x + 20, container.y + container.height + reach / 2);
+      expect(await focused(), 'a press in the hit area below the drawn box is the input\'s').toBe('tanrei-text-field#plain > tanrei-text-input > input#input.input');
+      await blurAll(page);
+    }
     // (Focus that is in the input leaves it for such a press, as for a press on any text of the page: the platform's.)
     // A date field: the first empty segment, by the product and by a press on the label.
     await blurAll(page);

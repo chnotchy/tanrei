@@ -210,7 +210,7 @@ test.describe('behavior: the trigger', () => {
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-option-icon', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const value = await box(part(page, id, '.value'));
       const chevron = await box(part(page, id, '.chevron'));
       near(value.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
@@ -221,8 +221,8 @@ test.describe('behavior: the trigger', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers (the spec's verify): 48 and 56 with 16 and 12 and a 24 chevron; 40 with 12 and 8 and a 20 one.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'container-height-small')]).toEqual([48, 56, 40]);
+    // The default system's numbers (the spec's verify): a stacked select 40 and 56, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 32 with 12 and 8 and a 20 one.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([40, 56, 32]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     expect([await token(page, 'container-padding-inline-small'), await token(page, 'container-padding-inline-with-icon-small'), await token(page, 'icon-size-small')]).toEqual([12, 8, 20]);
     // With a leading icon: the glyph padding before it, the gap after it, then the value.
@@ -562,7 +562,7 @@ test.describe('behavior: the trigger', () => {
     expect(await long.textContent(), 'the whole label is still there to be read').toBe('Send me every notification as it happens, including the ones about threads I only follow');
     const [c, v, chevron] = [await box(container(page, 'long-value')), await box(long), await box(part(page, 'long-value', '.chevron'))];
     near(c.width, 280, 'never wider than its layout');
-    near(c.height, await token(page, 'container-height-medium'), 'one line');
+    near(c.height, await token(page, 'stacked-container-height-medium'), 'one line');
     near(chevron.x - (v.x + v.width), await token(page, 'container-gap-medium'), 'the gap before the chevron is whole');
     near(c.x + c.width - (chevron.x + chevron.width), await token(page, 'container-padding-inline-with-icon-medium'), 'the end padding is whole');
     // The placeholder: same place and style, its own color; nothing where it is empty.
@@ -729,8 +729,8 @@ test.describe('behavior: the trigger', () => {
     await mountSpec(page, ['stacked-small', 'stacked-option-icon']);
     const target = await container(page, 'stacked-small').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     const least = await resolveToken(page, '--tanrei-sys-target-pointer');
-    expect(target).toBeGreaterThanOrEqual(Math.max(least, await token(page, 'container-height-small')) - 0.01);
-    near((await box(container(page, 'stacked-small'))).height, await token(page, 'container-height-small'), 'the visual size');
+    expect(target).toBeGreaterThanOrEqual(Math.max(least, await token(page, 'stacked-container-height-small')) - 0.01);
+    near((await box(container(page, 'stacked-small'))).height, await token(page, 'stacked-container-height-small'), 'the visual size');
     const id = 'stacked-option-icon';
     const c = await box(container(page, id));
     for (const [name, x] of [['the start padding', 3], ['the leading icon', 20], ['the value', 70], ['the chevron', c.width - 20], ['the end padding', c.width - 3]] as const) {
@@ -2225,7 +2225,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frames(page, 4);
     const after = await sizes();
     expect(after.container, 'the container grows with the value’s line').toBeGreaterThan(before.container);
-    expect(after.container, 'the height of its size is a minimum').toBeGreaterThanOrEqual((await token(page, 'container-height-medium')) - 0.6);
+    expect(after.container, 'the height of its size is a minimum').toBeGreaterThanOrEqual((await token(page, 'stacked-container-height-medium')) - 0.6);
     expect(after.row).toBeGreaterThan(before.row);
     near(after.chevron, await token(page, 'icon-size-medium'), 'the chevron keeps its size');
     expect(await part(page, 'one', '.value').evaluate((el) => getComputedStyle(el).whiteSpace)).toBe('nowrap');

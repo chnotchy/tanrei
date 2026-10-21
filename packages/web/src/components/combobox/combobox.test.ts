@@ -297,7 +297,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-clearable', 'stacked-leading-icon', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
       const chevron = await box(part(page, id, '.chevron-glyph'));
       near(field.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
@@ -306,12 +306,12 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
       near(chevron.x - (field.x + field.width), await token(page, `container-gap-${size}`), `${id} container.gap after the input`);
       near(chevron.y + chevron.height / 2, c.y + c.height / 2, `${id} chevron centred`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
-      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: the text field's 48 and 56, 16 and 12, and a 24 glyph.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large')]).toEqual([48, 56]);
+    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, 16 and 12, and a 24 glyph.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large')]).toEqual([40, 56]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     // The clear button's box, then the chevron: action-gap apart, the first of them container.gap after the input.
     const clear = await box(part(page, 'stacked-clearable', '.clear-box'));

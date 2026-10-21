@@ -7541,9 +7541,9 @@ export const tanrei = {
       selectionColor: { kind: "role", role: "primary" },
       selectionContentColor: { kind: "role", role: "onPrimary" },
       sizes: {
-        small: { containerHeight: 40, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
-        medium: { containerHeight: 48, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 10, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
-        large: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 14, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
+        small: { containerHeight: 40, stackedContainerHeight: 32, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, stackedContainerPaddingBlock: 4, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 200 },
+        medium: { containerHeight: 48, stackedContainerHeight: 40, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 10, stackedContainerPaddingBlock: 6, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
+        large: { containerHeight: 56, stackedContainerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 14, stackedContainerPaddingBlock: 14, containerPaddingBlockWithLabel: 4, containerGap: 16, labelTypescale: "label", labelFloatedTypescale: "labelSmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 250 },
       },
       variants: {
         stacked: {

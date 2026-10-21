@@ -809,7 +809,7 @@ test.describe('behavior', () => {
     await mountField(page, '', { width: 280 });
     const container = inputBox(page);
     const empty = (await bounds(container)).height;
-    expect(empty).toBe(await resolveToken(page, '--tanrei-comp-input-box-container-height-medium'));
+    expect(empty).toBe(await resolveToken(page, '--tanrei-comp-input-box-stacked-container-height-medium'));
     await set(page, { value: ['ada@example.com'] });
     expect((await bounds(container)).height, 'one line of entries: as tall as a text field').toBe(empty);
     const many = ['ada@example.com', 'grace.hopper@example.org', 'alan@example.net', 'katherine.johnson@example.com', 'hedy@example.org', 'margaret.hamilton@example.com', 'tim@example.net', 'barbara.liskov@example.org'];

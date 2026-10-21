@@ -5076,6 +5076,30 @@
                 "by": 14
               }
             },
+            "tanrei.comp.input-box.stacked.container.height.small": {
+              "$value": "{tanrei.comp.input-box.container.height.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
+            "tanrei.comp.input-box.stacked.container.height.medium": {
+              "$value": "{tanrei.comp.input-box.container.height.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
+            "tanrei.comp.input-box.stacked.container.height.large": {
+              "$value": "{tanrei.comp.input-box.container.height.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.small": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.medium": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.large": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its filled and outlined ones: Material 3 has no stacked field to measure it by; the default system's stacked boxes follow its Buttons."
+            },
             "tanrei.comp.input-box.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-small}"
             },

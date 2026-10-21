@@ -32,12 +32,18 @@ const P = INPUT_BOX;
 export const TRIGGER_STATES = { '': '-r', hovered: '-h', focused: '-f', disabled: '-d' } as const;
 /** The two looks of each variant: the plain parts, and their `error.` twins while error is true. */
 export const TRIGGER_LOOKS = { plain: '', error: 'error-' } as const;
-/** The members of the size axis. Text styles are used whole: font and tracking. */
+/**
+ * The members of the size axis. Text styles are used whole: font and tracking. A stacked box has a height and a block
+ * padding of its own, as tall as a Button of the same size (`stackedBoxStyles()`); a box that floats its label reads
+ * `height` and `pad-block`.
+ */
 export const TRIGGER_SIZE_MEMBERS = {
   height: 'container-height',
+  'stacked-height': 'stacked-container-height',
   pad: 'container-padding-inline',
   'pad-icon': 'container-padding-inline-with-icon',
   'pad-block': 'container-padding-block',
+  'stacked-pad-block': 'stacked-container-padding-block',
   'pad-label': 'container-padding-block-with-label',
   gap: 'container-gap',
   label: 'label-typescale',
@@ -121,6 +127,18 @@ const OUTLINED = ".field[data-layout='outlined']";
 const STACKED = ".field[data-layout='stacked']";
 /** The label of a floating-label field (filled or outlined) is floated. */
 const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
+
+/**
+ * A stacked box is as tall as a Button of the same size, with the block padding that leaves room for its line in that
+ * height (SEL-1, CMB-1, NMI-1, CLI-1): everything that reads `--_height` and `--_pad-block` inside a stacked field reads
+ * the stacked box's own. A filled or an outlined box keeps the taller height, which holds the label floated in it.
+ */
+export const stackedBoxStyles = (): CSSResult =>
+  unsafeCSS(`
+  ${STACKED} {
+    --_height: var(--_stacked-height);
+    --_pad-block: var(--_stacked-pad-block);
+  }`);
 
 /**
  * The label of a filled or outlined field (SEL-15, CMB-8): it rests centred in the container in label.typescale, and

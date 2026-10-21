@@ -428,6 +428,11 @@ export class TanreiNumberInput extends TanreiElement {
   // ── NMI-17, NMI-18, NMI-30, NMI-43: the limits, the digits and the form ───────────────────────────────────────
 
   /** NMI-30: the limits as decimals; a `max` below `min` is no limit. */
+  /** NMI-25: the steppers' Button size — small in a small box, which is as tall as a small Button; medium otherwise. */
+  private get stepperSize(): 'small' | 'medium' {
+    return (this.size as string) === 'small' ? 'small' : 'medium';
+  }
+
   private get limits(): { min: Decimal | null; max: Decimal | null } {
     const low = numberOrNull(this.min);
     const high = numberOrNull(this.max);
@@ -1034,6 +1039,7 @@ export class TanreiNumberInput extends TanreiElement {
                   part="stepper"
                   class="stepper down"
                   variant="text"
+                  size=${this.stepperSize}
                   label=${decrementLabel}
                   aria-hidden=${decrementLabel ? nothing : 'true'}
                   .outsideFocusOrder=${true}
@@ -1046,6 +1052,7 @@ export class TanreiNumberInput extends TanreiElement {
                   part="stepper"
                   class="stepper up"
                   variant="text"
+                  size=${this.stepperSize}
                   label=${incrementLabel}
                   aria-hidden=${incrementLabel ? nothing : 'true'}
                   .outsideFocusOrder=${true}

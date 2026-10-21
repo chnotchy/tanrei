@@ -7014,9 +7014,9 @@ export const m3Like = {
       selectionColor: { kind: "role", role: "primaryContainer" },
       selectionContentColor: { kind: "role", role: "onSurface" },
       sizes: {
-        small: { containerHeight: 40, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 150 },
-        medium: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
-        large: { containerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
+        small: { containerHeight: 40, stackedContainerHeight: 40, containerPaddingInline: 12, containerPaddingInlineWithIcon: 8, containerPaddingBlock: 8, stackedContainerPaddingBlock: 8, containerPaddingBlockWithLabel: 2, containerGap: 8, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "body", iconSize: 20, motionStateDuration: 150 },
+        medium: { containerHeight: 56, stackedContainerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, stackedContainerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
+        large: { containerHeight: 56, stackedContainerHeight: 56, containerPaddingInline: 16, containerPaddingInlineWithIcon: 12, containerPaddingBlock: 16, stackedContainerPaddingBlock: 16, containerPaddingBlockWithLabel: 8, containerGap: 16, labelTypescale: "bodyLarge", labelFloatedTypescale: "bodySmall", inputTypescale: "bodyLarge", iconSize: 24, motionStateDuration: 150 },
       },
       variants: {
         stacked: {

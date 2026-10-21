@@ -69,7 +69,9 @@
      Nor is it given the bar's cell: the bar makes each item at least as tall as the minimum target and centres it
      there (APB-11), which suits a Button, whose box is centred in its own element; a select's box stands at the top
      of its element, so in a 44 high cell it stood 2 above the search beside it. The select is exactly as tall as its
-     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22). */
+     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22).
+     It is medium (Header.astro): a stacked select is as tall as a Button of its size, and the search trigger and the
+     language's Button beside it are as tall as a medium Button, which a small select is not. */
   tanrei-app-bar > tanrei-select.docs-theme {
     min-block-size: auto;
   }
@@ -176,15 +178,15 @@
   }
   /* A Select's options are running text until it is defined, and a Menu's items are nothing: the select keeps its
      box, the menu has none. The box is the one the select will make
-     itself (SEL-49), so the search beside it does not move when it is defined: a small container's height, and the
-     widest of its options in the value's text style between the glyph and the chevron — the options are a column of
-     lines with no height, drawn nowhere, and the widest of them is the box's width. */
+     itself (SEL-49), so the search beside it does not move when it is defined: a medium stacked container's height,
+     and the widest of its options in the value's text style between the glyph and the chevron — the options are a
+     column of lines with no height, drawn nowhere, and the widest of them is the box's width. */
   tanrei-select.docs-theme:not(:defined) {
     flex-direction: column;
-    block-size: var(--tanrei-comp-input-box-container-height-small, var(--tanrei-sys-target-pointer));
-    padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-small) + var(--tanrei-comp-input-box-icon-size-small) + var(--tanrei-comp-input-box-container-gap-small));
-    font: var(--tanrei-comp-input-box-input-typescale-small-font);
-    letter-spacing: var(--tanrei-comp-input-box-input-typescale-small-letter-spacing);
+    block-size: var(--tanrei-comp-input-box-stacked-container-height-medium, var(--tanrei-sys-target-pointer));
+    padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+    font: var(--tanrei-comp-input-box-input-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);
   }
   tanrei-select.docs-theme:not(:defined) > :where(tanrei-option) {
     flex: none;

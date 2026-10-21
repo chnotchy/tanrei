@@ -12292,9 +12292,11 @@ extension type const TanreiInputBoxSize(String name) {
 class TanreiInputBoxSizeTokens {
   const TanreiInputBoxSizeTokens({
     required this.containerHeight,
+    required this.stackedContainerHeight,
     required this.containerPaddingInline,
     required this.containerPaddingInlineWithIcon,
     required this.containerPaddingBlock,
+    required this.stackedContainerPaddingBlock,
     required this.containerPaddingBlockWithLabel,
     required this.containerGap,
     required this.labelTypescale,
@@ -12306,12 +12308,16 @@ class TanreiInputBoxSizeTokens {
 
   /// `comp.input-box.container-height.<size>`
   final double containerHeight;
+  /// `comp.input-box.stacked-container-height.<size>`
+  final double stackedContainerHeight;
   /// `comp.input-box.container-padding-inline.<size>`
   final double containerPaddingInline;
   /// `comp.input-box.container-padding-inline-with-icon.<size>`
   final double containerPaddingInlineWithIcon;
   /// `comp.input-box.container-padding-block.<size>`
   final double containerPaddingBlock;
+  /// `comp.input-box.stacked-container-padding-block.<size>`
+  final double stackedContainerPaddingBlock;
   /// `comp.input-box.container-padding-block-with-label.<size>`
   final double containerPaddingBlockWithLabel;
   /// `comp.input-box.container-gap.<size>`
@@ -12330,9 +12336,11 @@ class TanreiInputBoxSizeTokens {
   /// A copy with the given tokens replaced.
   TanreiInputBoxSizeTokens copyWith({
     double? containerHeight,
+    double? stackedContainerHeight,
     double? containerPaddingInline,
     double? containerPaddingInlineWithIcon,
     double? containerPaddingBlock,
+    double? stackedContainerPaddingBlock,
     double? containerPaddingBlockWithLabel,
     double? containerGap,
     TanreiTextStyle? labelTypescale,
@@ -12342,9 +12350,11 @@ class TanreiInputBoxSizeTokens {
     int? motionStateDuration,
   }) => TanreiInputBoxSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
+        stackedContainerHeight: stackedContainerHeight ?? this.stackedContainerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerPaddingInlineWithIcon: containerPaddingInlineWithIcon ?? this.containerPaddingInlineWithIcon,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
+        stackedContainerPaddingBlock: stackedContainerPaddingBlock ?? this.stackedContainerPaddingBlock,
         containerPaddingBlockWithLabel: containerPaddingBlockWithLabel ?? this.containerPaddingBlockWithLabel,
         containerGap: containerGap ?? this.containerGap,
         labelTypescale: labelTypescale ?? this.labelTypescale,

@@ -124,7 +124,7 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name`, `value`, 
 | Botones de paso | De la entrada numérica: dos botones al final; el primero da un paso hacia abajo y el segundo, hacia arriba. Quítalos con `steppers` en false |
 | Texto de apoyo | Del campo: una línea de ayuda. Mientras el campo está en error, el texto de error ocupa su lugar (o va debajo de ella, donde el sistema de diseño conserva las dos), y es `errorText` mientras `error` es true e `invalidText` mientras el texto no es un número. Empieza y termina en el margen interior del texto de la caja, con botones de paso y sin ellos |
 
-Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
+Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
 
 El campo numérico no tiene ningún token propio. Su caja lee los [tokens de la entrada numérica](/es/components/number-input/#especificaciones), sus filas leen los [tokens del campo](/es/components/field/#especificaciones) y sus dos botones de paso, los [del botón](/es/components/button/#especificaciones), allí donde estén definidos. Para cambiar una sola instancia, define en ella el token de un miembro: `style="--tanrei-comp-field-label-gap: 0.75rem"`.
 

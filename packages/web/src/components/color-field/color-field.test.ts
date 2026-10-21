@@ -397,11 +397,21 @@ test.describe('behavior', () => {
       expect(await focused(), `a press on ${selector}`).toBe('body');
     }
     const [container, row, label] = [await bounds(box(plain).locator('.field > .container')), await bounds(field(plain).locator('.supporting')), await bounds(field(plain).locator('.label-row'))];
-    expect(row.y - (container.y + container.height), 'there is a gap below the box').toBeGreaterThan(1);
-    await page.mouse.click(container.x + 20, (container.y + container.height + row.y) / 2);
+    // The box's hit area reaches the minimum target beyond its drawn edges (TXI-8): a box shorter than the target (a
+    // stacked box as tall as a Button) takes a press in that reach. A press in the gap beyond it does nothing.
+    const reach = await box(plain).locator('.field > .container').evaluate((el) => Math.max(0, (Number.parseFloat(getComputedStyle(el, '::before').height) - el.getBoundingClientRect().height) / 2));
+    const [bottom, top] = [container.y + container.height + reach, container.y - reach];
+    expect(row.y - bottom, 'there is a gap below the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (bottom + row.y) / 2);
     expect(await focused(), 'the gap between the box and the supporting row').toBe('body');
-    await page.mouse.click(container.x + 20, (label.y + label.height + container.y) / 2);
+    expect(top - (label.y + label.height), 'there is a gap above the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (label.y + label.height + top) / 2);
     expect(await focused(), 'the gap between the label row and the box').toBe('body');
+    if (reach > 1) {
+      await page.mouse.click(container.x + 20, container.y + container.height + reach / 2);
+      expect(await focused(), 'a press in the hit area below the drawn box is the input\'s').toBe('tanrei-color-field#plain > tanrei-color-input > input#input.input');
+      await blurAll(page);
+    }
     // No stop of its own: Tab visits the input's stops in the input's order, and nothing else.
     await page.locator('#before').focus();
     const visited: string[] = [];

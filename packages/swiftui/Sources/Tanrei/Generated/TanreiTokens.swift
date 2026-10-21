@@ -8381,9 +8381,11 @@ public struct TanreiInputBoxSize: RawRepresentable, Hashable, Sendable, CustomSt
 /// Everything of input-box that depends on its size.
 public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
   public var containerHeight: CGFloat
+  public var stackedContainerHeight: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerPaddingInlineWithIcon: CGFloat
   public var containerPaddingBlock: CGFloat
+  public var stackedContainerPaddingBlock: CGFloat
   public var containerPaddingBlockWithLabel: CGFloat
   public var containerGap: CGFloat
   public var labelTypescale: TanreiTextStyle
@@ -8394,9 +8396,11 @@ public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
 
   public init(
     containerHeight: CGFloat,
+    stackedContainerHeight: CGFloat,
     containerPaddingInline: CGFloat,
     containerPaddingInlineWithIcon: CGFloat,
     containerPaddingBlock: CGFloat,
+    stackedContainerPaddingBlock: CGFloat,
     containerPaddingBlockWithLabel: CGFloat,
     containerGap: CGFloat,
     labelTypescale: TanreiTextStyle,
@@ -8406,9 +8410,11 @@ public struct TanreiInputBoxSizeTokens: Sendable, Equatable {
     motionStateDuration: Double
   ) {
     self.containerHeight = containerHeight
+    self.stackedContainerHeight = stackedContainerHeight
     self.containerPaddingInline = containerPaddingInline
     self.containerPaddingInlineWithIcon = containerPaddingInlineWithIcon
     self.containerPaddingBlock = containerPaddingBlock
+    self.stackedContainerPaddingBlock = stackedContainerPaddingBlock
     self.containerPaddingBlockWithLabel = containerPaddingBlockWithLabel
     self.containerGap = containerGap
     self.labelTypescale = labelTypescale
