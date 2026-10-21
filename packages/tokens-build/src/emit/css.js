@@ -46,15 +46,18 @@ function shadow(token) {
 // A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
 // order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
 // height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
-// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box.
+// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box; with a
+// `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
 const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
 const refOf = (v) => ref(v.slice(1, -1));
 function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
   if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
   if (rule?.fn === 'pad') {
-    if (unscaling) return read(rule.of);
+    // The padding before its box moved: `of`, or `of × by` on the engine's 0.25px step.
+    const of = rule.by === undefined || rule.by === 1 ? read(rule.of) : `round(nearest, calc(${read(rule.of)} * ${rule.by}), 0.25px)`;
+    if (unscaling) return of;
     if (!tokens) throw new Error(`css: a "pad" rule is written over the height's own expression, and no tokens were given to read it from (${rule.height})`);
-    return `max(${zeroOf(type)}, round(nearest, calc(${read(rule.of)} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
+    return `max(${zeroOf(type)}, round(nearest, calc(${of} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
   }
   if (!rule || rule.fn !== 'mul') return null;
   const of = read(rule.of);

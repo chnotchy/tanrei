@@ -26,6 +26,7 @@ const sources = {
       'padding-block': { $value: px(8), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.row-height}' }) },
       gap: { $value: px(6), $extensions: derive({ fn: 'mul', of: '{tanrei.sys.space.space75}', by: 1, times: DENSITY, round: '{tanrei.sys.space.space25}' }) },
       'fixed-padding': { $value: px(6), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.sys.target.minimum}' }) },
+      'scaled-padding': { $value: px(9), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.large-height}', by: 1.5 }) },
     } } },
   },
 };
@@ -68,6 +69,11 @@ test('pad: written over the height and the height’s own expression unscaled, t
   );
   assert.equal(written('tanrei.comp.button.fixed-padding'), 'max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-sys-target-minimum) - var(--tanrei-sys-target-minimum)) / 2), 0.25px))', 'a height nothing scales is its own height₁');
   assert.throws(() => declarations(tokens['tanrei.comp.button.padding-block'])[0][1], /no tokens were given/);
+  assert.equal(
+    written('tanrei.comp.button.scaled-padding'),
+    'max(0px, round(nearest, calc(round(nearest, calc(var(--tanrei-sys-space-space75) * 1.5), 0.25px) + (var(--tanrei-comp-button-large-height) - round(nearest, calc(var(--tanrei-dial-size-unit) * 14), var(--tanrei-dial-size-unit))) / 2), 0.25px))',
+    'a padding a layer scaled: of × by on the 0.25px step, then what its box gave up or took',
+  );
 });
 
 /**
@@ -109,5 +115,5 @@ test('the written CSS gives the engine’s values, across densities, floors and 
       }
     }
   }
-  assert.equal(compared, 6 * 4 * 2 * 8, 'eight derived tokens in each of 48 settings');
+  assert.equal(compared, 6 * 4 * 2 * 9, 'nine derived tokens in each of 48 settings');
 });
