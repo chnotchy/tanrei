@@ -230,13 +230,22 @@ export function emitCss(model, { scope, unavailable, outside, replacements } = {
   // A system scope takes a contrast set on itself, inside itself, or — unless it says otherwise — around itself
   // (a page-wide contrast switch on <html> must reach a preset mounted further down).
   const scoped = (level) => [`${S}${attr('contrast', level)}`, `${S} ${attr('contrast', level)}`, `${attr('contrast', level)} ${S}:not([data-${NS}-contrast])`].join(', ');
+  // The page's colour scheme is declared once, on the root: both themes, following the OS until data-${NS}-theme forces
+  // one. A system scope declares none, so it inherits the scheme around it — a preset placed under a forced theme
+  // draws in that theme, as any other subtree does — and a subtree switches it with data-${NS}-theme.
+  const own = [
+    ...(scope ? [] : [['color-scheme', 'light dark']]),
+    ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []),
+    ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []),
+    ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : []),
+  ];
   return [
     `/* ${GENERATED_HEADER.join(' ')} */`,
     `@layer ${NS}.tokens {`,
     // Custom properties resolve their var() references where they are declared. Declaring the whole
     // set again on a contrast scope makes component tokens pick up that scope's system colors, so
     // data-${NS}-contrast works on a subtree and not only on <html>.
-    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []), ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : [])], '  '),
+    ...own.length ? [block(S, own, '  ')] : [],
     block(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
     '',
     `  /* Theme follows the OS by default; force it per subtree with data-${NS}-theme. */`,

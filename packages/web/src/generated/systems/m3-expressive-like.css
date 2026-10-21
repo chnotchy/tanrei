@@ -1,7 +1,6 @@
 /* GENERATED FILE — DO NOT EDIT. Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`. */
 @layer tanrei.tokens {
   [data-tanrei-system="m3-expressive-like"] {
-    color-scheme: light dark;
     --tanrei-unavailable: "navigation-bar:filled tabs:tonal";
     --tanrei-unavailable-layer: "";
     --tanrei-unavailable-replacement: "";

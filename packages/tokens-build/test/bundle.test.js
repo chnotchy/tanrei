@@ -81,7 +81,8 @@ test('a product on a preset on the root: bundle → DTCG resolver → CSS', asyn
   assert.deepEqual(checkInvariants(model), [], 'this product stays accessible');
   assert.equal(value('tanrei.comp.button.container.height.small').value, 40, 'size dial: 5 × 8');
   const css = emitCss(model, { scope: 'acme' });
-  assert.match(css, /\[data-tanrei-system="acme"\] \{\n\s+color-scheme: light dark;/);
+  // A scope inherits the colour scheme around it: a preset under a forced theme draws in that theme.
+  assert.ok(!css.includes('color-scheme: light dark'), 'a scoped sheet declares no colour scheme of its own');
   // The system's dial is a plain value; tokens derived from it stay expressions, so they remain live.
   assert.match(css, /--tanrei-dial-space-unit: 0\.625rem;/);
   assert.match(css, /--tanrei-sys-space-space200: round\(nearest, calc\(var\(--tanrei-dial-space-unit\) \* 2\), 0\.25px\);/);
