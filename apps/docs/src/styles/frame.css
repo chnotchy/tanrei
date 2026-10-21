@@ -200,21 +200,60 @@
   }
 
   /* ── The sidebar until the drawer is defined, and where no script runs: its own anchors, as the drawer's rows ──
-     The shell keeps the column's place (APS-24); this draws what stands in it. */
+     The shell keeps the column's place (APS-24); this draws what stands in it. Its header is the drawer's (NVD-38),
+     from the drawer's and the button's tokens, so that neither it nor a row below it moves when the drawer is
+     defined: the menu button centred on the icon column, and beside it, item.gap after the button, the header's
+     content — the choice of design system above the "All components" switch, each holding its own room until it is
+     defined — laid out at the drawer's full width; the button centred on the height of the two; the first row
+     header.gap below them. */
   tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    --docs-sidebar-lead: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 + var(--tanrei-comp-button-container-height-medium) / 2 + var(--tanrei-comp-navigation-drawer-item-gap));
     box-sizing: border-box;
+    grid-template-columns:
+      calc(var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline))
+      calc(var(--tanrei-comp-navigation-drawer-container-width) - var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
     padding: var(--tanrei-comp-navigation-drawer-container-padding-block) var(--tanrei-comp-navigation-drawer-container-padding-inline);
     border-inline-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
   }
+  /* Laid out as a grid only where the shell shows it: in a compact window the shell gives it no box (APS-4), and a
+     `display` of this layer would win over the shell's. */
+  @container style(--tanrei-app-shell-window-class: expanded) or style(--tanrei-app-shell-window-class: medium) {
+    tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+      display: grid;
+    }
+  }
+  tanrei-app-shell:is([data-window-class='expanded'], [data-window-class='medium']) > tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    display: grid;
+  }
   tanrei-navigation-drawer.docs-sidebar:not(:defined) > tanrei-button {
     display: flex;
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
     align-items: center;
     justify-content: center;
-    inline-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
+    inline-size: var(--tanrei-comp-button-container-height-medium);
+    block-size: var(--tanrei-comp-button-container-height-medium);
+    margin-inline-start: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 - var(--tanrei-comp-button-container-height-medium) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-system {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-listing {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    grid-column: 1 / -1;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > [slot] + :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    margin-block-start: var(--tanrei-comp-navigation-drawer-header-gap);
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: block;

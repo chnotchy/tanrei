@@ -68,11 +68,6 @@ const t = strings(Astro.props.lang);
   .docs-listing:not(:defined)::before {
     content: attr(label);
   }
-  /* In the sidebar it stands in the drawer's header, in the row of the menu button, which keeps its height: it is
-     drawn with the drawer, and until the drawer is defined it has no box among the sidebar's plain links. */
-  .docs-sidebar:not(:defined) > .docs-listing:not(:defined) {
-    display: none;
-  }
   /* Where no script runs nothing is hidden and nothing can be switched: the switch is not drawn, and takes no room. */
   @media (scripting: none) {
     .docs-listing:not(:defined) {
