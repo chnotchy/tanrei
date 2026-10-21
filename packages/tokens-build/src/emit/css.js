@@ -67,7 +67,12 @@ function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false
   if (rule.by === 1 && rule.exp === undefined && !times && rule.round === undefined) return floored(of);
   const exponent = typeof rule.exp === 'string' ? read(rule.exp) : rule.exp;
   const coefficient = rule.exp === undefined ? String(rule.by) : `pow(${rule.by}, ${exponent})`;
-  const product = `calc(${[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * ')})`;
+  // A density is a decimal no engine holds exactly — 0.95 is 0.9499999… in the 32-bit floats Firefox computes lengths
+  // in — so a product that is a tie in decimal arithmetic (4 × 10 × 0.95 = 38, half way between 36 and 40) can land a
+  // hair under it and round down where the engine, which rounds the decimal value, rounds up. A ten-thousandth of the
+  // unit lifts it over the tie in every engine, and moves nothing else: a product off a tie is further than that from one.
+  const tie = times && (rule.round !== undefined || type !== 'number') ? [type === 'duration' ? '0.0001ms' : type === 'number' ? '0.0001' : '0.0001px'] : [];
+  const product = `calc(${[[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * '), ...tie].join(' + ')})`;
   if (rule.round !== undefined) return floored(`round(nearest, ${product}, ${read(rule.round)})`);
   if (type === 'number') return floored(product);
   return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
