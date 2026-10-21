@@ -8,18 +8,19 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
+import VisualFrame from '../../../components/visuals/VisualFrame.astro';
 
 ## Overview
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="Variants">
+<VisualFrame label="Variants" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### Usage
 
