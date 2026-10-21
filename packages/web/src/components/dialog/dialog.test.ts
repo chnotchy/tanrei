@@ -41,6 +41,8 @@ function reports(page: P) {
   });
   return seen;
 }
+/** Whether the engine can keep a closed dialog drawn in the top layer while it leaves (`overlay`): Firefox cannot. */
+const holdsExit = (page: P) => page.evaluate(() => CSS.supports('overlay', 'auto'));
 const isOpen = (page: P, id: string) => dialog(page, id).evaluate((el) => (el as HTMLDialogElement).open);
 /** The deepest focused element: its id, a dialog's `dialog`, or its text. */
 const focused = (page: P) =>
@@ -229,7 +231,8 @@ test.describe('presentation and focus', () => {
       expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
       expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-enter-easing')));
     }
-    expect(drawn(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    // (WebKit reports the scrim's fade as the container's own — its pseudo-element unnamed — so the properties are counted once each.)
+    expect([...new Set(drawn(opening).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
     // The modal role's tempo (MDL-7).
     expect(await resolveToken(page, T('motion-enter-duration'), 'duration')).toBe(await resolveToken(page, '--tanrei-sys-motion-role-appear-modal-enter', 'duration'));
 
@@ -240,8 +243,14 @@ test.describe('presentation and focus', () => {
       const native = el.shadowRoot.querySelector('dialog') as HTMLDialogElement;
       return { open: native.open, focused: document.activeElement?.id ?? null };
     })), { probe: appearProbe });
-    // Out of the top layer and focus back at once; drawn until the exit has played.
+    // Out of the top layer and focus back at once; drawn until the exit has played — where the engine can hold a closed
+    // dialog in the top layer (`overlay`); one that cannot takes it away at once, as the docs say.
     expect(afterClose).toEqual({ open: false, focused: 'open-d' });
+    if (!(await holdsExit(page))) {
+      expect(drawn(closing)).toEqual([]);
+      expect(await css(dialog(page, 'd'), 'display')).toBe('none');
+      return;
+    }
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
     expectNoFlicker(closing);
     expectAnimated(closing, 'opacity');
@@ -251,7 +260,7 @@ test.describe('presentation and focus', () => {
       expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
       expect(motion.easing, motion.name).toBe(exit);
     }
-    expect(drawn(closing).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    expect([...new Set(drawn(closing).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
     expectExitEnd(closing, { duration: await resolveToken(page, T('motion-exit-duration'), 'duration'), easing: bezierOf(exit) });
     expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
     expect(await css(dialog(page, 'd'), 'display')).toBe('none');
@@ -274,14 +283,18 @@ test.describe('presentation and focus', () => {
     const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
     expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
     expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
-    expect(own(opening)).toEqual([['opacity', reduced]]);
+    // Only the opacity moves, over role.reduced (WebKit also lists the scrim's fade here, its pseudo-element unnamed).
+    expect(own(opening)).toContainEqual(['opacity', reduced]);
+    expect(own(opening).filter(([name]) => name !== 'opacity')).toEqual([]);
     const closing = await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe });
-    expect(own(closing)).toEqual([['opacity', reduced]]);
+    if (await holdsExit(page)) expect(own(closing)).toContainEqual(['opacity', reduced]);
+    expect(own(closing).filter(([name]) => name !== 'opacity')).toEqual([]);
     expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
   });
 
-  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page }) => {
+  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page, browserName }) => {
     await mount(page, [f('d')]);
+    test.skip(!(await holdsExit(page)), `${browserName} cannot hold a closed dialog in the top layer (no overlay property): it has no exit to turn round`);
     await override(page, { [T('motion-enter-duration')]: '600ms', [T('motion-exit-duration')]: '600ms' });
     // A turn is read where the motion is held at half its length, not where a clock has let it get to; the new state is
     // set and read in the same task, before a frame has passed.
@@ -326,7 +339,7 @@ test.describe('presentation and focus', () => {
     expect(await css(dialog(page, 'd'), 'opacity')).toBe('1');
   });
 
-  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
+  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page, browserName }) => {
     await mount(page, []);
     const main = page.locator('main');
     const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-dialog id="late" headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>')), { probe: appearProbe });
@@ -343,7 +356,11 @@ test.describe('presentation and focus', () => {
     await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
     await native.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
     expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
-    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog '))).toEqual([]);
+    // The entrance would move the scale (0.96 under the default system); the scrim's fade is the modal layer's (WebKit
+    // names no pseudo-element for it, so its opacity is not told from the container's there).
+    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog '));
+    expect(runs.filter((run) => !run.endsWith(' opacity'))).toEqual([]);
+    if (browserName !== 'webkit') expect(runs).toEqual([]);
   });
 
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {
