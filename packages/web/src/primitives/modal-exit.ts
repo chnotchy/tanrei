@@ -78,6 +78,14 @@ function motions(dialog: HTMLDialogElement): Animation[] {
   });
 }
 
+/** The transitions of what an appearance moves on the dialog itself (not on its scrim, nor inside it). */
+function turning(dialog: HTMLDialogElement): Animation[] {
+  return dialog.getAnimations().filter((animation) => {
+    const effect = animation.effect as KeyframeEffect | null;
+    return effect?.target === dialog && effect.pseudoElement === null && (SHOWN as readonly string[]).includes((animation as CSSTransition).transitionProperty);
+  });
+}
+
 /** Runs `change` with no transition on the dialog or its scrim (one under way is finished first), and draws the result. */
 function atOnce(dialog: HTMLDialogElement, change: () => void) {
   const own: Own = [];
@@ -103,6 +111,11 @@ function asShown(dialog: HTMLDialogElement, change: () => void) {
   hold(dialog, 'transition-property', 'none', kept);
   for (const [property, value] of shown) hold(dialog, property, value, kept);
   hold(dialog, BACKDROP_SHOWN, scrim, kept);
+  // The motions it is turned from end here, where they had got to (the values just held draw it there): the engine is
+  // not left to replace them across the change. WebKit, taking the dialog out of the top layer and putting it back, can
+  // keep a transition beside the one that replaces it — seen as a second `scale` on a dialog closed while its entrance
+  // grew it, on a loaded machine — and the exit then waits for both.
+  for (const animation of turning(dialog)) animation.cancel();
   dialog.setAttribute(QUIET, '');
   dialog.setAttribute(KEEPING, '');
   change();
