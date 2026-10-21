@@ -1162,6 +1162,22 @@
       }
     },
     {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-scroll-area",
+        "import": "@tanrei/web",
+        "module": "@tanrei/web/components/scroll-area"
+      },
+      "react": {
+        "name": "ScrollArea",
+        "import": "@tanrei/react"
+      }
+    },
+    {
       "name": "search",
       "title": "Search",
       "level": "feature",

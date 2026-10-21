@@ -2824,6 +2824,10 @@
               "$value": 1,
               "reason": "Apple's navigation bars and toolbars draw their hairline only while content lies under them: at the scroll edge their appearance has no shadow (scrollEdgeAppearance), and a sheet's bar follows the same rule."
             },
+            "tanrei.sys.behavior.scroll-edge": {
+              "$value": 3,
+              "reason": "Apple's OS 26 marks the edge of a scroll view under a bar with a soft, blurred edge by default (ScrollEdgeEffectStyle.soft, \"a soft-edged, blurred\" effect); its hard style is the line."
+            },
             "tanrei.sys.state.hover-state-layer-opacity": {
               "$value": 0,
               "reason": "Apple platforms draw no state layer: a control is not tinted under the pointer. The rules below keep every container at rest; this keeps a color known only where a control is drawn (a Button's tone on a colored surface, a carousel item over its image) at rest too."

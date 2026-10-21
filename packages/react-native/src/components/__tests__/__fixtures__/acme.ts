@@ -655,7 +655,7 @@ export const acme = {
     opticalSizeMin: 20,
     opticalSizeMax: 48,
   },
-  behavior: { appearance: "fade-scale", dividerVisibility: "always", focusStyle: "glow", linkUnderline: "always", pressedFeedback: "overlay", requirementMark: "tag", separation: "divider" },
+  behavior: { appearance: "fade-scale", dividerVisibility: "always", focusStyle: "glow", linkUnderline: "always", pressedFeedback: "overlay", requirementMark: "tag", scrollEdge: "shadow", separation: "divider" },
   motion: {
     duration: { extraLong1: 700, extraLong2: 800, extraLong3: 900, extraLong4: 1000, long1: 450, long2: 500, long3: 550, long4: 600, medium1: 250, medium2: 300, medium3: 350, medium4: 400, pressHold: 100, short1: 50, short2: 100, short3: 150, short4: 200, stagger: 100 },
     easing: {
@@ -11680,6 +11680,19 @@ export const acme = {
           },
         },
       },
+    },
+    scrollArea: {
+      blurExtent: 48,
+      blurLayers: 4,
+      blurRadius: 8,
+      fadeExtent: 24,
+      lineColor: { kind: "role", role: "outlineVariant" },
+      lineWidth: 1,
+      motionDuration: 250,
+      motionEasing: [0.2, 0, 0, 1],
+      scrollEdge: 0,
+      shadowColor: { kind: "role", role: "surface" },
+      shadowExtent: 24,
     },
     search: {
       containerButtonGap: 0,

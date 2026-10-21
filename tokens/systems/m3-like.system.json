@@ -212,6 +212,7 @@
     "tanrei.sys.behavior.pressed-feedback": {"$value": 1, "reason": "Material answers a press with a ripple that grows from the point of contact."},
     "tanrei.sys.behavior.requirement-mark": {"$value": 1, "reason": "Material Design 3 marks a required field with an asterisk after its label."},
     "tanrei.sys.behavior.divider-visibility": {"$value": 1, "reason": "Material's top app bar lies flat until content scrolls under it, and its dialogs show the dividers above and below their scrolling content only while content lies beyond them (Material Web's dialog)."},
+    "tanrei.sys.behavior.scroll-edge": {"$value": 2, "reason": "Material marks content scrolled under a fixed part with a line: its dialogs draw the dividers above and below scrolling content, and its lists draw no band or fade of their own."},
     "tanrei.sys.behavior.separation": {"$value": 1, "reason": "Material's joined buttons stand a narrow gap apart, and its determinate progress indicators leave a gap before the track and draw a stop. Its menus part groups with a line: the menu's own choice is set back to divider when the menu reads it."},
     "tanrei.sys.behavior.appearance": {"$value": "unfold", "reason": "Material's menus, selects and docked pickers unfold from the edge that faces what opened them, scaled from nothing along that one axis as they fade in."},
     "tanrei.sys.motion.role.state.compact": {"$value": "{tanrei.sys.motion.duration.short3}", "reason": "Material 3's DurationShort3 (150 ms): this preset changes a state over it at every size."},

@@ -1,0 +1,194 @@
+---
+title: Scroll area
+description: A box that scrolls your content with the platform's own scrolling and shows, at each edge it watches, that more lies beyond it — a band in the surface's color, a fade of the content, a line or a blur — without changing its size or moving the content.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import BehaviorChoice from '../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+## Overview
+
+<ComponentAvailability name="scroll-area" />
+
+<DemoFrame label="A list in a box of a fixed height">
+  <tanrei-scroll-area label="Messages" style="inline-size: min(100%, 20rem); block-size: 16rem">
+    <tanrei-list-row headline="Ada" supporting-text="The draft is ready for review"></tanrei-list-row>
+    <tanrei-list-row headline="Grace" supporting-text="Moved the meeting to Thursday"></tanrei-list-row>
+    <tanrei-list-row headline="Alan" supporting-text="Photos from the trip"></tanrei-list-row>
+    <tanrei-list-row headline="Hedy" supporting-text="Can you check the numbers?"></tanrei-list-row>
+    <tanrei-list-row headline="Katherine" supporting-text="Landing at 6"></tanrei-list-row>
+    <tanrei-list-row headline="Edsger" supporting-text="Notes from today"></tanrei-list-row>
+    <tanrei-list-row headline="Barbara" supporting-text="The new plan is attached"></tanrei-list-row>
+    <tanrei-list-row headline="Donald" supporting-text="Chapter 3, second pass"></tanrei-list-row>
+    <tanrei-list-row headline="Margaret" supporting-text="All systems go"></tanrei-list-row>
+    <tanrei-list-row headline="Rosalind" supporting-text="New pictures from the lab"></tanrei-list-row>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+The area draws nothing of its own while its content fits. Scroll it: the bottom edge is marked while more lies below, and the top edge once something has scrolled out of view above.
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a scroll area yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The layout gives the area its size; it marks its top and bottom edges by default. -->
+    <tanrei-scroll-area label="Messages" style="block-size: 20rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- On a filled card: the shadow takes the card's color, so that the list sinks into the card. -->
+    <tanrei-scroll-area label="Results" style="--tanrei-comp-scroll-area-shadow-color: var(--tanrei-comp-card-filled-container-color); block-size: 16rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- Over a picture or a video: the content itself fades, and no color is drawn. -->
+    <tanrei-scroll-area scroll-edge="fade" label="Captions">…</tanrei-scroll-area>
+
+    <!-- A row that scrolls sideways: mark its start and end edges. -->
+    <tanrei-scroll-area edges="start end" label="Photos">…</tanrei-scroll-area>
+
+    <script type="module">
+      import '@tanrei/web/components/scroll-area';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ScrollArea } from '@tanrei/react';
+
+    <ScrollArea label="Messages" style={{ blockSize: '20rem' }}>
+      {messages}
+    </ScrollArea>
+
+    {/* On a filled card: the shadow takes the card's color. */}
+    <ScrollArea
+      label="Results"
+      style={{ '--tanrei-comp-scroll-area-shadow-color': 'var(--tanrei-comp-card-filled-container-color)', blockSize: '16rem' } as React.CSSProperties}
+    >
+      {results}
+    </ScrollArea>
+
+    <ScrollArea scrollEdge="fade" label="Captions">{captions}</ScrollArea>
+    <ScrollArea edges={['start', 'end']} label="Photos">{photos}</ScrollArea>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Scroll edges: shadow (the default system's choice), fade, line, blur and none" plain>
+  <tanrei-scroll-area scroll-edge="shadow" label="Shadow" style="inline-size: 9rem; block-size: 10rem">
+    <p>Shadow. A band in the color of the surface the area stands on, full at the edge and none 24 in from it. Scroll to see the top edge marked too. The content seems to sink into the surface.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="fade" label="Fade" style="inline-size: 9rem; block-size: 10rem">
+    <p>Fade. The content itself fades out toward the edge, and no color is drawn, so whatever lies behind the area shows through. Scroll to see the top edge marked too.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="line" label="Line" style="inline-size: 9rem; block-size: 10rem">
+    <p>Line. A hairline along the edge, in the color of a divider, while content lies beyond it. Scroll to see the top edge marked too, and the bottom line go.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="blur" label="Blur" style="inline-size: 9rem; block-size: 10rem">
+    <p>Blur. The content is blurred in a band 48 deep, most at the edge and none at the band's inner end. Scroll to see the top edge marked too.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="none" label="None" style="inline-size: 9rem; block-size: 10rem">
+    <p>None. Nothing marks the edges: only the platform's scroll bar says that the content goes on. Scroll it to compare with the others.</p>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+<ComponentSpecs name="scroll-area" />
+
+## Guidelines
+
+### When to use
+
+Use a scroll area where your layout gives a part of the screen a fixed size and its content can be longer: a list of messages beside a conversation, the results under a search field, a long form in a pane, a row of pictures that scrolls sideways. The area keeps the content where you put it and says, at each edge it watches, that more lies beyond.
+
+You do not need one around a component that scrolls by itself — a [table](/components/table/), a dialog's content, a sheet — nor around the page: the page's own scrolling has no edge to mark. A dialog, a sheet, a popover and an app bar draw their own line where a part that stays in place meets content that scrolls.
+
+### Choosing a scroll edge
+
+| Form | Use for |
+| --- | --- |
+| `shadow` | An opaque surface: the content sinks into it. The band is drawn in the color of the surface the area stands on, not in a gray of its own. It is the default system's choice. |
+| `fade` | A transparent surface, a picture or a video behind the area. The content itself fades out and no color is drawn, so what lies behind shows through. |
+| `line` | A product that marks its edges with lines, and a dense layout where a band would cover too much of the content. The line is a hairline in the color of a divider. |
+| `blur` | A product whose bars and edges are translucent: the content goes soft at the edge. It costs the most to draw (below). |
+| `none` | A box whose edges are already plain, such as one whose scroll bar is always shown and is enough. |
+
+Each edge is drawn by itself, and only while content lies beyond it: at the top of the list only the bottom edge is marked. An edge fades in and out as that changes, at once where motion is reduced. The mark never changes the area's size and never moves the content.
+
+`edges` names which edges are watched: `top` and `bottom` by default, and `start` and `end` for a row that scrolls sideways. Start is the left in a left-to-right layout and the right in a right-to-left one.
+
+### A shadow takes the color of its surface
+
+A shadow is a band of the surface's own color laid over the content, full at the edge. On the surface its color names, it joins the surface with no seam; on any other it shows as a smear of the wrong color. `comp.scroll-area.shadow.color` is the plain surface (`sys.color.surface`) by default. Where the area stands on another surface — a card, a sheet, a container color — set it to that surface's color: in a layer, for every scroll area that stands there, or on the one instance. On the web that is the `--tanrei-comp-scroll-area-shadow-color` custom property, set on the element or on an ancestor.
+
+Where nothing opaque stands behind the area — a translucent panel, a picture, a video — no color is right. Choose `fade` there.
+
+### A blur costs more to draw
+
+A blur draws the content in its band again, blurred, in every frame of a scroll: `comp.scroll-area.blur.layers` layers of a stepped radius (4 in the default system, up to a radius of 8 at the edge, in a band 48 deep). Use it where the product's look asks for it, and keep it to **at most two blurred edges on a screen** — the top and bottom of one list, not every pane. Where the platform cannot blur what lies behind a band (a browser without backdrop filters, Android before 12, React Native without a blur view your product passes), the area draws `shadow` instead, so set the shadow's color even where you choose a blur.
+
+### One choice for the whole system
+
+What marks a scrolling box's edge is a choice of kind, made once for the product: its lists, forms and panes should not each mark their edges differently.
+
+<BehaviorChoice choice="scroll-edge" />
+
+The scroll area reads it through its own token, `comp.scroll-area.scroll-edge`, so a design system can set the scroll area apart from the system's choice. One instance sets its own with `scrollEdge` (`scroll-edge` on the web); its default, `auto`, follows the tokens. The default system draws `shadow`; `m3-like` draws `line` and `cupertino` `blur`, as their originals mark their scrolling edges.
+
+<SystemValues tokens={['sys.behavior.scroll-edge']} />
+
+### Scroll edge and divider visibility
+
+Two choices of the system concern scrolling, and they answer different questions:
+
+- `sys.behavior.divider-visibility` says **when the line of a fixed region stands**: the edge of an app bar, of a dialog's header and actions, of a sheet's header — a part that stays in place while content scrolls under it. It is drawn always, or only while something is scrolled beyond it.
+- `sys.behavior.scroll-edge` says **what marks the edge of a box that scrolls**, while content lies beyond that edge: a shadow, a fade, a line or a blur.
+
+A product can set them independently: a dialog whose header line follows the scroll, and lists that sink into their surface beside it.
+
+### It keeps the platform's scrolling
+
+The scroll area is the platform's own scroll box with marks drawn over its edges. Wheel, trackpad, touch, the keyboard, assistive technology and the platform's scroll bars all work as they do in any other box, and the scroll bars keep the platform's look. The area adds no scrolling of its own, no snapping and no scroll bar; it lays nothing out inside, and has no fill, edge or corner. Style the content as you would anywhere else.
+
+### Do
+
+- Give the area its size in your layout: a height, a share of a grid, the room left by a header and a footer. It takes the size it is given.
+- Set the shadow's color to the surface the area stands on, whenever that is not the plain surface.
+- Give it a label that says what it holds: "Messages", "Results", "Photos".
+
+### Don't
+
+- Don't draw a divider, a border or a gradient of your own at a scrolling edge. Choose the scroll edge instead, so that it appears only while content lies beyond the edge and matches the rest of the product.
+- Don't use a shadow over a picture, a video or a translucent surface. Use a fade.
+- Don't put more than two blurred edges on a screen.
+- Don't nest scroll areas that scroll in the same direction. A person cannot tell which one a swipe will move.
+- Don't hide the platform's scroll bars to make room for the marks. The marks say that there is more; the scroll bar says how much, and is a control in its own right.
+
+## Accessibility
+
+<ComponentAccessibility name="scroll-area" />
+
+### What the component handles
+
+- While its content does not fit and nothing inside takes keyboard focus, the box itself becomes one stop in the focus order, exposed as a region named by `label`, so that a keyboard can scroll it (WCAG 2.1.1). The arrow keys, Page Up, Page Down, Home, End and Space scroll it, as the platform scrolls any box.
+- While something inside takes focus, or the content fits, the box is no focus stop and exposes no role: the keyboard reaches the content, and the content scrolls into view as it is focused.
+- The focus indicator is drawn inside the box's edge, above every mark and never faded by one, and only for keyboard focus.
+- The marks are hidden from assistive technology, and every press, hover and scroll over them reaches the content under them.
+- An edge's mark fades in and out over a short time, a change of opacity and not a motion; it appears at once where reduced motion is requested.
+- With forced colors, every form is drawn as a line in the text color.
+- It has no words of its own. An empty label while the box is a focus stop, and an unknown `scrollEdge` or `edges` value, are reported in debug builds.
+
+### What you need to do
+
+- Give it a `label` that says what it holds. A person who tabs to the box hears that name; without one they hear only that there is a region.
+- Expect content under a band to be read once it scrolls into view, not where it is. A shadow or a fade lowers the contrast of the content under it, by design, but only inside its band and only while that content is scrolled toward the edge; the content is at full contrast once it is scrolled into view.
+- Keep content that changes on its own (a live list, new messages) announced the way you would anywhere else. The area does not announce what scrolls in.

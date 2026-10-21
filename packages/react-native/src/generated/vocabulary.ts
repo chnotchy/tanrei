@@ -343,6 +343,7 @@ export type TanreiFocusStyle = "ring" | "glow";
 export type TanreiLinkUnderline = "always" | "hover" | "never";
 export type TanreiPressedFeedback = "overlay" | "ripple" | "dim" | "none";
 export type TanreiRequirementMark = "tag" | "asterisk" | "none";
+export type TanreiScrollEdge = "shadow" | "fade" | "line" | "blur";
 export type TanreiSeparation = "divider" | "gap";
 export interface TanreiBehavior {
   readonly appearance: TanreiAppearance;
@@ -351,6 +352,7 @@ export interface TanreiBehavior {
   readonly linkUnderline: TanreiLinkUnderline;
   readonly pressedFeedback: TanreiPressedFeedback;
   readonly requirementMark: TanreiRequirementMark;
+  readonly scrollEdge: TanreiScrollEdge;
   readonly separation: TanreiSeparation;
 }
 
@@ -4038,6 +4040,24 @@ export interface TanreiRadioButtonTokens {
 }
 
 /**
+ * `comp.scroll-area`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiScrollAreaTokens {
+  readonly blurExtent: number;
+  readonly blurLayers: number;
+  readonly blurRadius: number;
+  readonly fadeExtent: number;
+  readonly lineColor: TanreiPaint;
+  readonly lineWidth: number;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly scrollEdge: number;
+  readonly shadowColor: TanreiPaint;
+  readonly shadowExtent: number;
+}
+
+/**
  * Every value of `comp.search`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `standard` (with a dev-only warning).
@@ -5657,6 +5677,7 @@ export interface TanreiComponents {
   readonly progressIndicator: TanreiProgressIndicatorTokens;
   readonly prose: TanreiProseTokens;
   readonly radioButton: TanreiRadioButtonTokens;
+  readonly scrollArea: TanreiScrollAreaTokens;
   readonly search: TanreiSearchTokens;
   readonly segmentedButton: TanreiSegmentedButtonTokens;
   readonly select: TanreiSelectTokens;

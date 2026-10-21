@@ -75,6 +75,7 @@ export { Popover } from '../../generated/wrappers/popover.js';
 export { ProgressIndicator } from '../../generated/wrappers/progress-indicator.js';
 export { RadioButton, type RadioButtonMarks } from '../../generated/wrappers/radio-button.js';
 export { RadioGroup, type RadioGroupMarks } from '../../generated/wrappers/radio-group.js';
+export { ScrollArea } from '../../generated/wrappers/scroll-area.js';
 export { Search, type SearchMarks } from '../../generated/wrappers/search.js';
 export { SearchResult } from '../../generated/wrappers/search-result.js';
 export { SearchResultGroup } from '../../generated/wrappers/search-result-group.js';

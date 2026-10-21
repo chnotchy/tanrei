@@ -101,6 +101,9 @@ A translation is natural technical writing in its language, not word for word: s
 | elevation | エレベーション | 层级（Elevation） |
 | shadow | 影 | 阴影 |
 | scrim | スクリム | 遮罩 |
+| scroll edge (the mark at an edge of a box that scrolls while content lies beyond it) | スクロールエッジ | 滚动边缘 |
+| fade (the scroll edge that fades the content itself; a state change that fades is フェードする / 渐变) | フェード | 渐隐 |
+| blur (a scroll edge, a surface's appearance) | ぼかし | 模糊 |
 | overlay | オーバーレイ | 浮层 |
 | motion | モーション | 动效 |
 | duration, easing | 時間、イージング | 时长、缓动 |
@@ -219,6 +222,7 @@ As common nouns: page titles, headings, running text.
 | Progress indicator | プログレスインジケーター | 进度指示器 |
 | Radio button | ラジオボタン | 单选按钮 |
 | Radio group | ラジオグループ | 单选组 |
+| Scroll area | スクロールエリア | 滚动区域 |
 | Search | 検索 | 搜索 |
 | Segmented button | セグメントボタン | 分段按钮 |
 | Select | セレクト | 下拉选择框 |
@@ -329,6 +333,9 @@ As common nouns: page titles, headings, running text.
 | elevation | elevación | एलिवेशन | الارتفاع |
 | shadow | sombra | शैडो | الظل |
 | scrim | velo | स्क्रिम | الحجاب (scrim) |
+| scroll edge | borde de desplazamiento | स्क्रॉल एज | حافة التمرير |
+| fade (the scroll edge that fades the content itself) | desvanecido — «el contenido se desvanece» | फ़ेड | التلاشي — «يتلاشى المحتوى» |
+| blur (a scroll edge) | desenfoque | ब्लर | التمويه |
 | overlay | superposición | ओवरले | التراكب |
 | motion | movimiento | मोशन | الحركة |
 | duration, easing | duración, curva de aceleración | अवधि, ईज़िंग | المدة، منحنى التسارع |
@@ -444,6 +451,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Progress indicator | Indicador de progreso | प्रोग्रेस इंडिकेटर | مؤشر التقدم |
 | Radio button | Botón de opción | रेडियो बटन | زر الاختيار |
 | Radio group | Grupo de botones de opción | रेडियो ग्रुप | مجموعة أزرار الاختيار |
+| Scroll area | Área de desplazamiento — feminine, written «el área» / «un área» (its adjectives agree: «el área marcada») | स्क्रॉल एरिया (masculine) | منطقة التمرير — short `المنطقة` |
 | Search | Búsqueda | खोज | البحث |
 | Segmented button | Botón segmentado | सेगमेंटेड बटन | الزر المقسَّم |
 | Select | Select — in running text «el select», masculine, lower case | सिलेक्ट | عنصر الاختيار — the bare control; «حقل الاختيار» is the Select field |

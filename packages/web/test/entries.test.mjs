@@ -134,6 +134,8 @@ test('each system’s components manifest is in dist/systems/, and the entries a
     assert.equal(exported(`./systems/${id}.components.json`), `./dist/systems/${id}.components.json`, 'and the package exports it');
     const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
     for (const { name, web } of manifest.components) {
+      // A component the web has not built yet (its spec's web status is planned) names no web entry or module.
+      if (!web) continue;
       const entry = exportOf(web.import);
       const built = exported(entry);
       assert.ok(built && fs.existsSync(path.join(root, built)), `${id}: ${name}'s ${web.import} is an export of the package, built`);

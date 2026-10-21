@@ -645,6 +645,13 @@
       "category": "containment",
       "level": "base",
       "listing": "default"
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }
