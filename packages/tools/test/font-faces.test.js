@@ -3,10 +3,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { FONT_PACKAGES, PLATFORM_FAMILIES, axisCuts, fontFacesCss, missingFamilies, registeredFamilies, shippedFamilies, subsetFileName } from '../src/font-faces.js';
+import { FONT_PACKAGES, PLATFORM_FAMILIES, axisCuts, fontFacesCss, formatUnicodeRange, missingFamilies, parseUnicodeRange, registeredFamilies, shippedFamilies, subsetFileName, textOf, writeTextCut } from '../src/font-faces.js';
+import { leavesNothingBehind, tempDir } from '../src/test-tmp.js';
 
+leavesNothingBehind(after);
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 // packages/web depends (for its tests) on a package for every family in the table except Noto Sans JP and Noto Sans
 // Arabic (the Theme Studio app's face for Arabic).
@@ -91,4 +93,54 @@ test('development only: no published package depends on a font package or ships 
     assert.ok(Array.isArray(manifest.files), `${file}: a published package lists its "files", so a generated fonts stylesheet cannot slip in`);
   }
   assert.ok(users > 0, 'the check looked at real manifests');
+});
+
+test('a family split by Unicode range is cut down to the characters a site draws: one small file for each face that holds any, set first on a page not in its language', async () => {
+  const docs = path.join(repo, 'apps/docs'); // depends on Noto Sans JP
+  const dir = tempDir('text-cut');
+  const out = path.join(dir, 'fonts.css');
+  // Latin and punctuation the family's script faces hold (Inter draws them first), kana and two kanji.
+  const faces = await writeTextCut(out, 'Noto Sans JP', 'Save 保存 or デプロイ — “quoted”', docs);
+  assert.deepEqual(faces.flatMap((face) => face.codepoints).map((cp) => String.fromCodePoint(cp)).sort(), [...'保存デプロイ'].sort(), 'only the characters of the numbered faces');
+  assert.ok(faces.length >= 2 && faces.length <= 6, `${faces.length} files`);
+  const { iconFont } = await import('../src/icon-font.js');
+  for (const face of faces) {
+    assert.match(path.basename(face.file), /^noto-sans-jp-cut-\d+\.generated\.woff2$/);
+    assert.ok(face.bytes < 8 * 1024, `${path.basename(face.file)}: ${face.bytes} bytes`);
+    assert.equal(face.weight, '100 900', 'every weight is kept');
+    // The cut draws each of its characters with a glyph, as the family's own file does.
+    const font = await iconFont(fs.readFileSync(face.file));
+    for (const cp of face.codepoints) assert.notEqual(font.shape(String.fromCodePoint(cp))[0], 0, `U+${cp.toString(16)}`);
+  }
+  // A face no character needs any more leaves no file behind.
+  const stale = path.join(dir, 'noto-sans-jp-cut-1.generated.woff2');
+  fs.writeFileSync(stale, '');
+  await writeTextCut(out, 'Noto Sans JP', '保', docs);
+  assert.equal(fs.existsSync(stale), false);
+  assert.equal(fs.readdirSync(dir).filter((name) => name.startsWith('noto-sans-jp-cut-')).length, 1);
+
+  const stacks = { '--x-ref-typeface-plain': ['Inter', 'Noto Sans JP', 'system-ui'], '--x-ref-typeface-mono': ['Roboto Mono', 'ui-monospace'] };
+  const css = fontFacesCss(out, docs, { families: ['Noto Sans JP'], textCuts: [{ family: 'Noto Sans JP', lang: 'ja', faces, stacks }] });
+  assert.ok(css.indexOf("font-family: 'Noto Sans JP Cut'") > css.lastIndexOf("font-family: 'Noto Sans JP';"), 'registered after the family');
+  assert.match(css, /src: url\('\.\/noto-sans-jp-cut-\d+\.generated\.woff2'\) format\('woff2-variations'\);\n {2}unicode-range: U\+[0-9a-f]+;/);
+  assert.match(css, /:root:not\(:lang\(ja\)\) \{\n {2}--x-ref-typeface-plain: 'Inter', 'Noto Sans JP Cut', 'Noto Sans JP', system-ui;\n\}/);
+  assert.ok(!/--x-ref-typeface-mono/.test(css), 'a stack without the family is left alone');
+});
+
+test('unicode ranges: read and written, consecutive code points as one range', () => {
+  assert.deepEqual(parseUnicodeRange('U+20, U+3041-307f,U+ff0c'), [[0x20, 0x20], [0x3041, 0x307f], [0xff0c, 0xff0c]]);
+  assert.equal(formatUnicodeRange([0x30c7, 0x4fdd, 0x30c8, 0x30c9, 0x4fdd]), 'U+30c7-30c9,U+4fdd');
+});
+
+test('the text a cut keeps: the .md, .mdx and .json files of folders, less what is written !<path>', () => {
+  const dir = tempDir('text-of');
+  fs.mkdirSync(path.join(dir, 'docs/ja'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'docs/a.mdx'), '保存');
+  fs.writeFileSync(path.join(dir, 'docs/b.astro'), '無視');
+  fs.writeFileSync(path.join(dir, 'docs/ja/c.mdx'), '日本語');
+  fs.writeFileSync(path.join(dir, 'spec.json'), '{"label":"氏名"}');
+  const text = textOf(['docs', 'spec.json', '!docs/ja'], dir);
+  assert.match(text, /保存/);
+  assert.match(text, /氏名/);
+  assert.ok(!/無視|日本語/.test(text), text);
 });

@@ -175,7 +175,8 @@ async function transfer(url) {
     await quiet();
     const list = [...requests.values()];
     const sum = (rows) => rows.reduce((total, row) => total + row.bytes, 0);
-    return { total: sum(list), icons: sum(list.filter((row) => /material-symbols/.test(row.url))), largest: list.sort((a, b) => b.bytes - a.bytes).slice(0, 5).map((row) => `${Math.round(row.bytes / 1024)} KB ${row.url.replace(origin, '')}`) };
+    const drawn = await page.evaluate(() => [...document.fonts].filter((face) => face.status === 'loaded').map((face) => face.family.replace(/["']/g, '')));
+    return { total: sum(list), icons: sum(list.filter((row) => /material-symbols/.test(row.url))), largest: list.sort((a, b) => b.bytes - a.bytes).slice(0, 5).map((row) => `${Math.round(row.bytes / 1024)} KB ${row.url.replace(origin, '')}`), files: list.map((row) => row.url.replace(/^.*\//, '')), drawn };
   } finally {
     await context.close();
   }
@@ -190,6 +191,25 @@ describe('what a page transfers', () => {
       assert.ok(icons > 0 && icons < 200 * 1024, `${url}: the icon files are ${Math.round(icons / 1024)} KB`);
     });
   }
+});
+
+// Noto Sans JP comes in about 120 files by Unicode range, each taken whole for any one of its characters: the Button
+// page's guideline quotes 保存 and デプロイ, and its six characters took 107 KB of three files. A page not in Japanese
+// draws them from the site's cut of the family (font-faces.js --text-cut), a page in Japanese from the family's files.
+describe('the Japanese a page quotes', () => {
+  const slice = /^noto-sans-jp-\d+-wght-normal\./;
+  const cut = /^noto-sans-jp-cut-\d+\.generated\./;
+  test('on a page not in Japanese, is drawn from the cut: none of the family’s own files', async () => {
+    const { files, drawn } = await transfer('/components/button/');
+    assert.deepEqual(files.filter((file) => slice.test(file)), []);
+    assert.ok(files.some((file) => cut.test(file)), files.join(', '));
+    assert.ok(drawn.includes('Noto Sans JP Cut'), drawn.join(', '));
+  });
+  test('on a page in Japanese, is drawn from the family’s own files, and the cut is not asked for', async () => {
+    const { files } = await transfer('/ja/components/button/');
+    assert.deepEqual(files.filter((file) => cut.test(file)), []);
+    assert.ok(files.some((file) => slice.test(file)), files.join(', '));
+  });
 });
 
 describe('the Theme Studio page', () => {

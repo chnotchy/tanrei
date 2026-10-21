@@ -185,5 +185,8 @@ export default defineConfig({
     plugins: [tanreiStudio()],
     // Pages import tokens, specs and the status matrix straight from the repository root.
     server: { fs: { allow: [repoRoot] } },
+    // A font file stays a file, however small: inlined, it would be in the stylesheet every page loads, and a face is
+    // asked for only by a page that draws one of its characters (the cut faces of Noto Sans JP are 1 to 50 KB each).
+    build: { assetsInlineLimit: (file) => (file.endsWith('.woff2') ? false : undefined) },
   },
 });
