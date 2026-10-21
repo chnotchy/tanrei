@@ -156,10 +156,34 @@
             "$type": "dimension",
             "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes, per density. Each cell's hit area reaches half of it above and below. Compact keeps the two shapes apart by the least room, as a dense sidebar does.",
             "regular": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space50}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space25}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           }
         },
@@ -472,10 +496,30 @@
               }
             },
             "regular": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.navigation-drawer.item.container.height.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.navigation-drawer.item.container.height.compact}"
+                }
+              }
             }
           },
           "gap": {

@@ -146,10 +146,30 @@
             "$type": "dimension",
             "$description": "Above the first line and below the last line of a row's text, per density, while the row draws its own paddings (standing alone, or in a static item). It holds the room when the text is enlarged.",
             "regular": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.list-row.container.height.one-line.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.list-row.container.height.one-line.compact}"
+                }
+              }
             }
           },
           "padding-inline-start": {

@@ -182,13 +182,43 @@
             "$type": "dimension",
             "$description": "Vertical padding. Heights are minimums, so this shows only when the label wraps or text is enlarged.",
             "small": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button-with-menu.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button-with-menu.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button-with-menu.container.height.large}"
+                }
+              }
             }
           },
           "gap": {

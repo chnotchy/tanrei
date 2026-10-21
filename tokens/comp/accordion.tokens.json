@@ -130,10 +130,30 @@
             "$type": "dimension",
             "$description": "Above the first line and below the last line of a header's text, per density. With one line of the label it gives the height exactly or leaves room; it holds the room when the text is enlarged or wraps.",
             "regular": {
-              "$value": "{tanrei.sys.space.space200}"
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space200}",
+                  "height": "{tanrei.comp.accordion.container.height.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space150}",
+                  "height": "{tanrei.comp.accordion.container.height.compact}"
+                }
+              }
             }
           },
           "padding-inline": {

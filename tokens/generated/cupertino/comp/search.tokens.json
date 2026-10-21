@@ -299,11 +299,31 @@
             "padding-block": {
               "$type": "dimension",
               "regular": {
-                "$value": "{tanrei.sys.space.space100}"
+                "$value": {
+                  "value": 8,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space100}",
+                    "height": "{tanrei.comp.search.suggestion.container.height.regular}"
+                  }
+                }
               },
               "compact": {
-                "$value": "{tanrei.sys.space.space50}",
-                "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row."
+                "$value": {
+                  "value": 4,
+                  "unit": "px"
+                },
+                "$description": "4 above and below in a compact row: the text keeps its regular style, whose line is taller than the tree view's compact label, so the tree's 6 would make the row 36; with 4 the line fits the 32 row.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space50}",
+                    "height": "{tanrei.comp.search.suggestion.container.height.compact}"
+                  }
+                }
               }
             },
             "gap": {

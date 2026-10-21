@@ -132,10 +132,30 @@
             "$type": "dimension",
             "$description": "Above and below a row's label, per density. With one line of the label it gives the density's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
             "regular": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space150}",
+                  "height": "{tanrei.comp.table-of-contents.row.height.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.table-of-contents.row.height.compact}"
+                }
+              }
             }
           },
           "indent": {
