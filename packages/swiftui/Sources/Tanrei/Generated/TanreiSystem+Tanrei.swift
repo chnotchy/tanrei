@@ -698,7 +698,6 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   handleContainerShape: 9999,
   handleContainerWidth: 48,
   handleGripHeight: 4,
-  handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
   headerGap: 8,
@@ -724,7 +723,7 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
       ),
       hovered: TanreiBottomSheetControlStateTokens(
         containerColor: .mix(base: .none, with: .role(.outline), amount: 0.08),
-        gripColor: .role(.outline),
+        gripColor: .role(.onSurfaceVariant),
         stateLayerColor: .role(.outline)
       ),
       focused: TanreiBottomSheetControlStateTokens(
@@ -734,7 +733,7 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
       ),
       pressed: TanreiBottomSheetControlStateTokens(
         containerColor: .mix(base: .none, with: .role(.outline), amount: 0.1),
-        gripColor: .role(.outline),
+        gripColor: .role(.onSurfaceVariant),
         stateLayerColor: .role(.outline)
       )
     )
@@ -9444,65 +9443,7 @@ private let tanreiTextInputTokens = TanreiTextInputTokens(
   entriesTypingMinWidth: 72,
   motionResizeDuration: 300,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  resizeGripInset: 4,
-  resizeGripSize: 16,
-  segmentPaddingInline: 2,
-  variants: TanreiTextInputVariants(
-    stacked: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    filled: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    outlined: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  )
+  segmentPaddingInline: 2
 )
 
 private let tanreiTimelineTokens = TanreiTimelineTokens(

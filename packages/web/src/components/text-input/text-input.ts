@@ -2,7 +2,6 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { ifDefined } from 'lit/directives/if-defined.js';
 import {
   AvailabilityController,
-  GlyphDrawnController,
   GlyphMirrorController,
   type DateKind,
   FALLBACK_LOCALE,
@@ -59,6 +58,8 @@ import { CompositionEnd, isCompositionInput } from '../../primitives/composition
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { wordPlaces } from '../../generated/words.js';
 import { TanreiElement } from '../../primitives/element.js';
+import '../handle/handle.js';
+import type { TanreiHandle, TanreiHandleResizeDetail, TanreiHandleStepDetail } from '../handle/handle.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -76,8 +77,15 @@ export type TanreiTextInputResizeAxis = 'vertical' | 'both';
 export const DISABLED_DATES = { fromAttribute: parseValues, toAttribute: (value: string[]) => value.join(' ') };
 const RESIZES: readonly TanreiTextInputResize[] = ['auto', 'manual', 'fixed'];
 const RESIZE_AXES: readonly TanreiTextInputResizeAxis[] = ['vertical', 'both'];
-/** A press on the resize grip that ends within this many pixels of where it began is a click, not a drag (TXI-41). */
-const DRAG_SLOP = 3;
+
+/**
+ * What `resizeend` carries (TXI-69): the lines the input shows, and the field's width in CSS pixels while `resize-axis`
+ * is both (null otherwise).
+ */
+export interface TanreiTextInputResizeEndDetail {
+  lines: number;
+  width: number | null;
+}
 
 /** What `action` carries: the value when the action key was pressed. */
 export interface TanreiTextInputActionDetail {
@@ -241,7 +249,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * </tanrei-text-input></tanrei-field>`, or bare: `<tanrei-text-input name="q" type="search" label="Filter tokens">
  * </tanrei-text-input>`. The box is drawn from `--tanrei-comp-input-box-*`, the one set of
  * tokens every input box is drawn from (TXI-68), one set per variant, look (plain or error) and state — how a state
- * looks is the active design system's decision — and what a text input alone draws (the resize grip, a segment, the
+ * looks is the active design system's decision — and what a text input alone draws (a segment, the
  * code face, the entries place) from `--tanrei-comp-text-input-*`. The text is edited in a native
  * `<input>` — a `<textarea>` while `multiline` — in the shadow root, so input methods, autofill,
  * selection and the clipboard work as the browser does. The name (its own `label`, else its Field's), the description
@@ -263,13 +271,13 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  *: they still work, and a debug build says so.
  *
  * `multiline` with `resize="auto"` (the default) follows its lines between `min-rows` and `max-rows` with an animated
- * height; `resize="manual"` draws a grip in the bottom end corner that is dragged, moved with the arrow keys, or
- * activated to fit the text (`resize-axis="both"` resizes the width too); `resize="fixed"` stays at `min-rows`.
+ * height; `resize="manual"` places a `<tanrei-handle size="small">` in the bottom end corner that is dragged, moved
+ * with the arrow keys, or activated to fit the text, and fires `resizeend` when the person has changed the size (`resize-axis="both"` resizes the width too); `resize="fixed"` stays at `min-rows`.
  *
  * `type="code"` is a field whose value is written for a machine — a pattern, a key, a snippet of configuration — on one
  * line or, with `multiline`, on many: the input line (prefix, value, placeholder, suffix) is one left-to-right row in
  * the code face that begins at the left in every layout direction, while the label, the icons, the messages and the
- * grip follow the page; the browser is asked not to correct, capitalise, spell-check, translate or complete it; a paste
+ * handle follow the page; the browser is asked not to correct, capitalise, spell-check, translate or complete it; a paste
  * is plain text, character for character; Tab still moves focus. `no-wrap` keeps each line of a multi-line code field
  * on one row and scrolls it sideways inside the container. It is a field, not an editor: no syntax colors, no line
  * numbers, no Tab that indents.
@@ -301,12 +309,13 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @csspart leading-icon - The box of the leading icon.
  * @csspart trailing-icon - The box of the trailing icon.
  * @csspart picker-button - The picker button, a `<tanrei-button>` (TXI-32).
- * @csspart resize-grip - The grip of a multi-line field resized by hand (TXI-39).
+ * @csspart resize-handle - The `<tanrei-handle>` of a multi-line field resized by hand (TXI-39).
  * @attr {string} form - The id of the form the text input belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires input - The user changed the value (typing, deleting, pasting, dictation, autofill, an input method); `value` is already the new one. A date or time field fires it when its value changes — its last segment is filled, a filled row is edited, or it is emptied — not for a segment that leaves the value empty. Never fired when the product sets `value`.
  * @fires change - The user committed a changed value: focus left the field (a date or time field's segments and picker button), or the action key was pressed in a single-line field.
  * @fires {CustomEvent<TanreiTextInputActionDetail>} action - The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  * @fires {CustomEvent<TanreiTextInputPickerRequestDetail>} pickerrequest - The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
+ * @fires {CustomEvent<TanreiTextInputResizeEndDetail>} resizeend - The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
  * @fires {CustomEvent<TanreiTextInputEntryErrorDetail>} entryerror - The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  */
 export class TanreiTextInput extends TanreiElement {
@@ -314,15 +323,9 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * TXI-35: the glyphs in the leading-icon and trailing-icon slots are marked when the icon set mirrors
    * their names in right-to-left, or the product's `data-mirror` says so (src/primitives/glyph-mirror.ts);
-   * `iconGlyph()` draws the mark. The picker button's glyph is its Button's (TXI-32) and is not one the icon set flags,
-   * and the resize grip's glyphs are never marked.
+   * `iconGlyph()` draws the mark. The picker button's glyph is its Button's (TXI-32) and is not one the icon set flags.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="leading-icon"], slot[name="trailing-icon"]' });
-  /**
-   * TXI-22, TXI-39: the resize grip's glyph is drawn once the icon set can draw it; until then nothing stands in its
-   * place — not its name spelled out in a text face (src/primitives/glyph.ts).
-   */
-  private readonly gripGlyph = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.grip-glyph'));
   /**
    * TXI-62: the input's side of the exchange with the Field that frames it (src/primitives/field.ts). It takes the
    * Field's name, description and states, whether the label is hidden and whether an asterisk follows it; and it says
@@ -347,7 +350,7 @@ export class TanreiTextInput extends TanreiElement {
    *
    * @internal
    */
-  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'picker-button', 'resize-grip'];
+  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'picker-button', 'resize-handle'];
 
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
@@ -394,6 +397,7 @@ export class TanreiTextInput extends TanreiElement {
     hasTrailing: { state: true },
     hasEntries: { state: true },
     focused: { state: true },
+    hovering: { state: true },
     formDisabled: { state: true },
     segments: { state: true },
     entryError: { state: true },
@@ -495,15 +499,15 @@ export class TanreiTextInput extends TanreiElement {
 
   /**
    * How a multi-line field gets its height. `auto`: it follows the number of lines between `minRows` and `maxRows`, with
-   * an animated change, and has no grip. `manual`: it starts at `minRows` lines and the person resizes it with the grip
-   * in its bottom end corner. `fixed`: it stays at `minRows` lines, with no grip.
+   * an animated change, and has no handle. `manual`: it starts at `minRows` lines and the person resizes it with the handle
+   * in its bottom end corner. `fixed`: it stays at `minRows` lines, with no handle.
    */
   resize: TanreiTextInputResize = 'auto';
 
   /** What the person can resize by hand (`resize-axis`): the height only, or the height and the width. Ignored unless `resize` is manual. */
   resizeAxis: TanreiTextInputResizeAxis = 'vertical';
 
-  /** The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name. */
+  /** The accessible name of the resize handle (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the handle is drawn and works, and has no name. */
   resizeLabel = '';
 
   /**
@@ -586,6 +590,8 @@ export class TanreiTextInput extends TanreiElement {
   /** TXI-64, TXI-65: whether the entries slot holds content. */
   protected hasEntries = false;
   protected focused = false;
+  /** TXI-39: a fine pointer is over the field; its resize handle is revealed. */
+  protected hovering = false;
   /** Set by an ancestor `<fieldset disabled>` (the element's `formDisabledCallback`). */
   protected formDisabled = false;
   /** What a date or time field's segments hold (TXI-42 … TXI-46). */
@@ -638,13 +644,16 @@ export class TanreiTextInput extends TanreiElement {
 
   /** TXI-39: the lines the person gave a manually resized field; null is minRows. */
   private manualLines: number | null = null;
-  /** The lines the input shows (the grip's value, TXI-41). */
+  /** The lines the input shows (the handle's value, TXI-41). */
   private lines = 0;
   /** The textarea whose height was last written: a new one is sized without motion (TXI-38). */
   private sized: Element | null = null;
   /** TXI-39: a width the person gave the field is on the host's inline style; what it replaced is put back. */
   private manualWidth: { inlineSize: string; maxInlineSize: string } | null = null;
-  private drag: { id: number; x: number; y: number; lines: number; width: number; line: number; rtl: boolean; moved: boolean } | null = null;
+  /** TXI-39: where a drag of the handle began — the lines shown, the field's width and one line of its text. */
+  private drag: { lines: number; width: number; line: number } | null = null;
+  /** TXI-41: the handle's greatest value while maxRows is 0 — the greater of the lines shown and those the text needs. */
+  private handleMax = 0;
   private sizeObserver: ResizeObserver | undefined;
   private observedInput: Element | null = null;
   private lastBox = { width: -1, line: -1 };
@@ -699,13 +708,13 @@ export class TanreiTextInput extends TanreiElement {
     return RESIZES.includes(this.resize) ? this.resize : 'auto';
   }
 
-  /** TXI-17: what the grip resizes; a value the field does not know is vertical. */
+  /** TXI-17: what the handle resizes; a value the field does not know is vertical. */
   private get axis(): TanreiTextInputResizeAxis {
     return RESIZE_AXES.includes(this.resizeAxis) ? this.resizeAxis : 'vertical';
   }
 
-  /** TXI-39: a multi-line field resized by hand draws the grip, read-only too — not while disabled. */
-  private get gripShown() {
+  /** TXI-39: a multi-line field resized by hand places the handle, read-only too — not while disabled. */
+  private get handleShown() {
     return this.isMultiline && this.resizeMode === 'manual' && !this.inert_;
   }
 
@@ -723,8 +732,8 @@ export class TanreiTextInput extends TanreiElement {
   /** TXI-52: the product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
 
-  /** TXI-41, TXI-52: the grip's name — the instance's, else the product's words, else nothing. */
-  private get gripName(): string {
+  /** TXI-41, TXI-52: the handle's name — the instance's, else the product's words, else nothing. */
+  private get handleName(): string {
     return this.words.get('resizeLabel', this.resizeLabel).trim();
   }
 
@@ -1338,7 +1347,7 @@ export class TanreiTextInput extends TanreiElement {
   /**
    * TXI-8: a press anywhere on the box — its padding, a floating label, the prefix, the suffix, a decorative icon, the
    * text between two segments — focuses the input (TXI-43: a segment). An
-   * interactive element in a slot, a segment, the picker button and the resize grip keep their own press.
+   * interactive element in a slot, a segment, the picker button and the resize handle keep their own press.
    */
   private onFieldMouseDown(event: MouseEvent) {
     const input = this.entryTarget;
@@ -1449,7 +1458,7 @@ export class TanreiTextInput extends TanreiElement {
     const { blockSize, minBlockSize } = input.style;
     input.style.blockSize = '0px';
     input.style.minBlockSize = '0px';
-    // TXI-53: the room a right-to-left code field keeps after its last line for the grip is scrolling room, not a line.
+    // TXI-53: the room a right-to-left code field keeps after its last line for the handle is scrolling room, not a line.
     const lines = (input.scrollHeight - (Number.parseFloat(getComputedStyle(input).paddingBottom) || 0)) / this.lineOf(input);
     input.style.blockSize = blockSize;
     input.style.minBlockSize = minBlockSize;
@@ -1457,7 +1466,7 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /**
-   * TXI-38: the input shows `target` lines. With `animate` — a change that follows the value, the grip's keys or its
+   * TXI-38: the input shows `target` lines. With `animate` — a change that follows the value, the handle's keys or its
    * activation — the height moves there from the one shown over motion.resize-* (the styles; at once where motion is
    * reduced), continuing from wherever a running change had brought it; otherwise it changes at once.
    *
@@ -1481,8 +1490,29 @@ export class TanreiTextInput extends TanreiElement {
     input.style.removeProperty('--_lag');
     this.sized = input;
     this.lines = target;
-    // TXI-41: the grip's value is the number of lines the input shows.
-    this.renderRoot.querySelector('.grip')?.setAttribute('aria-valuenow', String(Math.round(target)));
+    // TXI-41: the handle's value is the number of lines the input shows.
+    const handle = this.resizeHandle;
+    if (handle) {
+      handle.value = Math.round(target);
+      if (this.maxLines) handle.max = this.maxLines;
+      else if (handle.max < handle.value) handle.max = handle.value;
+    }
+  }
+
+  private get resizeHandle(): TanreiHandle | null {
+    return this.renderRoot?.querySelector<TanreiHandle>('.resize-handle') ?? null;
+  }
+
+  /**
+   * TXI-41: the handle's greatest value, where maxRows gives none — the greater of the lines shown and the lines the text
+   * needs, which End takes it to. Read when the handle is used (it measures the text), not on every change of height.
+   */
+  private measureHandleMax() {
+    const input = this.textarea;
+    const handle = this.resizeHandle;
+    if (!input || !handle || this.maxLines) return;
+    this.handleMax = Math.max(Math.round(this.lines || this.minLines), Math.round(this.clampLines(this.textLines(input))));
+    handle.max = this.handleMax;
   }
 
   /**
@@ -1548,7 +1578,7 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /**
-   * TXI-41: the grip activated without a drag — the input becomes as tall as its text needs, within minRows and
+   * TXI-41: the handle activated without a drag — the input becomes as tall as its text needs, within minRows and
    * maxRows, and returns to minRows when it is already that tall; where it resizes both ways its width alternates too.
    */
   private fitToText() {
@@ -1563,7 +1593,7 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   /**
-   * TXI-41: where the field resizes both ways, an activation of the grip also makes it as wide as its layout allows —
+   * TXI-41: where the field resizes both ways, an activation of the handle also makes it as wide as its layout allows —
    * its own max-inline-size, or its containing block where it has none — and gives back the width it had before the
    * person resized it when it already is that wide: the width, too, never depends on a drag (WCAG 2.5.7). At once,
    * as a drag is.
@@ -1610,110 +1640,92 @@ export class TanreiTextInput extends TanreiElement {
     this.manualWidth = null;
   }
 
-  /**
-   * TXI-39, TXI-40: a press that begins on the grip's hit area belongs to the grip — it does not place the caret,
-   * select text or take focus from the input — and a drag follows the pointer without motion.
-   */
-  private onGripPointerDown(event: PointerEvent) {
-    const input = this.textarea;
-    if (!input || event.button !== 0) return;
-    event.preventDefault();
-    const grip = event.currentTarget as HTMLElement;
-    grip.setPointerCapture?.(event.pointerId);
-    this.drag = {
-      id: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      lines: this.shownLines(input),
-      width: this.getBoundingClientRect().width,
-      line: this.lineOf(input),
-      rtl: getComputedStyle(this).direction === 'rtl',
-      moved: false,
-    };
+  /** TXI-69: the size the person has given the field, as `resizeend` says it. */
+  private shownSize(): TanreiTextInputResizeEndDetail {
+    return { lines: Math.round(this.lines), width: this.axis === 'both' ? Math.round(this.getBoundingClientRect().width) : null };
   }
 
-  private onGripPointerMove(event: PointerEvent) {
-    const drag = this.drag;
-    if (!drag || event.pointerId !== drag.id) return;
-    const [dx, dy] = [event.clientX - drag.x, event.clientY - drag.y];
-    if (!drag.moved && Math.hypot(dx, dy) <= DRAG_SLOP) return;
-    drag.moved = true;
-    this.resizeTo(drag.lines + dy / drag.line, false);
-    // TXI-24: the end edge follows the pointer — to the left in a right-to-left layout.
-    if (this.axis === 'both') this.resizeWidth(drag.width + (drag.rtl ? -dx : dx));
-  }
-
-  private onGripPointerUp(event: PointerEvent) {
-    const drag = this.drag;
-    if (!drag || event.pointerId !== drag.id) return;
-    this.drag = null;
-    // TXI-41: a click or a tap that ends where it began fits the height to the text.
-    if (!drag.moved) this.fitToText();
-  }
-
-  private onGripPointerCancel() {
-    this.drag = null;
-  }
-
-  private onGripMouseDown(event: MouseEvent) {
-    event.preventDefault();
-  }
-
-  /** TXI-41: an activation that came with no pointer (a click assistive technology makes) fits the height to the text too. */
-  private onGripClick(event: MouseEvent) {
-    if (event.detail === 0) this.fitToText();
+  /** TXI-69: `resizeend`, once, where the person's change changed the size; it leaves the shadow root, as `input` does. */
+  private resized(before: TanreiTextInputResizeEndDetail) {
+    const after = this.shownSize();
+    if (after.lines === before.lines && after.width === before.width) return;
+    this.dispatchEvent(new CustomEvent<TanreiTextInputResizeEndDetail>('resizeend', { bubbles: true, composed: true, detail: after }));
   }
 
   /**
-   * TXI-41: Down Arrow makes the input one line taller and Up Arrow one line shorter, Home returns it to minRows and
-   * End takes it to maxRows (without one, to the height that shows every line); where the field resizes both ways the
-   * horizontal arrow that points to its end edge widens it by one line height and the other narrows it; Enter and
-   * Space fit the height to the text. Each change moves as TXI-38 says.
+   * TXI-39: a drag of the handle began (HDL-6). The Handle has already kept the press from the caret, the selection and
+   * the focus; the field remembers where it started.
    */
-  private onGripKeyDown(event: KeyboardEvent) {
+  private readonly onHandleResizeStart = () => {
     const input = this.textarea;
-    if (!input || event.altKey || event.ctrlKey || event.metaKey) return;
-    const rtl = getComputedStyle(this).direction === 'rtl';
-    const widen = (by: number) => {
-      if (this.axis === 'both') this.resizeWidth(this.getBoundingClientRect().width + by * this.lineOf(input));
-    };
-    switch (event.key) {
-      case 'ArrowDown':
-        this.resizeTo(Math.round(this.lines) + 1, true);
-        break;
-      case 'ArrowUp':
-        this.resizeTo(Math.round(this.lines) - 1, true);
-        break;
-      case 'Home':
-        this.resizeTo(this.minLines, true);
-        break;
-      case 'End': {
-        const shown = this.shownLines(input);
-        input.removeAttribute('data-resizing');
-        this.manualLines = this.maxLines || this.clampLines(this.textLines(input));
-        this.showLines(input, shown, this.manualLines, true);
-        break;
-      }
-      case 'ArrowRight':
-        if (this.axis !== 'both') return;
-        widen(rtl ? -1 : 1);
-        break;
-      case 'ArrowLeft':
-        if (this.axis !== 'both') return;
-        widen(rtl ? 1 : -1);
-        break;
-      case 'Enter':
-      case ' ':
-        this.fitToText();
-        break;
-      default:
-        return;
+    if (!input) return;
+    this.drag = { lines: this.shownLines(input), width: this.getBoundingClientRect().width, line: this.lineOf(input) };
+  };
+
+  /** TXI-39: the field follows the drag without motion — its height, and its width where it resizes both ways. */
+  private readonly onHandleResize = (event: CustomEvent<TanreiHandleResizeDetail>) => {
+    const drag = this.drag;
+    if (!drag) return;
+    this.resizeTo(drag.lines + event.detail.block / drag.line, false);
+    // TXI-24: `inline` counts toward the end edge, to the left in a right-to-left layout (HDL-17).
+    if (this.axis === 'both') this.resizeWidth(drag.width + event.detail.inline);
+  };
+
+  /** TXI-69: the drag ended; the size it left is said once. */
+  private readonly onHandleResizeEnd = () => {
+    const drag = this.drag;
+    this.drag = null;
+    if (!drag) return;
+    this.measureHandleMax();
+    this.dispatchEvent(new CustomEvent<TanreiTextInputResizeEndDetail>('resizeend', { bubbles: true, composed: true, detail: this.shownSize() }));
+  };
+
+  /**
+   * TXI-41: the step a key asked for (HDL-9) — one line, as many as minRows for a large step, minRows for Home and
+   * maxRows for End (without one, the height that shows every line); where the field resizes both ways, the inline axis
+   * widens or narrows it by as many line heights. Each change moves as TXI-38 says.
+   */
+  private readonly onHandleStep = (event: CustomEvent<TanreiHandleStepDetail>) => {
+    const input = this.textarea;
+    if (!input) return;
+    const { axis, direction, amount } = event.detail;
+    const before = this.shownSize();
+    const by = amount === 'large' ? this.minLines : 1;
+    if (axis === 'inline') {
+      if (this.axis !== 'both') return;
+      this.resizeWidth(this.getBoundingClientRect().width + direction * by * this.lineOf(input));
+    } else if (amount === 'limit' && direction < 0) {
+      this.resizeTo(this.minLines, true);
+    } else if (amount === 'limit') {
+      const shown = this.shownLines(input);
+      input.removeAttribute('data-resizing');
+      this.manualLines = this.maxLines || this.clampLines(this.textLines(input));
+      this.showLines(input, shown, this.manualLines, true);
+    } else {
+      this.resizeTo(Math.round(this.lines) + direction * by, true);
     }
-    event.preventDefault();
+    this.measureHandleMax();
+    this.resized(before);
+  };
+
+  /** TXI-41: activated without a drag (HDL-7) — fit the height to the text, or back to minRows. */
+  private readonly onHandleActivate = () => {
+    const before = this.shownSize();
+    this.fitToText();
+    this.measureHandleMax();
+    this.resized(before);
+  };
+
+  /** TXI-41: the handle's greatest value is read when it is reached. */
+  private readonly onHandleFocus = () => this.measureHandleMax();
+
+  /** TXI-39: a fine pointer over the field reveals its handle (HDL-23); a touch does not hover. */
+  private onFieldPointerEnter(event: PointerEvent) {
+    if (event.pointerType !== 'touch') this.hovering = true;
   }
 
-  private onGripFocus(event: FocusEvent) {
-    syncFocusStyle(this, event.currentTarget as HTMLElement);
+  private onFieldPointerLeave() {
+    this.hovering = false;
   }
 
   /**
@@ -1950,9 +1962,8 @@ export class TanreiTextInput extends TanreiElement {
       this.bar = 0;
     }
     this.observeSize();
-    // TXI-41: a grip drawn anew says the lines the input shows.
-    const grip = this.renderRoot.querySelector('.grip');
-    if (grip && !grip.hasAttribute('aria-valuenow')) grip.setAttribute('aria-valuenow', String(Math.round(this.lines || this.minLines)));
+    // TXI-41: where maxRows gives the handle no greatest value, the lines the text needs do; they follow the text.
+    if (this.handleShown && !this.maxLines && (changed.has('value') || !this.handleMax)) this.measureHandleMax();
     if (!this.drawn && input) {
       this.drawn = true;
       // The text may be laid out again when its face arrives: the height follows, without motion. Only a field that
@@ -2003,8 +2014,8 @@ export class TanreiTextInput extends TanreiElement {
     }
     if (changed.has('resize') && !RESIZES.includes(this.resize)) report(this, 'TXI-17', `resize "${this.resize}" is not a way the text input is resized; it behaves as "auto"`);
     if (changed.has('resizeAxis') && !RESIZE_AXES.includes(this.resizeAxis)) report(this, 'TXI-17', `resizeAxis "${this.resizeAxis}" is not an axis the text input resizes; it behaves as "vertical"`);
-    // TXI-41, TXI-52: a grip nobody named is drawn and works; the developer is told.
-    if (this.gripShown && !this.gripName) this.words.missing('resizeLabel', { id: 'TXI-41', effect: 'the resize grip is drawn and works, and has no accessible name' });
+    // TXI-41, TXI-52: a handle nobody named is drawn and works; the developer is told.
+    if (this.handleShown && !this.handleName) this.words.missing('resizeLabel', { id: 'TXI-41', effect: 'the resize handle is drawn and works, and has no accessible name' });
     // TXI-28: what a date, time or date-time field ignores, because every empty segment shows its own placeholder and the row is not free text.
     if (kind && any('type', 'placeholder', 'maxLength', 'prefixText', 'suffixText')) {
       const ignored = { placeholder: !!this.placeholder, maxLength: this.maxLength > 0, prefixText: !!this.prefixText, suffixText: !!this.suffixText };
@@ -2115,32 +2126,32 @@ export class TanreiTextInput extends TanreiElement {
     </div>`;
   }
 
-  /** TXI-39, TXI-41: the resize grip — a focusable separator whose value is the lines the input shows (`showLines()` writes it). */
-  private renderGrip() {
-    if (!this.gripShown) return nothing;
-    const max = this.maxLines;
-    return html`<div
-        part="resize-grip"
-        class="grip"
-        role="separator"
-        tabindex="0"
-        data-tanrei-shape
-        aria-orientation="horizontal"
-        aria-controls="input"
-        aria-label=${ifDefined(this.gripName || undefined)}
-        aria-valuemin=${this.minLines}
-        aria-valuemax=${ifDefined(max || undefined)}
-        @pointerdown=${this.onGripPointerDown}
-        @pointermove=${this.onGripPointerMove}
-        @pointerup=${this.onGripPointerUp}
-        @pointercancel=${this.onGripPointerCancel}
-        @mousedown=${this.onGripMouseDown}
-        @click=${this.onGripClick}
-        @keydown=${this.onGripKeyDown}
-        @focus=${this.onGripFocus}
-      >
-        <span class="grip-glyph" aria-hidden="true"><span class="ink">${this.axis === 'both' ? 'drag_indicator' : 'drag_handle'}</span></span>
-      </div>
+  /**
+   * TXI-39, TXI-41: the resize handle — a Handle of size small at the bottom end corner, a separator whose value is the
+   * lines the input shows (`showLines()` writes it), revealed while the field is hovered or focused. Its events stay in
+   * this shadow root; the field answers them.
+   */
+  private renderHandle() {
+    if (!this.handleShown) return nothing;
+    const lines = Math.round(this.lines || this.minLines);
+    return html`<tanrei-handle
+        part="resize-handle"
+        class="resize-handle"
+        size="small"
+        axis=${this.axis === 'both' ? 'both' : 'vertical'}
+        corner="bottom-end"
+        label=${this.handleName}
+        .value=${lines}
+        .min=${this.minLines}
+        .max=${this.maxLines || Math.max(lines, this.handleMax)}
+        ?revealed=${this.hovering || this.focused}
+        @resizestart=${this.onHandleResizeStart}
+        @resize=${this.onHandleResize}
+        @resizeend=${this.onHandleResizeEnd}
+        @step=${this.onHandleStep}
+        @activate=${this.onHandleActivate}
+        @focus=${this.onHandleFocus}
+      ></tanrei-handle>
       ${this.axis === 'both' ? html`<span class="touch-probe" aria-hidden="true"></span>` : nothing}`;
   }
 
@@ -2286,7 +2297,7 @@ export class TanreiTextInput extends TanreiElement {
         class="field"
         data-layout=${layout}
         data-resize=${this.isMultiline ? this.resizeMode : nothing}
-        data-axis=${this.gripShown ? this.axis : nothing}
+        data-axis=${this.handleShown ? this.axis : nothing}
         ?data-error=${this.inError}
         ?data-disabled=${this.inert_}
         ?data-labelled=${labelled}
@@ -2306,6 +2317,8 @@ export class TanreiTextInput extends TanreiElement {
           data-tanrei-shape
           style=${this.isMultiline ? `--_rows-min: ${rows};${max ? ` --_rows-max: ${max};` : ''}` : nothing}
           @mousedown=${this.onFieldMouseDown}
+          @pointerenter=${this.onFieldPointerEnter}
+          @pointerleave=${this.onFieldPointerLeave}
           @focusin=${this.onEntryFocusIn}
           @focusout=${this.onEntryFocusOut}
         >
@@ -2323,7 +2336,7 @@ export class TanreiTextInput extends TanreiElement {
             ? html`<span class="measure measure-resting" aria-hidden="true">${name}${asterisk}</span
                 ><span class="measure measure-floated" aria-hidden="true">${name}${asterisk}</span>`
             : nothing}
-          ${edges} ${this.renderGrip()}
+          ${edges} ${this.renderHandle()}
         </div>
         ${count ? html`<span id="counter" hidden>${count}</span>` : nothing}${described ? html`<span id="description" hidden>${described}</span>` : nothing}
         <span class="announcer" role="status" aria-live="polite"></span>

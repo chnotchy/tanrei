@@ -282,7 +282,7 @@ Dragging is never the only way. The handle changes the height with one press or 
 - While a modal sheet is open, everything outside it is inert and hidden from assistive technology, and focus and screen-reader navigation stay inside it. A standard sheet makes nothing inert.
 - Opening moves focus to the element you marked, or to the sheet. Closing returns focus to the element that had it when the sheet opened. This holds for both forms.
 - Escape, the platform's back and a press on the scrim ask a modal sheet to close, while `dismissible` is true. A standard sheet ignores Escape and back.
-- While the sheet has two heights, the drag handle is one focusable button named by `handleLabel`, expanded at full height. Enter and Space move the sheet to its other height. At one height the handle is hidden from assistive technology. The grip is always hidden.
+- The drag handle is a [handle](/components/handle/), always drawn, given the sheet's own tokens. While the sheet has two heights it is one focusable button named by `handleLabel`, expanded at full height. Enter and Space move the sheet to its other height. At one height the handle is hidden from assistive technology. The grip is always hidden.
 - The handle's hit area is at least the minimum target, and its focus ring shows for keyboard focus only.
 - The content scrolls inside the sheet, and keyboard focus and assistive technology can scroll it at either height.
 - Larger text makes the sheet grow with its content, up to the height its detent allows, and the content scrolls beyond that. The handle does not scale.

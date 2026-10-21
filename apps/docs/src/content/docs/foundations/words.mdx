@@ -114,7 +114,7 @@ The component has no grammar: no plural forms, no ordinals and no choice between
 A missing word is a fault of the product, as a text field without a label is. The component makes it small for the person and visible to you.
 
 - **Words that would be drawn are not drawn.** Where a mark says the same thing, the mark stands in their place: an asterisk for the requirement tag of a required field, the close and check icons for a picker's Cancel and OK, `+1` for "next day". Where no mark does, nothing is drawn and the place keeps its size.
-- **A control that needs a name is still drawn and still works.** A calendar's navigation buttons, a text field's resize grip and a picker's actions keep working without a name. The one exception is a number field's steppers: an unnamed one is hidden from assistive technology, because the spin button beside it steps by itself.
+- **A control that needs a name is still drawn and still works.** A calendar's navigation buttons, a text field's resize handle and a picker's actions keep working without a name. The one exception is a number field's steppers: an unnamed one is hidden from assistive technology, because the spin button beside it steps by itself.
 - **It is reported.** In development the console names the attribute, once per word and page: `<tanrei-field>: required-text is empty and the product's words have no requiredText`.
 
 A control without an accessible name fails people who use a screen reader. The report is there so that you fix it, not so that you may leave it.

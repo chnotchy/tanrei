@@ -4,7 +4,6 @@ import {
   AvailabilityController,
   BUTTON_VARIANTS,
   type DividerVisibilityProp,
-  PressController,
   SHEET_FLING_VELOCITY,
   SheetDrag,
   closeRequestReason,
@@ -21,11 +20,11 @@ import {
   report,
   returnFocus,
   syncDividerVisibility,
-  syncFocusStyle,
   watchEscape,
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
+import '../handle/handle.js';
 import { styles } from './bottom-sheet.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -123,8 +122,8 @@ interface Drawn {
  * @tag tanrei-bottom-sheet
  * @slot - The content: it gets `content.color` as its color, and plain text the body role.
  * @csspart container - The sheet: the `<dialog>` of a modal sheet (its `::backdrop` is the scrim), the `<section>` of a standard one.
- * @csspart handle - The drag handle's box: a `<button>` while the sheet has two heights, drawn at rest otherwise.
- * @csspart grip - The grip drawn in the handle's box (hidden from assistive technology).
+ * @csspart handle - The drag handle's box: the `container` of its `<tanrei-handle>`, a button while the sheet has two heights, drawn at rest otherwise.
+ * @csspart grip - The grip drawn in the handle's box: the `line` of its `<tanrei-handle>` (hidden from assistive technology).
  * @csspart header - The row that holds the headline and the close button, while there is one.
  * @csspart headline - The headline (a heading).
  * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
@@ -220,6 +219,8 @@ export class TanreiBottomSheet extends TanreiElement {
   private dragged = false;
   private drag: SheetDrag | null = null;
   private dragOnContent = false;
+  /** BSH-13: the drag began on the handle, which holds the pointer (and its pressed state) while the drag lasts. */
+  private dragOnHandle = false;
   /** The sheet's visible height while it follows a drag. */
   private position = 0;
   private settling: Animation | null = null;
@@ -230,13 +231,6 @@ export class TanreiBottomSheet extends TanreiElement {
   /** Whether focus was inside a standard sheet that is closing (read before the render makes it inert). */
   private closingWithFocus = false;
   private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
-
-  /** BSH-13…17: the handle's pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
-  private readonly press = new PressController(this, {
-    container: () => this.handleButton,
-    holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null,
-    disabled: () => !this.interactive,
-  });
 
   private get modal(): boolean {
     return this.variant !== 'standard';
@@ -266,10 +260,6 @@ export class TanreiBottomSheet extends TanreiElement {
 
   private get content(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.content') ?? null;
-  }
-
-  private get handleButton(): HTMLElement | null {
-    return this.renderRoot?.querySelector<HTMLElement>('button.handle') ?? null;
   }
 
   override connectedCallback() {
@@ -348,6 +338,8 @@ export class TanreiBottomSheet extends TanreiElement {
     this.drag = new SheetDrag(event, 'y');
     const content = this.content;
     this.dragOnContent = !!content && event.composedPath().includes(content);
+    const handle = this.renderRoot.querySelector('.handle');
+    this.dragOnHandle = !!handle && this.interactive && event.composedPath().includes(handle);
     // The drag is followed through the window, wherever the pointer goes (pointer capture alone can fail to take).
     this.listenToDrag(true);
   };
@@ -423,14 +415,15 @@ export class TanreiBottomSheet extends TanreiElement {
     this.cancelSettle();
     this.position = drawn.height - drawn.offset;
     sheet.classList.add('dragging');
-    try {
-      sheet.setPointerCapture?.(event.pointerId);
-    } catch {
-      // A pointer the browser no longer counts as active cannot be captured; the window still follows it.
+    // BSH-13: a drag that began on the handle stays the handle's press, held while the drag lasts (HDL-11): the handle
+    // keeps the pointer. Any other drag is captured by the sheet.
+    if (!this.dragOnHandle) {
+      try {
+        sheet.setPointerCapture?.(event.pointerId);
+      } catch {
+        // A pointer the browser no longer counts as active cannot be captured; the window still follows it.
+      }
     }
-    // BSH-13: a drag that starts on the handle does not leave it pressed. The controller's disconnect is its cancel: it
-    // clears the pressed state and the ripple at once, where a release would hold them for press-hold.
-    if (this.handleButton?.dataset.pressed !== undefined) this.press.hostDisconnected();
     this.place(this.position);
   }
 
@@ -563,12 +556,11 @@ export class TanreiBottomSheet extends TanreiElement {
 
   // ---- BSH-11: the drag handle ----
 
-  private readonly onHandleClick = () => {
+  /** BSH-11: the handle activated without a drag (HDL-7) moves the sheet to its other height. */
+  private readonly onHandleActivate = () => {
     if (this.dragged || !this.interactive) return;
     this.settleTo(this.resting === 'full' ? 'partial' : 'full');
   };
-
-  private readonly onHandleFocus = () => syncFocusStyle(this, this.handleButton);
 
   // ---- BSH-6, BSH-7, BSH-10: the area, the heights and the keyboard ----
 
@@ -777,30 +769,23 @@ export class TanreiBottomSheet extends TanreiElement {
     }
   }
 
+  /**
+   * BSH-11, BSH-12: the drag handle, a Handle drawn with the sheet's tokens (the styles give it them): a button with
+   * the expanded state while the sheet has two heights; at one height drawn at rest and nothing to focus, to a press or
+   * to assistive technology (inert).
+   */
   private handleTemplate() {
-    if (!this.interactive) {
-      // BSH-11: at one height the handle is drawn at rest and is nothing to assistive technology or focus.
-      return html`<div part="handle" class="handle" data-tanrei-shape aria-hidden="true"><span part="grip" class="grip" data-tanrei-shape aria-hidden="true"></span></div>`;
-    }
-    return html`<button
-      part="handle"
+    const interactive = this.interactive;
+    return html`<tanrei-handle
       class="handle"
-      type="button"
-      data-tanrei-shape
-      aria-label=${this.words.get('handleLabel', this.handleLabel) || nothing}
-      aria-expanded=${this.resting === 'full' ? 'true' : 'false'}
-      @click=${this.onHandleClick}
-      @pointerdown=${this.press.onPointerDown}
-      @pointerup=${this.press.release}
-      @pointercancel=${this.press.release}
-      @pointerleave=${this.press.release}
-      @keydown=${this.press.onKeyDown}
-      @keyup=${this.press.onKeyUp}
-      @blur=${this.press.onBlur}
-      @focus=${this.onHandleFocus}
-    >
-      <span part="grip" class="grip" data-tanrei-shape aria-hidden="true"></span><span class="hold"></span>
-    </button>`;
+      exportparts="container: handle, line: grip"
+      revealed
+      label=${interactive ? this.words.get('handleLabel', this.handleLabel) : ''}
+      .expanded=${interactive ? this.resting === 'full' : null}
+      ?inert=${!interactive}
+      aria-hidden=${interactive ? nothing : 'true'}
+      @activate=${this.onHandleActivate}
+    ></tanrei-handle>`;
   }
 
   /** BSH-28, BSH-29: the header — the headline and, while closable, the close button; the divider below it. */

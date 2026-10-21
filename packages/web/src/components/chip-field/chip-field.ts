@@ -58,7 +58,7 @@ const LINE_TYPES: readonly string[] = ['text', 'email', 'tel', 'url'];
  * the stacked look and the Text input's in a floating one, never both (FLD-25): each under its member's name, and
  * bare from both. The Chip's leave under the prefix `entry-` — its `label` is a third thing, drawn beside the others.
  * Left out, because a chip field never draws them: the Field's count; the Text input's segments, affixes, icons,
- * picker button and grip (none is forwarded); the Chip's icon, check and avatar (CHF-2).
+ * picker button and resize handle (none is forwarded); the Chip's icon, check and avatar (CHF-2).
  */
 const FIELD_PARTS = exported(TanreiField, { label: { as: 'field-label', bare: true }, 'requirement-label': { as: 'field-requirement-label', bare: true } }, ['counter', 'value-text']);
 const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label', bare: true }, 'requirement-label': { as: 'text-input-requirement-label', bare: true } }, [
@@ -68,7 +68,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
   'leading-icon',
   'trailing-icon',
   'picker-button',
-  'resize-grip',
+  'resize-handle',
 ]);
 const CHIP_PARTS = exported(TanreiChip, { container: { as: 'entry-container' }, label: { as: 'entry-label' }, remove: { as: 'entry-remove' } }, ['icon', 'check', 'avatar']);
 
@@ -142,7 +142,7 @@ const WORD_PROPS = { entryRemoveLabel: 'removeLabel', entryAddedText: 'addedText
  * @csspart text-input - The control: the `<tanrei-text-input>` it is built from.
  * @csspart chip - One entry: a `<tanrei-chip>` it is built from.
  * @exportparts tanrei-field label: field-label, label, requirement-label: field-requirement-label, requirement-label, -counter, -value-text
- * @exportparts tanrei-text-input label: text-input-label, label, requirement-label: text-input-requirement-label, requirement-label, -segment, -prefix, -suffix, -leading-icon, -trailing-icon, -picker-button, -resize-grip
+ * @exportparts tanrei-text-input label: text-input-label, label, requirement-label: text-input-requirement-label, requirement-label, -segment, -prefix, -suffix, -leading-icon, -trailing-icon, -picker-button, -resize-handle
  * @exportparts tanrei-chip container: entry-container, label: entry-label, remove: entry-remove, -icon, -check, -avatar
  * @attr {string} form - The id of the form the chip field belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires {CustomEvent<TanreiChipFieldChangeDetail>} change - The list changed by the person: an entry was made, several were made from pasted text, one was removed, or one was taken back to be changed. `detail.value` (and the element's `value`) is the new list, `detail.added` and `detail.removed` what the act added and took away. Never fired when the product sets `value`, nor for typed text.

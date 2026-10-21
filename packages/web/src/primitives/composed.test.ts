@@ -457,6 +457,13 @@ const DRIVEN: Record<string, Driven> = {
         act: async (page, element) => (await focus(element), await page.keyboard.type('9'), await element.evaluate((el: HTMLElement) => el.blur())),
         value: '',
       },
+      // A multi-line field resized by hand: a step of its input's handle shows one line more (TXI-41, TXI-69), and the
+      // value does not change.
+      resizeEnd: {
+        before: async (_page, element) => element.evaluate((el: HTMLElement) => Object.assign(el, { multiline: true, resize: 'manual', resizeLabel: 'Resize' })),
+        act: async (page, element) => (await element.locator('.resize-handle .container').focus(), await page.keyboard.press('ArrowDown')),
+        value: '',
+      },
     },
     // A text input keeps a text as it is given (a date input that is given no ISO date keeps none: text-field.test.ts).
     kept: { given: 'Ada  Lovelace ', kept: 'Ada  Lovelace ' },

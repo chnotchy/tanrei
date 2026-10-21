@@ -180,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الحدثان `input` و `change` يعبران حدود جذر الظل (composed). والحدث `action` من النوع CustomEvent وقابل للإلغاء: ألغِه لتمنع المفتاح Enter من إرسال النموذج. والحدثان `pickerrequest` و `entryerror` من النوع CustomEvent، وفي `detail` لهما، على الترتيب، `{ value, type, min, max }` و `{ reason, text }`. وأنواعها `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
 - الخاصية `countText` للقراءة فقط، وتتجدد بعد كل تغيير في القيمة. وليست لها خاصية HTML.
 - خصائص HTML مكتوبة بصيغة kebab-case، مثل `label-hidden` و `min-rows` و `prefix-text` و `no-wrap`، والأخيرة هي `wrap` بالقيمة false. أما `readonly` و `maxlength` و `autocomplete` و `min` و `max` فتحتفظ بأسمائها في HTML.
-- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-grip`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-handle`.
 - المنافذ: `leading-icon` و `trailing-icon` و `entries`. وأيقونة النهاية قد تكون زرًّا بأيقونة فقط من عندك. والجزء `entries` ليس له صندوق من عنده: عناصره تقف في أسطر الصندوق نفسه.
 - الخاصيتان `resize-label` و `segment-empty-text` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
 - قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاع الصندوق.

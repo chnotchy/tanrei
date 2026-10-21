@@ -22,8 +22,10 @@ const fx = (id: string, props: Fixture['props'] = {}, content: string = SHORT): 
 
 const host = (page: P, id = 's') => page.locator(`[data-fixture="${id}"] tanrei-bottom-sheet`);
 const sheet = (page: P, id = 's') => host(page, id).locator('.sheet');
-const handle = (page: P, id = 's') => host(page, id).locator('.handle');
-const grip = (page: P, id = 's') => host(page, id).locator('.grip');
+/** The drag handle: a `<tanrei-handle>` (BSH-12). `handle` is its box — the Handle's container, a button while it is one — and `grip` its line. */
+const handleHost = (page: P, id = 's') => host(page, id).locator('tanrei-handle.handle');
+const handle = (page: P, id = 's') => handleHost(page, id).locator('.container');
+const grip = (page: P, id = 's') => handleHost(page, id).locator('.capsule');
 const content = (page: P, id = 's') => host(page, id).locator('.content');
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const px = (page: P, name: string) => resolveToken(page, name);
@@ -189,7 +191,7 @@ test.describe('drawing', () => {
     // One height: the handle's row, the content and its padding.
     const text = (await bounds(host(page, 'short').locator('.inner'))).height;
     expect((await bounds(sheet(page, 'short'))).height).toBeCloseTo(boxH + 2 * margin + text + pad, 0);
-    await expect(host(page, 'short').locator('button.handle')).toHaveCount(0);
+    await expect(host(page, 'short').getByRole('button')).toHaveCount(0);
     expect(await top(page, 'partial')).toBeCloseTo(WINDOW.height * (1 - fraction), 1);
     expect(await top(page, 'full')).toBeCloseTo(gap, 1);
     // The keyboard covers the bottom 300 of the window: the sheet sits on it, and its heights come from the 420 left.
@@ -243,8 +245,9 @@ test.describe('drawing', () => {
     await expect(t).toHaveCSS('font-size', `${await px(page, '--tanrei-sys-typescale-body-font-size')}px`);
   });
 
-  test('BSH-12: the handle row — a box handle.container-width × container-height with its corners, centred, margin-block above and below, on its container color, and the grip centred in it — stays in place while the content scrolls', async ({ page }) => {
+  test('BSH-12: the handle row — a Handle (vertical, no value, revealed) whose box is handle.container-width × container-height with its corners, centred, margin-block above and below, on its container color, and the grip centred in it — stays in place while the content scrolls', async ({ page }) => {
     await mount(page, [fx('s', { detent: 'full' }, LONG)]);
+    expect(await handleHost(page).evaluate((el: any) => [el.axis, el.size, el.value, el.revealed])).toEqual(['vertical', 'medium', null, true]);
     const [bw, bh, margin, gw, gh] = await Promise.all(['handle-container-width', 'handle-container-height', 'handle-margin-block', 'handle-grip-width', 'handle-grip-height'].map((n) => px(page, T(n))));
     const s = await bounds(sheet(page));
     const box = await bounds(handle(page));
@@ -263,21 +266,26 @@ test.describe('drawing', () => {
     await content(page).evaluate((el) => (el.scrollTop = 300));
     expect(await scrollTop(page)).toBeGreaterThan(0);
     expect((await bounds(handle(page))).y).toBe(box.y);
+    // The sheet's tokens, not the Handle's, draw it: a layer that re-values the sheet's grip changes this handle alone.
+    await override(page, { [T('handle-grip-width')]: '36px', [T('handle-grip-height')]: '5px', [T('drag-handle-grip-color')]: 'rgb(1, 2, 3)' });
+    await expect.poll(async () => { const b = await bounds(grip(page)); return [b.width, b.height]; }).toEqual([36, 5]);
+    await expect(grip(page)).toHaveCSS('background-color', 'rgb(1, 2, 3)');
   });
 
-  test('BSH-15: the handle’s hit area is its whole row across its box, at least sys.target.pointer for a fine pointer, without changing its drawn size', async ({ page }) => {
+  test('BSH-15: the handle’s hit area is the Handle’s — at least sys.target.pointer for a fine pointer, centred on its box, without changing its drawn size — with its vertical resize cursor; the rest of the row drags the sheet', async ({ page }) => {
     await mount(page, [fx('s', {}, LONG)]);
-    const [bw, bh, margin, pointer] = await Promise.all([T('handle-container-width'), T('handle-container-height'), T('handle-margin-block'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
+    const [bw, bh, pointer] = await Promise.all([T('handle-container-width'), T('handle-container-height'), '--tanrei-sys-target-pointer'].map((n) => px(page, n)));
     const before = (property: string) => handle(page).evaluate((el, p) => Number.parseFloat(getComputedStyle(el, '::before').getPropertyValue(p)), property);
-    expect(await before('height')).toBe(Math.max(bh + 2 * margin, pointer));
+    expect(await before('height')).toBe(Math.max(bh, pointer));
     expect(await before('width')).toBe(Math.max(bw, pointer));
-    const s = await bounds(sheet(page));
-    const at = (x: number, y: number) => host(page).evaluate((el, [xx, yy]) => el.shadowRoot!.elementFromPoint(xx, yy)?.closest('button')?.className ?? null, [x, y]);
-    expect(await at(s.x + s.width / 2, s.y + 1)).toBe('handle');
-    expect(await at(s.x + s.width / 2, s.y + bh + 2 * margin - 1)).toBe('handle');
+    await expect(handle(page)).toHaveCSS('cursor', 'ns-resize');
+    const box = await bounds(handle(page));
+    const at = (x: number, y: number) => handleHost(page).evaluate((el, [xx, yy]) => !!el.shadowRoot!.elementFromPoint(xx, yy)?.closest('.container'), [x, y]);
+    expect(await at(box.x + box.width / 2, box.y + box.height / 2 - pointer / 2 + 1)).toBe(true);
+    expect(await at(box.x + box.width / 2, box.y + box.height / 2 + pointer / 2 - 1)).toBe(true);
     // A system whose row is shorter than the target (cupertino's) still reaches it, the box drawn at its size.
     await override(page, { [T('handle-margin-block')]: '0px' });
-    expect(await before('height')).toBe(pointer);
+    expect(await before('height')).toBe(Math.max(bh, pointer));
     expect((await bounds(handle(page))).height).toBe(bh);
   });
 
@@ -313,7 +321,7 @@ test.describe('drawing', () => {
     await expect(page.getByRole('dialog', { name: 'Save photo' })).toHaveCount(1);
     expect(await host(page, 'modal').locator('dialog').evaluate((el) => el.matches(':modal'))).toBe(true);
     await expect(grip(page, 'modal')).toHaveAttribute('aria-hidden', 'true');
-    await expect(handle(page, 'modal')).toHaveAttribute('aria-hidden', 'true');
+    await expect(handleHost(page, 'modal')).toHaveAttribute('aria-hidden', 'true');
     await mount(page, [fixtureOf('standard')]);
     await expect(page.getByRole('region', { name: 'Nearby places' })).toHaveCount(1);
     await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -364,15 +372,16 @@ test.describe('the drag handle', () => {
     expect(await log(page)).toEqual(['detent:full:full', 'detent:partial:partial', 'detent:full:full']);
     // One height: drawn, and nothing to focus or assistive technology.
     await mount(page, [fx('s'), fx('empty', { handleLabel: '' }, LONG)]);
-    await expect(host(page).locator('button')).toHaveCount(0);
+    await expect(host(page).getByRole('button')).toHaveCount(0);
     await expect(handle(page)).toBeVisible();
-    await expect(handle(page)).toHaveAttribute('aria-hidden', 'true');
+    await expect(handleHost(page)).toHaveAttribute('aria-hidden', 'true');
+    expect(await handleHost(page).evaluate((el) => el.inert)).toBe(true);
     await expect(handle(page, 'empty')).toBeVisible();
     await expect.poll(() => seen.filter((w) => w.includes('BSH-11')).length).toBe(1);
   });
 
-  test('BSH-13: each state draws the handle’s box, grip and opacity from that state’s tokens, pressed over focused over hovered; pointer focus is not the focused state; a drag from the handle does not leave it pressed', async ({ page, browserName }) => {
-    const drawn = () => handle(page).evaluate((el) => ({ box: getComputedStyle(el).backgroundColor, grip: getComputedStyle(el.querySelector('.grip')!).backgroundColor, opacity: getComputedStyle(el).opacity }));
+  test('BSH-13: each state draws the handle’s box, grip and opacity from that state’s tokens, pressed over focused over hovered, and the grip at the Handle’s length and thickness in use; a pointer gives it no focus; a drag from the handle keeps it pressed while the sheet follows', async ({ page }) => {
+    const drawn = () => handle(page).evaluate((el) => ({ box: getComputedStyle(el).backgroundColor, grip: getComputedStyle(el.querySelector('.capsule')!).backgroundColor, opacity: getComputedStyle(el).opacity }));
     const expected = async (state = '') => ({
       box: await resolveColor(page, T(`drag-handle-${state ? `${state}-` : ''}container-color`)),
       grip: await resolveColor(page, T(`drag-handle-${state ? `${state}-` : ''}grip-color`)),
@@ -385,9 +394,13 @@ test.describe('the drag handle', () => {
     await expect.poll(drawn).toEqual(await expected('hovered'));
     await page.mouse.down();
     await expect.poll(drawn).toEqual(await expected('pressed'));
+    // HDL-4: in use, the grip is the Handle's active length and thickness.
+    const [length, thickness] = await Promise.all(['--tanrei-comp-handle-line-active-length-medium', '--tanrei-comp-handle-line-active-thickness-medium'].map((n) => px(page, n)));
+    await expect.poll(async () => { const b = await bounds(grip(page)); return [b.width, b.height]; }).toEqual([length, thickness]);
     await page.mouse.up();
     await page.mouse.move(5, 5);
-    if (browserName !== 'webkit') await expect(handle(page)).toBeFocused();
+    // HDL-6: a press takes no focus.
+    await expect(handle(page)).not.toBeFocused();
     await expect.poll(drawn).toEqual(await expected());
     await mount(page, [fx('s', {}, LONG)]);
     await tabTo(page, handle(page));
@@ -406,11 +419,12 @@ test.describe('the drag handle', () => {
     await page.keyboard.down('Space');
     await expect.poll(bg).toBe(down);
     await page.keyboard.up('Space');
-    // A drag that starts on the handle: once the sheet follows, the handle is not pressed.
+    // A drag that starts on the handle: the sheet follows it, and the handle stays pressed while it lasts (HDL-11).
     await mount(page, [fx('s', {}, LONG)]);
+    const resting = await top(page);
     await drag(page, await handleCentre(page), -60, { release: false });
-    await expect(handle(page)).not.toHaveAttribute('data-pressed');
-    await expect(handle(page).locator('.ripple')).toHaveCount(0);
+    await expect.poll(() => top(page)).toBeLessThan(resting - 30);
+    await expect(handle(page)).toHaveAttribute('data-pressed', /.*/);
     await page.mouse.up();
   });
 

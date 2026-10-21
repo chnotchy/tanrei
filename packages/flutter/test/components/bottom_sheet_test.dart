@@ -870,7 +870,7 @@ void main() {
         gripDecoration(tester).color,
         lightTheme.paint(sheetTokens.controls.dragHandle.enabled.gripColor),
       );
-      expect(gripDecoration(tester).shape.radius, sheetTokens.handleGripShape);
+      expect(gripDecoration(tester).shape.radius, sheetTokens.handleContainerShape);
       expect(handleContainer(tester).shape.radius, sheetTokens.handleContainerShape);
       expect(handleContainer(tester).visuals.container.a, 0, reason: 'clear at rest');
 

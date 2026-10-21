@@ -852,10 +852,10 @@ private fun TanreiBottomSheetHandle(tokens: TanreiBottomSheetTokens, interactive
     val boxColor = animateTanreiColorAsState(palette[drawnStates.container].containerColor.color, motion, label = "box")
     val gripColor = animateTanreiColorAsState(palette[drawnStates.content].gripColor.color, motion, label = "grip")
     val opacity = animateFloatAsState(tokens.opacity(drawnStates.content), motion.spec(), label = "opacity")
-    // BSH-18: the box's and the grip's corners, eased by corner smoothing.
+    // BSH-18: the box's corners, eased by corner smoothing; the grip has round ends (a Handle's line, HDL-1), the box's full corner.
     val smoothing = system.shape.cornerSmoothing
     val boxShape = remember(tokens.handleContainerShape, smoothing) { tanreiContainerShape(tokens.handleContainerShape, smoothing) }
-    val gripShape = remember(tokens.handleGripShape, smoothing) { tanreiContainerShape(tokens.handleGripShape, smoothing) }
+    val gripShape = remember(tokens.handleContainerShape, smoothing) { tanreiContainerShape(tokens.handleContainerShape, smoothing) }
     // BSH-17, ripple: the pressed box color from the point of contact; a press on the hit area outside the box grows
     // from its center.
     val ripple = rememberTanreiRipple(

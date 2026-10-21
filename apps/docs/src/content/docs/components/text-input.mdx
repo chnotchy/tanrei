@@ -23,7 +23,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   </div>
 </DemoFrame>
 
-A text input is the box of a [text field](/components/text-field/), alone: the container, the text, the icons, the prefix and the suffix, the segments of a date, the picker button and the resize grip. It has no label row above it, no help and no error text below it, and it draws no count.
+A text input is the box of a [text field](/components/text-field/), alone: the container, the text, the icons, the prefix and the suffix, the segments of a date, the picker button and the resize handle. It has no label row above it, no help and no error text below it, and it draws no count.
 
 Use it bare where the label a person reads stands somewhere else:
 
@@ -139,11 +139,11 @@ The text field does this itself. It is the only thing the text field does that a
 
 | Aspect | The text input | The field around it |
 | --- | --- | --- |
-| Draws | The box, the text, the placeholder, the prefix and the suffix, the icons, the segments of a date or a time, the picker button, the resize grip, and the label that floats in a filled or an outlined box | The label row above a stacked input, the required or optional mark, the help, the error text, the count |
+| Draws | The box, the text, the placeholder, the prefix and the suffix, the icons, the segments of a date or a time, the picker button, the resize handle, and the label that floats in a filled or an outlined box | The label row above a stacked input, the required or optional mark, the help, the error text, the count |
 | Holds | The value, its place in a form, the events | Nothing |
 | Says to assistive technology | Its own description: the prefix and the suffix, the count | The name, the help or the error text, required, invalid, disabled |
 
-What happens in the box is the same bare, framed and in a text field, and is described once, on the text field's page: the [input types](/components/text-field/#input-types), [several lines](/components/text-field/#several-lines) and the resize grip, [code](/components/text-field/#code), and [dates and times](/components/text-field/#dates-and-times) with the picker button.
+What happens in the box is the same bare, framed and in a text field, and is described once, on the text field's page: the [input types](/components/text-field/#input-types), [several lines](/components/text-field/#several-lines) and the resize handle, [code](/components/text-field/#code), and [dates and times](/components/text-field/#dates-and-times) with the picker button.
 
 ### Bare, without a field
 
@@ -178,7 +178,7 @@ The input gives these items no role, no place in the focus order and no key: the
 - `input` and `change` are composed events. `action` is a cancelable CustomEvent: cancel it to keep Enter from submitting the form. `pickerrequest` and `entryerror` are CustomEvents whose `detail` holds `{ value, type, min, max }` and `{ reason, text }`. Their types are `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
 - `countText` is a read-only property, new after each change of the value. It has no attribute.
 - Attributes are kebab-case, such as `label-hidden`, `min-rows`, `prefix-text` and `no-wrap`, which is `wrap` set to false. `readonly`, `maxlength`, `autocomplete`, `min` and `max` keep HTML's names.
-- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`.
 - Slots: `leading-icon`, `trailing-icon` and `entries`. A trailing icon may be your own icon-only Button. The `entries` part has no box of its own: its items stand in the box's own lines.
 - `resize-label` and `segment-empty-text` left empty are read from the product's words (`setWords()`).
 - Before the element is defined it has no size. Reserve the height of the box.
@@ -230,4 +230,4 @@ The input gives these items no role, no place in the focus order and no key: the
 - Name every bare input with `label`. A visible text beside it does not name it.
 - Where a bare input can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the input.
 - For a date or a time, give `segmentEmptyText`, and write `invalidText` and `unavailableText` even where no field shows them: they are read with the input.
-- Name the resize grip with `resizeLabel` and the picker button with `pickerLabel`.
+- Name the resize handle with `resizeLabel` and the picker button with `pickerLabel`.

@@ -10,7 +10,8 @@
     "modal-layer"
   ],
   "uses": [
-    "button"
+    "button",
+    "handle"
   ],
   "anatomy": [
     {
@@ -24,12 +25,12 @@
     },
     {
       "id": "drag-handle",
-      "description": "The control at the top of the sheet: a box that carries hover, focus and press, with the grip centred in it. Activating it moves the sheet between its two heights.",
+      "description": "The control at the top of the sheet: a Handle without a value, always drawn, that carries hover, focus and press on its box, with the grip centred in it. Activating it moves the sheet between its two heights.",
       "optional": true
     },
     {
       "id": "drag-handle.grip",
-      "description": "The short rounded bar drawn in the handle's box that says the sheet can be dragged.",
+      "description": "The Handle's line: the short rounded bar drawn in the handle's box that says the sheet can be dragged.",
       "optional": true
     },
     {
@@ -216,15 +217,15 @@
     },
     {
       "id": "BSH-11",
-      "text": "WHILE handle is true and the sheet has two heights THE bottom sheet SHALL expose the drag handle as one focusable button named by handleLabel, with the expanded state WHILE detent is full, and WHEN the user activates it by pointer, touch, Enter or Space THE bottom sheet SHALL move to its other height as BSH-9 settles and emit detentChange exactly once with the new detent; WHILE the sheet has one height the handle SHALL still be drawn at rest but SHALL NOT be focusable, pressable or exposed to assistive technology. WHILE the handle is interactive and handleLabel is empty it SHALL still render, and in debug builds report that the handle has no accessible name."
+      "text": "WHILE handle is true and the sheet has two heights THE bottom sheet SHALL make the drag handle one focus stop, a button named by handleLabel with the expanded state, true WHILE detent is full (its label and expanded, HDL-8), and WHEN the user activates it by pointer, touch, Enter or Space (its activate, HDL-7) THE bottom sheet SHALL move to its other height as BSH-9 settles and emit detentChange exactly once with the new detent; WHILE the sheet has one height the handle SHALL still be drawn at rest but SHALL NOT be focusable, pressable or exposed to assistive technology. WHILE the handle is interactive and handleLabel is empty it SHALL still render, and in debug builds report that the handle has no accessible name."
     },
     {
       "id": "BSH-12",
-      "text": "WHILE handle is true THE bottom sheet SHALL draw at its top a row holding the drag handle's box, comp.bottom-sheet.handle.container-width wide and comp.bottom-sheet.handle.container-height high with comp.bottom-sheet.handle.container-shape corners, centred across the sheet with comp.bottom-sheet.handle.margin-block above and below it, filled with comp.bottom-sheet.drag-handle.container.color, and centred in the box the grip, comp.bottom-sheet.handle.grip-width wide and comp.bottom-sheet.handle.grip-height high with comp.bottom-sheet.handle.grip-shape corners, filled with comp.bottom-sheet.drag-handle.grip.color. The row SHALL stay in place while the content scrolls."
+      "text": "WHILE handle is true THE bottom sheet SHALL draw at its top a row holding the drag handle — a Handle of axis vertical and size medium, with no value and revealed — centred across the sheet with comp.bottom-sheet.handle.margin-block above and below it, and SHALL give that Handle its own tokens in place of the Handle's: the box comp.bottom-sheet.handle.container-width wide and comp.bottom-sheet.handle.container-height high with comp.bottom-sheet.handle.container-shape corners (HDL-3), the grip — the Handle's line — comp.bottom-sheet.handle.grip-width long and comp.bottom-sheet.handle.grip-height thick (HDL-1), and the container, line and state-layer colors of each state from the drag-handle control (comp.bottom-sheet.drag-handle.container.color, comp.bottom-sheet.drag-handle.grip.color, comp.bottom-sheet.drag-handle.state-layer.color, and so on for each state), its opacity in each state, and comp.bottom-sheet.motion.state-duration, comp.bottom-sheet.motion.state-easing and comp.bottom-sheet.motion.feedback-duration as its motion; in the default system each of them aliases the Handle's own. The row SHALL stay in place while the content scrolls."
     },
     {
       "id": "BSH-13",
-      "text": "WHILE the drag handle is hovered, keyboard-focused or pressed THE bottom sheet SHALL render the handle's box, grip and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. A drag that starts on the handle SHALL NOT leave it pressed once the sheet follows the drag.",
+      "text": "WHILE the drag handle is hovered, keyboard-focused or pressed THE bottom sheet SHALL render the handle's box, grip and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered, and the grip at the Handle's length and thickness of a handle in use (HDL-4); focus gained by pointer or touch SHALL NOT select the focused state. A drag that starts on the handle SHALL keep it pressed while the sheet follows the drag, as a Handle is held for as long as a drag lasts (HDL-11).",
       "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
     },
     {
@@ -233,11 +234,11 @@
     },
     {
       "id": "BSH-15",
-      "text": "THE bottom sheet SHALL make the drag handle's hit area its whole row across the handle's box and at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, without changing its drawn size (with the default tokens the row is sys.target.touch high); a platform that cannot tell the input type SHALL use sys.target.touch."
+      "text": "THE bottom sheet SHALL give the drag handle the Handle's hit area (HDL-5): at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, centred on its box, without changing its drawn size, and the Handle's vertical resize cursor; a platform that cannot tell the input type SHALL use sys.target.touch. A press on the rest of the handle's row drags the sheet as BSH-9 says."
     },
     {
       "id": "BSH-16",
-      "text": "WHEN the drag handle is pressed by pointer, touch, Enter or Space THE drag handle SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+      "text": "WHEN the drag handle is pressed by pointer, touch, Enter or Space THE drag handle SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner (HDL-11)."
     },
     {
       "id": "BSH-17",
@@ -251,7 +252,7 @@
     },
     {
       "id": "BSH-19",
-      "text": "WHEN the drag handle's colors change between states THE bottom sheet SHALL animate them over comp.bottom-sheet.motion.state-duration with comp.bottom-sheet.motion.state-easing, and SHALL change them at once where motion is reduced."
+      "text": "WHEN the drag handle's colors, or its grip's length and thickness, change between states THE bottom sheet SHALL animate them over comp.bottom-sheet.motion.state-duration with comp.bottom-sheet.motion.state-easing, and SHALL change them at once where motion is reduced."
     },
     {
       "id": "BSH-20",
@@ -263,7 +264,7 @@
     },
     {
       "id": "BSH-22",
-      "text": "THE bottom sheet SHALL expose its container, WHILE variant is modal, as a modal dialog named by label and, WHILE variant is standard, as a region named by label (a landmark on the web) — by the headline WHILE label is empty (BSH-28); WHILE label and headline are both empty it SHALL still render, and in debug builds report that it has no accessible name. The drag handle's grip SHALL be hidden from assistive technology; the handle itself is exposed only as BSH-11 says."
+      "text": "THE bottom sheet SHALL expose its container, WHILE variant is modal, as a modal dialog named by label and, WHILE variant is standard, as a region named by label (a landmark on the web) — by the headline WHILE label is empty (BSH-28); WHILE label and headline are both empty it SHALL still render, and in debug builds report that it has no accessible name. The drag handle's grip, the Handle's line, SHALL be hidden from assistive technology; the handle itself is exposed only as BSH-11 says."
     },
     {
       "id": "BSH-23",
@@ -436,7 +437,7 @@
         "close": "close",
         "detentChange": "detentchange"
       },
-      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are boolean properties that default to true; their attributes are the inverses `no-handle` and `flush` (an HTML boolean attribute cannot default to true). `handleLabel` is the `handle-label` attribute, `closeLabel` the `close-label` attribute and `dividerVisibility` the `divider-visibility` attribute (`auto` reads `--tanrei-comp-bottom-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders). The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.bottom-sheet.close-button.variant through the internal channel a Button reads from its host; the headline is an `<h2>`. `close` is a CustomEvent whose `detail.reason` is `close`, `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer."
+      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are boolean properties that default to true; their attributes are the inverses `no-handle` and `flush` (an HTML boolean attribute cannot default to true). `handleLabel` is the `handle-label` attribute, `closeLabel` the `close-label` attribute and `dividerVisibility` the `divider-visibility` attribute (`auto` reads `--tanrei-comp-bottom-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders). The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.bottom-sheet.close-button.variant through the internal channel a Button reads from its host; the headline is an `<h2>`. `close` is a CustomEvent whose `detail.reason` is `close`, `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer. The drag handle is a `<tanrei-handle>` in the shadow root, its `container` and `line` exported as the parts `handle` and `grip`; the sheet sets the Handle's custom properties to its own tokens on it (BSH-12), answers its `activate`, and keeps it `inert` while the sheet has one height (BSH-11)."
     },
     "swiftui": {
       "status": "lagging",

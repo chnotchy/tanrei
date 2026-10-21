@@ -10,6 +10,7 @@ import {
   type TanreiTextInputPickerRequestDetail,
   type TanreiTextInputResize,
   type TanreiTextInputResizeAxis,
+  type TanreiTextInputResizeEndDetail,
   type TanreiTextInputSize,
   type TanreiTextInputType,
   type TanreiTextInputVariant,
@@ -23,6 +24,7 @@ export type {
   TanreiTextInputPickerRequestDetail,
   TanreiTextInputResize,
   TanreiTextInputResizeAxis,
+  TanreiTextInputResizeEndDetail,
   TanreiTextInputSize,
   TanreiTextInputType,
   TanreiTextInputVariant,
@@ -124,6 +126,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  * @fires action - => tanrei-text-input
  * @fires pickerrequest - => tanrei-text-input
  * @fires entryerror - => tanrei-text-input
+ * @fires resizeend - => tanrei-text-input
  */
 export class TanreiTextField extends ComposedControl<string> {
   /** TXF-63: the one control the form meets. Its members stand in its shadow root, outside every form. */
