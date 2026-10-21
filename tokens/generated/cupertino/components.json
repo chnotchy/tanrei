@@ -1017,6 +1017,22 @@
       ]
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-number-ticker",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/number-ticker"
+      },
+      "react": {
+        "name": "NumberTicker",
+        "import": "@tanrei/react/cupertino"
+      }
+    },
+    {
       "name": "one-time-code-field",
       "title": "One-time-code field",
       "level": "composed",

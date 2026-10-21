@@ -5675,6 +5675,13 @@
     --tanrei-comp-number-input-motion-repeat-interval-fast: var(--tanrei-sys-motion-duration-short1);
     --tanrei-comp-number-input-stepper-gap: var(--tanrei-sys-space-space0);
     --tanrei-comp-number-input-stepper-inset: var(--tanrei-sys-space-space50);
+    --tanrei-comp-number-ticker-animation: slide;
+    --tanrei-comp-number-ticker-blur-slide-distance: var(--tanrei-sys-space-space100);
+    --tanrei-comp-number-ticker-blur-radius: var(--tanrei-sys-space-space100);
+    --tanrei-comp-number-ticker-motion-duration: var(--tanrei-sys-motion-role-resize-large);
+    --tanrei-comp-number-ticker-motion-easing: var(--tanrei-sys-motion-easing-spatial);
+    --tanrei-comp-number-ticker-motion-reduced-duration: var(--tanrei-sys-motion-role-reduced);
+    --tanrei-comp-number-ticker-motion-stagger: var(--tanrei-sys-motion-duration-short1);
     --tanrei-comp-one-time-code-input-caret-width: var(--tanrei-sys-border-thick);
     --tanrei-comp-one-time-code-input-container-gap: var(--tanrei-sys-space-space75);
     --tanrei-comp-one-time-code-input-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);

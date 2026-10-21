@@ -32017,6 +32017,512 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/number-ticker/number-ticker.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ANIMATIONS",
+          "type": {
+            "text": "['slide', 'blur', 'blur-slide', 'flip']"
+          },
+          "default": "['slide', 'blur', 'blur-slide', 'flip']",
+          "description": "How a digit changes (`comp.number-ticker.animation`), in the order of its token: the first is what an unknown name draws."
+        },
+        {
+          "kind": "variable",
+          "name": "ANIMATION_VALUES",
+          "type": {
+            "text": "['auto', ...ANIMATIONS, 'none']"
+          },
+          "default": "['auto', ...ANIMATIONS, 'none']",
+          "description": "The `animation` prop: `auto` takes the component token; `none` is the instance's only (NTK-7)."
+        },
+        {
+          "kind": "variable",
+          "name": "TRENDS",
+          "type": {
+            "text": "['auto', 'up', 'down', 'digit']"
+          },
+          "default": "['auto', 'up', 'down', 'digit']"
+        },
+        {
+          "kind": "variable",
+          "name": "NUMBER_STYLES",
+          "type": {
+            "text": "['decimal', 'percent', 'currency', 'unit']"
+          },
+          "default": "['decimal', 'percent', 'currency', 'unit']"
+        },
+        {
+          "kind": "variable",
+          "name": "NOTATIONS",
+          "type": {
+            "text": "['standard', 'compact']"
+          },
+          "default": "['standard', 'compact']"
+        },
+        {
+          "kind": "variable",
+          "name": "SIGN_DISPLAYS",
+          "type": {
+            "text": "['auto', 'always', 'except-zero']"
+          },
+          "default": "['auto', 'always', 'except-zero']"
+        },
+        {
+          "kind": "variable",
+          "name": "LIVE_VALUES",
+          "type": {
+            "text": "['off', 'polite']"
+          },
+          "default": "['off', 'polite']"
+        },
+        {
+          "kind": "variable",
+          "name": "CHOICE",
+          "default": "`${PREFIX}-animation`",
+          "description": "The component token the `animation` prop's `auto` reads, from the cascade when a change starts."
+        },
+        {
+          "kind": "variable",
+          "name": "COPIES",
+          "type": {
+            "text": "number"
+          },
+          "default": "3",
+          "description": "How many copies of the digits 0…9 a column stacks: a digit moving on past 9 to 0 (or back) has the next copy to go to."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ directionProbeStyles, css` :host { display: inline-block; position: relative; unicode-bidi: isolate; white-space: nowrap; font-variant-numeric: tabular-nums; } .text { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* NTK-5: the box the size transition moves; the number stands at its start edge. */ .number { display: inline-flex; align-items: baseline; vertical-align: baseline; } .digits { position: relative; display: inline-flex; flex: none; align-items: baseline; } /* NTK-13: the digits are written left to right in every locale, whatever direction the characters around them take. */ .core { display: inline-flex; align-items: baseline; direction: ltr; unicode-bidi: isolate; } .char { display: inline-block; white-space: pre; } /* NTK-2: a window one line high, as wide as one digit (every digit is: tabular figures), clipped above and below. */ .place { position: relative; display: inline-block; clip-path: inset(0 -1em); } .sizer { visibility: hidden; } .column { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; display: flex; flex-direction: column; text-align: center; } .column > span { display: block; } .layer { position: absolute; inset: 0; text-align: center; backface-visibility: hidden; } /* NTK-4 flip: each half is the whole digit, clipped to its half, turning about the digit's middle. */ .place[data-flip] { perspective: 4em; } .layer.top { clip-path: inset(0 0 50% 0); } .layer.bottom { clip-path: inset(50% 0 0 0); } /* A character or a digit place that goes, drawn where it was while it fades out (NTK-5). */ .leaving { position: absolute; inset-block-start: 0; pointer-events: none; } .timing { position: absolute; visibility: hidden; pointer-events: none; inline-size: ${unsafeCSS(T('blur-radius'))}; block-size: ${unsafeCSS(T('blur-slide-distance'))}; transition-property: none; transition-duration: ${unsafeCSS(T('motion-duration'))}, ${unsafeCSS(T('motion-stagger'))}, ${unsafeCSS(T('motion-reduced-duration'))}; transition-timing-function: ${unsafeCSS(T('motion-easing'))}; } `, hiddenHost, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ANIMATIONS",
+          "declaration": {
+            "name": "ANIMATIONS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ANIMATION_VALUES",
+          "declaration": {
+            "name": "ANIMATION_VALUES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TRENDS",
+          "declaration": {
+            "name": "TRENDS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "NUMBER_STYLES",
+          "declaration": {
+            "name": "NUMBER_STYLES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "NOTATIONS",
+          "declaration": {
+            "name": "NOTATIONS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SIGN_DISPLAYS",
+          "declaration": {
+            "name": "SIGN_DISPLAYS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "LIVE_VALUES",
+          "declaration": {
+            "name": "LIVE_VALUES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CHOICE",
+          "declaration": {
+            "name": "CHOICE",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "COPIES",
+          "declaration": {
+            "name": "COPIES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/number-ticker/number-ticker.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shows a number that changes — a count, a price, a score, a figure on a dashboard — by moving each changed digit to its\nnew value, so that a person sees that it changed, which way and roughly by how much, while assistive technology is\ntold only the value it settles on.\n\nContract: specs/number-ticker.spec.json. The number is written by `Intl.NumberFormat` (`numberStyle`, `currency`,\n`unit`, `notation`, `fractionDigits`, `signDisplay`, `locale`); every digit it writes (in the locale's own digits) is a\nwindow over a column of the digits 0…9, every other character plain text. It is drawn in the text style of where it\nstands, in tabular figures, with no fill, edge or color of its own.\n\nA change moves each changed digit's column (`slide`), cross-fades it (`blur`, `blur-slide`) or turns it over as a\nsplit-flap board (`flip`) over `comp.number-ticker.motion.duration`, every changed digit with the whole number by\ndefault (`trend`); the width follows with the shared size transition (`AnimatedSize`). A change while one runs goes on\nfrom what is drawn. Under `prefers-reduced-motion: reduce` the new number cross-fades in at once.\n\nAssistive technology reads one text — `label`, then the number as written — and none of the drawn digits; with\n`live=\"polite\"` that text is a polite live region, written once each change has settled.",
+          "name": "TanreiNumberTicker",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The number shown. Not a finite number is written as the formatter writes it, at once (NTK-12).",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "numberStyle",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerNumberStyle"
+              },
+              "default": "'decimal'",
+              "description": "How the number is written: `decimal`, `percent` (× 100, with the locale's percent sign), `currency`, `unit`. The spec's `style`.",
+              "attribute": "number-style"
+            },
+            {
+              "kind": "field",
+              "name": "currency",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The currency while `number-style` is `currency`, as its three-letter code (\"JPY\", \"EUR\").",
+              "attribute": "currency"
+            },
+            {
+              "kind": "field",
+              "name": "unit",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The unit while `number-style` is `unit`, as a unit identifier of `Intl.NumberFormat` (\"kilometer-per-hour\", \"megabyte\").",
+              "attribute": "unit"
+            },
+            {
+              "kind": "field",
+              "name": "notation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerNotation"
+              },
+              "default": "'standard'",
+              "description": "`standard` writes every digit; `compact` writes it short with the locale's suffix (1.2K, 1.2万).",
+              "attribute": "notation"
+            },
+            {
+              "kind": "field",
+              "name": "fractionDigits",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many digits after the decimal separator are always written; null leaves it to the formatter.",
+              "attribute": "fraction-digits"
+            },
+            {
+              "kind": "field",
+              "name": "signDisplay",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerSignDisplay"
+              },
+              "default": "'auto'",
+              "description": "When a sign is written: `auto` (negative only), `always`, `except-zero`.",
+              "attribute": "sign-display"
+            },
+            {
+              "kind": "field",
+              "name": "locale",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A BCP 47 tag (\"ja-JP\", \"ar-EG\"); empty takes the nearest `lang` (through shadow roots), then the browser's.",
+              "attribute": "locale"
+            },
+            {
+              "kind": "field",
+              "name": "trend",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerTrend"
+              },
+              "default": "'auto'",
+              "description": "Which way the digits move (NTK-3).",
+              "attribute": "trend"
+            },
+            {
+              "kind": "field",
+              "name": "animation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerAnimation"
+              },
+              "default": "'auto'",
+              "description": "How a digit changes (NTK-3, NTK-4, NTK-7); `auto` takes `comp.number-ticker.animation`.",
+              "attribute": "animation"
+            },
+            {
+              "kind": "field",
+              "name": "startValue",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "A value to move from the first time the ticker comes into view (NTK-8); null draws the first value at once.",
+              "attribute": "start-value"
+            },
+            {
+              "kind": "field",
+              "name": "duration",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long a change takes, in milliseconds; null takes `comp.number-ticker.motion.duration`.",
+              "attribute": "duration"
+            },
+            {
+              "kind": "field",
+              "name": "live",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerLive"
+              },
+              "default": "'off'",
+              "description": "`polite` tells assistive technology each value once it settles (NTK-10); `off` tells it nothing by itself.",
+              "attribute": "live"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Words read before the value (\"Revenue\"), where nothing visible beside the number says what it is. Never drawn.",
+              "attribute": "label"
+            },
+            {
+              "kind": "method",
+              "name": "languageMayHaveChanged",
+              "description": "NTK-14: an ancestor's `lang` changed somewhere; the number is written again, at once, if it changed this ticker's language."
+            }
+          ],
+          "events": [
+            {
+              "name": "settle",
+              "type": {
+                "text": "CustomEvent<TanreiNumberTickerSettleDetail>"
+              },
+              "description": "The digits came to rest at `value`: once at the end of each change's motion (at once where there is none). `detail.value` is the value."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The number shown. Not a finite number is written as the formatter writes it, at once (NTK-12).",
+              "fieldName": "value"
+            },
+            {
+              "name": "number-style",
+              "type": {
+                "text": "TanreiNumberTickerNumberStyle"
+              },
+              "default": "'decimal'",
+              "description": "How the number is written: `decimal`, `percent` (× 100, with the locale's percent sign), `currency`, `unit`. The spec's `style`.",
+              "fieldName": "numberStyle"
+            },
+            {
+              "name": "currency",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The currency while `number-style` is `currency`, as its three-letter code (\"JPY\", \"EUR\").",
+              "fieldName": "currency"
+            },
+            {
+              "name": "unit",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The unit while `number-style` is `unit`, as a unit identifier of `Intl.NumberFormat` (\"kilometer-per-hour\", \"megabyte\").",
+              "fieldName": "unit"
+            },
+            {
+              "name": "notation",
+              "type": {
+                "text": "TanreiNumberTickerNotation"
+              },
+              "default": "'standard'",
+              "description": "`standard` writes every digit; `compact` writes it short with the locale's suffix (1.2K, 1.2万).",
+              "fieldName": "notation"
+            },
+            {
+              "name": "fraction-digits",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many digits after the decimal separator are always written; null leaves it to the formatter.",
+              "fieldName": "fractionDigits"
+            },
+            {
+              "name": "sign-display",
+              "type": {
+                "text": "TanreiNumberTickerSignDisplay"
+              },
+              "default": "'auto'",
+              "description": "When a sign is written: `auto` (negative only), `always`, `except-zero`.",
+              "fieldName": "signDisplay"
+            },
+            {
+              "name": "locale",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A BCP 47 tag (\"ja-JP\", \"ar-EG\"); empty takes the nearest `lang` (through shadow roots), then the browser's.",
+              "fieldName": "locale"
+            },
+            {
+              "name": "trend",
+              "type": {
+                "text": "TanreiNumberTickerTrend"
+              },
+              "default": "'auto'",
+              "description": "Which way the digits move (NTK-3).",
+              "fieldName": "trend"
+            },
+            {
+              "name": "animation",
+              "type": {
+                "text": "TanreiNumberTickerAnimation"
+              },
+              "default": "'auto'",
+              "description": "How a digit changes (NTK-3, NTK-4, NTK-7); `auto` takes `comp.number-ticker.animation`.",
+              "fieldName": "animation"
+            },
+            {
+              "name": "start-value",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "A value to move from the first time the ticker comes into view (NTK-8); null draws the first value at once.",
+              "fieldName": "startValue"
+            },
+            {
+              "name": "duration",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long a change takes, in milliseconds; null takes `comp.number-ticker.motion.duration`.",
+              "fieldName": "duration"
+            },
+            {
+              "name": "live",
+              "type": {
+                "text": "TanreiNumberTickerLive"
+              },
+              "default": "'off'",
+              "description": "`polite` tells assistive technology each value once it settles (NTK-10); `off` tells it nothing by itself.",
+              "fieldName": "live"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Words read before the value (\"Revenue\"), where nothing visible beside the number says what it is. Never drawn.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-number-ticker",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "notation"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiNumberTicker",
+          "declaration": {
+            "name": "TanreiNumberTicker",
+            "module": "src/components/number-ticker/number-ticker.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-number-ticker",
+          "declaration": {
+            "name": "TanreiNumberTicker",
+            "module": "src/components/number-ticker/number-ticker.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/one-time-code-field/one-time-code-field.ts",
       "declarations": [
         {

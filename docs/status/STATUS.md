@@ -3,9 +3,9 @@
 
 Legend: · planned · ◌ lagging · ◔ alpha · ◑ beta · ● stable · ✕ deprecated
 
-Level: 70 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
+Level: 71 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
 
-Listing: 85 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
+Listing: 86 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
 
 | Component | Level | Listing | Category | Spec | Web Components | SwiftUI | Jetpack Compose | Flutter | React Native |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -21,6 +21,7 @@ Listing: 85 default · 8 advanced. A component of the first value is shown where
 | Badge | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Progress indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Meter | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Number ticker | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Loading indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Chip | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Modal layer | base | advanced | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |

@@ -6411,6 +6411,15 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     stepperGap: 0.0,
     stepperInset: 4.0,
   ),
+  numberTicker: TanreiNumberTickerTokens(
+    animation: 0.0,
+    blurSlideDistance: 8.0,
+    blurRadius: 8.0,
+    motionDuration: 400,
+    motionEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    motionReducedDuration: 100,
+    motionStagger: 50,
+  ),
   oneTimeCodeInput: TanreiOneTimeCodeInputTokens(
     caretWidth: 1.0,
     containerGap: 6.0,

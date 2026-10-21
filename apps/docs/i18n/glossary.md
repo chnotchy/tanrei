@@ -214,6 +214,7 @@ As common nouns: page titles, headings, running text.
 | Navigation bar | ナビゲーションバー | 导航栏 |
 | Navigation drawer | ナビゲーションドロワー | 导航抽屉 |
 | Number field | 数値フィールド | 数字字段 |
+| Number ticker (a number whose changed digits move to the new value) | ナンバーティッカー | 数字滚动器 |
 | One-time-code input | ワンタイムコード入力欄 | 一次性验证码输入框 |
 | Page header | ページヘッダー | 页头 |
 | Pagination | ページネーション | 分页 |
@@ -443,6 +444,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Navigation bar | Barra de navegación | नेविगेशन बार | شريط التنقل |
 | Navigation drawer | Panel de navegación | नेविगेशन ड्रॉअर | درج التنقل |
 | Number field | Campo numérico | नंबर फ़ील्ड | حقل العدد |
+| Number ticker | Contador animado | नंबर टिकर | عارض الأرقام المتحرّك |
 | One-time-code input | Entrada de código de un solo uso — feminine, short «la entrada»; «Campo de código de un solo uso» is the One-time-code field, and neither is shortened to «campo de código», which is the text field of `type="code"` | वन-टाइम कोड इनपुट | حقل إدخال الرمز لمرة واحدة — short «حقل الرمز»; never «حقل الشيفرة», which is the text field of `type="code"` |
 | Page header | Cabecera de página | पेज हेडर | رأس الصفحة |
 | Pagination | Paginación | पेजिनेशन | التنقل بين الصفحات |

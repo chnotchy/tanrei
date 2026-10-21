@@ -10857,6 +10857,15 @@ export const tanrei = {
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
+    numberTicker: {
+      animation: 0,
+      blurSlideDistance: 8,
+      blurRadius: 8,
+      motionDuration: 400,
+      motionEasing: [0.2, 0, 0, 1],
+      motionReducedDuration: 100,
+      motionStagger: 50,
+    },
     oneTimeCodeInput: {
       caretWidth: 1,
       containerGap: 6,

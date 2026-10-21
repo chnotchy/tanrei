@@ -1039,6 +1039,22 @@
       ]
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-number-ticker",
+        "import": "@tanrei/web/m3-expressive-like",
+        "module": "@tanrei/web/components/number-ticker"
+      },
+      "react": {
+        "name": "NumberTicker",
+        "import": "@tanrei/react/m3-expressive-like"
+      }
+    },
+    {
       "name": "one-time-code-field",
       "title": "One-time-code field",
       "level": "composed",
