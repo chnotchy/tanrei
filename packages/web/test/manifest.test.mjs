@@ -68,7 +68,7 @@ test('the analyzer\'s sources are written once: in its configuration, which the 
   // Written twice — in the script and, as an argument list, in the drift check — a source added to one alone would
   // make the check regenerate another manifest than the committed one.
   const config = (await import('../custom-elements-manifest.config.mjs')).default;
-  assert.deepEqual(config.globs, ['src/components/**/*.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts', 'src/m3-like.ts']);
+  assert.deepEqual(config.globs, ['src/components/**/*.ts', 'src/primitives/element.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts']);
   assert.deepEqual(config.exclude, ['**/*.test.ts']);
   assert.equal(config.outdir, '.');
   assert.equal(config.litelement, true);
@@ -79,10 +79,9 @@ test('the analyzer\'s sources are written once: in its configuration, which the 
   assert.equal(drift.length, 1, 'the drift check runs the analyzer');
   assert.deepEqual(drift[0][2], ['analyze'], 'and neither does the drift check');
   assert.deepEqual(drift[0][3], ['packages/web/custom-elements.json'], 'and compares the manifest the configuration writes');
-  // What the configuration names is what the manifest holds: every module is a component's, one of the two
-  // primitives that hold a base class (a navigation destination's; a composed element's), or the entry of the
-  // components that live in the m3-like layer.
-  for (const module of manifest.modules) assert.ok(module.path.startsWith('src/components/') || ['src/primitives/destination.ts', 'src/primitives/composed.ts', 'src/m3-like.ts'].includes(module.path), module.path);
+  // What the configuration names is what the manifest holds: every module is a component's, or one of the three
+  // primitives that hold a base class (every element's; a navigation destination's; a composed element's).
+  for (const module of manifest.modules) assert.ok(module.path.startsWith('src/components/') || ['src/primitives/element.ts', 'src/primitives/destination.ts', 'src/primitives/composed.ts'].includes(module.path), module.path);
   assert.ok(!manifest.modules.some((module) => module.path.endsWith('.test.ts')));
 });
 
@@ -123,4 +122,57 @@ test('a composed element is in the manifest whole: what it takes from a member i
   assert.throws(() => analyze(`/** Composed. */\nexport class C extends HTMLElement {\n  /** @from tanrei-a.missing */\n  label = '';\n}`), /tanrei-composed-from: C: label is from tanrei-a\.missing, and <tanrei-a> has no property "missing"/);
   assert.throws(() => analyze(`/**\n * Composed.\n * @exportparts tanrei-nowhere\n */\nexport class D extends HTMLElement {}`), /tanrei-composed-from: D: no element <tanrei-nowhere> is declared in this package/);
   assert.throws(() => analyze(`/**\n * Composed.\n * @fires input - => tanrei-a\n */\nexport class E extends HTMLElement {\n  /** @from tanrei-a.label */\n  label = '';\n}`), /tanrei-composed-from: E: the event "input" is from <tanrei-a>, which has no event of that name/);
+});
+
+// The manifest is the package's public surface, read by products, editors and coding agents: what no product can
+// reach is not in it, nor the text of the components' styles (custom-elements-manifest.config.mjs, `tanrei-public-surface`).
+test('the manifest lists no private or protected member, and no styles’ text', async () => {
+  const declarations = manifest.modules.flatMap((module) => (module.declarations ?? []).map((declaration) => ({ ...declaration, path: module.path })));
+  const hidden = declarations.flatMap((declaration) => (declaration.members ?? []).filter((member) => member.privacy === 'private' || member.privacy === 'protected').map((member) => `${declaration.name}.${member.name} (${member.privacy})`));
+  assert.deepEqual(hidden, []);
+  const styled = declarations.filter((declaration) => declaration.kind === 'variable' && /^css\s*`/.test(declaration.default ?? '')).map((declaration) => `${declaration.path} ${declaration.name}`);
+  assert.deepEqual(styled, []);
+  // The premise: the public members are there, and so are the styles constants, without their text.
+  const button = elements.find((element) => element.tagName === 'tanrei-button');
+  assert.ok(button.members.some((member) => member.name === 'variant'));
+  assert.ok(declarations.some((declaration) => declaration.path === 'src/components/button/button.styles.ts' && declaration.kind === 'variable'));
+  // The plugin itself, on a source written here.
+  const config = (await import('../custom-elements-manifest.config.mjs')).default;
+  const plugin = config.plugins.find((one) => one.name === 'tanrei-public-surface');
+  const { create, ts } = await import('@custom-elements-manifest/analyzer');
+  const source = "import { css } from 'lit';\nexport const styles = css`:host { display: block; }`;\nexport const SIZES = ['small'];\nexport class A extends HTMLElement {\n  /** Says. */\n  label = '';\n  private kept = 1;\n  protected guarded = 2;\n  #own = 3;\n}";
+  const made = create({ modules: [ts.createSourceFile('src/a.ts', source, ts.ScriptTarget.ES2015, true)], plugins: [plugin] }).modules[0].declarations;
+  assert.deepEqual(made.find((declaration) => declaration.name === 'A').members.map((member) => member.name), ['label']);
+  assert.equal(made.find((declaration) => declaration.name === 'styles').default, undefined);
+  assert.equal(made.find((declaration) => declaration.name === 'SIZES').default, "['small']");
+});
+
+// `@tanrei/web/custom-elements/<id>.json`: the elements' manifest of what system <id> ships, for a reader that works
+// in one system (scripts/entries.js). Run after the build (`dist/`).
+test('each shipped system has its own elements manifest: the default system’s has neither the FAB menu nor the segmented button', () => {
+  const pkg = JSON.parse(read('../package.json'));
+  assert.equal(pkg.exports['./custom-elements/*.json'], './dist/custom-elements/*.json');
+  const tagsOf = (id) => {
+    const file = new URL(`../dist/custom-elements/${id}.json`, import.meta.url);
+    assert.ok(fs.existsSync(file), `the build writes dist/custom-elements/${id}.json`);
+    return new Set(JSON.parse(fs.readFileSync(file, 'utf8')).modules.flatMap((module) => (module.declarations ?? []).map((declaration) => declaration.tagName).filter(Boolean)));
+  };
+  const config = JSON.parse(read('../../../tanrei.config.json'));
+  const tag = (name) => `${config.web.tagPrefix}-${name}`;
+  const tanrei = tagsOf(config.namespace);
+  for (const name of ['fab-menu', 'fab-menu-item', 'segmented-button', 'segment']) assert.equal(tanrei.has(tag(name)), false, `<${tag(name)}>`);
+  assert.ok(tanrei.has(tag('button')), 'the premise: it lists the default system’s elements');
+  const m3 = tagsOf('m3-like');
+  assert.ok(m3.has(tag('fab-menu')) && m3.has(tag('fab-menu-item')) && m3.has(tag('segmented-button')));
+  const cupertino = tagsOf('cupertino');
+  assert.ok(cupertino.has(tag('segmented-button')) && !cupertino.has(tag('fab-menu')));
+  // Each holds the elements of the package but those of the components its system does not ship.
+  const all = new Set(elements.map((element) => element.tagName));
+  for (const id of [config.namespace, 'm3-like', 'm3-expressive-like', 'cupertino']) {
+    const shipped = JSON.parse(read(`../../../tokens/generated/${id}/components.json`));
+    const tags = tagsOf(id);
+    for (const entry of shipped.omitted) assert.equal(tags.has(tag(entry.name)), false, `${id}: <${tag(entry.name)}>`);
+    for (const component of shipped.components) if (component.web?.tag) assert.ok(tags.has(component.web.tag), `${id}: <${component.web.tag}>`);
+    assert.ok([...tags].every((one) => all.has(one)), id);
+  }
 });

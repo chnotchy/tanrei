@@ -30,6 +30,7 @@ export async function comparePreviews({ componentCss, still }) {
     '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
     '.docs-stage-box[data-tanrei-demo] .fixture-element > *',
     '.docs-file-tree > figure > [data-part=stage] > *',
+    '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay])',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
   // A fixture of the gallery is written in a template and drawn when its stage comes near the view: every one is drawn

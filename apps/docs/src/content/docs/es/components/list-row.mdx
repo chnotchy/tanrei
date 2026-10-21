@@ -2,7 +2,7 @@
 title: Fila de lista
 description: Una fila de texto con algo antes y algo después. Un titular, una línea corta encima y una o dos debajo; un glifo, una imagen o un control al inicio; un valor corto, un glifo o un control al final. Dentro de un elemento de lista se adapta a cada modo de la lista, y también se usa sola.
 translationOf: components/list-row.mdx
-sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+sourceHash: 19070cee88ea1c99d0d03fe7866472287bd11101
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="Dos dispositivos">
-        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden checked></tanrei-switch>
       </tanrei-list-row>
     </tanrei-list-item>
     <tanrei-list-item interactive>
@@ -91,6 +91,7 @@ La fila sabe por el elemento de lista que la contiene qué es ese elemento, y se
 - **Un elemento estático, o una fila sola.** La fila dibuja sus propios márgenes interiores y sus propios colores. Un control en su ranura inicial o final conserva su propio foco y su propia pulsación.
 - **Un elemento interactivo, un elemento enlace o una opción.** El elemento añade margen interior a su contenido, así que la fila no dibuja el suyo y conserva su altura: una columna que mezcla elementos estáticos y elementos que se pulsan mantiene una sola altura. El elemento toma su nombre del titular de la fila y su descripción de los demás textos. Una opción seleccionada dibuja los textos y los glifos de la fila en su color de contenido seleccionado.
 - **Una lista que se reordena.** El asa de la lista queda al inicio del elemento, antes de la fila, en lugar del margen inicial de la fila.
+- **Filas con glifo y sin él.** Donde el `iconSpace` de la lista lo pide (por defecto, mientras otra fila de la lista dibuja un glifo inicial), una fila sin parte inicial guarda el espacio de un glifo, vacío, para que su titular empiece donde empiezan los de las demás. Una fila sola no guarda ninguno.
 - **Una lista horizontal, o una que salta de línea.** En una línea, la fila es tan ancha como sus partes y nunca se corta; en líneas que saltan, nunca es más ancha que la lista, y su texto se corta donde haga falta.
 
 Pon la fila como hija directa del elemento. Una fila envuelta en otro elemento dentro del elemento de lista no recibe nada y se dibuja como si estuviera sola.
@@ -133,7 +134,7 @@ En el sistema por defecto, las filas `regular` miden 56, 72 y 88 de alto para un
 ### Recomendado
 
 - Da un titular a cada fila. Mantén el sobretítulo como una categoría breve y el texto final como un valor corto.
-- Da a todas las filas de una columna un glifo o una imagen inicial, o a ninguna, para que los textos queden alineados.
+- En una lista, deja sin glifo la fila que no tenga ninguno que mostrar: la lista guarda su espacio, así que los titulares siguen alineados. El espacio de una imagen no se guarda, así que da una imagen a todas las filas de una columna, o a ninguna.
 - Haz que una fila que abre algo sea el contenido de un elemento interactivo o de un elemento enlace.
 
 ### Evita

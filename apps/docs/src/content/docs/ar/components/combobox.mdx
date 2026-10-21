@@ -2,7 +2,7 @@
 title: مربع التحرير والسرد
 description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: e283b3d07c42a3f20dea3f6217380b566a820839
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="المكلَّف، ملاحظات الإصدار" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">Aiko Tanaka</Option>
@@ -104,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بمربع التحرير والسرد هو حقل تحرير وسرد مكتوب بالتفصيل. اترك `label` الخاصة بمربع التحرير والسرد فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` والخيارات وكل ما يخص الكتابة على مربع التحرير والسرد.
 
 ```html
-<tanrei-field label="المدينة" requirement="required" required-text="مطلوب"
+<tanrei-field label="المدينة" required required-text="مطلوب"
   supporting-text="المدينة التي يُرسل إليها الطلب.">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">كيوتو</tanrei-option>
@@ -114,7 +115,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" requirement="required" required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" required required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
     <tanrei-combobox value="tokyo" empty-text="لا توجد نتائج مطابقة">
       <tanrei-option value="kyoto">كيوتو</tanrei-option>
       <tanrei-option value="tokyo">طوكيو</tanrei-option>
@@ -172,6 +173,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **المطلوب** يقوله الحقل. وليس لمربع التحرير والسرد المجرَّد إعداد للمطلوب أو الاختياري: حيث يحتاج النموذج إلى جواب، تحقق منه بنفسك.
 - **النص الذي لا يسمّي خيارًا** يُتخلّى عنه حين يغادر الشخص، ما لم تكن `allowCustomValue` معيَّنة. وليس خطأً من مربع التحرير والسرد نفسه أبدًا.
 
+### الرموز في القائمة
+
+يقف رمز الخيار في عمود قبل تسميته. وتقرر الخاصية `iconSpace` أين يُحتفظ بهذا العمود في خيار بلا رمز. تحتفظ به `auto` (الافتراضية) في قسم فيه خيار آخر له رمز، لتبدأ تسميات القسم على خط واحد، ولا تحتفظ به في قسم بلا رموز؛ والقسم مجموعة، أو سلسلة من الخيارات المتجاورة خارج أي مجموعة. وتحتفظ به `always` في كل خيار، و`never` في الخيار الذي له رمز فقط. وفي [قائمة الخيارات](/ar/components/menu/) الخاصية `iconSpace` نفسها، بالقيم نفسها والقيمة الافتراضية نفسها. ولا تُحسب إلا الخيارات التي يُظهرها الترشيح.
+
 <ComponentSpecs name="combobox" />
 
 ### ما يرسمه الويب بطريقة مختلفة
@@ -212,7 +217,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - لا تستخدم النص النائب تسميةً. فهو يختفي ما إن يكتب أحد، وليس هو الاسم أبدًا.
 - لا تعيّن `label` أو `error` أو `disabled` على مربع تحرير وسرد داخل حقل. قلها على الحقل، لتتبعها التسمية والمساعدة.
 - لا تضع حقل تحرير وسرد داخل حقل. فهو حقل أصلًا؛ وعنصر التحكم الذي يؤطّره الحقل هو مربع التحرير والسرد.
-- لا تكتب `supporting-text` أو `error-text` أو `requirement` على مربع تحرير وسرد. فهي للحقل، ومربع التحرير والسرد لا يرسم أيًّا منها.
+- لا تكتب `supporting-text` أو `error-text` أو `required` أو `optional` على مربع تحرير وسرد. فهي للحقل، ومربع التحرير والسرد لا يرسم أيًّا منها.
 
 ## إمكانية الوصول
 

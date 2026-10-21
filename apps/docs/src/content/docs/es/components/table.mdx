@@ -2,7 +2,7 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: 342eb55fba43c105691f8ba6eaa252107e81be12
+sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -512,7 +512,7 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 
 ### Cuando no cabe
 
-- La tabla se desplaza dentro de su propia caja, nunca la página. Una línea fina a lo largo de un borde de la caja dice que hay columnas más allá.
+- La tabla se desplaza dentro de su propia caja, nunca la página. Una línea fina a lo largo de un borde de la caja dice que hay columnas más allá. No necesita un [área de desplazamiento](/es/components/scroll-area/) alrededor: marca sus propios bordes.
 - `sticky-first-column` mantiene la primera columna a la vista mientras las demás se desplazan por debajo. Se suelta por sí sola donde ocuparía más de la mitad de la caja, de modo que la columna que se queda nunca llena un teléfono.
 - `sticky-header` mantiene la fila de encabezado a la vista mientras las filas se desplazan. Funciona donde tu diseño limita la altura de la tabla (`max-block-size` en el elemento); no sigue a la página.
 - Una tabla que está sobre una superficie que no es la de la página (una tarjeta, un diálogo) define `--tanrei-comp-table-sticky-container-color` con el color de esa superficie donde mantiene a la vista su fila de encabezado o su primera columna, o donde tiene una línea de estado. Esas partes se rellenan con ese color, para que las filas y las columnas que pasan por debajo de ellas no se transparenten.

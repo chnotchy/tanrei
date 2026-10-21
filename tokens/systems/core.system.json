@@ -955,6 +955,30 @@
       },
       "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's current link item is (and its checked row at medium and high contrast), so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
     },
+    "tanrei.comp.tree-view.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.tree-view.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected node stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+    },
+    "tanrei.comp.navigation-drawer.selected.item.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that the current destination stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is 1.03:1 from a hovered destination."
+    },
+    "tanrei.comp.table.row.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.table.row.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected row stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+    },
     "tanrei.comp.menu.expanded.container.color": {
       "derive": {
         "fn": "alpha",
@@ -1599,6 +1623,18 @@
     "tanrei.comp.one-time-code-input.standard.disabled.error.outline.color": {
       "$value": "{tanrei.comp.one-time-code-input.standard.outline.color}",
       "reason": "A disabled code input draws no edge, in error too: it cannot be corrected while disabled. As the stacked text field."
+    },
+    "tanrei.comp.handle.standard.hovered.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "A handle answers a pointer over it with a darker line (HDL-4): the line is the handle's answer itself, where the generic rule keeps a part at its resting color."
+    },
+    "tanrei.comp.handle.standard.pressed.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "The line stays dark while a press or a drag holds the handle (HDL-4 draws the two alike)."
+    },
+    "tanrei.comp.handle.standard.disabled.container.color": {
+      "$value": "{tanrei.comp.handle.standard.container.color}",
+      "reason": "A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."
     }
   },
   "rules": [
@@ -2170,11 +2206,6 @@
       "match": "tanrei.comp.navigation-bar.*.disabled.item.icon-indicator.color",
       "$value": "{tanrei.comp.navigation-bar.$1.item.icon-indicator.color}",
       "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-    },
-    {
-      "match": "tanrei.comp.navigation-rail.*.disabled.item.container.color",
-      "$value": "{tanrei.comp.navigation-rail.$1.item.container.color}",
-      "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
     },
     {
       "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",

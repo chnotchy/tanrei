@@ -4,11 +4,11 @@ description: Add Tanrei to a Flutter app.
 ---
 
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 
 The `tanrei` package is pure Dart. It provides widgets, an inherited `TanreiTheme` and generated token constants, and it does not depend on `MaterialApp` or `CupertinoApp`; it works inside either, or in a plain `WidgetsApp`.
 
-<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+<ReleaseNotice platform="flutter" registry="pub.dev" pkg="tanrei" />
 
 ## Install
 
@@ -26,7 +26,7 @@ flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
 
 `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` follows the repository instead of a local clone.
 
-### After the first release
+### Once it is published
 
 ```sh
 flutter pub add tanrei

@@ -37,7 +37,7 @@ On the web it is `<tanrei-color-field>`. The other platforms have not implemente
     ```html
     <form>
       <tanrei-color-field name="brand" label="Brand color" value="#0f766e"
-        requirement="required" required-text="Required"
+        required required-text="Required"
         supporting-text="Six hexadecimal digits, like #0f766e."
         invalid-text="Enter six hexadecimal digits, like #0f766e."
         picker picker-label="Choose color"></tanrei-color-field>
@@ -78,7 +78,7 @@ On the web it is `<tanrei-color-field>`. The other platforms have not implemente
 The same field, written by hand from its two members, is the same picture, and to assistive technology the same text box with the same name, description and states:
 
 ```html
-<tanrei-field label="Brand color" requirement="required" required-text="Required"
+<tanrei-field label="Brand color" required required-text="Required"
   supporting-text="Six hexadecimal digits, like #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="Enter six hexadecimal digits, like #0f766e."
@@ -87,7 +87,7 @@ The same field, written by hand from its two members, is the same picture, and t
 ```
 
 <DemoFrame label="The same field written by hand: a field with a color input in it" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" requirement="required" required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" required required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -105,7 +105,7 @@ What changes one level down is where things are said. `name` and `value` are on 
 ## Specs
 
 <DemoFrame label="An empty color field, white, black, a large one, a disabled one — and the box alone, a color input, in a row that names its color" plain column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Accent color" requirement="optional" optional-text="Optional"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Accent color" optional optional-text="Optional"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Page background" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Text" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" size="large" picker picker-label="Choose color"></tanrei-color-field>
@@ -118,7 +118,7 @@ What changes one level down is where things are said. `name` and `value` are on 
 | Part | What it is |
 | --- | --- |
 | Label | Above the container (`stacked`), where the field draws it, or floating inside it (`filled`, `outlined`), where the color input draws it. It is the accessible name, drawn or hidden with `labelHidden` |
-| Requirement mark | After the label: the requirement tag in its required form, an asterisk or nothing for `requirement="required"`; the requirement tag in its optional form for `optional` |
+| Requirement mark | After the label: the requirement tag in its required form, an asterisk or nothing for `required`; the requirement tag in its optional form for `optional` |
 | Swatch | A sample of the value at the start of the container: a small square filled with exactly the value's color, inside a hairline. Empty, it is the hairline alone. It is not a control |
 | Input | The value as text. One line, which scrolls |
 | Picker button | With `picker`: an icon-only text Button at the end, named by `pickerLabel` |
@@ -157,7 +157,7 @@ With the picker button shown, a press on the swatch opens the picker, as a press
 
 ### What each member gives
 
-- **From the field**: the properties `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText` and `optionalText`; the slot `label-icon`; the tokens `comp.field.*`.
+- **From the field**: the properties `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText` and `optionalText`; the slot `label-icon`; the tokens `comp.field.*`.
 - **From the color input**: the properties `variant`, `size`, `value`, `invalidText`, `picker` and `pickerLabel`; the events `input`, `change`, `pickerRequest` and `entryError`; the tokens `comp.input-box.*` for the box, which every input box reads, and `comp.color-input.*` for the swatch.
 
 The color input has a `label`, a `labelHidden`, an `error` and a `disabled` of its own. They are not what the color field sets: its `label` is the field's, which names the input and, in a filled or an outlined field, is what floats in the box.
@@ -176,7 +176,7 @@ The color field has no token of its own. Its box reads the [color input's tokens
 ### What the web draws differently
 
 - The element's shadow root holds a `<tanrei-field>` with a `<tanrei-color-input>` in it, and nothing else. Importing the element defines both.
-- The color field is a form-associated element. It takes `name` and submits `value`: the color, or an empty string. It resets to the `value` attribute, and reports a missing value while `requirement="required"` and `value` is empty, and a bad input while an entry error lasts. Its two members add no entry to the form.
+- The color field is a form-associated element. It takes `name` and submits `value`: the color, or an empty string. It resets to the `value` attribute, and reports a missing value while `required` and `value` is empty, and a bad input while an entry error lasts. Its two members add no entry to the form.
 - `value` is always the color input's: a value set as `0F766E` is read back as `#0f766e`, and one that is not a color as an empty string.
 - `input` and `change` are plain events: read `value` from the element. `pickerrequest` and `entryerror` are CustomEvents with `detail.value` and with `detail.text` and `detail.message`. They are the color input's own events, with the element as their target. `detail.message` is `invalidText`, and empty where you gave none — also while the field shows `errorText` in its place.
 - Parts: `field` and `color-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `color-input-label`, `field-requirement-label` and `color-input-requirement-label` name one member's.
@@ -212,7 +212,7 @@ For a color that is shown and not edited, draw a sample with its value or its na
 ### Don't
 
 - Don't tell a color by the swatch alone. The value is text; a person who cannot tell two samples apart reads two different values.
-- Don't treat an empty `value` as an error by itself. `requirement` never validates.
+- Don't treat an empty `value` as an error by itself. `required` never validates.
 - Don't set `aria-invalid` or `error` while a person is typing. Wait for `change` or `entryerror`.
 - Don't put a color field inside a field. It is a field already; the control a field frames is the [color input](/components/color-input/).
 
@@ -224,7 +224,7 @@ For a color that is shown and not edited, draw a sample with its value or its na
 
 - The input is a text field. Its name is `label`, drawn or hidden, and its value is the text it shows.
 - The shown supporting or error text is its description, with `optionalText` while the field is optional.
-- It is exposed as invalid while `error` is true or an entry error lasts, and as required while `requirement` is `required`.
+- It is exposed as invalid while `error` is true or an entry error lasts, and as required while `required` is set.
 - An error that appears while the field has focus is announced once, politely. It never takes focus away.
 - The swatch is decorative and hidden from assistive technology: the value's text says the color.
 - The picker button is a separate button, named by `pickerLabel`, that is exposed as opening a dialog. It is a focus stop after the input. Focus given to the field itself always goes to the input.

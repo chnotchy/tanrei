@@ -1,10 +1,12 @@
-// What an agent should read once. The philosophy is a summary of how Tanrei decides its tokens; the schema and
-// the shipped layers are served as they are on disk.
+// What an agent should read once. The philosophy is a summary of how Tanrei decides its tokens; the schema, the
+// shipped layers and their components manifests are served as they are on disk.
 import fs from 'node:fs';
 import path from 'node:path';
-import { REPO_ROOT, ToolError, shippedLayer, shippedSystems } from './systems.js';
+import { COMPONENTS_URI, componentsResource } from './components.js';
+import { DEFAULT_SYSTEM, REPO_ROOT, ToolError, listedSystems, shippedLayer, shippedSystems } from './systems.js';
 
 export const INSTRUCTIONS = `Tanrei is a small, simply named core vocabulary of design tokens shipped to five platforms, which any design system can reproduce exactly: a design system is a layer file (<id>.system.json) that changes VALUES and, where the core has no word for something, EXTENDS the vocabulary.
+Components: first call list_components to settle the system, and use no component it does not list (omitted says what to use instead); when asked to rebuild a product with Tanrei, use system=${DEFAULT_SYSTEM}. get_component gives a component's props and its EARS rules; check_usage checks code before it is kept.
 Hard rules:
 - Values first. Find the existing token with search_tokens and change it in the layer, in this order of preference: set a dial, "scale" an inherited rule, re-point an alias, replace "derive", and only then pin a literal "$value" — a pinned literal needs a "reason" (8+ characters). New color families are declared under "palettes" with "roles": "intent". Never edit generated files.
 - If the word really is missing, add it — in the layer, under "vocabulary", with a "rationale" (8+ characters): a step in a series, a value on a component axis (a size, a variant), or the layer's own token in its own namespace ("<layer id>.comp.…"). propose_extension writes and verifies the declaration. Additive only: never re-declare, remove or retype what exists (change its value under "tokens"); interaction states are not extensible; nothing in tanrei.* may reference a layer's own token.
@@ -28,8 +30,8 @@ nor because a component uses it today. Core changes happen only in the Tanrei re
 Four tiers, one reference order: \`dial < ref < sys < comp\`. Components read \`comp\` tokens only. Seven numeric dials sit
 under everything: type.base 16px, type.contrast 1, space.unit 8px, size.unit 4px, shape.unit 2px, stroke.unit 1px,
 motion.unit 50ms. Color seeds are palette declarations, not dials. Every value is one of three kinds:
-- **derived** — a rule in a closed language: \`mul\`, \`scale\`, \`clamp\`, \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
-  \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No addition, conditionals or user functions.
+- **derived** — a rule in a closed language: \`mul\`, \`scale\`, \`clamp\`, \`sub\` ({ of, by } → max(0, of − by): a corner inside another at an inset), \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
+  \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No other arithmetic, conditionals or user functions.
 - **fixed** — a literal with a stated reason, exempt from the dials.   - **alias** — a reference that can be re-pointed.
 
 ## A design system is a layer
@@ -83,6 +85,7 @@ export function listResources() {
       const layer = shippedLayer(id);
       return { uri: `tanrei://systems/${id}`, name: `System layer: ${id}`, description: `${layer.name ?? id}${layer.extends ? ` (extends ${layer.extends})` : ' (root)'} — the layer file as authored. A worked example of every operation.`, mimeType: 'application/json' };
     }),
+    ...listedSystems().map((id) => ({ uri: `tanrei://components/${id}`, name: `Components: ${id}`, description: `The components manifest of "${id}": every component it ships with the module that registers it, those it does not have with what to use instead, and the variant values it leaves out.`, mimeType: 'application/json' })),
   ];
 }
 
@@ -91,5 +94,7 @@ export function readResource(uri) {
   if (uri === 'tanrei://schema/system') return { uri, mimeType: 'application/schema+json', text: fs.readFileSync(path.join(REPO_ROOT, 'tokens/schema/system.schema.json'), 'utf8') };
   const id = SYSTEM_URI.exec(uri)?.[1];
   if (id && shippedSystems().includes(id)) return { uri, mimeType: 'application/json', text: fs.readFileSync(path.join(REPO_ROOT, 'tokens/systems', `${id}.system.json`), 'utf8') };
+  const manifest = componentsResource(COMPONENTS_URI.exec(uri)?.[1]);
+  if (manifest) return { uri, mimeType: 'application/json', text: JSON.stringify(manifest) };
   throw new ToolError(`unknown resource ${uri}. Known: ${listResources().map((r) => r.uri).join(', ')}`);
 }

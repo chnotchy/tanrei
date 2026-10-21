@@ -85,7 +85,8 @@ On the web it is `<tanrei-combobox>` with `<tanrei-option>` children, the elemen
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="Assignee, release notes" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">Aiko Tanaka</Option>
@@ -102,7 +103,7 @@ What happens in the box and in the list is the same bare, framed and in a combob
 A field around a combobox is a combobox field written out. Leave the combobox's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, the options and everything about typing on the combobox.
 
 ```html
-<tanrei-field label="City" requirement="required" required-text="Required"
+<tanrei-field label="City" required required-text="Required"
   supporting-text="Where the order is sent.">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">Kyoto</tanrei-option>
@@ -112,7 +113,7 @@ A field around a combobox is a combobox field written out. Leave the combobox's 
 ```
 
 <DemoFrame label="A field with a combobox in it: the same picture as a combobox field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" requirement="required" required-text="Required" supporting-text="Where the order is sent.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" required required-text="Required" supporting-text="Where the order is sent.">
     <tanrei-combobox value="tokyo" empty-text="No matches">
       <tanrei-option value="kyoto">Kyoto</tanrei-option>
       <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -170,6 +171,10 @@ The three variants and the three sizes, `small` (40), `medium` (48) and `large` 
 - **Required** is a field's to say. A bare combobox has no requirement setting: where the form needs an answer, validate it yourself.
 - **A text that names no option** is given up when the person leaves, unless `allowCustomValue` is set. It is never an error of the combobox's own.
 
+### Glyphs in the list
+
+An option's glyph stands in a column before its label. `iconSpace` says where that column is kept in an option without a glyph. `auto` (the default) keeps it in a section where another option has a glyph, so that the labels of the section start on one line, and keeps none in a section without glyphs; a section is a group, or a run of options outside any group. `always` keeps it in every option, and `never` only in an option that has a glyph. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default. Only the options the filter shows count.
+
 <ComponentSpecs name="combobox" />
 
 ### What the web draws differently
@@ -210,7 +215,7 @@ The three variants and the three sizes, `small` (40), `medium` (48) and `large` 
 - Don't use the placeholder as the label. It goes as soon as someone types, and it is never the name.
 - Don't set `label`, `error` or `disabled` on a combobox inside a field. Say them on the field, so that the label and the help follow.
 - Don't put a combobox field inside a field. It is a field already; the control a field frames is the combobox.
-- Don't write `supporting-text`, `error-text` or `requirement` on a combobox. They are a field's, and a combobox draws none of them.
+- Don't write `supporting-text`, `error-text`, `required` or `optional` on a combobox. They are a field's, and a combobox draws none of them.
 
 ## Accessibility
 

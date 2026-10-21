@@ -24,8 +24,11 @@
 //
 // A compact window has no room for five items (and a bar holds three actions, APB-13): there the theme and the
 // language are one icon-only Button that opens one Menu — the theme as a group of radio items, the languages as a
-// group of links. The shell's window class shows one arrangement or the other (styles/frame.css); the two theme
-// controls are kept alike by the script below.
+// group of links. The shell's window class decides which arrangement the bar holds: only that one's items are given
+// the `actions` slot (the other's stay unassigned, and the bar draws nothing of them), first by the script that
+// follows the bar, before the bar is defined, then whenever the class changes. Until the bar is defined, and where no
+// script runs, the stylesheet shows one arrangement or the other (styles/frame.css). The two theme controls are kept
+// alike by the script below.
 //
 // The menus stand beside the bar, not in it: the bar draws its own slots only, and a menu is drawn where it is
 // written (its surface is in the top layer).
@@ -87,12 +90,27 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   </tanrei-menu-group>
 </tanrei-menu>
 
-{/* Before first paint: the reader's stored theme as the select's value (the attribute is what the element starts from). */}
+{
+  /* Before first paint: the reader's stored theme as the select's value (the attribute is what the element starts
+   from), and the bar's actions for the window's class, read from the shell's stylesheet — before the bar is defined,
+   so that it never holds both arrangements. */
+}
 <script is:inline>
-  try {
-    const theme = localStorage.getItem('starlight-theme');
-    if (theme === 'light' || theme === 'dark') for (const control of document.currentScript.parentElement.querySelectorAll('.docs-theme, .docs-theme-group')) control.setAttribute('value', theme);
-  } catch {}
+  {
+    const frame = document.currentScript.parentElement;
+    try {
+      const theme = localStorage.getItem('starlight-theme');
+      if (theme === 'light' || theme === 'dark') for (const control of frame.querySelectorAll('.docs-theme, .docs-theme-group')) control.setAttribute('value', theme);
+    } catch {}
+    const bar = frame.querySelector('tanrei-app-bar.docs-app-bar');
+    if (bar) {
+      const compact = getComputedStyle(bar).getPropertyValue('--tanrei-app-shell-window-class').trim() === 'compact';
+      for (const item of bar.querySelectorAll(':scope > .docs-wide-only, :scope > .docs-compact-only')) {
+        if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', 'actions');
+        else item.removeAttribute('slot');
+      }
+    }
+  }
 </script>
 
 <script>
@@ -133,6 +151,21 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   system.addEventListener('change', () => {
     if (stored() === 'auto') apply('auto');
   });
+
+  // The bar's actions follow the window's class (the script after the bar chose them before the bar was defined):
+  // the arrangement of the class has the `actions` slot, and the other none, so the bar holds three actions at most.
+  const bar = document.querySelector('tanrei-app-bar.docs-app-bar');
+  const arrange = (windowClass: string) => {
+    const compact = windowClass.trim() === 'compact';
+    for (const item of bar?.querySelectorAll(':scope > .docs-wide-only, :scope > .docs-compact-only') ?? []) {
+      if (item.classList.contains('docs-compact-only') === compact) item.setAttribute('slot', 'actions');
+      else item.removeAttribute('slot');
+    }
+  };
+  const shell = bar?.closest('tanrei-app-shell');
+  shell?.addEventListener('windowclasschange', (event) => arrange((event as CustomEvent<{ windowClass: string }>).detail.windowClass));
+  const decided = shell?.getAttribute('data-window-class');
+  if (decided) arrange(decided);
 
   // A menu opens from its button and closes when it asks to (the menu never closes itself, MNU-1).
   for (const menu of document.querySelectorAll<HTMLElement & { open: boolean }>('tanrei-menu.docs-frame-menu')) {

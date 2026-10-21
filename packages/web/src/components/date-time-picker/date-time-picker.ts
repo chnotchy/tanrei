@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -69,6 +69,7 @@ import type { TanreiCalendar, TanreiCalendarChangeDetail } from '../calendar/cal
 import { placeMenu } from '../menu/menu.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -261,7 +262,7 @@ let ids = 0;
  * @fires {CustomEvent<TanreiDateTimePickerChangeDetail>} change - The person committed a choice that differs from the one before (OK, or choosing a date in a docked picker that sets a date only). `value`, `start` and `end` are already the new ones; `detail` holds them too. Fired before the `close` it causes.
  * @fires {CustomEvent<TanreiDateTimePickerCloseDetail>} close - The picker asks to be closed: `detail.reason` is `escape`, `back`, `outside`, `tab`, `focus-out`, `cancel`, `confirm` or `select`. Set `open` to false.
  */
-export class TanreiDateTimePicker extends LitElement {
+export class TanreiDateTimePicker extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'date-time-picker');
   private readonly system = new SystemWatchController(this);
   /** DTM-48: the product's words, read where the instance gives none (src/primitives/words.ts). */
@@ -2911,6 +2912,7 @@ export class TanreiDateTimePicker extends LitElement {
       return html`<dialog
         part="container"
         class=${classes}
+        data-tanrei-appear
         aria-label=${ifDefined(label || undefined)}
         tabindex="-1"
         data-tanrei-shape

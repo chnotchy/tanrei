@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, OpenAxesController, report, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import type { TanreiCodeBlockSizeRegistry, TanreiCodeBlockVariantRegistry } from '../../registry.js';
@@ -9,6 +9,7 @@ import type { TanreiCopyButtonCopiedDetail, TanreiCopyButtonCopyFailedDetail } f
 import { CODE_BLOCK_CSS, CODE_BLOCK_DRAWN, SYNTAX_ROLES, roleRule } from './code-block.light.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { AXES, styles } from './code-block.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCodeBlockVariant = keyof TanreiCodeBlockVariantRegistry;
@@ -199,7 +200,7 @@ function pieces(node: Node): Node[] {
  *
  * Contract: specs/code-block.spec.json. The code stays in the document, as an ordinary `<pre><code>`:
  *
- *     <tanrei-code-block title="sizes.js" language="js" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
+ *     <tanrei-code-block headline="sizes.js" language="js" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy">
  *       <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
  *     </tanrei-code-block>
  *
@@ -242,7 +243,7 @@ function pieces(node: Node): Node[] {
  * @fires {CustomEvent<TanreiCodeBlockCopiedDetail>} copied - The code was copied by the block's copy button; `detail.text` is the text that was copied.
  * @fires {CustomEvent<TanreiCodeBlockCopyFailedDetail>} copyfailed - The platform refused the copy asked for by the block's copy button; `detail.reason` is its reason, where it gave one.
  */
-export class TanreiCodeBlock extends LitElement {
+export class TanreiCodeBlock extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'code-block');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -252,7 +253,7 @@ export class TanreiCodeBlock extends LitElement {
     code: { type: String },
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
-    title: { type: String },
+    headline: { type: String },
     language: { type: String },
     languageLabel: { type: String, attribute: 'language-label' },
     // True by default, so its attribute is written to turn it off: highlight="false".
@@ -292,12 +293,8 @@ export class TanreiCodeBlock extends LitElement {
   /** medium sets the code in the code role, for a page and a panel; small in the small code role with less padding, for dense interfaces. */
   size: TanreiCodeBlockSize = 'medium';
 
-  /**
-   * A file name or a few words that say what the code is. Drawn in the header and used as the block's accessible name.
-   * The attribute is read and removed from the element, so the browser does not also draw its own `title` tooltip over
-   * the block.
-   */
-  override title = '';
+  /** A file name or a few words that say what the code is (the spec's `title`). Drawn in the header and used as the block's accessible name. */
+  headline = '';
 
   /**
    * The language the code is written in, as an identifier ("tsx", "css", "swift", "sh"), read without regard to case.
@@ -442,18 +439,6 @@ export class TanreiCodeBlock extends LitElement {
     code.append(...pre.childNodes);
     pre.append(code);
     return code;
-  }
-
-  private removingTitle = false;
-
-  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
-    if (name === 'title' && this.removingTitle) return;
-    super.attributeChangedCallback(name, old, value);
-    if (name === 'title' && value !== null) {
-      this.removingTitle = true;
-      this.removeAttribute('title');
-      this.removingTitle = false;
-    }
   }
 
   override connectedCallback() {
@@ -998,7 +983,7 @@ export class TanreiCodeBlock extends LitElement {
       const missing = [this.words.lacks('copyLabel', this.copyLabel) && 'copyLabel', this.words.lacks('copiedLabel', this.copiedLabel) && 'copiedLabel', this.words.lacks('copyFailedLabel', this.copyFailedLabel) && 'copyFailedLabel'].filter(Boolean);
       if (missing.length) report(this, 'COD-25', `copy is set and ${missing.join(', ')} ${missing.length > 1 ? 'are' : 'is'} empty; the copy button needs its name and its two announcements`);
     }
-    if (this.scrollable && !this.title && !this.label) report(this, 'COD-25', 'the body can scroll and is a focus stop, and both title and label are empty, so it has no accessible name; give the block one');
+    if (this.scrollable && !this.headline && !this.label) report(this, 'COD-25', 'the body can scroll and is a focus stop, and both title and label are empty, so it has no accessible name; give the block one');
     if (changed.has('startLine') && this.firstLine !== this.startLine) report(this, 'COD-25', `startLine ${this.startLine} is not a whole number of 1 or more; it is taken as 1`);
     if (changed.has('maxLines') && this.maxLines !== null && this.cap === null) report(this, 'COD-25', `maxLines ${this.maxLines} is below 1; every line is shown`);
   }
@@ -1007,9 +992,9 @@ export class TanreiCodeBlock extends LitElement {
     // COD-25: nothing is drawn and nothing is exposed.
     if (this.empty) return nothing;
     // COD-8: the header's words are the title and the language label; `language` itself is not drawn.
-    const header = !!this.title || !!this.languageLabel;
+    const header = !!this.headline || !!this.languageLabel;
     // COD-22: a group named by the title, and by the label where there is none.
-    const name = this.title || this.label;
+    const name = this.headline || this.label;
     const cap = this.cap;
     const capped = cap !== null && this.lineCount > cap;
     // COD-9: a Copy button — icon-only, the text variant, the small size — that copies the code (COD-11).
@@ -1030,7 +1015,7 @@ export class TanreiCodeBlock extends LitElement {
       <div part="container" class="container ${classMap({ copy: this.copy, 'has-header': header, gutter: this.gutter })}" data-tanrei-shape>
         ${header
           ? html`<div part="header" class="header">
-              ${this.title ? html`<span part="title" class="title" dir=${ownDirection(this.title)}>${this.title}</span>` : nothing}
+              ${this.headline ? html`<span part="title" class="title" dir=${ownDirection(this.headline)}>${this.headline}</span>` : nothing}
               <span class="space"></span>
               ${this.languageLabel ? html`<span part="language" class="language">${this.languageLabel}</span>` : nothing}
               ${button}

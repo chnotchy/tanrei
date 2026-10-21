@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, dividerVisibilityHost, focusRing, iconGlyph, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
+import { SCRIM_FILTER, actionBoxStyles, compactProbeStyles, dividerVisibilityHost, focusRing, iconGlyph, scrimFilter, sheetLookStyles, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -25,15 +25,7 @@ export const styles = css`
   ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
 
   /* DLG-17: the resolved compact.window-width, which the script matches the window against. */
-  .probe {
-    position: fixed;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    inline-size: ${t('compact-window-width')};
-    block-size: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
+  ${compactProbeStyles('.probe', `${PREFIX}-compact-window-width`)}
 
   /* DLG-1, DLG-7: a native modal <dialog> in the top layer, centred in the window above the keyboard, as wide as its
      widest part (the actions' row at their own widths among them, --_row) between its bounds and never wider or taller
@@ -83,24 +75,10 @@ export const styles = css`
     min-inline-size: 0;
     max-inline-size: ${unsafeCSS(INLINE_ROOM)};
   }
-  /* DLG-17: a compact window: at the bottom of the safe area, the margin above its bottom edge (or the keyboard) and from
-     its sides, as wide as the window less those margins up to max-width, centred between the sides; all four corners
-     stay the container's. */
-  dialog.compact,
-  dialog.compact:not([data-width='content']) {
-    inline-size: min(${t('container-max-width')}, ${unsafeCSS(INLINE_ROOM)});
-    min-inline-size: 0;
-    margin-block: auto calc(${t('container-margin')} + env(safe-area-inset-bottom, 0px));
-  }
-  /* DLG-18: out at the bottom, it also sinks by enter-offset. */
-  dialog.compact:not([open]) {
-    translate: 0 ${t('motion-enter-offset')};
-  }
   dialog[open] {
     display: flex;
     opacity: 1;
-    /* DLG-13: in, centred, it fades in and grows about its centre from enter-scale over the enter motion; DLG-18: at the
-       bottom it rises by enter-offset instead, without growing. */
+    /* DLG-13: in, centred, it fades in and grows about its centre from enter-scale over the enter motion. */
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
   }
@@ -109,15 +87,12 @@ export const styles = css`
       opacity: 0;
       scale: ${t('motion-enter-scale')};
     }
-    dialog.compact[open] {
-      scale: none;
-      translate: 0 ${t('motion-enter-offset')};
-    }
   }
   /* DLG-1, MDL-1: the modal layer's scrim, over the whole window behind the dialog (its color and blur), fading with it. */
+  ${scrimFilter('dialog', T('scrim-blur'))}
   dialog::backdrop {
     background: ${t('scrim-color')};
-    backdrop-filter: blur(${t('scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};
@@ -134,12 +109,18 @@ export const styles = css`
       opacity: 0;
     }
   }
-  /* DLG-13, DLG-18: where motion is reduced it only fades. */
+  /* DLG-13: where motion is reduced it only fades. */
   @media (prefers-reduced-motion: reduce) {
     dialog {
       transition-property: opacity, display, overlay;
     }
   }
+  /* DLG-17, DLG-18: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over the
+     keyboard), as wide as the window up to the bottom sheet's greatest width whatever width names, its color, elevation
+     and top corners, square at the bottom, its parts inside the dialog's padding and above the bottom inset — sliding up
+     and down with the bottom sheet's motion over the dialog's own scrim (src/primitives/compact-sheet.ts). After the
+     rules above, which it overrides. */
+  ${sheetLookStyles({ sheet: 'dialog.compact', paddingBlockEnd: T('container-padding'), scrim: { color: T('scrim-color'), blur: T('scrim-blur') } })}
 
   /* DLG-8: the parts, container.gap apart, the empty ones left out; the actions actions.margin-block-start below. */
   .scroll {
@@ -154,27 +135,11 @@ export const styles = css`
     align-items: flex-start;
     gap: ${t('header-gap')};
   }
-  /* DLG-26: the header is one row — the icon and the headline, taking the width the close button leaves, and the close
-     button at its end, header.gap after the headline, its end edge at the container's padding (the row is inside it).
-     The row's first line is the headline's: the close button is centred on a line of that height, and beside a close
-     button taller than that line the icon and the headline's first line are centred on the button. */
+  /* DLG-26, DLG-28: the header is one row that holds the icon and the headline across the inner width, and nothing at
+     its end. */
   .header {
     display: flex;
     flex: none;
-    align-items: flex-start;
-    gap: ${t('header-gap')};
-    font: ${t('headline-typescale-font')};
-  }
-  .header.closable .head {
-    padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));
-  }
-  /* DLG-25: the icon-only Button, placed and never restyled (its variant is given through the Button's own channel). */
-  .close-box {
-    display: flex;
-    flex: none;
-    align-items: center;
-    min-block-size: 1lh;
-    margin-inline-start: auto;
   }
   .middle {
     position: relative;
@@ -359,12 +324,6 @@ export const styles = css`
   ${dialog} .head.with-icon .headline {
     align-self: stretch;
     text-align: center;
-  }
-  /* DLG-26: above, the icon and the headline stay centred in the container: as far from the row's start as the close
-     button and its gap take at the row's end, and the close button at the row's top end. */
-  ${dialog} .header.closable .head.with-icon {
-    padding-block: 0;
-    margin-inline-start: calc(var(--tanrei-comp-button-container-height-small) + ${T('header-gap')});
   }`,
   )}
 

@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import {
   AvailabilityController,
   PressController,
@@ -18,6 +18,7 @@ import { DRAWN_WIDTH } from '../../primitives/glyph.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionDensityRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core looks (plain, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAccordionVariant = keyof TanreiAccordionVariantRegistry;
@@ -230,7 +231,7 @@ let descriptions = 0;
  * @tag tanrei-accordion
  * @slot - The items: native `<details>` elements, each with a `<summary>` first. They are children in the document, not slotted nodes: the element has no shadow root.
  */
-export class TanreiAccordion extends ReactiveElement {
+export class TanreiAccordion extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'accordion');
 
   static override properties: PropertyDeclarations = {
@@ -276,6 +277,8 @@ export class TanreiAccordion extends ReactiveElement {
   /** The header that is being kept in place, and the frame that keeps it. */
   private holding: { summary: HTMLElement; top: number; above: HTMLDetailsElement[] } | null = null;
   private holdFrame = 0;
+  /** ACC-13: the items whose height is followed frame by frame to its end, as no clock of theirs runs (`follow`). */
+  private readonly following = new Map<HTMLDetailsElement, number>();
   /** ACC-36: a press in an open item's content — which pointer, where it began, and whether it has moved past the slop. */
   private contentPress: { id: number; x: number; y: number; details: HTMLDetailsElement; moved: boolean } | null = null;
   /** ACC-36: what a press in an item's content holds — the item: the press ends when the pointer leaves it. */
@@ -327,6 +330,11 @@ export class TanreiAccordion extends ReactiveElement {
     clearTimeout(this.actedTimer);
     this.acted = null;
     this.release();
+    for (const [details, frame] of this.following) {
+      cancelAnimationFrame(frame);
+      this.settle(details);
+    }
+    this.following.clear();
   }
 
   protected override updated(changed: PropertyValues) {
@@ -615,7 +623,9 @@ export class TanreiAccordion extends ReactiveElement {
 
   /**
    * ACC-13, where the browser cannot move a height to `auto` in CSS: the content's height is measured once, before the
-   * first frame, and the stylesheet moves its box between 0 and that height. An item whose `open` changes again on the
+   * first frame, and the stylesheet moves its box between 0 and that height. The box holds its content's margins
+   * (accordion.css), so what the item measures below its header is the box's own height, and the height it ends at is
+   * the one it rests at. An item whose `open` changes again on the
    * way goes on from where it is: the pose is turned, and the transition reverses by itself. Where the stylesheet
    * moves the content alone, or the item's clock does not run (reduced motion, a duration of zero), nothing is done.
    */
@@ -879,13 +889,44 @@ export class TanreiAccordion extends ReactiveElement {
     return false;
   }
 
-  // ACC-13: the item's clock has run out, or was cancelled and no other runs: its motion is over.
+  // ACC-13: the item's clock has run out, or was cancelled and no other runs: its motion is over — unless the clock was
+  // cancelled by a change on the way while the height goes on (`follow`).
   private readonly onMotionEnd = (event: Event) => {
     const details = event.target;
     if (!(details instanceof HTMLDetailsElement) || details.parentElement !== this || (event as TransitionEvent).propertyName !== CLOCK) return;
     if (event.type === 'transitioncancel' && clockRuns(details)) return;
-    this.settle(details);
+    const pose = details.getAttribute(MOVING);
+    if (event.type === 'transitioncancel' && pose === (details.open ? 'opening' : 'closing')) this.follow(details);
+    else this.settle(details);
   };
+
+  /**
+   * ACC-13, where the element moves the height: an item turned back on the way goes on from where it is — and when it
+   * is turned before the middle of its motion, the browser cancels its clock instead of turning it back too. The clock
+   * is a custom property no browser interpolates: in its first half its value is still the one it is going from, which
+   * is the value the item turns back to, and a transition whose value is already the new one is cancelled (CSS
+   * Transitions, "starting of transitions"). The height's own transition, a length, turns back and goes on. Its end is
+   * told to the page by no event, so the item is read once a frame until it has stood still for two: a moving height
+   * changes in every frame. Then the motion is over. A change that ends the height at once (reduced motion, a removal,
+   * an ancestor that stops being drawn) ends this as soon.
+   */
+  private follow(details: HTMLDetailsElement) {
+    if (this.following.has(details)) return;
+    let last = Number.NaN;
+    let still = 0;
+    const step = () => {
+      this.following.delete(details);
+      const pose = details.getAttribute(MOVING);
+      if (pose !== 'opening' && pose !== 'closing') return;
+      const height = details.getBoundingClientRect().height;
+      still = height === last ? still + 1 : 0;
+      last = height;
+      // An item that is not drawn (removed, or under `display: none`) has no motion left either.
+      if (details.isConnected && details.getClientRects().length > 0 && still < 2) this.following.set(details, requestAnimationFrame(step));
+      else this.settle(details);
+    };
+    this.following.set(details, requestAnimationFrame(step));
+  }
 
   private readonly listeners: [string, (event: Event) => void][] = [
     ['pointerdown', this.onPointerDown],

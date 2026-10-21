@@ -2,7 +2,7 @@
 title: حقل إدخال النص المدمج
 description: الكتابة وحدها، لصندوق يرسمه شيء آخر. نص، ونص نائب، ومؤشر الكتابة والتحديد، في سطر واحد أو في أسطر تزيد وتنقص بحركة. لا يرسم حاوية ولا حافة ولا تسمية ولا مؤشر تركيز. فما يحمله هو الذي يرسم الصندوق ويُظهر التركيز.
 translationOf: components/embedded-text-input.mdx
-sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+sourceHash: f1b2ad5ffbd2a08901db0c5720abfb2ed6b2f7bb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { EmbeddedTextInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { EmbeddedTextInput } from '@tanrei/react/advanced';
 
     <div className="capsule">
       <EmbeddedTextInput label="الرسالة" placeholder="اكتب رسالة" multiline maxRows={6}
@@ -175,7 +176,7 @@ import Callout from '../../../../components/Callout.astro';
 ### ما يتكفل به المكوّن
 
 - هو مربع نص (text box)، ومتعدد الأسطر ما دامت `multiline` بالقيمة true. اسمه `label` ووصفه `description`.
-- يُعرَض للتقنيات المساعدة على أنه غير صالح ومطلوب وللقراءة فقط ومعطَّل بالخصائص التي تحمل هذه الأسماء.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ومطلوب وللقراءة فقط ومعطَّل بالخصائص التي تحمل هذه الأسماء. والقيمة `required`، كما يقولها الحقل، تجعله مطلوبًا كما تفعل `required`.
 - النص النائب ليس الاسم أبدًا.
 - هو موضع توقف واحد للمفتاح Tab. والمفتاح Tab لا يُدرج حرفًا أبدًا، والمفتاح Escape متروك للحاضن.
 - المفتاح Enter في أسلوب الإدخال لا يصدر `action` أبدًا.

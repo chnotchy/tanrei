@@ -51,7 +51,7 @@
               "Always give an input chip a removeLabel (the remove action's accessible name).",
               "The chip does not manage a row of chips: arrow keys, selection across chips, wrapping and moving focus after a removal belong to the layout that holds them.",
               "state-layer.color, selected.state-layer.color, remove.state-layer.color and destructive-remove.state-layer.color are the colors hover, focus and press mix into the chip's container, a selected chip's container and the remove action's round container.",
-              "The remove action reads as destructive by default (destructiveRemove): destructive-remove. parts rest at the remove. values and take the error color only while the remove action is hovered, focused or pressed. Turn it off where removing loses nothing. Never rely on the color alone: removeLabel names the action.",
+              "The remove action reads as destructive only while destructiveRemove is set: destructive-remove. parts rest at the remove. values and take the error color only while the remove action is hovered, focused or pressed. Set it where removing loses something that cannot be put back in a step. Never rely on the color alone: removeLabel names the action.",
               "Heights are minimums: a height must hold 2 × padding-block + one label line, and the build reports it when it does not.",
               "An input chip's remove action sits concentric with the chip's round end: container.padding-inline-with-remove is (height − icon) / 2 at each size. A layer that changes a chip's height, its icon size or its remove target keeps that relation, or pins the padding it wants."
             ]
@@ -74,7 +74,8 @@
                 "label.typescale",
                 "icon.size",
                 "avatar.size",
-                "remove.container.size"
+                "remove.container.size",
+                "motion.state-duration"
               ]
             },
             "variant": {
@@ -662,25 +663,31 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$description": "How long a change of state takes. It follows the size (small over the compact role, medium over the default role): a smaller control changes state sooner.",
+            "small": {
+              "$value": "{tanrei.sys.motion.role.state.compact}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.motion.role.state.default}"
+            }
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "How long a filter chip takes to show or hide its check (the chip's width changes with it) and to change to or from the selected look."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

@@ -50,7 +50,7 @@
               "A select is the bare box and its list: it has no label row, no requirement tag, no help and no error text. In a form use the select field, which is a Field around a select; the tokens of those rows are comp.field.*.",
               "The box — container, edges, floating label, the line that shows the chosen value (input), the chevron (trailing-icon, at icon.size), heights and paddings at small, medium and large, and the colors of each look in each state — is comp.input-box.*, shared with the text input, the combobox, the number input and the color input. This group holds only the list.",
               "Every value of the list and of an option equals the menu's (comp.menu.surface.color, …). Change them together in a layer, or a product's lists stop reading as one kind.",
-              "The list's parts are list.*, option.*, group-title.*, divider.* and group.gap; an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
+              "The list's parts are list.*, option.*, group-title.*, divider.*, group.gap and status.* (the row after the options that says the source is loading, failed, or gave nothing); an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
               "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
@@ -166,8 +166,22 @@
           },
           "shape": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.small}",
-            "$description": "The corners of an option's row."
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "The corners of an option's row: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "sub",
+                "of": "{tanrei.comp.select.list.shape}",
+                "by": "{tanrei.comp.select.list.padding-inline}"
+              },
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.select.list.shape}",
+                "inset": "{tanrei.comp.select.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
             "$type": "dimension",
@@ -229,6 +243,30 @@
             "$description": "Inset of a group's heading from the rows' edges."
           }
         },
+        "status": {
+          "typescale": {
+            "$description": "The status row's text and the text shown while the select holds no option.",
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}"
+          },
+          "color": {
+            "$description": "The status row's text while nothing is wrong, and the text shown while the select holds no option: secondary to the options.",
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          },
+          "error": {
+            "color": {
+              "$description": "The status row's text while status is error. The words say what failed; the color says that something did.",
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product fills some of its selects from a source that takes time or can fail — the projects of an account, the people of a team — and must say, in the list, that it is waiting, that it failed, or that there is nothing to choose; how quiet that line is beside the options is its choice."
+            }
+          }
+        },
         "group": {
           "gap": {
             "$type": "dimension",
@@ -272,35 +310,35 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.default}",
             "$description": "How long a change of colors and edge widths takes."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long a ripple takes to grow over a pressed option."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the list takes to appear."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the list takes to go."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "stacked": {

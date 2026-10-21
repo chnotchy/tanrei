@@ -220,6 +220,23 @@ async function withScheme(context, scheme) {
   return ctx;
 }
 
+/**
+ * The layers a reference names, root first, once they pass the checks a build makes first (schema, components): what
+ * the component tools work from — they read a system's choice of components, not its values, so nothing is built.
+ */
+export function readValidLayers(input) {
+  const reference = describeReference(input);
+  let read;
+  try {
+    read = readChain(reference);
+  } catch (error) {
+    throw new ToolError(error.message);
+  }
+  const problems = layerProblems(reference, read);
+  if (problems.length) throw new ToolError(`"${read.id}" is not a valid layer. Fix these first (validate_layer reports the same list):`, { problems });
+  return { reference, id: read.id, chain: read.chain };
+}
+
 /** Build a chain of layers that exists only in memory — what propose_extension does to verify a proposal. */
 export function trialBuild(chain) {
   const layer = chain.at(-1);
@@ -451,7 +468,7 @@ export async function validateLayer(input) {
   if (problems.length) return { id: read.id, chain, valid: false, problems };
   try {
     const ctx = await loadContext(input);
-    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, ...(ctx.system.notices?.length ? { notices: ctx.system.notices } : {}), warnings: await ctx.warnings() };
+    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, warnings: await ctx.warnings() };
   } catch (error) {
     // What only the engine can see: a cycle, an alias to a token that does not exist, a rule the closed language lacks.
     return { id: read.id, chain, valid: false, problems: [error.message, ...(error.details?.problems ?? [])] };

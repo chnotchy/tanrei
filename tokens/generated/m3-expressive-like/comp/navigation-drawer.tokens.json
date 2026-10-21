@@ -28,7 +28,6 @@
               "item.supporting-text.color": "color",
               "item.trailing-text.color": "color",
               "item.trailing-icon.color": "color",
-              "item.badge.color": "color",
               "item.state-layer.color": "color"
             },
             "perComponent": {
@@ -51,7 +50,6 @@
               "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
               "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
               "breakpoint.expanded and breakpoint.collapsed are widths of the window, read only by a responsive drawer. They are not sizes of anything drawn, and alias the system's window classes (sys.breakpoint.expanded, sys.breakpoint.medium); set them here only to part this one component from the rest.",
-              "item.badge.color and item.badge.typescale are kept only for platforms that still draw a destination's trailing string as a badge; nothing in the current spec reads them.",
               "Restyle through these tokens in a layer; never fork the component.",
               "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content drawn on that container.",
               "The row model is the tree view's: chevron (start, end, none), guides (none, shown, hover), indent (auto, or a number), highlight (indented, full), iconSpace (auto, always, never), expandable, one-line labels with a tooltip only where cut, supporting text below or inline, and sticky parent rows. Read the tree view's tokens' rules for what each means; the drawer's tokens carry the same names."
@@ -619,14 +617,6 @@
               }
             }
           },
-          "badge": {
-            "typescale": {
-              "$type": "typography",
-              "$description": "Kept for the platforms that still draw a destination's trailing string as a badge, which draw it with this; the current spec reads item.trailing-text.typescale. Dropped once the last platform catches up.",
-              "$value": "{tanrei.sys.typescale.label}",
-              "$extensions": {}
-            }
-          },
           "supporting-text": {
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -713,13 +703,6 @@
                 "$value": "{tanrei.sys.color.on-surface-variant}"
               }
             },
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -734,7 +717,8 @@
               "color": {
                 "$type": "color",
                 "$value": "{tanrei.sys.color.secondary-container}",
-                "$description": "The active indicator: the selected row, in both forms."
+                "$description": "The active indicator: the selected row, in both forms. The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the destination's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered destination. A design system that sets this token draws what it sets.",
+                "$extensions": {}
               }
             },
             "icon-indicator": {
@@ -772,13 +756,6 @@
               "color": {
                 "$type": "color",
                 "$value": "{tanrei.sys.color.on-secondary-container}"
-              }
-            },
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
               }
             },
             "state-layer": {
@@ -836,13 +813,6 @@
                 "$type": "color",
                 "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
                 "$description": "Seen only while the drawer collapses."
-              }
-            },
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-text.color}",
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
               }
             },
             "state-layer": {
@@ -932,13 +902,6 @@
                 "$description": "Seen only while the drawer collapses."
               }
             },
-            "badge": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-text.color}",
-                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -964,35 +927,35 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a state change takes, and how long the item containers take to change color when the selection changes."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "selection-duration": {
             "$type": "duration",
@@ -1007,7 +970,7 @@
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of selection-duration.",
@@ -1017,7 +980,7 @@
           },
           "expand-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.resize.large}",
             "$description": "How long the drawer takes to widen from the icon column to its full width, or to narrow back, with every part that changes on the way (the edge, the labels, the active indicator, the header).",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -1028,7 +991,7 @@
           },
           "expand-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of expand-duration.",
@@ -1038,7 +1001,7 @@
           },
           "disclosure-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.disclosure}",
             "$description": "How long a group takes to open or close: its destinations revealed or hidden, the rows below moving, and its chevron turning.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
@@ -1049,7 +1012,7 @@
           },
           "disclosure-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "The curve of disclosure-duration.",

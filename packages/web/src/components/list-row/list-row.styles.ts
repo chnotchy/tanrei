@@ -104,6 +104,13 @@ export const styles = css`
   .trailing:not(.has) {
     display: none;
   }
+  /* LRW-16: the room of a leading glyph the row does not draw, kept where the List asks for it (LST-50): the glyph's
+     box, drawing nothing, the parts' gap after it. */
+  .leading-room {
+    flex: none;
+    inline-size: ${T('leading-icon-size')};
+    block-size: ${T('leading-icon-size')};
+  }
 
   /* LRW-2: the text takes the width that is left; its lines follow one another with no space between them. */
   .text {

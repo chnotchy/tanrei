@@ -2,7 +2,7 @@
 title: حقل العدد
 description: "يتيح للأشخاص إدخال عدد بوصفه عددًا: يُكتب بالصورة التي تكتبه بها إعداداتهم المحلية أو يُغيَّر خطوةً خطوةً بمفتاح أو بزر، ويبقى ضمن حدوده، ووحدته بجانبه. وهو حقل كامل واحد من حقول النموذج، مبني من حقل وحقل إدخال العدد."
 translationOf: components/number-field.mdx
-sourceHash: d14b4c010e77328467d20894bf802cdfa9ea87a5
+sourceHash: 3c1eabf6d7a809f831a180497a3ea74c23603162
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```html
     <form>
       <tanrei-number-field name="quantity" label="الكمية" value="1" min="1" max="99"
-        requirement="required" required-text="مطلوب" invalid-text="أدخِل رقمًا."
+        required required-text="مطلوب" invalid-text="أدخِل رقمًا."
         increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field>
     </form>
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، والزر الدوّار (spin button) نفسه عند التقنيات المساعدة، بالاسم والوصف والحالات نفسها:
 
 ```html
-<tanrei-field label="الكمية" requirement="required" required-text="مطلوب"
+<tanrei-field label="الكمية" required required-text="مطلوب"
   supporting-text="حتى 99 في الطلب الواحد.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="أدخِل رقمًا."
     increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
@@ -90,7 +90,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال العدد" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" requirement="required" required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" required required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
     <tanrei-number-input min="1" max="99" invalid-text="أدخِل رقمًا." locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -121,7 +121,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | الجزء | ما هو |
 | --- | --- |
 | التسمية | للحقل: فوق الحاوية (في الطراز `stacked`). وفي الطرازين `filled` و `outlined` يرسمها حقل إدخال العدد، عائمة داخل الصندوق، ولا يرسم الحقل صف التسمية. وهي الاسم المتاح للتقنيات المساعدة، سواء رُسمت أم أُخفيت بالخاصية `labelHidden` |
-| علامة المطلوب أو الاختياري | للحقل، بعد التسمية: وسم المطلوب أو نجمة أو لا شيء حين تكون `requirement="required"`، ووسم الاختياري حين تكون `optional`. والتسمية العائمة تأخذ النجمة |
+| علامة المطلوب أو الاختياري | للحقل، بعد التسمية: وسم المطلوب أو نجمة أو لا شيء حين تكون `required`، ووسم الاختياري حين تكون `optional`. والتسمية العائمة تأخذ النجمة |
 | حقل الإدخال | لحقل إدخال العدد: العدد نصًّا. هو ما كتبه الشخص ما دام يعدّل، وفي غير ذلك العدد المعتمَد بالصورة التي تكتبه بها الإعدادات المحلية. سطر واحد، يُمرَّر |
 | البادئة واللاحقة | لحقل إدخال العدد: نص ثابت قبل العدد وبعده، كعلامة عملة أو وحدة. وهما جزء من الصندوق، لا من القيمة أبدًا |
 | زرّا التدرّج | لحقل إدخال العدد: زرّان في النهاية، الأول ينقص العدد خطوة، والثاني يزيده خطوة. يُتركان بجعل `steppers` بالقيمة false |
@@ -191,7 +191,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يرسمه الويب بطريقة مختلفة
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-number-input>`. واستيراد حقل العدد يعرّف الاثنين.
-- حقل العدد عنصر مرتبط بالنماذج (form-associated)، وهو عنصر التحكم الوحيد الذي يلقاه نموذجه. يأخذ `name`، ويرسل قيمته عددًا عشريًّا مجرَّدًا (`12.5`) أيًّا كان ما تعرضه الإعدادات المحلية. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `requirement="required"` وهو لا يحمل عددًا، وبأن الإدخال غير صالح ما دام نصه ليس عددًا.
+- حقل العدد عنصر مرتبط بالنماذج (form-associated)، وهو عنصر التحكم الوحيد الذي يلقاه نموذجه. يأخذ `name`، ويرسل قيمته عددًا عشريًّا مجرَّدًا (`12.5`) أيًّا كان ما تعرضه الإعدادات المحلية. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `required` وهو لا يحمل عددًا، وبأن الإدخال غير صالح ما دام نصه ليس عددًا.
 - هو كتلة بعرض مكانه. وفي مكان لا يعطي عرضًا تجعله التسمية الطويلة أعرض من صندوقه: فأعطِه عرضًا هناك.
 - الأجزاء هي أجزاء العضوين، بأسمائها: `label` و `label-icon` و `requirement-label` و `supporting-text` من الحقل؛ و `container` و `outline` و `active-indicator` و `input` و `prefix` و `suffix` و `stepper` من حقل إدخال العدد. والجزءان `label` و `requirement-label` يبلغان المرسوم من الاثنين أيًّا كان؛ أما `field-label` و `number-input-label` فيبلغان واحدًا. والعضوان هما الجزءان `field` و `number-input`.
 - في الحدث `entryerror` تكون `detail.text` هي `invalidText` في حقل الإدخال، وتكون فارغة حيث لم يُعطَ نص. وأنواع التفاصيل (detail) هي أنواع حقل إدخال العدد: `TanreiNumberInputInputDetail` و `TanreiNumberInputEntryErrorDetail`.
@@ -242,7 +242,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - حقل الإدخال زر دوّار (spin button). اسمه هو `label`، مرسومةً كانت أو مخفيّة، وليس النص النائب أبدًا.
 - قيمته هي العدد المعتمَد، وحدّاه هما `min` و `max`.
 - النص المساعد أو نص الخطأ المعروض هو وصفه، ومعه `optionalText` ما دام الحقل اختياريًّا.
-- يُعرض على أنه غير صالح ما دامت `error` بالقيمة true أو ما دام نصه ليس عددًا، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`، وعلى أنه للقراءة فقط.
+- يُعرض على أنه غير صالح ما دامت `error` بالقيمة true أو ما دام نصه ليس عددًا، وعلى أنه مطلوب ما دامت `required` معيَّنة، وعلى أنه للقراءة فقط.
 - الخطأ الذي يظهر والتركيز على الحقل يُعلَن مرة واحدة، بتهذيب، وكذلك النص الذي ليس عددًا.
 - زرّا التدرّج زرّان تسمّيهما `decrementLabel` و `incrementLabel`؛ والزر الذي لم يسمِّه أحد مخفيّ عن التقنيات المساعدة. وهما خارج ترتيب التركيز، لأن مفاتيح الأسهم تغيّر العدد من حقل الإدخال؛ ومن يستكشف باللمس يجدهما مع ذلك.
 - الضغط على زر تدرّج لا ينقل التركيز، فلا يُظهر لوحة المفاتيح التي على الشاشة.

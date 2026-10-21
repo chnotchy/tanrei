@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -8,6 +8,7 @@ import type { TanreiListItemFrame } from '../list/list.js';
 import '../tooltip/tooltip.js';
 import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES, styles } from './list-row.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
 export type TanreiListRowDensity = keyof TanreiListRowDensityRegistry;
@@ -62,7 +63,7 @@ function hearEscape() {
  * @slot leading - Content at the row's start in place of `leading-icon`: an avatar, a picture, or — while the row is static — a checkbox, a radio button or a switch. Drawn at its own size, given no style.
  * @slot trailing - Content at the row's end, after the trailing text and before the trailing glyph: a badge, or — while the row is static — a switch, a checkbox or an icon-only Button.
  * @csspart container - The row's box: its paddings and its least height.
- * @csspart leading - The box of the leading part.
+ * @csspart leading - The box of the leading part: the slot's content, the glyph, or — where the List asks for it (its `icon-space`, LRW-16) — a glyph's room, empty.
  * @csspart leading-icon - The glyph `leading-icon` names.
  * @csspart text - The column of the overline, the headline and the supporting text.
  * @csspart overline - The line above the headline.
@@ -72,7 +73,7 @@ function hearEscape() {
  * @csspart trailing - The box of the trailing slot.
  * @csspart trailing-icon - The glyph `trailing-icon` names.
  */
-export class TanreiListRow extends LitElement {
+export class TanreiListRow extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'list-row');
   static override styles = styles;
 
@@ -138,6 +139,11 @@ export class TanreiListRow extends LitElement {
   /** @internal LST-49: the description the row gives an action, a link or an option: its overline, supporting text and trailing text. */
   get listItemDescription(): string {
     return [this.overline, this.supportingText, this.trailingText].map(spoken).filter(Boolean).join(' ');
+  }
+
+  /** @internal LST-50: the row draws a glyph as its leading part — its leadingIcon, with the leading slot empty. */
+  get listItemGlyph(): boolean {
+    return !this.leadingFilled && spoken(this.leadingIcon) !== '';
   }
 
   /** LRW-3: the number of lines of text. */
@@ -291,8 +297,9 @@ export class TanreiListRow extends LitElement {
     if ((changed.has('leadingIcon') || (changed as Map<PropertyKey, unknown>).has('leadingFilled')) && this.leadingFilled && spoken(this.leadingIcon)) {
       report(this, 'LRW-4', `leadingIcon "${this.leadingIcon}" is not drawn: the leading slot holds content, which is drawn in its place`);
     }
-    // LST-49, LRW-14: the item this row is in takes its new name and description.
-    if (this.hasUpdated && ['headline', 'overline', 'supportingText', 'trailingText'].some((key) => changed.has(key as keyof TanreiListRow)) && !changed.has('listItemFrame')) this.ask();
+    // LST-49, LRW-14: the item this row is in takes its new name and description. LST-50: the list hears whether the
+    // row draws a leading glyph.
+    if (this.hasUpdated && ['headline', 'overline', 'supportingText', 'trailingText', 'leadingIcon', 'leadingFilled'].some((key) => (changed as Map<PropertyKey, unknown>).has(key)) && !changed.has('listItemFrame')) this.ask();
   }
 
   protected override firstUpdated() {
@@ -308,15 +315,21 @@ export class TanreiListRow extends LitElement {
     const leadingIcon = spoken(this.leadingIcon);
     const trailingIcon = spoken(this.trailingIcon);
     const drawsIcon = !this.leadingFilled && leadingIcon !== '';
+    // LRW-16: without a leading part of its own, the row keeps a glyph's room where the list asks for it (LST-50).
+    const keepsRoom = !this.leadingFilled && !drawsIcon && !!frame?.leadingRoom;
     return html`
       <div
         part="container"
         class=${classMap({ row: true, two: lines === 2, three: lines === 3, boxed: !!frame?.boxed, handled: !!frame?.handled, selected: !!frame?.selected, disabled: !!frame?.disabled })}
       >
         <div class="parts">
-          <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon })}>
+          <span part="leading" class=${classMap({ leading: true, has: this.leadingFilled || drawsIcon || keepsRoom })}>
             <slot name="leading" @slotchange=${this.onLeadingChange}></slot>
-            ${drawsIcon ? html`<span part="leading-icon" class="leading-icon" aria-hidden="true"><span class="ink">${leadingIcon}</span></span>` : nothing}
+            ${drawsIcon
+              ? html`<span part="leading-icon" class="leading-icon" aria-hidden="true"><span class="ink">${leadingIcon}</span></span>`
+              : keepsRoom
+                ? html`<span class="leading-room" aria-hidden="true"></span>`
+                : nothing}
           </span>
           <span part="text" class="text">
             ${overline ? html`<span part="overline" class="overline"><bdi>${overline}</bdi></span>` : nothing}

@@ -32,7 +32,7 @@
     },
     {
       "id": "remove",
-      "description": "An input chip's trailing remove action: the glyph `cancel` of the system's icon set, drawn filled, on a round container that carries its own hover, focus and press and sits concentric with the chip's round end: as far from the end as from the top and the bottom. A separate button for assistive technology. By default it reads as destructive: it takes the error color while it is hovered, focused or pressed (destructiveRemove).",
+      "description": "An input chip's trailing remove action: the glyph `cancel` of the system's icon set, drawn filled, on a round container that carries its own hover, focus and press and sits concentric with the chip's round end: as far from the end as from the top and the bottom. A separate button for assistive technology. It takes the error color while it is hovered, focused or pressed only while destructiveRemove is true.",
       "optional": true
     },
     {
@@ -81,6 +81,12 @@
       "description": "Whether a filter chip is on. Ignored unless kind is filter."
     },
     {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "What a component that holds the selection of a set of filter chips names this chip by: the Tag group's value and values (TGR-17). Unique within the set. Not drawn and not exposed; the chip itself does nothing with it."
+    },
+    {
       "name": "disabled",
       "type": "boolean",
       "default": false,
@@ -124,8 +130,8 @@
     {
       "name": "destructiveRemove",
       "type": "boolean",
-      "default": true,
-      "description": "Whether an input chip's remove action reads as destructive: at rest it looks as it does without the flag; while it is hovered, keyboard-focused or pressed its glyph and state layer take the error color. Set it to false where removing an item loses nothing (a filter the user can add back in one step). It changes color only: the remove action's name, glyph, size and behaviour are the same either way. Ignored unless kind is input."
+      "default": false,
+      "description": "Whether an input chip's remove action reads as destructive: at rest it looks as it does without the flag; while it is hovered, keyboard-focused or pressed its glyph and state layer take the error color. Set it where removing the item loses something that cannot be put back in a step (an attachment, a recipient already invited); leave it off where the person can put the item back in one step (an applied filter, a search term). It changes color only: the remove action's name, glyph, size and behaviour are the same either way. Ignored unless kind is input."
     },
     {
       "name": "removable",
@@ -202,7 +208,7 @@
     },
     {
       "id": "CHP-9",
-      "text": "WHILE pressed THE chip SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.chip.motion.feedback-duration with comp.chip.motion.state-easing, fades over comp.chip.motion.state-duration with comp.chip.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "text": "WHILE pressed THE chip SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.chip.motion.feedback-duration with comp.chip.motion.state-easing, fades over the state duration of its size (comp.chip.motion.state-duration.small or .medium) with comp.chip.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
       "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
     },
     {
@@ -260,11 +266,11 @@
     },
     {
       "id": "CHP-23",
-      "text": "THE chip SHALL be one tab stop — an input chip too: its remove action is not a stop (CHP-18), and Backspace or Delete on the chip removes it (CHP-19) — unless the component that holds it gives its set one stop and the keys to reach each chip (the chip field, CHF-11) — and SHALL NOT handle arrow keys; moving between chips with arrow keys, choosing one or several filter chips of a set, and wrapping or scrolling a row belong to the layout that holds the chips."
+      "text": "THE chip SHALL be one tab stop — an input chip too: its remove action is not a stop (CHP-18), and Backspace or Delete on the chip removes it (CHP-19) — unless the component that holds it gives its set one stop and the keys to reach each chip (the chip field, CHF-11; a tag group that holds a selection, TGR-20) — and SHALL NOT handle arrow keys; moving between chips with arrow keys, choosing one or several filter chips of a set, and wrapping or scrolling a row belong to the layout that holds the chips."
     },
     {
       "id": "CHP-24",
-      "text": "WHEN the elevation or the colors of the chip change between states THE chip SHALL animate the change over comp.chip.motion.state-duration with comp.chip.motion.state-easing, and SHALL change them at once where motion is reduced."
+      "text": "WHEN the elevation or the colors of the chip change between states THE chip SHALL animate the change over the state duration of its size (comp.chip.motion.state-duration.small or .medium) with comp.chip.motion.state-easing, and SHALL change them at once where motion is reduced."
     },
     {
       "id": "CHP-25",
@@ -277,7 +283,7 @@
     {
       "id": "CHP-27",
       "text": "WHILE kind is input and destructiveRemove is true THE chip SHALL render the remove action's round container and glyph from the destructive-remove parts of its variant in the remove action's own state (comp.chip.outlined.destructive-remove.container.color and comp.chip.outlined.destructive-remove.icon.color at rest, and so on), whose hovered, focused and pressed container mixes comp.chip.outlined.destructive-remove.state-layer.color and whose hovered, focused and pressed glyph takes the error color (in the default system both are the error role); at rest and while disabled the remove action SHALL look as it does with destructiveRemove false. WHILE destructiveRemove is false THE chip SHALL render the remove action from the remove parts (CHP-20). WHERE kind is not input THE chip SHALL ignore destructiveRemove.",
-      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently, with destructiveRemove true and false: at rest the two render alike; hovered, focused and pressed they differ."
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently, with destructiveRemove true (`input-destructive-remove`, the one fixture that draws the destructive remove action) and false (`input-plain-remove`, and `input`, which leaves it at its default): at rest the two render alike; hovered, focused and pressed they differ. Under the default system, an input chip that leaves destructiveRemove at its default does not take the error color while its remove action is hovered, focused or pressed."
     },
     {
       "id": "CHP-28",
@@ -329,6 +335,11 @@
     {
       "id": "CHP-38",
       "text": "WHILE kind is input and removable is false THE chip SHALL draw no remove action, SHALL have no stop for one and SHALL emit no remove, and SHALL keep the padding of a chip without one. WHILE kind is not input THE chip SHALL ignore removable."
+    },
+    {
+      "id": "CHP-39",
+      "text": "WHEN a pointer or touch press lands on an input chip anywhere but on its remove action THE chip SHALL NOT let that press give the remove action focus: focus SHALL go where the platform puts it for a press on a button — to the chip itself where a pressed button takes focus, and nowhere in the chip where it takes none — so that the next Enter or Space activates the chip and never removes it. THE remove action SHALL still take focus when it is pressed itself or moved to by assistive technology or by the product, and the chip SHALL keep the Tab order of CHP-23.",
+      "verify": "Safari on macOS gives a pressed button no focus, and it delegates the press to the first part that takes focus on a click — on the web an element with a tabindex — which the remove action is (CHP-18). Test a press on the label, the leading avatar and the padding of an input chip: the remove action does not hold focus, focus is where it is after the same press on an action chip, and the chip's own focus() followed by Enter emits click, not remove. Engines that focus a pressed button do not show the defect, so test the same presses again with that focus rule simulated."
     }
   ],
   "accessibility": {
@@ -352,7 +363,7 @@
     "notes": [
       "A filter chip is a button with a pressed state (aria-pressed on the web, the selected trait on Apple platforms, a toggleable state on Android), as a toggle Button is, not a checkbox.",
       "An input chip is two elements on every platform: the chip (role button) and its remove action (role button, named by removeLabel). On the web the remove action is a second `<button>` in the shadow root; on the other platforms it is its own accessibility element with its own hit area. It is one Tab stop: the remove action stays out of the Tab order, as the delete icon of MUI's Chip, the remove button of React Aria's TagGroup and the dismiss of Fluent's Tag do, and the keyboard removes the chip with Backspace or Delete on the chip itself, as a person who removes several entries in a row expects — one press each, without a second stop per chip to pass.",
-      "The chip does not group itself. A row of chips is laid out, and its keyboard model (one tab stop with arrow keys, single or multiple selection among filter chips, focus after a removal) is provided, by the layout that holds the chips; Tanrei has no chip group.",
+      "The chip does not group itself. A row of chips is laid out in wrapping lines, exposed as one list and given focus after a removal by the Tag group (TGR-1, TGR-7, TGR-9), or by the layout that holds the chips; one Tab stop with arrow keys, and single or multiple selection among filter chips, are a Tag group's that holds a selection (TGR-17 to TGR-21), or a Toolbar's.",
       "destructiveRemove adds a color, never a meaning: the name removeLabel, the cancel glyph and the button role already say what the action does, so a person who cannot tell the error color from the resting one loses nothing (WCAG 1.4.1). The error glyph is a graphical object and keeps at least 3:1 against the chip's container in every scheme of the default system: the error role is held to 4.5:1 on every surface role by the token invariants, and the outlined chip shows a surface through its clear container while the elevated one is surface-container-lowest; under the state layer the lowest ratio is 3.98:1 (light scheme, on surface-container-highest, at the focus and pressed opacity).",
       "The label does not wrap; at 200% text size the chip grows in height and the layout that holds a row lets it wrap to the next line or scroll.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
@@ -577,6 +588,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "disabled",
         "label": "label",
         "removeLabel": "removeLabel",
@@ -591,7 +603,7 @@
         "change": "change",
         "remove": "remove"
       },
-      "notes": "`removeLabel` is reflected as the `remove-label` attribute. `destructiveRemove` is a boolean property that defaults to true; its attribute is the inverse `no-destructive-remove`, because an HTML boolean attribute cannot default to true. The icon is the `icon` slot and the avatar the `avatar` slot. A filter chip switches its own `selected` and fires `change`, as a toggle Button does; `remove` is a custom event and the element stays in the DOM until the page removes it. With `href` an action chip's shadow root holds an `<a>` in place of its `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. `removable` is a boolean property that defaults to true; its attribute is the inverse, `not-removable`, as `destructiveRemove`'s is `no-destructive-remove`. The remove action's `<button>` has `tabindex=\"-1\"` (CHP-18): pressable by pointer and assistive technology, focusable by `focus()`, passed by Tab; while the chip removes, its own button or link carries `aria-keyshortcuts=\"Delete Backspace\"` (CHP-19). A component that holds chips as a set and gives the set one stop (CHP-23, the chip field) takes each chip and its remove action out of the Tab order in the way the toolbar holds its Buttons."
+      "notes": "`removeLabel` is reflected as the `remove-label` attribute. `destructiveRemove` is a boolean property that defaults to false, reflected as the `destructive-remove` attribute. The icon is the `icon` slot and the avatar the `avatar` slot. A filter chip switches its own `selected` and fires `change`, as a toggle Button does; `remove` is a custom event and the element stays in the DOM until the page removes it. With `href` an action chip's shadow root holds an `<a>` in place of its `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. `removable` is a boolean property that defaults to true; its attribute is the inverse, `not-removable`, because an HTML boolean attribute cannot default to true. The remove action's `<button>` has `tabindex=\"-1\"` (CHP-18): pressable by pointer and assistive technology, focusable by `focus()`, passed by Tab; while the chip removes, its own button or link carries `aria-keyshortcuts=\"Delete Backspace\"` (CHP-19). A component that holds chips as a set and gives the set one stop (CHP-23, the chip field) takes each chip and its remove action out of the Tab order in the way the toolbar holds its Buttons. A mouse press anywhere on an input chip but its remove action takes the remove action's `tabindex` away until that press has placed focus (CHP-39): Safari on macOS gives a pressed `<button>` no focus and delegates the press to the first element with a tabindex in the shadow root, which would otherwise be the remove action."
     },
     "swiftui": {
       "status": "lagging",
@@ -601,6 +613,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "isSelected",
+        "value": "value",
         "disabled": "disabled",
         "label": "title",
         "removeLabel": "removeLabel",
@@ -615,7 +628,7 @@
         "change": "isSelected",
         "remove": "onRemove"
       },
-      "notes": "Kind is chosen by initializer: `init(_:action:)` is an action chip, `init(_:isSelected:)` (a `Binding<Bool>`) a filter chip, `init(_:removeLabel:destructiveRemove:action:onRemove:)` an input chip, with `destructiveRemove` defaulting to true. The remove action is a second `Button` placed beside the chip's own, never inside it, so VoiceOver reaches it as its own element. `disabled` follows `.disabled(_:)`. The link form, not built on this platform yet: the initializer `init(_:destination:)`, which takes a `URL` in place of `action:` (the filter and input initializers take none) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the remove action out of the focus order, with the keys of CHP-19 told to assistive technology — here it is still a second stop after the chip (CHP-18, CHP-19, CHP-23); `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23). Lagging behind CHP-14 (the check drawn at comp.chip.check.weight): its check is drawn at sys.icon.weight."
+      "notes": "Kind is chosen by initializer: `init(_:action:)` is an action chip, `init(_:isSelected:)` (a `Binding<Bool>`) a filter chip, `init(_:removeLabel:destructiveRemove:action:onRemove:)` an input chip, with `destructiveRemove` defaulting to false. The remove action is a second `Button` placed beside the chip's own, never inside it, so VoiceOver reaches it as its own element. `disabled` follows `.disabled(_:)`. The link form, not built on this platform yet: the initializer `init(_:destination:)`, which takes a `URL` in place of `action:` (the filter and input initializers take none) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the remove action out of the focus order, with the keys of CHP-19 told to assistive technology — here it is still a second stop after the chip (CHP-18, CHP-19, CHP-23); `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23). Lagging behind CHP-14 (the check drawn at comp.chip.check.weight): its check is drawn at sys.icon.weight."
     },
     "compose": {
       "status": "lagging",
@@ -625,6 +638,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "enabled",
         "label": "label",
         "removeLabel": "removeContentDescription",
@@ -649,6 +663,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "isEnabled",
         "label": "label",
         "removeLabel": "removeSemanticLabel",
@@ -673,6 +688,7 @@
         "variant": "variant",
         "size": "size",
         "selected": "selected",
+        "value": "value",
         "disabled": "disabled",
         "label": "label",
         "removeLabel": "removeAccessibilityLabel",

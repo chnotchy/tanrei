@@ -2,7 +2,7 @@
 title: عنصر الاختيار
 description: "يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة: مشغِّل له مظهر صندوق حقل إدخال النص ومقاساته ويعرض الخيار المختار، وقائمة بالخيارات تُفتح منه ويمكن تقسيمها إلى مجموعات، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. يصلح لشريط أو شريط أدوات أو جدول، أو داخل حقل يركّبه المنتج بنفسه."
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 4411a99a32ab8adee270398cbe94503b9490d9de
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بعنصر الاختيار هو حقل اختيار مكتوب بالتفصيل. اترك `label` الخاصة بعنصر الاختيار فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` والخيارات وكل ما يخص الاختيار على عنصر الاختيار.
 
 ```html
-<tanrei-field label="البلد" requirement="required" required-text="مطلوب"
+<tanrei-field label="البلد" required required-text="مطلوب"
   supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
   <tanrei-select name="country" placeholder="اختر بلدًا">
     <tanrei-option value="jp">اليابان</tanrei-option>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="حقل فيه عنصر الاختيار: الصورة نفسها التي لحقل الاختيار" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" requirement="required" required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-select placeholder="اختر بلدًا">
       <tanrei-option value="jp">اليابان</tanrei-option>
       <tanrei-option value="ke">كينيا</tanrei-option>
@@ -175,7 +175,32 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | المجموعة | سلسلة من الخيارات تحت عنوان اختياري. وتُفصل المجموعات بفاصل أو بفجوة من الفراغ، كما يقول نظام التصميم أو الخاصية `separation` |
 | الخيار المعطَّل | يبقى الوصول إليه بمفاتيح الأسهم ممكنًا، ليعرف الناس أنه موجود، ولا يُختار أبدًا |
 
+يقف رمز الخيار في عمود قبل تسميته. وتقرر الخاصية `iconSpace` أين يُحتفظ بهذا العمود في خيار بلا رمز. تحتفظ به `auto` (الافتراضية) في قسم فيه خيار آخر له رمز، لتبدأ تسميات القسم على خط واحد، ولا تحتفظ به في قسم بلا رموز؛ والقسم مجموعة، أو سلسلة من الخيارات المتجاورة خارج أي مجموعة. وتحتفظ به `always` في كل خيار، و`never` في الخيار الذي له رمز فقط. وفي [قائمة الخيارات](/ar/components/menu/) الخاصية `iconSpace` نفسها، بالقيم نفسها والقيمة الافتراضية نفسها.
+
 الخيار الذي قيمته السلسلة الفارغة خيار كغيره، يصلح لمعنى «لا شيء» أو «أيّ خيار». وليس في عنصر الاختيار سبيل من عنده للعودة إلى حالة لا شيء فيها مختار: حيث يجوز ألّا يُختار شيء، أعطِ خيارًا يقول ذلك.
+
+### التحميل والإخفاق وعدم وجود ما يُختار
+
+حيث تأتي الخيارات من مصدر يستغرق وقتًا أو قد يخفق، قل ذلك في القائمة. والخصائص `status` و`statusText` و`emptyText` هي خصائص [مربع التحرير والسرد](/ar/components/combobox/) و[البحث](/ar/components/search/)، بالقيم نفسها والمعنى نفسه.
+
+| ما تضبطه | ما تعرضه القائمة بعد خياراتها |
+| --- | --- |
+| `status="loading"` و`statusText` | مؤشر تحميل صغير اسمه `statusText` («جارٍ تحميل المشاريع»). وتُعلَّم القائمة بأنها مشغولة ولا يُعلَن شيء. والخيارات الموجودة من قبل يمكن اختيارها |
+| `status="error"` و`statusText` | النص بلون الخطأ، ويُقرأ في الحال («تعذّر تحميل المشاريع») |
+| `statusText` وحده | النص، ويُقرأ بتهذيب («أحدث 3 مشاريع لك») |
+| `emptyText`، ما دام لا خيار | النص في مكان الخيارات («لا توجد مشاريع بعد») |
+
+يبقى صف الحالة هذا ظاهرًا بينما تُمرَّر الخيارات. وهو ليس خيارًا: الضغط عليه لا يفعل شيئًا، ولا تصل إليه مفاتيح الأسهم أبدًا. وما يقوله حين تُفتح القائمة يُقرأ عند فتحها.
+
+لا يجلب عنصر الاختيار شيئًا ولا ينتظر ولا يعيد المحاولة أبدًا. اضبط `status` على `loading` حين تبدأ، وأعطِ الخيارات وأعِده إلى `idle` حين تصل، أو اضبطه على `error` مع كلمات تصف الإخفاق.
+
+عنصر الاختيار الذي لا خيار فيه ولا حالة ولا `emptyText` لا يُفتح. أعطِه `emptyText`، أو أعطِ كلمة المنتج `noOptionsText` مرة واحدة عبر `setWords()`، كي يعرف من يفتحه لماذا لا يوجد ما يُختار.
+
+<DemoFrame label="التحميل والإخفاق وعدم وجود ما يُختار" column>
+  <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" status="loading" status-text="جارٍ تحميل المشاريع"></tanrei-select>
+  <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" status="error" status-text="تعذّر تحميل المشاريع. تحقّق من اتصالك."></tanrei-select>
+  <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" empty-text="لا توجد مشاريع بعد"></tanrei-select>
+</DemoFrame>
 
 ### الفتح والتنقل والاختيار
 
@@ -203,8 +228,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الحدث `change` يعبر حدود جذر الظل (composed) ويتصاعد (bubbles). والحدث `toggle` يعبر حدود جذر الظل ولا يتصاعد: يُسمع على عنصر الاختيار، وعلى حقل الاختيار المحيط به، ولا يسمعه أبدًا عنصر سلف مثل `<details>`.
 - القائمة عنصر له `popover="manual"` في الطبقة العليا (top layer). والضغط في الخارج يغلقها ويصل أيضًا إلى العنصر الذي تحته.
 - التسمية العائمة (في الطرازين `filled` و `outlined`) تقع داخل الحاوية، فالضغط عليها يفتح القائمة.
-- الخصائص `supporting-text` و `error-text` و `requirement` و `required-mark` و `required-text` و `optional-text`، والفرع الموضوع للمنفذ `label-icon`، هي لحقل الاختيار وللحقل. وعلى عنصر الاختيار لا ترسم شيئًا؛ وبنية التنقيح (debug) تقول ذلك مرة واحدة وتسمّي `<tanrei-select-field>`.
-- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`.
+- الخصائص `supporting-text` و `error-text` و `required` و `optional` و `required-mark` و `required-text` و `optional-text`، والفرع الموضوع للمنفذ `label-icon`، هي لحقل الاختيار وللحقل. وعلى عنصر الاختيار لا ترسم شيئًا؛ وبنية التنقيح (debug) تقول ذلك مرة واحدة وتسمّي `<tanrei-select-field>`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`، `status`.
+- إذا تُركت `empty-text` فارغة فإنها تُقرأ من كلمات المنتج (`setWords({ noOptionsText })`).
 - قبل أن يُعرَّف العنصر، تكون خياراته نصًّا جاريًا في الصفحة. أخفِ `tanrei-select:not(:defined) > *` واحجز الارتفاع.
 - ليس للويب إيماءة رجوع خاصة به، فلا يحمل الحدث `toggle` السبب `back` أبدًا.
 - الخاصية `readOnly` هي خاصية HTML `readonly`.
@@ -268,7 +294,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - عند تكبير النص إلى 200% تلتفّ الخيارات والعناوين. والقيمة التي في الحاوية وحدها تبقى في سطر واحد، والقائمة والتقنيات المساعدة تعطيانها كاملة مع ذلك.
 - في الألوان المفروضة (forced colors) يكتسب المشغِّل والقائمة حدًّا، ويأخذ الخيار النشط ألوان التمييز، ويُعرف الخيار المختار بعلامة الصح.
 - في تخطيط من اليمين إلى اليسار ينعكس المشغِّل وكل صف، ويحتفظ كل نص باتجاهه. والسهم الصغير وعلامة الصح لا ينعكسان.
-- ليست له كلمات من عنده ولا يقرأ أي كلمة.
+- صف الحالة منطقة حية خارج مربع القائمة. وما يقوله يُقرأ حين تُفتح القائمة وحين يتغير: بتهذيب، وفي الحال حين يخفق المصدر. وفي أثناء التحميل يُعلَّم مربع القائمة بأنه مشغول ولا يُعلَن شيء.
+- ليست له كلمات من عنده. وإذا تُركت `emptyText` فارغة فإنها تُقرأ من كلمات المنتج (`noOptionsText`).
 
 فجوات معروفة على الويب:
 
@@ -281,3 +308,4 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - سمِّ كل عنصر اختيار مجرَّد بالخاصية `label`، وأعطِ كل خيار تسمية. والنص المرئي بجانب عنصر الاختيار لا يسمّيه.
 - حيث يمكن أن يكون عنصر الاختيار المجرَّد خاطئًا، قل ما الخطأ بكلمات تبلغ التقنيات المساعدة: رسالة من عندك مربوطة بالصفحة، أو حقل حول عنصر الاختيار.
 - أبقِ قيم الخيارات فريدة داخل عنصر الاختيار الواحد.
+- اكتب `statusText` في أثناء التحميل، لأنه اسم مؤشر التحميل، واكتب `emptyText` حيث يمكن أن يبقى عنصر الاختيار بلا خيارات.

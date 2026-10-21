@@ -4,8 +4,11 @@ self-hosted-runner:
   labels:
     - macos-26
 # actionlint 1.7.12 predates the job key `cache-mode` (GitHub Actions, generally available since 2026-09-10), which
-# the release jobs set to `none`. Drop this entry once actionlint knows the key.
+# the release jobs and the docs deployment set to `none`. Drop this entry once actionlint knows the key.
+# actionlint 1.7.12 also predates the self-repository form `$/…` of `uses:` (GitHub, 2026-07-30), which release.yml
+# uses to call ci.yml. Drop that entry once actionlint knows the form.
 paths:
   .github/workflows/**/*.yml:
     ignore:
       - 'unexpected key "cache-mode" for "job" section'
+      - 'reusable workflow call "\$/\.github/workflows/ci\.yml" at "uses" is not following the format'

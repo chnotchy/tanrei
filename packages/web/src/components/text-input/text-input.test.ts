@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
@@ -713,7 +715,7 @@ test.describe('behavior', () => {
 
   test('TXI-14: the label moves over motion.label-*, colors and widths over motion.state-*, and both at once where motion is reduced', async ({ page }) => {
     const id = 'outlined-empty';
-    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration'), 'duration')];
+    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration-medium'), 'duration')];
     /**
      * Focuses the input and reads the transitions each part runs, in one task: getAnimations() flushes the style change,
      * so every transition the focus starts is read before any of them can finish — however long a busy machine takes
@@ -1143,7 +1145,7 @@ test.describe('behavior', () => {
     expect(seen.find((w) => w.includes('TXI-23'))).toContain('no accessible name');
     // A bare input is never required, and has no requirement to set.
     await expect(input(page, 'stacked-empty')).toHaveJSProperty('required', false);
-    expect(await host(page, 'stacked-empty').evaluate((el) => ['requirement', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
+    expect(await host(page, 'stacked-empty').evaluate((el) => ['optional', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
     // In a Field: the Field's label is the name, drawn or hidden; the input's own label wins.
     await frame(page, 'named', { label: 'City', supportingText: 'Where you live.' }, { prefixText: 'JP', counter: true, maxLength: 20 });
     await frame(page, 'hidden', { label: 'Hidden', labelHidden: true }, {});
@@ -1160,7 +1162,7 @@ test.describe('behavior', () => {
       ['req-asterisk', { requiredMark: 'asterisk' }, {}],
       ['req-outlined', {}, { variant: 'outlined' }],
     ] as const) {
-      await frame(page, id, { label: 'City', requirement: 'required', ...field }, { name: 'city', ...props });
+      await frame(page, id, { label: 'City', required: true, ...field }, { name: 'city', ...props });
       await expect(input(page, id), id).toHaveJSProperty('required', true);
       expect(await host(page, id).evaluate((el) => [(el as any).validity.valueMissing, (el as any).validationMessage !== '']), id).toEqual([true, true]);
     }
@@ -1169,11 +1171,11 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'req-none').evaluate((el) => (el as any).validity.valid)).toBe(true);
     await expect(input(page, 'req-none')).not.toHaveAttribute('aria-invalid');
     // Optional: not required; the Field adds its optional text to the description.
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     await expect(input(page, 'optional')).toHaveJSProperty('required', false);
     await expect(host(page, 'optional').getByRole('textbox')).toHaveAccessibleDescription('Optional');
     // The Field takes its requirement back: the input is not required any more.
-    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).requirement = 'none'));
+    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).required = false));
     await expect(input(page, 'req-tag')).toHaveJSProperty('required', false);
     expect(seen.filter((w) => w.includes('TXI-23')), 'a framed input is named by its Field').toHaveLength(1);
   });
@@ -1258,7 +1260,7 @@ test.describe('behavior', () => {
       await blurAll(page);
     }
     // It changes over motion.state-*.
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const running = await host(page, 'stacked-empty').evaluate((el) => {
       const root = el.shadowRoot!;
       root.querySelector<HTMLElement>('.input')!.focus();
@@ -1435,7 +1437,7 @@ test.describe('behavior', () => {
     // In a Field, which shows the words of the refusal in its supporting row and announces them (FLD-28).
     await frame(page, 'd', { label: 'Due', supportingText: 'By the end of the year.' }, { type: 'date', locale: 'en-US', max: '2026-12-31', invalidText: 'Finish the date.', unavailableText: 'Too late.' });
     await frame(page, 'listed', { label: 'On', errorText: 'Check the date.' }, { type: 'date', locale: 'en-US', disabledDates: ['2026-09-27'] });
-    await frame(page, 'req', { label: 'Born', requirement: 'required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'req', { label: 'Born', required: true }, { type: 'date', locale: 'en-US' });
     const id = 'd';
     await listenDates(host(page, id));
     const committed = async () => (await dateEvents(page)).filter((e) => !e.startsWith('input:'));
@@ -1672,7 +1674,7 @@ test.describe('behavior', () => {
 
   test('TXI-6: the resize grip, a floating label’s asterisk and the segments are drawn from the tokens of the highest-precedence state, and the focused segment is highlighted in selection.color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    await frame(page, 'required', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'required', { label: 'Email', required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
     const colors = { 'required-asterisk': 'rgb(5, 0, 0)', 'resize-grip': 'rgb(6, 0, 0)' };
     // At rest: the plain parts.
     expect(await css(part(page, 'stacked-multiline-manual', '.grip'), 'color')).toBe(await resolveColor(page, T('stacked-resize-grip-color')));
@@ -1795,7 +1797,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' }), fixture('five', { label: 'Notes', multiline: true, value: '1\n2\n3\n4\n5' }), fixture('b', { label: 'Notes', multiline: true, value: '1\n2' })] });
     const lineOf = await line(page, T('input-typescale-medium'));
     const [duration, easing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await token(page, T('motion-resize-easing'))];
-    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short4', 'duration'));
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-default', 'duration'));
     // A five-line value on the first render shows five lines with no motion.
     expect(await input(page, 'five').evaluate((el) => [el.getAnimations().length, el.hasAttribute('data-resizing')])).toEqual([0, false]);
     expect((await bounds(input(page, 'five'))).height).toBeCloseTo(5 * lineOf, 0);
@@ -1899,6 +1901,84 @@ test.describe('behavior', () => {
       return { running: field.getAnimations().length, height: Number.parseFloat(getComputedStyle(field).height) + Number.parseFloat(getComputedStyle(field).marginBottom), scrolled: field.scrollTop };
     });
     expect(reduced).toEqual({ running: 0, height: 3 * lineOf, scrolled: 0 });
+  });
+
+  test('TXI-38: a letter typed while the motion of a line break runs continues that motion — the motion it replaces reports its cancellation a frame later, and that report ends nothing: the height still moves from the one shown to the end height through heights on its curve, with no step of more than 35 % of the whole change', async ({ page }) => {
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' })] });
+    const lineOf = await line(page, T('input-typescale-medium'));
+    for (const id of ['a']) {
+      const run = await input(page, id).evaluate(async (el) => {
+        const field = el as HTMLTextAreaElement;
+        // The height the input shows: its box, and what its bottom margin still takes back while the change moves.
+        const height = () => Number.parseFloat(getComputedStyle(field).height) + Number.parseFloat(getComputedStyle(field).marginBottom);
+        const resizing = () => field.getAnimations().filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty));
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        let cancelled = 0;
+        field.addEventListener('transitioncancel', () => cancelled++);
+        field.focus();
+        field.setSelectionRange(field.value.length, field.value.length);
+        const from = height();
+        const hold = (at: (duration: number) => number) => {
+          const held = resizing();
+          const duration = Number(held[0]?.effect?.getComputedTiming().duration ?? 0);
+          for (const motion of field.getAnimations()) {
+            motion.pause();
+            motion.currentTime = at(duration);
+          }
+          return held.length;
+        };
+        // A line break: its motion runs for a rendered frame, held a thirteenth of the way (every read below follows a
+        // rendered frame).
+        document.execCommand('insertText', false, '\n');
+        const first = hold((duration) => duration / 13);
+        await frame();
+        const mid = height();
+        // A letter, a moment later: its change replaces that motion with one from the height then shown, and the replaced
+        // one is cancelled — which is reported with the next frame's events. The new motion is held at its start and then
+        // stepped by hand, so what is read does not depend on the machine's speed.
+        document.execCommand('insertText', false, 'b');
+        const motions = field.getAnimations();
+        for (const motion of motions) {
+          motion.pause();
+          motion.currentTime = 0;
+        }
+        const resize = resizing()[0];
+        const duration = Number(resize?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const after = { motions: resizing().length, marked: field.getAttribute('data-resizing'), cancelled };
+        const heights = [from, mid, height()];
+        // The eased progress at each read, from the motion itself: where the height should be, whatever the curve.
+        const progress = [Number.NaN, 0, Number(resize?.effect?.getComputedTiming().progress ?? 1)];
+        for (let step = 1; step < 13; step++) {
+          for (const motion of motions) motion.currentTime = (duration * step) / 13;
+          await frame();
+          heights.push(height());
+          progress.push(Number(resize?.effect?.getComputedTiming().progress ?? 1));
+        }
+        for (const motion of motions) motion.finish();
+        await frame();
+        heights.push(height());
+        progress.push(1);
+        return { first, held: motions.filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty)).length, after, heights, progress };
+      });
+      expect(run.first, `${id}: the line break starts one motion`).toBe(1);
+      expect(run.held, `${id}: one motion runs after the letter`).toBe(1);
+      expect(run.after.cancelled, `${id}: the replaced motion reported its cancellation`).toBeGreaterThanOrEqual(1);
+      expect({ motions: run.after.motions, marked: run.after.marked }, `${id}: after that report the motion still runs`).toEqual({ motions: 1, marked: '' });
+      const whole = run.heights.at(-1)! - run.heights[0]!;
+      expect(whole, `${id}: one line more`).toBeCloseTo(lineOf, 0);
+      // The letter's motion, from the height shown when it came: at each read where its curve has brought it.
+      const rest = run.heights.at(-1)! - run.heights[1]!;
+      expect(rest, `${id}: the letter's motion goes on from the height then shown`).toBeGreaterThan(1);
+      run.heights.forEach((h, i) => i >= 1 && expect(Math.abs(h - (run.heights[1]! + run.progress[i]! * rest)), `${id}: read ${i} on the curve (${run.heights.join(' → ')})`).toBeLessThanOrEqual(1));
+      // And in the measure of a motion that jumps: at 13 evenly spaced times no step is more than 35 % of the change (the
+      // standard curve's largest is 28 %; a motion ended by the report moves 100 % at once).
+      for (let i = 1; i < run.heights.length; i++) {
+        const step = run.heights[i]! - run.heights[i - 1]!;
+        expect(step, `${id}: never lower than the one before (${run.heights.join(' → ')})`).toBeGreaterThanOrEqual(-0.01);
+        expect(step / whole, `${id}: step ${i} is no more than 35 % of the change (${run.heights.join(' → ')})`).toBeLessThanOrEqual(0.35);
+      }
+    }
   });
 
   // ── TXI-51: a multi-line field is set from the top ────────────────────────────────────────────
@@ -2816,7 +2896,7 @@ test.describe('behavior', () => {
       ],
     });
     // In a Field: its help is the description, its requirement the required state, and its error the invalid one.
-    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', requirement: 'required', requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', required: true, requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
     await frame(page, 'refused', { label: 'Start date', error: true, errorText: 'Choose a date after today.' }, { type: 'date', locale: 'en-US', value: '2026-09-27' });
     // The accessibility tree of stacked-date: a group named "Start date" with three spin buttons.
     const group = host(page, 'stacked-date').getByRole('group', { name: 'Start date', exact: true });
@@ -2875,15 +2955,15 @@ test.describe('behavior', () => {
   test('TXI-50: a floating label is followed by an asterisk exactly while the Field that frames the input gives one — for its tag and its asterisk alike, and under auto for the mark the design system names; none where the Field or the system says none, where the label is not drawn or the input is stacked, and never outside a Field; the asterisk follows the label’s text in its style and place, resting and floated, from the input’s own tokens, and is kept from assistive technology', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [fixture('bare', { variant: 'outlined', label: 'Email' }), fixture('plain', { variant: 'outlined', label: 'Email' })] });
-    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', requirement: 'required', requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
-    await frame(page, 'filled-auto', { label: 'Email', requirement: 'required', requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
-    await frame(page, 'hidden', { label: 'Email', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
+    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', required: true, requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'filled-auto', { label: 'Email', required: true, requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
+    await frame(page, 'hidden', { label: 'Email', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
     await frame(page, 'not-required', { label: 'Email' }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, {});
-    await frame(page, 'in-error', { label: 'Email', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
-    await frame(page, 'optional-wordless', { label: 'Company', requirement: 'optional', optionalText: '' }, { variant: 'filled' });
-    await frame(page, 'optional-stacked', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'stacked', { label: 'Email', required: true, requiredMark: 'asterisk' }, {});
+    await frame(page, 'in-error', { label: 'Email', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'optional-wordless', { label: 'Company', required: false, optional: true, optionalText: '' }, { variant: 'filled' });
+    await frame(page, 'optional-stacked', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     const asterisks = (id: string) => host(page, id).locator('label.label .asterisk');
     // Under the default system the Field's mark is the tag: a floating label draws it as the asterisk.
     expect(await token(page, '--tanrei-comp-field-requirement-mark')).toBe('tag');
@@ -4127,7 +4207,7 @@ test.describe('the input and the Field that frames it', () => {
     await expect(host(page, 'pair').getByRole('textbox', { name: 'Email', exact: true })).toHaveCount(1);
     await host(page, 'pair').evaluate((el) => ((el.parentElement as any).labelHidden = false));
     // Required: the asterisk the Field gives, after the floating label.
-    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { requirement: 'required', requiredText: 'Required' }));
+    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { required: true, requiredText: 'Required' }));
     await expect(part(page, 'pair', 'label.label .asterisk')).toHaveCount(1);
     // Back to stacked: the Field's row again, with its own mark, and no label in the input.
     await host(page, 'pair').evaluate((el) => ((el as any).variant = 'stacked'));
@@ -4162,7 +4242,7 @@ test.describe('the input and the Field that frames it', () => {
          <div style="inline-size: 137px"><tanrei-text-input id="narrow" label="Filter" value="a value much wider than the place it stands in"></tanrei-text-input></div>
          <div style="inline-size: 137px"><tanrei-text-input id="code" label="Layer" type="code" multiline no-wrap value="a line of code much wider than the place it stands in"></tanrei-text-input></div>
          <div style="display: flex; align-items: center; inline-size: 500px"><span id="beside" style="flex: none; inline-size: 120px">Beside</span><tanrei-text-input id="in-a-row" label="Beside" style="flex: 1"></tanrei-text-input></div>
-         <tanrei-field label="Email" supporting-text="Help." requirement="required" required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
+         <tanrei-field label="Email" supporting-text="Help." required required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
          <tanrei-field label="Email" style="inline-size: 300px"><tanrei-text-input id="framed-outlined" variant="outlined"></tanrei-text-input></tanrei-field>`,
       ),
     );
@@ -4307,6 +4387,19 @@ test.describe('the input and the Field that frames it', () => {
     await expect(one('filled').locator('.field')).not.toHaveAttribute('data-has-value', /.*/);
     await expect.poll(() => one('filled').locator('input.input').evaluate((el: HTMLInputElement) => el.placeholder)).toBe('name@example.com');
   });
+
+  // An input whose entries slot holds content when it appears floats its label from its first frame: the label is not
+  // drawn over the chips and then moved up (as a page that is already drawn shows a Field, or a Chip field, of entries).
+  for (const [name, ids] of [
+    ['field', ['entries-email-filled', 'entries-email-outlined']],
+    ['chip-field', ['email-filled', 'email-outlined']],
+  ] as const) {
+    for (const id of ids) {
+      test(`TXI-65: the ${name} fixture ${id} floats its label over its entries from its first frame, with nothing moving into place`, async ({ page }) => {
+        expectFirstFrameAtRest(await appearingFixture(page, loadSpec(name), id));
+      });
+    }
+  }
 
   test('TXI-67: beside a value that is always left-to-right — one line of email, url, tel, number or password — the prefix, the value and the suffix are one run of writing, in that order along the direction of the affixes’ first strong character and left-to-right where they have none, in every layout direction and never from the value; the value, and an empty field’s placeholder, stand against the prefix where there is one and at the field’s start edge where there is none, and the icons, the label and the paddings follow the layout; beside every other value the prefix stays at the field’s start edge and the suffix at its end edge', async ({ page }) => {
     const rtl = (id: string, props: Fixture['props'], content?: string): Fixture => ({ ...fixture(id, { variant: 'stacked', label: 'Label', ...props }, content), direction: 'rtl' });

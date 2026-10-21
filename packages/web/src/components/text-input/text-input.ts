@@ -24,6 +24,7 @@ import {
   WordsController,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
+import { stillMoving } from '../../primitives/auto-height.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import {
   EMPTY_SEGMENTS,
@@ -57,6 +58,7 @@ import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { CompositionEnd, isCompositionInput } from '../../primitives/composition-end.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { wordPlaces } from '../../generated/words.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -307,7 +309,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @fires {CustomEvent<TanreiTextInputPickerRequestDetail>} pickerrequest - The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
  * @fires {CustomEvent<TanreiTextInputEntryErrorDetail>} entryerror - The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  */
-export class TanreiTextInput extends LitElement {
+export class TanreiTextInput extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'text-input');
   /**
    * TXI-35: the glyphs in the leading-icon and trailing-icon slots are marked when the icon set mirrors
@@ -1714,9 +1716,16 @@ export class TanreiTextInput extends LitElement {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
+  /**
+   * TXI-38: the height's motion ended or was cancelled. A motion that the next change replaced (`showLines` starts one
+   * from the room then shown) reports its cancellation a frame later, while the new one runs: that report ends nothing
+   * (`stillMoving`), or the new motion would be cut off and the height jump to its end.
+   */
   private onResizeEnd(event: TransitionEvent) {
     const input = event.currentTarget as HTMLElement;
-    if (event.target === input && /^margin-(block-end|bottom)$/.test(event.propertyName)) input.removeAttribute('data-resizing');
+    if (event.target !== input || !/^margin-(block-end|bottom)$/.test(event.propertyName)) return;
+    if (stillMoving(input, /^margin-(block-end|bottom)$/)) return;
+    input.removeAttribute('data-resizing');
   }
 
   /**
@@ -1875,6 +1884,10 @@ export class TanreiTextInput extends LitElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // TXI-65: entries the input holds when it first updates float its label in its first frame. The slot's
+    // `slotchange` arrives after that frame's style was read, and the label would be drawn over the chips and then
+    // move up over the label motion; it keeps the slot's answer from then on.
+    if (!this.hasUpdated) this.hasEntries = [...this.children].some((child) => child.slot === 'entries');
     const kind = this.dateKind;
     if (changed.has('locale') && this.locale.trim() && !supportedLocale(this.locale.trim())) {
       report(this, 'TXI-28', `locale "${this.locale}" is not a BCP 47 tag this browser knows; it uses "${FALLBACK_LOCALE}"`);

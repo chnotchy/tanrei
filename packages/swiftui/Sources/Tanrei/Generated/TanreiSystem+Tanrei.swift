@@ -414,10 +414,10 @@ private let tanreiAccordionTokens = TanreiAccordionTokens(
   dividerColor: .role(.outlineVariant),
   dividerThickness: 1,
   itemGap: 8,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineShape: 8,
@@ -570,7 +570,7 @@ private let tanreiAppBarTokens = TanreiAppBarTokens(
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 4,
-  motionConditionDuration: 200,
+  motionConditionDuration: 250,
   motionConditionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineVisibility: 0,
   outlineWidth: 1,
@@ -680,6 +680,7 @@ private let tanreiBadgeTokens = TanreiBadgeTokens(
 )
 
 private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: tanreiElevation.level2,
   containerMarginBlockStart: 48,
@@ -688,6 +689,9 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 12,
   contentColor: .role(.onSurface),
+  dividerColor: .role(.outlineVariant),
+  dividerVisibility: 0,
+  dividerWidth: 1,
   handleContainerHeight: 24,
   handleContainerShape: 9999,
   handleContainerWidth: 48,
@@ -695,12 +699,17 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  headerGap: 8,
+  headerHeight: 64,
+  headerPaddingInlineEnd: 12,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: tanreiTypescale.heading5,
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim),
@@ -746,7 +755,7 @@ private let tanreiBreadcrumbsTokens = TanreiBreadcrumbsTokens(
   labelColor: .role(.onSurfaceVariant),
   labelTypescale: tanreiTypescale.body,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
   separatorColor: .role(.onSurfaceVariant),
@@ -863,9 +872,9 @@ private let tanreiButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,
-  motionOpenDuration: 350,
-  motionOpenEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiButtonWithMenuSizes(
     small: TanreiButtonWithMenuSizeTokens(
@@ -1101,8 +1110,8 @@ private let tanreiButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
       containerHeight: 32,
@@ -1117,7 +1126,8 @@ private let tanreiButtonTokens = TanreiButtonTokens(
       iconSize: 20,
       iconSizeWithoutLabel: 20,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 200
     ),
     medium: TanreiButtonSizeTokens(
       containerHeight: 40,
@@ -1132,7 +1142,8 @@ private let tanreiButtonTokens = TanreiButtonTokens(
       iconSize: 24,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 250
     ),
     large: TanreiButtonSizeTokens(
       containerHeight: 56,
@@ -1147,7 +1158,8 @@ private let tanreiButtonTokens = TanreiButtonTokens(
       iconSize: 24,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiButtonVariants(
@@ -1763,7 +1775,7 @@ private let tanreiCalendarTokens = TanreiCalendarTokens(
   motionFeedbackDuration: 450,
   motionPageDuration: 250,
   motionPageEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   navigationAxis: 0,
   navigationGap: 8,
@@ -1959,107 +1971,18 @@ private let tanreiCalendarTokens = TanreiCalendarTokens(
 private let tanreiCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonVariant: 1,
   containerGap: 8,
   containerPaddingBlock: 12,
   containerPaddingInline: 16,
   containerPaddingInlineEndWithClose: 8,
   containerShape: 8,
-  controlsHeight: 32,
-  controlsIconSize: 20,
-  controlsShape: 9999,
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
-  motionFeedbackDuration: 450,
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,
-  controls: TanreiCalloutControls(
-    close: TanreiCalloutControlTokens(
-      enabled: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.08),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.08),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.08),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.08),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.08),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.1),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.1),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.1),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.1),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.1),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.1),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.1),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.1),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      )
-    )
-  ),
   sizes: TanreiCalloutSizes(
     medium: TanreiCalloutSizeTokens(
       titleTypescale: tanreiTypescale.heading6,
@@ -2076,64 +1999,45 @@ private let tanreiCalloutTokens = TanreiCalloutTokens(
       titleColor: .role(.onSecondaryContainer),
       bodyColor: .role(.onSecondaryContainer),
       iconColor: .role(.onSecondaryContainer),
-      focusRingColor: .role(.onSecondaryContainer),
       infoContainerColor: .role(.infoContainer),
       infoTitleColor: .role(.onInfoContainer),
       infoBodyColor: .role(.onInfoContainer),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.onInfoContainer),
       warningContainerColor: .role(.warningContainer),
       warningTitleColor: .role(.onWarningContainer),
       warningBodyColor: .role(.onWarningContainer),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.onWarningContainer),
       errorContainerColor: .role(.errorContainer),
       errorTitleColor: .role(.onErrorContainer),
       errorBodyColor: .role(.onErrorContainer),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.onErrorContainer),
       successContainerColor: .role(.successContainer),
       successTitleColor: .role(.onSuccessContainer),
       successBodyColor: .role(.onSuccessContainer),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.onSuccessContainer)
+      successIconColor: .role(.success)
     ),
     outlined: TanreiCalloutVariantTokens(
       containerColor: .none,
       titleColor: .role(.onSurface),
       bodyColor: .role(.onSurface),
       iconColor: .role(.onSurfaceVariant),
-      focusRingColor: .role(.focusRing),
       infoContainerColor: .none,
       infoTitleColor: .role(.onSurface),
       infoBodyColor: .role(.onSurface),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.focusRing),
       warningContainerColor: .none,
       warningTitleColor: .role(.onSurface),
       warningBodyColor: .role(.onSurface),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.focusRing),
       errorContainerColor: .none,
       errorTitleColor: .role(.onSurface),
       errorBodyColor: .role(.onSurface),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.focusRing),
       successContainerColor: .none,
       successTitleColor: .role(.onSurface),
       successBodyColor: .role(.onSurface),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.focusRing)
+      successIconColor: .role(.success)
     )
-  ),
-  hovered: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiCalloutStateTokens(
-    opacity: 1
   )
 )
 
@@ -2141,7 +2045,7 @@ private let tanreiCardTokens = TanreiCardTokens(
   containerPadding: 16,
   containerShape: 8,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   variants: TanreiCardVariants(
@@ -2295,7 +2199,7 @@ private let tanreiCarouselTokens = TanreiCarouselTokens(
   motionFeedbackDuration: 450,
   motionScrollDuration: 300,
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
@@ -2394,7 +2298,7 @@ private let tanreiChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: tanreiTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   receivingContainerColor: .role(.secondaryContainer),
@@ -2481,14 +2385,13 @@ private let tanreiCheckboxTokens = TanreiCheckboxTokens(
   labelTypescale: tanreiTypescale.body,
   markSize: 20,
   markWeight: 500,
-  markWidth: 2,
   motionFeedbackDuration: 450,
   motionMarkEnterScale: 0.5,
-  motionMarkScaleDuration: 350,
-  motionMarkScaleEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionMarkScaleDuration: 250,
+  motionMarkScaleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 2,
   conditions: TanreiCheckboxConditions(
@@ -2768,9 +2671,8 @@ private let tanreiChipTokens = TanreiChipTokens(
   checkWeight: 500,
   containerShape: 9999,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   removeContainerShape: 9999,
@@ -2786,7 +2688,8 @@ private let tanreiChipTokens = TanreiChipTokens(
       labelTypescale: tanreiTypescale.labelSmall,
       iconSize: 20,
       avatarSize: 16,
-      removeContainerSize: 24
+      removeContainerSize: 24,
+      motionStateDuration: 200
     ),
     medium: TanreiChipSizeTokens(
       containerHeight: 32,
@@ -2799,7 +2702,8 @@ private let tanreiChipTokens = TanreiChipTokens(
       labelTypescale: tanreiTypescale.label,
       iconSize: 24,
       avatarSize: 24,
-      removeContainerSize: 28
+      removeContainerSize: 28,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiChipVariants(
@@ -3129,12 +3033,12 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
   listPaddingInline: 4,
   listShape: 8,
   listViewportMargin: 8,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionGap: 12,
   optionHeight: 48,
@@ -3144,7 +3048,7 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
   optionMatchEmphasis: 100,
   optionPaddingBlock: 8,
   optionPaddingInline: 12,
-  optionShape: 6,
+  optionShape: 4,
   optionSupportingTextTypescale: tanreiTypescale.bodySmall,
   separation: 0,
   statusColor: .role(.onSurfaceVariant),
@@ -3369,8 +3273,8 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
 
 private let tanreiCopyButtonTokens = TanreiCopyButtonTokens(
   confirmationDuration: 2000,
-  motionResizeDuration: 500,
-  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1)
 )
 
 private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -3397,10 +3301,10 @@ private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
   dockedContainerColor: .role(.surfaceBright),
   dockedContainerElevation: tanreiElevation.level2,
   dockedContainerShape: 8,
-  dockedMotionCloseDuration: 100,
-  dockedMotionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  dockedMotionOpenDuration: 200,
-  dockedMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  dockedMotionCloseDuration: 250,
+  dockedMotionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  dockedMotionOpenDuration: 300,
+  dockedMotionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   dockedOffset: 4,
   dockedViewportMargin: 8,
   errorColor: .role(.error),
@@ -3418,17 +3322,17 @@ private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalContainerElevation: tanreiElevation.level3,
   modalContainerMargin: 16,
   modalContainerShape: 12,
-  modalMotionCloseDuration: 200,
-  modalMotionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  modalMotionCloseDuration: 300,
+  modalMotionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   modalMotionEnterScale: 0.95,
-  modalMotionOpenDuration: 300,
-  modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalMotionOpenDuration: 350,
+  modalMotionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionWheelDuration: 250,
   motionWheelEasing: TanreiCubicBezier(0, 0, 0, 1),
@@ -3563,7 +3467,6 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   actionsGap: 16,
   actionsMarginBlockStart: 24,
   actionsVariant: 1,
-  closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,
@@ -3583,12 +3486,11 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   iconColor: .role(.secondary),
   iconPlacement: 0,
   iconSize: 24,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 32,
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterScale: 0.95,
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
@@ -3614,7 +3516,7 @@ private let tanreiDropZoneTokens = TanreiDropZoneTokens(
   iconSize: 32,
   labelColor: .role(.onSurface),
   labelTypescale: tanreiTypescale.bodyLarge,
-  motionDuration: 150,
+  motionDuration: 250,
   motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.primary),
   outlineWidth: 2,
@@ -3633,7 +3535,7 @@ private let tanreiDropZoneTokens = TanreiDropZoneTokens(
 
 private let tanreiEmbeddedTextInputTokens = TanreiEmbeddedTextInputTokens(
   inputTypescale: tanreiTypescale.bodyLarge,
-  motionResizeDuration: 200,
+  motionResizeDuration: 300,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   selectionColor: .role(.primary),
   selectionContentColor: .role(.onPrimary),
@@ -3696,7 +3598,7 @@ private let tanreiFabMenuTokens = TanreiFabMenuTokens(
   motionOpenDuration: 250,
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStagger: 100,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiFabMenuSizes(
     small: TanreiFabMenuSizeTokens(
@@ -4013,7 +3915,7 @@ private let tanreiFieldTokens = TanreiFieldTokens(
   labelIconSize: 20,
   labelGap: 8,
   labelTypescale: tanreiTypescale.label,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   requirementAsteriskGap: 2,
   requirementGap: 8,
@@ -4129,7 +4031,7 @@ private let tanreiFileItemTokens = TanreiFileItemTokens(
   motionFeedbackDuration: 450,
   motionProgressDuration: 300,
   motionProgressEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   progressGap: 6,
   progressIndicatorColor: .role(.primary),
@@ -4249,7 +4151,7 @@ private let tanreiFilePickerTokens = TanreiFilePickerTokens(
   iconSize: 32,
   labelTypescale: tanreiTypescale.body,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineDashLength: 4,
   outlineStyle: 0,
@@ -4335,10 +4237,79 @@ private let tanreiFileUploadTokens = TanreiFileUploadTokens(
   listGap: 16
 )
 
+private let tanreiHandleTokens = TanreiHandleTokens(
+  containerShape: 9999,
+  inset: 4,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 200,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiHandleSizes(
+    small: TanreiHandleSizeTokens(
+      containerLength: 20,
+      containerBreadth: 16,
+      lineLength: 12,
+      lineThickness: 3,
+      lineActiveLength: 16,
+      lineActiveThickness: 4,
+      arcRadius: 8
+    ),
+    medium: TanreiHandleSizeTokens(
+      containerLength: 48,
+      containerBreadth: 24,
+      lineLength: 32,
+      lineThickness: 4,
+      lineActiveLength: 40,
+      lineActiveThickness: 6,
+      arcRadius: 16
+    )
+  ),
+  conditions: TanreiHandleConditions(
+    standard: TanreiHandleConditionTokens(
+      enabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.08),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.1),
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.1),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  focused: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  pressed: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  disabled: TanreiHandleStateTokens(
+    opacity: 1
+  )
+)
+
 private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
-  barButtonVariant: 4,
+  barButtonVariant: 1,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),
@@ -4357,13 +4328,13 @@ private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
   errorTextColor: .role(.onSurfaceVariant),
   errorTextTypescale: tanreiTypescale.body,
   layoutPageGap: 16,
-  motionControlsDuration: 150,
+  motionControlsDuration: 250,
   motionControlsEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterScale: 0.95,
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionPageDuration: 300,
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
@@ -4388,9 +4359,8 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
   affixGap: 2,
   containerShape: 6,
   containerShapeBottom: 0,
-  motionLabelDuration: 150,
+  motionLabelDuration: 250,
   motionLabelEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineNotchPadding: 4,
   outlineWidth: 1,
@@ -4408,7 +4378,8 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: tanreiTypescale.label,
       labelFloatedTypescale: tanreiTypescale.labelSmall,
       inputTypescale: tanreiTypescale.body,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 200
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 48,
@@ -4420,7 +4391,8 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: tanreiTypescale.label,
       labelFloatedTypescale: tanreiTypescale.labelSmall,
       inputTypescale: tanreiTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 56,
@@ -4432,7 +4404,8 @@ private let tanreiInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: tanreiTypescale.label,
       labelFloatedTypescale: tanreiTypescale.labelSmall,
       inputTypescale: tanreiTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiInputBoxVariants(
@@ -4825,7 +4798,7 @@ private let tanreiLinkCardTokens = TanreiLinkCardTokens(
   mediaContainerColor: .role(.surfaceContainerHigh),
   mediaWidth: 192,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   siteGap: 8,
@@ -4922,7 +4895,7 @@ private let tanreiLinkTokens = TanreiLinkTokens(
   containerShape: 3,
   externalMarks: 0,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   siteIconDisabledOpacity: 0.38,
   siteIconShape: 3,
@@ -5103,9 +5076,9 @@ private let tanreiListTokens = TanreiListTokens(
   markSize: 24,
   markWidth: 2,
   motionFeedbackDuration: 450,
-  motionReorderDuration: 300,
+  motionReorderDuration: 250,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiListConditions(
     unselected: TanreiListConditionTokens(
@@ -5198,8 +5171,8 @@ private let tanreiLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
   containerShape: 9999,
   indicatorColor: .role(.onSurfaceVariant),
   motionCycleDuration: 1000,
-  motionEnterDuration: 200,
-  motionEnterEasing: TanreiCubicBezier(0, 0, 0, 1),
+  motionEnterDuration: 250,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEntrance: 0,
   motionShowDelay: 300,
   sizes: TanreiLoadingIndicatorSizes(
@@ -5223,9 +5196,8 @@ private let tanreiLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
 
 private let tanreiMainActionButtonTokens = TanreiMainActionButtonTokens(
   motionFeedbackDuration: 450,
-  motionResizeDuration: 500,
-  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionResizeDuration: 400,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiMainActionButtonSizes(
     small: TanreiMainActionButtonSizeTokens(
@@ -5238,7 +5210,8 @@ private let tanreiMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: tanreiTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 200
     ),
     medium: TanreiMainActionButtonSizeTokens(
       containerHeight: 56,
@@ -5250,7 +5223,8 @@ private let tanreiMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 12,
       labelTypescale: tanreiTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     ),
     large: TanreiMainActionButtonSizeTokens(
       containerHeight: 96,
@@ -5262,7 +5236,8 @@ private let tanreiMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 16,
       labelTypescale: tanreiTypescale.heading5,
-      iconSize: 32
+      iconSize: 32,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiMainActionButtonVariants(
@@ -5383,7 +5358,7 @@ private let tanreiMenuTokens = TanreiMenuTokens(
   containerHeight: 48,
   containerPaddingBlock: 8,
   containerPaddingInline: 12,
-  containerShape: 6,
+  containerShape: 4,
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
@@ -5405,12 +5380,12 @@ private let tanreiMenuTokens = TanreiMenuTokens(
   leadingIconSize: 24,
   markSize: 24,
   markWidth: 2,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionSubmenuDelay: 200,
   radioItemMark: 0,
@@ -5742,19 +5717,19 @@ private let tanreiMenuTokens = TanreiMenuTokens(
     )
   ),
   hovered: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   focused: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   pressed: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   ),
   disabled: TanreiMenuStateTokens(
-    containerShape: 6,
+    containerShape: 4,
     opacity: 1
   )
 )
@@ -5772,7 +5747,7 @@ private let tanreiMenubarTokens = TanreiMenubarTokens(
   indicatorSize: 20,
   labelTypescale: tanreiTypescale.label,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiMenubarConditions(
     unselected: TanreiMenubarConditionTokens(
@@ -5890,11 +5865,43 @@ private let tanreiMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let tanreiMeterTokens = TanreiMeterTokens(
+  errorIndicatorColor: .role(.error),
+  indicatorColor: .role(.primary),
+  infoIndicatorColor: .role(.info),
+  motionValueDuration: 300,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  stopIndicatorSize: 0,
+  successIndicatorColor: .role(.success),
+  trackColor: .role(.surfaceVariant),
+  trackGap: 4,
+  trackSeparation: 0,
+  trackShape: 9999,
+  warningIndicatorColor: .role(.warning),
+  sizes: TanreiMeterSizes(
+    small: TanreiMeterSizeTokens(
+      linearThickness: 2,
+      circularSize: 16,
+      circularThickness: 2
+    ),
+    medium: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 24,
+      circularThickness: 2
+    ),
+    large: TanreiMeterSizeTokens(
+      linearThickness: 8,
+      circularSize: 40,
+      circularThickness: 2
+    )
+  )
+)
+
 private let tanreiModalLayerTokens = TanreiModalLayerTokens(
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim)
 )
@@ -5904,11 +5911,9 @@ private let tanreiNavigationBarTokens = TanreiNavigationBarTokens(
   containerElevation: tanreiElevation.level0,
   containerHeight: 64,
   containerPadding: 4,
-  itemContainerHeight: 32,
   itemContainerPaddingBlock: 4,
   itemContainerPaddingInline: 12,
   itemContainerShape: 9999,
-  itemContainerWidth: 56,
   itemGap: 4,
   itemIconIndicatorHeight: 24,
   itemIconIndicatorShape: 9999,
@@ -5916,9 +5921,9 @@ private let tanreiNavigationBarTokens = TanreiNavigationBarTokens(
   itemIconSize: 24,
   itemLabelTypescale: tanreiTypescale.labelSmall,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -6144,24 +6149,23 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   headerTypescale: tanreiTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingTypescale: tanreiTypescale.labelSmall,
-  itemBadgeTypescale: tanreiTypescale.labelSmall,
   itemContainerShape: 6,
   itemGap: 12,
   itemIconIndicatorShape: 9999,
   itemSupportingTextTypescale: tanreiTypescale.bodySmall,
   itemTrailingTextTypescale: tanreiTypescale.bodySmall,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  motionExpandDuration: 500,
-  motionExpandEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionExpandDuration: 400,
+  motionExpandEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   scrimBlur: 0,
@@ -6193,7 +6197,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6204,7 +6207,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6215,7 +6217,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6226,7 +6227,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6237,64 +6237,58 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     selected: TanreiNavigationDrawerConditionTokens(
       enabled: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
+        itemContainerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.08),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
+        itemContainerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         itemIconIndicatorColor: .none,
         itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6307,7 +6301,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6318,7 +6311,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6329,7 +6321,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6340,7 +6331,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6351,64 +6341,58 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     collapsedSelected: TanreiNavigationDrawerConditionTokens(
       enabled: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
+        itemContainerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.08),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        itemContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         itemIconIndicatorColor: .none,
         itemIconColor: .role(.onSecondaryContainer),
         itemLabelColor: .role(.onSecondaryContainer),
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
+        itemContainerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         itemIconIndicatorColor: .none,
         itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
@@ -6461,106 +6445,6 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   )
 )
 
-private let tanreiNavigationRailTokens = TanreiNavigationRailTokens(
-  containerColor: .role(.surface),
-  containerElevation: tanreiElevation.level0,
-  containerGap: 8,
-  containerPaddingBlock: 16,
-  containerWidth: 80,
-  headerGap: 24,
-  itemContainerHeight: 32,
-  itemContainerShape: 6,
-  itemContainerWidth: 56,
-  itemGap: 4,
-  itemIconSize: 24,
-  itemLabelTypescale: tanreiTypescale.labelSmall,
-  motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  outlineColor: .role(.outlineVariant),
-  outlineWidth: 1,
-  conditions: TanreiNavigationRailConditions(
-    unselected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    selected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  ),
-  hovered: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  disabled: TanreiNavigationRailStateTokens(
-    opacity: 1
-  )
-)
-
 private let tanreiNumberInputTokens = TanreiNumberInputTokens(
   motionRepeatDelay: 500,
   motionRepeatInterval: 100,
@@ -6577,7 +6461,7 @@ private let tanreiOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   containerShape: 6,
   containerWidth: 40,
   inputTypescale: tanreiTypescale.bodyLarge,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   separatorThickness: 1,
@@ -6708,7 +6592,7 @@ private let tanreiPaginationTokens = TanreiPaginationTokens(
   iconSize: 20,
   labelTypescale: tanreiTypescale.label,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiPaginationSizes(
     small: TanreiPaginationSizeTokens(
@@ -6811,7 +6695,8 @@ private let tanreiPopoverTokens = TanreiPopoverTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
-  closeButtonVariant: 4,
+  closeButtonVariant: 1,
+  compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level2,
   containerGap: 12,
@@ -6828,10 +6713,10 @@ private let tanreiPopoverTokens = TanreiPopoverTokens(
   headerGap: 8,
   headlineColor: .role(.onSurface),
   headlineTypescale: tanreiTypescale.heading6,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   offset: 4,
   windowMargin: 8
 )
@@ -6846,7 +6731,7 @@ private let tanreiPreviousNextLinksTokens = TanreiPreviousNextLinksTokens(
   labelGap: 2,
   labelTypescale: tanreiTypescale.labelSmall,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   titleTypescale: tanreiTypescale.bodyLarge,
@@ -6976,9 +6861,9 @@ private let tanreiRadioButtonTokens = TanreiRadioButtonTokens(
   labelGap: 4,
   labelTypescale: tanreiTypescale.body,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionMinHeight: 48,
   ringSelectedWidthShare: 0.5,
@@ -7152,6 +7037,20 @@ private let tanreiRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let tanreiScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 250,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 0,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let tanreiSearchTokens = TanreiSearchTokens(
   containerButtonGap: 0,
   containerGap: 16,
@@ -7169,12 +7068,12 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   headerPaddingInline: 8,
   inputTypescale: tanreiTypescale.bodyLarge,
   leadingIconSize: 24,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
@@ -7189,7 +7088,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   suggestionContainerHeight: 56,
   suggestionContainerPaddingBlock: 8,
   suggestionContainerPaddingInline: 16,
-  suggestionContainerShape: 6,
+  suggestionContainerShape: 4,
   suggestionHeadlineTypescale: tanreiTypescale.body,
   suggestionLeadingIconSize: 24,
   suggestionSupportingTextTypescale: tanreiTypescale.bodySmall,
@@ -7312,9 +7211,8 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
   dividerColor: .role(.outline),
   dividerWidth: 1,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outline),
   outlineWidth: 1,
@@ -7329,7 +7227,8 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: tanreiTypescale.label,
       iconSize: 16,
-      checkSize: 16
+      checkSize: 16,
+      motionStateDuration: 200
     ),
     medium: TanreiSegmentedButtonSizeTokens(
       containerHeight: 36,
@@ -7338,7 +7237,8 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: tanreiTypescale.label,
       iconSize: 16,
-      checkSize: 16
+      checkSize: 16,
+      motionStateDuration: 250
     ),
     large: TanreiSegmentedButtonSizeTokens(
       containerHeight: 40,
@@ -7347,7 +7247,8 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: tanreiTypescale.label,
       iconSize: 16,
-      checkSize: 16
+      checkSize: 16,
+      motionStateDuration: 250
     )
   ),
   conditions: TanreiSegmentedButtonConditions(
@@ -7462,12 +7363,12 @@ private let tanreiSelectTokens = TanreiSelectTokens(
   listPaddingInline: 4,
   listShape: 8,
   listViewportMargin: 8,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionGap: 12,
   optionHeight: 48,
@@ -7476,9 +7377,12 @@ private let tanreiSelectTokens = TanreiSelectTokens(
   optionMarkSize: 24,
   optionPaddingBlock: 8,
   optionPaddingInline: 12,
-  optionShape: 6,
+  optionShape: 4,
   optionSupportingTextTypescale: tanreiTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: tanreiTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(
@@ -7714,10 +7618,10 @@ private let tanreiSideSheetTokens = TanreiSideSheetTokens(
   headerPaddingInlineEnd: 12,
   headlineColor: .role(.onSurface),
   headlineTypescale: tanreiTypescale.heading5,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   outlineWidth: 1,
   scrimBlur: 0,
   scrimColor: .role(.scrim),
@@ -7757,10 +7661,10 @@ private let tanreiSliderTokens = TanreiSliderTokens(
   handleOutlineWidth: 3,
   handleShape: 9999,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionValueDuration: 350,
-  motionValueEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionValueDuration: 250,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   trackGap: 0,
   valueIndicatorContainerColor: .role(.inverseSurface),
   valueIndicatorContainerHeight: 24,
@@ -7869,6 +7773,8 @@ private let tanreiSliderTokens = TanreiSliderTokens(
 
 private let tanreiSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0.12,
+  breakpointMedium: 600,
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,
   containerGap: 8,
@@ -7883,8 +7789,7 @@ private let tanreiSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 8,
   controlsGap: 4,
-  controlsHeight: 36,
-  controlsIconSize: 24,
+  controlsHeight: 32,
   controlsLabelTypescale: tanreiTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,
@@ -7932,14 +7837,14 @@ private let tanreiSnackbarTokens = TanreiSnackbarTokens(
   inverseFocusRingColor: .role(.inverseOnSurface),
   inverseSupportingTextColor: .role(.inverseOnSurface),
   inverseTitleColor: .role(.inverseOnSurface),
-  motionEnterDuration: 250,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 150,
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 300,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
-  motionExpandDuration: 300,
+  motionExpandDuration: 400,
   motionExpandEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineOpacity: 0.4,
   outlineWidth: 1,
@@ -8095,136 +8000,6 @@ private let tanreiSnackbarTokens = TanreiSnackbarTokens(
         inverseSuccessContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))]),
         inverseSuccessStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))])
       )
-    ),
-    close: TanreiSnackbarControlTokens(
-      enabled: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseInfoStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseWarningStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseErrorStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))]),
-        inverseSuccessStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))])
-      ),
-      hovered: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.08),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.08),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.08),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.08),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.08),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), amount: 0.08), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), amount: 0.08), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), amount: 0.08), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), amount: 0.08), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), amount: 0.08), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1)), amount: 0.08)]),
-        inverseInfoContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseInfoStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseWarningContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), amount: 0.08), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), amount: 0.08), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), amount: 0.08), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), amount: 0.08), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), amount: 0.08), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1)), amount: 0.08)]),
-        inverseWarningContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseWarningStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseErrorContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), amount: 0.08), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), amount: 0.08), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), amount: 0.08), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), amount: 0.08), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), amount: 0.08), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1)), amount: 0.08)]),
-        inverseErrorContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseErrorStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseSuccessContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), amount: 0.08), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), amount: 0.08), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), amount: 0.08), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), amount: 0.08), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), amount: 0.08), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1)), amount: 0.08)]),
-        inverseSuccessContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))]),
-        inverseSuccessStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))])
-      ),
-      focused: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.1),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.1),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.1),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.1),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.1),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1)), amount: 0.1)]),
-        inverseInfoContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseInfoStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseWarningContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1)), amount: 0.1)]),
-        inverseWarningContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseWarningStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseErrorContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1)), amount: 0.1)]),
-        inverseErrorContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseErrorStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseSuccessContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1)), amount: 0.1)]),
-        inverseSuccessContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))]),
-        inverseSuccessStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))])
-      ),
-      pressed: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.1),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.1),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.1),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.1),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.1),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.1),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1)), amount: 0.1)]),
-        inverseInfoContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseInfoStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8824, green: 0.9098, blue: 1, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9137, green: 0.9294, blue: 1, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9451, green: 0.9529, blue: 1, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1294, green: 0.1569, blue: 0.2235, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0941, green: 0.1216, blue: 0.1882, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0627, green: 0.0902, blue: 0.1569, opacity: 1))]),
-        inverseWarningContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1)), amount: 0.1)]),
-        inverseWarningContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseWarningStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8902, blue: 0.7961, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2118, green: 0.1412, blue: 0.0627, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1))]),
-        inverseErrorContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1)), amount: 0.1)]),
-        inverseErrorContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseErrorStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 1, green: 0.8824, blue: 0.8745, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 1, green: 0.9137, blue: 0.9059, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 1, green: 0.9412, blue: 0.9373, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.2275, green: 0.1294, blue: 0.1216, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.1922, green: 0.098, blue: 0.0902, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.1569, green: 0.0667, blue: 0.0627, opacity: 1))]),
-        inverseSuccessContainerColor: .scheme(by: [.light: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), amount: 0.1), .lightMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), amount: 0.1), .lightHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), amount: 0.1), .dark: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), amount: 0.1), .darkMedium: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), amount: 0.1), .darkHigh: .mix(base: .none, with: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1)), amount: 0.1)]),
-        inverseSuccessContentColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))]),
-        inverseSuccessStateLayerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.8549, green: 0.9333, blue: 0.8392, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.8745, green: 0.9529, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.898, green: 0.9765, blue: 0.8824, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.1059, green: 0.1725, blue: 0.1098, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.0745, green: 0.1373, blue: 0.0824, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.0431, green: 0.1059, blue: 0.051, opacity: 1))])
-      )
     )
   ),
   hovered: TanreiSnackbarStateTokens(
@@ -8261,7 +8036,7 @@ private let tanreiStepperTokens = TanreiStepperTokens(
   markerShape: 9999,
   markerSize: 24,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   positionColor: .role(.onSurfaceVariant),
   positionGap: 8,
@@ -8550,9 +8325,9 @@ private let tanreiSwitchTokens = TanreiSwitchTokens(
   labelGap: 8,
   labelTypescale: tanreiTypescale.body,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 2,
   trackHeight: 32,
@@ -8694,10 +8469,10 @@ private let tanreiSwitchTokens = TanreiSwitchTokens(
 
 private let tanreiTabViewTokens = TanreiTabViewTokens(
   containerShape: 0,
-  motionFadeDuration: 200,
-  motionFadeEasing: TanreiCubicBezier(0.34, 0.8, 0.34, 1),
-  motionSwitchDuration: 500,
-  motionSwitchEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionFadeDuration: 100,
+  motionFadeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionSwitchDuration: 250,
+  motionSwitchEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
   transitionBlur: 8,
   transitionDistance: 40,
@@ -8721,10 +8496,10 @@ private let tanreiTableOfContentsTokens = TanreiTableOfContentsTokens(
   labelTypescale: tanreiTypescale.bodySmall,
   markerColor: .role(.primary),
   markerWidth: 2,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   railColor: .role(.outlineVariant),
   railWidth: 1,
@@ -8836,13 +8611,13 @@ private let tanreiTableTokens = TanreiTableTokens(
   headerIconWeight: 500,
   headerTextColor: .role(.onSurfaceVariant),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
-  rowSelectedContainerColor: .role(.secondaryContainer),
-  rowSelectedHoveredContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+  rowSelectedContainerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+  rowSelectedHoveredContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.08),
   rowSelectedHoveredTextColor: .role(.onSecondaryContainer),
-  rowSelectedPressedContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+  rowSelectedPressedContainerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
   rowSelectedPressedTextColor: .role(.onSecondaryContainer),
   rowSelectedStateLayerColor: .role(.onSecondaryContainer),
   rowSelectedTextColor: .role(.onSecondaryContainer),
@@ -8948,9 +8723,9 @@ private let tanreiTabsTokens = TanreiTabsTokens(
   dividerThickness: 1,
   labelTypescale: tanreiTypescale.label,
   motionFeedbackDuration: 450,
-  motionIndicatorDuration: 500,
-  motionIndicatorEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionIndicatorDuration: 250,
+  motionIndicatorEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
   primarySelectedLabelEmphasis: 0,
@@ -9498,7 +9273,7 @@ private let tanreiTextInputTokens = TanreiTextInputTokens(
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,
-  motionResizeDuration: 200,
+  motionResizeDuration: 300,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   resizeGripInset: 4,
   resizeGripSize: 16,
@@ -9604,8 +9379,22 @@ private let tanreiTimelineTokens = TanreiTimelineTokens(
 )
 
 private let tanreiToolbarTokens = TanreiToolbarTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerLength: 24,
+  dividerThickness: 1,
+  groupGap: 8,
   outlineWidth: 1,
+  separation: 0,
   variants: TanreiToolbarVariants(
+    inline: TanreiToolbarVariantTokens(
+      containerColor: .none,
+      containerElevation: tanreiElevation.level0,
+      containerShape: 8,
+      containerSize: 40,
+      containerPaddingInline: 0,
+      containerGap: 4,
+      outlineColor: .none
+    ),
     docked: TanreiToolbarVariantTokens(
       containerColor: .role(.surface),
       containerElevation: tanreiElevation.level0,
@@ -9632,11 +9421,11 @@ private let tanreiTooltipTokens = TanreiTooltipTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
-  motionEnterDuration: 200,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionEnterDuration: 250,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterOffset: 4,
   motionEnterScale: 0.95,
-  motionExitDuration: 150,
+  motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionHideDelay: 100,
   motionShowDelay: 500,
@@ -9683,10 +9472,10 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
   guideColor: .role(.outlineVariant),
   guideWidth: 1,
   iconGap: 12,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   stickyContainerColor: .role(.surface),
   stickyDividerColor: .role(.outlineVariant),
@@ -9743,7 +9532,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
     ),
     selected: TanreiTreeViewConditionTokens(
       enabled: TanreiTreeViewConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         labelColor: .role(.onSecondaryContainer),
         supportingTextColor: .role(.onSecondaryContainer),
         trailingTextColor: .role(.onSecondaryContainer),
@@ -9752,7 +9541,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiTreeViewConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.08),
         labelColor: .role(.onSecondaryContainer),
         supportingTextColor: .role(.onSecondaryContainer),
         trailingTextColor: .role(.onSecondaryContainer),
@@ -9761,7 +9550,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiTreeViewConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         labelColor: .role(.onSecondaryContainer),
         supportingTextColor: .role(.onSecondaryContainer),
         trailingTextColor: .role(.onSecondaryContainer),
@@ -9770,7 +9559,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiTreeViewConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         labelColor: .role(.onSecondaryContainer),
         supportingTextColor: .role(.onSecondaryContainer),
         trailingTextColor: .role(.onSecondaryContainer),
@@ -9779,7 +9568,7 @@ private let tanreiTreeViewTokens = TanreiTreeViewTokens(
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiTreeViewConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         labelColor: .role(.onSecondaryContainer),
         supportingTextColor: .role(.onSecondaryContainer),
         trailingTextColor: .role(.onSecondaryContainer),
@@ -9911,11 +9700,13 @@ extension TanreiSystem {
       opticalSizeMax: 48
     ),
     behavior: TanreiBehavior(
+      appearance: .fadeScale,
       dividerVisibility: .always,
       focusStyle: .ring,
       linkUnderline: .always,
       pressedFeedback: .overlay,
       requirementMark: .tag,
+      scrollEdge: .shadow,
       separation: .divider
     ),
     motion: TanreiMotionTokens(
@@ -9942,10 +9733,14 @@ extension TanreiSystem {
       easing: TanreiEasing(
         emphasizedAccelerate: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        enter: TanreiCubicBezier(0.2, 0, 0, 1),
+        exit: TanreiCubicBezier(0.3, 0, 1, 1),
         linear: TanreiCubicBezier(0, 0, 1, 1),
+        spatial: TanreiCubicBezier(0.2, 0, 0, 1),
         standard: TanreiCubicBezier(0.2, 0, 0, 1),
         standardAccelerate: TanreiCubicBezier(0.3, 0, 1, 1),
-        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1)
+        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1),
+        state: TanreiCubicBezier(0.2, 0, 0, 1)
       ),
       spring: TanreiSprings(
         expressive: TanreiSpringSet(
@@ -10002,6 +9797,7 @@ extension TanreiSystem {
     fileItem: tanreiFileItemTokens,
     filePicker: tanreiFilePickerTokens,
     fileUpload: tanreiFileUploadTokens,
+    handle: tanreiHandleTokens,
     imagePreview: tanreiImagePreviewTokens,
     inlineCode: tanreiInlineCodeTokens,
     inputBox: tanreiInputBoxTokens,
@@ -10014,10 +9810,10 @@ extension TanreiSystem {
     mainActionButton: tanreiMainActionButtonTokens,
     menu: tanreiMenuTokens,
     menubar: tanreiMenubarTokens,
+    meter: tanreiMeterTokens,
     modalLayer: tanreiModalLayerTokens,
     navigationBar: tanreiNavigationBarTokens,
     navigationDrawer: tanreiNavigationDrawerTokens,
-    navigationRail: tanreiNavigationRailTokens,
     numberInput: tanreiNumberInputTokens,
     oneTimeCodeInput: tanreiOneTimeCodeInputTokens,
     pageHeader: tanreiPageHeaderTokens,
@@ -10027,6 +9823,7 @@ extension TanreiSystem {
     progressIndicator: tanreiProgressIndicatorTokens,
     prose: tanreiProseTokens,
     radioButton: tanreiRadioButtonTokens,
+    scrollArea: tanreiScrollAreaTokens,
     search: tanreiSearchTokens,
     segmentedButton: tanreiSegmentedButtonTokens,
     select: tanreiSelectTokens,

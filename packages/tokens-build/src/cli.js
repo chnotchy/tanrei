@@ -10,12 +10,12 @@ import { KOTLIN_PACKAGE, emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitTs } from './emit/ts.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
-import { DEFAULT_SYSTEM, availabilityOf, buildBundle, heldComponents, layerChain, listSystems, outsideComponents, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
-import { nativeChain } from './layers.js';
+import { DEFAULT_SYSTEM, buildBundle, heldComponents, layerChain, listSystems, outsideStandIns, shippedLayerProblems, shippedSystems, writeBundle } from './bundle.js';
+import { nativeChain, sheetAvailability } from './layers.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
-import { PRESET_CRITERIA_NOTE, checkInvariants, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
+import { PRESET_CRITERIA_NOTE, auditInvariants, checkedLine, defaultAccessibilityReport, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
 import { buildIR } from './ir.js';
-import { CONFIG, GENERATED_HEADER, REPO_ROOT, TOKENS_DIR, buildModel, buildModelFromBundle, lintValues } from './model.js';
+import { CONFIG, GENERATED_HEADER, REPO_ROOT, TOKENS_DIR, buildModel, buildModelFromBundle, deprecatedInSources, lintValues } from './model.js';
 import { readBundle } from './reader.js';
 import { generateSchemeFiles, loadDefaultSystem, loadSystem } from './scheme.js';
 
@@ -73,6 +73,22 @@ function sourceDocuments() {
     .map((ref) => JSON.parse(fs.readFileSync(path.join(TOKENS_DIR, ref), 'utf8')));
 }
 
+/** Every hand-authored JSON file under tokens/ (not its generated outputs, the lock or the schemas), by repository path. */
+function handAuthoredTokenFiles() {
+  const skip = new Set(['generated', 'schema', 'vocabulary.lock.json']);
+  const files = {};
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (skip.has(entry.name)) continue;
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file);
+      else if (entry.name.endsWith('.json')) files[path.relative(REPO_ROOT, file)] = JSON.parse(fs.readFileSync(file, 'utf8'));
+    }
+  };
+  walk(TOKENS_DIR);
+  return files;
+}
+
 function failOn(title, failures) {
   if (!failures.length) return;
   console.error(`✖ ${failures.length} ${title}:\n${failures.map((f) => `  - ${f}`).join('\n')}`);
@@ -100,6 +116,7 @@ const readLayer = (id) => loadSystem(REPO_ROOT, id);
 
 /** Where each component that lives in a layer lives: component → layer id. */
 const held = () => heldComponents(listSystems(REPO_ROOT), readLayer);
+const standIns = () => outsideStandIns(listSystems(REPO_ROOT), readLayer);
 
 /** The model of a system's native outputs (`nativeChain`, layers.js): the system's own when nothing lives outside it. */
 async function nativeModel(id, model) {
@@ -150,7 +167,7 @@ async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
     const reader = readBundle(files, id);
     await lintValues(reader.tokens());
     const model = await buildModelFromBundle(files, id, reader);
-    const findings = checkInvariants(model);
+    const { failures: findings, checked } = auditInvariants(model);
     failOn(`structural/functional invariant violation(s) in system "${id}" — these fail in every system`, findings.filter((f) => !isCriterionFinding(f)));
     const measurements = findings.filter(isCriterionFinding);
     if (measurements.length) console.log(`ℹ system "${id}": ${measurements.length} contrast measurement(s) below Tanrei's thresholds, recorded as information — ${PRESET_CRITERIA_NOTE}`);
@@ -162,28 +179,28 @@ async function generateSystems(outputs, iconSets, systemIconSets, lockLayers) {
     const own = [...held()].filter(([, layer]) => layer === id).map(([component]) => `${CONFIG.namespace}.comp.${component}.`);
     if (own.length) lockLayers[id] = Object.values(model.tokens).filter((t) => own.some((prefix) => t.id.startsWith(prefix))).map((t) => [t.id, t.type]);
     const targets = {
-      [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements),
+      [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements, checked),
       // Exactness, measured against the published system this preset reproduces.
       ...(fidelityMaps(REPO_ROOT).includes(id) ? { [`${bundleDir}/fidelity.json`]: measureFidelity(model, loadFidelityMap(id)) } : {}),
-      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, unavailable: availabilityOf(layerChain(id, readLayer)), outside: outsideComponents(layerChain(id, readLayer), held()) }),
+      [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, ...sheetAvailability(layerChain(id, readLayer), held(), standIns()) }),
       ...designToolExports(model, `design/tokens/${id}`),
       // Native values of the preset, next to the default system's: same vocabulary types, one more value.
       // Opt-in by reference — an app that never names the constant does not carry it.
       ...nativeSystemFiles(native === model ? ir : buildIR(native), banner),
     };
     for (const [rel, content] of Object.entries(targets)) { write(rel, content); outputs.push(rel); }
-    console.log(`✔ system "${id}": ${Object.keys(model.tokens).length} tokens, ${measurements.length} contrast measurement(s) that do not apply`);
+    console.log(`✔ system "${id}": ${Object.keys(model.tokens).length} tokens, ${measurements.length} contrast measurement(s) that do not apply; ${checkedLine(checked)}`);
   }
 }
 
 async function generate() {
-  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments())]);
+  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments()), ...deprecatedInSources(handAuthoredTokenFiles())]);
   failOn('system layer problem(s)', checkLayers());
   failOn('icon set problem(s)', validateIconSets(REPO_ROOT));
   const iconSets = loadIconSets(REPO_ROOT);
   const outputs = generateSchemes();
   const model = await buildModel();
-  const failures = checkInvariants(model);
+  const { failures, checked } = auditInvariants(model);
   if (failures.length) {
     console.error(`✖ ${failures.length} token invariant violation(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`);
     process.exit(1);
@@ -194,7 +211,7 @@ async function generate() {
   // repo-relative paths → text, when a platform splits its output (vocabulary types + system values).
   const platform = (defaultPath, output) => (typeof output === 'string' ? { [defaultPath]: output } : output);
   const targets = {
-    'packages/web/src/generated/tokens.css': emitCss(model, { unavailable: availabilityOf(layerChain(DEFAULT_SYSTEM, readLayer)), outside: outsideComponents(layerChain(DEFAULT_SYSTEM, readLayer), held()) }),
+    'packages/web/src/generated/tokens.css': emitCss(model, sheetAvailability(layerChain(DEFAULT_SYSTEM, readLayer), held(), standIns())),
     ...platform('packages/react-native/src/generated/tokens.ts', emitTs(nativeIr)),
     ...platform('packages/swiftui/Sources/Tanrei/Generated/TanreiTokens.swift', emitSwift(nativeIr)),
     ...platform(`packages/compose/tanrei/src/main/kotlin/${KOTLIN_PACKAGE.replaceAll('.', '/')}/TanreiTokens.kt`, emitKotlin(nativeIr)),
@@ -202,6 +219,8 @@ async function generate() {
     ...designToolExports(model),
     // The brand marks painted in each scheme's on-surface, and the favicon that follows the reader's scheme.
     ...brandFiles(REPO_ROOT, model.colors),
+    // What the build checked: the number of contrast pairs per scheme, which the documentation and talks quote.
+    'tokens/generated/a11y-report.json': defaultAccessibilityReport(DEFAULT_SYSTEM, checked),
   };
   for (const [rel, content] of Object.entries(targets)) {
     write(rel, content);
@@ -228,16 +247,16 @@ async function generate() {
   }
   // The drift check and the edit-guard hook both read this list.
   write('packages/tokens-build/generated-manifest.json', { files: outputs.sort() });
-  console.log(`✔ tokens: ${Object.keys(model.tokens).length} tokens × ${model.schemes.length} schemes → ${outputs.length} files`);
+  console.log(`✔ tokens: ${Object.keys(model.tokens).length} tokens × ${model.schemes.length} schemes → ${outputs.length} files; ${checkedLine(checked)}`);
 }
 
 async function validate() {
-  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments())]);
+  failOn('source token problem(s)', [...checkSources(sourceDocuments()), ...checkGuidance(sourceDocuments()), ...deprecatedInSources(handAuthoredTokenFiles())]);
   failOn('system layer problem(s)', checkLayers());
   failOn('icon set problem(s)', validateIconSets(REPO_ROOT));
   generateSchemes();
   const model = await buildModel(); // Refuses an alias that leads nowhere, in a circle or to another type (reader.js), and a value that is not well-formed (the token lint).
-  const failures = checkInvariants(model);
+  const { failures, checked } = auditInvariants(model);
   if (failures.length) {
     console.error(`✖ ${failures.length} token invariant violation(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`);
     process.exit(1);
@@ -250,7 +269,7 @@ async function validate() {
     if (family && !iconSetFor(iconSets, family)) console.warn(`⚠ system "${id}": no tokens/icon-sets/*.icon-set.json describes its icon family "${family[0]}" — no glyph is mirrored in right-to-left by itself`);
   }
   console.log(`✔ icon sets valid: ${iconSets.map(({ doc }) => `${doc.id} (${doc.mirrored.length} mirrored)`).join(', ')}`);
-  console.log(`✔ tokens valid: ${Object.keys(model.tokens).length} tokens, ${model.schemes.length} schemes, all contrast invariants hold`);
+  console.log(`✔ tokens valid: ${Object.keys(model.tokens).length} tokens, ${model.schemes.length} schemes, all contrast invariants hold — ${checkedLine(checked)}`);
 }
 
 /**

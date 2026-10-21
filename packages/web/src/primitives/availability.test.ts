@@ -1,24 +1,31 @@
 // A system's stylesheet names what it leaves out in `--tanrei-unavailable`, and an element it names reports
-// it once in a debug build — and still renders. The parsing is checked alone; the elements read it from the cascade:
-// from the shipped sheets, and from the property (and the proposed system id and replacements) set by hand.
+// it once in a debug build — and still renders (AVL-1). The parsing is checked alone; the elements read it from the
+// cascade: from the shipped sheets, and from the property (and the proposed system id and replacements) set by hand.
+// What the system uses instead is named (AVL-2), a use is reported under the element the product wrote — a text
+// field, for the text input it draws — and every use is recorded for `unavailableUses()`, reported as an error in the
+// error mode (AVL-3).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { outsideMessage, parseOutside, parseReplacements, parseUnavailable, unavailableEntry, unavailableMessage } from './availability.js';
+import { setAvailabilityMode, unavailableUses } from '../../test/harness.js';
+import { outsideMessage, parseOutside, parseReplacements, parseUnavailable, unavailableEntry, unavailableMessage, useOf } from './availability.js';
 import { debugBuild } from './report.js';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(web, file), 'utf8');
 
-/** Captures what the page reports in debug builds about availability. Call before mounting. */
-function warnings(page: Page) {
+/** Captures what the page reports in debug builds about availability, at `level`. Call before mounting. */
+function warnings(page: Page, level: 'warning' | 'error' = 'warning') {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' && message.text().includes('(availability)')) seen.push(message.text());
+    if (message.type() === level && message.text().includes('(availability)')) seen.push(message.text());
   });
   return seen;
 }
+
+/** The value of a list property in a sheet's first block: its space-separated entries. */
+const declared = (sheet: string, name: string) => (new RegExp(`${name}: "([^"]*)";`).exec(sheet)?.[1] ?? '').split(' ').filter(Boolean);
 
 async function mount(page: Page, body: string, { system }: { system?: string } = {}) {
   await page.setContent(`<!doctype html>
@@ -71,6 +78,21 @@ test.describe('parsing', () => {
     expect(outsideMessage('fab-menu', 'm3-like', 'tanrei')).toBe(
       'fab-menu lives in the layer "m3-like", which the design system "tanrei" does not extend: its stylesheet has none of the component\'s tokens. Use a system that extends "m3-like", or include the component from it in a layer of your own',
     );
+  });
+
+  test('a component that lives in another layer names what the system uses instead, when it names one (AVL-2)', () => {
+    expect(outsideMessage('fab-menu', 'm3-like', 'tanrei', ['main-action-button'])).toBe(
+      'fab-menu lives in the layer "m3-like", which the design system "tanrei" does not extend: its stylesheet has none of the component\'s tokens. The system uses main-action-button instead; or use a system that extends "m3-like", or include the component from it in a layer of your own',
+    );
+  });
+
+  test('a use is named by what the product wrote: a variant a composed component has as well is its own; anything else is what it draws', () => {
+    expect(useOf('text-input:outlined', { component: 'text-field', variant: 'outlined' }, 'text-input')).toEqual({ use: 'text-field:outlined', drawn: false });
+    expect(useOf('text-input:outlined', { component: 'text-input', variant: 'outlined' }, 'text-input')).toEqual({ use: 'text-input:outlined', drawn: false });
+    expect(useOf('segmented-button', { component: 'toolbar' }, 'segmented-button')).toEqual({ use: 'segmented-button', drawn: true });
+    expect(useOf('text-input:outlined', { component: 'chat-composer' }, 'text-input')).toEqual({ use: 'text-input:outlined', drawn: true });
+    expect(unavailableMessage('text-field:outlined', 'tanrei')).toBe('variant "outlined" of text-field is left out of the design system "tanrei"; it still works');
+    expect(unavailableMessage('segmented-button', null, ['tabs'], 'toolbar')).toBe('toolbar draws segmented-button, which is left out of the active design system; it still works, but the system uses tabs instead');
   });
 
   test('nothing is reported in a production build', () => {
@@ -170,5 +192,78 @@ test.describe('elements', () => {
       await page.waitForTimeout(100);
       expect(seen, system).toEqual([]);
     }
+  });
+
+  test('the shipped sheet names what the default system uses instead of what it leaves out, as its layer says (AVL-2)', async ({ page }) => {
+    // The stand-ins are the default system's layer's `insteadUse`, carried by its manifest and its sheet: read from all three.
+    const layer = JSON.parse(fs.readFileSync(path.join(web, '../../tokens/systems/tanrei.system.json'), 'utf8'));
+    const insteadUse: string[] = layer.components.omit['segmented-button'].insteadUse;
+    const manifest = JSON.parse(read('dist/systems/tanrei.components.json'));
+    expect(manifest.omitted.find((entry: { name: string }) => entry.name === 'segmented-button').insteadUse).toEqual(insteadUse);
+    expect(parseReplacements(declared(read('dist/tokens.css'), '--tanrei-unavailable-replacement').join(' ')).get('segmented-button')).toEqual(insteadUse);
+    const seen = warnings(page);
+    await mount(page, `<tanrei-segmented-button label="View"><tanrei-segment value="a" label="A"></tanrei-segment><tanrei-segment value="b" label="B"></tanrei-segment></tanrei-segmented-button>`);
+    await expect.poll(() => seen.length).toBe(1);
+    expect(seen[0]).toContain(`<tanrei-segmented-button>: segmented-button is left out of the active design system; it still works, but the system uses ${insteadUse.join(' or ')} instead (availability)`);
+    // A preset that leaves out nothing whole declares an empty list of its own, so it names no stand-in it does not have.
+    expect(declared(read('dist/systems/m3-like.css'), '--tanrei-unavailable-replacement')).toEqual([]);
+  });
+
+  test('a use inside a composed component is reported under the component the product wrote, by its name (AVL-1)', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, `<tanrei-text-field label="Name" variant="outlined"></tanrei-text-field>`);
+    await expect.poll(() => unavailableUses(page)).toEqual(['text-field:outlined']);
+    await expect.poll(() => seen.length).toBe(1);
+    expect(seen[0]).toContain('[tanrei] <tanrei-text-field>: variant "outlined" of text-field is left out of the active design system; it still works (availability)');
+    expect(seen.join('\n')).not.toContain('<tanrei-text-input>');
+    // A text input the product wrote itself is its own: reported and recorded by its own name.
+    await page.evaluate(() => document.body.append(Object.assign(document.createElement('tanrei-text-input'), { label: 'Alone', variant: 'filled' })));
+    await expect.poll(() => unavailableUses(page)).toEqual(['text-field:outlined', 'text-input:filled']);
+    await expect.poll(() => seen.length).toBe(2);
+    expect(seen[1]).toContain('<tanrei-text-input>: variant "filled" of text-input is left out of the active design system');
+  });
+
+  test('in the error mode a use is reported as an error; in either mode it is recorded, once, in alphabetical order (AVL-3)', async ({ page }) => {
+    const errors = warnings(page, 'error');
+    const seen = warnings(page);
+    await mount(page, '');
+    expect(await unavailableUses(page)).toEqual([]);
+    await setAvailabilityMode(page, 'error');
+    const segmented = (label: string) => `<tanrei-segmented-button label="${label}"><tanrei-segment value="a" label="A"></tanrei-segment><tanrei-segment value="b" label="B"></tanrei-segment></tanrei-segmented-button>`;
+    await page.evaluate((html) => document.body.insertAdjacentHTML('beforeend', html), `<tanrei-text-field label="Name" variant="outlined"></tanrei-text-field>${segmented('View')}${segmented('Again')}`);
+    await expect.poll(() => errors.length).toBe(3);
+    expect(errors.filter((message) => message.includes('<tanrei-segmented-button>: segmented-button is left out'))).toHaveLength(2);
+    expect(seen).toEqual([]);
+    expect(await unavailableUses(page)).toEqual(['segmented-button', 'text-field:outlined']);
+    // Back in the warning mode, a new use is a warning, and recorded beside the others.
+    await setAvailabilityMode(page, 'warn');
+    await page.evaluate(() => document.body.append(Object.assign(document.createElement('tanrei-fab-menu'), { label: 'Create' })));
+    await expect.poll(() => seen.length).toBe(1);
+    expect(seen[0]).toContain('<tanrei-fab-menu>: fab-menu lives in the layer "m3-like"');
+    expect(await unavailableUses(page)).toEqual(['fab-menu', 'segmented-button', 'text-field:outlined']);
+    expect(errors).toHaveLength(3);
+  });
+
+  test('a mode that is not one is refused, and the mode stays', async ({ page }) => {
+    const messages: string[] = [];
+    page.on('console', (message) => messages.push(message.text()));
+    await mount(page, '');
+    await setAvailabilityMode(page, 'loud');
+    await expect.poll(() => messages.find((text) => text.includes('setAvailabilityMode()'))).toBe('[tanrei] setAvailabilityMode(): "loud" is not a mode (warn, error); the mode stays "warn"');
+  });
+
+  test('a component that lives in another layer names the stand-ins the layer that holds it names (AVL-2)', async ({ page }) => {
+    // m3-like, which holds the FAB menu, says what a system without it uses; the default system's manifest and sheet carry it.
+    const layer = JSON.parse(fs.readFileSync(path.join(web, '../../tokens/systems/m3-like.system.json'), 'utf8'));
+    const [, fabMenu] = Object.entries<{ outside: { insteadUse: string[] } }>(layer.vocabulary).find(([key]) => key.endsWith('.comp.fab-menu'))!;
+    const insteadUse = fabMenu.outside.insteadUse;
+    const manifest = JSON.parse(read('dist/systems/tanrei.components.json'));
+    expect(manifest.omitted.find((entry: { name: string }) => entry.name === 'fab-menu').insteadUse).toEqual(insteadUse);
+    expect(parseReplacements(declared(read('dist/tokens.css'), '--tanrei-unavailable-replacement').join(' ')).get('fab-menu')).toEqual(insteadUse);
+    const seen = warnings(page);
+    await mount(page, `<tanrei-fab-menu label="Create"></tanrei-fab-menu>`);
+    await expect.poll(() => seen.length).toBe(1);
+    expect(seen[0]).toContain(`<tanrei-fab-menu>: fab-menu lives in the layer "m3-like", which the active design system does not extend: its stylesheet has none of the component's tokens. The system uses ${insteadUse.join(' or ')} instead;`);
+    expect(await unavailableUses(page)).toEqual(['fab-menu']);
   });
 });

@@ -2,7 +2,7 @@
 title: الزر
 description: يتيح للأشخاص تنفيذ إجراء، أو تشغيل شيء وإيقافه، أو الذهاب إلى وجهة، بنقرة واحدة.
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: 1f36f0bae5338228cbecfc2e4a454e81bf6bbfb9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,18 +10,19 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="الطُرُز">
+<VisualFrame label="الطُرُز" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### الاستخدام
 
@@ -171,6 +172,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 اختر الطراز كما تختاره لأي إجراء آخر. استخدم filled حيث يكون الحذف هو الخطوة التي وُجدت الواجهة من أجلها، مثل الإجراء الذي يُتمّ مربع حوار «حذف المشروع؟». واستخدم outlined أو text حيث يكون إجراءً بين عدة إجراءات، مثل «إزالة» في كل صف من قائمة. والزر ذو الأيقونة وحدها يقبل `destructive` أيضًا، لكن التسمية أوضح من رسم الأيقونة لإجراء لا يمكن التراجع عنه. وزر التبديل ليس له مظهر مدمِّر.
 
+ولا للرابط مظهر مدمِّر كذلك. فالزر الذي له `href` يتجاهل `destructive` ويُرسم رابطًا من طرازه، لأن اتباع الرابط لا يحذف شيئًا: إنه لا يفعل إلا أن يأخذ الشخص إلى المكان الذي يمكن فيه حذف شيء. فضع العلامة على الإجراء في ذلك المكان، مثل زر «حذف» في الصفحة التي يفتحها الرابط. وتبلّغ بنيات التنقيح (debug) عن أي رابط أُعطي `destructive`.
+
 <DemoFrame label="أزرار مدمرة في كل طراز، وزر بأيقونة وحدها" plain>
   <tanrei-button destructive>حذف المشروع</tanrei-button>
   <tanrei-button variant="tonal" destructive>تجاهل المسودة</tanrei-button>
@@ -258,7 +261,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="الاسم" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="الاسم" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">مسح</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">حفظ المسودة</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">نشر</tanrei-button>
@@ -291,7 +294,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="الاسم" name="name" requirement="required" />
+      <TextField label="الاسم" name="name" required />
       <Button type="reset" variant="text">مسح</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">حفظ المسودة</Button>
       <Button type="submit" name="intent" value="publish">نشر</Button>
@@ -365,7 +368,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `destructive` ليست طرازًا: تُضاف إلى أي طراز، وتحفظ درجة إبرازه (انظر [الإجراءات المدمرة](#الإجراءات-المدمرة)).
 
-الزر الذي بلا `variant` يكون من الطراز filled، مع استثناء واحد: حين يوضع إجراءً في [مربع حوار](/ar/components/dialog/) أو في [لوحة جانبية](/ar/components/side-sheet/) يأخذ طراز ذلك المضيف، وهو tonal في النظام الافتراضي، فلا تضبط الطراز إلا على الإجراء الذي ينبغي أن يبدو مختلفًا. وزر الإغلاق في اللوحة الجانبية يأخذ بالطريقة نفسها طراز زر الإغلاق الخاص باللوحة.
+الزر الذي بلا `variant` يكون من الطراز filled، مع استثناء واحد: حين يوضع إجراءً في [مربع حوار](/ar/components/dialog/) أو في [لوحة جانبية](/ar/components/side-sheet/) يأخذ طراز ذلك المضيف، وهو tonal في النظام الافتراضي، فلا تضبط الطراز إلا على الإجراء الذي ينبغي أن يبدو مختلفًا. وزر الإغلاق في كل مضيف، في اللوحة المنبثقة واللوحة الجانبية واللوحة السفلية والتنويه وشريط الإشعار ومعاينة الصور، زر صغير (small) بأيقونة فقط يأخذ بالطريقة نفسها طراز زر الإغلاق الخاص بمضيفه، وهو tonal في النظام الافتراضي. وعلى سطح ملوّن، مثل تنويه لحالة أو شريط إشعار معكوس، يُرسم أيضًا بلون نص ذلك السطح.
 
 ### افعل
 
@@ -374,6 +377,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - ضع الإجراء الأساسي حيث يتوقعه مستخدمو المنصة، وحافظ على ذلك الترتيب في المنتج كله.
 - استخدم `small` (32) في أشرطة الأدوات والجداول الكثيفة، و `medium` (40) افتراضيًّا، و `large` (56) للواجهات التي تعتمد اللمس أولًا أو للمواضع البارزة (hero). مساحة اللمس آمنة في كل حجم.
 - اضبط `destructive` على الإجراء الذي يحذف شيئًا أو يتخلص منه، واختر طرازه بحسب درجة إبرازه، كما تفعل مع أي إجراء آخر.
+- اجعل الرابط المؤدي إلى المكان الذي يُحذف فيه شيء رابطًا عاديًا، تقول تسميته إلى أين يؤدي. واضبط `destructive` على الزر الذي يحذف، في ذلك المكان.
 - استخدم منفذ الأيقونة لتعزيز التسمية. لا تحذف التسمية إلا حيث يكون رسم الأيقونة مفهومًا على نطاق واسع (البحث، الإغلاق، المزيد)، وسمِّ الزر بالخاصية `label`.
 
 ### لا تفعل
@@ -384,6 +388,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - لا تجعل تعطيل الزر الطريقة الوحيدة للإبلاغ عن مشكلة في التحقق. أبقِه مفعَّلًا واشرح ما ينقص عند ضغطه، أو أبقِه في المتناول بالخاصية `focusable-when-disabled` وقل السبب.
 - لا تعطّل الزر ما دام إجراؤه جاريًا. اضبط الخاصية `busy`، فيبقى التركيز عليه.
 - لا تستخدم `destructive` للإبراز، ولا لإجراء لا يدمّر شيئًا. إن كانت كل إجراءات الواجهة حمراء، لم يبرز أي منها.
+- لا تجعل الرابط أحمر، ولا تعطِ زرًّا الخاصيتين `href` و`destructive` معًا. فالرابط لا يفعل إلا أن يؤدي إلى مكان ما، ولذلك يتجاهل الزر `destructive` ويُرسم رابطًا من طرازه.
 - لا تقتطع التسميات. دع الزر يكبر، أو اكتب تسمية أقصر.
 - لا تترك زرًّا بأيقونة وحدها من دون `label`: رسم الأيقونة ليس اسمًا.
 - لا ترصّ بيدك الأزرار الضيقة ذات الأيقونة وحدها حافةً إلى حافة. أهدافها تمتد إلى ما وراء حوافها فتتداخل.

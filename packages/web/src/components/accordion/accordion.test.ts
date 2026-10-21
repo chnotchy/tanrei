@@ -18,6 +18,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { boxAtRest } from '../../../test/at-rest.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
@@ -648,11 +649,11 @@ test.describe('opening and closing', () => {
         inside: document.getElementById('inside')!.getBoundingClientRect().height,
         after: document.getElementById('n')!.getBoundingClientRect().top - el.getBoundingClientRect().top,
       }));
-    interface Frame { height: number; inside: number; after: number; open: boolean; drawn: boolean }
+    interface Frame { height: number; inside: number; after: number; open: boolean; drawn: boolean; turned?: boolean }
     interface Watched {
       /** What moves when the item's `toggle` arrives: its clock and its chevron's turn. */
       atToggle?: { clock: [string, number][]; chevron: [string, number][] };
-      /** Every frame from the click until the clock has ended. */
+      /** Every frame from the click until no motion of the item runs and its height has stood still for three frames. */
       frames: Frame[];
       /** Whether focus could be put inside the content, in the first frame found between `turnBetween`. */
       focusable?: boolean;
@@ -661,9 +662,12 @@ test.describe('opening and closing', () => {
       done: boolean;
     }
     /**
-     * Watches the next change of the item, in the page: what moves at its `toggle`, and every frame until its clock has
-     * ended. With `turnBetween`, in the first frame whose height lies between the two the page tries to focus the
-     * content and then activates the header again, so the motion is turned back where it is.
+     * Watches the next change of the item, in the page: what moves at its `toggle`, and every frame until it is over —
+     * no clock or chevron turn of the item runs, and its height has been the same for three frames: the height is a
+     * transition of `::details-content`, which no engine lists, and Chromium ends it a frame or two after the motions
+     * that are listed when the change turns a motion back. With `turnBetween`, in the first frame whose height lies
+     * between the two the page tries to focus the content and then activates the header again, so the motion is
+     * turned back where it is.
      */
     const watch = (turnBetween?: [number, number]) =>
       details.evaluate((el, turnBetween) => {
@@ -681,10 +685,12 @@ test.describe('opening and closing', () => {
           { once: true },
         );
         let began = false;
+        let still = 0;
         const frame = () => {
           const height = el.getBoundingClientRect().height;
-          const running = el.getAnimations().length > 0;
+          const running = el.getAnimations().length > 0 || header.getAnimations({ subtree: true }).some((a) => (a as CSSTransition).transitionProperty === 'rotate');
           began ||= running;
+          still = seen.frames.length && seen.frames.at(-1)!.height === height ? still + 1 : 0;
           seen.frames.push({ height, inside: inside.getBoundingClientRect().height, after: next.getBoundingClientRect().top - el.getBoundingClientRect().top, open: (el as HTMLDetailsElement).open, drawn: inside.checkVisibility({ contentVisibilityAuto: true }) });
           if (turnBetween && !seen.turn && height > turnBetween[0] && height < turnBetween[1]) {
             const within = document.getElementById('within')!;
@@ -693,10 +699,11 @@ test.describe('opening and closing', () => {
             seen.focusable = document.activeElement === within;
             held?.focus();
             const turn: { before: number; after?: number } = (seen.turn = { before: height });
+            seen.frames.at(-1)!.turned = true;
             el.addEventListener('toggle', () => setTimeout(() => (turn.after = el.getBoundingClientRect().height)), { once: true });
             header.click();
           }
-          if (began && !running) seen.done = true;
+          if (began && !running && still >= 3) seen.done = true;
           else requestAnimationFrame(frame);
         };
         window.addEventListener('click', () => requestAnimationFrame(frame), { capture: true, once: true });
@@ -737,26 +744,36 @@ test.describe('opening and closing', () => {
       near(mid.after, mid.height, 1);
     }
     await settled(page);
-    const open = (await edges(details)).height;
+    const open = (await boxAtRest(details)).height;
     expect(open).toBeGreaterThanOrEqual(closed + 200);
     expect(await details.evaluate((el) => [el.getAttribute('data-tanrei-moving'), (el as HTMLElement).style.getPropertyValue('--_acc-size')])).toEqual([null, '']);
     // Closing: the content stays drawn while the item shrinks, and is out of the focus order from the first frame.
-    // Half way back the header is activated again (by the page, in the frame that finds the item there): the motion
-    // goes on from where it is, without a jump. The height is read in that frame and again in the task after the
-    // item's `toggle`: two readings a round trip apart would differ by what the machine took to answer, not by a jump.
-    await watch([closed, open - 40]);
+    // On the way the header is activated again (by the page, in the frame that finds the item there): the motion goes
+    // on from where it is, without a jump. The height is read in that frame and again in the task after the item's
+    // `toggle`: two readings a round trip apart would differ by what the machine took to answer, not by a jump. The
+    // turn comes in the first half of the closing — more than 60 px into it and before its middle — where a browser turns
+    // the height back but cancels the item's clock, a value that steps in the middle (accordion.css): what the item
+    // does then is drawn frame by frame up to the open height.
+    const middle = (closed + open) / 2;
+    await watch([middle + 8, open - 60]);
     await summary.click();
     const closing = await watched();
-    const shrinking = closing.frames.slice(0, closing.frames.findIndex((frame) => frame.height > closed && frame.height < open - 40) + 1);
-    expect(shrinking.length, 'a frame of the closing').toBeGreaterThan(0);
-    for (const frame of shrinking) expect([frame.inside, frame.open, frame.drawn], `closing, at ${frame.height}`).toEqual([200, false, true]);
+    const turned = closing.frames.findIndex((frame) => frame.turned);
+    expect(turned, `a frame of the closing between ${middle + 8} and ${open - 60}, of ${closing.frames.map((frame) => Math.round(frame.height)).join(', ')}`).toBeGreaterThan(-1);
+    for (const frame of closing.frames.slice(0, turned + 1)) expect([frame.inside, frame.open, frame.drawn], `closing, at ${frame.height}`).toEqual([200, false, true]);
     expect(closing.focusable, 'the closing content takes no focus').toBe(false);
     const { before, after } = closing.turn as { before: number; after: number };
     expect(Math.abs(after - before)).toBeLessThan(60);
     expect(after).toBeGreaterThan(closed);
     expect(after).toBeLessThan(open);
+    // Turned back, it grows from where it was, frame by frame, to the open height: it does not jump to its end.
+    const back = closing.frames.slice(turned + 1).map((frame) => frame.height);
+    const heights = `turned at ${before}, then ${back.join(', ')}`;
+    expect(back.some((height) => height > before + 1 && height < open - 1), `a frame on the way back: ${heights}`).toBe(true);
+    for (let i = 1; i < back.length; i++) expect(back[i]!, heights).toBeGreaterThanOrEqual(back[i - 1]!);
+    near(back.at(-1)!, open);
     await settled(page);
-    near((await edges(details)).height, open);
+    near((await boxAtRest(details)).height, open);
     expect(await page.locator('#inside').evaluate((el) => (el as HTMLElement).inert)).toBe(false);
     await summary.click();
     // (Closing or closed, whichever the machine has reached: the content is passed over either way.)
@@ -765,7 +782,7 @@ test.describe('opening and closing', () => {
     expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('within');
     expect(await page.evaluate(() => document.activeElement?.closest('details')?.id)).toBe('n');
     await settled(page);
-    near((await edges(details)).height, closed);
+    near((await boxAtRest(details)).height, closed);
     // Reduced motion: at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await summary.click();
@@ -790,6 +807,82 @@ test.describe('opening and closing', () => {
       }, name);
     void curve;
     expect(await resolved(T('motion-disclosure-easing'))).toBe(await resolved('--tanrei-comp-navigation-drawer-motion-disclosure-easing'));
+  });
+
+  test('ACC-8, ACC-13: content of paragraphs, whose first and last have margins, is held whole by the item — the margins are inside it, with the space under the content below them, and none reaches out of the item where that space is 0 — and opens and closes with no jump at either end: in every frame the height is where the motion is, from the height the item rests at to the one it rests at after', async ({ page }) => {
+    const own = raw('margins', {}, `<details id="m"><summary>Item</summary><p>The first paragraph.</p><p>The last paragraph.</p></details><details id="n"><summary>After</summary>after</details>`);
+    await mountFixtures(page, spec, { icons: true, fixtures: [own] });
+    // A linear curve: the height at a moment of the motion is a straight line from where it starts to where it ends.
+    await override(page, { [T('motion-disclosure-duration')]: '2000ms', [T('motion-disclosure-easing')]: 'linear' });
+    const duration = await resolveToken(page, T('motion-disclosure-duration'), 'duration');
+    const details = page.locator('#m');
+    /** The margins of the content's first and last parts, and where the item, its header and those parts are. */
+    const layout = () =>
+      details.evaluate((el) => {
+        const [first, last] = [el.querySelector('p:first-of-type')!, el.querySelector('p:last-of-type')!];
+        return {
+          margins: [Number.parseFloat(getComputedStyle(first).marginBlockStart), Number.parseFloat(getComputedStyle(last).marginBlockEnd)],
+          above: first.getBoundingClientRect().top - el.querySelector('summary')!.getBoundingClientRect().bottom,
+          below: el.getBoundingClientRect().bottom - last.getBoundingClientRect().bottom,
+        };
+      });
+    /**
+     * Every frame of the next change, from the click until the item's clock (accordion.css) has ended and its height has
+     * stood still for three frames: the height, and how far the motion is — the clock's own time, which starts with the
+     * change and runs as the height's transition does (that one is listed by no engine: test/at-rest.ts). Read in the
+     * page, frame by frame: a question from here answers a frame or more late.
+     */
+    const change = () =>
+      details.evaluate(
+        (el) =>
+          new Promise<{ height: number; time: number | null }[]>((resolve) => {
+            const frames: { height: number; time: number | null }[] = [];
+            let began = false;
+            let still = 0;
+            const frame = () => {
+              const clock = el.getAnimations().find((a) => (a as CSSTransition).transitionProperty === '--_acc-open');
+              const height = el.getBoundingClientRect().height;
+              began ||= !!clock;
+              still = frames.length && frames.at(-1)!.height === height ? still + 1 : 0;
+              frames.push({ height, time: clock ? Number(clock.currentTime) : null });
+              if (began && !clock && still >= 3) resolve(frames);
+              else requestAnimationFrame(frame);
+            };
+            el.querySelector('summary')!.click();
+            requestAnimationFrame(frame);
+          }),
+      );
+    /** Each frame whose height is not where the motion from `from` to `to` is at that moment — or, once it is over, not `to`. */
+    const jumps = (frames: { height: number; time: number | null }[], from: number, to: number, slack: number) =>
+      frames
+        .map(({ height, time }) => ({ height, at: time === null ? to : from + ((to - from) * Math.min(time, duration)) / duration }))
+        .filter(({ height, at }) => Math.abs(height - at) > slack)
+        .map(({ height, at }) => `${height.toFixed(1)} where the motion is at ${at.toFixed(1)}`);
+    const closed = (await boxAtRest(details)).height;
+    const opening = await change();
+    const opened = await layout();
+    const open = (await boxAtRest(details)).height;
+    // The paragraphs have margins of their own, and the item holds them: the first under its header, the last above the
+    // space under the content.
+    expect(opened.margins[0]).toBeGreaterThan(4);
+    expect(opened.margins[1]).toBeGreaterThan(4);
+    near(opened.above, opened.margins[0]!);
+    near(opened.below, opened.margins[1]! + (await resolveToken(page, T('content-padding-block-end-regular'))));
+    expect(open).toBeGreaterThan(closed + opened.margins[0]! + opened.margins[1]!);
+    // A jump is a frame a margin away from where the motion is; a frame that comes a frame early or late is
+    // (open - closed) / duration × 16 ms away, under a pixel here. Half a margin tells the two apart.
+    const slack = opened.margins[0]! / 2;
+    const heights = (frames: { height: number }[]) => frames.map((frame) => frame.height.toFixed(1)).join(', ');
+    expect(jumps(opening, closed, open, slack), `opening: ${heights(opening)}`).toEqual([]);
+    const closing = await change();
+    expect(jumps(closing, open, closed, slack), `closing: ${heights(closing)}`).toEqual([]);
+    near((await boxAtRest(details)).height, closed);
+    // Where the space under the content is 0, the last paragraph's margin is still the item's: it does not reach past
+    // the item's lower edge, between it and the item after it.
+    await override(page, { [T('content-padding-block-end-regular')]: '0px' });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await details.locator('> summary').click();
+    near((await layout()).below, opened.margins[1]!);
   });
 
   test('ACC-14: in a page 600 high, with the first item of an exclusive accordion open and the third header at 400 from the top, activating the third header leaves it at 400 while the first closes; an item that opens is not scrolled into view', async ({ page }) => {
@@ -901,10 +994,14 @@ test.describe('opening and closing', () => {
     const before = await attributes();
     await watchToggles(page);
     const isOpen = (id: string) => page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => el.open);
-    /** Opens an item again and forgets its toggle. */
+    /**
+     * Opens an item again and forgets its toggle, once its box is at rest: it is opened while it closes, which turns
+     * its height back, and that motion is listed nowhere (`boxAtRest`); the boxes read after it aim the presses.
+     */
     const reopen = async (id: string) => {
       await page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => (el.open = true));
       await settled(page);
+      await boxAtRest(page.locator(`#${id}`));
       await toggles(page);
     };
     /** Nothing closed: a task for the deferred decision, then the toggles. */

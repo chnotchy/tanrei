@@ -2,7 +2,7 @@
 title: 数値フィールド
 description: 数値を数値として入力できるようにします。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。フォームの完成した 1 つのフィールドで、数値入力欄をフィールドで囲んだものです。
 translationOf: components/number-field.mdx
-sourceHash: d14b4c010e77328467d20894bf802cdfa9ea87a5
+sourceHash: 3c1eabf6d7a809f831a180497a3ea74c23603162
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
     ```html
     <form>
       <tanrei-number-field name="quantity" label="数量" value="1" min="1" max="99"
-        requirement="required" required-text="必須" invalid-text="数値を入力してください。"
+        required required-text="必須" invalid-text="数値を入力してください。"
         increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
     </form>
 
@@ -82,7 +82,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても、同じ名前、説明、状態を持つ同じスピンボタンになります。
 
 ```html
-<tanrei-field label="数量" requirement="required" required-text="必須"
+<tanrei-field label="数量" required required-text="必須"
   supporting-text="1 回の注文は 99 個までです。">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="数値を入力してください。"
     increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
@@ -90,7 +90,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 ```
 
 <DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中に数値入力欄があります" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" requirement="required" required-text="必須" supporting-text="1 回の注文は 99 個までです。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必須" supporting-text="1 回の注文は 99 個までです。">
     <tanrei-number-input min="1" max="99" invalid-text="数値を入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -121,7 +121,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 | パーツ | 内容 |
 | --- | --- |
 | ラベル | フィールドのもの。コンテナの上（`stacked`）。`filled` と `outlined` では数値入力欄がボックスの中で浮き上がるラベルとして描き、フィールドはラベルの行を描きません。描いても `labelHidden` で隠しても、アクセシブルネームになります |
-| 必須・任意の印 | フィールドのもの。ラベルの後ろ。`requirement="required"` では必須のタグ、アスタリスク、または印なし。`optional` では任意のタグ。浮き上がるラベルにはアスタリスクが付きます |
+| 必須・任意の印 | フィールドのもの。ラベルの後ろ。`required` では必須のタグ、アスタリスク、または印なし。`optional` では任意のタグ。浮き上がるラベルにはアスタリスクが付きます |
 | 入力欄 | 数値入力欄のもの。テキストとしての数値。編集中はユーザーが入力したもの、それ以外は確定した数値をロケールの書き方で示します。1 行で、収まらない分はスクロールします |
 | プレフィックス、サフィックス | 数値入力欄のもの。数値の前後に置く決まったテキスト。通貨記号や単位です。ボックスの一部で、値には含まれません |
 | ステッパー | 数値入力欄のもの。末尾側にある 2 つのボタン。1 つ目が減らし、2 つ目が増やします。`steppers` を false にすると付きません |
@@ -191,7 +191,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 ### Web での描き方の違い
 
 - 要素のシャドウルートには `<tanrei-field>` があり、その中に `<tanrei-number-input>` があります。数値フィールドをインポートすると、どちらも定義されます。
-- 数値フィールドは、フォームに関連付けられる要素で、フォームに加わるコントロールはこの要素だけです。`name` を受け取り、ロケールの表示にかかわらず、値を素の 10 進数（`12.5`）として送信します。リセットでは `value` 属性に戻ります。`requirement="required"` で値がない間は値の欠落を、テキストが数でない間は不正な入力を、フォームに報告します。
+- 数値フィールドは、フォームに関連付けられる要素で、フォームに加わるコントロールはこの要素だけです。`name` を受け取り、ロケールの表示にかかわらず、値を素の 10 進数（`12.5`）として送信します。リセットでは `value` 属性に戻ります。`required` で値がない間は値の欠落を、テキストが数でない間は不正な入力を、フォームに報告します。
 - 置かれた場所の幅いっぱいに広がるブロックです。幅を与えない場所では、長いラベルがあるとボックスより広くなります。そこでは幅を与えてください。
 - パーツは構成要素のもので、名前も同じです。フィールドからは `label`、`label-icon`、`requirement-label`、`supporting-text`、数値入力欄からは `container`、`outline`、`active-indicator`、`input`、`prefix`、`suffix`、`stepper` です。`label` と `requirement-label` は、2 つのうち描かれているほうに届きます。`field-label` と `number-input-label` は、どちらか一方に届きます。2 つの構成要素は、パーツ `field` と `number-input` です。
 - `entryerror` の `detail.text` は入力欄の `invalidText` で、与えられていなければ空です。detail の型は数値入力欄のもので、`TanreiNumberInputInputDetail` と `TanreiNumberInputEntryErrorDetail` です。
@@ -242,7 +242,7 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 - 入力欄はスピンボタンです。名前は `label` で、描いても隠しても同じです。プレースホルダーが名前になることはありません。
 - 値は確定した数値で、範囲は `min` と `max` です。
 - 表示している補足テキストまたはエラーテキストが説明になります。フィールドが任意の間は `optionalText` も加わります。
-- `error` が true の間とテキストが数でない間は invalid、`requirement` が `required` の間は必須、また読み取り専用として伝えます。
+- `error` が true の間とテキストが数でない間は invalid、`required` が設定されている間は必須、また読み取り専用として伝えます。
 - フィールドにフォーカスがある間に現れたエラーは、1 回、控えめに読み上げます。数ではないテキストのエラーも同じです。
 - ステッパーは、`decrementLabel` と `incrementLabel` を名前とするボタンです。名前を与えられていないステッパーは、支援技術から隠します。矢印キーが入力欄から増減するので、フォーカス順には入りません。タッチで探索するユーザーは、ステッパーを見つけられます。
 - ステッパーを押してもフォーカスは動かないので、オンスクリーンキーボードは出てきません。

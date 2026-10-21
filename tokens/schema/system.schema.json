@@ -435,14 +435,16 @@
     },
     "rule": {
       "type": "object",
-      "description": "One rule of the closed, declarative rule language: mul, scale, clamp, em (numeric — packages/token-engine/src/rules.js) and tone, alpha, mix, contrast-pick (color — palette.js for color roles, states.js for per-state component tokens). `{ \"fixed\": \"<reason>\" }` keeps a literal. On a typography token the rule is a map of field → rule (fontSize, letterSpacing). No addition, conditionals, strings or functions of your own.",
+      "description": "One rule of the closed, declarative rule language: mul, scale, clamp, sub, em, pick (numeric — packages/token-engine/src/rules.js) and tone, alpha, mix, contrast-pick (color — palette.js for color roles, states.js for per-state component tokens). `pick` is a value set by a choice of kind: `{ \"fn\": \"pick\", \"by\": \"{<choice>}\", \"values\": { \"<name>\": <value or alias>, … } }` gives one value per name of the choice, and the token takes the one the chain's choice names. `{ \"fixed\": \"<reason>\" }` keeps a literal. `sub` is `{ \"fn\": \"sub\", \"of\": \"{<outer>}\", \"by\": \"{<inset>}\" }`: of − by, never below zero — a corner inside another at an inset. On a typography token the rule is a map of field → rule (fontSize, letterSpacing). No other arithmetic, conditionals, strings or functions of your own.",
       "properties": {
         "fn": {
           "enum": [
             "mul",
             "scale",
             "clamp",
+            "sub",
             "em",
+            "pick",
             "tone",
             "alpha",
             "mix",
@@ -451,6 +453,36 @@
         }
       },
       "allOf": [
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "pick"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "by",
+              "values"
+            ],
+            "properties": {
+              "by": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$",
+                "description": "The choice of kind the value follows (a `number` token with `dev.tanrei.enum`), as an alias."
+              },
+              "values": {
+                "type": "object",
+                "minProperties": 1,
+                "description": "One value per name of the choice: a literal of the token's type, or an alias. The build refuses a name that is missing and one the choice does not have."
+              }
+            }
+          }
+        },
         {
           "if": {
             "required": [
@@ -623,6 +655,34 @@
               "by"
             ]
           }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "sub"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "of",
+              "by"
+            ],
+            "properties": {
+              "of": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$"
+              },
+              "by": {
+                "type": "string",
+                "pattern": "^\\{[^{}]+\\}$"
+              }
+            }
+          }
         }
       ]
     },
@@ -664,6 +724,32 @@
           "type": "string",
           "minLength": 8,
           "description": "Why the component lives in this layer and not in the core: the one-product test it passes here and fails there."
+        },
+        "outside": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reason",
+            "insteadUse"
+          ],
+          "description": "What a system that does not have the component uses for its job: every shipped system's and product's components manifest lists the component under `omitted`, with the layer it lives in (`providedBy`), this `reason`, and those of `insteadUse` that the system ships.",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Why a system outside this layer does without the component, and how the components it names do its job."
+            },
+            "insteadUse": {
+              "type": "array",
+              "uniqueItems": true,
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+              },
+              "description": "The components (specs/inventory.json) a system without this one ships for the same job, in order of preference. Each shipped system that does not have the component ships every one of them."
+            }
+          }
         },
         "rules": {
           "type": "array",

@@ -5,6 +5,7 @@ import {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
   type TanreiComboboxFilter,
+  type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
   type TanreiComboboxSize,
   type TanreiComboboxStatus,
@@ -12,12 +13,13 @@ import {
   type TanreiComboboxToggleReason,
   type TanreiComboboxVariant,
 } from '../combobox/combobox.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 
 // The members' own types are the combobox field's: it has no detail type and no type for a prop of its own.
 export type {
   TanreiComboboxChangeDetail,
   TanreiComboboxFilter,
+  TanreiComboboxIconSpace,
   TanreiComboboxSeparation,
   TanreiComboboxSize,
   TanreiComboboxStatus,
@@ -25,11 +27,10 @@ export type {
   TanreiComboboxToggleReason,
   TanreiComboboxVariant,
   TanreiFieldRequiredMark,
-  TanreiFieldRequirement,
 };
 
 /** CBF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * CBF-1: the sixteen props that are the combobox's, and `inline`, its web-only attribute that draws an open list in
  * place (a fixture and its twin are then staged alike). Its own `label`, `labelHidden`, `error` and `disabled` are
@@ -53,6 +54,7 @@ const COMBOBOX = [
   'statusText',
   'emptyText',
   'separation',
+  'iconSpace',
   'inline',
 ] as const;
 
@@ -76,7 +78,7 @@ const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label',
  * Contract: specs/combobox-field.spec.json.
  *
  * ```html
- * <tanrei-combobox-field name="city" label="City" requirement="required" supporting-text="Where the order is sent." value="tokyo">
+ * <tanrei-combobox-field name="city" label="City" required supporting-text="Where the order is sent." value="tokyo">
  *   <tanrei-option value="kyoto">Kyoto</tanrei-option>
  *   <tanrei-option value="tokyo">Tokyo</tanrei-option>
  * </tanrei-combobox-field>
@@ -86,9 +88,9 @@ const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label',
  * else, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*`,
  * `--tanrei-comp-input-box-*` and `--tanrei-comp-combobox-*` value reaches the members by inheritance, and one combobox field is set apart by setting
  * such a property on this element. Each property is its member's, set on that member unchanged: `label`,
- * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `requirement`, `required-mark`,
+ * `label-hidden`, `supporting-text`, `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`,
  * `required-text` and `optional-text` are the Field's, every other one the combobox's. One level down, the same by
- * hand: `<tanrei-field label="City" requirement="required" supporting-text="Where the order is sent."><tanrei-combobox
+ * hand: `<tanrei-field label="City" required supporting-text="Where the order is sent."><tanrei-combobox
  * name="city" value="tokyo"><tanrei-option value="kyoto">Kyoto</tanrei-option>…</tanrei-combobox></tanrei-field>` — and
  * the box alone, where a label stands elsewhere, is `<tanrei-combobox>` with a `label` of its own.
  *
@@ -105,7 +107,7 @@ const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label',
  *
  * Form-associated: it submits the committed value under `name` — never the text of an edit, and nothing while
  * disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports
- * a missing value while `requirement` is `required` and the value is empty. Enter with no option active presses the
+ * a missing value while `required` is set and the value is empty. Enter with no option active presses the
  * default button of this element's form.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the input, and its name is `label` (with
@@ -157,7 +159,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -177,6 +180,7 @@ export class TanreiComboboxField extends ComposedControl<string> {
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     inline: { type: Boolean, reflect: true },
   };
 
@@ -198,8 +202,11 @@ export class TanreiComboboxField extends ComposedControl<string> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
+  /** @from tanrei-field.required */
+  required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -282,6 +289,9 @@ export class TanreiComboboxField extends ComposedControl<string> {
 
   /** @from tanrei-combobox.separation */
   separation: TanreiComboboxSeparation = 'auto';
+
+  /** @from tanrei-combobox.iconSpace */
+  iconSpace: TanreiComboboxIconSpace = 'auto';
 
   /**
    * Web only, for fixtures and tests: its combobox's `inline`, which draws the open list in place. No prop of the spec:

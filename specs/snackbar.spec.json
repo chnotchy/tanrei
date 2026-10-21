@@ -2,10 +2,13 @@
   "$schema": "./component.schema.json",
   "name": "snackbar",
   "title": "Snackbar",
-  "summary": "Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), on a raised surface of the scheme or as a bar of the opposite scheme, with at most one action, without taking focus or interrupting their work.",
+  "summary": "Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), on a raised surface of the scheme or as a bar of the opposite scheme, with at most one action, without taking focus or interrupting their work.",
   "category": "communication",
   "level": "base",
   "listing": "default",
+  "uses": [
+    "button"
+  ],
   "anatomy": [
     {
       "id": "container",
@@ -32,22 +35,22 @@
     },
     {
       "id": "action",
-      "description": "One control that undoes or follows up on what happened, drawn as a tonal button with the snackbar's own tokens: the color of its own bar with a tonal layer of its label's color over it, so that it stands one quiet step off the bar, the same step in every form.",
+      "description": "One control that undoes or follows up on what happened, drawn as a tonal button with the snackbar's own tokens, as tall as the small Buttons beside it: the color of its own bar with a tonal layer of its label's color over it, so that it stands one quiet step off the bar, the same step in every form.",
       "optional": true
     },
     {
       "id": "expand",
-      "description": "An icon-only button that shows the whole title and message, and hides them again: the glyph expand_more while collapsed and expand_less while expanded. Drawn only while the text is longer than its collapsed limit, with the close button's tokens.",
+      "description": "An icon-only Button of the small size that shows the whole title and message, and hides them again: the glyph expand_more while collapsed and expand_less while expanded. Drawn only while the text is longer than its collapsed limit, and drawn as the close button is (SNK-34).",
       "optional": true
     },
     {
       "id": "close",
-      "description": "An icon-only button with the icon set's close glyph that closes the snackbar. The snackbar draws it with its own tokens.",
+      "description": "An icon-only Button of the small size showing the icon set's close glyph, which closes the snackbar. The snackbar places it, chooses its variant (comp.snackbar.close-button.variant: tonal in the default system) and gives it its form's tone (BTN-45): the glyph in the bar's message color and, where the variant draws a container, a circle of that color made translucent. Everything else it reads from Button's own tokens.",
       "optional": true
     },
     {
       "id": "focus-ring",
-      "description": "Gap-then-ring indicator shown for keyboard focus of a control, or of the text while it scrolls, in the color its form gives it so that it shows on that form's bar.",
+      "description": "Gap-then-ring indicator shown for keyboard focus of the action, or of the text while it scrolls, in the color its form gives it so that it shows on that form's bar. The expand and close buttons draw their own, in the same color (SNK-34).",
       "optional": true
     }
   ],
@@ -132,6 +135,16 @@
       ],
       "default": "auto",
       "description": "How long the snackbar stays by itself. Auto is short without an action and indefinite with one (WCAG 2.2.1: a person must not be timed out of an action). Short and long close after the snackbar's timeout tokens; indefinite stays until it is closed."
+    },
+    {
+      "name": "placement",
+      "type": "enum",
+      "values": [
+        "bottom",
+        "top-end"
+      ],
+      "default": "bottom",
+      "description": "Where the host places the snackbar in its area. Bottom, the default, is the bottom edge, centred (SNK-13). Top-end is the top edge at the end side: the top right in a left-to-right layout and the top left in a right-to-left one, and across the top of a compact window (SNK-35). A host may be given one placement for all the snackbars it shows; a snackbar that names its own keeps it. It changes where the snackbar stands and the side it enters from (SNK-36, SNK-37), and nothing else: not its size, its form, its order in the queue, its place in the focus order or its announcement."
     }
   ],
   "events": [
@@ -161,30 +174,30 @@
     },
     {
       "id": "SNK-2",
-      "text": "WHILE a control (the action, the expand button or the close button) is hovered, keyboard-focused or pressed THE snackbar SHALL render that control's container, content color and opacity from the component tokens of the highest-precedence active state of that control, in the snackbar's form (SNK-21, SNK-30), with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "text": "WHILE the action is hovered, keyboard-focused or pressed THE snackbar SHALL render the action's container, content color and opacity from the component tokens of the highest-precedence active state of the action, in the snackbar's form (SNK-21, SNK-30), with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. The expand and close buttons answer their states as any Button does (SNK-34).",
       "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
     },
     {
       "id": "SNK-3",
-      "text": "WHEN a control (the action, the expand button or the close button) receives keyboard focus THE snackbar SHALL show the focus ring around that control without animation; focus gained by pointer or touch SHALL NOT show it. THE snackbar SHALL draw the outer stroke of that indicator, and of the indicator inside the text while it scrolls and has keyboard focus (SNK-25), in its form's focus-ring color: comp.snackbar.focus-ring.color in the default form, and the token of that name under the form's prefix in every other (comp.snackbar.info.focus-ring.color, comp.snackbar.inverse.focus-ring.color, comp.snackbar.inverse-info.focus-ring.color, and warning's, error's and success's of the same names), never the system's focus-ring color role read directly. The widths and the offset SHALL stay the system's (sys.focus.outer-width, sys.focus.inner-width, sys.focus.offset), as SHALL the color of an inner stroke where the system draws one; under the glow focus style (SNK-7) the form's color SHALL be the halo's outer color.",
+      "text": "WHEN the action receives keyboard focus THE snackbar SHALL show the focus ring around it without animation; focus gained by pointer or touch SHALL NOT show it. THE snackbar SHALL draw the outer stroke of that indicator, of the indicator inside the text while it scrolls and has keyboard focus (SNK-25) and, through the tone it gives them (SNK-34), of the indicators of the expand and close buttons, in its form's focus-ring color: comp.snackbar.focus-ring.color in the default form, and the token of that name under the form's prefix in every other (comp.snackbar.info.focus-ring.color, comp.snackbar.inverse.focus-ring.color, comp.snackbar.inverse-info.focus-ring.color, and warning's, error's and success's of the same names), never the system's focus-ring color role read directly. The widths and the offset SHALL stay the system's (sys.focus.outer-width, sys.focus.inner-width, sys.focus.offset), as SHALL the color of an inner stroke where the system draws one; under the glow focus style (SNK-7) the form's color SHALL be the halo's outer color.",
       "verify": "A test reads the indicator's color on the action, the close button and the scrolling text in the default, a status, the inverse and an inverse status form. The token build (or, until it has that check, a test) holds each form's focus-ring.color at 3:1 or more against that form's container.color in every scheme of the default system."
     },
     {
       "id": "SNK-4",
-      "text": "WHERE the visual size of a control (the action, the expand button or the close button) is below the minimum target THE snackbar SHALL extend that control's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+      "text": "WHERE the visual size of the action is below the minimum target THE snackbar SHALL extend the action's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
     },
     {
       "id": "SNK-5",
-      "text": "WHEN a control (the action, the expand button or the close button) is pressed by pointer, touch, Enter or Space THE snackbar SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+      "text": "WHEN the action is pressed by pointer, touch, Enter or Space THE snackbar SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
     },
     {
       "id": "SNK-6",
-      "text": "WHILE a control (the action, the expand button or the close button) is pressed THE snackbar SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container of that control at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content color, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.snackbar.motion.feedback-duration with comp.snackbar.motion.state-easing, fades over comp.snackbar.motion.state-duration with comp.snackbar.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "text": "WHILE the action is pressed THE snackbar SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container of the action at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole action and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content color, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.snackbar.motion.feedback-duration with comp.snackbar.motion.state-easing, fades over comp.snackbar.motion.state-duration with comp.snackbar.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
       "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
     },
     {
       "id": "SNK-7",
-      "text": "THE snackbar SHALL ease its container corners and its controls' corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "text": "THE snackbar SHALL ease its container corners and the action's corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
       "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
     },
     {
@@ -209,7 +222,7 @@
     },
     {
       "id": "SNK-13",
-      "text": "THE host SHALL place the snackbar at the bottom of its area, centred, comp.snackbar.container.margin above the bottom edge and at least comp.snackbar.container.margin from the side edges, inside the safe area and above the on-screen keyboard; it SHALL draw the snackbar above its area's content and below a Tanrei modal dialog and its scrim."
+      "text": "WHILE placement is bottom THE host SHALL place the snackbar at the bottom of its area, centred, comp.snackbar.container.margin above the bottom edge and at least comp.snackbar.container.margin from the side edges, inside the safe area and above the on-screen keyboard; at either placement it SHALL draw the snackbar above its area's content and below a Tanrei modal dialog and its scrim."
     },
     {
       "id": "SNK-14",
@@ -217,7 +230,7 @@
     },
     {
       "id": "SNK-15",
-      "text": "THE snackbar SHALL draw the message in comp.snackbar.supporting-text.typescale and comp.snackbar.supporting-text.color, or its form's message color (SNK-21, SNK-30), at the opacity SNK-32 gives a message under a title, followed comp.snackbar.container.gap after the text (the title and the message) by the action, the expand button and the close button, in that order, comp.snackbar.controls.gap apart and centred on the text's first line (SNK-29). The action SHALL be drawn as a tonal button, in its form's action colors: a container of comp.snackbar.action.container.color at least comp.snackbar.controls.height tall, the tonal layer over it (SNK-33), and comp.snackbar.controls.padding-inline around its label in comp.snackbar.controls.label.typescale and comp.snackbar.action.content.color. The expand and close buttons SHALL be icon-only buttons, in their form's close colors, with comp.snackbar.close.container.color at rest: a comp.snackbar.controls.height square holding its glyph (close; expand_more or expand_less, SNK-23) at comp.snackbar.controls.icon.size in comp.snackbar.close.content.color, with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max. Every control SHALL have comp.snackbar.controls.shape corners."
+      "text": "THE snackbar SHALL draw the message in comp.snackbar.supporting-text.typescale and comp.snackbar.supporting-text.color, or its form's message color (SNK-21, SNK-30), at the opacity SNK-32 gives a message under a title, followed comp.snackbar.container.gap after the text (the title and the message) by the action, the expand button and the close button, in that order, comp.snackbar.controls.gap apart and centred on the text's first line (SNK-29). The action SHALL be drawn as a tonal button, in its form's action colors: a container of comp.snackbar.action.container.color at least comp.snackbar.controls.height tall (the height of a small Button, so that the action stands as tall as the expand and close buttons in its row), the tonal layer over it (SNK-33), and comp.snackbar.controls.padding-inline around its label in comp.snackbar.controls.label.typescale and comp.snackbar.action.content.color, on comp.snackbar.controls.shape corners. The expand and close buttons SHALL be drawn as SNK-34 says."
     },
     {
       "id": "SNK-16",
@@ -225,7 +238,7 @@
     },
     {
       "id": "SNK-17",
-      "text": "WHEN a snackbar is shown THE snackbar SHALL rise into place from below the bottom edge of its host by its own height plus its margin while fading in, over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes it SHALL fade out in place over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
+      "text": "WHEN a snackbar is shown THE snackbar SHALL rise into place from below the bottom edge of its host by its own height plus its margin while fading in (WHILE placement is bottom; at top-end it descends instead, SNK-36), over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing; WHEN it closes it SHALL fade out in place over comp.snackbar.motion.exit-duration with comp.snackbar.motion.exit-easing, and the host SHALL show the next one only after that. WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
     },
     {
       "id": "SNK-18",
@@ -233,7 +246,7 @@
     },
     {
       "id": "SNK-19",
-      "text": "WHILE a snackbar is drawn outside a host (a snapshot harness, a documentation page) THE snackbar SHALL draw in place at its resting position, centred across the width it is given as SNK-13 centres it in a host and at most as tall as the height it is given, which stands for the host's area in SNK-25; it SHALL NOT time out, queue, animate its entrance or announce itself, and SHALL still emit action, dismiss and toggle."
+      "text": "WHILE a snackbar is drawn outside a host (a snapshot harness, a documentation page) THE snackbar SHALL draw in place at its resting position, centred across the width it is given as SNK-13 centres it in a host (or, WHILE placement is top-end, at the end of that width as SNK-35 places it, and across the whole of it where that width is narrower than comp.snackbar.breakpoint.medium) and at most as tall as the height it is given, the width and the height it is given standing for the host's area in SNK-25 and SNK-35; it SHALL NOT time out, queue, animate its entrance or announce itself, and SHALL still emit action, dismiss and toggle."
     },
     {
       "id": "SNK-20",
@@ -241,7 +254,7 @@
     },
     {
       "id": "SNK-21",
-      "text": "WHILE status is info, warning, error or success THE snackbar SHALL draw that status form: the bar, the title, the message and the status glyph in the status's container, title, supporting-text and icon colors, and every state of every control from the parts prefixed with the status. For info, while the snackbar is not drawn inverse (SNK-30), these are comp.snackbar.info.container.color, comp.snackbar.info.title.color, comp.snackbar.info.supporting-text.color, comp.snackbar.info.icon.color, comp.snackbar.info.outline.color for its edge (SNK-31), comp.snackbar.action.info.container.color, comp.snackbar.action.info.content.color, comp.snackbar.close.info.container.color and comp.snackbar.close.info.content.color; warning, error and success read their own tokens of the same names, and a status form drawn inverse reads the tokens SNK-30 names. Before the text it SHALL draw the status's glyph from the system's icon set (info for info, warning for warning, error for error, check_circle for success) at comp.snackbar.icon.size, in its form's icon color drawn at comp.snackbar.icon.opacity (an opacity of the glyph alone, which fades nothing else), comp.snackbar.icon.gap before the text and centred on the text's first line (SNK-29), with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, never mirrored. The glyph so drawn SHALL keep 3:1 against its bar in every scheme of the default system. The glyph SHALL be hidden from assistive technology, and statusLabel SHALL be exposed as text before the title and the message. WHILE status is default THE snackbar SHALL draw no glyph and read the unprefixed tokens, or drawn inverse the tokens prefixed with inverse (SNK-30).",
+      "text": "WHILE status is info, warning, error or success THE snackbar SHALL draw that status form: the bar, the title, the message and the status glyph in the status's container, title, supporting-text and icon colors, and every state of the action from the parts prefixed with the status, and give the expand and close buttons the status's tone (SNK-34). For info, while the snackbar is not drawn inverse (SNK-30), these are comp.snackbar.info.container.color, comp.snackbar.info.title.color, comp.snackbar.info.supporting-text.color, comp.snackbar.info.icon.color, comp.snackbar.info.outline.color for its edge (SNK-31), comp.snackbar.action.info.container.color and comp.snackbar.action.info.content.color; warning, error and success read their own tokens of the same names, and a status form drawn inverse reads the tokens SNK-30 names. Before the text it SHALL draw the status's glyph from the system's icon set (info for info, warning for warning, error for error, check_circle for success) at comp.snackbar.icon.size, in its form's icon color drawn at comp.snackbar.icon.opacity (an opacity of the glyph alone, which fades nothing else), comp.snackbar.icon.gap before the text and centred on the text's first line (SNK-29), with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, never mirrored. The glyph so drawn SHALL keep 3:1 against its bar in every scheme of the default system. The glyph SHALL be hidden from assistive technology, and statusLabel SHALL be exposed as text before the title and the message. WHILE status is default THE snackbar SHALL draw no glyph and read the unprefixed tokens, or drawn inverse the tokens prefixed with inverse (SNK-30).",
       "verify": "Fixtures info, warning, error and success, and their inverse forms (SNK-30). A test reads each form's bar, text, glyph and control colors from its own tokens, and the glyph's opacity, in every scheme; a test (or the token build, once it has that check) holds the glyph as drawn at 3:1 or more against its bar in every status form and scheme of the default system."
     },
     {
@@ -254,7 +267,7 @@
     },
     {
       "id": "SNK-24",
-      "text": "WHEN the user activates the expand button by pointer, touch, Enter or Space THE snackbar SHALL toggle expanded, emit toggle with the new value exactly once, keep focus on the expand button and stay open; the bar SHALL grow to its expanded height or shrink back over comp.snackbar.motion.expand-duration with comp.snackbar.motion.expand-easing, keeping its bottom edge in place, and change at once where motion is reduced. The expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides, and SHALL keep expandLabel as its name in both states. WHEN the product sets expanded THE snackbar SHALL change the same way without emitting toggle."
+      "text": "WHEN the user activates the expand button by pointer, touch, Enter or Space THE snackbar SHALL toggle expanded, emit toggle with the new value exactly once, keep focus on the expand button and stay open; the bar SHALL grow to its expanded height or shrink back over comp.snackbar.motion.expand-duration with comp.snackbar.motion.expand-easing, keeping its bottom edge in place WHILE placement is bottom and its top edge at top-end (SNK-37), and change at once where motion is reduced. The expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides, and SHALL keep expandLabel as its name in both states. WHEN the product sets expanded THE snackbar SHALL change the same way without emitting toggle."
     },
     {
       "id": "SNK-25",
@@ -263,7 +276,7 @@
     },
     {
       "id": "SNK-26",
-      "text": "WHILE the system's icon set cannot yet draw a glyph of the snackbar (its font is still loading) THE snackbar SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; statusLabel, expandLabel and closeLabel SHALL still reach assistive technology."
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the snackbar (its font is still loading) — the status glyph, or the glyph it gives the expand or the close button — THE snackbar SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; statusLabel, expandLabel and closeLabel SHALL still reach assistive technology."
     },
     {
       "id": "SNK-27",
@@ -281,7 +294,7 @@
     },
     {
       "id": "SNK-30",
-      "text": "THE snackbar SHALL be drawn inverse WHILE inverse is true, or WHILE inverse is null and comp.snackbar.container.inverse is on; otherwise (inverse false, or null where that choice is off) it SHALL be drawn on a surface of the scheme, from the unprefixed tokens or its status form's (SNK-21). WHILE it is drawn inverse and status is default THE snackbar SHALL draw the bar, the title and the message in comp.snackbar.inverse.container.color, comp.snackbar.inverse.title.color and comp.snackbar.inverse.supporting-text.color, and every state of every control from the parts prefixed with inverse (comp.snackbar.action.inverse.container.color, comp.snackbar.action.inverse.content.color, comp.snackbar.close.inverse.container.color and comp.snackbar.close.inverse.content.color). WHILE it is drawn inverse and status is info, warning, error or success it SHALL draw that status's inverse form the same way, from the parts prefixed with inverse- and the status: for info comp.snackbar.inverse-info.container.color, comp.snackbar.inverse-info.title.color, comp.snackbar.inverse-info.supporting-text.color, comp.snackbar.inverse-info.icon.color, comp.snackbar.inverse-info.outline.color for its edge (SNK-31), comp.snackbar.action.inverse-info.container.color, comp.snackbar.action.inverse-info.content.color, comp.snackbar.close.inverse-info.container.color and comp.snackbar.close.inverse-info.content.color, and for warning, error and success their own tokens of the same names. Under the default system each color of a status's inverse form SHALL be the color the same part of that status's form not drawn inverse has in the scheme of the other theme at the same contrast level (light for dark, light-medium for dark-medium, light-high for dark-high, and each the other way): the bar, the title, the message, the glyph, the edge, the focus indicator and every state of every control, so that the inverse form of a status in one theme and its form on a surface in the other differ only in what lies around the bar. Being drawn inverse SHALL change colors only: the bar's elevation, corners, sizes and layout, the glyphs, the width and the opacity of a status form's edge, the opacities of the glyph, of a message under a title and of the action's tonal layer, the motion, the timing, the announcement and the keyboard behaviour SHALL be those of the same snackbar not drawn inverse. WHEN inverse or the system's choice changes while the snackbar is shown THE snackbar SHALL draw the other form at once, keeping its open state, the time left before it closes and its focus.",
+      "text": "THE snackbar SHALL be drawn inverse WHILE inverse is true, or WHILE inverse is null and comp.snackbar.container.inverse is on; otherwise (inverse false, or null where that choice is off) it SHALL be drawn on a surface of the scheme, from the unprefixed tokens or its status form's (SNK-21). WHILE it is drawn inverse and status is default THE snackbar SHALL draw the bar, the title and the message in comp.snackbar.inverse.container.color, comp.snackbar.inverse.title.color and comp.snackbar.inverse.supporting-text.color, and every state of the action from the parts prefixed with inverse (comp.snackbar.action.inverse.container.color and comp.snackbar.action.inverse.content.color), and give the expand and close buttons that form's tone (SNK-34). WHILE it is drawn inverse and status is info, warning, error or success it SHALL draw that status's inverse form the same way, from the parts prefixed with inverse- and the status: for info comp.snackbar.inverse-info.container.color, comp.snackbar.inverse-info.title.color, comp.snackbar.inverse-info.supporting-text.color, comp.snackbar.inverse-info.icon.color, comp.snackbar.inverse-info.outline.color for its edge (SNK-31), comp.snackbar.action.inverse-info.container.color and comp.snackbar.action.inverse-info.content.color, and for warning, error and success their own tokens of the same names. Under the default system each color of a status's inverse form SHALL be the color the same part of that status's form not drawn inverse has in the scheme of the other theme at the same contrast level (light for dark, light-medium for dark-medium, light-high for dark-high, and each the other way): the bar, the title, the message, the glyph, the edge, the focus indicator, every state of the action and the tone of the expand and close buttons, so that the inverse form of a status in one theme and its form on a surface in the other differ only in what lies around the bar. Being drawn inverse SHALL change colors only: the bar's elevation, corners, sizes and layout, the glyphs, the width and the opacity of a status form's edge, the opacities of the glyph, of a message under a title and of the action's tonal layer, the motion, the timing, the announcement and the keyboard behaviour SHALL be those of the same snackbar not drawn inverse. WHEN inverse or the system's choice changes while the snackbar is shown THE snackbar SHALL draw the other form at once, keeping its open state, the time left before it closes and its focus.",
       "verify": "Fixtures inverse, inverse-info, inverse-warning, inverse-error and inverse-success. A test reads each inverse form's bar, text, glyph, control and focus-indicator colors from its own tokens, in every scheme. The token build finds, under the default system, and a test holds, every color token of each status's inverse form equal in each of the six schemes to the token of the same name of that status's form in the scheme of the other theme at the same contrast level. Under `m3-like`, whose choice is on, a snackbar with inverse unset draws the inverse form and one with inverse false the default form; under the default system the reverse."
     },
     {
@@ -296,8 +309,24 @@
     },
     {
       "id": "SNK-33",
-      "text": "THE snackbar SHALL draw the action's tonal layer in every form and in every state of the action: the action's content color of that form and state, at comp.snackbar.action.tonal-layer.opacity, filling the action's container to its corners, above the container color of that state (SNK-2) and above a ripple that grows on it (SNK-6), and under the label. The layer SHALL NOT be drawn on the expand button or the close button, SHALL NOT take a press or change the action's size, and SHALL NOT be drawn WHERE comp.snackbar.action.tonal-layer.opacity is 0, where the action is its container alone. The label SHALL keep 4.5:1 against the action as drawn (the container color of the state with the layer over it) in every form, state and scheme of the default system, and 7:1 in its high-contrast schemes.",
+      "text": "THE snackbar SHALL draw the action's tonal layer in every form and in every state of the action: the action's content color of that form and state, at comp.snackbar.action.tonal-layer.opacity, filling the action's container to its corners, above the container color of that state (SNK-2) and above a ripple that grows on it (SNK-6), and under the label. The layer is the action's alone, SHALL NOT take a press or change the action's size, and SHALL NOT be drawn WHERE comp.snackbar.action.tonal-layer.opacity is 0, where the action is its container alone. The label SHALL keep 4.5:1 against the action as drawn (the container color of the state with the layer over it) in every form, state and scheme of the default system, and 7:1 in its high-contrast schemes.",
       "verify": "A test reads, in the default, a status, the inverse and an inverse status form, the action's container color (the bar's) and the layer's color and opacity, at rest and hovered. A test (or the token build, once it has that check) holds the label against the action as drawn in every form, state and scheme of the default system. Under `m3-like` and `cupertino`, which set the opacity to 0, the action draws no layer."
+    },
+    {
+      "id": "SNK-34",
+      "text": "WHILE closable is true, and WHILE the expand button is drawn (SNK-23), THE snackbar SHALL draw that button, in the place SNK-15, SNK-16 and SNK-29 give it, as an icon-only Button of the small size showing a glyph of the system's icon set (close; expand_more or expand_less, SNK-23) and named by closeLabel or expandLabel, in the variant comp.snackbar.close-button.variant names and in the tone of the snackbar's form (BTN-45): the form's message color — comp.snackbar.supporting-text.color in the default form, and the token of that name under the form's prefix in every other (SNK-21, SNK-30) — with the form's focus-ring color (SNK-3) for its focus indicator, both given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens for its size, glyph size, corners and state opacities, answers hover, focus and press as any Button does, and keeps its own minimum target (BTN-5). WHEN the snackbar's form changes while it is shown THE snackbar SHALL give the buttons the new form's tone with the new form's colors (SNK-30). THE snackbar SHALL draw no close or expand mark of its own (no path, shape or character of its own), and the expand button SHALL expose to assistive technology whether the text is expanded and which text it shows and hides (SNK-24)."
+    },
+    {
+      "id": "SNK-35",
+      "text": "WHILE placement is top-end THE host SHALL place the snackbar at the top of its area, at its end side (the right in a left-to-right layout and the left in a right-to-left one, taken from where the host is used as SNK-27 says), comp.snackbar.container.margin below the top edge and comp.snackbar.container.margin from the end edge, inside the safe area and below what the frame keeps over the top of the area (a sticky header's present height, APS-17), so that it never covers a top app bar; WHILE the area is narrower than comp.snackbar.breakpoint.medium (a compact window) it SHALL draw the snackbar across the top of the area instead, as wide as the area less comp.snackbar.container.margin on each side, within comp.snackbar.container.max-width. WHEN the product asks for a snackbar without a placement THE host SHALL give it the placement the host itself is given, and bottom where it is given none. The placement SHALL NOT change the snackbar's layer (SNK-13), its other size bounds (SNK-14), its place in the focus order (SNK-11) or its announcement (SNK-10), and the host SHALL still show one snackbar at a time, in order (SNK-12): at the top as at the bottom, a snackbar asked for while another shows waits for it to close, and no two are stacked."
+    },
+    {
+      "id": "SNK-36",
+      "text": "WHILE placement is top-end, WHEN a snackbar is shown THE snackbar SHALL descend into place from above the top edge of its host by its own height plus its margin while fading in, over comp.snackbar.motion.enter-duration with comp.snackbar.motion.enter-easing, as SNK-17 rises at the bottom; WHEN it closes it SHALL fade out in place as SNK-17 says, and WHERE motion is reduced it SHALL fade in and out without moving, or appear and disappear at once where the platform removes every animation."
+    },
+    {
+      "id": "SNK-37",
+      "text": "WHILE placement is top-end, WHEN the bar expands or collapses (SNK-24) THE snackbar SHALL grow downward and shrink back with its top edge in place, so that, its content being aligned to the top (SNK-29), nothing of its first row moves on the screen during the motion or after it; WHILE it is expanded it SHALL be at most as tall as SNK-25 allows, the area's height being measured from below what the frame keeps over its top (SNK-35)."
     }
   ],
   "accessibility": {
@@ -330,6 +359,7 @@
       "Drawn inverse or not, a snackbar is the same message: the role, the announcement, the focus order and the timing do not change with its colors (SNK-30). A product should not use inverse to mean something (an inverse bar for important messages): that is what the status forms and statusLabel are for.",
       "WCAG 1.4.1 (use of color): a status form is never told by color alone. It draws the status's glyph, a shape of the icon set, and gives statusLabel, the status in words, to assistive technology (SNK-21).",
       "WCAG 1.4.3 and 1.4.11 (contrast): three parts are drawn at an opacity of their own color, so their contrast is that of the color as drawn, not of the role. In the default system the message under a title keeps at least 7.1:1 on its bar (7.6:1 in the high-contrast schemes) and the status glyph at least 3.6:1, in every form and scheme (SNK-32, SNK-21); a status form's edge is decoration beside the glyph and statusLabel and is held to nothing (SNK-31). A system that changes one of these opacities, or the colors under them, must keep 4.5:1 for the message and 3:1 for the glyph.",
+      "WCAG 1.4.11 (non-text contrast): the expand and close buttons are Buttons in the form's tone (SNK-34): the glyph is the bar's message color, and the circle under it is that color at comp.button.tone.container.opacity over the bar. In the default system the glyph keeps at least 8.0:1 against its circle at rest and 6.2:1 in its weakest states (focused and pressed), in all ten forms and six schemes — well above the 3:1 a glyph without a label needs. A system that changes the tone's opacity, the state-layer opacities or a form's colors must keep 3:1 for the glyph against the circle in every state.",
       "Text size never hides text for good: a collapsed title or message ends with an ellipsis at its line limit and the expand button shows the rest (SNK-23); the action moves to its own row (SNK-16); an expanded bar taller than the window scrolls inside it (SNK-25).",
       "Web: `<tanrei-snackbar-host>` is placed by the product, normally as the last element of the page (its place in the focus order). It shows `<tanrei-snackbar>` elements as `popover=\"manual\"`, so they are in the top layer, and exposes `show(options): Promise<{ result: 'action' | 'dismiss', reason? }>` (whose options include `inverse`), `dismissCurrent()` and `clear()`. The live regions are the host's two, which are always in the document, so screen readers register them before the first message is inserted: one with the status role (polite) for the default, info and success forms, one with the alert role (assertive) for warning and error. The expand button carries `aria-expanded` and `aria-controls` naming the text.",
       "SwiftUI, Compose, Flutter and React Native announce with the platform's own call, at default priority for the polite forms and at high priority for warning and error: AccessibilityNotification.Announcement with the speech announcement priority, a polite or assertive liveRegion, SemanticsService.announce with its assertiveness, and AccessibilityInfo.announceForAccessibility (announceForAccessibilityWithOptions with queue off for assertive on iOS). None of them takes focus. The expand button's state is the platform's expanded/collapsed semantics (Compose's expand and collapse actions, Flutter's expanded flag, React Native's accessibilityState.expanded, and on Apple platforms the expanded and collapsed value VoiceOver reads for a disclosure).",
@@ -539,6 +569,37 @@
         "expandLabel": "Show full message",
         "expanded": true
       }
+    },
+    {
+      "id": "top-end",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
+    },
+    {
+      "id": "top-end-rtl",
+      "direction": "rtl",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
+    },
+    {
+      "id": "top-end-compact",
+      "props": {
+        "message": "Report exported to Downloads",
+        "action": "Open",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "top-end"
+      }
     }
   ],
   "platforms": {
@@ -556,14 +617,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "action",
         "dismiss": "dismiss",
         "toggle": "expandedchange"
       },
-      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar (as the app bar's). `closeLabel`, `statusLabel` and `expandLabel` are the `close-label`, `status-label` and `expand-label` attributes. `inverse` is a property that is `true`, `false` or `null` (the default); the `inverse` attribute sets it: absent is null, present (empty or `true`) is true, and `inverse=\"false\"` is false, the one way to refuse a system whose choice is on. While it is null the snackbar reads `--tanrei-comp-snackbar-container-inverse` from the cascade, which carries the choice's name (SNK-30). The opacities of SNK-21, SNK-31, SNK-32 and SNK-33 are applied to the color of the part they name (a mix of that color with transparent), never as an element's `opacity`, so nothing else fades with it; a status form's edge is a shadow layer of its own before the elevation's, and the tonal layer lies inside the action, under its label. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (SNK-3). `dismiss` is a CustomEvent whose `detail.reason` is the reason. `toggle` is the `expandedchange` CustomEvent, whose `detail.expanded` is the new value, because a popover element already fires a native `toggle` when it is shown and hidden. The host (`<tanrei-snackbar-host>`) queues and places snackbars; `show(options)` takes `title`, `status`, `statusLabel`, `inverse` and `expandLabel` as well; see the accessibility notes. Snapshot harness: each fixture is a `<tanrei-snackbar>` rendered outside a host (SNK-19), on a 400 px wide stage; `expanded-scrolls` on a stage 400 × 240."
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar (as the app bar's). `closeLabel`, `statusLabel` and `expandLabel` are the `close-label`, `status-label` and `expand-label` attributes. `inverse` is a property that is `true`, `false` or `null` (the default); the `inverse` attribute sets it: absent is null, present (empty or `true`) is true, and `inverse=\"false\"` is false, the one way to refuse a system whose choice is on. While it is null the snackbar reads `--tanrei-comp-snackbar-container-inverse` from the cascade, which carries the choice's name (SNK-30). The opacities of SNK-21, SNK-31, SNK-32 and SNK-33 are applied to the color of the part they name (a mix of that color with transparent), never as an element's `opacity`, so nothing else fades with it; a status form's edge is a shadow layer of its own before the elevation's, and the tonal layer lies inside the action, under its label. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (SNK-3). The expand and close buttons are `<tanrei-button size=\"small\">` elements in the snackbar's shadow root, given the variant `--tanrei-comp-snackbar-close-button-variant` names and the form's tone through the Button's internal channel (SNK-34); the expand button's expanded state and the text it controls are written on the Button's own native button (`aria-expanded`, and `ariaControlsElements`, since an id cannot be named across the Button's shadow root). `dismiss` is a CustomEvent whose `detail.reason` is the reason. `toggle` is the `expandedchange` CustomEvent, whose `detail.expanded` is the new value, because a popover element already fires a native `toggle` when it is shown and hidden. The host (`<tanrei-snackbar-host>`) queues and places snackbars; `show(options)` takes `title`, `status`, `statusLabel`, `inverse` and `expandLabel` as well; see the accessibility notes. `placement` is the `placement` attribute of `<tanrei-snackbar>` and of `<tanrei-snackbar-host>`: the host's is the placement of each snackbar whose `show()` options name none (SNK-35). What the frame keeps over the top of the area is `--tanrei-app-shell-scroll-offset` on the document's root, which `<tanrei-app-shell>` sets to its sticky header's height (APS-17) and a product's own frame may set; the safe area is `env(safe-area-inset-*)`. A compact window is one narrower than `--tanrei-comp-snackbar-breakpoint-medium`, read by the stylesheet itself, with no listener. Snapshot harness: each fixture is a `<tanrei-snackbar>` rendered outside a host (SNK-19), on a 400 px wide stage; `expanded-scrolls` on a stage 400 × 240, and `top-end` and `top-end-rtl` on a stage 720 wide, wider than a compact window."
     },
     "swiftui": {
       "status": "lagging",
@@ -579,14 +641,15 @@
         "closeLabel": "closeLabel",
         "expanded": "isExpanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarResult.action",
         "dismiss": "TanreiSnackbarResult.dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "compose": {
       "status": "lagging",
@@ -602,14 +665,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarResult.ActionPerformed",
         "dismiss": "TanreiSnackbarResult.Dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "flutter": {
       "status": "lagging",
@@ -625,14 +689,15 @@
         "closeLabel": "closeIconLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "TanreiSnackbarClosedReason.action",
         "dismiss": "TanreiSnackbarClosedReason",
         "toggle": "onExpandedChanged"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "react-native": {
       "status": "lagging",
@@ -648,14 +713,15 @@
         "closeLabel": "closeLabel",
         "expanded": "expanded",
         "expandLabel": "expandLabel",
-        "duration": "duration"
+        "duration": "duration",
+        "placement": "placement"
       },
       "events": {
         "action": "onAction",
         "dismiss": "onDismiss",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice. Not yet: the top-end placement (SNK-35, SNK-36, SNK-37); the expand and close buttons as small Buttons in the form's tone (SNK-34); the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     }
   }
 }

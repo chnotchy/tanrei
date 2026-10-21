@@ -8,6 +8,7 @@ import {
   AnchoredSurfaceController,
   AvailabilityController,
   BUTTON_VARIANTS,
+  CompactWindow,
   DismissController,
   type DismissReason,
   type DividerVisibilityProp,
@@ -20,15 +21,23 @@ import {
   type VariantHost,
   assignSlot,
   choiceAttribute,
+  closeRequestReason,
   compChoice,
   crossOffsetAttribute,
   deepActive,
+  documentPainted,
   focusOverlay,
+  focusWithin,
   giveVariant,
+  holdPageScroll,
   hostAria,
   isDividerVisibility,
   keepOverlayFocusAfterPress,
+  keyboardCover,
+  modalLayer,
+  modalSheetKeys,
   numericAttribute,
+  onBackdrop,
   overlayDepth,
   registerOverlay,
   report,
@@ -38,11 +47,13 @@ import {
   syncFocusStyle,
   tabThroughOverlay,
   usableLength,
+  watchEscape,
   watchInput,
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { ARRANGEMENTS, ARROW_PROPERTY, CHOICE, PREFIX, styles } from './popover.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * Where the popover prefers to stand (POP-2): a side of the anchor (`top`, `bottom`, `start`, `end`), alone to centre it
@@ -56,6 +67,8 @@ export type TanreiPopoverWidth = 'content' | 'anchor';
 export type TanreiPopoverDividerVisibility = DividerVisibilityProp;
 /** Where focus is when the popover has opened: in it, or left where it is (POP-19). */
 export type TanreiPopoverInitialFocus = 'popover' | 'anchor';
+/** How it is presented in a compact window: with the bottom sheet's appearance, or as a popover still (POP-39, POP-43). */
+export type TanreiPopoverCompactPresentation = 'sheet' | 'own';
 /** Why the popover asks to be closed (POP-21). The web has no back of its own, so it never sends `back`. */
 export type TanreiPopoverCloseReason = 'escape' | 'back' | 'outside' | 'focus-out' | 'close' | 'anchor-hidden';
 /** `close`'s detail: why the popover asks to be closed. */
@@ -67,6 +80,7 @@ const PLACEMENTS: readonly TanreiPopoverPlacement[] = ANCHORED_PLACEMENTS;
 const DEFAULT_PLACEMENT: TanreiPopoverPlacement = 'bottom-start';
 const WIDTHS: readonly TanreiPopoverWidth[] = ['content', 'anchor'];
 const INITIAL_FOCUS: readonly TanreiPopoverInitialFocus[] = ['popover', 'anchor'];
+const COMPACT_PRESENTATIONS: readonly TanreiPopoverCompactPresentation[] = ['sheet', 'own'];
 /** POP-24: a popover in a popover is the most a product should need; a third level is reported. */
 const DEEP = 3;
 /**
@@ -114,12 +128,19 @@ let ids = 0;
  * the actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only
  * while content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).
  *
- * Every visual value comes from `--tanrei-comp-popover-*` tokens.
+ * In a window narrower than `comp.popover.compact.window-width` (600 in the default system) it takes the bottom
+ * sheet's appearance instead (POP-39 to POP-42): a native `<dialog>` opened with `showModal()`, docked to the window's
+ * bottom edge in the bottom sheet's color, elevation and top corners, sliding up over the bottom sheet's scrim — a modal
+ * dialog, with everything behind it inert and focus kept in; Escape, a press on the scrim and the close button fire
+ * `close`. `compact-presentation="own"` keeps it beside its anchor in every window, as `initial-focus="anchor"` always
+ * does. Crossing the width while open changes the presentation at once, focus kept.
+ *
+ * Every visual value comes from `--tanrei-comp-popover-*` tokens, and as a sheet from `--tanrei-comp-bottom-sheet-*`.
  *
  * @tag tanrei-popover
  * @slot - The content: it gets `content.color` as its color, and plain text the body role; it scrolls between the header and the actions.
  * @slot actions - Tanrei Buttons, each marked `confirming` or `dismissive` where it is one. The popover places them and gives those without a `variant` its own; it never restyles them.
- * @csspart container - The raised surface: its color, corners and elevation. It is the dialog.
+ * @csspart container - The raised surface: its color, corners and elevation. It is the dialog (a native `<dialog>` while it is a sheet).
  * @csspart arrow - The triangle that points at the anchor, while one is drawn.
  * @csspart header - The row that holds the headline and the close button.
  * @csspart headline - The headline (a heading).
@@ -127,9 +148,9 @@ let ids = 0;
  * @csspart content - The scrolling box that holds the content.
  * @csspart divider - A hairline below the header and above the actions, while the content scrolls, as `divider-visibility` says (hidden from assistive technology).
  * @csspart actions - The row (or column) of actions.
- * @fires {CustomEvent<TanreiPopoverCloseDetail>} close - The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
+ * @fires {CustomEvent<TanreiPopoverCloseDetail>} close - The popover asks to be closed: `detail.reason` is `escape`, `outside` (as a sheet, a press on its scrim), `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
  */
-export class TanreiPopover extends LitElement implements VariantHost, PlacingGroup {
+export class TanreiPopover extends TanreiElement implements VariantHost, PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'popover');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -146,6 +167,7 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     crossOffset: { attribute: 'cross-offset', converter: crossOffsetAttribute },
     arrow: { reflect: true, converter: choiceAttribute },
     width: { type: String, reflect: true },
+    compactPresentation: { type: String, attribute: 'compact-presentation', reflect: true },
     inset: {
       type: Boolean,
       attribute: 'no-inset',
@@ -165,6 +187,7 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     inline: { type: Boolean, reflect: true },
     hasActions: { state: true },
     hasContent: { state: true },
+    sheet: { state: true },
   };
 
   /** Whether the popover is shown. Controlled: set it when the opener is pressed, and to false in answer to `close`. Reflected. */
@@ -193,6 +216,14 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
 
   /** `content`: as wide as its content, between its least and greatest width. `anchor`: as wide as the anchor. Anything else is `content` (POP-37). Reflected. */
   width: TanreiPopoverWidth = 'content';
+
+  /**
+   * How it is presented in a window narrower than `comp.popover.compact.window-width`: `sheet` (the default) with the
+   * bottom sheet's appearance at the window's bottom edge, as a modal dialog; `own` beside its anchor, as in every other
+   * window. `initial-focus="anchor"` always keeps it beside its anchor. Anything else is `sheet` (POP-43). The attribute
+   * is `compact-presentation`; reflected.
+   */
+  compactPresentation: TanreiPopoverCompactPresentation = 'sheet';
 
   /** Insets the content by the container's paddings. False — the attribute `no-inset` — lets content that pads itself reach the edges. */
   inset = true;
@@ -236,6 +267,19 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
 
   /** For tests: draws the open container in place — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal and moves no focus. */
   inline = false;
+
+  /** POP-39: whether it is drawn as a sheet — decided when it opens and when the window crosses the width, kept while it closes. */
+  private sheet = false;
+  /** How it is presented now: beside its anchor, as a sheet, or not at all. */
+  private presentedAs: 'anchored' | 'sheet' | null = null;
+  /** POP-42: the element in it that had focus before it was drawn in the other presentation. */
+  private heldFocus: Element | null = null;
+  /** POP-39: the window, matched against the resolved `compact.window-width`. */
+  private readonly compact = new CompactWindow(() => this.requestUpdate());
+  /** POP-40: a press that started on the scrim. */
+  private pressedScrim = false;
+  /** POP-42: how far the content was scrolled before it was drawn in the other presentation. */
+  private heldScroll = 0;
 
   /** POP-9: whether the popover has at least one action, and any content. */
   private hasActions = false;
@@ -376,6 +420,8 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     this.unregister = registerOverlay(this, {
       openers: () => [this.anchorNode, this.openerNode],
       open: () => this.presented,
+      // POP-40: as a sheet it is modal, and stays open when the surface it was opened from closes.
+      modal: () => this.presentedAs === 'sheet',
       close: () => this.requestClose('anchor-hidden'),
       kind: 'popover',
     });
@@ -393,8 +439,12 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     this.resize$?.disconnect();
     this.unregister?.();
     this.unregister = null;
-    // The controllers take the surface out of the top layer and stop listening; POP-18: what it wrote on the opener goes.
+    // The controllers take the surface out of the top layer and stop listening; POP-40: a sheet gives the page back.
+    // POP-18: what it wrote on the opener goes.
+    if (this.presentedAs === 'sheet') this.releaseSheet();
+    this.compact.stop();
     this.presented = false;
+    this.presentedAs = null;
     this.first = true;
     this.state(null);
   }
@@ -472,7 +522,8 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
       // row or a column, so that the width the decision is made for does not depend on what was decided before.
       container.style.removeProperty('--_actions-row');
       const { changed, natural } = this.placement$.measure(actions, arrangement === 'end' ? 'packed' : 'fill');
-      if (changed) this.assign();
+      // Turned to a column or back to a row, the actions are assigned again — which WebKit draws the surface anew for.
+      if (changed) this.anchored.keep(() => this.assign());
       const style = getComputedStyle(actions);
       container.style.setProperty('--_actions-row', `${natural + (Number.parseFloat(style.paddingInlineStart) || 0) + (Number.parseFloat(style.paddingInlineEnd) || 0)}px`);
     } else if (container.style.getPropertyValue('--_actions-row')) container.style.removeProperty('--_actions-row');
@@ -538,12 +589,22 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
 
   /**
    * POP-1, POP-19: into the top layer beside the anchor, and focus in — to the slotted element marked `autofocus`, else
-   * to the container — unless it is mounted open, drawn in place, or `initialFocus` is `anchor`.
+   * to the container — unless it is mounted open, drawn in place, or `initialFocus` is `anchor`. `instant`: drawn whole
+   * at once, with no entrance (POP-42).
    */
-  private present(moveFocus: boolean) {
+  private present(moveFocus: boolean, instant = false) {
+    if (this.sheet) {
+      // MOT-4: before the document's first paint a sheet mounted open is there at once.
+      this.presentSheet(instant || !documentPainted());
+      // POP-40: a sheet takes focus even mounted open, because everything behind it is inert — mounted, with no
+      // indicator of its own (POP-19: only a popover opened from the keyboard shows one).
+      if (this.presented && !this.inline) this.focusIn(!moveFocus);
+      return;
+    }
     const before = deepActive();
-    if (!this.anchored.show()) return;
+    if (!this.anchored.show(instant)) return;
     this.presented = true;
+    this.presentedAs = 'anchored';
     this.lastReason = null;
     this.syncScroll();
     if (this.inline) return;
@@ -567,7 +628,17 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
    */
   private withdraw() {
     if (!this.presented) return;
+    if (this.presentedAs === 'sheet') {
+      // POP-22, POP-24, POP-41: what was opened from inside closes; it slides out; focus goes back to the opener.
+      const opener = this.openerNode;
+      this.dismiss.closeOwned();
+      this.withdrawSheet(true);
+      returnOverlayFocus(opener, (node) => this.dismiss.owns(node));
+      this.lastReason = null;
+      return;
+    }
     this.presented = false;
+    this.presentedAs = null;
     if (!this.inline && this.dismiss.active) {
       const opener = this.openerNode;
       this.dismiss.closeOwned();
@@ -579,9 +650,154 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     this.anchored.hide();
   }
 
+  // ---- POP-39 to POP-43: a compact window ----
+
+  /** POP-39, POP-43: whether it is drawn as a sheet now, were it open: a compact window, unless it keeps its own presentation. */
+  private wantsSheet(): boolean {
+    if (this.inline || this.initialFocus === 'anchor' || this.compactPresentation === 'own') return false;
+    return this.compact.read(this.find('.probe'));
+  }
+
+  /** The dialog of the sheet form, while it is drawn. */
+  private get sheetDialog(): HTMLDialogElement | null {
+    return this.find<HTMLDialogElement>('dialog.sheet');
+  }
+
+  /** POP-19, POP-40: focus in — to the slotted element marked `autofocus`, else to the container (`quiet`: without its indicator). */
+  private focusIn(quiet = false) {
+    const container = this.container;
+    if (!container) return;
+    focusOverlay(this, container);
+    if (quiet) container.setAttribute('data-focus-quiet', '');
+  }
+
+  /**
+   * POP-39, POP-40, POP-41: as a sheet — a modal `<dialog>` in the top layer over the bottom sheet's scrim, the page inert
+   * and held from scrolling — sliding up, or at once (`instant`, POP-42).
+   */
+  private presentSheet(instant: boolean) {
+    const dialog = this.sheetDialog;
+    if (!dialog || !this.isConnected || !this.anchorNode?.isConnected) return;
+    // POP-40: an Escape the sheet did not see itself still reads as escape, not back.
+    watchEscape();
+    this.presented = true;
+    this.presentedAs = 'sheet';
+    this.lastReason = null;
+    this.arrange();
+    dialog.classList.toggle('instant', instant);
+    if (!dialog.open) dialog.showModal();
+    modalLayer.add(this);
+    holdPageScroll(this, true);
+    window.visualViewport?.addEventListener('resize', this.onViewport);
+    window.visualViewport?.addEventListener('scroll', this.onViewport);
+    this.onViewport();
+    this.syncScroll();
+    if (instant) {
+      // The first style is drawn without a transition; the motions come back for the next change.
+      void getComputedStyle(dialog).translate;
+      requestAnimationFrame(() => dialog.classList.remove('instant'));
+    }
+  }
+
+  /** POP-40: the modal layer, the page's scroll and the keyboard are given back (the sheet left the page or closed). */
+  private releaseSheet() {
+    modalLayer.delete(this);
+    holdPageScroll(this, false);
+    window.visualViewport?.removeEventListener('resize', this.onViewport);
+    window.visualViewport?.removeEventListener('scroll', this.onViewport);
+  }
+
+  /** POP-41: out of the top layer, sliding down (or at once). */
+  private withdrawSheet(slide: boolean) {
+    this.presented = false;
+    this.presentedAs = null;
+    this.releaseSheet();
+    const dialog = this.sheetDialog;
+    if (!dialog?.open) return;
+    dialog.classList.toggle('instant', !slide);
+    dialog.close();
+    if (!slide) requestAnimationFrame(() => dialog.classList.remove('instant'));
+  }
+
+  /**
+   * POP-42: the window crossed the width, or a prop changed the presentation, while it is open — the other one at once,
+   * with no motion and no event; the element that had focus in it has it again, and focus outside it (on the opener) is
+   * moved into a sheet, whose opener is inert.
+   */
+  private switchPresentation() {
+    const held = this.heldFocus as HTMLElement | null;
+    const scrolled = this.heldScroll;
+    this.heldFocus = null;
+    this.heldScroll = 0;
+    if (this.presentedAs === 'sheet') {
+      // The dialog went with the old presentation; the page is given back, and the popover stands beside its anchor.
+      this.presented = false;
+      this.presentedAs = null;
+      this.releaseSheet();
+      this.present(false, true);
+    } else {
+      this.dismiss.stop();
+      this.anchored.hide(false);
+      this.presented = false;
+      this.presentedAs = null;
+      this.presentSheet(true);
+    }
+    if (!this.presented) return;
+    const content = this.find('.content');
+    if (content && scrolled) content.scrollTop = scrolled;
+    if (held && held.isConnected && !held.closest('[inert]') && typeof held.focus === 'function') held.focus({ preventScroll: true });
+    else if (held || this.presentedAs === 'sheet') this.focusIn();
+    this.syncScroll();
+  }
+
+  /** POP-39: above the on-screen keyboard (the part of the layout viewport the visual viewport no longer covers). */
+  private readonly onViewport = () => {
+    const dialog = this.sheetDialog;
+    if (!dialog) return;
+    const cover = keyboardCover();
+    dialog.style.setProperty('--_keyboard', `${cover}px`);
+    dialog.classList.toggle('keyboard', cover > 0);
+  };
+
+  /** POP-40, POP-23: Escape asks once (unless something inside took it), and Tab stays inside. */
+  private readonly onSheetKeyDown = (event: KeyboardEvent) => {
+    const dialog = this.sheetDialog;
+    if (dialog) modalSheetKeys(event, dialog, () => this.requestClose('escape'));
+  };
+
+  /** POP-40: the platform's back (a close request without a key) arrives as the native cancel; the browser never closes it. */
+  private readonly onSheetCancel = (event: Event) => {
+    event.preventDefault();
+    this.requestClose(closeRequestReason(event));
+  };
+
+  /** POP-40: a press that starts and ends on the scrim asks to close, with the reason outside. */
+  private readonly onSheetPointerDown = (event: PointerEvent) => {
+    this.pressedScrim = onBackdrop(event, this.sheetDialog);
+  };
+
+  private readonly onSheetClick = (event: MouseEvent) => {
+    const scrim = this.pressedScrim && onBackdrop(event, this.sheetDialog);
+    this.pressedScrim = false;
+    if (scrim) this.requestClose('outside');
+  };
+
+  protected override willUpdate() {
+    // POP-39, POP-42: the presentation is decided while it is open, and kept while it closes (its exit is drawn in it).
+    if (!this.open || !this.hasUpdated) return;
+    const sheet = this.wantsSheet();
+    if (sheet === this.sheet) return;
+    // POP-42: the element in it that has focus, and how far its content is scrolled, for the other presentation.
+    this.heldFocus = this.presented && focusWithin(this) ? deepActive() : null;
+    this.heldScroll = this.presented ? (this.find('.content')?.scrollTop ?? 0) : 0;
+    this.sheet = sheet;
+  }
+
   protected override firstUpdated() {
     this.readSlots();
     this.observe();
+    // POP-39: the probe is drawn now; a popover mounted open in a compact window is drawn as a sheet (in the next update).
+    if (this.open && this.wantsSheet()) this.sheet = true;
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -603,9 +819,14 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     const mode = changed.has('inline') && this.presented;
     if (mode) {
       // Another presentation: taken out at once, and presented again below as mounted.
-      this.presented = false;
       this.dismiss.stop();
-      this.anchored.hide(false);
+      if (this.presentedAs === 'sheet') this.withdrawSheet(false);
+      else this.anchored.hide(false);
+      this.presented = false;
+      this.presentedAs = null;
+    } else if (want && this.presented && this.presentedAs !== (this.sheet ? 'sheet' : 'anchored')) {
+      // POP-42: drawn in the other presentation since it was presented.
+      this.switchPresentation();
     }
     if (want && !this.presented) {
       // POP-19: a popover mounted with open true (or shown again by anything but `open`) moves no focus.
@@ -629,6 +850,9 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     }
     if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'POP-37', `placement "${String(this.placement)}" is not one of ${PLACEMENTS.join(', ')}; the popover is placed as "${DEFAULT_PLACEMENT}"`);
+    }
+    if (changed.has('compactPresentation') && !COMPACT_PRESENTATIONS.includes(this.compactPresentation)) {
+      report(this, 'POP-43', `compact-presentation "${String(this.compactPresentation)}" is not one of ${COMPACT_PRESENTATIONS.join(', ')}; the popover is a sheet in a compact window`);
     }
     if (changed.has('width') && !WIDTHS.includes(this.width)) report(this, 'POP-37', `width "${String(this.width)}" is not one of ${WIDTHS.join(', ')}; the popover is as wide as its content`);
     if (changed.has('initialFocus') && !INITIAL_FOCUS.includes(this.initialFocus)) {
@@ -654,53 +878,72 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
   protected override render() {
     const headline = this.headline.trim() ? this.headline : '';
     const header = !!headline || this.closable;
-    // POP-28: a dialog that is not modal (no aria-modal), named by the headline, or by label where it draws none.
+    // POP-28: a dialog named by the headline, or by label where it draws none — not modal beside its anchor, modal as a
+    // sheet (POP-40).
     const name = headline || this.label.trim() || nothing;
-    // POP-19: a value the popover does not define moves focus in (POP-37).
-    return html`
-      <div class="surface" popover=${this.inline ? nothing : 'manual'} role="none">
-        <div class="motion">
-          <span part="arrow" class="arrow" aria-hidden="true"></span>
-          <div
-            part="container"
-            class="container"
-            role="dialog"
-            aria-label=${name}
-            tabindex="-1"
-            data-tanrei-shape
-            @focus=${(event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement)}
-          >
-            <div class="clip" data-tanrei-shape @focus=${(event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement)}>
-              ${header
-                ? html`<div part="header" class=${classMap({ header: true, closable: this.closable, last: !this.hasContent && !this.hasActions })}>
-                    ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
-                    ${this.closable
-                      ? html`<span class="close-box"
-                          ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
-                        >`
-                      : nothing}
-                    <div part="divider" class="divider below-header" aria-hidden="true"></div>
-                  </div>`
+    const focus = (event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement);
+    const parts = html`
+      <div class="clip" data-tanrei-shape @focus=${focus}>
+        ${header
+          ? html`<div part="header" class=${classMap({ header: true, closable: this.closable, last: !this.hasContent && !this.hasActions })}>
+              ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
+              ${this.closable
+                ? html`<span class="close-box"
+                    ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
+                  >`
                 : nothing}
-              <div class=${classMap({ middle: true, empty: !this.hasContent })}>
-                <div
-                  part="content"
-                  class=${classMap({ content: true, top: !header, bottom: !this.hasActions, empty: !this.hasContent })}
-                  data-tanrei-shape
-                  @scroll=${this.onScroll}
-                  @focus=${(event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement)}
-                >
-                  <div class="inner"><slot @slotchange=${() => this.onResize()}></slot></div>
-                </div>
-                <span class="focus" data-tanrei-shape></span>
-              </div>
-              <div class="footer" ?hidden=${!this.hasActions}>
-                <div part="divider" class="divider above-actions" aria-hidden="true"></div>
-                <div part="actions" class="actions"><slot name="actions-first"></slot><slot name="actions-between"></slot><slot name="actions-last"></slot></div>
-              </div>
-            </div>
-            <span class="focus whole" data-tanrei-shape></span>
+              <div part="divider" class="divider below-header" aria-hidden="true"></div>
+            </div>`
+          : nothing}
+        <div class=${classMap({ middle: true, empty: !this.hasContent })}>
+          <div
+            part="content"
+            class=${classMap({ content: true, top: !header, bottom: !this.hasActions, empty: !this.hasContent })}
+            data-tanrei-shape
+            @scroll=${this.onScroll}
+            @focus=${focus}
+          >
+            <div class="inner"><slot @slotchange=${() => this.onResize()}></slot></div>
           </div>
+          <span class="focus" data-tanrei-shape></span>
+        </div>
+        <div class="footer" ?hidden=${!this.hasActions}>
+          <div part="divider" class="divider above-actions" aria-hidden="true"></div>
+          <div part="actions" class="actions"><slot name="actions-first"></slot><slot name="actions-between"></slot><slot name="actions-last"></slot></div>
+        </div>
+      </div>
+      <span class="focus whole" data-tanrei-shape></span>
+    `;
+    // POP-39: the resolved compact.window-width, which the script matches the window against.
+    const probe = html`<span class="probe" aria-hidden="true"></span>`;
+    if (this.sheet) {
+      // POP-39, POP-40: the bottom sheet's appearance — a native modal <dialog> over the bottom sheet's scrim. It is the
+      // surface that appears (POP-41, MOT-4): settling leaves its slide alone, as a dialog's and a bottom sheet's.
+      return html`${probe}
+        <dialog
+          part="container"
+          class="container sheet"
+          data-tanrei-appear
+          role="dialog"
+          aria-modal="true"
+          aria-label=${name}
+          tabindex="-1"
+          data-tanrei-shape
+          @focus=${focus}
+          @keydown=${this.onSheetKeyDown}
+          @cancel=${this.onSheetCancel}
+          @pointerdown=${this.onSheetPointerDown}
+          @click=${this.onSheetClick}
+        >
+          ${parts}
+        </dialog>`;
+    }
+    // POP-19: a value the popover does not define moves focus in (POP-37).
+    return html`${probe}
+      <div class="surface" popover=${this.inline ? nothing : 'manual'} role="none">
+        <div class="motion" data-tanrei-appear>
+          <span part="arrow" class="arrow" aria-hidden="true"></span>
+          <div part="container" class="container" role="dialog" aria-label=${name} tabindex="-1" data-tanrei-shape @focus=${focus}>${parts}</div>
         </div>
         <span class="shade" aria-hidden="true"></span>
         ${shadeFilter(this.anchored.layers)}

@@ -6,6 +6,7 @@ import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, Op
 import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.js';
 import type { TanreiAvatarShapeRegistry, TanreiAvatarSizeRegistry } from '../../registry.js';
 import { AXES, GROUP_AXES, groupStyles, styles } from './avatar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAvatarSize = keyof TanreiAvatarSizeRegistry;
@@ -56,7 +57,7 @@ function characters(text: string): string[] {
  * @csspart label - The initials.
  * @csspart icon - The box the glyph is drawn in.
  */
-export class TanreiAvatar extends LitElement {
+export class TanreiAvatar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   static override styles = styles;
 
@@ -261,7 +262,7 @@ export class TanreiAvatar extends LitElement {
  * @csspart overflow - The box that counts the members not drawn.
  * @csspart label - The count in the overflow box.
  */
-export class TanreiAvatarGroup extends LitElement {
+export class TanreiAvatarGroup extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   private readonly words = new WordsController(this);
   static override styles = groupStyles;

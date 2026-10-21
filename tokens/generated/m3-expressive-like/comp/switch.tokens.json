@@ -41,7 +41,7 @@
               "The handle sits at the inline start when off and at the inline end when on; right-to-left mirrors it.",
               "Hover, focus and press show on the container (the round layer around the handle), never on the track.",
               "The handle may change size by condition and state (in the default system 16 off, 24 on, 28 under a press); its center never leaves the track's midline, half the track height from the end.",
-              "The glyph in the handle is a glyph of the system's icon set, named by selectedIcon / unselectedIcon, drawn at icon.size and at icon.weight. Never draw a path or character of your own; a system that wants another mark chooses another icon set.",
+              "The glyph in the handle is a glyph of the system's icon set, named by checkedIcon / uncheckedIcon, drawn at icon.size and at icon.weight. Never draw a path or character of your own; a system that wants another mark chooses another icon set.",
               "icon.weight is the handle glyph's own weight, not sys.icon.weight: the glyph is the smallest the system draws, on a handle 24 across, so the default draws it heavier than its icons (sys.icon.mark.weight). To make it easier or harder to see, change icon.weight; never change icon.size or the handle for that.",
               "Restyle through these tokens in a layer; never fork the component.",
               "Each condition's state-layer.color is the color hover, focus and press mix into its container; it aliases that condition's outline color."
@@ -324,25 +324,25 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.travel}",
             "$description": "How long the handle takes to travel along the track, and the track and handle to change color, when the switch changes."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         }
       }

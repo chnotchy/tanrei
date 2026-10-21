@@ -521,7 +521,7 @@ test.describe('the modal layer', () => {
 });
 
 test.describe('the bar, the count and the controls', () => {
-  test('IMP-8: the bar across the top is at least bar.height tall on bar.container.color, the count at its start and zoom out, zoom in and close at its end, bar.gap apart and bar.padding-inline from the sides, centred; each an icon-only medium Button named by its label, in the variant the token names through the Button’s channel', async ({ page }) => {
+  test('IMP-8: the bar across the top is at least bar.height tall on bar.container.color, the count at its start and zoom out, zoom in and close at its end, bar.gap apart and bar.padding-inline from the sides, centred; each an icon-only small Button named by its label, 32 × 32 and alike, in the variant the token names (tonal in the default system) through the Button’s channel', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, fx({ index: 1 }));
     const bar = (await part(page, '.bar').boundingBox())!;
@@ -546,22 +546,44 @@ test.describe('the bar, the count and the controls', () => {
       }),
     );
     expect(drawn).toEqual([
-      { size: 'medium', own: null, given: 'text', name: 'Zoom out', glyph: 'zoom_out', text: 'zoom_out' },
-      { size: 'medium', own: null, given: 'text', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
-      { size: 'medium', own: null, given: 'text', name: 'Close', glyph: 'close', text: 'close' },
+      { size: 'small', own: null, given: 'tonal', name: 'Zoom out', glyph: 'zoom_out', text: 'zoom_out' },
+      { size: 'small', own: null, given: 'tonal', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
+      { size: 'small', own: null, given: 'tonal', name: 'Close', glyph: 'close', text: 'close' },
     ]);
-    // The verify: a system that sets the variant to tonal.
-    await override(page, { [T('bar-button-variant')]: 'tonal' });
-    await settled(page);
-    await expect.poll(() => control(page, 'close').evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant)).toBe('tonal');
+    // The three are alike: the small Button's 32 × 32 in the default system, each drawing the tonal container.
+    const small = await px(page, '--tanrei-comp-button-container-height-small');
+    expect(small).toBe(32);
+    for (const box of [out, into, close]) expect([box.width, box.height]).toEqual([small, small]);
+    // Zoom out is disabled at fit (IMP-13): the tonal variant's disabled container.
     const tonal = await resolveColor(page, '--tanrei-comp-button-tonal-container-color');
-    await expect.poll(() => control(page, 'close').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor)).toBe(tonal);
+    const fill = (name: string) => control(page, name).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor);
+    for (const name of ['zoom-in', 'close'] as const) await expect.poll(() => fill(name), name).toBe(tonal);
+    expect(await fill('zoom-out')).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-disabled-container-color'));
+    // The verify: a system that sets the variant to text.
+    await override(page, { [T('bar-button-variant')]: 'text' });
+    await settled(page);
+    await expect.poll(() => control(page, 'close').evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant)).toBe('text');
+    const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');
+    await expect.poll(() => control(page, 'close').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor)).toBe(text);
     expect(seen.filter((text) => text.includes('IMP-8'))).toEqual([]);
     // An empty name: the control is still drawn, and reported.
     await mount(page, fx({ closeLabel: '' }));
     expect((await control(page, 'close').boundingBox())!.width).toBeGreaterThan(0);
     expect(await missingWords(page)).toContain('closeLabel');
     expect(seen.some((text) => text.includes('IMP-8') && text.includes('close-label'))).toBe(true);
+  });
+
+  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like, m3-expressive-like and cupertino give the bar’s three controls the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+      await mount(page, fx({ index: 1 }), { system });
+      const small = await px(page, '--tanrei-comp-button-container-height-small');
+      const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');
+      for (const name of ['zoom-out', 'zoom-in', 'close'] as const) {
+        await expect.poll(() => control(page, name).evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant), `${system} ${name}`).toBe('text');
+        expect(await control(page, name).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor), `${system} ${name}`).toBe(text);
+        expect((await control(page, name).boundingBox())!.height, `${system} ${name}`).toBeCloseTo(small, 1);
+      }
+    }
   });
 
   test('IMP-9: with two or more images the count is drawn at the bar’s start — countText with its two places filled in the digits of the product’s locale — in its role and color, wrapping and growing the bar, and takes no focus; one image draws none, and an empty countText draws none and is reported', async ({ page }) => {
@@ -2345,7 +2367,8 @@ test.describe('direction, colors, text size and the window', () => {
     const button = (await control(page, 'close').boundingBox())!;
     const alone = await page.evaluate(async () => {
       const own = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
-      own.setAttribute('variant', 'text');
+      own.setAttribute('variant', 'tonal');
+      own.setAttribute('size', 'small');
       own.setAttribute('label', 'Close');
       own.innerHTML = '<span slot="icon">close</span>';
       document.querySelector('.stage')!.append(own);

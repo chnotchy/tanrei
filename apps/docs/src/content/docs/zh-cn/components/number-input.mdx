@@ -2,7 +2,7 @@
 title: "数字输入框"
 description: "放数字的那个方框——按所在区域设置的写法键入，或者用按键或按钮步进；数字被限制在范围之内，单位就在旁边——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的数字，或者放进产品自己组合的字段里。"
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="缩放比例" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
@@ -99,7 +100,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用字段包住一个数字输入框，就是把数字字段拆开来写。输入框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value`、范围和单位写在输入框上。
 
 ```html
-<tanrei-field label="数量" requirement="required" required-text="必填"
+<tanrei-field label="数量" required required-text="必填"
   supporting-text="每笔订单最多 99 件。">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="请输入数字。"
     increment-label="增加" decrement-label="减少"></tanrei-number-input>
@@ -107,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着一个数字输入框的字段：画面与数字字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" requirement="required" required-text="必填" supporting-text="每笔订单最多 99 件。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必填" supporting-text="每笔订单最多 99 件。">
     <tanrei-number-input min="1" max="99" invalid-text="请输入数字。" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>

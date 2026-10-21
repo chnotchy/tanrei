@@ -2,7 +2,7 @@
 title: コンボボックスフィールド
 description: フォームのフィールドとして、入力して 1 つの値を見つけられるようにします。入力に応じて絞り込まれるオプションのリストが付いたコンボボックスで、そこから選べます。プロダクトが認めていれば、リストにない値も入力できます。フィールドが必須か任意かを伝えられるラベル、1 行の補足、値が違うときの理由が付きます。
 translationOf: components/combobox-field.mdx
-sourceHash: 695f5a07f9b3ed6d358dee0d414c102a7c3a5232
+sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -47,7 +47,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-combobox-field name="city" label="都市" value="tokyo" requirement="required" required-text="必須"
+      <tanrei-combobox-field name="city" label="都市" value="tokyo" required required-text="必須"
         clearable clear-label="都市を消去" empty-text="一致する項目はありません">
         <tanrei-option value="kyoto">京都</tanrei-option>
         <tanrei-option value="tokyo">東京</tanrei-option>
@@ -107,14 +107,14 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
 
 ```html
 <!-- コンボボックスフィールド -->
-<tanrei-combobox-field name="city" label="都市" requirement="required" required-text="必須"
+<tanrei-combobox-field name="city" label="都市" required required-text="必須"
   supporting-text="注文のお届け先です。" value="tokyo">
   <tanrei-option value="kyoto">京都</tanrei-option>
   <tanrei-option value="tokyo">東京</tanrei-option>
 </tanrei-combobox-field>
 
 <!-- 同じものを自分で書いたもの。枠のプロパティはフィールドに、それ以外とオプションはコンボボックスに指定します -->
-<tanrei-field label="都市" requirement="required" required-text="必須" supporting-text="注文のお届け先です。">
+<tanrei-field label="都市" required required-text="必須" supporting-text="注文のお届け先です。">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">京都</tanrei-option>
     <tanrei-option value="tokyo">東京</tanrei-option>
@@ -123,7 +123,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
 ```
 
 <DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にコンボボックスがあります" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" requirement="required" required-text="必須" supporting-text="注文のお届け先です。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" required required-text="必須" supporting-text="注文のお届け先です。">
     <tanrei-combobox value="tokyo" empty-text="一致する項目はありません">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">東京</tanrei-option>
@@ -161,7 +161,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
 | パーツ | 内容 |
 | --- | --- |
 | ラベル | コンテナの上のフィールドの行か（`stacked`）、コンテナの中で浮き上がるコンボボックス自身のラベルです（`filled`、`outlined`）。描かれていても、`labelHidden` で隠されていても、アクセシブルネームになります |
-| 必須・任意の印 | ラベルの後に置きます。`requirement="required"` では必須のタグ、アスタリスク、印なしのいずれか、`optional` では任意のタグです。浮き上がるラベルには、アスタリスクが付きます |
+| 必須・任意の印 | ラベルの後に置きます。`required` では必須のタグ、アスタリスク、印なしのいずれか、`optional` では任意のタグです。浮き上がるラベルには、アスタリスクが付きます |
 | 入力欄 | テキストです。ユーザーがオプションを探すために入力するもので、入力していない間は、選ばれているオプションのラベルか、リストにない値を示します。1 行で、収まらない分はスクロールします |
 | プレースホルダー | 入力欄が空の間に表示するヒントです。ラベルの代わりにも、値にもなりません |
 | 先頭のアイコン | `leading-icon` スロットのグリフです。なければ、選ばれているオプション自身のグリフになります |
@@ -215,7 +215,7 @@ IME で変換中の間、すべてのキーは IME のものです。変換を�
 
 - `<tanrei-option>` と `<tanrei-option-group>` はデータで、自分では何も描きません。セレクトが持つ要素と同じものです。値が空文字列のオプションは、描かれますが、選べません。空の値は、何も選ばれていないことを表すからです。
 - 要素のシャドウルートにあるのは、`<tanrei-combobox>` を入れた `<tanrei-field>` です。子の `<tanrei-option>` は、この要素の子のままで、スロットを通ってコンボボックスに届きます。移動も複製もされません。
-- コンボボックスフィールドは、フォームに関連付けられる要素で、フォームから見えるただ 1 つのコントロールです。`name` を受け取り、`value` を送信します。編集しただけで確定していないテキストが送信されることはありません。リセットされると `value` 属性の値に戻ります。`requirement="required"` で `value` が空の間は、値がないことをフォームに伝えます。どのオプションもアクティブでないときの Enter は、このフィールドのフォームを送信します。
+- コンボボックスフィールドは、フォームに関連付けられる要素で、フォームから見えるただ 1 つのコントロールです。`name` を受け取り、`value` を送信します。編集しただけで確定していないテキストが送信されることはありません。リセットされると `value` 属性の値に戻ります。`required` で `value` が空の間は、値がないことをフォームに伝えます。どのオプションもアクティブでないときの Enter は、このフィールドのフォームを送信します。
 - `value`、`inputValue`、`open` は、どの時点でもコンボボックスのものです。どのリスナーでも、すでに新しい値になっています。
 - `chevron` は、逆の意味の属性 `no-chevron` で指定します。`readOnly` は、`readonly` 属性です。
 - `input` は、テキストの要素のネイティブのイベントです。`change` と `action` は、`detail.value` と `detail.inputValue` を持ちます。4 つのイベントはコンボボックスのもので、イベントのターゲットはコンボボックスフィールドです。`toggle` はバブルしません。
@@ -270,7 +270,7 @@ IME で変換中の間、すべてのキーは IME のものです。変換を�
 - 入力欄は、リストボックスを持つ、編集できるコンボボックスです。名前は `label` で、描かれていても隠されていても変わらず、プレースホルダーが名前になることはありません。フィールドがコンボボックスに渡し、コンボボックスが自身の入力欄に付けます。
 - 表示している補足テキストまたはエラーテキストが、説明になります。フィールドが任意の間は、`optionalText` も加わります。
 - フィールドの中にフォーカスがある間に現れたエラーは、1 度だけ控えめに読み上げます。
-- `error` が true の間は invalid であることを、`requirement` が `required` の間は必須であることを伝えます。読み取り専用であることと、リストが開いている間は展開されていることも伝えます。
+- `error` が true の間は invalid であることを、`required` が設定されている間は必須であることを伝えます。読み取り専用であることと、リストが開いている間は展開されていることも伝えます。
 - リストが開いている間も、フォーカスは入力欄にとどまります。アクティブなオプションは、入力欄のアクティブな子孫として伝わります。そのため、文字を入力すれば、いつでもテキストを編集できます。
 - リストは、ラベルを名前とするリストボックスです。それぞれのオプションは、名前、説明、選ばれているかどうか、無効かどうか、表示されているオプションの中での位置を伝えます。グループの名前は、そのタイトルです。
 - 一致した部分は、太さで示します。色だけで示すことはありません。ラベルは、1 つのテキストとして読み上げられます。

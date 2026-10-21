@@ -7,7 +7,7 @@ import { emitDart } from '../src/emit/dart.js';
 import { emitKotlin } from '../src/emit/kotlin.js';
 import { emitSwift } from '../src/emit/swift.js';
 import { emitTs } from '../src/emit/ts.js';
-import { checkInvariants, contrast } from '../src/invariants.js';
+import { CONTRAST_THRESHOLDS, checkInvariants, contrast } from '../src/invariants.js';
 import { buildIR } from '../src/ir.js';
 import { REPO_ROOT, TOKENS_DIR, buildModel } from '../src/model.js';
 import { SCHEMES, generateSchemeFiles, loadDefaultSystem } from '../src/scheme.js';
@@ -85,6 +85,9 @@ test('resolved values still equal the oracle, except where they differ on purpos
       (/\.ref\.palette\.(info|warning|error|success)\.(15|22|88|89|91|92|93|96)$/.test(id) && !(id in after)) ||
       // The hairline is raised in the raised-contrast schemes: 3:1 at medium, 4.5:1 at high, against every surface.
       (/-(medium|high)$/.test(scheme) && /\.sys\.color\.outline-variant$/.test(id)) ||
+      // A component's motion takes the duration and the curve of its role (sys.motion.role.*, easing.*): the default
+      // system's roles are longer than the steps the components named, and its state durations follow the size.
+      /\.comp\.[a-z-]+(\.(modal|docked))?\.motion\.([a-z-]+-)?(duration|easing)$/.test(id) ||
       false;
     // The text styles are named by level. The VALUE of each must not have moved: the new role resolves to
     // what the old one did (family aside — eyebrow moved from mono to plain on purpose).
@@ -108,9 +111,9 @@ test('resolved values still equal the oracle, except where they differ on purpos
       compared++;
     }
     // A floor so this test cannot pass vacuously. It drops only when tokens are removed or changed
-    // on purpose; every remaining value still equals the oracle's. (245 in the raised-contrast schemes, whose hairline
+    // on purpose; every remaining value still equals the oracle's. (243 in the raised-contrast schemes, whose hairline
     // was raised on purpose.)
-    assert.ok(compared >= 245, `compared ${compared}`);
+    assert.ok(compared >= 243, `compared ${compared}`);
   }
 });
 
@@ -155,9 +158,10 @@ test('the snackbar\'s inverse status forms are the other theme\'s status forms, 
       compared++;
     }
   }
-  // 30 color tokens of each of four forms (the bar, the title, the message, the glyph, the edge, the focus indicator,
-  // and the action's and the close button's three colors at rest and in three states), in six schemes.
-  assert.equal(compared, 720);
+  // 18 color tokens of each of four forms (the bar, the title, the message, the glyph, the edge, the focus indicator,
+  // and the action's three colors at rest and in three states), in six schemes. The expand and close buttons have no
+  // colors of their own: their tone is the form's message and focus colors (SNK-34).
+  assert.equal(compared, 432);
 
   // The build holds it: a restated tone that drifts from the role it restates is named, with both values.
   const drifted = breakable(model);
@@ -189,9 +193,28 @@ test('invariants hold what is read on an inverse status bar against that bar, op
   // The glyph at icon.opacity, as a mark.
   failures = breakIt('dark', 'inverse-error.icon.color', 'inverse-error.container.color');
   assert.ok(failures.includes('[dark] comp.snackbar.inverse-error.icon.color on comp.snackbar.inverse-error.container.color: 1.00:1 < 3:1 (status glyph at icon.opacity on its bar)'), failures.join('\n'));
-  // The close button's glyph on its container over the bar, in a state.
-  failures = breakIt('light', 'close.hovered.inverse-info.content.color', 'inverse-info.container.color');
-  assert.ok(failures.some((f) => f.startsWith('[light] comp.snackbar.close.hovered.inverse-info.content.color on comp.snackbar.close.hovered.inverse-info.container.color: ') && f.endsWith('< 3:1 (close glyph on its container over the bar)')), failures.join('\n'));
+  // The expand and close buttons' glyph, the form's message color given as their tone, on its circle over the bar,
+  // at rest and in a state (SNK-34).
+  failures = breakIt('light', 'inverse-info.supporting-text.color', 'inverse-info.container.color');
+  for (const state of ['rest', 'hovered', 'focused', 'pressed']) {
+    assert.ok(failures.includes(`[light] comp.snackbar.inverse-info.supporting-text.color on comp.snackbar.inverse-info.container.color: 1.00:1 < 3:1 (expand and close glyph on its circle over the bar, ${state})`), failures.join('\n'));
+  }
+  // The default system holds it in all ten forms and six schemes, with room: the weakest is a focused or pressed glyph
+  // on an inverse status bar.
+  const ground = (scheme, form, layer) => {
+    const name = (part) => id(form ? `${form}.${part}` : part);
+    const tone = model.componentColors[scheme][name('supporting-text.color')].value;
+    const bar = model.componentColors[scheme][name('container.color')].value;
+    const mixed = (top, under, amount) => {
+      const [t, u] = [top.components, under.components];
+      return { colorSpace: 'srgb', components: [0, 1, 2].map((i) => t[i] * amount + u[i] * (1 - amount)), alpha: 1 };
+    };
+    const circle = mixed(tone, bar, model.tokens['tanrei.comp.button.tone.container.opacity'].value);
+    return contrast(tone, layer ? mixed(tone, circle, model.tokens[`tanrei.sys.state.${layer}-state-layer-opacity`].value) : circle);
+  };
+  const FORMS = ['', 'info', 'warning', 'error', 'success', 'inverse', 'inverse-info', 'inverse-warning', 'inverse-error', 'inverse-success'];
+  const weakest = Math.min(...SCHEMES.flatMap((scheme) => FORMS.flatMap((form) => [null, 'hover', 'focus', 'pressed'].map((layer) => ground(scheme, form, layer)))));
+  assert.equal(weakest.toFixed(2), '6.21');
 
   // The floors the default system holds, at the least over the four statuses: the glyph is the one that is near its floor.
   const drawn = (scheme, name, opacity) => {
@@ -322,6 +345,35 @@ test('high contrast is strictly stronger than standard for body text', () => {
     const at = (s) => contrast(model.colors[s]['on-surface-variant'].value, model.colors[s].surface.value);
     assert.ok(at(`${mode}-high`) > at(`${mode}-medium`) && at(`${mode}-medium`) > at(mode), mode);
   }
+});
+
+test('the exported thresholds are the ones the checks hold, scheme by scheme (the docs state them from there)', () => {
+  // Each pair is drawn in its ground's own color, so it fails in every scheme, and its message names what it was held to.
+  const broken = breakable(model);
+  for (const scheme of model.schemes) {
+    const roles = broken.colors[scheme];
+    for (const [fg, bg] of [['on-surface', 'surface'], ['outline', 'surface'], ['focus-ring', 'surface'], ['outline-variant', 'surface']]) {
+      roles[fg] = { ...roles[fg], value: roles[bg].value };
+    }
+  }
+  const failures = checkInvariants(broken);
+  const heldTo = (scheme, pair, why) => {
+    const found = failures.find((f) => f.startsWith(`[${scheme}] ${pair}: `) && f.endsWith(`(${why})`));
+    assert.ok(found, `${scheme} ${pair}\n${failures.join('\n')}`);
+    return Number(found.match(/< ([\d.]+):1/)[1]);
+  };
+  const { text, highContrastText, nonText, hairline } = CONTRAST_THRESHOLDS;
+  assert.ok(highContrastText > text && text > nonText);
+  for (const scheme of model.schemes) {
+    const level = scheme.endsWith('-high') ? 'high' : scheme.endsWith('-medium') ? 'medium' : 'standard';
+    assert.equal(heldTo(scheme, 'on-surface on surface', 'body text'), level === 'high' ? highContrastText : text, scheme);
+    assert.equal(heldTo(scheme, 'outline on surface', 'functional boundary (WCAG 1.4.11)'), nonText, scheme);
+    assert.equal(heldTo(scheme, 'focus-ring on surface', 'focus indicator (WCAG 2.4.13)'), nonText, scheme);
+    const edge = failures.find((f) => f.startsWith(`[${scheme}] outline-variant on surface: `));
+    if (level === 'standard') assert.equal(edge, undefined, scheme);
+    else assert.equal(heldTo(scheme, 'outline-variant on surface', 'the hairline in a raised-contrast scheme'), hairline[level], scheme);
+  }
+  assert.throws(() => { CONTRAST_THRESHOLDS.text = 3; }, TypeError);
 });
 
 test('CSS keeps the alias chain and switches schemes with light-dark()', () => {

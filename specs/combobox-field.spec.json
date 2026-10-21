@@ -86,8 +86,12 @@
       "from": "combobox.readOnly"
     },
     {
-      "name": "requirement",
-      "from": "field.requirement"
+      "name": "required",
+      "from": "field.required"
+    },
+    {
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -141,6 +145,10 @@
     {
       "name": "separation",
       "from": "combobox.separation"
+    },
+    {
+      "name": "iconSpace",
+      "from": "combobox.iconSpace"
     }
   ],
   "slots": [
@@ -184,7 +192,7 @@
   "behavior": [
     {
       "id": "CBF-1",
-      "text": "THE combobox field SHALL be a Field that frames one combobox, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its combobox, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its combobox; SHALL give its options to its combobox (CBF-2); and SHALL emit its combobox's events as its own, each once. THE combobox field SHALL be as wide as the place it stands in, and its combobox SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CMB-49). It SHALL draw no part of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that combobox do when a product places the one in the other (FLD-1 to FLD-28; CMB-1 to CMB-62) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CMB-7, CMB-8); the supporting row and the error (FLD-7 to FLD-9, FLD-26, CMB-10); the name, the description and the states (FLD-10, FLD-11, FLD-14, CMB-12, CMB-46); and the list, which is the combobox's alone and as wide as its container (CMB-22).",
+      "text": "THE combobox field SHALL be a Field that frames one combobox, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, required, optional, requiredMark, requiredText and optionalText to its Field and every other prop to its combobox, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its combobox; SHALL give its options to its combobox (CBF-2); and SHALL emit its combobox's events as its own, each once. THE combobox field SHALL be as wide as the place it stands in, and its combobox SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (CMB-49). It SHALL draw no part of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that combobox do when a product places the one in the other (FLD-1 to FLD-28; CMB-1 to CMB-62) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, CMB-7, CMB-8); the supporting row and the error (FLD-7 to FLD-9, FLD-26, CMB-10); the name, the description and the states (FLD-10, FLD-11, FLD-14, CMB-12, CMB-46); and the list, which is the combobox's alone and as wide as its container (CMB-22).",
       "verify": "The twin test: every fixture of the combobox field has a twin, the Field's fixture combobox-<id>, a Field around a combobox written by hand with the same values and the same options; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (CMB-61), never a baseline to update."
     },
     {
@@ -200,7 +208,7 @@
     {
       "id": "CBF-4",
       "text": "WHERE the platform has forms (the web) THE combobox field SHALL be the one control the form sees: it SHALL take name, submit its combobox's value — never the text of an edit that was not committed — reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its combobox would report there (CMB-59), and be left out WHILE disabled is true or a disabled group of the form holds it; its combobox and its Field SHALL take no part in the form themselves. WHEN Enter asks for the form's submission (CMB-28) the form asked SHALL be the combobox field's own, through that form's default button (BTN-30), and not WHEN action was cancelled.",
-      "verify": "Unit, on the web: a form with one combobox field submits one entry under the field's name; reset and restore reach the combobox; requirement required with an empty value reports valueMissing on the combobox field and focuses its combobox's input when the form reports it; Enter with no option active presses the form's default button; an Enter that chooses an option submits nothing (CMB-27)."
+      "verify": "Unit, on the web: a form with one combobox field submits one entry under the field's name; reset and restore reach the combobox; required true with an empty value reports valueMissing on the combobox field and focuses its combobox's input when the form reports it; Enter with no option active presses the form's default button; an Enter that chooses an option submits nothing (CMB-27)."
     },
     {
       "id": "CBF-5",
@@ -250,7 +258,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -263,7 +272,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "input",
@@ -291,7 +301,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip."
         }
       },
-      "notes": "The tag `tanrei-combobox-field`, the class `TanreiComboboxField`, the React name `ComboboxField`. It takes the combobox's attributes, children and listeners and the Field's, name for name. The element is composed as every composed element on the web is (the web package's README, Composed elements); what follows is what is particular to it, and the three places where this element needs more than every composed element has. Members: `<tanrei-field>` holding one `<tanrei-combobox>` in its default slot; the product places no member. The host is `display: block`. Value member: `tanrei-combobox`. The host is the form's element — `name`, the value and its state, validity anchored on the combobox's input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the combobox inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the combobox: `variant`, `size`, `value`, `inputValue`, `placeholder`, `readOnly`, `open`, `allowCustomValue`, `filter`, `noChevron` (the inverse of `chevron`, attribute `no-chevron`), `clearable`, `clearLabel`, `status`, `statusText`, `emptyText`, `separation`. Attributes are the members' own: kebab-case, except `readonly`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the combobox's are never set by the element and reach the combobox through the connection. **1. Three props the member writes** (a composed element sets each prop on its member, with one exception, the value, which it reads back on the member's event): the combobox writes `value`, `inputValue` and `open` itself, and writes the text with no event when a commit is given up (CMB-29). The host therefore keeps no copy of the three: each is an accessor over the member's property — a get reads the member's, a set writes the member's, and a value set before the member exists is kept and given at its first render — so that `event.target.value`, `.inputValue` and `.open` are the new ones in every listener and between events (CBF-3). `open` reflects on the host as it does on the member: the host writes its own attribute when the member tells it of an update, by the primitive through which the member already tells the host its form value. **2. The options are passed by the default slot** (other passed-on children use named slots): the shadow root is `<tanrei-field><slot name=\"label-icon\" slot=\"label-icon\"></slot><tanrei-combobox><slot></slot><slot name=\"leading-icon\" slot=\"leading-icon\"></slot></tanrei-combobox></tanrei-field>`. The product's `<tanrei-option>` and `<tanrei-option-group>` children stay the host's light-DOM children and are assigned to the unnamed `<slot>`, which is a child of the combobox; the combobox reads a `<slot>` among its children as the elements assigned to it and reads again on `slotchange` and on a change of an assigned element (`primitives/option-list.ts`, the combobox's web note; the select reads its options the same way, with the same reader). Unlike a passing named slot, the unnamed one is always rendered: the combobox draws no room for options, so an empty slot is no option. The host never reads its option children. Slots: `label-icon` is passed to the Field and `leading-icon` to the combobox, each by a slot element of the same name rendered only while the host has a child for it. **3. A forwarded attribute that is no prop**: `inline`, the combobox's web-only attribute that draws an open list in place for the fixtures, is forwarded as a property, and `select()` is passed on as `focus()` and `blur()` are. Events: `input` is the native, composed event of the text element, and `change` and `action` are the combobox's own composed, bubbling events; the three leave by themselves, with the host as their target, and `action` stays cancelable. `toggle` is composed and does not bubble: it is heard on the host, as on any shadow host, and by no ancestor — which needs the combobox's `toggle` to be composed, as it is not today (the combobox's web note). None is stopped and none is copied. Parts: the member hosts are `field` and `combobox`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`. Exported from the combobox: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `combobox-label`, `field-requirement-label`, `combobox-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()`, `blur()` and `select()` call the combobox's; a press on the label row focuses the input by FLD-12, a press on the box by CMB-14, and a press on the help does nothing. The combobox's list is a popover of the combobox's own shadow root, in the top layer; the combobox is its opener, so a press on the Field's rows while it is open is a press outside (CBF-5). The connection is the Field's with its control, with one value more upward, that the control is drawn focused (FLD-13, FLD-25, FLD-26, CMB-61); the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-combobox-*` reach the members by inheritance, and one combobox field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"City\" supporting-text=\"Where the order is sent.\" requirement=\"required\"><tanrei-combobox name=\"city\" value=\"tokyo\"><tanrei-option value=\"kyoto\">Kyoto</tanrei-option><tanrei-option value=\"tokyo\">Tokyo</tanrei-option></tanrei-combobox></tanrei-field>`. Before the element is defined its options are running text: a page hides them with `tanrei-combobox-field:not(:defined) > * { display: none }` and gives the tag a block size. Words: none of its own; `required-text` and `optional-text` are read by the Field, `empty-text` and `clear-label` by the combobox."
+      "notes": "The tag `tanrei-combobox-field`, the class `TanreiComboboxField`, the React name `ComboboxField`. It takes the combobox's attributes, children and listeners and the Field's, name for name. The element is composed as every composed element on the web is (the web package's README, Composed elements); what follows is what is particular to it, and the three places where this element needs more than every composed element has. Members: `<tanrei-field>` holding one `<tanrei-combobox>` in its default slot; the product places no member. The host is `display: block`. Value member: `tanrei-combobox`. The host is the form's element — `name`, the value and its state, validity anchored on the combobox's input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the combobox inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`. On the combobox: `variant`, `size`, `value`, `inputValue`, `placeholder`, `readOnly`, `open`, `allowCustomValue`, `filter`, `noChevron` (the inverse of `chevron`, attribute `no-chevron`), `clearable`, `clearLabel`, `status`, `statusText`, `emptyText`, `separation`. Attributes are the members' own: kebab-case, except `readonly`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the combobox's are never set by the element and reach the combobox through the connection. **1. Three props the member writes** (a composed element sets each prop on its member, with one exception, the value, which it reads back on the member's event): the combobox writes `value`, `inputValue` and `open` itself, and writes the text with no event when a commit is given up (CMB-29). The host therefore keeps no copy of the three: each is an accessor over the member's property — a get reads the member's, a set writes the member's, and a value set before the member exists is kept and given at its first render — so that `event.target.value`, `.inputValue` and `.open` are the new ones in every listener and between events (CBF-3). `open` reflects on the host as it does on the member: the host writes its own attribute when the member tells it of an update, by the primitive through which the member already tells the host its form value. **2. The options are passed by the default slot** (other passed-on children use named slots): the shadow root is `<tanrei-field><slot name=\"label-icon\" slot=\"label-icon\"></slot><tanrei-combobox><slot></slot><slot name=\"leading-icon\" slot=\"leading-icon\"></slot></tanrei-combobox></tanrei-field>`. The product's `<tanrei-option>` and `<tanrei-option-group>` children stay the host's light-DOM children and are assigned to the unnamed `<slot>`, which is a child of the combobox; the combobox reads a `<slot>` among its children as the elements assigned to it and reads again on `slotchange` and on a change of an assigned element (`primitives/option-list.ts`, the combobox's web note; the select reads its options the same way, with the same reader). Unlike a passing named slot, the unnamed one is always rendered: the combobox draws no room for options, so an empty slot is no option. The host never reads its option children. Slots: `label-icon` is passed to the Field and `leading-icon` to the combobox, each by a slot element of the same name rendered only while the host has a child for it. **3. A forwarded attribute that is no prop**: `inline`, the combobox's web-only attribute that draws an open list in place for the fixtures, is forwarded as a property, and `select()` is passed on as `focus()` and `blur()` are. Events: `input` is the native, composed event of the text element, and `change` and `action` are the combobox's own composed, bubbling events; the three leave by themselves, with the host as their target, and `action` stays cancelable. `toggle` is composed and does not bubble: it is heard on the host, as on any shadow host, and by no ancestor — which needs the combobox's `toggle` to be composed, as it is not today (the combobox's web note). None is stopped and none is copied. Parts: the member hosts are `field` and `combobox`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`. Exported from the combobox: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `combobox-label`, `field-requirement-label`, `combobox-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()`, `blur()` and `select()` call the combobox's; a press on the label row focuses the input by FLD-12, a press on the box by CMB-14, and a press on the help does nothing. The combobox's list is a popover of the combobox's own shadow root, in the top layer; the combobox is its opener, so a press on the Field's rows while it is open is a press outside (CBF-5). The connection is the Field's with its control, with one value more upward, that the control is drawn focused (FLD-13, FLD-25, FLD-26, CMB-61); the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-combobox-*` reach the members by inheritance, and one combobox field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"City\" supporting-text=\"Where the order is sent.\" required><tanrei-combobox name=\"city\" value=\"tokyo\"><tanrei-option value=\"kyoto\">Kyoto</tanrei-option><tanrei-option value=\"tokyo\">Tokyo</tanrei-option></tanrei-combobox></tanrei-field>`. Before the element is defined its options are running text: a page hides them with `tanrei-combobox-field:not(:defined) > * { display: none }` and gives the tag a block size. Words: none of its own; `required-text` and `optional-text` are read by the Field, `empty-text` and `clear-label` by the combobox."
     },
     "swiftui": {
       "status": "planned",
@@ -309,7 +319,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -322,7 +333,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "text",
@@ -368,7 +380,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -381,7 +394,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
@@ -427,7 +441,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -440,7 +455,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputChanged",
@@ -486,7 +502,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -499,7 +516,8 @@
         "status": "status",
         "statusText": "statusText",
         "emptyText": "emptyText",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "input": "onInputValueChange",
@@ -1150,7 +1168,7 @@
       "id": "stacked-required",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -1196,7 +1214,7 @@
       "id": "stacked-optional",
       "props": {
         "label": "City",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -1242,7 +1260,7 @@
       "id": "stacked-required-asterisk",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "items": [
@@ -1288,7 +1306,7 @@
       "id": "stacked-required-error",
       "props": {
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose the city you are sending to.",
         "requiredText": "Required"
@@ -1337,7 +1355,7 @@
       "props": {
         "label": "City",
         "value": "tokyo",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -2397,7 +2415,7 @@
       "id": "long-label",
       "props": {
         "label": "Which of the cities we deliver to is nearest to the place where you will collect the parcel",
-        "requirement": "required",
+        "required": true,
         "supportingText": "If none of them is near enough, leave this empty and write to us: we open new routes when several people ask for the same one.",
         "requiredText": "Required"
       },
@@ -2445,7 +2463,7 @@
       "props": {
         "label": "都市",
         "value": "kyoto",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -2479,7 +2497,7 @@
         "label": "都市",
         "inputValue": "京",
         "open": true,
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意",
         "emptyText": "一致する項目がありません"
       },
@@ -2514,7 +2532,7 @@
       "props": {
         "label": "المدينة",
         "value": "cairo",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "إلى أين نرسل الطلب.",
         "clearable": true,
@@ -2622,7 +2640,7 @@
       "direction": "rtl",
       "props": {
         "label": "עיר",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "רשות",
         "error": true,
         "errorText": "יש לבחור עיר מהרשימה."
@@ -3208,7 +3226,7 @@
       "props": {
         "variant": "outlined",
         "label": "City",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [

@@ -81,10 +81,10 @@ jobs:
   checks:
     name: CI
     needs: preflight
-    uses: ./.github/workflows/ci.yml
+    uses: $/.github/workflows/ci.yml # self-repository form: this commit's ci.yml, and allowed under "require actions pinned to a SHA"
     permissions:
-      contents: read
-      pull-requests: read
+      contents: read # the checkout
+      pull-requests: read # ci.yml's secret scan lists a pull request's commits
 
   npm:
     if: inputs.registry == 'npm' && github.ref == 'refs/heads/main'
@@ -100,7 +100,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # the existing tags, so `changeset tag` writes only the new ones
-          persist-credentials: true # the last step pushes the release tags
+          persist-credentials: true # zizmor: ignore[artipacked] the last step pushes the release tags
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -134,9 +134,12 @@ jobs:
       # TANREI_REQUIRE_STUDIO makes a CLI without the app a failed release, not a quiet one.
       - run: pnpm --filter @tanrei/web --filter @tanrei/react build
       - run: pnpm --filter @tanrei/studio build:app
-      - run: pnpm ${{ steps.packages.outputs.filters }} build
-        env:
+      - env:
           TANREI_REQUIRE_STUDIO: "1"
+          FILTERS: ${{ steps.packages.outputs.filters }} # through the environment: a step output is never spliced into the script
+        run: |
+          read -ra filters <<< "$FILTERS"
+          pnpm "${filters[@]}" build
       # A version already on the registry is skipped, so a release that failed half-way can be dispatched again.
       # The dist-tag: while the packages are in changesets pre mode (.changeset/pre.json) every version is a prerelease
       # and goes out under that mode's tag (`next`), never `latest` — an install without a tag then gets nothing. npm
@@ -153,7 +156,13 @@ jobs:
           esac
           echo "publishing $version under the dist-tag $tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-      - run: pnpm ${{ steps.packages.outputs.filters }} publish --access public --no-git-checks --tag ${{ steps.dist-tag.outputs.tag }}
+      - env:
+          # The step outputs reach the script through the environment, never spliced into it.
+          FILTERS: ${{ steps.packages.outputs.filters }}
+          DIST_TAG: ${{ steps.dist-tag.outputs.tag }}
+        run: |
+          read -ra filters <<< "$FILTERS"
+          pnpm "${filters[@]}" publish --access public --no-git-checks --tag "$DIST_TAG"
       # One tag per published package, `<package>@<version>` (what `changeset tag` writes for every public package;
       # only the published ones are pushed). Never a bare semver tag: SwiftPM would read it as a Swift release.
       - name: Tag the published versions

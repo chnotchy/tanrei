@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 4411a99a32ab8adee270398cbe94503b9490d9de
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ Las opciones son hijos del select: cada una tiene un valor y una etiqueta. `valu
 Un campo alrededor de un select es un campo de selección escrito por extenso. Deja vacío el `label` del propio select: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se dicen en el campo; `name`, `value`, las opciones y todo lo que tiene que ver con elegir, en el select.
 
 ```html
-<tanrei-field label="País" requirement="required" required-text="Obligatorio"
+<tanrei-field label="País" required required-text="Obligatorio"
   supporting-text="El país al que van dirigidas tus facturas.">
   <tanrei-select name="country" placeholder="Elige un país">
     <tanrei-option value="jp">Japón</tanrei-option>
@@ -107,7 +107,7 @@ Un campo alrededor de un select es un campo de selección escrito por extenso. D
 ```
 
 <DemoFrame label="Un campo con un select dentro: la misma imagen que un campo de selección" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" requirement="required" required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" required required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-select placeholder="Elige un país">
       <tanrei-option value="jp">Japón</tanrei-option>
       <tanrei-option value="ke">Kenia</tanrei-option>
@@ -175,7 +175,32 @@ La lista se abre a una distancia de `comp.select.list.offset` por debajo del con
 | Grupo | Una serie de opciones bajo un título opcional. Los grupos se separan con una línea o con espacio, según digan el sistema de diseño o `separation` |
 | Opción deshabilitada | Se llega a ella con las teclas de flecha, para que las personas sepan que existe, y nunca se elige |
 
+El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
 Una opción cuyo valor es la cadena vacía es una opción como cualquier otra, para «Ninguno» o «Cualquiera». El select no tiene una forma propia de volver a no tener nada elegido: donde se permita no elegir, ofrece una opción que lo diga.
+
+### Cargando, un fallo y nada que elegir
+
+Cuando las opciones vienen de un sitio que tarda o puede fallar, dilo en la lista. `status`, `statusText` y `emptyText` son las propiedades del [cuadro combinado](/es/components/combobox/) y de la [búsqueda](/es/components/search/), con los mismos valores y el mismo significado.
+
+| Lo que pones | Lo que la lista muestra tras sus opciones |
+| --- | --- |
+| `status="loading"` y `statusText` | Un indicador de carga pequeño, con `statusText` como nombre ("Cargando proyectos"). La lista se marca como ocupada y no se anuncia nada. Las opciones que ya están se pueden elegir |
+| `status="error"` y `statusText` | El texto en el color de error, leído enseguida ("No se pudieron cargar los proyectos") |
+| Solo `statusText` | El texto, leído con cortesía ("Tus 3 proyectos más recientes") |
+| `emptyText`, mientras no hay ninguna opción | El texto en lugar de las opciones ("Aún no hay proyectos") |
+
+Esta fila de estado sigue a la vista mientras las opciones se desplazan. No es una opción: pulsarla no hace nada y las flechas nunca llegan a ella. Lo que ya dice cuando se abre la lista se lee al abrirse.
+
+El select nunca carga, espera ni reintenta nada. Pon `status` en `loading` al empezar, da las opciones y vuelve a `idle` cuando lleguen, o pon `error` con palabras para el fallo.
+
+Un select sin opciones, sin estado y sin `emptyText` no se abre. Dale un `emptyText`, o la palabra `noOptionsText` del producto una vez con `setWords()`, para que quien lo abra sepa por qué no hay nada que elegir.
+
+<DemoFrame label="Cargando, un fallo y nada que elegir" column>
+  <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" status="loading" status-text="Cargando proyectos"></tanrei-select>
+  <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" status="error" status-text="No se pudieron cargar los proyectos. Comprueba tu conexión."></tanrei-select>
+  <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" empty-text="Aún no hay proyectos"></tanrei-select>
+</DemoFrame>
 
 ### Abrir, moverse y elegir
 
@@ -203,8 +228,9 @@ El valor solo cambia cuando la persona confirma una opción en la lista abierta:
 - `change` es un evento compuesto que se propaga. `toggle` es compuesto y no se propaga: se oye en el select, y en un campo de selección que lo rodee, y nunca en un antecesor como un `<details>`.
 - La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
 - Una etiqueta flotante (`filled`, `outlined`) queda dentro del contenedor, así que una pulsación en ella abre la lista.
-- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
-- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
+- `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- `empty-text` vacío se lee de las palabras del producto (`setWords({ noOptionsText })`).
 - Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-select:not(:defined) > *` y reserva la altura.
 - La web no tiene un gesto de retroceso propio, así que `toggle` nunca lleva el motivo `back`.
 - `readOnly` es el atributo `readonly`.
@@ -268,7 +294,8 @@ El valor solo cambia cuando la persona confirma una opción en la lista abierta:
 - Con el texto al 200%, las opciones y los títulos saltan de línea. Solo el valor del contenedor se queda en una línea, y la lista y la tecnología de apoyo lo siguen dando completo.
 - Con colores forzados, el activador y la lista ganan un borde, la opción activa toma los colores de resaltado y la opción elegida se muestra con su marca de verificación.
 - En un diseño de derecha a izquierda, el activador y cada fila se reflejan, y cada texto conserva su propia dirección. El chevron y la marca de verificación no se reflejan.
-- No tiene textos propios y no lee ninguno.
+- La fila de estado es una región viva fuera del cuadro de lista. Lo que dice se lee cuando se abre la lista y cuando cambia: con cortesía, y enseguida cuando el origen falló. Mientras carga, el cuadro de lista se marca como ocupado y no se anuncia nada.
+- No tiene textos propios. Si `emptyText` está vacío, se lee de las palabras del producto (`noOptionsText`).
 
 Carencias conocidas en la web:
 
@@ -281,3 +308,4 @@ Carencias conocidas en la web:
 - Da nombre con `label` a cada select sin nada más, y da una etiqueta a cada opción. Un texto visible junto al select no le da nombre.
 - Donde un select sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: un mensaje tuyo vinculado a la página, o un campo alrededor del select.
 - Mantén únicos los valores de las opciones dentro de un select.
+- Escribe `statusText` mientras carga, porque da nombre al indicador de carga, y escribe `emptyText` donde un select pueda quedarse sin opciones.

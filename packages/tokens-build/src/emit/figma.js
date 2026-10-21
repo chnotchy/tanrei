@@ -67,14 +67,18 @@ export function emitFigmaPlan(model) {
   // Typefaces reach Figma as STRING variables: the system's typefaces (hidden, in ref) and the icon family per
   // selection state, which the `Icon / …` components bind their font family to.
   const isFamily = (t) => t.type === 'fontFamily' && ((t.path[0] === 'ref' && t.path[1] === 'typeface') || (t.path[0] === 'sys' && t.path[1] === 'icon'));
-  // Durations reach Figma as FLOAT variables in milliseconds: the system's duration steps and what a component does
-  // with them (`comp.button.motion.feedback-duration`). Figma cannot bind a variable to a prototype's timing, so they
+  // Durations reach Figma as FLOAT variables in milliseconds: the system's duration steps, its durations by role
+  // (`sys.motion.role.*`) and what a component does with them (`comp.button.motion.feedback-duration`). Figma cannot bind a variable to a prototype's timing, so they
   // have no scope — they document the system, like the dials and the choices of kind. Easings and springs are not
   // numbers; they stay code-only.
-  const isDuration = (t) => t.type === 'duration' && (t.path[0] === 'comp' || (t.path[0] === 'sys' && t.path[1] === 'motion' && t.path[2] === 'duration'));
+  const isDuration = (t) => t.type === 'duration' && (t.path[0] === 'comp' || (t.path[0] === 'sys' && t.path[1] === 'motion' && (t.path[2] === 'duration' || t.path[2] === 'role')));
+  // Where a surface that appears starts from (`sys.motion.appear.*`: an opacity, a scale, a distance, a blur, an origin)
+  // is numbers too, documented the same way: a prototype's transition cannot be bound to a variable.
+  const isAppear = (t) => t.path[0] === 'sys' && t.path[1] === 'motion' && t.path[2] === 'appear' && (t.type === 'dimension' || t.type === 'number');
+  const isMotion = (t) => isDuration(t) || isAppear(t);
   const inPlan = (id) => {
     const target = model.tokens[id];
-    return target && (target.type === 'color' || target.type === 'dimension' || target.type === 'number' || isFamily(target) || isDuration(target)) && !(target.path[0] === 'sys' && target.path[1] === 'motion' && !isDuration(target));
+    return target && (target.type === 'color' || target.type === 'dimension' || target.type === 'number' || isFamily(target) || isDuration(target)) && !(target.path[0] === 'sys' && target.path[1] === 'motion' && !isMotion(target));
   };
   // A Figma variable holds ONE family name: the first named family of the stack (or the generic class when the
   // stack names none). The whole stack stays in the description.
@@ -93,12 +97,12 @@ export function emitFigmaPlan(model) {
   const float = (token) => {
     const value = isProportion(token) ? round(numeric(token) * 100) : numeric(token);
     const choice = token.enum?.values ? ` Choice: "${token.enum.values[token.value]}" — index ${token.value} of ${token.enum.values.join(' | ')}. Behaviour, not a value: nothing in Figma is bound to it.` : '';
-    const timing = token.type === 'duration' ? ' Milliseconds. Motion is not drawn in Figma: documented, not applied.' : '';
+    const timing = token.type === 'duration' ? ' Milliseconds. Motion is not drawn in Figma: documented, not applied.' : isAppear(token) ? ' Motion is not drawn in Figma: documented, not applied.' : '';
     const note = isProportion(token) ? ` Code value: ${numeric(token)} (Figma stores opacity as 0–100).` : choice || timing;
     return {
       name: nameOf(token.id),
       type: 'FLOAT',
-      scopes: token.path[0] === 'dial' || token.type === 'duration' ? [] : numberScopes(token.path),
+      scopes: token.path[0] === 'dial' || token.type === 'duration' || isAppear(token) ? [] : numberScopes(token.path),
       web: web(token.path),
       // A dial has no description of its own; what it is for is the rationale its vocabulary entry gives.
       description: `${token.description ?? (token.path[0] === 'dial' && token.vocabulary?.rationale ? `A dial: every token derived from it follows. ${token.vocabulary.rationale}` : '')}${note}`.trim(),
@@ -114,8 +118,8 @@ export function emitFigmaPlan(model) {
     ...tokens.filter((t) => t.path[0] === 'ref' && isFamily(t)).map(family),
   ];
   const dial = tokens.filter((t) => t.path[0] === 'dial').map(float);
-  // Of motion, only the duration steps are numbers a variable can hold (see `isDuration`).
-  const sys = tokens.filter((t) => t.path[0] === 'sys' && t.path[1] !== 'color' && ((t.path[1] !== 'motion' && (t.type === 'dimension' || t.type === 'number')) || isDuration(t))).map(float);
+  // Of motion, only the durations and where a surface appears from are numbers a variable can hold (`isMotion`).
+  const sys = tokens.filter((t) => t.path[0] === 'sys' && t.path[1] !== 'color' && ((t.path[1] !== 'motion' && (t.type === 'dimension' || t.type === 'number')) || isMotion(t))).map(float);
   sys.push(...tokens.filter((t) => t.path[0] === 'sys' && isFamily(t)).map(family));
   const comp = tokens.filter((t) => t.path[0] === 'comp' && (t.type === 'dimension' || t.type === 'number' || isDuration(t))).map(float);
 

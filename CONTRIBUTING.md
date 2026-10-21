@@ -101,7 +101,7 @@ The shared conventions every component follows are in [`docs/architecture/overvi
 3. **Spec.** `specs/<name>.spec.json`, every platform `planned`. Behaviour in EARS form with a stable id prefix (`CHK-1`…); a pressable component copies BTN-8, BTN-9 and BTN-10 for its own name. Fixtures cover each variant, each size and each non-default condition. Every prop and event is mapped for every platform in its idiom.
    - **Repeated items** (tabs, list and menu items, destinations) are item kinds under `items`, each with its own `props` (no `axis`), `slots` and `events`; a group kind that holds items says `"container": true`. Fixtures list their items in order (`items: [{ "kind", "props", "content" }]`, never a text grammar in `content`), selection stays the component's prop (by the item's `value`, else by index), and every platform maps every kind under `platforms.<p>.items.<kind>` (`name`, `props`, `events`) — the parity check looks for those names in the implementation file.
 4. `pnpm validate && pnpm generate`. Fix invariant failures in the tokens, never in the thresholds.
-5. **Each platform**, at the paths in `packages/tools/src/conventions.js`: the implementation (built on the platform's shared primitives — focus ring, press and ripple, target, elevation, corner shape, icon), tests citing every behaviour id, accessibility checks, one baseline per fixture in the default system and one representative fixture per shipped preset, one registration line in the platform's gallery (the galleries read every spec's fixtures), and the README section. Then that platform's status becomes `alpha`.
+5. **Each platform**, at the paths in `packages/tools/src/conventions.js`: the implementation (built on the platform's shared primitives — focus ring, press and ripple, target, elevation, corner shape, icon), tests citing every behaviour id, accessibility checks, one baseline per fixture in the default system and one representative fixture per shipped preset, one registration line in the platform's gallery (the galleries read every spec's fixtures), and the component's section in the platform's notes (the web's are `packages/web/IMPLEMENTATION.md`, the others' each package's `README.md`). Then that platform's status becomes `alpha`.
 6. **Docs.** `apps/docs/src/content/docs/components/<name>.mdx` and the translations (Overview, Specs, Guidelines, Accessibility; tables come from the spec). The sidebar lists every component that has a page by itself.
 7. **Figma.** A page named after the component; a component set with every axis value × state, every paint and size bound to `tanrei/comp` and `tanrei/comp.color` variables, text to text styles, icons as instance swaps (`design/figma/README.md`).
 8. `pnpm check`, and a changeset.
@@ -112,7 +112,7 @@ Status meanings: `alpha` implemented + tested, API may change · `beta` API froz
 
 ### What runs when
 
-On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (the first push of a branch has no such commit, and a force push may have dropped it: either way the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)). The full run before anything is published is the release's.
+On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (the first push of a branch has no such commit, and a force push may have dropped it: either way the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)) — except a dispatch given a `grep`, which is a [targeted run](#a-targeted-run). The full run before anything is published is the release's.
 
 **The web runs what a change can affect** (`packages/tools/src/affected.js`). The changes job traces the changed paths to components — a component's directory, spec, comp tokens or baselines, a component drawn by a stylesheet — and widens them to the components built from or using them (`builtFrom`, `uses`) and to every module and test of `packages/web/src` and `packages/web/test` that imports what changed. A change to a component's own tests or baselines alone selects that component and nothing more. The web job then runs those tests: **on a pull request in Chromium alone, on a push to `main` in all three engines**, in as many shards as the selection needs. A change it cannot trace — the Playwright config, a generator, a token below comp, the lockfile — runs every test (on a pull request every Chromium test). A change to `ci.yml` alone runs one component's tests, to show the jobs still start. Firefox and WebKit therefore first see a change on `main`; dispatch CI on a branch (`gh workflow run ci.yml --ref <branch>`) to run everything before a merge that warrants it. `node packages/tools/src/affected.js <base>` prints what a branch selects.
 
@@ -122,6 +122,7 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 |---|---|
 | Validate · generate · drift | always |
 | Changeset: a change to a released package (outside its tests and baselines) adds or edits a `.changeset/*.md` (`pnpm changeset`, or `pnpm changeset --empty` when nothing is released) | always, on a pull request only |
+| Workflow audit (zizmor): any finding in `.github/` fails it — template injection, a checkout that keeps its credentials, cache poisoning, an unpinned action, a dangerous trigger, excessive permissions. An intended finding is silenced on its line with `# zizmor: ignore[<audit>]` and the reason, never in a configuration file. Locally: `uvx zizmor@<the version in ci.yml> .` | `.github/` only (none of the other shared inputs) |
 | Core tests · token engine and repo tools, · pipeline | only the shared inputs |
 | Core tests · CLI | `packages/cli/`, `packages/studio/`, `packages/web/`, `packages/react/` |
 | Core tests · MCP server | `packages/mcp/` |
@@ -171,6 +172,24 @@ To iterate on a web component against the docs preview without paying for the ot
 
 The label is read when a run starts; adding or removing it does not start a run by itself — push, or **Re-run all jobs**. It never applies to `main`, a dispatched run or a release. A change to `specs/` or `tokens/` still fails `validate` (spec ↔ implementation parity) until every platform that claims a status implements it — the label does not bypass that.
 
+### A targeted run
+
+When CI fails on a few web tests, show that the fix holds on CI's own machines before running everything again: dispatch CI on the branch with a Playwright pattern, a repeat count and the engines to run in.
+
+```
+gh workflow run ci.yml --ref <branch> -f grep='CMB-45' -f repeat=30 -f engines=webkit
+```
+
+- **`grep`** is passed to `playwright test --grep`: it matches each test's file and titles (a behaviour id such as `CMB-45`, a component's file name, or several joined with `|`). Empty, the dispatch is the full run.
+- **`repeat`** (default 1) runs each matching test that many times (`--repeat-each`).
+- **`engines`** is a comma list of `chromium`, `firefox` and `webkit` (`firefox` includes `firefox-no-style-queries`); empty, all three. An engine the pattern matches nothing in runs no shard (Firefox and WebKit run no `snapshot:` test).
+
+The run is the web job alone, as CI runs it — the same Playwright image, `CI=1`, the same workers and retries — in as few shards as it needs: the changes job counts the matching tests per engine and gives each engine one shard per about 400 test runs (matches × `repeat`), at most the full run's 8, 6 and 8. Validate runs first, as always; the core suites, the web package's Node tests, the React bindings, the docs and the native platforms do not run, since no Playwright pattern reaches them. `repeat` or `engines` without `grep` is refused, and so is a pattern that matches no test.
+
+**A targeted run never stands for the full run.** It is named `CI targeted · <grep> · ×<repeat> · <engines>`, its web jobs `Web · targeted (…)`, and its result check `CI result (targeted)` — never `CI result`, the check a branch requires. It has a concurrency group of its own, so it neither cancels nor is cancelled by the full run on the same branch. When it is green, run the whole CI again (`gh workflow run ci.yml --ref <branch>`, no inputs): only that run's **CI result** says the branch is green.
+
+**A targeted run keeps a failure's trace from its first attempt.** It sets `TANREI_TRACE=first-failure`, and Playwright then traces every attempt and keeps the trace of each one that fails (`trace: { mode: 'retain-on-failure', snapshots: false }` in `packages/web/playwright.config.ts`; retries unchanged), so a flake that passes on its retry still leaves the failing attempt's trace. That trace keeps each action, its screenshots and the sources, but no DOM snapshot: a snapshot per action made a test of about a thousand actions three times as long, past its timeout. Every other run traces only a retry (`on-first-retry`): tracing every test about doubles a shard's time (measured on Chromium's eight shards: 26–40 minutes became 56 to more than 60, the job's timeout), which a targeted run of a few tests can afford and the full run cannot. In any run, a web shard that fails uploads its `test-results/` — only failed tests leave anything there — as the artifact `test-results-<engine>-<shard>`, kept 7 days; the same traces are in the merged Playwright report. Open one with `pnpm --filter @tanrei/web exec playwright show-trace <trace.zip>`.
+
 ### Recording baselines
 
 A baseline is verified on the machine it was recorded on, and CI is that machine:
@@ -190,15 +209,16 @@ gh workflow run record-baselines.yml --ref <branch> \
   -f platforms=web \
   -f reason="<what changed and why>" \
   -f filter=button-group,toolbar     # optional: spec names; empty records every baseline
+  # -f start_ci=true                 # optional: start a three-engine CI run on the branch afterwards
 ```
 
 It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_REASON` set to the reason, and commits only the changed files under the baseline directories above to the branch — one commit per platform, `test(<platform>): record baselines — <reason>`. It refuses the default branch. While native CI is paused its default is the web alone. Then:
 
-1. **CI starts by itself** on the branch (a `workflow_dispatch` run whose checks attach to the branch's new head commit). The pull request's own runs queued by the bot's push wait for approval; do not approve them, they would run the same CI a second time.
+1. **CI does not start by itself.** A branch's three-engine run comes with the merge train it joins: up to about eight pull requests whose Chromium runs are green are merged on one `train/<n>` branch, CI runs there once in all three engines, and each pull request then merges on its own. A run per recording (about 38 jobs) would fill the account's runners for everyone. Set `start_ci=true` to start one on the branch anyway. The pull request's own runs queued by the bot's push wait for approval; do not approve them.
 2. **Look at every image** in the commits (the pull request's file view shows them) — a baseline is evidence.
 3. Repeat the reason in the changeset.
 
-To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/README.md`; Flutter and Compose — a Linux machine or VM with the versions above.
+To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/IMPLEMENTATION.md` ("Tests"); Flutter and Compose — a Linux machine or VM with the versions above.
 
 ### Dependency updates
 

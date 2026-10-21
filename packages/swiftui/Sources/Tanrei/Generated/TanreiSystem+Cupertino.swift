@@ -392,10 +392,10 @@ private let cupertinoAccordionTokens = TanreiAccordionTokens(
   dividerColor: .role(.outlineVariant),
   dividerThickness: 1,
   itemGap: 8,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineShape: 10,
@@ -548,7 +548,7 @@ private let cupertinoAppBarTokens = TanreiAppBarTokens(
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 8,
-  motionConditionDuration: 200,
+  motionConditionDuration: 250,
   motionConditionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineVisibility: 1,
   outlineWidth: 1,
@@ -658,6 +658,7 @@ private let cupertinoBadgeTokens = TanreiBadgeTokens(
 )
 
 private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonVariant: 1,
   containerColor: .role(.surfaceContainerLowest),
   containerElevation: cupertinoElevation.level2,
   containerMarginBlockStart: 48,
@@ -666,6 +667,9 @@ private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 10,
   contentColor: .role(.onSurface),
+  dividerColor: .role(.outlineVariant),
+  dividerVisibility: 1,
+  dividerWidth: 1,
   handleContainerHeight: 16,
   handleContainerShape: 9999,
   handleContainerWidth: 48,
@@ -673,12 +677,17 @@ private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
   handleGripShape: 9999,
   handleGripWidth: 36,
   handleMarginBlock: 0,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  headerGap: 8,
+  headerHeight: 64,
+  headerPaddingInlineEnd: 12,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: cupertinoTypescale.heading5,
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim),
@@ -724,7 +733,7 @@ private let cupertinoBreadcrumbsTokens = TanreiBreadcrumbsTokens(
   labelColor: .role(.onSurfaceVariant),
   labelTypescale: cupertinoTypescale.body,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
   separatorColor: .role(.onSurfaceVariant),
@@ -841,9 +850,9 @@ private let cupertinoButtonWithMenuTokens = TanreiButtonWithMenuTokens(
   motionFeedbackDuration: 450,
   motionHoverCloseDelay: 300,
   motionHoverOpenDelay: 300,
-  motionOpenDuration: 350,
-  motionOpenEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiButtonWithMenuSizes(
     small: TanreiButtonWithMenuSizeTokens(
@@ -1079,8 +1088,8 @@ private let cupertinoButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
       containerHeight: 28,
@@ -1095,7 +1104,8 @@ private let cupertinoButtonTokens = TanreiButtonTokens(
       iconSize: 16,
       iconSizeWithoutLabel: 16,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 200
     ),
     medium: TanreiButtonSizeTokens(
       containerHeight: 34,
@@ -1110,7 +1120,8 @@ private let cupertinoButtonTokens = TanreiButtonTokens(
       iconSize: 16,
       iconSizeWithoutLabel: 20,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 250
     ),
     large: TanreiButtonSizeTokens(
       containerHeight: 50,
@@ -1125,7 +1136,8 @@ private let cupertinoButtonTokens = TanreiButtonTokens(
       iconSize: 16,
       iconSizeWithoutLabel: 16,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiButtonVariants(
@@ -1741,7 +1753,7 @@ private let cupertinoCalendarTokens = TanreiCalendarTokens(
   motionFeedbackDuration: 450,
   motionPageDuration: 250,
   motionPageEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   navigationAxis: 1,
   navigationGap: 8,
@@ -1937,107 +1949,18 @@ private let cupertinoCalendarTokens = TanreiCalendarTokens(
 private let cupertinoCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonVariant: 4,
   containerGap: 8,
   containerPaddingBlock: 12,
   containerPaddingInline: 16,
   containerPaddingInlineEndWithClose: 8,
   containerShape: 10,
-  controlsHeight: 32,
-  controlsIconSize: 20,
-  controlsShape: 9999,
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
-  motionFeedbackDuration: 450,
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,
-  controls: TanreiCalloutControls(
-    close: TanreiCalloutControlTokens(
-      enabled: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      )
-    )
-  ),
   sizes: TanreiCalloutSizes(
     medium: TanreiCalloutSizeTokens(
       titleTypescale: cupertinoTypescale.heading6,
@@ -2054,64 +1977,45 @@ private let cupertinoCalloutTokens = TanreiCalloutTokens(
       titleColor: .role(.onSecondaryContainer),
       bodyColor: .role(.onSecondaryContainer),
       iconColor: .role(.onSecondaryContainer),
-      focusRingColor: .role(.onSecondaryContainer),
       infoContainerColor: .role(.infoContainer),
       infoTitleColor: .role(.onInfoContainer),
       infoBodyColor: .role(.onInfoContainer),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.onInfoContainer),
       warningContainerColor: .role(.warningContainer),
       warningTitleColor: .role(.onWarningContainer),
       warningBodyColor: .role(.onWarningContainer),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.onWarningContainer),
       errorContainerColor: .role(.errorContainer),
       errorTitleColor: .role(.onErrorContainer),
       errorBodyColor: .role(.onErrorContainer),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.onErrorContainer),
       successContainerColor: .role(.successContainer),
       successTitleColor: .role(.onSuccessContainer),
       successBodyColor: .role(.onSuccessContainer),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.onSuccessContainer)
+      successIconColor: .role(.success)
     ),
     outlined: TanreiCalloutVariantTokens(
       containerColor: .none,
       titleColor: .role(.onSurface),
       bodyColor: .role(.onSurface),
       iconColor: .role(.onSurfaceVariant),
-      focusRingColor: .role(.focusRing),
       infoContainerColor: .none,
       infoTitleColor: .role(.onSurface),
       infoBodyColor: .role(.onSurface),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.focusRing),
       warningContainerColor: .none,
       warningTitleColor: .role(.onSurface),
       warningBodyColor: .role(.onSurface),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.focusRing),
       errorContainerColor: .none,
       errorTitleColor: .role(.onSurface),
       errorBodyColor: .role(.onSurface),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.focusRing),
       successContainerColor: .none,
       successTitleColor: .role(.onSurface),
       successBodyColor: .role(.onSurface),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.focusRing)
+      successIconColor: .role(.success)
     )
-  ),
-  hovered: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiCalloutStateTokens(
-    opacity: 0.7
   )
 )
 
@@ -2119,7 +2023,7 @@ private let cupertinoCardTokens = TanreiCardTokens(
   containerPadding: 16,
   containerShape: 10,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   variants: TanreiCardVariants(
@@ -2273,7 +2177,7 @@ private let cupertinoCarouselTokens = TanreiCarouselTokens(
   motionFeedbackDuration: 450,
   motionScrollDuration: 300,
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
@@ -2372,7 +2276,7 @@ private let cupertinoChatComposerTokens = TanreiChatComposerTokens(
   counterTypescale: cupertinoTypescale.labelSmall,
   inputPaddingBlock: 8,
   layoutInlineMinWidth: 360,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   receivingContainerColor: .role(.secondaryContainer),
@@ -2459,14 +2363,13 @@ private let cupertinoCheckboxTokens = TanreiCheckboxTokens(
   labelTypescale: cupertinoTypescale.body,
   markSize: 16,
   markWeight: 300,
-  markWidth: 2,
   motionFeedbackDuration: 450,
   motionMarkEnterScale: 0.5,
-  motionMarkScaleDuration: 350,
-  motionMarkScaleEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionMarkScaleDuration: 250,
+  motionMarkScaleEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   conditions: TanreiCheckboxConditions(
@@ -2746,9 +2649,8 @@ private let cupertinoChipTokens = TanreiChipTokens(
   checkWeight: 300,
   containerShape: 9999,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   removeContainerShape: 9999,
@@ -2764,7 +2666,8 @@ private let cupertinoChipTokens = TanreiChipTokens(
       labelTypescale: cupertinoTypescale.caption,
       iconSize: 16,
       avatarSize: 16,
-      removeContainerSize: 20
+      removeContainerSize: 20,
+      motionStateDuration: 200
     ),
     medium: TanreiChipSizeTokens(
       containerHeight: 32,
@@ -2777,7 +2680,8 @@ private let cupertinoChipTokens = TanreiChipTokens(
       labelTypescale: cupertinoTypescale.label,
       iconSize: 16,
       avatarSize: 24,
-      removeContainerSize: 24
+      removeContainerSize: 24,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiChipVariants(
@@ -3107,12 +3011,12 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
   listPaddingInline: 4,
   listShape: 20,
   listViewportMargin: 8,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionGap: 12,
   optionHeight: 44,
@@ -3347,8 +3251,8 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
 
 private let cupertinoCopyButtonTokens = TanreiCopyButtonTokens(
   confirmationDuration: 2000,
-  motionResizeDuration: 500,
-  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1)
 )
 
 private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -3375,10 +3279,10 @@ private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
   dockedContainerColor: .role(.surfaceBright),
   dockedContainerElevation: cupertinoElevation.level2,
   dockedContainerShape: 10,
-  dockedMotionCloseDuration: 100,
-  dockedMotionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  dockedMotionOpenDuration: 200,
-  dockedMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  dockedMotionCloseDuration: 250,
+  dockedMotionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  dockedMotionOpenDuration: 300,
+  dockedMotionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   dockedOffset: 4,
   dockedViewportMargin: 8,
   errorColor: .role(.error),
@@ -3396,17 +3300,17 @@ private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalContainerElevation: cupertinoElevation.level3,
   modalContainerMargin: 16,
   modalContainerShape: 14,
-  modalMotionCloseDuration: 200,
-  modalMotionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  modalMotionCloseDuration: 300,
+  modalMotionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   modalMotionEnterScale: 0.95,
-  modalMotionOpenDuration: 300,
-  modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalMotionOpenDuration: 350,
+  modalMotionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionWheelDuration: 250,
   motionWheelEasing: TanreiCubicBezier(0, 0, 0, 1),
@@ -3541,7 +3445,6 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
-  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: cupertinoElevation.level3,
@@ -3561,12 +3464,11 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   iconColor: .role(.secondary),
   iconPlacement: 0,
   iconSize: 24,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 32,
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterScale: 0.95,
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurface),
@@ -3592,7 +3494,7 @@ private let cupertinoDropZoneTokens = TanreiDropZoneTokens(
   iconSize: 32,
   labelColor: .role(.onSurface),
   labelTypescale: cupertinoTypescale.bodyLarge,
-  motionDuration: 150,
+  motionDuration: 250,
   motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.primary),
   outlineWidth: 2,
@@ -3611,7 +3513,7 @@ private let cupertinoDropZoneTokens = TanreiDropZoneTokens(
 
 private let cupertinoEmbeddedTextInputTokens = TanreiEmbeddedTextInputTokens(
   inputTypescale: cupertinoTypescale.bodyLarge,
-  motionResizeDuration: 200,
+  motionResizeDuration: 300,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   selectionColor: .role(.primary),
   selectionContentColor: .role(.onPrimary),
@@ -3674,7 +3576,7 @@ private let cupertinoFabMenuTokens = TanreiFabMenuTokens(
   motionOpenDuration: 250,
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStagger: 100,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiFabMenuSizes(
     small: TanreiFabMenuSizeTokens(
@@ -3991,7 +3893,7 @@ private let cupertinoFieldTokens = TanreiFieldTokens(
   labelIconSize: 20,
   labelGap: 8,
   labelTypescale: cupertinoTypescale.bodyLarge,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   requirementAsteriskGap: 2,
   requirementGap: 8,
@@ -4107,7 +4009,7 @@ private let cupertinoFileItemTokens = TanreiFileItemTokens(
   motionFeedbackDuration: 450,
   motionProgressDuration: 300,
   motionProgressEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   progressGap: 6,
   progressIndicatorColor: .role(.primary),
@@ -4227,7 +4129,7 @@ private let cupertinoFilePickerTokens = TanreiFilePickerTokens(
   iconSize: 32,
   labelTypescale: cupertinoTypescale.body,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineDashLength: 4,
   outlineStyle: 0,
@@ -4313,10 +4215,79 @@ private let cupertinoFileUploadTokens = TanreiFileUploadTokens(
   listGap: 16
 )
 
+private let cupertinoHandleTokens = TanreiHandleTokens(
+  containerShape: 9999,
+  inset: 4,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 200,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiHandleSizes(
+    small: TanreiHandleSizeTokens(
+      containerLength: 20,
+      containerBreadth: 16,
+      lineLength: 12,
+      lineThickness: 3,
+      lineActiveLength: 16,
+      lineActiveThickness: 4,
+      arcRadius: 8
+    ),
+    medium: TanreiHandleSizeTokens(
+      containerLength: 48,
+      containerBreadth: 24,
+      lineLength: 32,
+      lineThickness: 4,
+      lineActiveLength: 40,
+      lineActiveThickness: 6,
+      arcRadius: 16
+    )
+  ),
+  conditions: TanreiHandleConditions(
+    standard: TanreiHandleConditionTokens(
+      enabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  focused: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  pressed: TanreiHandleStateTokens(
+    opacity: 0.7
+  ),
+  disabled: TanreiHandleStateTokens(
+    opacity: 1
+  )
+)
+
 private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),
@@ -4335,13 +4306,13 @@ private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
   errorTextColor: .role(.onSurfaceVariant),
   errorTextTypescale: cupertinoTypescale.body,
   layoutPageGap: 16,
-  motionControlsDuration: 150,
+  motionControlsDuration: 250,
   motionControlsEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterScale: 0.95,
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionPageDuration: 300,
   motionPageEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionZoomDuration: 250,
@@ -4366,9 +4337,8 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
   affixGap: 2,
   containerShape: 10,
   containerShapeBottom: 10,
-  motionLabelDuration: 150,
+  motionLabelDuration: 250,
   motionLabelEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineNotchPadding: 4,
   outlineWidth: 1,
@@ -4386,7 +4356,8 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: cupertinoTypescale.bodyLarge,
       labelFloatedTypescale: cupertinoTypescale.labelSmall,
       inputTypescale: cupertinoTypescale.body,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 200
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 34,
@@ -4398,7 +4369,8 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: cupertinoTypescale.bodyLarge,
       labelFloatedTypescale: cupertinoTypescale.labelSmall,
       inputTypescale: cupertinoTypescale.bodyLarge,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 250
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 44,
@@ -4410,7 +4382,8 @@ private let cupertinoInputBoxTokens = TanreiInputBoxTokens(
       labelTypescale: cupertinoTypescale.bodyLarge,
       labelFloatedTypescale: cupertinoTypescale.labelSmall,
       inputTypescale: cupertinoTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiInputBoxVariants(
@@ -4803,7 +4776,7 @@ private let cupertinoLinkCardTokens = TanreiLinkCardTokens(
   mediaContainerColor: .role(.surfaceContainerHigh),
   mediaWidth: 192,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   siteGap: 8,
@@ -4900,7 +4873,7 @@ private let cupertinoLinkTokens = TanreiLinkTokens(
   containerShape: 4,
   externalMarks: 0,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   siteIconDisabledOpacity: 0.38,
   siteIconShape: 4,
@@ -5081,9 +5054,9 @@ private let cupertinoListTokens = TanreiListTokens(
   markSize: 20,
   markWidth: 2,
   motionFeedbackDuration: 450,
-  motionReorderDuration: 300,
+  motionReorderDuration: 250,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiListConditions(
     unselected: TanreiListConditionTokens(
@@ -5176,8 +5149,8 @@ private let cupertinoLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
   containerShape: 9999,
   indicatorColor: .role(.onSurfaceVariant),
   motionCycleDuration: 1000,
-  motionEnterDuration: 200,
-  motionEnterEasing: TanreiCubicBezier(0, 0, 0, 1),
+  motionEnterDuration: 250,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEntrance: 0,
   motionShowDelay: 300,
   sizes: TanreiLoadingIndicatorSizes(
@@ -5201,9 +5174,8 @@ private let cupertinoLoadingIndicatorTokens = TanreiLoadingIndicatorTokens(
 
 private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
   motionFeedbackDuration: 450,
-  motionResizeDuration: 500,
-  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionResizeDuration: 400,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiMainActionButtonSizes(
     small: TanreiMainActionButtonSizeTokens(
@@ -5216,7 +5188,8 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.label,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 200
     ),
     medium: TanreiMainActionButtonSizeTokens(
       containerHeight: 48,
@@ -5228,7 +5201,8 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: cupertinoTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     ),
     large: TanreiMainActionButtonSizeTokens(
       containerHeight: 64,
@@ -5240,7 +5214,8 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 12,
       labelTypescale: cupertinoTypescale.heading5,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 250
     )
   ),
   variants: TanreiMainActionButtonVariants(
@@ -5383,12 +5358,12 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
   leadingIconSize: 16,
   markSize: 16,
   markWidth: 2,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionSubmenuDelay: 200,
   radioItemMark: 1,
@@ -5750,7 +5725,7 @@ private let cupertinoMenubarTokens = TanreiMenubarTokens(
   indicatorSize: 20,
   labelTypescale: cupertinoTypescale.label,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiMenubarConditions(
     unselected: TanreiMenubarConditionTokens(
@@ -5868,11 +5843,43 @@ private let cupertinoMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let cupertinoMeterTokens = TanreiMeterTokens(
+  errorIndicatorColor: .role(.error),
+  indicatorColor: .role(.primary),
+  infoIndicatorColor: .role(.info),
+  motionValueDuration: 300,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  stopIndicatorSize: 0,
+  successIndicatorColor: .role(.success),
+  trackColor: .role(.surfaceVariant),
+  trackGap: 4,
+  trackSeparation: 0,
+  trackShape: 9999,
+  warningIndicatorColor: .role(.warning),
+  sizes: TanreiMeterSizes(
+    small: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 16,
+      circularThickness: 2
+    ),
+    medium: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 20,
+      circularThickness: 2
+    ),
+    large: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 36,
+      circularThickness: 2
+    )
+  )
+)
+
 private let cupertinoModalLayerTokens = TanreiModalLayerTokens(
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 300,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   scrimBlur: 0,
   scrimColor: .role(.scrim)
 )
@@ -5882,11 +5889,9 @@ private let cupertinoNavigationBarTokens = TanreiNavigationBarTokens(
   containerElevation: cupertinoElevation.level0,
   containerHeight: 49,
   containerPadding: 0,
-  itemContainerHeight: 32,
   itemContainerPaddingBlock: 0,
   itemContainerPaddingInline: 0,
   itemContainerShape: 9999,
-  itemContainerWidth: 56,
   itemGap: 2,
   itemIconIndicatorHeight: 32,
   itemIconIndicatorShape: 9999,
@@ -5894,9 +5899,9 @@ private let cupertinoNavigationBarTokens = TanreiNavigationBarTokens(
   itemIconSize: 24,
   itemLabelTypescale: cupertinoTypescale.caption,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -6122,24 +6127,23 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   headerTypescale: cupertinoTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingTypescale: cupertinoTypescale.labelSmall,
-  itemBadgeTypescale: cupertinoTypescale.labelSmall,
   itemContainerShape: 10,
   itemGap: 12,
   itemIconIndicatorShape: 9999,
   itemSupportingTextTypescale: cupertinoTypescale.bodySmall,
   itemTrailingTextTypescale: cupertinoTypescale.bodySmall,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  motionExpandDuration: 500,
-  motionExpandEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionExpandDuration: 400,
+  motionExpandEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   scrimBlur: 0,
@@ -6171,7 +6175,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6182,7 +6185,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6193,7 +6195,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6204,7 +6205,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurface)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6215,7 +6215,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6228,7 +6227,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6239,7 +6237,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6250,7 +6247,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6261,7 +6257,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6272,7 +6267,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6285,7 +6279,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6296,7 +6289,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6307,7 +6299,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6318,7 +6309,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.primary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6329,7 +6319,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6342,7 +6331,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6353,7 +6341,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6364,7 +6351,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6375,7 +6361,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onPrimary),
         itemTrailingTextColor: .role(.onPrimary),
         itemTrailingIconColor: .role(.onPrimary),
-        itemBadgeColor: .role(.onPrimary),
         itemStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6386,7 +6371,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
@@ -6439,106 +6423,6 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   )
 )
 
-private let cupertinoNavigationRailTokens = TanreiNavigationRailTokens(
-  containerColor: .role(.surface),
-  containerElevation: cupertinoElevation.level0,
-  containerGap: 8,
-  containerPaddingBlock: 16,
-  containerWidth: 80,
-  headerGap: 24,
-  itemContainerHeight: 32,
-  itemContainerShape: 8,
-  itemContainerWidth: 56,
-  itemGap: 4,
-  itemIconSize: 24,
-  itemLabelTypescale: cupertinoTypescale.caption,
-  motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  outlineColor: .role(.outlineVariant),
-  outlineWidth: 1,
-  conditions: TanreiNavigationRailConditions(
-    unselected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    selected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.primary),
-        itemLabelColor: .role(.primary),
-        itemStateLayerColor: .role(.primary)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.primary),
-        itemLabelColor: .role(.primary),
-        itemStateLayerColor: .role(.primary)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.primary),
-        itemLabelColor: .role(.primary),
-        itemStateLayerColor: .role(.primary)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.primary),
-        itemLabelColor: .role(.primary),
-        itemStateLayerColor: .role(.primary)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  ),
-  hovered: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiNavigationRailStateTokens(
-    opacity: 0.7
-  ),
-  disabled: TanreiNavigationRailStateTokens(
-    opacity: 1
-  )
-)
-
 private let cupertinoNumberInputTokens = TanreiNumberInputTokens(
   motionRepeatDelay: 500,
   motionRepeatInterval: 100,
@@ -6555,7 +6439,7 @@ private let cupertinoOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   containerShape: 10,
   containerWidth: 40,
   inputTypescale: cupertinoTypescale.bodyLarge,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   separatorThickness: 1,
@@ -6686,7 +6570,7 @@ private let cupertinoPaginationTokens = TanreiPaginationTokens(
   iconSize: 20,
   labelTypescale: cupertinoTypescale.label,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiPaginationSizes(
     small: TanreiPaginationSizeTokens(
@@ -6790,6 +6674,7 @@ private let cupertinoPopoverTokens = TanreiPopoverTokens(
   arrowVisible: 0,
   arrowWidth: 12,
   closeButtonVariant: 4,
+  compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: cupertinoElevation.level2,
   containerGap: 12,
@@ -6806,10 +6691,10 @@ private let cupertinoPopoverTokens = TanreiPopoverTokens(
   headerGap: 8,
   headlineColor: .role(.onSurface),
   headlineTypescale: cupertinoTypescale.heading6,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   offset: 4,
   windowMargin: 8
 )
@@ -6824,7 +6709,7 @@ private let cupertinoPreviousNextLinksTokens = TanreiPreviousNextLinksTokens(
   labelGap: 2,
   labelTypescale: cupertinoTypescale.labelSmall,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   titleTypescale: cupertinoTypescale.bodyLarge,
@@ -6954,9 +6839,9 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
   labelGap: 4,
   labelTypescale: cupertinoTypescale.body,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionMinHeight: 48,
   ringSelectedWidthShare: 0.625,
@@ -7130,6 +7015,20 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let cupertinoScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 250,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 3,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let cupertinoSearchTokens = TanreiSearchTokens(
   containerButtonGap: 8,
   containerGap: 8,
@@ -7147,12 +7046,12 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   headerPaddingInline: 8,
   inputTypescale: cupertinoTypescale.bodyLarge,
   leadingIconSize: 20,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
@@ -7290,9 +7189,8 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
   dividerColor: .role(.outlineVariant),
   dividerWidth: 1,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 150,
-  motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .none,
   outlineWidth: 1,
@@ -7307,7 +7205,8 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: cupertinoTypescale.labelSmall,
       iconSize: 16,
-      checkSize: 0
+      checkSize: 0,
+      motionStateDuration: 200
     ),
     medium: TanreiSegmentedButtonSizeTokens(
       containerHeight: 32,
@@ -7316,7 +7215,8 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: cupertinoTypescale.labelSmall,
       iconSize: 16,
-      checkSize: 0
+      checkSize: 0,
+      motionStateDuration: 250
     ),
     large: TanreiSegmentedButtonSizeTokens(
       containerHeight: 40,
@@ -7325,7 +7225,8 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: cupertinoTypescaleBodySubhead,
       iconSize: 16,
-      checkSize: 0
+      checkSize: 0,
+      motionStateDuration: 250
     )
   ),
   conditions: TanreiSegmentedButtonConditions(
@@ -7440,12 +7341,12 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   listPaddingInline: 4,
   listShape: 20,
   listViewportMargin: 8,
-  motionCloseDuration: 100,
-  motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionCloseDuration: 250,
+  motionCloseEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionFeedbackDuration: 450,
-  motionOpenDuration: 200,
-  motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionStateDuration: 150,
+  motionOpenDuration: 300,
+  motionOpenEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionGap: 12,
   optionHeight: 44,
@@ -7457,6 +7358,9 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   optionShape: 8,
   optionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: cupertinoTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(
@@ -7692,10 +7596,10 @@ private let cupertinoSideSheetTokens = TanreiSideSheetTokens(
   headerPaddingInlineEnd: 12,
   headlineColor: .role(.onSurface),
   headlineTypescale: cupertinoTypescale.heading5,
-  motionEnterDuration: 300,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 200,
-  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionEnterDuration: 400,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 350,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   outlineWidth: 1,
   scrimBlur: 0,
   scrimColor: .role(.scrim),
@@ -7735,10 +7639,10 @@ private let cupertinoSliderTokens = TanreiSliderTokens(
   handleOutlineWidth: 0,
   handleShape: 9999,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionValueDuration: 350,
-  motionValueEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionValueDuration: 250,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   trackGap: 0,
   valueIndicatorContainerColor: .role(.inverseSurface),
   valueIndicatorContainerHeight: 24,
@@ -7847,6 +7751,8 @@ private let cupertinoSliderTokens = TanreiSliderTokens(
 
 private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
+  breakpointMedium: 600,
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: cupertinoElevation.level3,
   containerGap: 8,
@@ -7861,8 +7767,7 @@ private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 10,
   controlsGap: 4,
-  controlsHeight: 36,
-  controlsIconSize: 20,
+  controlsHeight: 28,
   controlsLabelTypescale: cupertinoTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,
@@ -7910,14 +7815,14 @@ private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
   inverseFocusRingColor: .role(.inverseOnSurface),
   inverseSupportingTextColor: .role(.inverseOnSurface),
   inverseTitleColor: .role(.inverseOnSurface),
-  motionEnterDuration: 250,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionExitDuration: 150,
+  motionEnterDuration: 350,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionExitDuration: 300,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
-  motionExpandDuration: 300,
+  motionExpandDuration: 400,
   motionExpandEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineOpacity: 0,
   outlineWidth: 1,
@@ -8073,136 +7978,6 @@ private let cupertinoSnackbarTokens = TanreiSnackbarTokens(
         inverseSuccessContentColor: .role(.successContainer),
         inverseSuccessStateLayerColor: .role(.successContainer)
       )
-    ),
-    close: TanreiSnackbarControlTokens(
-      enabled: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      hovered: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      focused: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      pressed: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      )
     )
   ),
   hovered: TanreiSnackbarStateTokens(
@@ -8239,7 +8014,7 @@ private let cupertinoStepperTokens = TanreiStepperTokens(
   markerShape: 9999,
   markerSize: 24,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   positionColor: .role(.onSurfaceVariant),
   positionGap: 8,
@@ -8528,9 +8303,9 @@ private let cupertinoSwitchTokens = TanreiSwitchTokens(
   labelGap: 8,
   labelTypescale: cupertinoTypescale.body,
   motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionSelectionDuration: 250,
+  motionSelectionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 200,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   trackHeight: 31,
@@ -8672,10 +8447,10 @@ private let cupertinoSwitchTokens = TanreiSwitchTokens(
 
 private let cupertinoTabViewTokens = TanreiTabViewTokens(
   containerShape: 0,
-  motionFadeDuration: 200,
-  motionFadeEasing: TanreiCubicBezier(0.34, 0.8, 0.34, 1),
-  motionSwitchDuration: 500,
-  motionSwitchEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionFadeDuration: 100,
+  motionFadeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionSwitchDuration: 250,
+  motionSwitchEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
   transitionBlur: 0,
   transitionDistance: 0,
@@ -8699,10 +8474,10 @@ private let cupertinoTableOfContentsTokens = TanreiTableOfContentsTokens(
   labelTypescale: cupertinoTypescale.bodySmall,
   markerColor: .role(.primary),
   markerWidth: 2,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   railColor: .role(.outlineVariant),
   railWidth: 1,
@@ -8814,7 +8589,7 @@ private let cupertinoTableTokens = TanreiTableTokens(
   headerIconWeight: 300,
   headerTextColor: .role(.onSurfaceVariant),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
   rowSelectedContainerColor: .role(.secondaryContainer),
@@ -8926,9 +8701,9 @@ private let cupertinoTabsTokens = TanreiTabsTokens(
   dividerThickness: 1,
   labelTypescale: cupertinoTypescale.label,
   motionFeedbackDuration: 450,
-  motionIndicatorDuration: 500,
-  motionIndicatorEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
+  motionIndicatorDuration: 250,
+  motionIndicatorEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
   primarySelectedLabelEmphasis: 0,
@@ -9476,7 +9251,7 @@ private let cupertinoTextInputTokens = TanreiTextInputTokens(
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,
-  motionResizeDuration: 200,
+  motionResizeDuration: 300,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   resizeGripInset: 4,
   resizeGripSize: 16,
@@ -9582,8 +9357,22 @@ private let cupertinoTimelineTokens = TanreiTimelineTokens(
 )
 
 private let cupertinoToolbarTokens = TanreiToolbarTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerLength: 24,
+  dividerThickness: 1,
+  groupGap: 8,
   outlineWidth: 1,
+  separation: 0,
   variants: TanreiToolbarVariants(
+    inline: TanreiToolbarVariantTokens(
+      containerColor: .none,
+      containerElevation: cupertinoElevation.level0,
+      containerShape: 10,
+      containerSize: 40,
+      containerPaddingInline: 0,
+      containerGap: 4,
+      outlineColor: .none
+    ),
     docked: TanreiToolbarVariantTokens(
       containerColor: .role(.surfaceContainerLow),
       containerElevation: cupertinoElevation.level0,
@@ -9610,11 +9399,11 @@ private let cupertinoTooltipTokens = TanreiTooltipTokens(
   arrowInset: 8,
   arrowVisible: 0,
   arrowWidth: 12,
-  motionEnterDuration: 200,
-  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionEnterDuration: 250,
+  motionEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterOffset: 4,
   motionEnterScale: 0.95,
-  motionExitDuration: 150,
+  motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionHideDelay: 100,
   motionShowDelay: 1000,
@@ -9661,10 +9450,10 @@ private let cupertinoTreeViewTokens = TanreiTreeViewTokens(
   guideColor: .role(.outlineVariant),
   guideWidth: 1,
   iconGap: 12,
-  motionDisclosureDuration: 350,
-  motionDisclosureEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionDisclosureDuration: 400,
+  motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
+  motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   stickyContainerColor: .role(.surface),
   stickyDividerColor: .role(.outlineVariant),
@@ -9854,8 +9643,8 @@ extension TanreiSystem {
       disabledContainerOpacity: 0.12,
       disabledContentOpacity: 0.38,
       draggedStateLayerOpacity: 0.16,
-      focusStateLayerOpacity: 0.1,
-      hoverStateLayerOpacity: 0.08,
+      focusStateLayerOpacity: 0,
+      hoverStateLayerOpacity: 0,
       pressedStateLayerOpacity: 0.1,
       selectedStateLayerOpacity: 0.16
     ),
@@ -9889,11 +9678,13 @@ extension TanreiSystem {
       opticalSizeMax: 48
     ),
     behavior: TanreiBehavior(
+      appearance: .fadeScale,
       dividerVisibility: .scroll,
       focusStyle: .ring,
       linkUnderline: .always,
       pressedFeedback: .dim,
       requirementMark: .none,
+      scrollEdge: .blur,
       separation: .divider
     ),
     motion: TanreiMotionTokens(
@@ -9920,10 +9711,14 @@ extension TanreiSystem {
       easing: TanreiEasing(
         emphasizedAccelerate: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        enter: TanreiCubicBezier(0.2, 0, 0, 1),
+        exit: TanreiCubicBezier(0.3, 0, 1, 1),
         linear: TanreiCubicBezier(0, 0, 1, 1),
+        spatial: TanreiCubicBezier(0.2, 0, 0, 1),
         standard: TanreiCubicBezier(0.2, 0, 0, 1),
         standardAccelerate: TanreiCubicBezier(0.3, 0, 1, 1),
-        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1)
+        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1),
+        state: TanreiCubicBezier(0.2, 0, 0, 1)
       ),
       spring: TanreiSprings(
         expressive: TanreiSpringSet(
@@ -9980,6 +9775,7 @@ extension TanreiSystem {
     fileItem: cupertinoFileItemTokens,
     filePicker: cupertinoFilePickerTokens,
     fileUpload: cupertinoFileUploadTokens,
+    handle: cupertinoHandleTokens,
     imagePreview: cupertinoImagePreviewTokens,
     inlineCode: cupertinoInlineCodeTokens,
     inputBox: cupertinoInputBoxTokens,
@@ -9992,10 +9788,10 @@ extension TanreiSystem {
     mainActionButton: cupertinoMainActionButtonTokens,
     menu: cupertinoMenuTokens,
     menubar: cupertinoMenubarTokens,
+    meter: cupertinoMeterTokens,
     modalLayer: cupertinoModalLayerTokens,
     navigationBar: cupertinoNavigationBarTokens,
     navigationDrawer: cupertinoNavigationDrawerTokens,
-    navigationRail: cupertinoNavigationRailTokens,
     numberInput: cupertinoNumberInputTokens,
     oneTimeCodeInput: cupertinoOneTimeCodeInputTokens,
     pageHeader: cupertinoPageHeaderTokens,
@@ -10005,6 +9801,7 @@ extension TanreiSystem {
     progressIndicator: cupertinoProgressIndicatorTokens,
     prose: cupertinoProseTokens,
     radioButton: cupertinoRadioButtonTokens,
+    scrollArea: cupertinoScrollAreaTokens,
     search: cupertinoSearchTokens,
     segmentedButton: cupertinoSegmentedButtonTokens,
     select: cupertinoSelectTokens,

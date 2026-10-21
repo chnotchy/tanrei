@@ -2,15 +2,15 @@
 title: Flutter
 description: किसी Flutter ऐप में Tanrei जोड़ें।
 translationOf: getting-started/flutter.mdx
-sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+sourceHash: c647a8ce01e41a5d752e397bd42075b18baede2c
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `tanrei` पैकेज पूरी तरह Dart में लिखा है। इसमें विजेट, एक इनहेरिटेड `TanreiTheme` और जनरेट किए गए टोकन कॉन्स्टेंट मिलते हैं, और यह `MaterialApp` या `CupertinoApp` पर निर्भर नहीं है; यह दोनों के भीतर चलता है, और सादे `WidgetsApp` में भी।
 
-<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+<ReleaseNotice platform="flutter" registry="pub.dev" pkg="tanrei" />
 
 ## इंस्टॉल करें
 
@@ -28,7 +28,7 @@ flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
 
 `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` लोकल क्लोन की जगह सीधे रिपॉज़िटरी से जुड़ता है और उसके साथ अपडेट होता है।
 
-### पहली रिलीज़ के बाद
+### प्रकाशित होने के बाद
 
 ```sh
 flutter pub add tanrei

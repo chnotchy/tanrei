@@ -2,23 +2,29 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b795991094209ca4e3878521a44be6737c299786
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 تحتوي الحزمة `@tanrei/web` على شيئين: ورقة أنماط تضم رموز التصميم (tokens) في صورة خصائص CSS مخصصة، وعناصر مخصصة قياسية مبنية بمكتبة Lit. ولا تشترط أي إطار عمل.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## التثبيت
 
+### من npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### من الشيفرة المصدرية
 
-تحتاج إلى Git، و Node 22.12 أو أحدث، و pnpm 12 (الأمر `corepack enable` يعطيك الإصدار الذي يثبّته المستودع). ابنِ الحزمة في نسخة مستنسخة من المستودع، ثم احزمها، وثبِّت الملف المحزوم في مشروعك:
+لاستعمال الشيفرة المصدرية كما هي على `main` قبل نشرها، تحتاج إلى Git، و Node 22.12 أو أحدث، و pnpm 12 (الأمر `corepack enable` يعطيك الإصدار الذي يثبّته المستودع). ابنِ الحزمة في نسخة مستنسخة من المستودع، ثم احزمها، وثبِّت الملف المحزوم في مشروعك:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,36 +39,43 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-يحمل الملف المحزوم ما سينشره الإصدار، فيعمل كل ما يلي بالطريقة نفسها. ولتأخذ حالة أحدث من الشيفرة المصدرية، اسحب التغييرات (pull) وابنِ واحزم من جديد، ثم ثبِّت الملف الجديد.
-
-### بعد الإصدار الأول
-
-```sh
-npm install @tanrei/web
-```
+يحمل الملف المحزوم ما ينشره الإصدار، فيعمل كل ما يلي بالطريقة نفسها. ولتأخذ حالة أحدث من الشيفرة المصدرية، اسحب التغييرات (pull) وابنِ واحزم من جديد، ثم ثبِّت الملف الجديد.
 
 ## الاستخدام
 
 <Steps>
 
-1. حمِّل الرموز مرة واحدة، وفي أبكر وقت ممكن. الرموز موضوعة داخل طبقة تتالٍ (`tanrei.tokens`)، فتكون الغلبة دائمًا لأنماطك أنت.
+1. حمِّل أوراق الأنماط مرة واحدة، وفي أبكر وقت ممكن. كلها موضوعة داخل طبقات تتالٍ (`tanrei.*`)، فتكون الغلبة دائمًا لأنماطك أنت.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   الملف `tanrei.css` يضم كل شيء في ملف واحد: أساس الصفحة، والرموز، وأوراق أنماط الأجزاء التي تُرسم من دون عنصر (أنماط النص، والجدول، والأكورديون، وغيرها). ولتحمّل ما تستخدمه وحده، خذ الرموز، والأساس إن أردته، وكل ورقة من تلك الأوراق حين تحتاج إليها:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // الصفحة بلون سطح النظام ولون نصه وخط المتن، ومن دون هامش على body
    ```
 
-2. سجِّل المكوّنات. استورد كل شيء، أو العناصر التي تستخدمها فقط.
+   يعطي الأساس الصفحة نفسها لون السطح، ويعطي نصك أنت اللون on-surface وخط المتن، ويزيل الهامش الذي يضعه المتصفح على body. ومن دونه تبقى الصفحة على إعدادات المتصفح الافتراضية.
+
+2. سجِّل مكوّنات نظام التصميم الخاص بك، أو العناصر التي تستخدمها فقط.
 
    ```js
    import '@tanrei/web';
+   // في إعداد جاهز، مدخله بدلًا من ذلك: m3-like أو m3-expressive-like أو cupertino
+   import '@tanrei/web/m3-like';
    // أو عنصرًا واحدًا في كل مرة:
    import '@tanrei/web/components/button';
    ```
 
+   لا يسجّل `@tanrei/web` إلا المكوّنات التي يتضمنها النظام الافتراضي، فلا يصل المنتج المبني عليه إلى مكوّن لا يملكه نظامه. ويسجّل مدخل الإعداد الجاهز، `@tanrei/web/<id>`، ما يتضمنه ذلك الإعداد، ويسجّل `@tanrei/web/all` كل مكوّنات الحزمة. والمكوّن الذي لا يتضمنه إلا إعداد جاهز، مثل [الزر المقسَّم](/ar/components/segmented-button/)، يمكن أخذه مع ذلك عن قصد: ضمّنه في طبقة نظامك واستورد وحدته الخاصة.
+
    المحدِّدات من الصيغة `@tanrei/web/…` هي صادرات الحزمة (package exports)، ويحلّها المُحزِّم (Vite أو webpack أو esbuild). ومن دون مُحزِّم لا يستطيع المتصفح حلّ محدِّد مجرّد في `<link>` أو `<script src>`؛ لذلك قدِّم مجلد `dist/` من الحزمة وأشِر إلى الملفات مباشرة: أوراق الأنماط كما هي، والملف `tanrei.bundle.js` الذي يحمل Lit وجميع العناصر:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
@@ -73,15 +86,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>إلغاء</tanrei-button>
    ```
 
-4. أعطِ كلمات منتجك. لا يتضمن Tanrei أي كلمة: نص وسم المطلوب أو الاختياري، واسم زر الإغلاق، وما شابههما، كلها كلماتك. قلها مرة واحدة لكل لغة، أو على كل عنصر.
+4. أعطِ كلمات منتجك. ليس للمكوّن كلمات خاصة به: نص وسم المطلوب أو الاختياري، واسم زر الإغلاق، وما شابههما، كلها كلمات منتجك. ولتبدأ بإنجليزية بسيطة لها كلها، استورد حزمة الكلمات الإنجليزية مرة واحدة:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   ولتغيّر أيًّا منها، أو لتعطي كلمات لغة أخرى، استدعِ `setWords()` بعدها. الكلمة التي تعطيها تغلب كلمة الحزمة، والكلمة المعطاة على العنصر تغلب الاثنتين.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'مطلوب', optionalText: 'اختياري', closeLabel: 'إغلاق' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'مطلوب', optionalText: 'اختياري', closeLabel: 'إغلاق' }, { lang: 'ar' });
    ```
 
-   يعمل المكوّن حتى من دون كلمة، ويخبرك في وحدة التحكم (console) بالكلمة التي تنقصه. انظر [الكلمات](/ar/foundations/words/).
+   يعمل المكوّن حتى من دون الحزمة ومن دون كلماتك، ويخبرك في وحدة التحكم (console) بالكلمة التي تنقصه. انظر [الكلمات](/ar/foundations/words/).
 
 </Steps>
 
@@ -89,6 +109,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">نشر</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>إلغاء</tanrei-button>
 </DemoFrame>
+
+## بيان العناصر
+
+تقرأ المحررات ووكلاء البرمجة عناصر الحزمة من [بيان العناصر المخصّصة](https://github.com/webcomponents/custom-elements-manifest) الخاص بها، `@tanrei/web/custom-elements.json`: كل عنصر بسماته وخصائصه وأحداثه وفتحاته وأجزائه، ولا شيء لا يصل إليه المنتج. ولا يحوي `@tanrei/web/custom-elements/<id>.json` إلا العناصر التي يتضمنها النظام `<id>`، فلا تقترح الأداة التي تعمل في نظام واحد شيئًا غيرها.
 
 ## السمة والتباين
 
@@ -108,6 +132,50 @@ npm install @tanrei/web
   تعمل الخاصيتان كلتاهما على `<html>` أو على أي شجرة فرعية. تعلن ورقة الأنماط المولَّدة مجموعة الرموز كاملة على `:root, [data-tanrei-contrast]`، ولذلك فإن وضع `data-tanrei-contrast` على عنصر داخلي يعيد حساب رموز المكوّنات داخله وفق مستوى التباين ذاك، لا ألوان النظام وحدها.
 </Callout>
 
+### احتفظ بالسمة التي يختارها الشخص
+
+إن كان الناس يختارون سمة في منتجك، فاحفظ اختيارهم وضعه على `<html>` قبل أن تُرسم الصفحة أول مرة: فإن وضعه سكربت يعمل بعد ذلك، عرضت الصفحة سمة النظام لإطار واحد أولًا. والوحدة `@tanrei/web/theme-script` تفعل الأمرين. الدالة `themeScript()` سكربت صغير يُكتب مضمَّنًا في `<head>` قبل أوراق الأنماط، والدالة `saveTheme()` تحفظ الاختيار وترسمه في الحال.
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light' أو 'dark'، أو 'system' للعودة إلى اتباع نظام التشغيل
+loadTheme();       // المحفوظ: 'light' أو 'dark' أو 'system'
+```
+
+في Next.js (App Router)، اكتبه مضمَّنًا في التخطيط الجذري. والخاصية `suppressHydrationWarning` موجودة لأن السكربت يغيّر سمة من سمات `<html>` قبل أن يرطّبه React.
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+وفي Astro، اكتبه مضمَّنًا في التخطيط:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## الرموز في CSS الخاص بك
 
 كل رمز خاصية مخصصة تحمل اسم مساره: `tanrei.sys.color.primary` يصبح `--tanrei-sys-color-primary`.
@@ -120,6 +188,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+لتضبط رمزًا من سكربت، استخدم `setTokens()` من `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` على الجذر، أو مع `{ on: element }` لجزء من الصفحة. فضبط رمز واحد وحده على الجذر بالدالة `style.setProperty()` يجعل Safari يعيد حساب أنماط الصفحة كلها لثوانٍ؛ أما `setTokens()` فتكتبه بطريقة لا يحدث معها ذلك.
 
 ## أنماط النص
 

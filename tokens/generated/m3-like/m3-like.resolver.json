@@ -46,6 +46,9 @@
         },
         {
           "$ref": "sys/behavior.tokens.json"
+        },
+        {
+          "$ref": "sys/scroll-edge.tokens.json"
         }
       ]
     },
@@ -62,6 +65,9 @@
         },
         {
           "$ref": "comp/progress-indicator.tokens.json"
+        },
+        {
+          "$ref": "comp/meter.tokens.json"
         },
         {
           "$ref": "comp/loading-indicator.tokens.json"
@@ -127,9 +133,6 @@
           "$ref": "comp/navigation-bar.tokens.json"
         },
         {
-          "$ref": "comp/navigation-rail.tokens.json"
-        },
-        {
           "$ref": "comp/navigation-drawer.tokens.json"
         },
         {
@@ -155,6 +158,12 @@
         },
         {
           "$ref": "comp/bottom-sheet.tokens.json"
+        },
+        {
+          "$ref": "comp/handle.tokens.json"
+        },
+        {
+          "$ref": "comp/scroll-area.tokens.json"
         },
         {
           "$ref": "comp/side-sheet.tokens.json"

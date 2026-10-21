@@ -605,10 +605,14 @@ public data class TanreiDuration(
 public data class TanreiEasing(
     public val emphasizedAccelerate: TanreiCubicBezier,
     public val emphasizedDecelerate: TanreiCubicBezier,
+    public val enter: TanreiCubicBezier,
+    public val exit: TanreiCubicBezier,
     public val linear: TanreiCubicBezier,
+    public val spatial: TanreiCubicBezier,
     public val standard: TanreiCubicBezier,
     public val standardAccelerate: TanreiCubicBezier,
     public val standardDecelerate: TanreiCubicBezier,
+    public val state: TanreiCubicBezier,
     /** Steps a design system added to the vocabulary, by token key. */
     public val extra: Map<String, TanreiCubicBezier> = emptyMap(),
 ) {
@@ -616,10 +620,14 @@ public data class TanreiEasing(
     public operator fun get(key: String): TanreiCubicBezier? = when (key) {
         "emphasized-accelerate" -> emphasizedAccelerate
         "emphasized-decelerate" -> emphasizedDecelerate
+        "enter" -> enter
+        "exit" -> exit
         "linear" -> linear
+        "spatial" -> spatial
         "standard" -> standard
         "standard-accelerate" -> standardAccelerate
         "standard-decelerate" -> standardDecelerate
+        "state" -> state
         else -> extra[key]
     }
 }
@@ -681,6 +689,9 @@ public data class TanreiElevation(
     }
 }
 
+/** `sys.behavior.appearance`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
+public enum class TanreiAppearance { FadeScale, Fade, FadeSlide, BlurSlide, Unfold }
+
 /** `sys.behavior.divider-visibility`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiDividerVisibility { Always, Scroll }
 
@@ -696,17 +707,22 @@ public enum class TanreiPressedFeedback { Overlay, Ripple, Dim, None }
 /** `sys.behavior.requirement-mark`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiRequirementMark { Tag, Asterisk, None }
 
+/** `sys.behavior.scroll-edge`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
+public enum class TanreiScrollEdge { Shadow, Fade, Line, Blur }
+
 /** `sys.behavior.separation`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiSeparation { Divider, Gap }
 
 /** Choices of kind: what no amount can express. Components read them and never branch on a system's id. */
 @Immutable
 public data class TanreiBehavior(
+    public val appearance: TanreiAppearance,
     public val dividerVisibility: TanreiDividerVisibility,
     public val focusStyle: TanreiFocusStyle,
     public val linkUnderline: TanreiLinkUnderline,
     public val pressedFeedback: TanreiPressedFeedback,
     public val requirementMark: TanreiRequirementMark,
+    public val scrollEdge: TanreiScrollEdge,
     public val separation: TanreiSeparation,
 )
 
@@ -1305,6 +1321,7 @@ public data class TanreiBottomSheetStateTokens(
 /** `comp.bottom-sheet`. Members are flat tokens, then per-state tokens, then one holder per axis (`controls[control]`). */
 @Immutable
 public data class TanreiBottomSheetTokens(
+    public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerMarginBlockStart: Dp,
@@ -1313,6 +1330,9 @@ public data class TanreiBottomSheetTokens(
     public val containerPartialFraction: Float,
     public val containerShape: Dp,
     public val contentColor: TanreiPaint,
+    public val dividerColor: TanreiPaint,
+    public val dividerVisibility: Float,
+    public val dividerWidth: Dp,
     public val handleContainerHeight: Dp,
     public val handleContainerShape: Dp,
     public val handleContainerWidth: Dp,
@@ -1320,6 +1340,11 @@ public data class TanreiBottomSheetTokens(
     public val handleGripShape: Dp,
     public val handleGripWidth: Dp,
     public val handleMarginBlock: Dp,
+    public val headerGap: Dp,
+    public val headerHeight: Dp,
+    public val headerPaddingInlineEnd: Dp,
+    public val headlineColor: TanreiPaint,
+    public val headlineTypescale: TanreiTextStyle,
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
     public val motionExitDuration: Int,
@@ -1347,6 +1372,8 @@ public data class TanreiBottomSheetTokens(
         addAll(containerColor.roles())
         containerElevation.forEach { add(it.role) }
         addAll(contentColor.roles())
+        addAll(dividerColor.roles())
+        addAll(headlineColor.roles())
         addAll(scrimColor.roles())
         addAll(controls.referencedRoles())
     }
@@ -1754,6 +1781,7 @@ public data class TanreiButtonSizeTokens(
     public val iconSizeWithoutLabel: Dp,
     public val containerGap: Dp,
     public val outlineWidth: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -1927,8 +1955,8 @@ public data class TanreiButtonTokens(
     public val containerShape: Dp,
     public val motionBusyCycleDuration: Int,
     public val motionFeedbackDuration: Int,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val toneContainerOpacity: Float,
     public val hovered: TanreiButtonStateTokens,
     public val focused: TanreiButtonStateTokens,
     public val pressed: TanreiButtonStateTokens,
@@ -2109,112 +2137,6 @@ public data class TanreiCalendarTokens(
 }
 
 /**
- * A control of callout: the key of one entry of [TanreiCalloutControls]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Close].
- */
-@JvmInline
-public value class TanreiCalloutControl(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Close: TanreiCalloutControl = TanreiCalloutControl("close")
-    }
-}
-
-/** What one control of callout draws in one interaction state. */
-@Immutable
-public data class TanreiCalloutControlStateTokens(
-    public val containerColor: TanreiPaint,
-    public val contentColor: TanreiPaint,
-    public val stateLayerColor: TanreiPaint,
-    public val infoContainerColor: TanreiPaint,
-    public val infoContentColor: TanreiPaint,
-    public val infoStateLayerColor: TanreiPaint,
-    public val warningContainerColor: TanreiPaint,
-    public val warningContentColor: TanreiPaint,
-    public val warningStateLayerColor: TanreiPaint,
-    public val errorContainerColor: TanreiPaint,
-    public val errorContentColor: TanreiPaint,
-    public val errorStateLayerColor: TanreiPaint,
-    public val successContainerColor: TanreiPaint,
-    public val successContentColor: TanreiPaint,
-    public val successStateLayerColor: TanreiPaint,
-    public val outlinedContainerColor: TanreiPaint,
-    public val outlinedContentColor: TanreiPaint,
-    public val outlinedStateLayerColor: TanreiPaint,
-) {
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(containerColor.roles())
-        addAll(contentColor.roles())
-        addAll(stateLayerColor.roles())
-        addAll(infoContainerColor.roles())
-        addAll(infoContentColor.roles())
-        addAll(infoStateLayerColor.roles())
-        addAll(warningContainerColor.roles())
-        addAll(warningContentColor.roles())
-        addAll(warningStateLayerColor.roles())
-        addAll(errorContainerColor.roles())
-        addAll(errorContentColor.roles())
-        addAll(errorStateLayerColor.roles())
-        addAll(successContainerColor.roles())
-        addAll(successContentColor.roles())
-        addAll(successStateLayerColor.roles())
-        addAll(outlinedContainerColor.roles())
-        addAll(outlinedContentColor.roles())
-        addAll(outlinedStateLayerColor.roles())
-    }
-}
-
-/** One control of callout: a full set of tokens per interaction state. */
-@Immutable
-public data class TanreiCalloutControlTokens(
-    public val enabled: TanreiCalloutControlStateTokens,
-    public val hovered: TanreiCalloutControlStateTokens,
-    public val focused: TanreiCalloutControlStateTokens,
-    public val pressed: TanreiCalloutControlStateTokens,
-) {
-    public operator fun get(state: TanreiInteractionState): TanreiCalloutControlStateTokens = when (state) {
-        TanreiInteractionState.Enabled -> enabled
-        TanreiInteractionState.Hovered -> hovered
-        TanreiInteractionState.Focused -> focused
-        TanreiInteractionState.Pressed -> pressed
-        TanreiInteractionState.Disabled -> enabled
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles()
-}
-
-/**
- * Every control of callout: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiCalloutControls(
-    public val close: TanreiCalloutControlTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiCalloutControl, TanreiCalloutControlTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiCalloutControl> get() = linkedSetOf(TanreiCalloutControl.Close) + extra.keys
-
-    public operator fun contains(key: TanreiCalloutControl): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiCalloutControl): TanreiCalloutControlTokens? = when (key) {
-        TanreiCalloutControl.Close -> close
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [close]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiCalloutControl): TanreiCalloutControlTokens = find(key) ?: close
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(close.referencedRoles())
-        extra.values.forEach { addAll(it.referencedRoles()) }
-    }
-}
-
-/**
  * A size of callout: the key of one entry of [TanreiCalloutSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Medium].
@@ -2284,54 +2206,44 @@ public data class TanreiCalloutVariantTokens(
     public val titleColor: TanreiPaint,
     public val bodyColor: TanreiPaint,
     public val iconColor: TanreiPaint,
-    public val focusRingColor: TanreiPaint,
     public val infoContainerColor: TanreiPaint,
     public val infoTitleColor: TanreiPaint,
     public val infoBodyColor: TanreiPaint,
     public val infoIconColor: TanreiPaint,
-    public val infoFocusRingColor: TanreiPaint,
     public val warningContainerColor: TanreiPaint,
     public val warningTitleColor: TanreiPaint,
     public val warningBodyColor: TanreiPaint,
     public val warningIconColor: TanreiPaint,
-    public val warningFocusRingColor: TanreiPaint,
     public val errorContainerColor: TanreiPaint,
     public val errorTitleColor: TanreiPaint,
     public val errorBodyColor: TanreiPaint,
     public val errorIconColor: TanreiPaint,
-    public val errorFocusRingColor: TanreiPaint,
     public val successContainerColor: TanreiPaint,
     public val successTitleColor: TanreiPaint,
     public val successBodyColor: TanreiPaint,
     public val successIconColor: TanreiPaint,
-    public val successFocusRingColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
         addAll(titleColor.roles())
         addAll(bodyColor.roles())
         addAll(iconColor.roles())
-        addAll(focusRingColor.roles())
         addAll(infoContainerColor.roles())
         addAll(infoTitleColor.roles())
         addAll(infoBodyColor.roles())
         addAll(infoIconColor.roles())
-        addAll(infoFocusRingColor.roles())
         addAll(warningContainerColor.roles())
         addAll(warningTitleColor.roles())
         addAll(warningBodyColor.roles())
         addAll(warningIconColor.roles())
-        addAll(warningFocusRingColor.roles())
         addAll(errorContainerColor.roles())
         addAll(errorTitleColor.roles())
         addAll(errorBodyColor.roles())
         addAll(errorIconColor.roles())
-        addAll(errorFocusRingColor.roles())
         addAll(successContainerColor.roles())
         addAll(successTitleColor.roles())
         addAll(successBodyColor.roles())
         addAll(successIconColor.roles())
-        addAll(successFocusRingColor.roles())
     }
 }
 
@@ -2367,53 +2279,28 @@ public data class TanreiCalloutVariants(
     }
 }
 
-/** What every variant of callout shares in one interaction state. */
-@Immutable
-public data class TanreiCalloutStateTokens(
-    public val opacity: Float,
-)
-
-/** `comp.callout`. Members are flat tokens, then per-state tokens, then one holder per axis (`controls[control]`, `sizes[size]`, `variants[variant]`). */
+/** `comp.callout`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `variants[variant]`). */
 @Immutable
 public data class TanreiCalloutTokens(
     public val actionsGap: Dp,
     public val actionsItemGap: Dp,
+    public val closeButtonVariant: Float,
     public val containerGap: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerPaddingInlineEndWithClose: Dp,
     public val containerShape: Dp,
-    public val controlsHeight: Dp,
-    public val controlsIconSize: Dp,
-    public val controlsShape: Dp,
     public val iconGap: Dp,
     public val iconOpacity: Float,
     public val iconSize: Dp,
-    public val motionFeedbackDuration: Int,
-    public val motionStateDuration: Int,
-    public val motionStateEasing: TanreiCubicBezier,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
     public val titleGap: Dp,
-    public val hovered: TanreiCalloutStateTokens,
-    public val focused: TanreiCalloutStateTokens,
-    public val pressed: TanreiCalloutStateTokens,
-    public val controls: TanreiCalloutControls,
     public val sizes: TanreiCalloutSizes,
     public val variants: TanreiCalloutVariants,
 ) {
-    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
-    public fun opacity(state: TanreiInteractionState): Float = when (state) {
-        TanreiInteractionState.Enabled -> 1f
-        TanreiInteractionState.Hovered -> hovered.opacity
-        TanreiInteractionState.Focused -> focused.opacity
-        TanreiInteractionState.Pressed -> pressed.opacity
-        TanreiInteractionState.Disabled -> 1f
-    }
-
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(outlineColor.roles())
-        addAll(controls.referencedRoles())
         addAll(variants.referencedRoles())
     }
 }
@@ -2959,7 +2846,6 @@ public data class TanreiCheckboxTokens(
     public val labelTypescale: TanreiTextStyle,
     public val markSize: Dp,
     public val markWeight: Float,
-    public val markWidth: Dp,
     public val motionFeedbackDuration: Int,
     public val motionMarkEnterScale: Float,
     public val motionMarkScaleDuration: Int,
@@ -3027,6 +2913,7 @@ public data class TanreiChipSizeTokens(
     public val iconSize: Dp,
     public val avatarSize: Dp,
     public val removeContainerSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -3181,7 +3068,6 @@ public data class TanreiChipTokens(
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
     public val removeContainerShape: Dp,
@@ -3934,7 +3820,6 @@ public data class TanreiDialogTokens(
     public val actionsGap: Dp,
     public val actionsMarginBlockStart: Dp,
     public val actionsVariant: Float,
-    public val closeButtonVariant: Float,
     public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
@@ -3956,7 +3841,6 @@ public data class TanreiDialogTokens(
     public val iconSize: Dp,
     public val motionEnterDuration: Int,
     public val motionEnterEasing: TanreiCubicBezier,
-    public val motionEnterOffset: Dp,
     public val motionEnterScale: Float,
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
@@ -5084,6 +4968,171 @@ public data class TanreiFileUploadTokens(
     }
 }
 
+/**
+ * A size of handle: the key of one entry of [TanreiHandleSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiHandleSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiHandleSize = TanreiHandleSize("small")
+        public val Medium: TanreiHandleSize = TanreiHandleSize("medium")
+    }
+}
+
+/** The tokens of one size of handle. */
+@Immutable
+public data class TanreiHandleSizeTokens(
+    public val containerLength: Dp,
+    public val containerBreadth: Dp,
+    public val lineLength: Dp,
+    public val lineThickness: Dp,
+    public val lineActiveLength: Dp,
+    public val lineActiveThickness: Dp,
+    public val arcRadius: Dp,
+)
+
+/**
+ * Every size of handle: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiHandleSizes(
+    public val small: TanreiHandleSizeTokens,
+    public val medium: TanreiHandleSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiHandleSize, TanreiHandleSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiHandleSize> get() = linkedSetOf(TanreiHandleSize.Small, TanreiHandleSize.Medium) + extra.keys
+
+    public operator fun contains(key: TanreiHandleSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiHandleSize): TanreiHandleSizeTokens? = when (key) {
+        TanreiHandleSize.Small -> small
+        TanreiHandleSize.Medium -> medium
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiHandleSize): TanreiHandleSizeTokens = find(key) ?: medium
+}
+
+/**
+ * A condition of handle: the key of one entry of [TanreiHandleConditions]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Standard].
+ */
+@JvmInline
+public value class TanreiHandleCondition(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Standard: TanreiHandleCondition = TanreiHandleCondition("standard")
+    }
+}
+
+/** What one condition of handle draws in one interaction state. */
+@Immutable
+public data class TanreiHandleConditionStateTokens(
+    public val containerColor: TanreiPaint,
+    public val lineColor: TanreiPaint,
+    public val stateLayerColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(containerColor.roles())
+        addAll(lineColor.roles())
+        addAll(stateLayerColor.roles())
+    }
+}
+
+/** One condition of handle: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiHandleConditionTokens(
+    public val enabled: TanreiHandleConditionStateTokens,
+    public val hovered: TanreiHandleConditionStateTokens,
+    public val focused: TanreiHandleConditionStateTokens,
+    public val pressed: TanreiHandleConditionStateTokens,
+    public val disabled: TanreiHandleConditionStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiHandleConditionStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> hovered
+        TanreiInteractionState.Focused -> focused
+        TanreiInteractionState.Pressed -> pressed
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
+}
+
+/**
+ * Every condition of handle: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiHandleConditions(
+    public val standard: TanreiHandleConditionTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiHandleCondition, TanreiHandleConditionTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiHandleCondition> get() = linkedSetOf(TanreiHandleCondition.Standard) + extra.keys
+
+    public operator fun contains(key: TanreiHandleCondition): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiHandleCondition): TanreiHandleConditionTokens? = when (key) {
+        TanreiHandleCondition.Standard -> standard
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [standard]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiHandleCondition): TanreiHandleConditionTokens = find(key) ?: standard
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(standard.referencedRoles())
+        extra.values.forEach { addAll(it.referencedRoles()) }
+    }
+}
+
+/** What every variant of handle shares in one interaction state. */
+@Immutable
+public data class TanreiHandleStateTokens(
+    public val opacity: Float,
+)
+
+/** `comp.handle`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `conditions[condition]`). */
+@Immutable
+public data class TanreiHandleTokens(
+    public val containerShape: Dp,
+    public val inset: Dp,
+    public val motionFeedbackDuration: Int,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
+    public val hovered: TanreiHandleStateTokens,
+    public val focused: TanreiHandleStateTokens,
+    public val pressed: TanreiHandleStateTokens,
+    public val disabled: TanreiHandleStateTokens,
+    public val sizes: TanreiHandleSizes,
+    public val conditions: TanreiHandleConditions,
+) {
+    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
+    public fun opacity(state: TanreiInteractionState): Float = when (state) {
+        TanreiInteractionState.Enabled -> 1f
+        TanreiInteractionState.Hovered -> hovered.opacity
+        TanreiInteractionState.Focused -> focused.opacity
+        TanreiInteractionState.Pressed -> pressed.opacity
+        TanreiInteractionState.Disabled -> disabled.opacity
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(conditions.referencedRoles())
+    }
+}
+
 /** `comp.image-preview`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiImagePreviewTokens(
@@ -5181,6 +5230,7 @@ public data class TanreiInputBoxSizeTokens(
     public val labelFloatedTypescale: TanreiTextStyle,
     public val inputTypescale: TanreiTextStyle,
     public val iconSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -5354,7 +5404,6 @@ public data class TanreiInputBoxTokens(
     public val containerShapeBottom: Dp,
     public val motionLabelDuration: Int,
     public val motionLabelEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineNotchPadding: Dp,
     public val outlineWidth: Dp,
@@ -6150,6 +6199,7 @@ public data class TanreiMainActionButtonSizeTokens(
     public val containerGap: Dp,
     public val labelTypescale: TanreiTextStyle,
     public val iconSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -6279,7 +6329,6 @@ public data class TanreiMainActionButtonTokens(
     public val motionFeedbackDuration: Int,
     public val motionResizeDuration: Int,
     public val motionResizeEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val hovered: TanreiMainActionButtonStateTokens,
     public val focused: TanreiMainActionButtonStateTokens,
@@ -6644,6 +6693,85 @@ public data class TanreiMenubarTokens(
     }
 }
 
+/**
+ * A size of meter: the key of one entry of [TanreiMeterSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiMeterSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiMeterSize = TanreiMeterSize("small")
+        public val Medium: TanreiMeterSize = TanreiMeterSize("medium")
+        public val Large: TanreiMeterSize = TanreiMeterSize("large")
+    }
+}
+
+/** The tokens of one size of meter. */
+@Immutable
+public data class TanreiMeterSizeTokens(
+    public val linearThickness: Dp,
+    public val circularSize: Dp,
+    public val circularThickness: Dp,
+)
+
+/**
+ * Every size of meter: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiMeterSizes(
+    public val small: TanreiMeterSizeTokens,
+    public val medium: TanreiMeterSizeTokens,
+    public val large: TanreiMeterSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiMeterSize, TanreiMeterSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiMeterSize> get() = linkedSetOf(TanreiMeterSize.Small, TanreiMeterSize.Medium, TanreiMeterSize.Large) + extra.keys
+
+    public operator fun contains(key: TanreiMeterSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiMeterSize): TanreiMeterSizeTokens? = when (key) {
+        TanreiMeterSize.Small -> small
+        TanreiMeterSize.Medium -> medium
+        TanreiMeterSize.Large -> large
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiMeterSize): TanreiMeterSizeTokens = find(key) ?: medium
+}
+
+/** `comp.meter`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`). */
+@Immutable
+public data class TanreiMeterTokens(
+    public val errorIndicatorColor: TanreiPaint,
+    public val indicatorColor: TanreiPaint,
+    public val infoIndicatorColor: TanreiPaint,
+    public val motionValueDuration: Int,
+    public val motionValueEasing: TanreiCubicBezier,
+    public val stopIndicatorSize: Dp,
+    public val successIndicatorColor: TanreiPaint,
+    public val trackColor: TanreiPaint,
+    public val trackGap: Dp,
+    public val trackSeparation: Float,
+    public val trackShape: Dp,
+    public val warningIndicatorColor: TanreiPaint,
+    public val sizes: TanreiMeterSizes,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(errorIndicatorColor.roles())
+        addAll(indicatorColor.roles())
+        addAll(infoIndicatorColor.roles())
+        addAll(successIndicatorColor.roles())
+        addAll(trackColor.roles())
+        addAll(warningIndicatorColor.roles())
+    }
+}
+
 /** `comp.modal-layer`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
 @Immutable
 public data class TanreiModalLayerTokens(
@@ -6769,11 +6897,9 @@ public data class TanreiNavigationBarTokens(
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerHeight: Dp,
     public val containerPadding: Dp,
-    public val itemContainerHeight: Dp,
     public val itemContainerPaddingBlock: Dp,
     public val itemContainerPaddingInline: Dp,
     public val itemContainerShape: Dp,
-    public val itemContainerWidth: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorHeight: Dp,
     public val itemIconIndicatorShape: Dp,
@@ -6899,7 +7025,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
     public val itemSupportingTextColor: TanreiPaint,
     public val itemTrailingTextColor: TanreiPaint,
     public val itemTrailingIconColor: TanreiPaint,
-    public val itemBadgeColor: TanreiPaint,
     public val itemStateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
@@ -6910,7 +7035,6 @@ public data class TanreiNavigationDrawerConditionStateTokens(
         addAll(itemSupportingTextColor.roles())
         addAll(itemTrailingTextColor.roles())
         addAll(itemTrailingIconColor.roles())
-        addAll(itemBadgeColor.roles())
         addAll(itemStateLayerColor.roles())
     }
 }
@@ -7059,7 +7183,6 @@ public data class TanreiNavigationDrawerTokens(
     public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
     public val headingTypescale: TanreiTextStyle,
-    public val itemBadgeTypescale: TanreiTextStyle,
     public val itemContainerShape: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,
@@ -7109,140 +7232,6 @@ public data class TanreiNavigationDrawerTokens(
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())
         addAll(variants.referencedRoles())
-        addAll(conditions.referencedRoles())
-    }
-}
-
-/**
- * A condition of navigation-rail: the key of one entry of [TanreiNavigationRailConditions]. The set is OPEN — the constants are the core
- * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Unselected].
- */
-@JvmInline
-public value class TanreiNavigationRailCondition(public val key: String) {
-    override fun toString(): String = key
-
-    public companion object {
-        public val Unselected: TanreiNavigationRailCondition = TanreiNavigationRailCondition("unselected")
-        public val Selected: TanreiNavigationRailCondition = TanreiNavigationRailCondition("selected")
-    }
-}
-
-/** What one condition of navigation-rail draws in one interaction state. */
-@Immutable
-public data class TanreiNavigationRailConditionStateTokens(
-    public val itemContainerColor: TanreiPaint,
-    public val itemIconColor: TanreiPaint,
-    public val itemLabelColor: TanreiPaint,
-    public val itemStateLayerColor: TanreiPaint,
-) {
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(itemContainerColor.roles())
-        addAll(itemIconColor.roles())
-        addAll(itemLabelColor.roles())
-        addAll(itemStateLayerColor.roles())
-    }
-}
-
-/** One condition of navigation-rail: a full set of tokens per interaction state. */
-@Immutable
-public data class TanreiNavigationRailConditionTokens(
-    public val enabled: TanreiNavigationRailConditionStateTokens,
-    public val hovered: TanreiNavigationRailConditionStateTokens,
-    public val focused: TanreiNavigationRailConditionStateTokens,
-    public val pressed: TanreiNavigationRailConditionStateTokens,
-    public val disabled: TanreiNavigationRailConditionStateTokens,
-) {
-    public operator fun get(state: TanreiInteractionState): TanreiNavigationRailConditionStateTokens = when (state) {
-        TanreiInteractionState.Enabled -> enabled
-        TanreiInteractionState.Hovered -> hovered
-        TanreiInteractionState.Focused -> focused
-        TanreiInteractionState.Pressed -> pressed
-        TanreiInteractionState.Disabled -> disabled
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
-}
-
-/**
- * Every condition of navigation-rail: a named member per core value, plus [extra] for the values a design system added.
- */
-@Immutable
-public data class TanreiNavigationRailConditions(
-    public val unselected: TanreiNavigationRailConditionTokens,
-    public val selected: TanreiNavigationRailConditionTokens,
-    /** Values a design system added to the vocabulary, by key. */
-    public val extra: Map<TanreiNavigationRailCondition, TanreiNavigationRailConditionTokens> = emptyMap(),
-) {
-    /** Every key this system has, core values first. */
-    public val keys: Set<TanreiNavigationRailCondition> get() = linkedSetOf(TanreiNavigationRailCondition.Unselected, TanreiNavigationRailCondition.Selected) + extra.keys
-
-    public operator fun contains(key: TanreiNavigationRailCondition): Boolean = find(key) != null
-
-    /** The tokens of [key], or null when this system does not have it. */
-    public fun find(key: TanreiNavigationRailCondition): TanreiNavigationRailConditionTokens? = when (key) {
-        TanreiNavigationRailCondition.Unselected -> unselected
-        TanreiNavigationRailCondition.Selected -> selected
-        else -> extra[key]
-    }
-
-    /** TOTAL: a key this system does not have reads the default value, [unselected]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiNavigationRailCondition): TanreiNavigationRailConditionTokens = find(key) ?: unselected
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(unselected.referencedRoles())
-        addAll(selected.referencedRoles())
-        extra.values.forEach { addAll(it.referencedRoles()) }
-    }
-}
-
-/** What every variant of navigation-rail shares in one interaction state. */
-@Immutable
-public data class TanreiNavigationRailStateTokens(
-    public val opacity: Float,
-)
-
-/** `comp.navigation-rail`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
-@Immutable
-public data class TanreiNavigationRailTokens(
-    public val containerColor: TanreiPaint,
-    public val containerElevation: List<TanreiShadowLayer>,
-    public val containerGap: Dp,
-    public val containerPaddingBlock: Dp,
-    public val containerWidth: Dp,
-    public val headerGap: Dp,
-    public val itemContainerHeight: Dp,
-    public val itemContainerShape: Dp,
-    public val itemContainerWidth: Dp,
-    public val itemGap: Dp,
-    public val itemIconSize: Dp,
-    public val itemLabelTypescale: TanreiTextStyle,
-    public val motionFeedbackDuration: Int,
-    public val motionSelectionDuration: Int,
-    public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
-    public val motionStateEasing: TanreiCubicBezier,
-    public val outlineColor: TanreiPaint,
-    public val outlineWidth: Dp,
-    public val hovered: TanreiNavigationRailStateTokens,
-    public val focused: TanreiNavigationRailStateTokens,
-    public val pressed: TanreiNavigationRailStateTokens,
-    public val disabled: TanreiNavigationRailStateTokens,
-    public val conditions: TanreiNavigationRailConditions,
-) {
-    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
-    public fun opacity(state: TanreiInteractionState): Float = when (state) {
-        TanreiInteractionState.Enabled -> 1f
-        TanreiInteractionState.Hovered -> hovered.opacity
-        TanreiInteractionState.Focused -> focused.opacity
-        TanreiInteractionState.Pressed -> pressed.opacity
-        TanreiInteractionState.Disabled -> disabled.opacity
-    }
-
-    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
-        addAll(containerColor.roles())
-        containerElevation.forEach { add(it.role) }
-        addAll(outlineColor.roles())
         addAll(conditions.referencedRoles())
     }
 }
@@ -7679,6 +7668,7 @@ public data class TanreiPopoverTokens(
     public val arrowVisible: Float,
     public val arrowWidth: Dp,
     public val closeButtonVariant: Float,
+    public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerGap: Dp,
@@ -8147,6 +8137,27 @@ public data class TanreiRadioButtonTokens(
     }
 }
 
+/** `comp.scroll-area`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiScrollAreaTokens(
+    public val blurExtent: Dp,
+    public val blurLayers: Float,
+    public val blurRadius: Dp,
+    public val fadeExtent: Dp,
+    public val lineColor: TanreiPaint,
+    public val lineWidth: Dp,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val scrollEdge: Float,
+    public val shadowColor: TanreiPaint,
+    public val shadowExtent: Dp,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(lineColor.roles())
+        addAll(shadowColor.roles())
+    }
+}
+
 /**
  * A condition of search: the key of one entry of [TanreiSearchConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -8375,6 +8386,7 @@ public data class TanreiSegmentedButtonSizeTokens(
     public val labelTypescale: TanreiTextStyle,
     public val iconSize: Dp,
     public val checkSize: Dp,
+    public val motionStateDuration: Int,
 )
 
 /**
@@ -8507,7 +8519,6 @@ public data class TanreiSegmentedButtonTokens(
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
-    public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
@@ -8691,6 +8702,9 @@ public data class TanreiSelectTokens(
     public val optionShape: Dp,
     public val optionSupportingTextTypescale: TanreiTextStyle,
     public val separation: Float,
+    public val statusColor: TanreiPaint,
+    public val statusErrorColor: TanreiPaint,
+    public val statusTypescale: TanreiTextStyle,
     public val hovered: TanreiSelectStateTokens,
     public val focused: TanreiSelectStateTokens,
     public val pressed: TanreiSelectStateTokens,
@@ -8711,6 +8725,8 @@ public data class TanreiSelectTokens(
         addAll(groupTitleColor.roles())
         addAll(listColor.roles())
         listElevation.forEach { add(it.role) }
+        addAll(statusColor.roles())
+        addAll(statusErrorColor.roles())
         addAll(variants.referencedRoles())
     }
 }
@@ -9038,7 +9054,6 @@ public value class TanreiSnackbarControl(public val key: String) {
 
     public companion object {
         public val Action: TanreiSnackbarControl = TanreiSnackbarControl("action")
-        public val Close: TanreiSnackbarControl = TanreiSnackbarControl("close")
     }
 }
 
@@ -9135,19 +9150,17 @@ public data class TanreiSnackbarControlTokens(
 @Immutable
 public data class TanreiSnackbarControls(
     public val action: TanreiSnackbarControlTokens,
-    public val close: TanreiSnackbarControlTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiSnackbarControl, TanreiSnackbarControlTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiSnackbarControl> get() = linkedSetOf(TanreiSnackbarControl.Action, TanreiSnackbarControl.Close) + extra.keys
+    public val keys: Set<TanreiSnackbarControl> get() = linkedSetOf(TanreiSnackbarControl.Action) + extra.keys
 
     public operator fun contains(key: TanreiSnackbarControl): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiSnackbarControl): TanreiSnackbarControlTokens? = when (key) {
         TanreiSnackbarControl.Action -> action
-        TanreiSnackbarControl.Close -> close
         else -> extra[key]
     }
 
@@ -9156,7 +9169,6 @@ public data class TanreiSnackbarControls(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(action.referencedRoles())
-        addAll(close.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
 }
@@ -9171,6 +9183,8 @@ public data class TanreiSnackbarStateTokens(
 @Immutable
 public data class TanreiSnackbarTokens(
     public val actionTonalLayerOpacity: Float,
+    public val breakpointMedium: Dp,
+    public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerGap: Dp,
@@ -9186,7 +9200,6 @@ public data class TanreiSnackbarTokens(
     public val containerShape: Dp,
     public val controlsGap: Dp,
     public val controlsHeight: Dp,
-    public val controlsIconSize: Dp,
     public val controlsLabelTypescale: TanreiTextStyle,
     public val controlsPaddingInline: Dp,
     public val controlsShape: Dp,
@@ -10972,13 +10985,14 @@ public data class TanreiTimelineTokens(
 /**
  * A variant of toolbar: the key of one entry of [TanreiToolbarVariants]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Docked].
+ * A key the current system does not have draws as [Inline].
  */
 @JvmInline
 public value class TanreiToolbarVariant(public val key: String) {
     override fun toString(): String = key
 
     public companion object {
+        public val Inline: TanreiToolbarVariant = TanreiToolbarVariant("inline")
         public val Docked: TanreiToolbarVariant = TanreiToolbarVariant("docked")
         public val Floating: TanreiToolbarVariant = TanreiToolbarVariant("floating")
     }
@@ -11007,27 +11021,30 @@ public data class TanreiToolbarVariantTokens(
  */
 @Immutable
 public data class TanreiToolbarVariants(
+    public val inline: TanreiToolbarVariantTokens,
     public val docked: TanreiToolbarVariantTokens,
     public val floating: TanreiToolbarVariantTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiToolbarVariant, TanreiToolbarVariantTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiToolbarVariant> get() = linkedSetOf(TanreiToolbarVariant.Docked, TanreiToolbarVariant.Floating) + extra.keys
+    public val keys: Set<TanreiToolbarVariant> get() = linkedSetOf(TanreiToolbarVariant.Inline, TanreiToolbarVariant.Docked, TanreiToolbarVariant.Floating) + extra.keys
 
     public operator fun contains(key: TanreiToolbarVariant): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiToolbarVariant): TanreiToolbarVariantTokens? = when (key) {
+        TanreiToolbarVariant.Inline -> inline
         TanreiToolbarVariant.Docked -> docked
         TanreiToolbarVariant.Floating -> floating
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [docked]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiToolbarVariant): TanreiToolbarVariantTokens = find(key) ?: docked
+    /** TOTAL: a key this system does not have reads the default value, [inline]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiToolbarVariant): TanreiToolbarVariantTokens = find(key) ?: inline
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(inline.referencedRoles())
         addAll(docked.referencedRoles())
         addAll(floating.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
@@ -11037,10 +11054,16 @@ public data class TanreiToolbarVariants(
 /** `comp.toolbar`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`). */
 @Immutable
 public data class TanreiToolbarTokens(
+    public val dividerColor: TanreiPaint,
+    public val dividerLength: Dp,
+    public val dividerThickness: Dp,
+    public val groupGap: Dp,
     public val outlineWidth: Dp,
+    public val separation: Float,
     public val variants: TanreiToolbarVariants,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(dividerColor.roles())
         addAll(variants.referencedRoles())
     }
 }
@@ -11366,6 +11389,7 @@ public data class TanreiSystem(
     public val fileItem: TanreiFileItemTokens,
     public val filePicker: TanreiFilePickerTokens,
     public val fileUpload: TanreiFileUploadTokens,
+    public val handle: TanreiHandleTokens,
     public val imagePreview: TanreiImagePreviewTokens,
     public val inlineCode: TanreiInlineCodeTokens,
     public val inputBox: TanreiInputBoxTokens,
@@ -11378,10 +11402,10 @@ public data class TanreiSystem(
     public val mainActionButton: TanreiMainActionButtonTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
+    public val meter: TanreiMeterTokens,
     public val modalLayer: TanreiModalLayerTokens,
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
-    public val navigationRail: TanreiNavigationRailTokens,
     public val numberInput: TanreiNumberInputTokens,
     public val oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     public val pageHeader: TanreiPageHeaderTokens,
@@ -11391,6 +11415,7 @@ public data class TanreiSystem(
     public val progressIndicator: TanreiProgressIndicatorTokens,
     public val prose: TanreiProseTokens,
     public val radioButton: TanreiRadioButtonTokens,
+    public val scrollArea: TanreiScrollAreaTokens,
     public val search: TanreiSearchTokens,
     public val segmentedButton: TanreiSegmentedButtonTokens,
     public val select: TanreiSelectTokens,
@@ -11452,6 +11477,7 @@ public data class TanreiSystem(
         addAll(fileItem.referencedRoles())
         addAll(filePicker.referencedRoles())
         addAll(fileUpload.referencedRoles())
+        addAll(handle.referencedRoles())
         addAll(imagePreview.referencedRoles())
         addAll(inlineCode.referencedRoles())
         addAll(inputBox.referencedRoles())
@@ -11464,10 +11490,10 @@ public data class TanreiSystem(
         addAll(mainActionButton.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
+        addAll(meter.referencedRoles())
         addAll(modalLayer.referencedRoles())
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
-        addAll(navigationRail.referencedRoles())
         addAll(numberInput.referencedRoles())
         addAll(oneTimeCodeInput.referencedRoles())
         addAll(pageHeader.referencedRoles())
@@ -11477,6 +11503,7 @@ public data class TanreiSystem(
         addAll(progressIndicator.referencedRoles())
         addAll(prose.referencedRoles())
         addAll(radioButton.referencedRoles())
+        addAll(scrollArea.referencedRoles())
         addAll(search.referencedRoles())
         addAll(segmentedButton.referencedRoles())
         addAll(select.referencedRoles())

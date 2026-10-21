@@ -1,13 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
-// Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-14): what
+// Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-10): what
 // changes what it draws is its variant, its status and its size, each read from that form's own tokens. The close
-// button is the one control: its container and content colors per state, in the callout's form — none
-// (tonal, no status), `<status>` (tonal with a status) or `outlined` (the outlined look, in every status).
+// button is a small icon-only Tanrei Button, placed here and never restyled: the callout gives it its variant and, on a
+// filled look, the body color of its form as its tone (callout.ts), and the Button draws everything else.
 /** The values every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_VARIANTS = ['tonal', 'outlined'] as const;
 export const CORE_SIZES = ['medium', 'large'] as const;
@@ -15,10 +15,8 @@ export const CORE_SIZES = ['medium', 'large'] as const;
 export const STATUSES = ['info', 'warning', 'error', 'success'] as const;
 const DEFAULT_VARIANT = 'tonal';
 const DEFAULT_SIZE = 'medium';
-/** The parts of a form (CLO-2, CLO-3, CLO-15): the fill, the title, the body, the glyph and the focus indicator's outer stroke. */
-const PARTS = { bg: 'container-color', title: 'title-color', body: 'body-color', icon: 'icon-color', focus: 'focus-ring-color' } as const;
-/** The close button's states, as the suffix of the private property that holds each one's color. */
-const STATES = { '': '-r', hovered: '-h', focused: '-f', pressed: '-p' } as const;
+/** The parts of a form (CLO-2, CLO-3): the fill, the title, the body and the glyph. */
+const PARTS = { bg: 'container-color', title: 'title-color', body: 'body-color', icon: 'icon-color' } as const;
 
 const PREFIX = '--tanrei-comp-callout';
 const T = (name: string) => `var(${PREFIX}-${name})`;
@@ -31,30 +29,13 @@ const ref = (name: (key: string) => string, key: string, fallback: string | null
  */
 const faded = (color: string, opacity: string) => unsafeCSS(`color-mix(in srgb, ${color} calc(${T(opacity)} * 100%), transparent)`);
 
-/**
- * The close button's form in a variant and a status (CLO-10): the tonal look's is its status (none without one); every
- * other look has one form, its own name, in every status. A look a layer adds falls back to the tonal form of the status.
- */
-const closeToken = (variant: string, status: string, state: string, part: 'container-color' | 'content-color') => {
-  const name = (form: string) => `${PREFIX}-${['close', state, form].filter(Boolean).join('-')}-${part}`;
-  if (variant === DEFAULT_VARIANT) return `var(${name(status)})`;
-  return (CORE_VARIANTS as readonly string[]).includes(variant) ? `var(${name(variant)})` : `var(${name(variant)}, var(${name(status)}))`;
-};
-
-// Per variant, the five parts and the close button's eight colors, with no status (`d`) and under each status, as
-// private custom properties: `--_d-bg` (the fill with no status), `--_error-icon`, `--_info-cc-h` (the close button's
-// container, hovered, in an info callout). The part's token is `[<status>-]<part>-<variant>`.
+// Per variant, the four parts with no status (`d`) and under each status, as private custom properties: `--_d-bg` (the
+// fill with no status), `--_error-icon`. The part's token is `[<status>-]<part>-<variant>`.
 const variantBlock = (variant: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${['', ...STATUSES]
     .flatMap((status) => {
       const key = status || 'd';
-      return [
-        ...Object.entries(PARTS).map(([name, part]) => `  --_${key}-${name}: ${ref((v) => `${PREFIX}-${status ? `${status}-` : ''}${part}-${v}`, variant, fallback)};`),
-        ...Object.entries(STATES).flatMap(([state, suffix]) => [
-          `  --_${key}-cc${suffix}: ${closeToken(variant, status, state, 'container-color')};`,
-          `  --_${key}-co${suffix}: ${closeToken(variant, status, state, 'content-color')};`,
-        ]),
-      ];
+      return Object.entries(PARTS).map(([name, part]) => `  --_${key}-${name}: ${ref((v) => `${PREFIX}-${status ? `${status}-` : ''}${part}-${v}`, variant, fallback)};`);
     })
     .join('\n')}\n}`;
 
@@ -75,9 +56,6 @@ const formBlock = (status: string, selector: string) => {
 ${Object.keys(PARTS)
   .map((name) => `    --_${name}: var(--_${key}-${name});`)
   .join('\n')}
-${Object.values(STATES)
-  .flatMap((suffix) => [`    --_cc${suffix}: var(--_${key}-cc${suffix});`, `    --_co${suffix}: var(--_${key}-co${suffix});`])
-  .join('\n')}
   }`;
 };
 
@@ -91,15 +69,10 @@ export const AXES: readonly OpenAxis[] = [
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` },
 ];
 
-/** Where each state is read (CLO-14): on the close button, a native button. */
-const on = (state: string) => `.close${state}`;
-const paint = (suffix: string, container = true) => `${container ? `\n    background: var(--_cc${suffix});` : ''}
-    color: var(--_co${suffix});`;
-
 export const styles = css`
   /* CLO-22: a block in the flow of its container — the whole inline size it is given, no outer space, no minimum, no
      maximum, no measure, nothing that floats, sticks or scrolls. It has no role of its own in the styles and takes no
-     input: only the close button answers (CLO-14). */
+     input: only the close button answers, as a Button (CLO-10). */
   :host {
     display: block;
   }
@@ -194,9 +167,8 @@ export const styles = css`
     block-size: var(--tanrei-icon-size);
   }
   /* CLO-29: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn); the box
-     keeps its size. */
-  .icon:not([data-drawn]),
-  .glyph:not([data-drawn]) {
+     keeps its size. (The close button's glyph is the Button's, which does the same.) */
+  .icon:not([data-drawn]) {
     visibility: hidden;
   }
   /* The ligature's own width, which GlyphDrawnController compares with the glyph box. */
@@ -301,80 +273,23 @@ export const styles = css`
   }
 
   /* CLO-10: the close button at the end of the first row, container.gap after the text, centred on the first line: its
-     box is one line tall and the button, taller, overflows it above and below alike — it overlaps the padding rather
-     than making the row taller. */
+     box is one line tall and the Button, taller, overflows it above and below alike — it overlaps the padding rather
+     than making the row taller. The Button is placed and never restyled: its variant and its tone are given through
+     its own channel (callout.ts), and it keeps its own size, shape, states, focus ring and minimum target. */
   .end {
     grid-column: 3;
     margin-inline-start: ${t('container-gap')};
   }
   .close {
-    all: unset;
-    box-sizing: border-box;
-    position: relative;
-    /* Its own stacking context, so the ripple sits above the container color and below the glyph. */
-    isolation: isolate;
     flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    inline-size: ${t('controls-height')};
-    block-size: ${t('controls-height')};
-    ${unsafeCSS(cornerRadius(`${PREFIX}-controls-shape`))}
-    ${unsafeCSS(paint('-r'))}
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    transition-property: background-color, color, opacity;
-    transition-duration: ${t('motion-state-duration')};
-    transition-timing-function: ${t('motion-state-easing')};
   }
-  ${iconGlyph('.glyph', { size: `${PREFIX}-controls-icon-size`, selected: ':not(*)' })}
 
-  /* CLO-16: the close button's hit area meets the minimum target without changing its visual size. */
-  ${minimumTarget('.close')}
-
-  /* CLO-14, CLO-17, CLO-18: each state paints the close button from that state's tokens; pressed > focused > hovered. */
-  ${stateRules(on, {
-    hovered: `${paint('-h')}
-    opacity: ${T('hovered-opacity')};`,
-    focused: `${paint('-f')}
-    opacity: ${T('focused-opacity')};`,
-    pressed: `${paint('-p')}
-    opacity: ${T('pressed-opacity')};`,
-    pressedContent: `${paint('-p', false)}
-    opacity: ${T('pressed-opacity')};`,
-    disabled: '',
-  })}
-
-  /* CLO-18 ripple: grows over motion.feedback-duration and fades over motion.state-duration. */
-  ${rippleStyles({
-    color: '--_cc-p',
-    grow: `${PREFIX}-motion-feedback-duration`,
-    fade: `${PREFIX}-motion-state-duration`,
-    easing: `${PREFIX}-motion-state-easing`,
-  })}
-
-  /* CLO-15, CLO-19: the ring (or the glow) around the focused close button, never animated, its outer stroke in the
-     form's focus color: the indicator is drawn on the callout's fill, so the form decides what shows on it. */
-  ${focusRing(on, { color: 'var(--_focus)' })}
-
-  /* CLO-1, CLO-19: corner smoothing on the container and the close button (data-tanrei-shape) — after the button's
-     own reset, which would otherwise take its corners away. */
+  /* CLO-1, CLO-19: corner smoothing on the container (data-tanrei-shape). */
   ${shape}
-
-  /* CLO-17: the glyph carries press-hold for PressController. */
-  ${pressHold('.hold')}
-
-  @media (prefers-reduced-motion: reduce) {
-    .close {
-      transition: none;
-    }
-  }
 
   /* CLO-24: forced colors remove every fill, so every look gains an edge in the text color, inside the container's
      size: a border the paddings give room for, so nothing moves. The title, the body and the glyph take the text color
-     — the glyph whole — and the close button the platform's colors for a button. */
+     — the glyph whole; the close button is a Button, which draws itself in the platform's colors for a button. */
   @media (forced-colors: active) {
     .container {
       border: ${t('outline-width')} solid CanvasText;
@@ -388,10 +303,6 @@ export const styles = css`
     .body,
     .icon {
       color: CanvasText;
-    }
-    .close {
-      border: ${t('outline-width')} solid ButtonText;
-      color: ButtonText;
     }
   }
 `;

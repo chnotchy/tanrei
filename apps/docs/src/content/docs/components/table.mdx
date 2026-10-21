@@ -510,7 +510,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 
 ### When it does not fit
 
-- The table scrolls in its own box, never the page. A hairline along an edge of the box says that columns lie beyond it.
+- The table scrolls in its own box, never the page. A hairline along an edge of the box says that columns lie beyond it. It needs no [scroll area](/components/scroll-area/) around it: it marks its own edges.
 - `sticky-first-column` keeps the first column in view while the others scroll under it. It lets go by itself where it would take more than half of the box, so a phone is never filled by the column that stays.
 - `sticky-header` keeps the header row in view while the rows scroll. It works where your layout limits the table's height (`max-block-size` on the element); it does not follow the page.
 - A table on a surface other than the page's (a card, a dialog) sets `--tanrei-comp-table-sticky-container-color` to that surface's color where it keeps its header row or first column in view, or has a status line. Those parts are filled with that color, so that the rows and columns that pass under them do not show through.

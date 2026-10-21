@@ -7,6 +7,7 @@ import { FormSays } from '../../primitives/form-says.js';
 import { AXES, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSliderSize = keyof TanreiSliderSizeRegistry;
@@ -123,7 +124,7 @@ const originPoint = (f: number): End => (f <= 0 ? TRACK_START : f >= 1 ? TRACK_E
  * @fires {CustomEvent<TanreiSliderChangeDetail>} input - The person changed a value; the element's `value` (and `startValue`) is already the new one.
  * @fires {CustomEvent<TanreiSliderChangeDetail>} change - The person finished changing a value (the press ended, or a key was pressed); always after its input.
  */
-export class TanreiSlider extends LitElement {
+export class TanreiSlider extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'slider');
   /** Disabled under the focus it holds, its stop keeps its `tabindex` for one frame, as the platform's own control keeps focus (src/primitives/disabled-while-focused.ts). */
   private readonly stop = new FocusedStop(this);

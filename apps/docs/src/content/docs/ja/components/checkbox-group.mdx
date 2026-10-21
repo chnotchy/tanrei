@@ -2,7 +2,7 @@
 title: チェックボックスグループ
 description: 一度に見せられる数の選択肢から、複数を選んで答える 1 つの質問です。1 つのラベルの下にチェックボックスが並び、説明と 1 つのエラーが付きます。チェックが入った値のリストを 1 つの名前で持ち、すべてにチェックを入れるチェックボックスを添えることもできます。
 translationOf: components/checkbox-group.mdx
-sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="チェックボックスグループと、すべてにチェックを入れるチェックボックスを添えたもの" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="プッシュ通知"></tanrei-checkbox>
@@ -48,7 +48,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
     <form>
       <tanrei-checkbox-group name="notify" label="通知の受け取り方法"
         supporting-text="当てはまるものをすべて選んでください。"
-        requirement="required" required-text="必須"
+        required required-text="必須"
         error-text="連絡方法を 1 つ以上選んでください。">
         <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
@@ -108,7 +108,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 
 ```html
 <tanrei-field-group label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。"
-                    requirement="required" required-text="必須">
+                    required required-text="必須">
   <tanrei-checkbox name="notify" value="email" label="メール" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
@@ -116,7 +116,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 ```
 
 <DemoFrame label="同じ集まりを自分で書いたもの。フィールドグループの中にチェックボックスがあります" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox name="notify" value="email" label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
@@ -154,7 +154,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須" error error-text="この番号は SMS を受け取れません。ほかの方法を選ぶか、番号を変更してください。">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須" error error-text="この番号は SMS を受け取れません。ほかの方法を選ぶか、番号を変更してください。">
     <tanrei-checkbox value="email" label="メール"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="プッシュ通知"></tanrei-checkbox>
@@ -174,7 +174,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 
 | 観点 | フィールドグループから | チェックボックスから | グループ自身のもの |
 | --- | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText`、`orientation` | 各チェックボックスの `value`、`label`、`disabled`。チェックボックスに指定する | `value`、`selectAllLabel` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText`、`orientation` | 各チェックボックスの `value`、`label`、`disabled`。チェックボックスに指定する | `value`、`selectAllLabel` |
 | イベント | — | なし。グループの中のチェックボックスは、自分のイベントを発生させない | `change` |
 | トークン | `comp.field-group.*` | `comp.checkbox.*` | なし |
 
@@ -201,7 +201,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 - 要素のシャドウルートにあるのは `<tanrei-field-group>` で、その中に、`select-all-label` を指定している間のすべてにチェックを入れるチェックボックスと、スロットがあります。チェックボックスは利用者側の子要素のままです。要素をインポートすると、2 つの構成要素も定義されます。
 - `value` はプロパティだけで、配列を写して出し入れします。`value` 属性はありません。属性にリストを書くには、値に含まれるかもしれない区切りが必要になり、HTML にはすでに、子ごとの `checked` という書き方があるためです。
 - `value` 属性がなく、値も設定されていないチェックボックスには、値がありません。単独のチェックボックスが送信する「on」は、グループの中では読まれません。未チェックで描かれ、デバッグビルドが知らせます。
-- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値ごとに 1 つの項目を `name` で送信します。同じ名前を持つ素のチェックボックスが送信するものと同じです。チェックボックスは、どんな `name` を持っていても何も送信しません。リセットすると最初の値に戻り、無効な `<fieldset>` に従い、`requirement` が `required` でリストが空の間は、値がないことを報告します。メッセージは `error-text`、なければ必須のテキスト、それもなければ `label` です。`error-text` は、`error` を設定するときだけでなく、最初から指定してください。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値ごとに 1 つの項目を `name` で送信します。同じ名前を持つ素のチェックボックスが送信するものと同じです。チェックボックスは、どんな `name` を持っていても何も送信しません。リセットすると最初の値に戻り、無効な `<fieldset>` に従い、`required` が設定されていてリストが空の間は、値がないことを報告します。メッセージは `error-text`、なければ必須のテキスト、それもなければ `label` です。`error-text` は、`error` を設定するときだけでなく、最初から指定してください。
 - `change` は CustomEvent で、`detail.value` はリストの写しです。その前に `input` が発生します。グループの中のチェックボックスに付けたリスナーには、どちらも届きません。
 - パーツ: `field-group` が枠で、そのパーツは 1 つ下の階層と同じ名前です。`label`、`requirement-label`、`supporting-text`、`error-text` です。`select-all` がすべてにチェックを入れるチェックボックスで、そのパーツは `select-all-container`、`select-all-box`、`select-all-mark`、`select-all-label` です。利用者側のチェックボックスは、ほかの場所と同じく `tanrei-checkbox::part(…)` でスタイルを変えます。
 - 要素そのものはフォーカスを受け取りません。`focus()` は最初の有効なチェックボックスに移り、ページの `<label for>` もフォーカスをそこに移します。

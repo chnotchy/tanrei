@@ -511,9 +511,9 @@ test.describe('the header and the copy button', () => {
     const long = host(page, 'rtl-ltr-title').locator('.title');
     expect(await long.evaluate((el) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).textOverflow, getComputedStyle(el).whiteSpace, getComputedStyle(el).direction, el.getAttribute('dir')])).toEqual([true, 'ellipsis', 'nowrap', 'ltr', 'auto']);
     near((await box(long)).height, await lineOf(page, T('title-typescale-font')), 'one line', 0.1);
-    expect(await host(page, 'rtl-ltr-title').evaluate((el) => (el as unknown as { title: string }).title)).toBe(String(fixture('rtl-ltr-title').props.title));
+    expect(await host(page, 'rtl-ltr-title').evaluate((el) => (el as unknown as { headline: string }).headline)).toBe(String(fixture('rtl-ltr-title').props.title));
     expect((await box(copyButton(page, 'rtl-ltr-title'))).width).toBe(await resolveToken(page, BUTTON));
-    // The attribute is taken and removed, so the browser draws no tooltip of its own over the block.
+    // The title is the element's `headline`; the global `title` attribute is not written for it.
     expect(await host(page, 'titled').getAttribute('title')).toBeNull();
   });
 
@@ -1018,7 +1018,7 @@ test.describe('syntax', () => {
       if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver((list) => (w.__shifts += list.getEntries().length)).observe({ type: 'layout-shift', buffered: false });
     });
     // The fixture auto-tsx, drawn while its highlighter is held back: capped at four lines so that its body scrolls.
-    await insert(page, 'held', { language: 'tsx', title: 'Footer.tsx', 'language-label': 'TSX', 'max-lines': '4', copy: '', 'copy-label': 'Copy', 'copied-label': 'Copied', 'copy-failed-label': 'Could not copy' }, tsx);
+    await insert(page, 'held', { language: 'tsx', headline: 'Footer.tsx', 'language-label': 'TSX', 'max-lines': '4', copy: '', 'copy-label': 'Copy', 'copied-label': 'Copied', 'copy-failed-label': 'Could not copy' }, tsx);
     await expect.poll(() => asked(page)).toEqual([{ code: tsx, language: 'tsx', aborted: false }]);
     // Complete in every other respect: the code, its lines, the header, the copy button, the scrolling body.
     expect(await codeText(page, 'held')).toBe(tsx);
@@ -1294,7 +1294,7 @@ test.describe('syntax', () => {
   test('COD-32: a highlighter that cannot be loaded, fails while it reads the code, or answers with runs that do not join to the code leaves the code plain and everything else working — the header, the copy button, the lines, the marks, scrolling — and says so once; a failure in one block does not change another', async ({ page }) => {
     const seen = warnings(page);
     const block = (id: string, language: string, code = 'const a = 1;\nlet b = 2;') =>
-      `<tanrei-code-block id="${id}" title="${id}.txt" language="${language}" line-numbers highlighted-lines="2" highlighted-label="Highlighted" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>${code}</code></pre></tanrei-code-block>`;
+      `<tanrei-code-block id="${id}" headline="${id}.txt" language="${language}" line-numbers highlighted-lines="2" highlighted-label="Highlighted" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>${code}</code></pre></tanrei-code-block>`;
     const whole = async (id: string, code = 'const a = 1;\nlet b = 2;') => {
       const target = page.locator(`#${id}`);
       expect(await drawnRuns(target), id).toEqual([['', code]]);
@@ -1353,7 +1353,7 @@ test.describe('syntax', () => {
     const seen = warnings(page);
     const { requested } = await modules(
       page,
-      `<tanrei-code-block id="a" title="a.js" language="js" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>const a = 1;</code></pre></tanrei-code-block>
+      `<tanrei-code-block id="a" headline="a.js" language="js" copy copy-label="Copy" copied-label="Copied" copy-failed-label="Could not copy"><pre><code>const a = 1;</code></pre></tanrei-code-block>
        <tanrei-code-block id="b" label="x" language="js"><pre><code>let b;</code></pre></tanrei-code-block>
        <tanrei-code-block id="given" label="x"><pre><code><span data-syntax="keyword">const</span> c;</code></pre></tanrei-code-block>`,
       { refuse: ['/dist/highlight/index.js'] },
@@ -1834,7 +1834,7 @@ test.describe('before the element', () => {
       <style>${read('dist/tokens.css')}</style><style>${read('dist/code.css')}</style><style>body { margin: 16px; inline-size: 320px; }</style></head>
       <body><tanrei-code-block id="a"><pre><code>${LONG.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</code></pre></tanrei-code-block>
       <tanrei-code-block id="b" variant="outlined" size="small"><pre><code>const <span data-syntax="keyword">a</span> = 1;</code></pre></tanrei-code-block>
-      <tanrei-code-block id="c" title="sizes.js" language-label="JavaScript" copy><pre><code>let a;</code></pre></tanrei-code-block></body></html>`);
+      <tanrei-code-block id="c" headline="sizes.js" language-label="JavaScript" copy><pre><code>let a;</code></pre></tanrei-code-block></body></html>`);
     const [a, b, c] = [page.locator('#a'), page.locator('#b'), page.locator('#c')];
     expect(await a.evaluate((el) => el.matches(':defined'))).toBe(false);
     expect(await css(a, 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));
@@ -1993,4 +1993,22 @@ test.describe('fixtures', () => {
       await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test('web: the title is the headline attribute and property, drawn in the header and naming the block; a title attribute is the browser’s own — it stays on the element and draws nothing', async ({ page }) => {
+  await mount(page, [fx('new', { code: 'let a;', title: 'sizes.js', label: '' })]);
+  await expect(host(page, 'new')).toHaveAttribute('headline', 'sizes.js');
+  await expect(host(page, 'new').locator('.title')).toHaveText('sizes.js');
+  // A title attribute is the platform's advisory text: kept as written, not drawn, and no name of the block.
+  await page.evaluate(() => {
+    const stage = document.createElement('div');
+    stage.className = 'stage';
+    stage.dataset.fixture = 'old';
+    stage.innerHTML = '<tanrei-code-block title="sizes.js" label="Example"><pre><code>let a;</code></pre></tanrei-code-block>';
+    document.querySelector('main')!.append(stage);
+  });
+  await host(page, 'old').evaluate((el) => (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete);
+  await expect(host(page, 'old')).toHaveAttribute('title', 'sizes.js');
+  await expect(host(page, 'old').locator('.title')).toHaveCount(0);
+  expect(await host(page, 'old').evaluate((el) => (el as HTMLElement & { headline: string }).headline)).toBe('');
 });

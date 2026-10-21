@@ -2,7 +2,7 @@
 title: "组合框字段"
 description: "让用户通过键入找到一个值，并作为表单的一个字段——一个组合框，带有随键入不断收窄的选项列表，用户从中选择，在产品允许的地方也可以填入自己的值；它位于可以说明必填或选填的标签之下，带有一行帮助文本，以及值被拒绝的原因。"
 translationOf: components/combobox-field.mdx
-sourceHash: 695f5a07f9b3ed6d358dee0d414c102a7c3a5232
+sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -47,7 +47,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-combobox-field name="city" label="城市" value="tokyo" requirement="required" required-text="必填"
+      <tanrei-combobox-field name="city" label="城市" value="tokyo" required required-text="必填"
         clearable clear-label="清除城市" empty-text="无匹配项">
         <tanrei-option value="kyoto">京都</tanrei-option>
         <tanrei-option value="tokyo">东京</tanrei-option>
@@ -107,14 +107,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <!-- 组合框字段 -->
-<tanrei-combobox-field name="city" label="城市" requirement="required" required-text="必填"
+<tanrei-combobox-field name="city" label="城市" required required-text="必填"
   supporting-text="订单将寄往该城市。" value="tokyo">
   <tanrei-option value="kyoto">京都</tanrei-option>
   <tanrei-option value="tokyo">东京</tanrei-option>
 </tanrei-combobox-field>
 
 <!-- 手写的同一个字段：框架的属性写在字段上，其余的一切——以及选项——写在组合框上 -->
-<tanrei-field label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+<tanrei-field label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">京都</tanrei-option>
     <tanrei-option value="tokyo">东京</tanrei-option>
@@ -123,7 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着组合框的字段：画面与组合框字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
     <tanrei-combobox value="tokyo" empty-text="无匹配项">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">东京</tanrei-option>
@@ -161,7 +161,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 部件 | 它是什么 |
 | --- | --- |
 | 标签 | 容器上方由字段绘制的那一行（`stacked`），或者浮动在容器内部的、组合框自己的标签（`filled`、`outlined`）。它是无障碍名称，无论是画出来的，还是用 `labelHidden` 隐藏的 |
-| 必填和选填标记 | 位于标签之后：`requirement="required"` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签。浮动标签带的是星号 |
+| 必填和选填标记 | 位于标签之后：`required` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签。浮动标签带的是星号 |
 | 输入框 | 文本：用户为查找选项而键入的内容；用户没有在键入时，是选中选项的标签或自定义值。保持在一行之内，放不下时滚动 |
 | 占位符 | 输入框为空时显示的提示。它绝不是标签，也绝不是一个值 |
 | 前置图标 | `leading-icon` 插槽里的字形；没有时，采用选中选项自己的字形 |
@@ -215,7 +215,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - `<tanrei-option>` 和 `<tanrei-option-group>` 是数据：它们什么都不画。它们就是下拉选择框所包含的那些元素。值为空字符串的选项会画出来，但不能被选中，因为空值表示什么都没有选。
 - 这个元素的 shadow root 里有一个包着 `<tanrei-combobox>` 的 `<tanrei-field>`。你的 `<tanrei-option>` 子元素仍然是它自己的子元素，通过插槽到达组合框；没有任何东西被移动或复制。
-- 组合框字段是与表单关联的元素：表单看到的唯一控件。它接受 `name`，提交 `value`，绝不提交尚未确认的编辑文本；重置时回到 `value` 属性（attribute）的值，并在 `requirement="required"` 且 `value` 为空时向表单报告缺少值。没有活动选项时按 Enter 会提交它的表单。
+- 组合框字段是与表单关联的元素：表单看到的唯一控件。它接受 `name`，提交 `value`，绝不提交尚未确认的编辑文本；重置时回到 `value` 属性（attribute）的值，并在 `required` 且 `value` 为空时向表单报告缺少值。没有活动选项时按 Enter 会提交它的表单。
 - `value`、`inputValue` 和 `open` 在任何时刻都是组合框的：在每个监听器里，它们都已经是新的值。
 - `chevron` 对应含义相反的属性（attribute）`no-chevron`，`readOnly` 对应 `readonly`。
 - `input` 是文本元素的原生事件。`change` 和 `action` 带有 `detail.value` 和 `detail.inputValue`。这四个事件是组合框自己的事件，以组合框字段为目标；`toggle` 不冒泡。
@@ -270,7 +270,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 输入框是一个带列表框的可编辑组合框。它的名称是 `label`，无论是画出来的还是隐藏的，绝不是占位符。字段把它交给组合框，组合框把它带在自己的输入框上。
 - 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
 - 焦点在字段内时出现的错误，会以礼貌（polite）的方式朗读一次。
-- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；只读时暴露为只读；列表打开时，暴露为已展开。
+- `error` 为 true 时，它暴露为无效；设置了 `required` 时，暴露为必填；只读时暴露为只读；列表打开时，暴露为已展开。
 - 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。
 - 列表是一个以标签命名的列表框。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所显示的选项中的位置。组以它的标题命名。
 - 匹配部分靠字重来标记，绝不只靠颜色。标签仍作为一整段文本朗读。

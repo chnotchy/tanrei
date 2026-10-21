@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -20,6 +20,7 @@ import { acceptConverter, acceptList } from '../../primitives/file-format.js';
 import { type FileJudgement, type FileRefused, type FileRejectReason, countLimit, dragAnswer, droppedFiles, givenFiles, judgeFiles, readAccept, sizeLimit } from '../../primitives/file-judge.js';
 import { notifyArrival } from '../../primitives/file-item-holder.js';
 import { PREFIX, styles } from './file-picker.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How choosing is offered: the trigger alone (`button`), or a bounded place around it that also takes a drop (`drop-area`). */
 export type TanreiFilePickerLayout = 'button' | 'drop-area';
@@ -84,7 +85,7 @@ const reached = (child: Element): Element[] => (child instanceof HTMLSlotElement
  * @fires select - Files were chosen or dropped and passed. Once per choice; `detail.files` is a `File[]`. Bubbles.
  * @fires reject - Files of one choice or one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
  */
-export class TanreiFilePicker extends LitElement implements PlacingGroup {
+export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'file-picker');
   static override styles = styles;
 
@@ -504,6 +505,15 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
     this.provider.sync();
     this.place();
     if (this.presented) this.reports(changed);
+  }
+
+  /**
+   * @internal FPK-19, FUP-28: tells the trigger now what the file picker gives it. A file upload calls it once it has
+   * passed its trigger on: the trigger is then told before it is first drawn, not after this picker's own first
+   * render, which comes after the trigger's and would draw a disabled trigger enabled for a frame and fade it.
+   */
+  tellTrigger() {
+    this.provider.sync();
   }
 
   /** What a debug build is told about the content, once it has all been written: the file picker still renders. */

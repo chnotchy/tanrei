@@ -1,17 +1,22 @@
-// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…38) is cited by a test title, every
+// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…43) is cited by a test title, every
 // fixture has a baseline, and every color, length and time is read back from the tokens. The fixtures are drawn in
 // place (`inline`), each on its 480 × 480 stage; what a fixture cannot hold — the top layer, the window's edges, focus,
 // dismissal, nesting — is tested on the real overlay, mounted by the tests as a product would write it: its own opener,
 // `open` set from the opener's press, and set to false from `close`.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, popoverWindow, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 
 const spec = loadSpec('popover');
+/** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
+const IN_PLACE = spec.fixtures.filter((f) => !f.id.startsWith('compact'));
+const COMPACT_FIXTURES = spec.fixtures.filter((f) => f.id.startsWith('compact'));
 type P = Page;
 const TAG = 'tanrei-popover';
 const T = (name: string) => `--tanrei-comp-popover-${name}`;
@@ -64,9 +69,9 @@ function warnings(page: P) {
  * else `anchor`, names) toggles `open`, and `close` sets it to false — unless the popover carries `data-keep`, a product
  * that declines. Every `close` is recorded as `<id>:<reason>`, and a menu's as `<id>:menu:<reason>`.
  */
-async function mount(page: P, html: string, { width = 800, height = 600, reducedMotion = true, dir }: { width?: number; height?: number; reducedMotion?: boolean; dir?: 'ltr' | 'rtl' } = {}) {
+async function mount(page: P, html: string, { width = 800, height = 600, reducedMotion = true, dir, system }: { width?: number; height?: number; reducedMotion?: boolean; dir?: 'ltr' | 'rtl'; system?: string } = {}) {
   await page.setViewportSize({ width, height });
-  await mountFixtures(page, spec, { icons: true, fixtures: [], reducedMotion, dir });
+  await mountFixtures(page, spec, { icons: true, fixtures: [], reducedMotion, dir, system });
   await page.evaluate((markup) => {
     const main = document.querySelector('main') as HTMLElement;
     main.style.display = 'block';
@@ -201,61 +206,121 @@ test.describe('presentation', () => {
     expect(await container(page).evaluate((el) => getComputedStyle(el).cursor)).toBe('auto');
   });
 
-  test('POP-26: opening fades the container in and grows it from the edge that faces the anchor, fixed where an arrow would point, over the open motion; closing fades it out over the close motion; with motion reduced both happen at once, and the placed box never moves', async ({ page }) => {
+  test('POP-26: opening, the container appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown from the middle of the edge that faces the anchor, over the open motion on its curve; closing, it leaves the same way back over the close motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and the placed box never moves', async ({ page }) => {
     await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: false });
-    const motion = part(page, '.motion');
-    const style = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), transform: getComputedStyle(el).transform, origin: el.style.transformOrigin, running: el.getAnimations().length }));
-    // The transitions of the moving part itself, kept as the engine announces them: a motion of the token's length
-    // that is asked for a round trip after `open` is set may be over where a frame takes longer than it.
-    const timing = async () => (await transitionsRun(motion)).filter((run) => run.own && run.pseudo === '').map(({ property, duration, easing }) => ({ property, duration, easing }));
-    await watchTransitions(motion);
-    await set(page, { open: true });
-    await expect.poll(async () => (await timing()).map((t) => t.property).sort()).toEqual(['opacity', 'transform']);
-    const opening = await timing();
-    for (const t of opening) expect(t.duration).toBeCloseTo(await resolveToken(page, T('motion-open-duration'), 'duration'), 0);
-    // It grows along the line to the anchor (below it: its height), from the point where an arrow would point.
-    const placedAt = await rect(surface(page));
-    const anchor = await rect(page.locator('#a'));
-    const origin = (await style()).origin.split(' ');
-    expect(Number.parseFloat(origin[0])).toBeCloseTo(centerX(anchor) - placedAt.x, 0);
-    expect(Number.parseFloat(origin[1])).toBe(0);
-    expect(await surface(page).evaluate((el) => getComputedStyle(el).transform)).toBe('none');
-    await motion.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
-    expect(await style()).toMatchObject({ opacity: 1, transform: 'none' });
-    // The place and the room are those of the popover at rest: the box did not move while it grew.
-    expect(await rect(surface(page))).toEqual(placedAt);
-    await watchTransitions(motion);
-    // Its size is read in the task that closes it, as the fade begins and half way through it: read three questions
-    // later, the fade of the token's length is over where the answers are slow, and what is read is the closed pose.
-    const sizes = await host(page).evaluate(async (el) => {
-      (el as unknown as { open: boolean }).open = false;
-      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
-      const moving = el.shadowRoot!.querySelector('.motion')!;
-      const fading = moving.getAnimations();
-      const read = [getComputedStyle(moving).transform];
-      for (const animation of fading) {
-        animation.pause();
-        animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
-      }
-      read.push(getComputedStyle(moving).transform);
-      for (const animation of fading) animation.play();
-      return { fading: fading.length, read };
-    });
-    expect(sizes.fading).toBe(1);
-    await expect.poll(async () => (await timing()).map((t) => t.property)).toEqual(['opacity']);
-    const closing = await timing();
-    expect(closing[0].duration).toBeCloseTo(await resolveToken(page, T('motion-close-duration'), 'duration'), 0);
-    // It only fades: its size stays.
-    for (const transform of sizes.read) expect(transform).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
-    await motion.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    // The first frame, where it starts: the default system's appearance (sys.motion.appear.*), from the top edge's middle.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    const width = (await rect(part(page, '.motion'))).width;
+    expect(String(opening.frames[0]!.probe.origin)).toBe(`${width / 2}px 0px`);
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const motions = (seen: Frames) => seen.motions.filter((motion) => motion.on === 'div.motion' && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of motions(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-open-easing')));
+    }
+    expect(motions(opening).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    // The place and the room are those of the popover at rest: the placed box did not move while it grew.
+    const placed = await rect(surface(page));
+    expect(await surface(page).evaluate((el) => [getComputedStyle(el).transform, getComputedStyle(el).scale])).toEqual(['none', 'none']);
+
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    // The same way back, to where it started.
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    expectAnimated(closing, 'opacity');
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    // The default system leaves on standard-accelerate.
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    for (const motion of motions(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expect(motions(closing).map((motion) => motion.name).sort()).toEqual(['opacity', 'scale']);
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+    // Out of the top layer once its exit has played; it drew where it was placed throughout.
     await expect.poll(() => surface(page).evaluate((el) => el.matches(':popover-open'))).toBe(false);
-    // Reduced: at once, both ways.
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
     await set(page, { open: true });
     await expect.poll(() => isShown(page)).toBe(true);
-    expect(await style()).toMatchObject({ opacity: 1, transform: 'none', running: 0 });
-    await set(page, { open: false });
+    expect(await rect(surface(page))).toEqual(placed);
+  });
+
+  test('POP-26: placed above its anchor it grows from its bottom edge, beside it from the edge that faces it, and over its anchor from its centre; where appear.origin is center it grows from its centre on every side', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 400)}${popover('label="Storage"')}`, { reducedMotion: false });
+    const originAt = async (placement: string) => {
+      await set(page, { placement, open: true });
+      await expect.poll(() => isShown(page)).toBe(true);
+      // Against its box at rest (a box measured while it grows is the grown one).
+      const [x, y, width, height] = await part(page, '.motion').evaluate((el: HTMLElement) => [...getComputedStyle(el).transformOrigin.split(' ').map(Number.parseFloat), el.offsetWidth, el.offsetHeight]);
+      await close(page);
+      return [Math.round((x! / width!) * 100) / 100, Math.round((y! / height!) * 100) / 100];
+    };
+    expect(await originAt('top')).toEqual([0.5, 1]);
+    expect(await originAt('bottom')).toEqual([0.5, 0]);
+    expect(await originAt('start')).toEqual([1, 0.5]);
+    expect(await originAt('end')).toEqual([0, 0.5]);
+    // appear.origin: center — read with a style query on the custom property.
+    await rootTokens(page, { '--tanrei-sys-motion-appear-origin': 'center' });
+    expect(await originAt('top')).toEqual([0.5, 0.5]);
+    expect(await originAt('end')).toEqual([0.5, 0.5]);
+  });
+
+  test('POP-26: under the unfold appearance (m3-like) the container unfolds from the edge that faces the anchor at its full width, on the emphasized curves the system keeps, and folds back the same way', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: false, system: 'm3-like' });
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    // A style query on the custom property picks the axis that leaves the anchor: the height, from the top edge.
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0, axis: 'y' });
+    expect(String(opening.frames[0]!.probe.origin).split(' ')[1]).toBe('0px');
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const opacity = opening.motions.find((motion) => motion.on === 'div.motion' && motion.name === 'opacity')!;
+    expect(opacity.easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-emphasized-decelerate'));
+    expect(opacity.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short4', 'duration'));
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sy: 0 });
+    const out = closing.motions.find((motion) => motion.on === 'div.motion' && motion.name === 'opacity')!;
+    expect(out.easing).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-emphasized-accelerate'));
+    expect(out.duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short2', 'duration'));
+  });
+
+  test('POP-26: where motion is reduced the container only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}${popover('label="Storage"')}`, { reducedMotion: true });
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const opening = await sampleFrames(host(page), () => set(page, { open: true }), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on === 'div.motion').map((motion) => [motion.name, motion.duration]);
+    expect(own(opening)).toEqual([['opacity', reduced]]);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1 });
+    const closing = await sampleFrames(host(page), () => set(page, { open: false }), { probe: appearProbe });
+    expect(own(closing)).toEqual([['opacity', reduced]]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
     await expect.poll(() => surface(page).evaluate((el) => el.matches(':popover-open'))).toBe(false);
+  });
+
+  test('POP-26: a popover in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
+    await mount(page, `${anchorAt(300, 200)}`, { reducedMotion: false });
+    // Mounted open after the document was painted: it enters.
+    const main = page.locator('main');
+    const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-popover id="late" anchor="a" label="Storage" open>Trash counts.</tanrei-popover>')), { probe: appearProbe });
+    expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs (every transition that
+    // starts in a shadow root is counted from before the first element is made).
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.className + ' ' + event.propertyName)); return root; };</script>`;
+    // A page that is loaded (not one written into the window with setContent, whose navigation was over before it).
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}${anchorAt(300, 200)}${popover('label="Storage" open')}` });
+    await page.route('http://popover.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://popover.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-popover'));
+    await settle(page);
+    expect(await isShown(page)).toBe(true);
+    expect(await part(page, '.motion').evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
+    expect((await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-popover motion'))).toEqual([]);
   });
 
   test('POP-27: a motion that is turned round goes on from the opacity and the size it has reached; closed or closing the popover takes no pointer and no focus, and closed it takes no room, draws nothing and exposes nothing', async ({ page }) => {
@@ -264,7 +329,11 @@ test.describe('presentation', () => {
     });
     await override(page, { [T('motion-open-duration')]: '600ms', [T('motion-close-duration')]: '600ms' });
     const motion = part(page, '.motion');
-    const reached = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), scale: new DOMMatrixReadOnly(getComputedStyle(el).transform).d }));
+    // Its opacity and its scale along the line to the anchor (below it: the height), as drawn.
+    const reached = () => motion.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), scale: getComputedStyle(el).scale === 'none' ? 1 : Number(getComputedStyle(el).scale.split(' ').at(-1)) }));
+    // The motions of the appearance that draw something here: its opacity and its scale (the distance and the blur
+    // are 0 under the default system, and move nothing).
+    const DRAWN = ['opacity', 'scale'];
     // A turn is read where the motion is HELD, not where a clock has let it get to: the browser shortens a motion that
     // turns round to the part it had covered, and the opening motion starts fast — a turn at a fifth of the way is over
     // in 120 ms, and one taken in the opening's first frame in 30 (which is how this test once read 0 in WebKit on a
@@ -277,7 +346,7 @@ test.describe('presentation', () => {
           animation.pause();
           animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) * part;
         }
-        return running.length;
+        return running.filter((animation) => ['opacity', 'scale'].includes((animation as CSSTransition).transitionProperty)).length;
       }, at);
     /** Sets `open` and reads the motion in the same task, before a frame has passed: the place the turn starts from. */
     const turn = (open: boolean, held: boolean) =>
@@ -289,7 +358,8 @@ test.describe('presentation', () => {
           const running = moving.getAnimations();
           if (keep) for (const animation of running) animation.pause();
           const style = getComputedStyle(moving);
-          return { opacity: Number(style.opacity), scale: new DOMMatrixReadOnly(style.transform).d, moving: running.length };
+          const drawn = running.filter((animation) => ['opacity', 'scale'].includes((animation as CSSTransition).transitionProperty));
+          return { opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number(style.scale.split(' ').at(-1)), moving: drawn.length };
         },
         [open, held] as const,
       );
@@ -303,18 +373,19 @@ test.describe('presentation', () => {
         animation.pause();
         animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) * 0.5;
       }
-      return running.length;
+      return running.map((animation) => (animation as CSSTransition).transitionProperty).filter((property) => ['opacity', 'scale'].includes(property)).sort();
     });
-    expect(begun).toBe(2);
+    expect(begun).toEqual(DRAWN);
     const opening = await reached();
+    const start = Number(await token(page, '--tanrei-sys-motion-appear-scale'));
     expect(opening.opacity).toBeGreaterThan(0);
     expect(opening.opacity).toBeLessThan(1);
-    expect(opening.scale).toBeGreaterThan(0);
+    expect(opening.scale).toBeGreaterThan(start);
     expect(opening.scale).toBeLessThan(1);
-    // Told to close while opening: from where it is, never from the end of the opening motion — the opacity it had
-    // reached, and the size it had reached, which stays (a closing surface only fades).
+    // Told to close while opening: from where it is, never from the end of the opening motion — the opacity and the
+    // size it had reached, from which it goes back the way it came.
     const turned = await turn(false, true);
-    expect(turned.moving).toBe(1);
+    expect(turned.moving).toBe(2);
     expect(turned.opacity).toBeCloseTo(opening.opacity, 2);
     expect(turned.scale).toBeCloseTo(opening.scale, 2);
     // Closing: no pointer and no focus — a press reaches what lies under it.
@@ -322,15 +393,17 @@ test.describe('presentation', () => {
     await page.evaluate(() => document.querySelector('#under')!.addEventListener('click', () => (window as unknown as { __log: string[] }).__log.push('under')));
     await page.mouse.click(380, 275);
     expect(await log(page)).toEqual(['under']);
-    // Told to open while closing, half-way through the fade: on from the opacity it had, without first going to nothing.
-    expect(await hold(0.5)).toBe(1);
+    // Told to open while closing, half-way through it: on from the opacity and the size it had, without first going to
+    // nothing or to its start.
+    expect(await hold(0.5)).toBe(2);
     const before = await reached();
     expect(before.opacity).toBeGreaterThan(0);
     expect(before.opacity).toBeLessThan(turned.opacity);
     const back = await turn(true, false);
     expect(back.opacity).toBeGreaterThanOrEqual(before.opacity - 0.05);
+    expect(back.scale).toBeCloseTo(before.scale, 2);
     expect(back.opacity).toBeLessThan(1);
-    expect(back.scale).toBeCloseTo(turned.scale, 2);
+    expect(back.scale).toBeGreaterThan(start);
     expect(await surface(page).evaluate((el) => [el.matches(':popover-open'), el.inert])).toEqual([true, false]);
     // The rest takes no longer than the whole motion it turned to.
     const left = await motion.evaluate((el) => Math.max(0, ...el.getAnimations().map((animation) => Number(animation.effect!.getComputedTiming().endTime) - Number(animation.currentTime ?? 0))));
@@ -499,7 +572,8 @@ test.describe('placement', () => {
     expect(await surface(page).evaluate((el) => el.hasAttribute('data-held'))).toBe(false);
 
     // A window smaller than its least size (its header and its actions): moved back over the anchor, inside the margin.
-    await mount(page, `${anchorAt(100, 60)}${popover('headline="Empty the trash?" arrow', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 400, height: 160 });
+    // (A compact window: the popover keeps its own presentation, POP-43.)
+    await mount(page, `${anchorAt(100, 60)}${popover('headline="Empty the trash?" arrow compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 400, height: 160 });
     await open(page);
     const held = await rect(surface(page));
     expect(await surface(page).evaluate((el) => [el.hasAttribute('data-held'), el.hasAttribute('data-arrow')])).toEqual([true, false]);
@@ -585,7 +659,8 @@ test.describe('placement', () => {
 
 test.describe('size and layout', () => {
   test('POP-7: sized by its content the container is as wide as its widest part between its least and greatest width, wrapping beyond; sized by its anchor it is as wide as the anchor and follows it, at least the least width; it is never wider than the window less the margins', async ({ page }) => {
-    await mount(page, `${anchorAt(100, 100, { width: 240 })}${popover('label="Storage"', 'Ok.')}`, { width: 900, height: 600 });
+    // It narrows with the window below the compact width too: there it keeps its own presentation (POP-43).
+    await mount(page, `${anchorAt(100, 100, { width: 240 })}${popover('label="Storage" compact-presentation="own"', 'Ok.')}`, { width: 900, height: 600 });
     const [min, max, margin] = [await resolveToken(page, T('container-min-width')), await resolveToken(page, T('container-max-width')), await resolveToken(page, T('window-margin'))];
     const width = async () => (await rect(container(page))).width;
     await open(page);
@@ -688,7 +763,7 @@ test.describe('size and layout', () => {
     expect(await part(page, '.divider.below-header').count()).toBe(0);
 
     // Large text in a short window: the header and the actions alone leave no room, so all of it scrolls together.
-    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
+    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close" compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await open(page);
     await expect.poll(() => part(page, '.clip').evaluate((el) => el.classList.contains('crowded'))).toBe(true);
@@ -768,7 +843,7 @@ test.describe('size and layout', () => {
     expect(await innerStrokeAtEdges(page, content), 'the content, scrolled to its end').toEqual({ top: true, bottom: true });
 
     // Everything scrolls together: the box is the container's.
-    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
+    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close" compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await open(page);
     const all = part(page, '.clip');
@@ -848,9 +923,11 @@ test.describe('size and layout', () => {
     expect(tri.y - bottom(anchor)).toBeCloseTo(await resolveToken(page, T('offset')), 1);
     // It points at the middle of the anchor's edge (the container, start-aligned and wider, stands beside all of it).
     expect(centerX(tri)).toBeCloseTo(centerX(anchor), 1);
-    // One shape, one elevation: the container gives up its own shadow for the filter round both, in the container's color.
+    // One shape, one elevation: the container gives up its own shadow for the filter round both, in the container's color
+    // — set on the placed box, which draws what moves inside it: what moves keeps its own filter for the appearance's blur.
     expect(await css(container(page), 'box-shadow')).toBe('none');
-    expect(await part(page, '.motion').evaluate((el) => [el.style.filter.includes('#shade'), !!el.parentElement!.querySelector('filter#shade feMerge')])).toEqual([true, true]);
+    expect(await surface(page).evaluate((el) => [el.style.filter.includes('#shade'), !!el.querySelector('filter#shade feMerge')])).toEqual([true, true]);
+    expect(await part(page, '.motion').evaluate((el) => [el.style.filter, getComputedStyle(el).filter])).toEqual(['', 'none']);
     expect(await css(arrow, 'background-color')).toBe(await resolveColor(page, T('container-color')));
     expect(await arrow.evaluate((el) => [el.getAttribute('aria-hidden'), getComputedStyle(el).clipPath.startsWith('polygon')])).toEqual(['true', true]);
     // Off the corners: a narrow anchor at the container's end keeps the base arrow.inset (or the radius) from the end.
@@ -952,21 +1029,24 @@ test.describe('size and layout', () => {
     await mount(page, `${anchorAt(200, 60)}${popover('headline="Storage" closable close-label="Close storage" data-keep')}`);
     await open(page);
     const button = part(page, 'tanrei-button.close');
-    expect(await token(page, T('close-button-variant'))).toBe('text');
+    expect(await token(page, T('close-button-variant'))).toBe('tonal');
     // No variant attribute: the popover gives it, and the Button draws that variant from its own tokens.
     expect(await button.evaluate((el) => [el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')!.textContent, el.getAttribute('part')])).toEqual(['small', false, 'close', 'close-button']);
     await page.mouse.move(0, 0);
-    expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
-    expect((await rect(button.locator('button'))).height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    // Small: 32 × 32 in the default system, the small Button's own height.
+    const box = await rect(button.locator('button'));
+    expect(box.height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([32, 32]);
     await expect(page.getByRole('button', { name: 'Close storage', exact: true })).toHaveCount(1);
     // It answers as any Button does: hover paints the Button's own hovered container.
     await button.hover();
-    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-hovered-container-color'));
+    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-hovered-container-color'));
     // A system's choice of variant reaches it through the same channel.
     await page.mouse.move(0, 0);
-    await override(page, { [T('close-button-variant')]: 'tonal' });
+    await override(page, { [T('close-button-variant')]: 'text' });
     await set(page, { headline: 'Storage used' });
-    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
     // Activated by pointer, Enter and Space: close, once each, with the reason close.
     await button.click();
     expect(await log(page)).toEqual(['p:close']);
@@ -981,6 +1061,17 @@ test.describe('size and layout', () => {
     await expect.poll(() => seen.filter((text) => text.includes('POP-13')).length).toBe(1);
     expect(seen.find((text) => text.includes('POP-13'))).toContain('close-label is empty');
     await expect(button).toHaveCount(1);
+  });
+
+  test('POP-13: the presets keep the bare close glyph they inherited — m3-like, m3-expressive-like and cupertino give the close button the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+      await mountFixtures(page, spec, { icons: true, system, fixtures: spec.fixtures.filter((f) => f.id === 'closable') });
+      const button = fixtureHost(page, 'closable').locator('tanrei-button.close');
+      await expect(button, system).toHaveCount(1);
+      expect(await token(page, T('close-button-variant')), system).toBe('text');
+      await expect.poll(() => button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor), system).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+      expect((await rect(button.locator('button'))).height, system).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
+    }
   });
 
   test('POP-14: the content inherits comp.popover.content.color and plain text takes the body role; the popover does not lay out or restyle what it holds, which may be anything that takes input', async ({ page }) => {
@@ -1817,8 +1908,8 @@ test.describe('text size, windows and modes', () => {
 
   test('POP-30: an action whose one-line label is wider than the popover’s inner width, at 320 wide with text at 200 %, wraps its label and lies whole inside the container — nothing of it is clipped — while actions that fit are, to a hundredth of a pixel, what they are without the popover’s word', async ({ page }) => {
     const LABEL = 'Move everything to the archive';
-    await mount(page, `${anchorAt(110, 60)}${popover('headline="Archive the project?"', `Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button id="long" slot="actions" confirming>${LABEL}</tanrei-button>`)}
-      ${anchorAt(110, 60).replace('id="a"', 'id="a2"')}${popover('headline="Archive?"', 'Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button slot="actions" confirming>Archive</tanrei-button>', 'q').replace('anchor="a"', 'anchor="a2"')}`, { width: 320, height: 900 });
+    await mount(page, `${anchorAt(110, 60)}${popover('headline="Archive the project?" compact-presentation="own"', `Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button id="long" slot="actions" confirming>${LABEL}</tanrei-button>`)}
+      ${anchorAt(110, 60).replace('id="a"', 'id="a2"')}${popover('headline="Archive?" compact-presentation="own"', 'Nothing is deleted.<tanrei-button slot="actions" dismissive>Keep</tanrei-button><tanrei-button slot="actions" confirming>Archive</tanrei-button>', 'q').replace('anchor="a"', 'anchor="a2"')}`, { width: 320, height: 900 });
     await page.addStyleTag({ content: 'html { font-size: 200%; }' });
     await open(page);
     await settle(page);
@@ -1875,10 +1966,10 @@ test.describe('text size, windows and modes', () => {
     expect(await rect(container(page, 'q'))).toEqual(whole);
   });
 
-  test('POP-31: in a window 320 wide the fixture actions is 304 wide and every part of it can be reached; it stays an anchored dialog that is not modal at every size — no sheet, no scrim, no focus trap', async ({ page }) => {
+  test('POP-43: with compact-presentation own, in a window 320 wide the fixture actions is 304 wide and every part of it can be reached; it stays an anchored dialog that is not modal at every size — no sheet, no scrim, no focus trap', async ({ page }) => {
     const actions = spec.fixtures.find((f) => f.id === 'actions')!;
     const items = actions.items!.map((item) => `<tanrei-button slot="actions" ${Object.keys(item.props).join(' ')}>${item.content}</tanrei-button>`).join('');
-    await mount(page, `${anchorAt(110, 60)}${popover(`headline="${String(actions.props.headline)}" closable close-label="${String(actions.props.closeLabel)}"`, `${actions.content}${items}`)}`, { width: 320, height: 568 });
+    await mount(page, `${anchorAt(110, 60)}${popover(`headline="${String(actions.props.headline)}" closable close-label="${String(actions.props.closeLabel)}" compact-presentation="own"`, `${actions.content}${items}`)}`, { width: 320, height: 568 });
     const margin = await resolveToken(page, T('window-margin'));
     await page.locator('#a').focus();
     await open(page);
@@ -1911,6 +2002,8 @@ test.describe('text size, windows and modes', () => {
   test('POP-32: with forced colors the container and its arrow take an edge sys.border.hairline wide in the text color, as one outline, and the headline and plain text take the text color', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     await mountFixtures(page, spec, { icons: true });
+    // The compact- fixtures are the real overlay, which plays its entrance (POP-26): it is read once that has ended.
+    await motionEnded(page);
     const canvasText = await page.evaluate(() => {
       const probe = document.createElement('div');
       probe.style.color = 'CanvasText';
@@ -2047,10 +2140,226 @@ test.describe('text size, windows and modes', () => {
   });
 });
 
+test.describe('compact window', () => {
+  // A compact window under the default system: narrower than comp.popover.compact.window-width (600).
+  const COMPACT = popoverWindow;
+  const WIDE = { width: 800, height: 600 };
+  const B = (name: string) => `--tanrei-comp-bottom-sheet-${name}`;
+  const sheet = (page: P, id = 'p') => page.locator(`${TAG}#${id} > dialog.sheet`);
+  const isSheet = (page: P, id = 'p') => host(page, id).evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet')?.matches('[open]:modal'));
+  const isAnchored = (page: P, id = 'p') => host(page, id).evaluate((el) => !!el.shadowRoot!.querySelector('.surface')?.matches(':popover-open'));
+  /** Opens by the opener's press, as a product does, and waits for the sheet's motion to end. */
+  async function openSheet(page: P, id = 'p') {
+    await page.locator('#a').click();
+    await expect.poll(() => isSheet(page, id)).toBe(true);
+    await settle(page);
+    await motionEnded(sheet(page, id));
+  }
+  const page320 = (attributes = '', content = `The 12 files in it will be deleted.<button id="in" type="button">Details</button>${ACTIONS}`) =>
+    `<div style="padding: 120px 40px 0"><button id="a" type="button">Storage</button> <button id="behind" type="button">Behind</button></div>${popover(`headline="Empty the trash?" ${attributes}`, content)}`;
+
+  test('POP-39: narrower than compact.window-width it takes the bottom sheet’s appearance — at the bottom edge, as wide as the window up to its greatest width, its color, elevation and top corners, square at the bottom, no arrow, placement and width ignored; never taller than the window less the top margin; 0 keeps it beside its anchor', async ({ page }) => {
+    await mount(page, page320('placement="top" width="anchor" arrow'), COMPACT);
+    expect(COMPACT.width).toBeLessThan(await resolveToken(page, T('compact-window-width')));
+    await openSheet(page);
+    const d = sheet(page);
+    const [maxWidth, radius] = [await resolveToken(page, B('container-max-width')), await resolveToken(page, B('container-shape'))];
+    const box = await rect(d);
+    expect(box.x).toBeCloseTo(0, 1);
+    expect(box.width).toBeCloseTo(Math.min(COMPACT.width, maxWidth), 1);
+    expect(bottom(box)).toBeCloseTo(COMPACT.height, 1);
+    for (const corner of ['top-left', 'top-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBeCloseTo(radius, 1);
+    for (const corner of ['bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(0);
+    expect(await css(d, 'background-color')).toBe(await resolveColor(page, B('container-color')));
+    expect(await css(d, 'box-shadow')).toBe(await resolveShadow(page, B('container-elevation')));
+    // No arrow, no anchored surface: the sheet is the one container.
+    await expect(host(page).locator('.arrow')).toHaveCount(0);
+    expect(await isAnchored(page)).toBe(false);
+    // Its parts keep their own tokens: the headline's color is the popover's.
+    expect(await css(part(page, '.headline'), 'color')).toBe(await resolveColor(page, T('headline-color')));
+    // Never taller than the window less the top margin: a long content scrolls between the header and the actions.
+    await host(page).evaluate((el, text) => el.insertAdjacentText('afterbegin', text), LONG);
+    const top = await resolveToken(page, B('container-margin-block-start'));
+    await expect.poll(async () => (await rect(d)).y).toBeCloseTo(top, 0);
+    expect(bottom(await rect(d))).toBeCloseTo(COMPACT.height, 1);
+    expect(await part(page, '.content').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await set(page, { open: false });
+    await expect.poll(() => isSheet(page)).toBe(false);
+    // 0: no window is compact — beside its anchor in the same window.
+    await rootTokens(page, { [T('compact-window-width')]: '0px' });
+    await set(page, { open: true });
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+  });
+
+  test('POP-40: as a sheet it is a modal dialog over the bottom sheet’s scrim — everything behind it inert, the page held from scrolling, focus in and kept in; Escape, a press on the scrim and the close button ask to close with escape, outside and close; focus goes back to the opener', async ({ page }) => {
+    await mount(page, page320('closable close-label="Close"'), COMPACT);
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div style="block-size: 3000px"></div>'));
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isSheet(page)).toBe(true);
+    await settle(page);
+    const d = sheet(page);
+    expect(await d.evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-modal'), el.getAttribute('aria-label')])).toEqual(['dialog', 'true', 'Empty the trash?']);
+    await expect(page.getByRole('dialog', { name: 'Empty the trash?' })).toHaveCount(1);
+    expect(await d.evaluate((el) => getComputedStyle(el, '::backdrop').backgroundColor)).toBe(await resolveColor(page, B('scrim-color')));
+    // The whole window is the scrim, the popover's own.
+    expect(await page.evaluate(() => document.elementFromPoint(2, 2)?.localName)).toBe(TAG);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
+    // Focus is in it (the container), and stays in: what is behind cannot take it, and Tab wraps.
+    expect(await active(page)).toBe('dialog.container.sheet');
+    await page.locator('#behind').evaluate((el) => (el as HTMLElement).focus());
+    expect(await active(page)).toBe('dialog.container.sheet');
+    await tab(page);
+    expect(await activeButton(page)).toBe('Close');
+    await tab(page);
+    expect(await active(page)).toBe('#in');
+    await tab(page);
+    await tab(page);
+    expect(await activeButton(page)).toBe('Empty');
+    await tab(page);
+    expect(await activeButton(page)).toBe('Close');
+    await page.keyboard.press('Shift+Tab');
+    expect(await activeButton(page)).toBe('Empty');
+    // The opener still says it opens a dialog, and that it is open.
+    expect(await page.locator('#a').evaluate((el) => [el.getAttribute('aria-haspopup'), el.getAttribute('aria-expanded')])).toEqual(['dialog', 'true']);
+    // Escape: close with escape, focus back on the opener, the page given back.
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isSheet(page)).toBe(false);
+    expect(await log(page)).toEqual(['p:escape']);
+    await expect(page.locator('#a')).toBeFocused();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('visible');
+    // A press on the scrim: outside.
+    await openSheet(page);
+    await page.mouse.click(COMPACT.width / 2, 20);
+    await expect.poll(() => isSheet(page)).toBe(false);
+    // The close button: close.
+    await openSheet(page);
+    await host(page).locator('tanrei-button.close').click();
+    await expect.poll(() => isSheet(page)).toBe(false);
+    expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
+    // An action does not close it (POP-17).
+    await openSheet(page);
+    await host(page).locator('tanrei-button[slot="actions"]', { hasText: 'Empty' }).click();
+    expect(await isSheet(page)).toBe(true);
+    expect(await log(page)).toEqual(['p:escape', 'p:outside', 'p:close']);
+  });
+
+  test('POP-41: as a sheet it slides up from below the bottom edge over the bottom sheet’s enter motion and down over its exit motion, the scrim fading with it; it only fades where motion is reduced', async ({ page }) => {
+    await mount(page, page320(), { ...COMPACT, reducedMotion: false });
+    // The motions at 40 s, so that what is read is read on the way; the durations are read from the transitions.
+    await rootTokens(page, { [B('motion-enter-duration')]: '40s', [B('motion-exit-duration')]: '40s' });
+    await set(page, { open: true });
+    await expect.poll(() => isSheet(page)).toBe(true);
+    const d = sheet(page);
+    const running = await d.evaluate((el) => el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })));
+    expect(running).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    expect(running.map((r) => r.property)).not.toContain('scale');
+    expect(running.map((r) => r.property)).not.toContain('opacity');
+    // On its way up: below its place, by no more than its own height.
+    const [moving, height] = await d.evaluate((el) => [new DOMMatrix(getComputedStyle(el).transform === 'none' ? undefined : getComputedStyle(el).transform).m42 || Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0'), el.getBoundingClientRect().height]);
+    expect(moving).toBeGreaterThan(0);
+    expect(moving).toBeLessThanOrEqual(height + 0.5);
+    await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Closing slides it down (where the engine keeps a closed dialog in the top layer for its exit), the scrim fading.
+    const leaving = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      el.open = false;
+      await el.updateComplete;
+      return (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
+    });
+    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    else expect(leaving).toEqual([]);
+    const out = await d.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000 };
+    });
+    expect(out.properties).toEqual(expect.arrayContaining(['translate', 'display', 'overlay']));
+    expect(out.duration).toBe(40_000);
+    await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Reduced: it fades in place.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reduced = await host(page).evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      el.open = true;
+      await el.updateComplete;
+      return (el.shadowRoot!.querySelector('dialog') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
+    });
+    expect(reduced).toContain('opacity');
+    expect(reduced).not.toContain('translate');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  test('POP-42: crossing compact.window-width while open changes the presentation at once — no motion, no close — keeping the element that has focus; focus on the opener moves into the sheet', async ({ page }) => {
+    await mount(page, page320(), WIDE);
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await settle(page);
+    await page.locator('#in').focus();
+    // No motion: no transition starts in the popover's tree at either switch.
+    await watchTransitions(host(page));
+    await page.setViewportSize(COMPACT);
+    await expect.poll(() => isSheet(page)).toBe(true);
+    await settle(page);
+    expect(await transitionsRun(host(page))).toEqual([]);
+    await expect(page.locator('#in')).toBeFocused();
+    await watchTransitions(host(page));
+    await page.setViewportSize(WIDE);
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+    await settle(page);
+    expect((await transitionsRun(host(page))).filter((run) => run.on.includes('motion') || run.on.includes('sheet'))).toEqual([]);
+    await expect(page.locator('#in')).toBeFocused();
+    expect(await log(page)).toEqual([]);
+    // Focus on the opener (Shift+Tab from the popover's first element leaves it open): the sheet takes it in.
+    await page.locator('#in').focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.locator('#a')).toBeFocused();
+    expect(await isOpen(page)).toBe(true);
+    await page.setViewportSize(COMPACT);
+    await expect.poll(() => isSheet(page)).toBe(true);
+    expect(await active(page)).toBe('dialog.container.sheet');
+    expect(await log(page)).toEqual([]);
+  });
+
+  test('POP-43: compact-presentation own, or initial-focus anchor, keeps it beside its anchor and not modal in a compact window; an unknown value is a sheet, and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, `${page320('compact-presentation="own"')}`, COMPACT);
+    await page.locator('#a').click();
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(host(page).locator('dialog.sheet')).toHaveCount(0);
+    expect(await container(page).evaluate((el) => el.getAttribute('aria-modal'))).toBe(null);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('visible');
+    await page.locator('#a').click();
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await mount(page, `${page320('initial-focus="anchor"')}`, COMPACT);
+    // (By the keyboard: a press does not focus a button in WebKit.)
+    await page.locator('#a').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isAnchored(page)).toBe(true);
+    await expect(page.locator('#a')).toBeFocused();
+    await page.locator('#a').click();
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await mount(page, `${page320('compact-presentation="beside"')}`, COMPACT);
+    await openSheet(page);
+    expect(seen.some((text) => text.includes('POP-43') && text.includes('"beside"'))).toBe(true);
+  });
+
+  test('no axe violations as a sheet, in light and dark', async ({ page }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      await page.setViewportSize(COMPACT);
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: [spec.fixtures.find((f) => f.id === 'compact')!] });
+      await expect.poll(() => fixtureHost(page, 'compact').evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet[open]'))).toBe(true);
+      await settle(page);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
+    }
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark, in place and in the top layer, open and closed', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: IN_PLACE });
       await settle(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
@@ -2071,15 +2380,16 @@ test.describe('accessibility', () => {
 
 test.describe('fixtures', () => {
   test.beforeEach(async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
+    await mountFixtures(page, spec, { icons: true, fixtures: IN_PLACE });
     await settle(page);
   });
 
   test('every fixture is mounted open on its 480 × 480 stage against a medium outlined Button at its centre, drawn in place, with the parts and the name its props give it', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(32);
+    expect(spec.fixtures.length).toBe(34);
+    expect(COMPACT_FIXTURES.map((f) => f.id)).toEqual(['compact', 'compact-own']);
     const gap = await resolveToken(page, T('offset'));
     const arrowHeight = await resolveToken(page, T('arrow-height'));
-    for (const f of spec.fixtures) {
+    for (const f of IN_PLACE) {
       const [frame, anchor] = [await rect(stage(page, f.id)), await rect(stage(page, f.id).locator('> tanrei-button'))];
       expect([frame.width, frame.height], f.id).toEqual([480, 480]);
       expect(Math.abs(centerX(anchor) - centerX(frame)) < 1 && Math.abs(centerY(anchor) - centerY(frame)) < 1, f.id).toBe(true);
@@ -2116,9 +2426,25 @@ test.describe('fixtures', () => {
     expect(placed.x - anchor.x).toBeGreaterThan(20);
   });
 
-  for (const f of spec.fixtures) {
+  for (const f of IN_PLACE) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);
+    });
+  }
+});
+
+test.describe('compact fixtures', () => {
+  // Each alone in its 360 × 640 window, the real overlay opened at mount; the baseline is the window, because a sheet
+  // and its scrim are in the top layer (POP-39, POP-43).
+  for (const f of COMPACT_FIXTURES) {
+    test(`snapshot: ${f.id}`, async ({ page }) => {
+      await page.setViewportSize(popoverWindow);
+      await mountFixtures(page, spec, { icons: true, fixtures: [f] });
+      const own = fixtureHost(page, f.id);
+      await expect.poll(() => own.evaluate((el) => !!el.shadowRoot!.querySelector('dialog.sheet[open], .surface:popover-open'))).toBe(true);
+      await settle(page);
+      await motionEnded(own.locator('dialog.sheet, .surface > .motion').first());
+      await expect(page).toHaveScreenshot([spec.name, `${f.id}.png`]);
     });
   }
 });

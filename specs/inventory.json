@@ -79,6 +79,13 @@
       "listing": "default"
     },
     {
+      "name": "meter",
+      "title": "Meter",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",
@@ -257,7 +264,7 @@
     {
       "name": "toolbar",
       "title": "Toolbar",
-      "category": "navigation",
+      "category": "actions",
       "level": "base",
       "listing": "default"
     },
@@ -629,6 +636,20 @@
       "name": "swatch",
       "title": "Swatch",
       "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "category": "containment",
       "level": "base",
       "listing": "default"
     }

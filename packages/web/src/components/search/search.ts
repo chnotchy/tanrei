@@ -46,6 +46,7 @@ import { groupStyles, rowStyles, styles, suggestionStyles } from './search.style
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -67,6 +68,9 @@ const BARS: readonly TanreiSearchBar[] = ['field', 'button', 'icon'];
 /** What the product's search is doing: nothing awaited, a query running, or a query failed. */
 export type TanreiSearchStatus = 'idle' | 'loading' | 'error';
 const STATUSES: readonly TanreiSearchStatus[] = ['idle', 'loading', 'error'];
+/** Whether a row of the view keeps the leading icon column where it has no icon (SRC-52). A closed set: the menu's values. */
+export type TanreiSearchIconSpace = 'auto' | 'always' | 'never';
+const ICON_SPACES: readonly TanreiSearchIconSpace[] = ['auto', 'always', 'never'];
 
 /**
  * Why the search closes its view (SRC-6), by the spec's names. `back` is the full-screen view's back button, or the
@@ -96,7 +100,7 @@ export interface TanreiSearchSelectDetail {
  *
  * @tag tanrei-search-suggestion
  */
-export class TanreiSearchSuggestion extends LitElement {
+export class TanreiSearchSuggestion extends TanreiElement {
   static override styles = suggestionStyles;
 
   static override properties: PropertyDeclarations = {
@@ -167,7 +171,7 @@ const contentNodes = (host: Element): (Element | Text)[] =>
  * suggestion's row, drawn by the element because the row is its own `<a>` — and the excerpt with its marks. It holds no
  * listener of its own: the search it is in answers its press, its keys and its activation.
  */
-export abstract class TanreiSearchRow extends LitElement {
+export abstract class TanreiSearchRow extends TanreiElement {
   static override properties: PropertyDeclarations = {
     value: { type: String },
     headline: { type: String },
@@ -217,7 +221,7 @@ export abstract class TanreiSearchRow extends LitElement {
   /** Web only: forwarded to the anchor's `download`. */
   download: string | null = null;
 
-  /** @internal SRC-42: the search keeps the leading icon column in every row while any suggestion or result has an icon. */
+  /** @internal SRC-42, SRC-52: the row keeps the leading icon column — the search's iconSpace keeps it, or the row has an icon. */
   iconColumn = false;
 
   /** SRC-45: the link the row is while it has a destination, and what a debug build is told (src/primitives/link.ts). */
@@ -542,7 +546,7 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  * @fires {CustomEvent<TanreiSearchSelectDetail>} select - The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
  * @fires {CustomEvent<TanreiSearchToggleDetail>} toggle - The search opened or closed its view: `detail.expanded` (and the element's `expanded`) is the new value, and `detail.reason` says why it closed (`escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out`, `shortcut`), or `null` when it opened.
  */
-export class TanreiSearch extends LitElement {
+export class TanreiSearch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'search');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -583,6 +587,7 @@ export class TanreiSearch extends LitElement {
     bindShortcut: { type: Boolean, attribute: 'bind-shortcut' },
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     inline: { type: Boolean, reflect: true },
     name: { type: String, reflect: true },
     suggestions: { state: true },
@@ -662,6 +667,13 @@ export class TanreiSearch extends LitElement {
    */
   statusText = '';
 
+  /**
+   * Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon
+   * column where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or
+   * result of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).
+   */
+  iconSpace: TanreiSearchIconSpace = 'auto';
+
   /** For tests and documentation: draws the open view in place, without the overlay's behaviour. */
   inline = false;
 
@@ -671,7 +683,7 @@ export class TanreiSearch extends LitElement {
   protected suggestions: TanreiSearchSuggestion[] = [];
   /** The results and result groups (children), in the product's order. */
   protected entries: (TanreiSearchResult | TanreiSearchResultGroup)[] = [];
-  /** SRC-16, SRC-42: any suggestion or result has a leading icon, so every row keeps the column. */
+  /** SRC-16, SRC-42, SRC-52: every row of the view keeps the leading icon column, as iconSpace says. */
   protected iconColumn = false;
   /** The active suggestion's index (the input's active descendant), or -1. */
   protected active = -1;
@@ -891,6 +903,22 @@ export class TanreiSearch extends LitElement {
   }
 
   /** The suggestions, the results and the result groups (children), and whether anything else is the view's content. */
+  /**
+   * SRC-16, SRC-42, SRC-52: the leading icon column, decided for the view as a whole — every row while iconSpace keeps it
+   * (auto: while any suggestion or result has an icon; always), and otherwise a row that has an icon of its own.
+   */
+  private decideIconColumn(suggestions: readonly TanreiSearchSuggestion[] = this.suggestions) {
+    const space: TanreiSearchIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
+    const rows = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
+    const any = suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
+    const every = space === 'always' || (space === 'auto' && any);
+    if (every !== this.iconColumn) this.iconColumn = every;
+    for (const row of rows) {
+      const kept = every || !!row.leadingIcon;
+      if (row.iconColumn !== kept) row.iconColumn = kept;
+    }
+  }
+
   private readChildren(records?: MutationRecord[]) {
     // SRC-43: a result's excerpt is its child content; the one observer tells each result whose content changed.
     if (records) {
@@ -921,11 +949,7 @@ export class TanreiSearch extends LitElement {
         : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim(),
     );
     if (content !== this.hasContent) this.hasContent = content;
-    // SRC-16, SRC-42: the leading icon column is kept in every row of the view while any suggestion or result has an icon.
-    const rows = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
-    const icons = suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
-    if (icons !== this.iconColumn) this.iconColumn = icons;
-    for (const row of rows) if (row.iconColumn !== icons) row.iconColumn = icons;
+    this.decideIconColumn(suggestions);
     this.checkSuggestions();
     this.checkResults();
     // SRC-51: the result that had focus was removed or replaced: focus goes to the input rather than out of the view.
@@ -1545,6 +1569,11 @@ export class TanreiSearch extends LitElement {
     }
     if (changed.has('bar') && !BARS.includes(this.bar)) report(this, 'SRC-27', `bar "${this.bar}" is not a value the search defines; it is drawn as "field"`);
     if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SRC-27', `status "${this.status}" is not a value the search defines; it is read as "idle"`);
+    // SRC-52: an iconSpace the search does not define is auto, reported; a change decides the column again.
+    if (changed.has('iconSpace')) {
+      if (!ICON_SPACES.includes(this.iconSpace)) report(this, 'SRC-52', `iconSpace "${this.iconSpace}" is not a value the search defines; it is drawn as "auto"`);
+      this.decideIconColumn();
+    }
     if (this.active >= this.suggestions.length || !this.expanded) this.active = -1;
     // SRC-44: a group stands group.gap below whatever stands above it in the view and above whatever follows it; two
     // groups that follow each other stand one gap apart.
@@ -1754,7 +1783,7 @@ export class TanreiSearch extends LitElement {
                 @pointerleave=${this.rowPress.release}
                 @click=${this.onRowClick}
               >
-                ${icons ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
+                ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
                 <span class="text">
                   <span class="headline" id="headline-${i}">${s.headline}</span>
                   ${s.supportingText ? html`<span class="supporting" id="supporting-${i}">${s.supportingText}</span>` : nothing}
@@ -1865,6 +1894,7 @@ export class TanreiSearch extends LitElement {
       <dialog
         part="dialog"
         class=${hung ? 'full hung' : 'full'}
+        data-tanrei-appear
         ?data-tanrei-shape=${hung}
         tabindex="-1"
         aria-label=${ifDefined(this.label || undefined)}

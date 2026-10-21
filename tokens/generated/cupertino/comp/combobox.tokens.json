@@ -351,34 +351,34 @@
           "state-duration": {
             "$description": "How long colors and edge widths take to follow a change of state.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$description": "How long an option's ripple takes to grow.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}"
+            "$value": "{tanrei.sys.motion.role.feedback}"
           },
           "open-duration": {
             "$description": "How long the list takes to appear.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}"
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$description": "How long the list takes to go.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}"
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "list": {
@@ -455,9 +455,15 @@
             }
           },
           "shape": {
-            "$description": "The corners of a row's highlight and of its state layer.",
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.small}"
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The corners of a row's highlight and of its state layer: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.combobox.list.shape}",
+                "inset": "{tanrei.comp.combobox.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
             "$description": "Padding at each end of a row.",

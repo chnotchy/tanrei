@@ -15,10 +15,58 @@ export type Change = (live?: boolean) => void;
 const ref = (id: string) => `{${id}}`;
 const unref = (value: unknown) => (typeof value === 'string' && /^\{[^}]+\}$/.test(value) ? value.slice(1, -1) : undefined);
 
+/** How long after a key that stepped a control is released the steps are one adjustment: a step within it continues it. */
+export const KEY_STEPS_REST = 300;
+
+/**
+ * The steps a person makes with keys on one control — Up and Down Arrow, Page Up and Page Down, every repeat of a held
+ * key, presses that follow one another — are one adjustment, as a drag is: each step is shown as it is made, and the
+ * adjustment is committed when the keys rest (`KEY_STEPS_REST` after the last key is released, with no step since),
+ * at Enter, or when focus leaves the control. A number input and a slider each commit every step a key makes (a
+ * `change` under each `keydown`), and committing computes the layer — the whole build: twenty presses of Up Arrow on a
+ * palette's hue were twenty long tasks, one under each key.
+ *
+ * `keyed()` says whether the `change` being heard was made by a key: it is asked in the control's own `change`
+ * listener, which runs inside the `keydown` that stepped (the capture listener on the host runs before the control
+ * steps, the bubbling one after). `hold()` marks the step uncommitted; `commit` makes the commit.
+ */
+function keySteps(control: HTMLElement, commit: () => void) {
+  let keyed = false;
+  let held = false;
+  let timer: number | undefined;
+  const flush = () => {
+    window.clearTimeout(timer);
+    if (!held) return;
+    held = false;
+    commit();
+  };
+  control.addEventListener('keydown', (event) => {
+    window.clearTimeout(timer);
+    // Enter commits what is typed (the control's own `change`): never a step.
+    keyed = event.key !== 'Enter';
+  }, true);
+  control.addEventListener('keydown', (event) => {
+    keyed = false;
+    if (event.key === 'Enter') flush();
+  });
+  control.addEventListener('keyup', () => {
+    window.clearTimeout(timer);
+    if (held) timer = window.setTimeout(flush, KEY_STEPS_REST);
+  });
+  control.addEventListener('focusout', flush);
+  return {
+    keyed: () => keyed,
+    hold: () => void (held = true),
+    /** A `change` that is a commit of its own (a text typed, a drag let go): the held steps are in it. */
+    taken: () => ((held = false), window.clearTimeout(timer)),
+  };
+}
+
 /**
  * A number: `<tanrei-number-field>` with its unit as the suffix. `input` is the live value (a keystroke, a step),
  * `change` the committed one, held within `min` and `max` by the field. `range` puts a `<tanrei-slider>` before it,
- * each one's `input` written to the other: a drag is shown as it goes and written when the press ends.
+ * each one's `input` written to the other: a drag is shown as it goes and written when the press ends. A step made
+ * with a key, on either, is shown as it is made and written when the keys rest (`keySteps`).
  */
 export function numberWidget(ctx: Ctx, { label, labelHidden = true, rangeLabel = label, value, min, max, step = 'any', unit = '', range = false, digits = 4, placeholder, attrs = {}, rangeAttrs = {}, onchange }: { label: string; labelHidden?: boolean; rangeLabel?: string; value: number | undefined; min?: number; max?: number; step?: number | 'any'; unit?: string; range?: boolean; digits?: number; placeholder?: string; attrs?: Json; rangeAttrs?: Json; onchange: Change }): Widget<number> & { number: HTMLElementTagNameMap['tanrei-number-field']; slider: HTMLElementTagNameMap['tanrei-slider'] | null; set(value: number | undefined): void; sync(value: number): void } {
   const { words } = ctx.t;
@@ -28,11 +76,21 @@ export function numberWidget(ctx: Ctx, { label, labelHidden = true, rangeLabel =
   number.value = value === undefined ? null : +trim(value);
   // The slider is named in words (its own label is never drawn: the row's title stands beside it).
   const slider = range ? h('tanrei-slider', { label: rangeLabel, min, max, step: step === 'any' ? 0 : step, ...rangeAttrs }) : null;
+  const commit = () => onchange();
   if (slider) {
     slider.value = value ?? min ?? 0;
+    const sliderKeys = keySteps(slider, commit);
     slider.addEventListener('input', () => ((current = +trim(slider.value)), (number.value = current), onchange(true)));
-    slider.addEventListener('change', () => ((current = +trim(slider.value)), (number.value = current), onchange()));
+    slider.addEventListener('change', () => {
+      current = +trim(slider.value);
+      number.value = current;
+      // A key's step was shown by its `input`; it is written when the keys rest.
+      if (sliderKeys.keyed()) return sliderKeys.hold();
+      sliderKeys.taken();
+      onchange();
+    });
   }
+  const keys = keySteps(number, commit);
   number.addEventListener('input', (event) => {
     const typed = (event as unknown as CustomEvent<{ value: number | null }>).detail.value;
     current = typed ?? undefined;
@@ -44,6 +102,9 @@ export function numberWidget(ctx: Ctx, { label, labelHidden = true, rangeLabel =
   number.addEventListener('change', () => {
     current = number.value ?? undefined;
     if (slider && current !== undefined) slider.value = current;
+    // A key's step was shown by its `input`; it is written when the keys rest.
+    if (keys.keyed()) return keys.hold();
+    keys.taken();
     onchange();
   });
   return {
@@ -109,7 +170,7 @@ export function tokenSelect(ctx: Ctx, { label, labelHidden = false, ids, value, 
 /** A mandatory reason or rationale: a required text field, in error once what was typed is too short to count. */
 export function reasonWidget(ctx: Ctx, { label, value = '', placeholder, hint, onchange }: { label: string; value?: string; placeholder?: string; hint: string; onchange: Change }): Widget<string> {
   // The dictionary's label says "(required)" in words; the field says it with its own mark.
-  const field = h('tanrei-text-field', { label: label.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), requirement: 'required', placeholder, 'supporting-text': hint, 'error-text': hint, autocomplete: 'off', 'data-reason': true });
+  const field = h('tanrei-text-field', { label: label.replace(/\s*[（(][^）)]*[）)]\s*$/, ''), required: true, placeholder, 'supporting-text': hint, 'error-text': hint, autocomplete: 'off', 'data-reason': true });
   field.value = value;
   const enough = () => field.value.trim().length >= MIN_REASON;
   let touched = value.length > 0;
@@ -259,7 +320,7 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
       const chip = h('tanrei-chip', { size: 'small', label: family === 'system' ? t.fonts.system : family, 'data-suggest': family, onclick: () => (family === 'system' ? ((model = { ...model, system: true }), changed(), platform.focus()) : add(family)) });
       suggestions.insertBefore(suggestions.querySelector(`[data-suggest="${CSS.escape(family)}"]`) ?? chip, at ?? null);
     });
-    platform.selected = model.system;
+    platform.checked = model.system;
     platform.label = `${t.fonts.platform} \u2066${(model.keywords.length ? model.keywords : [systemKeywordFor(fallback)]).join(', ')}\u2069`;
     const names = generics();
     if ([...generic.children].map((option) => (option as HTMLElement).dataset.value).join() !== names.join()) generic.replaceChildren(...names.map((name) => h('tanrei-radio-button', { value: name, label: name, 'data-value': name })));
@@ -273,7 +334,7 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
 
   input.addEventListener('change', () => input.value && add(input.value));
   input.addEventListener('input', () => (input.error = false));
-  platform.addEventListener('change', () => ((model = { ...model, system: platform.selected }), changed()));
+  platform.addEventListener('change', () => ((model = { ...model, system: platform.checked }), changed()));
   const el = h(
     'div',
     { class: 'ts-stack ts-stack-editor', 'data-stack': true },

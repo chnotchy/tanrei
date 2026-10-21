@@ -5,8 +5,8 @@ import { ID_PATTERN, LEVELS, stringifyLayer } from './core.js';
 import { createSourceDraft } from './draft.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
-import { essentialsLevel, groupsLevel } from './ui/levels';
+import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, drawnNear, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
+import { essentialsLevel, groupsLevel, groupsPanels } from './ui/levels';
 import { createPreview } from './ui/preview';
 import { sourceLevel } from './ui/source';
 import { type TreeState, tokensLevel } from './ui/tokens';
@@ -169,11 +169,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
 
   // ── accessibility ─────────────────────────────────────────────────────────────────────────────
-  function drawAccessibility() {
+  /** The contrast pairs and the build's warnings: a panel of every level but Essentials. */
+  function accessibilityPanel() {
+    if (level === 'essentials') return null;
     const pairs = h('div', { class: 'ts-pairs', 'data-pairs': true });
     const total = h('bdi', { 'data-warnings-count': true });
-    const warnings = scrollingList(t.a11y.all, { 'data-warnings': true });
-    const notices = h('ul', { class: 'ts-warnings' });
+    // The build's warnings are listed in a fold, written when it first opens; their count is said on it all along.
+    let warnings: HTMLUListElement | undefined;
+    const listWarnings = () => last && warnings?.replaceChildren(...(last.warnings.length ? last.warnings.map((warning: string) => h('li', {}, isolated(warning))) : [h('li', { text: t.a11y.none })]));
     const refresh = () => {
       if (!last) return;
       pairs.replaceChildren(
@@ -192,16 +195,17 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       const count = last.warnings.length;
       total.textContent = String(count);
       // What the build says is the build's sentence: a run of its own direction inside the list.
-      warnings.replaceChildren(...(count ? last.warnings.map((warning: string) => h('li', {}, isolated(warning))) : [h('li', { text: t.a11y.none })]));
-      notices.replaceChildren(...last.notices.map((notice: string) => h('li', {}, isolated(notice))));
+      listWarnings();
     };
     refresh();
     ctx.onUpdate(refresh);
-    a11y.replaceChildren(level === 'essentials' ? '' : panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } }, warnings)), notices));
+    const all = fold({ label: t.a11y.all, trailing: total, attrs: { 'data-warnings-wrap': true } });
+    all.addEventListener('toggle', () => all.open && !warnings && (all.append((warnings = scrollingList(t.a11y.all, { 'data-warnings': true }))), listWarnings()));
+    return panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all));
   }
 
   // ── export / save ─────────────────────────────────────────────────────────────────────────────
-  function drawExport() {
+  function exportPanel() {
     const compact = level === 'essentials';
     const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'data-id': true }, oninput: (value) => {
       const result = studio.setMeta(layer, { id: value.trim() }) as Json;
@@ -244,17 +248,20 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
     // The layer to import: JSON, in a text field that holds code, which says itself what does not parse.
-    const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
-    const importFailed = (message: string) => ((importArea.errorText = message), (importArea.error = Boolean(message)));
-    const importApply = button(t.import.apply, () => {
-      try {
-        importLayer(importArea.value);
-        importFailed('');
-        ctx.announce(t.import.done);
-      } catch (problem) {
-        importFailed((problem as Error).message);
-      }
-    }, { 'data-import-apply': true });
+    const importForm = () => {
+      const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
+      const importFailed = (message: string) => ((importArea.errorText = message), (importArea.error = Boolean(message)));
+      const importApply = button(t.import.apply, () => {
+        try {
+          importLayer(importArea.value);
+          importFailed('');
+          ctx.announce(t.import.done);
+        } catch (problem) {
+          importFailed((problem as Error).message);
+        }
+      }, { 'data-import-apply': true });
+      return [h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply)];
+    };
 
     const refresh = () => {
       if (document.activeElement !== id) id.value = layer.id ?? '';
@@ -273,25 +280,26 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     refresh();
     ctx.onUpdate(refresh);
 
-    exportHost.replaceChildren(
-      panel(
-        ctx,
-        { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
+    // The import is written when its fold first opens.
+    const importFold = fold({ label: t.import.title, attrs: { class: 'ts-import' } });
+    importFold.addEventListener('toggle', () => importFold.open && importFold.children.length === 1 && importFold.append(...importForm()));
+    return panel(
+      ctx,
+      { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
+      h(
+        'div',
+        { class: `ts-export-grid${compact || level === 'source' ? ' ts-export-compact' : ''}` },
         h(
           'div',
-          { class: `ts-export-grid${compact || level === 'source' ? ' ts-export-compact' : ''}` },
-          h(
-            'div',
-            { class: 'ts-export-side' },
-            h('div', { class: compact ? 'ts-grid-2' : 'ts-stack' }, id, compact ? null : name),
-            checks,
-            h('div', { class: 'ts-actions' }, copy, download, reset),
-            compact || adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
-          ),
-          compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
+          { class: 'ts-export-side' },
+          h('div', { class: compact ? 'ts-grid-2' : 'ts-stack' }, id, compact ? null : name),
+          checks,
+          h('div', { class: 'ts-actions' }, copy, download, reset),
+          compact || adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
         ),
-        compact ? null : folds({}, fold({ label: t.import.title, attrs: { class: 'ts-import' } }, h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply))),
+        compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
       ),
+      compact ? null : folds({}, importFold),
     );
   }
 
@@ -402,40 +410,48 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // ── what is typed, stepped or dragged ─────────────────────────────────────────────────────────
   // A drag reports a value for every move of the pointer — a picker or a slider, many times a frame — and computing
   // the layer is the whole build: the token engine, the emitter and the checks. So a value shown while it moves is
-  // shown at the next frame, the latest one only. A palette's color is drawn from the palette alone, into the sheet
-  // that is there (core.paletteProperties, preview.patch); the layer is computed when the value is committed, or once
-  // the pointer has rested a moment — and every other value is computed at that frame.
+  // shown at the next frame, the latest one only. A palette's color and a dial are drawn without computing the layer,
+  // into the sheet that is there (core.liveProperties, preview.patch); the layer is computed when the value is
+  // committed, or once the pointer has rested a moment — and every other value is computed at that frame.
   let frame = 0;
   let resting: number | undefined;
   const REST = 150;
   function follow() {
     frame ||= requestAnimationFrame(() => {
       frame = 0;
-      const properties = last ? (studio.paletteProperties(last, layer) as Record<string, string> | null) : null;
+      const properties = last ? (studio.liveProperties(last, layer) as Record<string, string> | null) : null;
       if (!properties) return update();
       preview.patch(properties);
       window.clearTimeout(resting);
+      window.clearTimeout(wording);
       resting = window.setTimeout(update, REST);
     });
   }
 
   // ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
+  // What is typed into a name, a reason or a description is no value (core.valueKey): the page shows it at once —
+  // the file, the fields, the checks — and the layer is not computed for it. A reason, a rationale or a palette's
+  // description is also written into the model as text (a token's "fixed" reason in Every token): those words catch
+  // up once the typing has rested, as a dragged value does.
+  let wording: number | undefined;
   const COMPUTE = `${NS}-studio: compute`;
   /** The layer, computed (core.preview): each time it is, a measure on the page's timeline that DevTools shows — the last one is kept. */
-  function compute() {
+  function compute(options?: { worded?: boolean }) {
     cancelAnimationFrame(frame);
     frame = 0;
     window.clearTimeout(resting);
+    window.clearTimeout(wording);
     const started = performance.now();
-    const before = latest;
-    latest = studio.preview(layer) as Json;
-    if (latest !== before) {
+    const before = latest.computation;
+    latest = studio.preview(layer, options) as Json;
+    if (latest.computation !== before) {
       performance.clearMeasures(COMPUTE);
       performance.measure(COMPUTE, { start: started });
     }
+    if (!latest.worded) wording = window.setTimeout(() => update({ worded: true }), REST);
   }
-  function update() {
-    compute();
+  function update(options?: { worded?: boolean }) {
+    compute(options);
     if (latest.model) last = latest;
     if (last) preview.apply(last, contrast);
     preview.stale.hidden = Boolean(latest.model);
@@ -443,18 +459,39 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     remember();
   }
 
+  /** The panels still to be drawn after a switch to Groups (ui/dom.ts `drawnNear`); while there are any, the root says `data-drawing`. */
+  let drawing: ReturnType<typeof drawnNear> | undefined;
   function build() {
+    drawing?.stop();
+    drawing = undefined;
+    root.removeAttribute('data-drawing');
     refreshers = [];
     compute();
     if (latest.model) last = latest;
     // A layer that cannot be computed at all still needs controls to fix it: fall back to its base.
     if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.defaultId }) as Json;
+    const switched = root.dataset.level !== level;
     root.dataset.level = level;
     drawLevels();
-    const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];
-    controls.replaceChildren(...(draw(ctx).filter(Boolean) as HTMLElement[]));
-    drawAccessibility();
-    drawExport();
+    // Groups holds some three thousand elements, and a window shows a few hundred of them: a switch to it draws what the
+    // window shows before the first paint and the rest as it comes near. Drawn again where the person is (an edit that
+    // changes which controls exist), or opened at one of its panels, it is drawn whole at once, so that what is looked
+    // at stays where it is.
+    if (switched && level === 'groups' && !focus?.panel) {
+      const now = (drawing = drawnNear([...groupsPanels(ctx), accessibilityPanel, exportPanel]));
+      const holders = [...now.holders];
+      const [exported, accessibility] = [holders.pop()!, holders.pop()!];
+      controls.replaceChildren(...holders);
+      a11y.replaceChildren(accessibility);
+      exportHost.replaceChildren(exported);
+      root.setAttribute('data-drawing', '');
+      now.done.then(() => drawing === now && root.removeAttribute('data-drawing'));
+    } else {
+      const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];
+      controls.replaceChildren(...(draw(ctx).filter(Boolean) as HTMLElement[]));
+      a11y.replaceChildren(accessibilityPanel() ?? '');
+      exportHost.replaceChildren(exportPanel());
+    }
     drawFile();
     update();
   }
@@ -511,9 +548,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     save: () => saveNow(),
     destroy: () => {
       stopWatching();
+      drawing?.stop();
       window.clearTimeout(timer);
       cancelAnimationFrame(frame);
       window.clearTimeout(resting);
+      window.clearTimeout(wording);
       // Once for each mount, whatever the caller does twice; the last Studio of the document gives the width back.
       if (!live) return;
       live = false;

@@ -80,7 +80,8 @@ On the web it is `<tanrei-number-input>`. The other platforms have not implement
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="Scale" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
@@ -97,7 +98,7 @@ A slider is for a value chosen by feel, and a number input for one that is known
 A field around a number input is a number field written out. Leave the input's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, the limits and the unit on the input.
 
 ```html
-<tanrei-field label="Quantity" requirement="required" required-text="Required"
+<tanrei-field label="Quantity" required required-text="Required"
   supporting-text="Up to 99 per order.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Enter a number."
     increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
@@ -105,7 +106,7 @@ A field around a number input is a number field written out. Leave the input's o
 ```
 
 <DemoFrame label="A field with a number input in it: the same picture as a number field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" requirement="required" required-text="Required" supporting-text="Up to 99 per order.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" required required-text="Required" supporting-text="Up to 99 per order.">
     <tanrei-number-input min="1" max="99" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>

@@ -90,6 +90,11 @@ export const ICON_PLACEMENT = ['stacked', 'inline'] as const;
 export const TRACK_CHOICE = ['off', 'on'] as const;
 /** TAB-49: whether the track is filled, as the host carries it: its `track` attribute's, or — unset — the system's choice. */
 export const TRACK_PROPERTY = '--_tabs-track';
+/** TAB-51, TAB-60: the directions the tabs run. The first is the default, and what an unknown value draws. */
+export const ORIENTATIONS = ['horizontal', 'vertical'] as const;
+/** The row's own selector while it runs vertically (TAB-51): exactly `vertical`; any other value is horizontal (TAB-60). */
+const VERTICAL = ":host([orientation='vertical'])";
+const V = unsafeCSS(VERTICAL);
 /** `comp.tabs.motion.transition` (TAB-43): a choice's name. The first is what an unknown name is. */
 export const TRANSITION_CHOICE = ['slide', 'none'] as const;
 /** The row's `transition` prop: `auto` takes the component token, and so does a value the tabs do not define. */
@@ -97,7 +102,8 @@ export const TRANSITION_VALUES = ['auto', ...TRANSITION_CHOICE] as const;
 /** TAB-43: how a new selection is drawn, as the host carries it: its `transition` attribute's name, or the system's choice. */
 export const TRANSITION_PROPERTY = '--_tabs-transition';
 /** TAB-27: the track's color is the row's, one per variant, the same in every state of every tab. */
-const trackBlock = (variant: string, selector: string, fallback: string | null = null) => `${selector} {\n  --_track: ${ref((v) => `${PREFIX}-${v}-track-color`, variant, fallback)};\n}`;
+const trackBlock = (variant: string, selector: string, fallback: string | null = null) =>
+  `${selector} {\n  --_track: ${ref((v) => `${PREFIX}-${v}-track-color`, variant, fallback)};\n  --_indicator-shape: ${ref((v) => `${PREFIX}-${v}-active-indicator-shape`, variant, fallback)};\n}`;
 
 /**
  * TAB-7: a variant a layer added gets its block on demand, built by the same function and falling back to the default's
@@ -241,6 +247,56 @@ export const tabsStyles = css`
     .tabs {
       transition-duration: 0s;
     }
+  }
+  /* TAB-51: a column of tabs at the start edge, beside the panels, which take the rest of the row. The column is as wide
+     as its widest tab (or as the product makes the tab list) and never wider than the row; it is as tall as the row,
+     so that a row given a height holds its tabs in it and scrolls them (TAB-56). */
+  ${V} {
+    display: flex;
+    align-items: stretch;
+  }
+  ${V} .row {
+    flex: none;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    min-block-size: 0;
+  }
+  ${V} ::slotted(tanrei-tab-panel) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+  /* TAB-53: the divider along the column's end edge, the panels' side (the left one in right-to-left), its whole height. */
+  ${V} .divider {
+    inset-block: 0;
+    inset-inline: auto 0;
+    block-size: auto;
+    inline-size: ${t('divider-thickness')};
+  }
+  /* TAB-56: the tabs scroll up and down inside the track, as tall as the tabs and no taller than the row; every touch is
+     the scroll's (TAB-57). TAB-58: the track's corners are the smaller of its own shape and the indicator's corner — the
+     variant's shape, at most half the indicator's height (--_ih, written by the row) — plus the inset, so that the two
+     are concentric at the column's ends. */
+  ${V} .scroller {
+    inline-size: auto;
+    max-inline-size: none;
+    max-block-size: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-x: auto;
+    overscroll-behavior-y: contain;
+    touch-action: auto;
+    --tanrei-corner-radius: min(${t('track-shape')}, min(var(--_indicator-shape), var(--_ih, 0px) / 2) + ${t('track-padding')});
+  }
+  /* TAB-51, TAB-52: the tabs one above another, each as wide as the column; the indicator's inset is each tab's own
+     (TAB-52), so the strip has none. fullWidth does not apply (TAB-56). */
+  ${V} .tabs,
+  :host([orientation='vertical']:not([full-width])) .tabs {
+    flex-direction: column;
+    inline-size: auto;
+    padding: 0;
+  }
+  ${V} ${unsafeCSS(TAB)} {
+    flex: none;
   }
   @media (forced-colors: active) {
     .divider {
@@ -418,6 +474,15 @@ export const tabStyles = css`
     min-block-size: ${S('height')};
     min-inline-size: calc(max(var(--tanrei-sys-target-pointer), var(--_th, 0px)) - var(--_trim, 0px));
   }
+  /* TAB-51: in a column the tabs touch above and below, so each is at least the minimum target tall in layout. */
+  .tab.vertical {
+    min-block-size: max(${S('height')}, var(--tanrei-sys-target-pointer));
+  }
+  @media (pointer: coarse) {
+    .tab.vertical {
+      min-block-size: max(${S('height')}, var(--tanrei-sys-target-touch));
+    }
+  }
   /* TAB-18: a primary tab with an icon and a drawn label (.stacked) stacks them as the size's icon.placement says:
      stacked, the first value and so what an unknown name draws, unless it is inline. */
   .tab.stacked {
@@ -528,6 +593,34 @@ export const tabStyles = css`
     clip-path: inset(50%);
     pointer-events: none;
     transition: background-color ${unsafeCSS(STATE_MOTION)};
+  }
+  /* TAB-51, TAB-52: in a column the content starts at the tab's start edge, and the container and the ring are the tab
+     less track.padding on every side; nothing of an end tab reaches beyond the track (TAB-34 is the row's). TAB-53: the
+     underline's piece lies on the column's end edge, as tall as the tab. */
+  .tab.vertical,
+  .tab.vertical .cover {
+    justify-content: flex-start;
+  }
+  .tab.vertical .text {
+    text-align: start;
+  }
+  .tab.vertical :is(.box, .ring) {
+    inset: ${t('track-padding')};
+    inline-size: auto;
+  }
+  .tab.vertical.first::before,
+  .tab.vertical.last::after {
+    content: none;
+  }
+  .tab.vertical .underline {
+    inset-block: 0;
+    inset-inline: auto 0;
+    block-size: auto;
+    inline-size: var(--_ut);
+  }
+  /* TAB-57: no touch drags the indicator along a column: a touch scrolls. */
+  .tab.vertical.selected {
+    touch-action: auto;
   }
   /* TAB-25: the plain tooltip of a truncated label lies over the whole tab, drawing nothing, so the pointer over the tab
      is over it. */

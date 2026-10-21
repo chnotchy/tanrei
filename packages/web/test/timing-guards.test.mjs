@@ -14,6 +14,11 @@
 // - `goto('about:blank')` in a file whose tests hover or move the pointer: in Chromium on Linux a page that went to
 //   about:blank and on to the stage sends no pointerleave or pointerout to anything on it, so a hover never ends
 //   there. Mount on the test's own page (`setContent`).
+// - a duration expected as a literal number of milliseconds, or a step of the duration scale, a spring or a curve of
+//   the scale named in a test: a component times and eases a change by its role (`sys.motion.role.*`,
+//   `sys.motion.easing.{enter,exit,state,spatial}`) through its own token, so such a test holds it to one system's
+//   value — it fails when the role is re-timed although nothing is wrong, and passes when the component stops reading
+//   its token. Expect the component's token, resolved (`resolveToken(page, …, 'duration')`).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -55,7 +60,7 @@ export const RULES = {
       'src/components/button-group/button-group.test.ts': 3,
       'src/components/button-with-menu/button-with-menu.test.ts': 4,
       'src/components/calendar/calendar.test.ts': 2,
-      'src/components/callout/callout.test.ts': 2,
+      'src/components/callout/callout.test.ts': 1,
       'src/components/chat-composer/chat-composer.test.ts': 3,
       'src/components/chip/chip.test.ts': 2,
       'src/components/code-block/code-block.test.ts': 4,
@@ -81,7 +86,7 @@ export const RULES = {
       'src/components/navigation-drawer/navigation-drawer.test.ts': 3,
       'src/components/one-time-code-input/one-time-code-input.test.ts': 1,
       'src/components/pagination/pagination.test.ts': 2,
-      'src/components/popover/popover.test.ts': 8,
+      'src/components/popover/popover.test.ts': 5,
       'src/components/progress-indicator/progress-indicator.test.ts': 4,
       'src/components/radio-button/radio-button.test.ts': 5,
       'src/components/radio-group/radio-group.test.ts': 1,
@@ -176,6 +181,45 @@ export const RULES = {
       'test/held-press.ts': 2,
     },
   },
+  'a duration expected as a literal number of milliseconds': {
+    // Code only: a comment that shows the form (test/appear.ts) is not an expectation.
+    count: (text) =>
+      text
+        .split('\n')
+        .filter((line) => !/^\s*(\*|\/\/|\/\*)/.test(line))
+        .reduce((n, line) => n + (line.match(/\b(?:duration|Duration)\b[^;\n]{0,60}\b(?:toBe|toEqual|toBeCloseTo)\(\s*[1-9]\d{1,4}\b/g) ?? []).length + (line.match(/\bduration:\s*[1-9]\d{1,4}\b/g) ?? []).length, 0),
+    // Each of these expects a duration the test set itself (a token overridden to a value no system has, so the
+    // component is seen to read it), a value that is no motion's (press-hold, the copy button's confirmation), or —
+    // in src/frames.test.ts — the duration of an animation the sampler's own test starts.
+    allowed: {
+      'src/components/accordion/accordion.test.ts': 1,
+      'src/components/button-with-menu/button-with-menu.test.ts': 1,
+      'src/components/copy-button/copy-button.test.ts': 2,
+      'src/components/image-preview/image-preview.test.ts': 5,
+      'src/components/modal-layer/modal-layer.test.ts': 1,
+      'src/components/navigation-bar/navigation-bar.test.ts': 3,
+      'src/components/segmented-button/segmented-button.test.ts': 1,
+      'src/components/snackbar/snackbar.test.ts': 1,
+      'src/components/tabs/tabs.test.ts': 1,
+      'src/components/tree-view/tree-view.test.ts': 1,
+      'src/frames.test.ts': 10,
+      'test/destinations.ts': 3,
+    },
+  },
+  'a step of the duration scale, a spring or a curve of the scale named in a test': {
+    count: (text) =>
+      (text.match(/--tanrei-sys-motion-(?:duration-(?:short|medium|long|extra-long)\d|spring-[a-z]+-[a-z-]+-(?:duration|easing)|easing-(?:standard|standard-decelerate|standard-accelerate|emphasized-decelerate|emphasized-accelerate|linear))\b/g) ?? []).length,
+    allowed: {
+      // The default system's exit is the accelerating curve, as decided: held beside the component's token.
+      'src/components/combobox/combobox.test.ts': 1,
+      'src/components/select/select.test.ts': 1,
+      // The same exit, and m3-like keeping Material's entrance and exit (its emphasized curves and its durations).
+      'src/components/popover/popover.test.ts': 5,
+      // A turn and a pulse are cycles, not changes: no role times them, and a turn runs at constant speed.
+      'src/components/loading-indicator/loading-indicator.test.ts': 2,
+      'src/components/progress-indicator/progress-indicator.test.ts': 1,
+    },
+  },
   "goto('about:blank') where the pointer hovers or leaves": {
     count: (text) => (/\.hover\(|mouse\.move\(|pointerleave|pointerout/.test(text) ? (text.match(/\.goto\(\s*['"`]about:blank['"`]/g) ?? []).length : 0),
     allowed: {
@@ -202,6 +246,14 @@ const PLANTED = {
   'waitForTimeout(<number>) with no reason in a comment': [
     'await page.click("#a");\nawait page.waitForTimeout(100);',
     'await page.click("#a");\n// Nothing may happen for a whole second: the real delay is what is asked.\nawait page.waitForTimeout(1000);',
+  ],
+  'a duration expected as a literal number of milliseconds': [
+    'expect(motion.duration).toBe(150);',
+    "expect(motion.duration).toBe(await resolveToken(page, T('motion-state-duration-medium'), 'duration'));",
+  ],
+  'a step of the duration scale, a spring or a curve of the scale named in a test': [
+    "expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short3', 'duration'));",
+    "expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));",
   ],
   "goto('about:blank') where the pointer hovers or leaves": [
     "await page.goto('about:blank');\nawait mount(page);\nawait page.hover('#card');",

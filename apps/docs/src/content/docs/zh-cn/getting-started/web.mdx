@@ -2,23 +2,29 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b795991094209ca4e3878521a44be6737c299786
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` 包含两样东西：一份以 CSS 自定义属性提供设计令牌的样式表，以及用 Lit 构建的、基于标准的自定义元素。它不要求使用任何框架。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## 安装
 
+### 从 npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### 从源码
 
-你需要 Git、Node 22.12 或更高版本，以及 pnpm 12（`corepack enable` 会给你仓库固定的那个版本）。在仓库的克隆中构建这个包并打包，再把打包出的文件安装到你的项目里：
+要在发布之前使用 `main` 上的源码，你需要 Git、Node 22.12 或更高版本，以及 pnpm 12（`corepack enable` 会给你仓库固定的那个版本）。在仓库的克隆中构建这个包并打包，再把打包出的文件安装到你的项目里：
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,36 +39,43 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-打包出的文件包含的正是发布时会发布的内容，所以下面的一切用法都完全相同。要取用更新的源码，就拉取、重新构建并打包，然后安装新的文件。
-
-### 首次发布之后
-
-```sh
-npm install @tanrei/web
-```
+打包出的文件包含的正是发布时发布的内容，所以下面的一切用法都完全相同。要取用更新的源码，就拉取、重新构建并打包，然后安装新的文件。
 
 ## 使用
 
 <Steps>
 
-1. 尽早加载一次令牌。令牌被包在一个级联层（`tanrei.tokens`）中，因此你自己的样式始终优先。
+1. 尽早加载一次样式表。它们都被包在级联层（`tanrei.*`）中，因此你自己的样式始终优先。
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` 把一切放进一个文件：页面的基础样式、令牌，以及不用元素绘制的部件（文本样式、表格、手风琴等）的样式表。只想加载用得到的部分，就加载令牌、需要的话再加上基础样式，然后按需加载那些样式表：
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // 让页面使用系统的表面色、文字颜色和正文字体，并去掉 body 的外边距
    ```
 
-2. 注册组件。可以全部导入，也可以只导入用到的元素。
+   基础样式让页面本身使用表面色，让你自己的文字使用 on-surface 颜色和正文字体，并去掉浏览器给 body 加的外边距。没有它，页面保持浏览器的默认样式。
+
+2. 注册你的设计系统的组件，也可以只导入用到的元素。
 
    ```js
    import '@tanrei/web';
+   // 使用预设时，改为导入它的入口：m3-like、m3-expressive-like 或 cupertino
+   import '@tanrei/web/m3-like';
    // 或者，一次导入一个元素：
    import '@tanrei/web/components/button';
    ```
 
+   `@tanrei/web` 只注册默认系统包含的组件，所以基于它的产品接触不到系统没有的组件。预设的入口 `@tanrei/web/<id>` 注册该预设包含的组件，`@tanrei/web/all` 注册包里的全部组件。只有预设才包含的组件，例如[分段按钮](/zh-cn/components/segmented-button/)，仍然可以有意地使用：在你的系统的层里引入它，并导入它自己的模块。
+
    `@tanrei/web/…` 这类说明符是包的导出，由打包工具（Vite、webpack、esbuild）解析。没有打包工具时，浏览器无法解析 `<link>` 或 `<script src>` 中的裸说明符，这时请直接提供包的 `dist/` 目录并指向其中的文件：样式表原样使用，脚本使用 `tanrei.bundle.js`，它包含 Lit 和所有元素：
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
@@ -73,15 +86,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
    ```
 
-4. 给出你的产品的文字。Tanrei 不自带任何文字：必填和选填小标签上的字、关闭按钮的名称等等，都是你的。可以按语言一次说完，也可以写在每个元素上。
+4. 给出你的产品的文字。组件没有自己的文字：必填和选填小标签上的字、关闭按钮的名称等等，都是你的产品的。想先让每一个都用平实的英语，就导入一次英语文字包：
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   要改其中任何一个，或者给出另一种语言的文字，就在它之后调用 `setWords()`。你给出的文字优先于包中的文字，写在元素上的文字又优先于这两者。
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: '必填', optionalText: '选填', closeLabel: '关闭' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: '必填', optionalText: '选填', closeLabel: '关闭' }, { lang: 'zh-cn' });
    ```
 
-   缺少某个文字时，组件仍然可以工作，并在控制台里告诉你缺的是哪一个。参见[文字](/zh-cn/foundations/words/)。
+   既没有这个包、也没有你的文字时，组件仍然可以工作，并在控制台里告诉你缺的是哪一个。参见[文字](/zh-cn/foundations/words/)。
 
 </Steps>
 
@@ -89,6 +109,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">部署</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
 </DemoFrame>
+
+## 元素清单
+
+编辑器和编程代理从包的 [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)（`@tanrei/web/custom-elements.json`）读取元素：每个元素的属性、特性、事件、插槽和部件，不包含产品无法访问的内容。`@tanrei/web/custom-elements/<id>.json` 只包含系统 `<id>` 提供的元素，所以在一个系统里工作的工具不会推荐别的元素。
 
 ## 主题与对比度
 
@@ -108,6 +132,50 @@ npm install @tanrei/web
   这两个属性既可以用在 `<html>` 上，也可以用在任意子树上。生成的样式表把整套令牌声明在 `:root, [data-tanrei-contrast]` 上，因此在嵌套元素上设置 `data-tanrei-contrast` 时，其中的组件令牌也会按该对比度级别重新解析，而不只是系统颜色。
 </Callout>
 
+### 记住用户选择的主题
+
+如果用户可以在你的产品里选择主题，就要保存这个选择，并在页面第一次绘制之前把它放到 `<html>` 上：如果由之后才运行的脚本来设置，页面会先用系统的主题显示一帧。`@tanrei/web/theme-script` 两件事都做。`themeScript()` 是一段要内联在 `<head>` 里、写在样式表之前的小脚本，`saveTheme()` 保存一个选择并立即绘制它。
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light'、'dark'，或者 'system'，重新跟随操作系统
+loadTheme();       // 保存的内容：'light'、'dark' 或 'system'
+```
+
+在 Next.js（App Router）中，把它内联在根布局里。加上 `suppressHydrationWarning`，是因为脚本会在 React 水合之前改变 `<html>` 的一个属性。
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+在 Astro 中，把它内联在布局里：
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## 在自己的 CSS 中使用令牌
 
 每个令牌都是一个以其路径命名的自定义属性：`tanrei.sys.color.primary` 对应 `--tanrei-sys-color-primary`。
@@ -120,6 +188,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+要从脚本设置令牌，请使用 `@tanrei/web` 的 `setTokens()`：在根上是 `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`，对页面的一部分则加上 `{ on: element }`。在根上用 `style.setProperty()` 单独设置一个令牌，会让 Safari 花几秒钟重新计算整个页面的样式；`setTokens()` 的写法不会这样。
 
 ## 文本样式
 

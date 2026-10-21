@@ -1,5 +1,6 @@
 // Bundles the server with the pipeline (tokens-build + token-engine are not published on their own) and copies
-// what it reads at run time — tokens/ (sources, plus the presets' fidelity reports), tanrei.config.json and the mimicry-gaps registry — so it works in a
+// what it reads at run time — tokens/ (sources, plus the presets' fidelity reports and the systems' components
+// manifests), the component catalog and the specs, tanrei.config.json and the mimicry-gaps registry — so it works in a
 // product's repository with nothing else checked out. Same approach as packages/cli.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -33,11 +34,24 @@ fs.copyFileSync(path.join(repo, 'tanrei.config.json'), path.join(vocabulary, 'ta
 fs.copyFileSync(path.join(repo, 'docs/governance/mimicry-gaps.json'), path.join(vocabulary, 'docs/governance/mimicry-gaps.json'));
 // Sources only: tokens/generated/ is build output, and the server computes every system from its layers…
 fs.cpSync(path.join(repo, 'tokens'), path.join(vocabulary, 'tokens'), { recursive: true, filter: (source) => path.relative(repo, source) !== path.join('tokens', 'generated') });
-// …except the measured fidelity reports (tokens/generated/<id>/fidelity.json), which list_systems reads as they are.
+// …except what the tools read as it is: the measured fidelity reports (tokens/generated/<id>/fidelity.json, for
+// list_systems) and each shipped system's components manifest (tokens/generated/<id>/components.json, for the component tools).
 for (const entry of fs.readdirSync(path.join(repo, 'tokens/generated'), { withFileTypes: true })) {
-  const report = path.join('tokens/generated', entry.name, 'fidelity.json');
-  if (!entry.isDirectory() || !fs.existsSync(path.join(repo, report))) continue;
-  fs.mkdirSync(path.dirname(path.join(vocabulary, report)), { recursive: true });
-  fs.copyFileSync(path.join(repo, report), path.join(vocabulary, report));
+  for (const name of ['fidelity.json', 'components.json']) {
+    const report = path.join('tokens/generated', entry.name, name);
+    if (!entry.isDirectory() || !fs.existsSync(path.join(repo, report))) continue;
+    fs.mkdirSync(path.dirname(path.join(vocabulary, report)), { recursive: true });
+    fs.copyFileSync(path.join(repo, report), path.join(vocabulary, report));
+  }
+}
+// The component catalog, which a product's components manifest is worked out from (as `tanrei build` does), at its path in the repository.
+const catalog = 'packages/tokens-build/generated/component-catalog.json';
+fs.mkdirSync(path.dirname(path.join(vocabulary, catalog)), { recursive: true });
+fs.copyFileSync(path.join(repo, catalog), path.join(vocabulary, catalog));
+// The component specs, their schema and the inventory: get_component and find_component answer from them. Written without
+// indentation (the same JSON, about a third smaller).
+fs.mkdirSync(path.join(vocabulary, 'specs'));
+for (const name of fs.readdirSync(path.join(repo, 'specs')).filter((file) => file.endsWith('.spec.json') || file === 'inventory.json' || file === 'component.schema.json')) {
+  fs.writeFileSync(path.join(vocabulary, 'specs', name), JSON.stringify(JSON.parse(fs.readFileSync(path.join(repo, 'specs', name), 'utf8'))));
 }
 console.log('✔ mcp: dist/server.js, dist/vocabulary/');

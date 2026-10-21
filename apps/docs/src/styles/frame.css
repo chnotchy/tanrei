@@ -65,7 +65,14 @@
   }
   /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
      language (SEL-49), and choosing one never changes it. Until it is defined its options hold that width for it
-     (below). */
+     (below).
+     Nor is it given the bar's cell: the bar makes each item at least as tall as the minimum target and centres it
+     there (APB-11), which suits a Button, whose box is centred in its own element; a select's box stands at the top
+     of its element, so in a 44 high cell it stood 2 above the search beside it. The select is exactly as tall as its
+     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22). */
+  tanrei-app-bar > tanrei-select.docs-theme {
+    min-block-size: auto;
+  }
   /* A compact window: the theme and the language are one button and its menu; a wider one: the select and the
      language's button. By the shell's window class — a style query, and the shell's own word where the browser has
      none (until the shell is defined such a browser shows the wide arrangement). */
@@ -114,9 +121,12 @@
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
-  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides. */
+  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides, and the first
+     action in either arrangement, so the actions start from it at the end. (An item of the arrangement the window's
+     class does not show has no slot, Header.astro: no rule here may take the first action from the slots.) */
   tanrei-app-bar:not(:defined) > .docs-search {
     display: inline-flex;
+    margin-inline-start: auto;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
     display: inline-flex;
@@ -143,9 +153,6 @@
   }
   tanrei-app-bar:not(:defined) > [slot='actions'] ~ [slot='actions'] {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
-  }
-  tanrei-app-bar:not(:defined) > :not([slot='actions']) + [slot='actions'] {
-    margin-inline-start: auto;
   }
   @media (pointer: coarse) {
     tanrei-app-bar:not(:defined) > :where([slot]) {
@@ -193,21 +200,60 @@
   }
 
   /* ── The sidebar until the drawer is defined, and where no script runs: its own anchors, as the drawer's rows ──
-     The shell keeps the column's place (APS-24); this draws what stands in it. */
+     The shell keeps the column's place (APS-24); this draws what stands in it. Its header is the drawer's (NVD-38),
+     from the drawer's and the button's tokens, so that neither it nor a row below it moves when the drawer is
+     defined: the menu button centred on the icon column, and beside it, item.gap after the button, the header's
+     content — the choice of design system above the "All components" switch, each holding its own room until it is
+     defined — laid out at the drawer's full width; the button centred on the height of the two; the first row
+     header.gap below them. */
   tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    --docs-sidebar-lead: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 + var(--tanrei-comp-button-container-height-medium) / 2 + var(--tanrei-comp-navigation-drawer-item-gap));
     box-sizing: border-box;
+    grid-template-columns:
+      calc(var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline))
+      calc(var(--tanrei-comp-navigation-drawer-container-width) - var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
     padding: var(--tanrei-comp-navigation-drawer-container-padding-block) var(--tanrei-comp-navigation-drawer-container-padding-inline);
     border-inline-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
   }
+  /* Laid out as a grid only where the shell shows it: in a compact window the shell gives it no box (APS-4), and a
+     `display` of this layer would win over the shell's. */
+  @container style(--tanrei-app-shell-window-class: expanded) or style(--tanrei-app-shell-window-class: medium) {
+    tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+      display: grid;
+    }
+  }
+  tanrei-app-shell:is([data-window-class='expanded'], [data-window-class='medium']) > tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    display: grid;
+  }
   tanrei-navigation-drawer.docs-sidebar:not(:defined) > tanrei-button {
     display: flex;
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
     align-items: center;
     justify-content: center;
-    inline-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
+    inline-size: var(--tanrei-comp-button-container-height-medium);
+    block-size: var(--tanrei-comp-button-container-height-medium);
+    margin-inline-start: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 - var(--tanrei-comp-button-container-height-medium) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-system {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-listing {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    grid-column: 1 / -1;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > [slot] + :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    margin-block-start: var(--tanrei-comp-navigation-drawer-header-gap);
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: block;

@@ -1,12 +1,28 @@
+// `@tanrei/web` registers the components of the default system, Tanrei, and no other: a product on it can reach only
+// the components its system ships. A component another system ships — the segmented button (the presets), the FAB
+// menu (the m3-like layer) — is registered by that system's entry, `@tanrei/web/<id>` (`@tanrei/web/m3-like`), which registers
+// everything this one does and the system's own; `@tanrei/web/all` registers every component of the package; and a
+// component's own module, `@tanrei/web/components/<name>`, registers it alone, for a product that includes it in its
+// own layer. The build writes those entries from the systems' components manifests (scripts/build.js), and
+// test/entries.test.mjs holds each entry to its system's manifest.
+
 // The bare `.tanrei-icon` of the page: loading the components also marks the glyphs the icon set mirrors in a
 // right-to-left layout (`@tanrei/web/icons` is the same script alone).
 export { type GlyphMirroring, type IconSet, activeIconSet, glyphMirrors, glyphName, iconSets, markGlyph, observeIcons, systemIconSets } from './icons.js';
 // The text links of the page — `class="tanrei-link"` anchors and prose's own (link.css): loading the components also
 // adds what a stylesheet cannot (`@tanrei/web/link` is the same script alone).
 export { observeLinks, setExternalLabel, setSiteOrigins } from './link.js';
-// The product's words: Tanrei ships none. `setWords()` gives them once for every component that reads them,
-// `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
+// The product's words: no component has words of its own. `setWords()` gives them once for every component that reads
+// them, `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
+// The English word pack is applied only by importing it (`@tanrei/web/words/en`): this entry never imports it.
 export { type TanreiWords, type WordKey, missingWords, setWords, wordKeys, wordReaders } from './words.js';
+// What the active system does not have: a debug build reports each use of it, as a warning or — after
+// `setAvailabilityMode('error')`, in a product's tests — as an error, and `unavailableUses()` lists the uses
+// (`@tanrei/web/availability` is the same two alone).
+export { type AvailabilityMode, setAvailabilityMode, unavailableUses } from './availability.js';
+// Tokens set from script, on the root or on any element, at the cost of a stylesheet's change in every engine (WebKit's
+// plain write of one custom property restyles the page for seconds): `setTokens({ '--tanrei-…': value }, { on })`.
+export { type SetTokensOptions, setTokens } from './set-tokens.js';
 // The steps and the previous and next links of the page — `class="tanrei-steps"` lists and `class="tanrei-previous-next-links"` landmarks
 // (steps.css, previous-next-links.css): loading the components also adds the debug reports of the first and, for the second, what
 // a stylesheet cannot (`@tanrei/web/steps` and `@tanrei/web/previous-next-links` are the same scripts alone).
@@ -17,13 +33,12 @@ export { observePreviousNextLinks } from './previous-next-links.js';
 export { observeTimeline } from './timeline.js';
 // The frames first: a field and a field group are defined before the controls they frame, so that a control already
 // finds its field when it is connected (one defined in another order asks again when its field is — primitives/field.ts).
-export { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from './components/field/field.js';
+export { TanreiField, type TanreiFieldRequiredMark } from './components/field/field.js';
 export {
   TanreiFieldGroup,
   type TanreiFieldGroupKind,
   type TanreiFieldGroupOrientation,
   type TanreiFieldGroupRequiredMark,
-  type TanreiFieldGroupRequirement,
   type TanreiFieldGroupSpacing,
 } from './components/field-group/field-group.js';
 export { TanreiAccordion, type TanreiAccordionDensity, type TanreiAccordionSeparation, type TanreiAccordionVariant } from './components/accordion/accordion.js';
@@ -42,6 +57,16 @@ export {
 export { TanreiAvatar, TanreiAvatarGroup, type TanreiAvatarShape, type TanreiAvatarSize } from './components/avatar/avatar.js';
 export { TanreiSwatch, type TanreiSwatchShape, type TanreiSwatchSize } from './components/swatch/swatch.js';
 export { TanreiBadge } from './components/badge/badge.js';
+export {
+  TanreiHandle,
+  type TanreiHandleAxis,
+  type TanreiHandleCorner,
+  type TanreiHandleResizeDetail,
+  type TanreiHandleResizeEndDetail,
+  type TanreiHandleResizeStartDetail,
+  type TanreiHandleSize,
+  type TanreiHandleStepDetail,
+} from './components/handle/handle.js';
 export {
   TanreiBottomSheet,
   type TanreiBottomSheetCloseDetail,
@@ -124,8 +149,10 @@ export {
 export { TanreiOption, TanreiOptionGroup } from './components/option/option.js';
 export {
   TanreiSelect,
+  type TanreiSelectIconSpace,
   type TanreiSelectSeparation,
   type TanreiSelectSize,
+  type TanreiSelectStatus,
   type TanreiSelectToggleDetail,
   type TanreiSelectToggleReason,
   type TanreiSelectVariant,
@@ -135,6 +162,7 @@ export {
   TanreiCombobox,
   type TanreiComboboxChangeDetail,
   type TanreiComboboxFilter,
+  type TanreiComboboxIconSpace,
   type TanreiComboboxSeparation,
   type TanreiComboboxSize,
   type TanreiComboboxStatus,
@@ -301,13 +329,13 @@ export {
   type TanreiProgressIndicatorSize,
   type TanreiProgressIndicatorVariant,
 } from './components/progress-indicator/progress-indicator.js';
+export { TanreiMeter, type TanreiMeterSeparation, type TanreiMeterSize, type TanreiMeterStatus, type TanreiMeterVariant } from './components/meter/meter.js';
 export { TanreiRadioButton, type TanreiRadioButtonChangeDetail, type TanreiRadioButtonOwner } from './components/radio-button/radio-button.js';
 export {
   TanreiRadioGroup,
   type TanreiRadioGroupChangeDetail,
   type TanreiRadioGroupOrientation,
   type TanreiRadioGroupRequiredMark,
-  type TanreiRadioGroupRequirement,
 } from './components/radio-group/radio-group.js';
 export {
   TanreiSearch,
@@ -318,18 +346,13 @@ export {
   TanreiSearchResultGroup,
   TanreiSearchRow,
   type TanreiSearchSelectDetail,
+  type TanreiSearchIconSpace,
   type TanreiSearchStatus,
   type TanreiSearchSubmitDetail,
   TanreiSearchSuggestion,
   type TanreiSearchToggleDetail,
 } from './components/search/search.js';
-export {
-  TanreiSegment,
-  TanreiSegmentedButton,
-  type TanreiSegmentedButtonChangeDetail,
-  type TanreiSegmentedButtonSelection,
-  type TanreiSegmentedButtonSize,
-} from './components/segmented-button/segmented-button.js';
+export { TanreiScrollArea, type TanreiScrollAreaEdge, type TanreiScrollAreaScrollEdge } from './components/scroll-area/scroll-area.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,
@@ -386,7 +409,8 @@ export {
 } from './components/table-of-contents/table-of-contents.js';
 export { TanreiTag, type TanreiTagSize, type TanreiTagStatus, type TanreiTagVariant } from './components/tag/tag.js';
 export { TanreiTagGroup, type TanreiTagGroupSpacing } from './components/tag-group/tag-group.js';
-export { TanreiToolbar, type TanreiToolbarOrientation, type TanreiToolbarVariant } from './components/toolbar/toolbar.js';
+export { TanreiToolbar, type TanreiToolbarOrientation, type TanreiToolbarOverflow, type TanreiToolbarSeparation, type TanreiToolbarVariant } from './components/toolbar/toolbar.js';
+export { TanreiToolbarGroup } from './components/toolbar/toolbar-group.js';
 export { TanreiTooltip, type TanreiTooltipPlacement, type TanreiTooltipToggleDetail, type TanreiTooltipVariant } from './components/tooltip/tooltip.js';
 export { TanreiTextField } from './components/text-field/text-field.js';
 export {

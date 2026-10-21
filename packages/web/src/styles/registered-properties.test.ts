@@ -177,12 +177,12 @@ test.describe('the custom properties a page has registered', () => {
     // The switch is switched and the calendar's month is changed — the two motions a registered progress once drew —
     // and each is seen on its way: the handle between its two places, the calendar's grid holding two months.
     const moved = await page.evaluate(async () => {
-      const [toggle, calendar] = [document.getElementById('switch') as HTMLElement & { selected: boolean; updateComplete: Promise<unknown> }, document.getElementById('calendar') as HTMLElement & { updateComplete: Promise<unknown> }];
+      const [toggle, calendar] = [document.getElementById('switch') as HTMLElement & { checked: boolean; updateComplete: Promise<unknown> }, document.getElementById('calendar') as HTMLElement & { updateComplete: Promise<unknown> }];
       const thumb = toggle.shadowRoot!.querySelector('.thumb')!;
       const place = () => Number.parseFloat(getComputedStyle(thumb).translate) || 0;
       const months = () => calendar.shadowRoot!.querySelector('.pages')!.getAttribute('data-moving');
       const seen = { places: [place()], months: [months()] };
-      toggle.selected = true;
+      toggle.checked = true;
       (calendar.shadowRoot!.querySelector('.next') as HTMLElement).click();
       await Promise.all([toggle.updateComplete, calendar.updateComplete]);
       // Read once in the task that began them, before any frame — the handle's travel put half way through its time for

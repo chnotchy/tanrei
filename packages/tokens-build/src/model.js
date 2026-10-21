@@ -148,7 +148,6 @@ function simplified(token, tokenPath) {
     type: token.$type,
     value: token.$value,
     description: token.$description,
-    deprecated: token.$deprecated || undefined,
     // Direct alias target (one hop), so emitters can keep the ref → sys → comp chain visible.
     alias: token.aliasChain?.[0],
     // The end of the alias chain (a comp token may alias another comp token that aliases a sys token).
@@ -160,6 +159,8 @@ function simplified(token, tokenPath) {
     state: token.$extensions?.['dev.tanrei.state'],
     // Set on a choice of kind: { values: [...] }; the value is an index into it.
     enum: token.$extensions?.['dev.tanrei.enum'],
+    // Set on an inner corner: { outer: "{id}", inset: "{id}" }, the corner it stands in and how far inside it.
+    concentric: token.$extensions?.['dev.tanrei.concentric'],
   };
 }
 
@@ -303,6 +304,22 @@ async function schemeColors(reader) {
 export async function invariantModel(files, systemId, light, reader) {
   const { colors, componentColors } = await schemeColors(reader);
   return partialModel(light, systemId, componentDeclarations(null, systemId, (name) => files[name]), colors, componentColors);
+}
+
+/**
+ * Every `$deprecated` in Tanrei's own token sources (`documents`: repository path → parsed JSON). During the 0.x
+ * prereleases no token is kept deprecated beside what replaces it: a token that goes is removed with every reader of
+ * it, and the changeset names it. (The reader still reads `$deprecated` from any other bundle, as DTCG defines it.)
+ */
+export function deprecatedInSources(documents) {
+  const problems = [];
+  const visit = (node, at, file) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return;
+    if (Object.hasOwn(node, '$deprecated')) problems.push(`${file}: ${at.join('.') || 'the document'} has $deprecated — during 0.x a token is removed, not deprecated: remove it and what reads it, and name it in the changeset`);
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) visit(child, [...at, key], file);
+  };
+  for (const [file, doc] of Object.entries(documents)) visit(doc, [], file);
+  return problems;
 }
 
 export const byPrefix = (model, prefix) =>

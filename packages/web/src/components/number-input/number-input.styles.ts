@@ -42,7 +42,7 @@ const PREFIX = '--tanrei-comp-number-input';
 const P = unsafeCSS(PREFIX);
 /** The box is drawn from the one set of tokens every input box is drawn from; `PREFIX` is what this component alone draws. */
 const B = unsafeCSS(INPUT_BOX);
-const STATE_MOTION = `var(${INPUT_BOX}-motion-state-duration) var(${INPUT_BOX}-motion-state-easing)`;
+const STATE_MOTION = `var(--_state-duration) var(${INPUT_BOX}-motion-state-easing)`;
 const motion = unsafeCSS(STATE_MOTION);
 // The field's token blocks: per variant both looks' parts in every state, per size the members of the size axis, which
 // look is painted (NMI-10), and each state's paint (NMI-15).

@@ -2,15 +2,15 @@
 title: Flutter
 description: 把 Tanrei 添加到 Flutter 应用中。
 translationOf: getting-started/flutter.mdx
-sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+sourceHash: c647a8ce01e41a5d752e397bd42075b18baede2c
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `tanrei` 包是纯 Dart 实现。它提供 widget、可继承的 `TanreiTheme` 和生成的令牌常量，并且不依赖 `MaterialApp` 或 `CupertinoApp`；它在这两者之中都能工作，在普通的 `WidgetsApp` 中也可以。
 
-<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+<ReleaseNotice platform="flutter" registry="pub.dev" pkg="tanrei" />
 
 ## 安装
 
@@ -28,7 +28,7 @@ flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
 
 使用 `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"`，就会跟随仓库，而不是本地的克隆。
 
-### 首次发布之后
+### 发布之后
 
 ```sh
 flutter pub add tanrei

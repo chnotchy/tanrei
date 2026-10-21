@@ -2,7 +2,7 @@
 title: Entrada de código de un solo uso
 description: Recibe un código corto enviado a la persona (un código de inicio de sesión o de verificación) como un único valor de texto dibujado en celdas separadas, de modo que se ven su longitud y lo que aún falta, y la plataforma puede rellenarlo en un solo paso.
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,7 +45,7 @@ En la web es `<tanrei-one-time-code-input>`. Las demás plataformas todavía no 
       <tanrei-field label="Código de verificación"
         supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono."
         error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo."
-        requirement="required" required-text="Obligatorio">
+        required required-text="Obligatorio">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -70,7 +70,9 @@ En la web es `<tanrei-one-time-code-input>`. Las demás plataformas todavía no 
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="Código de verificación" error={wrong}
       supportingText="Introduce el código de 6 dígitos que enviamos a tu teléfono."
@@ -207,5 +209,5 @@ Carencias conocidas en la web:
 
 - Da un nombre al control: la etiqueta del campo que lo rodea, o su propio `label` donde la etiqueta visible está en otro lugar, con las mismas palabras.
 - Di con palabras qué se espera: cuántos caracteres, y adónde se envió el código. Las celdas muestran la longitud solo a quienes las ven.
-- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `requirement` del campo. El color nunca es la única señal.
+- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `required` del campo. El color nunca es la única señal.
 - Donde el tiempo para introducir un código sea limitado, dilo, y deja que la persona pida más tiempo o un código nuevo.

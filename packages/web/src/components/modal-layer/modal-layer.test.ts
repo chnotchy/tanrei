@@ -71,8 +71,8 @@ test.describe('presentation', () => {
     await open(page, 'l');
     expect(await container(page, 'l').evaluate((el) => el.matches(':modal'))).toBe(true);
     expect(await css(container(page, 'l'), 'background-color', '::backdrop')).toBe(await resolveColor(page, T('scrim-color')));
-    // No blur in the default system: a radius of 0.
-    expect(await css(container(page, 'l'), 'backdrop-filter', '::backdrop')).toBe('blur(0px)');
+    // No blur in the default system: a radius of 0, which is no filter at all (the scrim blur block below).
+    expect(await css(container(page, 'l'), 'backdrop-filter', '::backdrop')).toBe('none');
     // The whole window: a point at each corner is the scrim (the layer's backdrop), not the page.
     for (const [x, y] of [[1, 1], [WINDOW.width - 2, 1], [1, WINDOW.height - 2], [WINDOW.width - 2, WINDOW.height - 2]]) {
       expect(await page.evaluate(([px, py]) => document.elementFromPoint(px, py)?.localName, [x, y])).toBe('tanrei-modal-layer');
@@ -322,11 +322,13 @@ test.describe('motion', () => {
     expect(await css(container(page, 'l'), 'translate')).toBe('none');
   });
 
-  test('MDL-1, MDL-7: the components built from the layer take its scrim and its tempo — one value changes every modal surface', async ({ page }) => {
-    const members: { name: string; tag: string; pick: (fixture: Fixture) => boolean; window: { width: number; height: number }; scrim: string; enter: string }[] = [
-      { name: 'dialog', tag: 'tanrei-dialog', pick: (fx) => fx.id === 'basic', window: dialogWindow('basic'), scrim: 'dialog', enter: 'dialog-motion-enter-duration' },
-      { name: 'bottom-sheet', tag: 'tanrei-bottom-sheet', pick: (fx) => fx.id === 'modal', window: { width: 400, height: 720 }, scrim: 'bottom-sheet', enter: 'bottom-sheet-motion-enter-duration' },
-      { name: 'side-sheet', tag: 'tanrei-side-sheet', pick: (fx) => fx.id === 'modal', window: { width: 720, height: 480 }, scrim: 'side-sheet', enter: 'side-sheet-motion-enter-duration' },
+  test('MDL-1, MDL-7: the components built from the layer take its scrim, and its tempo where they take the modal role — one value changes every such surface, and one value every sheet', async ({ page }) => {
+    // The tempo: a dialog's enter duration aliases the layer's (the modal role); a sheet's takes the sheet role.
+    const SHEET_ENTER = '--tanrei-sys-motion-role-appear-sheet-enter';
+    const members: { name: string; tag: string; pick: (fixture: Fixture) => boolean; window: { width: number; height: number }; scrim: string; enter: string; tempo: string }[] = [
+      { name: 'dialog', tag: 'tanrei-dialog', pick: (fx) => fx.id === 'basic', window: dialogWindow('basic'), scrim: 'dialog', enter: 'dialog-motion-enter-duration', tempo: T('motion-enter-duration') },
+      { name: 'bottom-sheet', tag: 'tanrei-bottom-sheet', pick: (fx) => fx.id === 'modal', window: { width: 400, height: 720 }, scrim: 'bottom-sheet', enter: 'bottom-sheet-motion-enter-duration', tempo: SHEET_ENTER },
+      { name: 'side-sheet', tag: 'tanrei-side-sheet', pick: (fx) => fx.id === 'modal', window: { width: 720, height: 480 }, scrim: 'side-sheet', enter: 'side-sheet-motion-enter-duration', tempo: SHEET_ENTER },
     ];
     for (const member of members) {
       const memberSpec = loadSpec(member.name);
@@ -334,7 +336,7 @@ test.describe('motion', () => {
       await mountFixtures(page, memberSpec, { icons: true, fixtures: memberSpec.fixtures.filter(member.pick) });
       const backdrop = page.locator(member.tag).locator('dialog').first();
       await expect.poll(() => backdrop.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
-      await rootTokens(page, { [T('scrim-color')]: 'rgb(10, 20, 30)', [T('scrim-blur')]: '5px', [T('motion-enter-duration')]: '321ms' });
+      await rootTokens(page, { [T('scrim-color')]: 'rgb(10, 20, 30)', [T('scrim-blur')]: '5px', [member.tempo]: '321ms' });
       expect(await css(backdrop, 'background-color', '::backdrop'), member.name).toBe('rgb(10, 20, 30)');
       expect(await css(backdrop, 'backdrop-filter', '::backdrop'), member.name).toBe('blur(5px)');
       expect(await resolveToken(page, `--tanrei-comp-${member.enter}`, 'duration'), member.name).toBe(321);
@@ -380,4 +382,28 @@ test.describe('fixtures', () => {
       await expect(page).toHaveScreenshot([spec.name, `${fixture.id}.png`]);
     });
   }
+});
+
+test.describe('the scrim blur', () => {
+  test('MDL-1: with no blur (every shipped system: 0) a scrim holds no backdrop filter at all, on the layer and on every surface built from it; a blur a layer sets is drawn', async ({ page }) => {
+    // blur(0px) draws nothing, and WebKit (Playwright's build on Linux) redraws everything under a backdrop that holds a
+    // filter whenever anything on the page changes: a page of open modal pickers drew a 1-pixel change in about 2 s.
+    const members: { name: string; tag: string; pick: (fixture: Fixture) => boolean; window: { width: number; height: number } }[] = [
+      { name: 'modal-layer', tag: 'tanrei-modal-layer', pick: (fx) => fx.id === 'open', window: WINDOW },
+      { name: 'dialog', tag: 'tanrei-dialog', pick: (fx) => fx.id === 'basic', window: dialogWindow('basic') },
+      { name: 'bottom-sheet', tag: 'tanrei-bottom-sheet', pick: (fx) => fx.id === 'modal', window: { width: 400, height: 720 } },
+      { name: 'side-sheet', tag: 'tanrei-side-sheet', pick: (fx) => fx.id === 'modal', window: { width: 720, height: 480 } },
+      { name: 'date-time-picker', tag: 'tanrei-date-time-picker', pick: (fx) => fx.id === 'modal-date', window: { width: 720, height: 720 } },
+    ];
+    for (const member of members) {
+      const memberSpec = loadSpec(member.name);
+      await page.setViewportSize(member.window);
+      await mountFixtures(page, memberSpec, { icons: true, fixtures: memberSpec.fixtures.filter(member.pick) });
+      const backdrop = page.locator(member.tag).locator('dialog').first();
+      await expect.poll(() => backdrop.evaluate((el) => (el as HTMLDialogElement).open), member.name).toBe(true);
+      expect(await css(backdrop, 'backdrop-filter', '::backdrop'), member.name).toBe('none');
+      await rootTokens(page, { [T('scrim-blur')]: '5px' });
+      expect(await css(backdrop, 'backdrop-filter', '::backdrop'), member.name).toBe('blur(5px)');
+    }
+  });
 });

@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclaration, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclaration, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
   FieldControlController,
@@ -25,6 +25,7 @@ import { runDirection } from '../../styles/product-text.js';
 import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, compare, decimalFromString, decimalOf, format, numberForm, numberOf, read, round, stepped } from './number-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box whose label is the row of its Field (`stacked`), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiNumberInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -147,7 +148,7 @@ function whenParsed(task: () => void) {
  * @fires action - The person pressed Enter; after any `change` it caused. Cancelable: unless it is cancelled, the form the number input stands in is then asked to submit.
  * @fires {CustomEvent<TanreiNumberInputEntryErrorDetail>} entryerror - The person committed a text that is not a number. `detail.reason` is `invalid`, `detail.text` the input's `invalidText` (empty where none was given). Composed and bubbling.
  */
-export class TanreiNumberInput extends LitElement {
+export class TanreiNumberInput extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'number-input');
   static override styles = styles;
 

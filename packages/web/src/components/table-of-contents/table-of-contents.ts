@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphDrawnController, PressController, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
@@ -7,6 +7,7 @@ import type { TanreiTableOfContentsDensityRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How the table of contents stands (TOC-1, TOC-25): the title and the whole list, or one row that opens the list. */
 export type TanreiTableOfContentsPresentation = 'list' | 'compact';
@@ -211,7 +212,7 @@ const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(pre
  * @fires {CustomEvent<TanreiTableOfContentsSelectDetail>} select - An item was activated; `detail.href` is its href. Dispatched from the anchor's click, before the browser follows the link; cancelable, cancelling the click with it.
  * @fires {CustomEvent<TanreiTableOfContentsToggleDetail>} toggle - The compact presentation's list was shown or hidden by the user (the row, an item chosen, Escape); `detail.open` is the new state.
  */
-export class TanreiTableOfContents extends LitElement {
+export class TanreiTableOfContents extends TanreiElement {
   static override styles = styles;
 
   private readonly availability = new AvailabilityController(this, 'table-of-contents');

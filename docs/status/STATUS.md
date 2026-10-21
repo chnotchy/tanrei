@@ -3,9 +3,9 @@
 
 Legend: · planned · ◌ lagging · ◔ alpha · ◑ beta · ● stable · ✕ deprecated
 
-Level: 67 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
+Level: 70 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
 
-Listing: 82 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
+Listing: 85 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
 
 | Component | Level | Listing | Category | Spec | Web Components | SwiftUI | Jetpack Compose | Flutter | React Native |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -20,6 +20,7 @@ Listing: 82 default · 8 advanced. A component of the first value is shown where
 | Divider | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Badge | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Progress indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Meter | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Loading indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Chip | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Modal layer | base | advanced | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
@@ -45,7 +46,7 @@ Listing: 82 default · 8 advanced. A component of the first value is shown where
 | Button group | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Button with menu | composed: Menu | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | FAB menu | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Toolbar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Toolbar | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Carousel | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Calendar | base | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | DateTimePicker | composed: Calendar, Modal layer | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
@@ -99,6 +100,8 @@ Listing: 82 default · 8 advanced. A component of the first value is shown where
 | Embedded text input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Handle | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Scroll area | base | default | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 
 ## Not shipped by a system
 

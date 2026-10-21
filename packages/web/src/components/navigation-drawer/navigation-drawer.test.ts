@@ -5,6 +5,8 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -24,7 +26,7 @@ const panel = (page: P, id: string) => drawer(page, id).locator('.drawer');
 const menu = (page: P, id: string) => drawer(page, id).locator('tanrei-button[slot="header-button"]').first();
 const T = (name: string) => `--tanrei-comp-navigation-drawer-${name}`;
 const d = (value: string, label: string, icon = '', props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { value, label, ...(icon ? { icon } : {}), ...props } });
-const section = (heading: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'section', props: { heading, ...props }, items });
+const section = (heading: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'section', props: { title: heading, ...props }, items });
 const grp = (label: string, items: FixtureItem[], props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'group', props: { label, ...props }, items });
 /** A link destination without a value of its own: its href stands for it (NVD-59). */
 const link = (label: string, href: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { label, href, ...props } });
@@ -1294,8 +1296,23 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => drawer(page, id).locator('dialog').count(), { timeout: 5000 }).toBe(0);
   });
 
+  test('NVD-40: a modal collapsible drawer that appears open is drawn open, at its full width and over its scrim, from its first frame: it does not widen from a column it never showed', async ({ page }) => {
+    await page.setViewportSize(drawerWindow('modal-collapsible-open'));
+    // The scrim is the dialog's `::backdrop`, which the frames do not read of themselves.
+    const scrim = (root: Element) => {
+      const dialog = root.querySelector('tanrei-navigation-drawer')?.shadowRoot?.querySelector('dialog');
+      return { scrim: dialog ? Number(getComputedStyle(dialog, '::backdrop').opacity) : -1 };
+    };
+    const seen = await appearingFixture(page, spec, 'modal-collapsible-open', { sample: { probe: scrim } });
+    expect(seen.rest.probe.scrim).toBe(1);
+    expectFirstFrameAtRest(seen);
+  });
+
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
     await mount(page, [fixture('e', MAIL), rail('c', MAIL), ...only('collapsed-labels-selected')], { reducedMotion: false });
+    // The two motions are told apart only where the selection's is the longer: a system may time them alike (the
+    // default system's state.large and selection.mark roles are both 250 ms), so the test sets the selection's longer.
+    await override(page, { [T('motion-selection-duration')]: `calc(var(${T('motion-state-duration')}) * 2)` });
     const [selection, state] = await Promise.all([resolveToken(page, T('motion-selection-duration'), 'duration'), resolveToken(page, T('motion-state-duration'), 'duration')]);
     for (const [id, n, old] of [
       ['e', 2, 0],
@@ -3380,4 +3397,17 @@ test.describe('fixtures', () => {
       await expect(page.locator(`[data-fixture="${f.id}"]`) as Locator).toHaveScreenshot([spec.name, `${f.id}.png`]);
     });
   }
+});
+
+test('web: a section’s title is the headline attribute and property, drawn as a heading; heading names no attribute', async ({ page }) => {
+  await mount(page, [{ id: 's', props: { label: 'Menu', open: true }, items: [section('Mail', [d('inbox', 'Inbox', 'inbox')])] }]);
+  const element = page.locator('[data-fixture="s"] tanrei-navigation-drawer-section');
+  await expect(element).toHaveAttribute('headline', 'Mail');
+  await expect(element.locator('[role="heading"]')).toHaveText('Mail');
+  await element.evaluate(async (el) => {
+    el.removeAttribute('headline');
+    el.setAttribute('heading', 'Mail');
+    await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+  });
+  await expect(element.locator('[role="heading"]')).toHaveCount(0);
 });

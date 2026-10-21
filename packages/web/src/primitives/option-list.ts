@@ -100,7 +100,7 @@ export interface OptionModel {
   entries: OptionEntry[];
   /** Every option, in order and across groups. */
   options: OptionData[];
-  /** Whether any option has a leading icon: every row then keeps the column. */
+  /** Whether any option has a leading icon (the closed field sizes itself to show a chosen option's icon). */
   hasIcons: boolean;
   /** Groups found inside a group: their options are drawn as the outer group's, and the field reports them. */
   nested: Element[];
@@ -379,8 +379,8 @@ ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-s
     motion: '.motion',
     offset: T('list-offset'),
     margin: T('list-viewport-margin'),
-    open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
-    close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
   /* The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape; ${
@@ -691,6 +691,40 @@ export const OPTION_MIRRORED = '.option-icon';
 /** The id of an option's row in the field's shadow root: what `aria-activedescendant` names. */
 export const optionId = (option: OptionData) => `option-${option.index}`;
 
+/**
+ * Whether an option keeps the room of the leading icon column where it has no icon (SEL-66): `auto` while another
+ * option of its section has an icon, `always` in every option, `never` only where it has one. A closed set: the menu's
+ * values.
+ */
+export type OptionIconSpace = 'auto' | 'always' | 'never';
+export const OPTION_ICON_SPACES: readonly OptionIconSpace[] = ['auto', 'always', 'never'];
+
+/**
+ * The options of `model` that keep the leading icon column (SEL-66). A section is a group, or a run of adjacent options
+ * outside any group — what is separated from its neighbours (SEL-45) — and while `space` is auto its options keep the
+ * column where any of them has an icon.
+ */
+export function iconColumns(model: OptionModel, space: OptionIconSpace): (option: OptionData) => boolean {
+  if (space === 'always') return () => true;
+  if (space === 'never') return (option) => !!option.leadingIcon;
+  const kept = new Set<OptionData>();
+  const close = (section: readonly OptionData[]) => {
+    if (section.some((option) => !!option.leadingIcon)) for (const option of section) kept.add(option);
+  };
+  let run: OptionData[] = [];
+  for (const entry of model.entries) {
+    if (entry.kind === 'option') {
+      run.push(entry.option);
+      continue;
+    }
+    close(run);
+    run = [];
+    close(entry.group.options);
+  }
+  close(run);
+  return (option) => kept.has(option);
+}
+
 export interface OptionListOptions {
   /** The options the list draws now, in order (a combobox gives the ones its filter leaves). */
   model: () => OptionModel;
@@ -698,6 +732,8 @@ export interface OptionListOptions {
   chosen: () => OptionData | null;
   /** The person confirmed `option` — a press, Enter or Space; never a disabled option. */
   choose: (option: OptionData, event: Event) => void;
+  /** The field's iconSpace, read as a value it defines (SEL-66, CMB-67): which options keep the leading icon column, section by section. */
+  iconSpace: () => OptionIconSpace;
   /**
    * The option that becomes the active one when the active one is no longer drawn, or while none is; the one an
    * opening list has when left out (SEL-36). A combobox names the first that is not disabled, or none where Enter
@@ -1161,6 +1197,8 @@ export class OptionListController implements ReactiveController {
     const model = this.options.model();
     const chosen = this.options.chosen();
     const size = model.options.length;
+    // SEL-66, CMB-67: which rows keep the leading icon column — by section of what is drawn, as the field's iconSpace says.
+    const column = iconColumns(model, this.options.iconSpace());
     // A long list draws the rows near the box that scrolls; what it skips is room of the rows' heights.
     const windowed = this.drawn ? this.windowOf(model) : null;
     this.windowed = !!windowed;
@@ -1202,7 +1240,7 @@ export class OptionListController implements ReactiveController {
         aria-setsize=${size}
       >
         <span class="row-content">
-          ${model.hasIcons
+          ${column(option)
             ? html`<span class="row-column leading" aria-hidden="true"><span part="option-leading-icon" class="option-icon"><span class="ink">${option.leadingIcon}</span></span></span>`
             : nothing}
           <span class="row-text"
@@ -1262,7 +1300,7 @@ export class OptionListController implements ReactiveController {
     // The placed box is only a box: without `role="none"` a popover element with no role is exposed as an unnamed group
     // around the list box.
     return html`<div class="surface" popover=${inline ? nothing : 'manual'} role="none" @mousedown=${this.onMouseDown} @toggle=${this.onSurfaceToggle}>
-      <div class="motion">
+      <div class="motion" data-tanrei-appear>
         <div
           part="list"
           class=${classMap({ list: true, tail: !!tail, bare: !!tail && size === 0 })}

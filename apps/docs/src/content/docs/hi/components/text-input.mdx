@@ -2,7 +2,7 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="टोकन फ़िल्टर करें" placeholder="टोकन फ़िल्टर करें"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
@@ -89,14 +90,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 टेक्स्ट इनपुट के चारों ओर का फ़ील्ड, हाथ से पूरा लिखा गया टेक्स्ट फ़ील्ड है। इनपुट का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर बताया जाता है; `name`, `value` और टाइप करने से जुड़ी हर बात इनपुट पर।
 
 ```html
-<tanrei-field label="ईमेल" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="ईमेल" required required-text="ज़रूरी"
   supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="एक फ़ील्ड जिसके भीतर टेक्स्ट इनपुट है: वही तस्वीर जो टेक्स्ट फ़ील्ड की है" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" requirement="required" required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

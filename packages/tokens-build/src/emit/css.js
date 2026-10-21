@@ -40,8 +40,10 @@ function shadow(token) {
 // Runtime dials: a `mul` rule is emitted as the same arithmetic in CSS, so overriding a
 // `--tanrei-dial-*` property moves every derived token live. Rounding mirrors the build (0.25px, 1ms),
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
-// so colors stay build-time values.
+// so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
+// follows an outer one a product sets at runtime; both of its terms are already on the build's step.
 function derivedExpression(rule, type) {
+  if (rule?.fn === 'sub') return `max(${type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px'}, calc(${ref(rule.of.slice(1, -1))} - ${ref(rule.by.slice(1, -1))}))`;
   if (!rule || rule.fn !== 'mul') return null;
   const of = ref(rule.of.slice(1, -1));
   if (rule.by === 1 && rule.exp === undefined) return of;
@@ -61,8 +63,11 @@ function colorExpression(rule) {
   return null;
 }
 
-/** One token → one or more `[name, value]` declarations. */
-function declarations(token) {
+/**
+ * One token → one or more `[name, value]` declarations. Exported for Theme Studio, which writes a dragged dial — and
+ * the few declarations that follow it as literals — the way this emitter writes them, without emitting the sheet.
+ */
+export function declarations(token) {
   const name = idToVar(token.id);
   if (token.alias && token.type !== 'typography') return [[name, ref(token.alias)]];
   // A choice of kind reaches CSS as its NAME — `--tanrei-sys-behavior-pressed-feedback: ripple` — so
@@ -127,14 +132,20 @@ function declarations(token) {
 // a circle. CSS cannot tell a box its radius was clamped, but the build knows which shape tokens are the full step: every
 // comp token whose alias chain reaches `sys.shape.corner.*` gets a companion `<name>-pill` — 1 when the chain passes
 // through `corner.full`, else 0 — which the web's one corner rule reads to draw that box round whatever the smoothing.
+// A corner derived by `sub` (one inside another, less the inset) is not the full step, and neither is a token that
+// aliases one: 0.
 const CORNER = `${CONFIG.namespace}.sys.shape.corner.`;
 const FULL = `${CORNER}full`;
 function cornerCompanion(token, tokens) {
-  if (token.path[0] !== 'comp' || token.type !== 'dimension' || !token.alias) return [];
+  if (token.path[0] !== 'comp' || token.type !== 'dimension') return [];
+  const name = `${idToVar(token.id)}-pill`;
+  if (token.derive?.fn === 'sub') return [[name, '0']];
+  if (!token.alias) return [];
   const chain = [];
   for (let id = token.alias; id && !chain.includes(id); id = tokens[id]?.alias) chain.push(id);
+  if (chain.some((id) => tokens[id]?.derive?.fn === 'sub')) return [[name, '0']];
   if (!chain.some((id) => id.startsWith(CORNER))) return [];
-  return [[`${idToVar(token.id)}-pill`, chain.includes(FULL) ? '1' : '0']];
+  return [[name, chain.includes(FULL) ? '1' : '0']];
 }
 
 // A ring drawn inside (SPB-26): an elevation's ring — the layer with no offset, no blur and a positive spread — is cast
@@ -157,6 +168,9 @@ const unavailableValue = ({ components, variants }) =>
 /** What lives in a layer the system does not extend: `component=layer`, space-separated, in one string. */
 const outsideValue = (outside) => JSON.stringify(Object.entries(outside).map(([component, layer]) => `${component}=${layer}`).join(' '));
 
+/** What the system uses instead: `component=replacement,replacement`, space-separated, in one string. */
+const replacementValue = (replacements) => JSON.stringify(Object.entries(replacements).map(([entry, uses]) => `${entry}=${uses.join(',')}`).join(' '));
+
 const block = (selector, decls, indent = '') =>
   `${indent}${selector} {\n${decls.map(([n, v]) => `${indent}  ${n}: ${v};`).join('\n')}\n${indent}}`;
 
@@ -165,15 +179,17 @@ function colorValue(token) {
 }
 
 /**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string> }} [options]
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]> }} [options]
  *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
  *   systems can coexist on one page. `unavailable` = what the system does not ship, declared as one string
  *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
  *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
  *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
- *   system's sheet has no tokens for them, and a component used there says so.
+ *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
+ *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
+ *   way, so that the report names them.
  */
-export function emitCss(model, { scope, unavailable, outside } = {}) {
+export function emitCss(model, { scope, unavailable, outside, replacements } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
@@ -220,7 +236,7 @@ export function emitCss(model, { scope, unavailable, outside } = {}) {
     // Custom properties resolve their var() references where they are declared. Declaring the whole
     // set again on a contrast scope makes component tokens pick up that scope's system colors, so
     // data-${NS}-contrast works on a subtree and not only on <html>.
-    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : [])], '  '),
+    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []), ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []), ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : [])], '  '),
     block(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
     '',
     `  /* Theme follows the OS by default; force it per subtree with data-${NS}-theme. */`,

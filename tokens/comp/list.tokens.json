@@ -221,25 +221,25 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.large}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "reorder-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$value": "{tanrei.sys.motion.role.selection.travel}",
             "$description": "How long an item takes to change place: the items that slide aside under a dragged one, the dropped item settling, an item lifted by the keyboard stepping to its next place, and items changing places after a move (LST-38, LST-41). Longer than a change of color: something crosses the length of an item."
           },
           "reorder-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         },
         "dragged": {

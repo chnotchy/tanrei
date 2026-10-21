@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../../primitives/index.js';
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, large), plus any a design system adds: a size other than small has a title row that collapses. */
 export type TanreiAppBarSize = 'small' | 'large' | (string & {});
@@ -82,7 +83,7 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
  * @csspart outline - The bar's bottom edge.
  */
-export class TanreiAppBar extends LitElement {
+export class TanreiAppBar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'app-bar');
   static override styles = styles;
 

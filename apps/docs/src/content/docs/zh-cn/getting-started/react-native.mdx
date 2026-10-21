@@ -2,15 +2,15 @@
 title: React Native
 description: 把 Tanrei 添加到 React Native 应用中。
 translationOf: getting-started/react-native.mdx
-sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+sourceHash: 56d00833d4aaf691c31d6cf20eca6ee3e7b8aa51
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react-native` 用 TypeScript 编写，不含原生模块，因此无需链接任何东西，也可以与 Expo 一起使用。它面向新架构（New Architecture），需要 React 19 和 React Native 0.78 或更高版本。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+<ReleaseNotice platform="react-native" registry="npm" pkg="@tanrei/react-native" />
 
 ## 安装
 
@@ -36,7 +36,7 @@ pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 ```
 
-### 首次发布之后
+### 发布之后
 
 ```sh
 npm install @tanrei/react-native

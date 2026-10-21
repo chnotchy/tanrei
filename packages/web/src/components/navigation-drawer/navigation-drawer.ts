@@ -36,6 +36,7 @@ import { TanreiDivider } from '../divider/divider.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import '../loading-indicator/loading-indicator.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -173,7 +174,7 @@ const REST: DrawerCellContext = {
  * row while expanded and the row cut after its icon while collapsed, the short label where collapsedLabels draws one, the
  * tooltip that names a collapsed cell without one, and the states, press and focus (NVD-4…10, NVD-31…35, NVD-56).
  */
-abstract class DrawerCell extends LitElement {
+abstract class DrawerCell extends TanreiElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {
@@ -1316,19 +1317,19 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
  * @slot - `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children.
  * @csspart heading - The heading row.
  */
-export class TanreiNavigationDrawerSection extends LitElement {
+export class TanreiNavigationDrawerSection extends TanreiElement {
   static override styles = sectionStyles;
 
   static override properties: PropertyDeclarations = {
-    heading: { type: String },
+    headline: { type: String },
     divider: { type: Boolean, reflect: true },
     headingLevel: { type: Number, attribute: 'heading-level' },
     nested: { state: true },
     collapsed: { state: true },
   };
 
-  /** The text that names the items under it, exposed as a heading. Empty draws no heading row. */
-  heading = '';
+  /** The text that names the items under it (the spec's `title`), exposed as a heading. Empty draws no heading row. */
+  headline = '';
 
   /** Draws a divider (the divider component) before the section. */
   divider = false;
@@ -1363,8 +1364,8 @@ export class TanreiNavigationDrawerSection extends LitElement {
     const level = Math.min(6, Math.max(1, Math.round(Number(this.headingLevel) || 2)));
     return html`<div class=${classMap({ section: true, collapsed: this.collapsed })}>
       ${this.divider ? html`<tanrei-divider></tanrei-divider>` : nothing}
-      ${this.heading
-        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.heading}</span></div>`
+      ${this.headline
+        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.headline}</span></div>`
         : nothing}
       <div class="items" role="list"><slot></slot></div>
     </div>`;
@@ -1482,7 +1483,7 @@ interface Snapshot {
  * @fires {CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>} expandedchange - The user asked a collapsible drawer for its other form (its menu button, or a group's cell while collapsed): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
  * @fires {CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>} presentationchange - A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
  */
-export class TanreiNavigationDrawer extends LitElement {
+export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
   static override styles = drawerStyles;
 
@@ -2692,6 +2693,9 @@ export class TanreiNavigationDrawer extends LitElement {
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
         this.presented = true;
+        // A drawer that appears open never showed its column: it is drawn open at its full width, scrim and all, from
+        // its first frame, and does not widen from the column (`@starting-style`) as one that opens does.
+        if (!this.hasUpdated) this.drawAtOnce();
       }
     }
   }
@@ -2813,6 +2817,7 @@ export class TanreiNavigationDrawer extends LitElement {
       return html`<dialog
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
+        data-tanrei-appear
         style=${styleMap(this.collapses ? this.place : {})}
         aria-label=${label}
         tabindex="-1"

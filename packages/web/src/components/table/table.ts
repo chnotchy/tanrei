@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import {
   AvailabilityController,
   PendingGlyphs,
@@ -18,6 +18,7 @@ import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import type { TanreiTableDensityRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTableDensity = keyof TanreiTableDensityRegistry;
@@ -376,7 +377,7 @@ function mark(element: Element, name: string, value: string | null) {
  * @slot - The native `<table>`: an optional `<caption>`, a `<thead>` of one row of `<th scope="col">`, one or more `<tbody>`, an optional `<tfoot>`. It is a child in the document, not a slotted node: the element has no shadow root.
  * @cssprop --tanrei-comp-table-sticky-container-color - The fill of a header row and a first column that are kept in view: the color of the surface the table sits on. Set it on a table inside a card, a dialog or a sheet.
  */
-export class TanreiTable extends ReactiveElement {
+export class TanreiTable extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'table');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);

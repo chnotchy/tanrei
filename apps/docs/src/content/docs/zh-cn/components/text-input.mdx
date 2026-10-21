@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="筛选令牌" placeholder="筛选令牌"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
@@ -89,14 +90,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用字段包住一个文本输入框，就是把文本字段拆开来写。输入框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value` 以及与键入有关的一切写在输入框上。
 
 ```html
-<tanrei-field label="邮箱" requirement="required" required-text="必填"
+<tanrei-field label="邮箱" required required-text="必填"
   supporting-text="仅用于登录。">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="里面放着一个文本输入框的字段：画面与文本字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" supporting-text="仅用于登录。">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填" supporting-text="仅用于登录。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>

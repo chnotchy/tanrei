@@ -33,6 +33,12 @@ export interface TanreiProgressIndicatorSizeRegistry {
   large: true;
 }
 
+export interface TanreiMeterSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+
 export interface TanreiLoadingIndicatorSizeRegistry {
   small: true;
   medium: true;
@@ -231,6 +237,11 @@ export interface TanreiSwatchSizeRegistry {
   small: true;
   medium: true;
   large: true;
+}
+
+export interface TanreiHandleSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiSwatchShapeRegistry {

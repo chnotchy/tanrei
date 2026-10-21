@@ -160,11 +160,11 @@
       "key": "closeLabel",
       "readers": [
         {
-          "component": "callout",
+          "component": "bottom-sheet",
           "prop": "closeLabel"
         },
         {
-          "component": "dialog",
+          "component": "callout",
           "prop": "closeLabel"
         },
         {
@@ -822,6 +822,15 @@
       ]
     },
     {
+      "key": "noOptionsText",
+      "readers": [
+        {
+          "component": "select",
+          "prop": "emptyText"
+        }
+      ]
+    },
+    {
       "key": "optionalText",
       "readers": [
         {
@@ -1199,6 +1208,15 @@
         {
           "component": "date-time-picker",
           "prop": "todayLabel"
+        }
+      ]
+    },
+    {
+      "key": "toolbarOverflowLabel",
+      "readers": [
+        {
+          "component": "toolbar",
+          "prop": "overflowLabel"
         }
       ]
     },

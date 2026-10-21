@@ -40,7 +40,7 @@
   ],
   "props": [
     {
-      "name": "selected",
+      "name": "checked",
       "type": "boolean",
       "default": false,
       "description": "Whether the setting is on."
@@ -50,6 +50,12 @@
       "type": "boolean",
       "default": false,
       "description": "Prevents interaction and removes the switch from the focus order."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the setting and keeps it: the switch can be focused and read and is submitted with its form, but the person cannot switch it or drag its handle. Drawn as an enabled switch, without the hover and press answers (SWT-25)."
     },
     {
       "name": "label",
@@ -64,13 +70,13 @@
       "description": "Draws no visible label but keeps label as the accessible name (a switch in a list row whose headline already names it)."
     },
     {
-      "name": "selectedIcon",
+      "name": "checkedIcon",
       "type": "string",
       "default": "",
       "description": "The glyph (a name in the system's icon set) the handle shows while on. Empty shows none."
     },
     {
-      "name": "unselectedIcon",
+      "name": "uncheckedIcon",
       "type": "string",
       "default": "",
       "description": "The glyph the handle shows while off. Empty shows none; a product that marks only the on position leaves it empty."
@@ -79,7 +85,7 @@
   "events": [
     {
       "name": "change",
-      "description": "The user switched it; carries the new value of selected."
+      "description": "The user switched it; carries the new value of checked."
     }
   ],
   "states": [
@@ -93,7 +99,7 @@
   "behavior": [
     {
       "id": "SWT-1",
-      "text": "WHEN the user activates the switch by pointer, touch, Space, assistive technology or a click on its label THE switch SHALL switch selected and emit change exactly once with the new value; Enter SHALL activate it only on a platform whose convention activates any focused control with Enter (Android, tvOS), and SHALL NOT on the web, where Enter submits the form."
+      "text": "WHEN the user activates the switch by pointer, touch, Space, assistive technology or a click on its label THE switch SHALL switch checked and emit change exactly once with the new value; Enter SHALL activate it only on a platform whose convention activates any focused control with Enter (Android, tvOS), and SHALL NOT on the web, where Enter submits the form."
     },
     {
       "id": "SWT-2",
@@ -140,12 +146,12 @@
     },
     {
       "id": "SWT-12",
-      "text": "WHILE the handle shows an icon THE switch SHALL draw the handle at the larger of its condition's handle size and comp.switch.handle.size-with-icon, and SHALL draw the glyph of the system's icon set that the prop names, centered in the handle at comp.switch.icon.size, with the family and fill of its condition (selected or unselected), the weight comp.switch.icon.weight (not sys.icon.weight) in both conditions, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; the handle shows selectedIcon while selected and unselectedIcon while unselected, and no icon when that prop is empty. THE switch SHALL draw no mark of its own (no path, shape or character of its own for a check or a close mark). The weight SHALL change the stroke of the glyph only: the glyph box stays comp.switch.icon.size, and the handle, the track and the place of the glyph are the same at every weight.",
+      "text": "WHILE the handle shows an icon THE switch SHALL draw the handle at the larger of its condition's handle size and comp.switch.handle.size-with-icon, and SHALL draw the glyph of the system's icon set that the prop names, centered in the handle at comp.switch.icon.size, with the family and fill of its condition (selected or unselected), the weight comp.switch.icon.weight (not sys.icon.weight) in both conditions, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; the handle shows checkedIcon while selected and uncheckedIcon while unselected, and no icon when that prop is empty. THE switch SHALL draw no mark of its own (no path, shape or character of its own for a check or a close mark). The weight SHALL change the stroke of the glyph only: the glyph box stays comp.switch.icon.size, and the handle, the track and the place of the glyph are the same at every weight.",
       "verify": "Under the `acme` fixture system, whose icon set is static (a family per selection state), the on glyph is drawn in its selected family and the off glyph in its unselected family; in the default system the glyph box is comp.switch.icon.size and lies inside the handle. In the default system each glyph's weight is the value of comp.switch.icon.weight, which is greater than sys.icon.weight, while an icon of the icon set drawn beside the switch keeps sys.icon.weight; under a layer that sets comp.switch.icon.weight alone both glyphs follow it and the glyph box, the handle and the track measure what they measured before."
     },
     {
       "id": "SWT-13",
-      "text": "WHEN selected changes THE switch SHALL move the handle along the track, change its size, and change the track, outline, handle and icon colors over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing, every part passing through the in-between looks of SWT-19: at each moment the switch is drawn as a drag would draw it with the handle at that place; WHERE motion is reduced it SHALL show the new condition at once."
+      "text": "WHEN checked changes THE switch SHALL move the handle along the track, change its size, and change the track, outline, handle and icon colors over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing, every part passing through the in-between looks of SWT-19: at each moment the switch is drawn as a drag would draw it with the handle at that place; WHERE motion is reduced it SHALL show the new condition at once."
     },
     {
       "id": "SWT-14",
@@ -171,16 +177,16 @@
     {
       "id": "SWT-19",
       "text": "WHEN the user presses the track, the handle or the hit area around them (SWT-5), but not the label, with touch, a pen or a mouse and drags past the platform's touch slop (8 points where the platform names none), further along the track than across it, THE switch SHALL take the drag: the press SHALL NOT switch it when it ends (SWT-1), the switch SHALL stay in its pressed state for as long as the drag lasts (SWT-7, SWT-18), and THE switch SHALL draw the handle's center, with the container around it, on the track's midline at the pointer's place along the track, kept between its unselected and its selected position (SWT-10), in the frame the pointer moves, without a motion of its own; WHEN the drag is taken with the pointer away from the handle's center THE switch SHALL bring the handle to the pointer's place over comp.switch.motion.state-duration with comp.switch.motion.state-easing instead of at once, following the pointer meanwhile. WHILE a drag holds the handle THE switch SHALL draw every part that differs between its two conditions at the handle's progress p, which is 0 at the unselected position, 1 at the selected position and proportional to the distance between them, continuously and with no threshold: the handle's size and elevation, and the colors of the track, the outline, the handle, the container and the label, each at the linear interpolation by p between the unselected and the selected condition's tokens of the current state; and the icon as the unselected glyph at an opacity of 1 − p drawn under the selected glyph at an opacity of p, each in its own condition's color, family and fill and both at comp.switch.icon.weight, a glyph whose prop is empty drawing nothing. The in-between look SHALL follow the handle in the same frame, without a motion of its own. A drag that is further across the track than along it when it passes the slop SHALL be left to scrolling for its whole length.",
-      "verify": "Test under the default system, with pressed-feedback overlay: a touch pressed on an off switch and held at the middle of its travel draws the handle there, 28 across, in the even mix of the two conditions' pressed handle colors, on a track and an outline in the even mix of theirs, both glyphs at half opacity where both props are set, while selected is still false, the exposed state is still off and no change has been emitted; at a quarter of the travel every color is a quarter of the way, and no frame shows a jump as the handle crosses the middle. A frame of a tap's transition (SWT-13) and a drag held at the handle's place in that frame draw the same colors, apart from the pressed state. A press on the label dragged sideways moves nothing. Under `cupertino`, whose handle keeps its size (SWT-18), only the colors and the position change."
+      "verify": "Test under the default system, with pressed-feedback overlay: a touch pressed on an off switch and held at the middle of its travel draws the handle there, 28 across, in the even mix of the two conditions' pressed handle colors, on a track and an outline in the even mix of theirs, both glyphs at half opacity where both props are set, while checked is still false, the exposed state is still off and no change has been emitted; at a quarter of the travel every color is a quarter of the way, and no frame shows a jump as the handle crosses the middle. A frame of a tap's transition (SWT-13) and a drag held at the handle's place in that frame draw the same colors, apart from the pressed state. A press on the label dragged sideways moves nothing. Under `cupertino`, whose handle keeps its size (SWT-18), only the colors and the position change."
     },
     {
       "id": "SWT-20",
-      "text": "WHEN the user releases a drag the switch has taken THE switch SHALL choose a condition: the one whose position the handle's center is nearer to (the other condition from the middle of its travel on), or, WHEN the release is a fling along the track, the one the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE switch SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. WHERE the chosen condition is not the one selected holds THE switch SHALL switch selected and emit change exactly once with the new value, as an activation does (SWT-1), and SHALL bring the handle, and with it the in-between look of every part (SWT-19), from where the release left them to that condition's position and look over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing; WHERE it is the one selected holds THE switch SHALL return them to it over the same motion and emit nothing. The middle decides only what a release chooses; nothing drawn changes at it. The release SHALL end the pressed state as the end of a press does (SWT-7, SWT-18) and SHALL NOT also count as an activation.",
+      "text": "WHEN the user releases a drag the switch has taken THE switch SHALL choose a condition: the one whose position the handle's center is nearer to (the other condition from the middle of its travel on), or, WHEN the release is a fling along the track, the one the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE switch SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. WHERE the chosen condition is not the one checked holds THE switch SHALL switch checked and emit change exactly once with the new value, as an activation does (SWT-1), and SHALL bring the handle, and with it the in-between look of every part (SWT-19), from where the release left them to that condition's position and look over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing; WHERE it is the one checked holds THE switch SHALL return them to it over the same motion and emit nothing. The middle decides only what a release chooses; nothing drawn changes at it. The release SHALL end the pressed state as the end of a press does (SWT-7, SWT-18) and SHALL NOT also count as an activation.",
       "verify": "Test: an off switch dragged past the middle and released turns on and emits one change with true; released short of the middle it stays off and emits nothing; a fling toward the on end released short of the middle turns it on, and a fling back toward the off end released past the middle leaves it off. A listener hears exactly one change per committed drag, none from the click that follows the release. A fast drag that holds still for longer than 40 milliseconds before its release is no fling, and the same drag released within 40 milliseconds of its last move is one."
     },
     {
       "id": "SWT-21",
-      "text": "WHEN a drag the switch has taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, disabled becomes true, or the product sets selected — THE switch SHALL return the handle and the in-between look of every part to the condition selected holds (the one the product has just set, where it set one) over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing and emit nothing. WHILE a drag lasts THE switch SHALL NOT change selected, the value it would submit with a form, or the state it exposes to assistive technology (SWT-14), whatever it draws, and SHALL announce nothing: the switch changes, and says so, on the release alone (SWT-20). WHERE motion is reduced THE switch SHALL still draw the handle where the pointer is and every part at the handle's progress (SWT-19), which the person's own finger moves, taking the drag without the catch-up motion, and SHALL show the chosen condition at once when the drag is released or cancelled (SWT-13).",
+      "text": "WHEN a drag the switch has taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, disabled becomes true, or the product sets checked — THE switch SHALL return the handle and the in-between look of every part to the condition checked holds (the one the product has just set, where it set one) over comp.switch.motion.selection-duration with comp.switch.motion.selection-easing and emit nothing. WHILE a drag lasts THE switch SHALL NOT change checked, the value it would submit with a form, or the state it exposes to assistive technology (SWT-14), whatever it draws, and SHALL announce nothing: the switch changes, and says so, on the release alone (SWT-20). WHERE motion is reduced THE switch SHALL still draw the handle where the pointer is and every part at the handle's progress (SWT-19), which the person's own finger moves, taking the drag without the catch-up motion, and SHALL show the chosen condition at once when the drag is released or cancelled (SWT-13).",
       "verify": "Test: Escape during a drag returns the handle and emits nothing; an accessibility snapshot taken mid-drag equals the one taken before the press; with motion reduced the handle is at its condition's position in the frame after the release."
     },
     {
@@ -190,12 +196,17 @@
     },
     {
       "id": "SWT-23",
-      "text": "WHERE the layout direction is right-to-left THE switch SHALL draw the selectedIcon and unselectedIcon glyphs in its handle mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SWT-11 gives. THE switch SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
+      "text": "WHERE the layout direction is right-to-left THE switch SHALL draw the checkedIcon and uncheckedIcon glyphs in its handle mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SWT-11 gives. THE switch SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
       "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
     },
     {
       "id": "SWT-24",
       "text": "THE switch SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE switch SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "SWT-25",
+      "text": "WHILE readOnly is true and disabled is false THE switch SHALL stay focusable and in the focus order; SHALL NOT change checked, and SHALL NOT emit change, on any activation — pointer, touch, Space, Enter where Enter activates it, assistive technology, a click on its label or a click dispatched on the element; SHALL NOT take a drag (SWT-19) nor change its handle's size for a press (SWT-18); SHALL expose the read-only state to assistive technology beside its on or off state; WHERE the platform has forms SHALL be submitted with its form as it is drawn; and SHALL be drawn from the resting component tokens of its condition — the enabled ones, never the disabled ones — and SHALL show no hovered and no pressed state, under any pressed feedback (no overlay, no ripple, no dim), while keyboard focus still selects the focused state and shows the focus ring (SWT-3, SWT-4). The product may still set checked, which then moves the handle (SWT-13). WHILE disabled is true as well, disabled wins (SWT-2).",
+      "verify": "Web unit: a read-only switch is reached by Tab, keeps checked after a click on the track, a click on the label, Space, element.click() and a drag along the track, and fires no input and no change; its input carries aria-readonly with role switch; a named one is in FormData; hovered and pressed it draws its resting tokens, keyboard-focused its focused ones."
     }
   ],
   "accessibility": {
@@ -207,7 +218,7 @@
       },
       {
         "keys": "Space",
-        "action": "Switches it."
+        "action": "Switches it; nothing while it is read-only."
       },
       {
         "keys": "Enter",
@@ -222,6 +233,7 @@
     "minimumTarget": true,
     "notes": [
       "The state is announced as on / off: role switch with aria-checked on the web, the switch trait of a toggle on Apple platforms, Role.Switch with a toggleable state on Android, Semantics toggled in Flutter, accessibilityRole \"switch\" with accessibilityState checked in React Native.",
+      "Read-only (SWT-25) is a switch that shows a setting in place and keeps it in the focus order, so that it is read with the others — a setting a policy holds, or one only an administrator may change. HTML's readonly attribute does not apply to a checkbox, the switch's native element on the web, so the switch cancels its activation itself and says read-only with aria-readonly, which WAI-ARIA allows on the switch role; React Aria's isReadOnly is the same: focusable, announced with its value, not changeable. Where the person may not reach it at all, it is disabled.",
       "A tap anywhere on the switch or its label toggles it. A drag along the track carries the handle with the finger, and the switch takes the side the handle is released on (SWT-19 to SWT-21).",
       "The drag is never the only way (WCAG 2.5.7): a single tap, a click on the label and Space all switch it. With a screen reader running, a one-finger drag belongs to the reader; the switch is then toggled by the reader's activation, as before.",
       "A drag changes what is drawn, continuously, and nothing that assistive technology is told: between its ends the switch looks partly on, but the state stays on or off as it was, and is announced once, when the release changes it. There is no threshold in the look; the middle of the travel decides only what a release chooses.",
@@ -242,7 +254,7 @@
     {
       "id": "selected",
       "props": {
-        "selected": true,
+        "checked": true,
         "label": "Wi-Fi"
       }
     },
@@ -257,32 +269,40 @@
       "id": "disabled-selected",
       "props": {
         "disabled": true,
-        "selected": true,
+        "checked": true,
         "label": "Wi-Fi"
       }
     },
     {
       "id": "selected-icon",
       "props": {
-        "selected": true,
-        "selectedIcon": "check",
+        "checked": true,
+        "checkedIcon": "check",
         "label": "Wi-Fi"
       }
     },
     {
       "id": "unselected-icon",
       "props": {
-        "selectedIcon": "check",
-        "unselectedIcon": "close",
+        "checkedIcon": "check",
+        "uncheckedIcon": "close",
         "label": "Wi-Fi"
       }
     },
     {
       "id": "label-hidden",
       "props": {
-        "selected": true,
+        "checked": true,
         "label": "Wi-Fi",
         "labelHidden": true
+      }
+    },
+    {
+      "id": "read-only-selected",
+      "props": {
+        "readOnly": true,
+        "checked": true,
+        "label": "Wi-Fi"
       }
     }
   ],
@@ -291,28 +311,30 @@
       "status": "lagging",
       "name": "tanrei-switch",
       "props": {
-        "selected": "selected",
+        "checked": "checked",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
-        "selectedIcon": "selectedIcon",
-        "unselectedIcon": "unselectedIcon"
+        "checkedIcon": "checkedIcon",
+        "uncheckedIcon": "uncheckedIcon"
       },
       "events": {
         "change": "change"
       },
-      "notes": "Form-associated: submits its `value` (default \"on\") under `name` while selected, as a native checkbox does; those are web attributes, not spec props. It switches its own `selected` before firing `change` (and `input`). Attributes are `label-hidden`, `selected-icon` and `unselected-icon`. A drag (SWT-19 to SWT-21) is followed with Pointer Events on the track: `setPointerCapture` once the drag is taken, `pointermove` placing the handle, `pointerup` choosing the side, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-checked` and the form value are written only on the release, and `touch-action: pan-y` on the track leaves vertical drags to the page. The in-between look is one progress from 0 to 1 in a registered custom property (`@property`, a `<number>`): every color that differs is `color-mix()` of the two conditions' tokens by it, the handle's size and place are `calc()` of it, and the two glyphs' opacities are it and its complement. A drag writes the property in each frame, and a tap transitions the same property (SWT-13), so both draw the same looks."
+      "notes": "Form-associated: submits its `value` (default \"on\") under `name` while checked, as a native checkbox does; those are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`). Attributes are `label-hidden`, `checked-icon` and `unchecked-icon`. A drag (SWT-19 to SWT-21) is followed with Pointer Events on the track: `setPointerCapture` once the drag is taken, `pointermove` placing the handle, `pointerup` choosing the side, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-checked` and the form value are written only on the release, and `touch-action: pan-y` on the track leaves vertical drags to the page. The in-between look is one progress from 0 to 1 in a registered custom property (`@property`, a `<number>`): every color that differs is `color-mix()` of the two conditions' tokens by it, the handle's size and place are `calc()` of it, and the two glyphs' opacities are it and its complement. A drag writes the property in each frame, and a tap transitions the same property (SWT-13), so both draw the same looks. `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a checkbox, so the element cancels the activation and the drag itself and writes `aria-readonly` on its native checkbox)."
     },
     "swiftui": {
       "status": "lagging",
       "name": "TanreiSwitch",
       "props": {
-        "selected": "isOn",
+        "checked": "isOn",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "title",
         "labelHidden": "labelsHidden",
-        "selectedIcon": "selectedIcon",
-        "unselectedIcon": "unselectedIcon"
+        "checkedIcon": "selectedIcon",
+        "uncheckedIcon": "unselectedIcon"
       },
       "events": {
         "change": "isOn"
@@ -323,28 +345,30 @@
       "status": "lagging",
       "name": "TanreiSwitch",
       "props": {
-        "selected": "checked",
+        "checked": "checked",
         "disabled": "enabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
-        "selectedIcon": "thumbContent",
-        "unselectedIcon": "thumbContent"
+        "checkedIcon": "thumbContent",
+        "uncheckedIcon": "thumbContent"
       },
       "events": {
         "change": "onCheckedChange"
       },
-      "notes": "Compose idiom, as `Switch`: `checked` / `onCheckedChange`, and the handle's glyph as `thumbContent`, a slot the caller fills per selection; `selectedIcon` / `unselectedIcon` map to it, drawn through the icon helper. `enabled` is the inverse flag; a null `onCheckedChange` draws a switch that only displays. The drag is `Modifier.anchoredDraggable` (or `draggable`) between the two positions, beside `toggleable`; `onCheckedChange` is called once, when the drag settles on the other side. The look is drawn from the anchored state's progress: `lerp` of each color and size, the two glyphs' alpha; a tap animates the same progress. Until it catches up it follows no drag."
+      "notes": "Compose idiom, as `Switch`: `checked` / `onCheckedChange`, and the handle's glyph as `thumbContent`, a slot the caller fills per selection; `checkedIcon` / `uncheckedIcon` map to it, drawn through the icon helper. `enabled` is the inverse flag; a null `onCheckedChange` draws a switch that only displays. The drag is `Modifier.anchoredDraggable` (or `draggable`) between the two positions, beside `toggleable`; `onCheckedChange` is called once, when the drag settles on the other side. The look is drawn from the anchored state's progress: `lerp` of each color and size, the two glyphs' alpha; a tap animates the same progress. Until it catches up it follows no drag."
     },
     "flutter": {
       "status": "lagging",
       "name": "TanreiSwitch",
       "props": {
-        "selected": "value",
+        "checked": "value",
         "disabled": "onChanged",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
-        "selectedIcon": "thumbIcon",
-        "unselectedIcon": "thumbIcon"
+        "checkedIcon": "thumbIcon",
+        "uncheckedIcon": "thumbIcon"
       },
       "events": {
         "change": "onChanged"
@@ -355,12 +379,13 @@
       "status": "lagging",
       "name": "Switch",
       "props": {
-        "selected": "value",
+        "checked": "value",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden",
-        "selectedIcon": "selectedIcon",
-        "unselectedIcon": "unselectedIcon"
+        "checkedIcon": "selectedIcon",
+        "uncheckedIcon": "unselectedIcon"
       },
       "events": {
         "change": "onValueChange"

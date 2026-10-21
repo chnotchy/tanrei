@@ -2,6 +2,21 @@
   "name": "@tanrei/web",
   "version": "0.1.0-next.0",
   "description": "Tanrei design system — CSS tokens and Web Components.",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "dtcg",
+    "web-components",
+    "custom-elements",
+    "lit",
+    "css-custom-properties",
+    "accessibility",
+    "wcag",
+    "ui-components",
+    "theming",
+    "dark-mode",
+    "tanrei"
+  ],
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
@@ -9,9 +24,16 @@
     "url": "https://github.com/chnotchy/tanrei.git",
     "directory": "packages/web"
   },
+  "homepage": "https://tanrei.chnotchy.com/getting-started/web/",
+  "bugs": {
+    "url": "https://github.com/chnotchy/tanrei/issues"
+  },
   "sideEffects": [
     "./dist/index.js",
+    "./dist/all.js",
     "./dist/m3-like.js",
+    "./dist/m3-expressive-like.js",
+    "./dist/cupertino.js",
     "./dist/icons.js",
     "./dist/link.js",
     "./dist/steps.js",
@@ -19,9 +41,9 @@
     "./dist/previous-next-links.js",
     "./dist/components/**/*.js",
     "./dist/primitives/field-frame.js",
+    "./dist/words/en.js",
     "./dist/tanrei.bundle.js",
     "./src/index.ts",
-    "./src/m3-like.ts",
     "./src/icons.ts",
     "./src/link.ts",
     "./src/steps.ts",
@@ -29,6 +51,7 @@
     "./src/previous-next-links.ts",
     "./src/components/**/*.ts",
     "./src/primitives/field-frame.ts",
+    "./src/words/en.ts",
     "**/*.css"
   ],
   "exports": {
@@ -36,9 +59,21 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./all": {
+      "types": "./dist/all.d.ts",
+      "default": "./dist/all.js"
+    },
     "./m3-like": {
       "types": "./dist/m3-like.d.ts",
       "default": "./dist/m3-like.js"
+    },
+    "./m3-expressive-like": {
+      "types": "./dist/m3-expressive-like.d.ts",
+      "default": "./dist/m3-expressive-like.js"
+    },
+    "./cupertino": {
+      "types": "./dist/cupertino.d.ts",
+      "default": "./dist/cupertino.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",
@@ -60,9 +95,21 @@
       "types": "./dist/timeline.d.ts",
       "default": "./dist/timeline.js"
     },
+    "./theme-script": {
+      "types": "./dist/theme-script.d.ts",
+      "default": "./dist/theme-script.js"
+    },
     "./words": {
       "types": "./dist/words.d.ts",
       "default": "./dist/words.js"
+    },
+    "./words/en": {
+      "types": "./dist/words/en.d.ts",
+      "default": "./dist/words/en.js"
+    },
+    "./availability": {
+      "types": "./dist/availability.d.ts",
+      "default": "./dist/availability.js"
     },
     "./highlight": {
       "types": "./dist/highlight/index.d.ts",
@@ -80,6 +127,8 @@
       "types": "./dist/links/node/index.d.ts",
       "node": "./dist/links/node/index.js"
     },
+    "./tanrei.css": "./dist/tanrei.css",
+    "./base.css": "./dist/base.css",
     "./tokens.css": "./dist/tokens.css",
     "./icons.css": "./dist/icons.css",
     "./text.css": "./dist/text.css",
@@ -107,11 +156,13 @@
     "./menu.css": "./dist/menu.css",
     "./menubar.css": "./dist/menubar.css",
     "./systems/*.css": "./dist/systems/*.css",
+    "./systems/*.components.json": "./dist/systems/*.components.json",
     "./components/*": {
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"
     },
-    "./custom-elements.json": "./custom-elements.json"
+    "./custom-elements.json": "./custom-elements.json",
+    "./custom-elements/*.json": "./dist/custom-elements/*.json"
   },
   "customElements": "custom-elements.json",
   "bin": {

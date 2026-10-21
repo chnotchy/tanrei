@@ -4,11 +4,13 @@ import {
   anchoredSurfaceStyles,
   arrowOutlineStyles,
   arrowStyles,
+  compactProbeStyles,
   cornerRadius,
   dividerVisibilityHost,
   focusRing,
   quietFocus,
   shape,
+  sheetLookStyles,
   whenChosen,
   whenScroll,
 } from '../../primitives/index.js';
@@ -59,8 +61,8 @@ export const styles = css`
     offset: T('offset'),
     margin: T('window-margin'),
     arrow: { width: T('arrow-width'), height: T('arrow-height'), inset: T('arrow-inset') },
-    open: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
-    close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
+    enter: { duration: T('motion-open-duration'), easing: T('motion-open-easing') },
+    exit: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
   /* POP-6, POP-7, POP-8: the container — its color, its elevation and its corners (eased by the smoothing); as wide as
@@ -306,6 +308,38 @@ export const styles = css`
      where the placement says. The elevation is drawn round the container and the arrow as one shape. */
   ${arrowStyles({ surface: '.surface', box: '.container', width: T('arrow-width'), height: T('arrow-height'), fill: T('container-color'), elevation: T('container-elevation') })}
 
+  /* POP-39: the resolved compact.window-width, which the script matches the window against. */
+  ${compactProbeStyles('.probe', `${PREFIX}-compact-window-width`)}
+
+  /* POP-39, POP-40, POP-41: in a compact window, the bottom sheet's appearance — docked to the window's bottom edge (over
+     the keyboard), as wide as the window up to the bottom sheet's greatest width, its color, elevation and top corners,
+     square at the bottom — over the bottom sheet's scrim, sliding up and down with its motion (src/primitives/
+     compact-sheet.ts). Its parts keep their own tokens and layout; none of the browser's dialog box. (The host's
+     selector outweighs the anchored container's width rules, which a sheet ignores.) */
+  :host dialog.container.sheet {
+    border: 0;
+    padding: 0;
+    overflow: visible;
+    color: ${t('content-color')};
+  }
+  ${sheetLookStyles({ sheet: ':host dialog.container.sheet' })}
+  :host dialog.container.sheet:not([open]) {
+    display: none;
+  }
+  :host dialog.container.sheet[open] {
+    display: flex;
+  }
+  :host dialog.container.sheet.instant,
+  :host dialog.container.sheet.instant::backdrop {
+    transition: none;
+  }
+  .container.sheet .clip,
+  .container.sheet .focus.whole {
+    ${unsafeCSS(cornerRadius('--tanrei-comp-bottom-sheet-container-shape'))}
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+
   /* POP-5: the least width, read by the placement through a real property of an element that draws nothing. */
   .shade {
     scroll-margin-block-start: ${t('container-min-width')};
@@ -328,7 +362,7 @@ export const styles = css`
     .divider {
       background: CanvasText;
     }
-    .motion {
+    .surface {
       filter: none !important;
     }
   }

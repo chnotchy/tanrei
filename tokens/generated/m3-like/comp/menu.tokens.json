@@ -134,8 +134,13 @@
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.none}",
-            "$description": "The corners of an item's row, which the state layer fills.",
-            "$extensions": {}
+            "$description": "The corners of an item's row, which the state layer fills: the sheet's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.menu.surface.shape}",
+                "inset": "{tanrei.comp.menu.surface.padding-inline}"
+              }
+            }
           },
           "height": {
             "$type": "dimension",
@@ -1000,34 +1005,34 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.large}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the sheet takes to fade in and grow from the anchor's side."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the sheet takes to fade out."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "submenu-delay": {
             "$type": "duration",

@@ -2,7 +2,7 @@
 title: "设计系统与定制"
 description: "一套词汇，多个设计系统。改一个调节量、声明一个调色板、重新指向一个令牌——所有平台在同一次提交中跟着变化。"
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: caf3afbc5714bcc983352574d935aeaded71f2a5
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -122,11 +122,12 @@ Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈�
 
 <SystemGallery />
 
-在 Web 上，预设只是多一张样式表，作用域限定在一个属性上，所以多个系统甚至可以并排出现：
+在 Web 上，预设只是多一张样式表，作用域限定在一个属性上，所以多个系统甚至可以并排出现。预设的入口注册它所包含的组件，其中也有默认系统不包含的组件（`@tanrei/web` 只注册默认系统的组件）：
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/cupertino'; // cupertino 包含的组件
 ```
 
 ```html
@@ -134,6 +135,34 @@ import '@tanrei/web/systems/cupertino.css';
 ```
 
 取值和种类选择目前都还表达不了的东西——背景材质、作为风格的全大写标签——会作为 Tanrei 的缺陷列在 `docs/governance/mimicry-gaps.json` 中，而不是藏起来。
+
+## 你的系统没有的组件
+
+一个系统可以省去一个组件，也可以省去某个组件 `variant` 的一个取值：默认系统没有分段按钮，也没有 filled 或 outlined 的文本字段。层在 `components` 中写明这一点，并附上原因和替代的组件：
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+被省去的组件仍会渲染，也仍可使用。在开发构建中，每个用到它的元素都会在控制台警告一次，写明你的系统以及它改用什么。警告指的是你写下的那个组件：`<tanrei-text-field variant="outlined">` 会被报告为文本字段的 `outlined`，而不是它在内部绘制的文本输入。住在另一个系统的层中的组件（例如 m3-like 中的 FAB 菜单）也会这样报告，并写明它所在的层。
+
+若要让测试因此失败，就让它以错误的级别报告，再查询用到了什么：
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // 在测试的准备阶段，任何内容渲染之前
+
+test('产品只使用其系统拥有的组件', async () => {
+  // …渲染产品的各个界面…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+无论哪种模式，`unavailableUses()` 都按字母顺序列出每一处用法，每项一次（`segmented-button`、`text-field:outlined`）。生产构建不做任何检查，因此那里的列表始终为空。`@tanrei/web/availability` 只包含这两个函数，不注册任何元素。
 
 ## 共享一个系统
 

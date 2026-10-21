@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, heldComponents, layerChain, outsideComponents } from '../../tokens-build/src/layers.js';
+import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, heldComponents, layerChain, outsideComponents, outsideStandIns, standInProblems } from '../../tokens-build/src/layers.js';
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { forwards, fromProblems, resolveAll, resolveFrom, twinProblems } from './from.js';
 import { levelProblems, listingProblems } from './levels.js';
@@ -174,7 +174,7 @@ const enumDefaultProblems = (file, props, owner) =>
   props.filter((p) => p.type === 'enum' && !p.values.includes(p.default)).map((p) => `${file}: ${owner} "${p.name}" default "${p.default}" is not one of its values`);
 
 /**
- * Tanrei ships no words: a string prop has no default but the empty one, so no component can say a word the
+ * No component has words of its own: a string prop has no default but the empty one, so no component can say a word the
  * product did not give; and a prop that reads the product's words (`words`) is a string.
  */
 export const wordsProblems = (file, props, owner) => [
@@ -477,19 +477,25 @@ export function systemAvailability() {
  * Where a component lives, held across the specs, the inventory and the layers. A component lives in the layer every
  * system that ships it descends from: the root (`core`, a spec that names no `layer`) or a layer that declares the
  * component's whole vocabulary under `vocabulary`. So: the spec and its inventory row name the same layer; a layer the
- * spec names exists and declares the component, with its document next to it; one layer at most declares it; and a
- * component that lives in a layer has no document in the core — its tokens are that layer's alone.
+ * spec names exists and declares the component, with its document next to it; one layer at most declares it; a
+ * component that lives in a layer has no document in the core — its tokens are that layer's alone; and what the layer
+ * names for a system without it (`outside.insteadUse`) are other components of the inventory.
  */
 export function layerProblems(specs = loadSpecs(), rows = JSON.parse(read('specs/inventory.json')).components, layers = systemIds(), readOne = readLayer) {
   const problems = [];
   const prefix = `${CONFIG.namespace}.comp.`;
   const declared = new Map();
+  const inventory = new Set(rows.map((row) => row.name));
   for (const id of layers) {
     for (const [key, entry] of Object.entries(readOne(id).vocabulary ?? {})) {
       if (!key.startsWith(prefix) || !entry || typeof entry !== 'object' || !('document' in entry)) continue;
       const name = key.slice(prefix.length);
       if (declared.has(name)) problems.push(`tokens/systems/${id}.system.json: "${key}" is declared by "${declared.get(name)}" too — a component lives in one layer`);
       else declared.set(name, id);
+      for (const instead of entry.outside?.insteadUse ?? []) {
+        if (instead === name) problems.push(`tokens/systems/${id}.system.json: "${key}".outside.insteadUse names the component itself — a system without it uses another component`);
+        else if (!inventory.has(instead)) problems.push(`tokens/systems/${id}.system.json: "${key}".outside.insteadUse: "${instead}" is not in specs/inventory.json`);
+      }
     }
   }
   const where = (layer) => layer ?? ROOT_SYSTEM;
@@ -512,15 +518,19 @@ export function layerProblems(specs = loadSpecs(), rows = JSON.parse(read('specs
 /**
  * What each layer says about its components holds, judged against what its parent ships: it names components of the
  * inventory and values of their `variant` prop; it leaves out only what its parent ships and brings back only what an
- * ancestor left out; what it names instead of a component is a component the system ships; and the default variant —
- * so at least one — stays: a component a system ships is always drawable in it.
+ * ancestor left out; what it names instead of a component is a component the system ships, and so is what the layer
+ * that holds a component the system does not have names for it; and the default variant — so at least one — stays: a component a system ships is always drawable in it.
  */
 export function validateAvailability() {
   const inventory = new Set(JSON.parse(read('specs/inventory.json')).components.map((c) => c.name));
   const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
   const variantsOf = (name) => specs.get(name)?.props.find((p) => p.name === 'variant');
   const held = heldComponents(systemIds(), readLayer);
-  return systemIds().flatMap((id) => componentChoiceProblems(layerChain(id, readLayer), { inventory, variantsOf, held }).map((problem) => `tokens/systems/${problem}`));
+  const standIns = outsideStandIns(systemIds(), readLayer);
+  return systemIds().flatMap((id) => {
+    const chain = layerChain(id, readLayer);
+    return [...componentChoiceProblems(chain, { inventory, variantsOf, held }), ...standInProblems(chain, held, standIns)].map((problem) => `tokens/systems/${problem}`);
+  });
 }
 
 /**

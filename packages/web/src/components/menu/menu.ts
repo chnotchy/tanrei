@@ -4,6 +4,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   FollowController,
   GlyphDrawnController,
   GlyphMirrorController,
@@ -21,7 +22,9 @@ import {
   chordsConverter,
   chordsOf,
   compChoice,
+  countWork,
   deepActive,
+  documentPainted,
   hostAria,
   linkAttributes,
   layoutSize,
@@ -38,6 +41,7 @@ import {
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import { groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
 export type TanreiMenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
@@ -315,7 +319,7 @@ function blocksTemplate(blocks: readonly Element[]) {
  * nothing to assistive technology. The menu moves focus among the rows of a surface, tells each its position, the
  * surface's size and which columns the surface reserves, and answers its activation.
  */
-export abstract class TanreiMenuRowBase extends LitElement {
+export abstract class TanreiMenuRowBase extends TanreiElement {
   static override styles: CSSResultGroup = [itemStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -1243,7 +1247,7 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
  * @csspart title - The heading above the items.
  * @fires {CustomEvent<TanreiMenuGroupChangeDetail>} change - A radio item of the group was chosen: `detail.value` (and the element's `value`) is the new value.
  */
-export class TanreiMenuGroup extends LitElement {
+export class TanreiMenuGroup extends TanreiElement {
   static override styles = [groupStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -1356,7 +1360,7 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * @fires {CustomEvent<TanreiMenuContextRequestDetail>} contextrequest - With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  * @fires {CustomEvent<TanreiMenuCloseDetail>} close - The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export class TanreiMenu extends LitElement {
+export class TanreiMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'menu');
   /** MNU-35, MNU-38: where a browser has no style queries, the choices are read when the menu renders — again when the system is switched. */
   private readonly system = new SystemWatchController(this);
@@ -1449,6 +1453,13 @@ export class TanreiMenu extends LitElement {
   private lastLayout = '';
   /** The rows of each surface, read when first asked after a change. */
   private levels: Map<Level, TanreiMenuRowBase[]> | null = null;
+  /**
+   * The re-read of the items (`sync()`), once per turn however many items said they changed in it: a menu of N items
+   * built, or N labels changed at once, re-reads its N items once — not once per item, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the items' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
   private readonly children$ = new MutationObserver(() => this.readChildren());
   private unregister: (() => void) | null = null;
   /** MNU-44: where the pointer is now — the item under it. */
@@ -1488,6 +1499,8 @@ export class TanreiMenu extends LitElement {
 
   constructor() {
     super();
+    // Before every handler below: an item that changed in this task is read as it is now.
+    for (const type of ['keydown', 'keyup', 'pointerdown', 'pointermove', 'mousedown', 'click', 'focusin', 'focusout']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown, { capture: true });
     this.addEventListener('pointerdown', this.onPointerDown, { capture: true });
     this.addEventListener('click', this.onClickCapture, { capture: true });
@@ -1497,11 +1510,11 @@ export class TanreiMenu extends LitElement {
     this.addEventListener('mousedown', this.onMouseDown);
     this.addEventListener('focusin', this.onFocusIn);
     this.addEventListener('focusout', this.onFocusOut);
-    this.addEventListener('tanrei-menu-item-update', () => this.sync());
+    this.addEventListener('tanrei-menu-item-update', this.syncs.request);
     // Forwarded content (a <slot> child) changed what is assigned to it: the blocks' kinds (dividers) and the items.
     this.addEventListener('slotchange', () => {
       this.requestUpdate();
-      this.sync();
+      this.syncs.request();
     });
   }
 
@@ -1540,7 +1553,7 @@ export class TanreiMenu extends LitElement {
   private readChildren() {
     const now = [...this.children];
     if (now.length !== this.blocks.length || now.some((child, i) => child !== this.blocks[i])) this.blocks = now;
-    this.sync();
+    this.syncs.request();
   }
 
   private get surface() {
@@ -1594,7 +1607,9 @@ export class TanreiMenu extends LitElement {
     for (const row of this.find(ROWS)) {
       if (!(row instanceof TanreiMenuRowBase)) continue;
       const level = this.levelOf(row);
-      levels.set(level, [...(levels.get(level) ?? []), row]);
+      const rows = levels.get(level);
+      if (rows) rows.push(row);
+      else levels.set(level, [row]);
     }
     return (this.levels = levels);
   }
@@ -1674,6 +1689,7 @@ export class TanreiMenu extends LitElement {
    * reports what it should, and draws the submenus that are open (MNU-43, MNU-48).
    */
   private sync() {
+    countWork('menu.sync');
     this.levels = null;
     const tree = this.tree();
     for (const group of this.groups) {
@@ -1719,7 +1735,9 @@ export class TanreiMenu extends LitElement {
       for (const row of rows) {
         if (!(row instanceof TanreiMenuRadioItem)) continue;
         const group = this.groupOf(row);
-        radios.set(group, [...(radios.get(group) ?? []), row]);
+        const members = radios.get(group);
+        if (members) members.push(row);
+        else radios.set(group, [row]);
       }
       for (const [group, members] of radios) {
         if (!group) {
@@ -1804,7 +1822,8 @@ export class TanreiMenu extends LitElement {
         const changed = submenu.present(own, !!this.bar?.quick);
         if (own === 'overlay' && changed) {
           this.placeSubmenu(submenu);
-          if (!this.bar?.quick) submenu.enter();
+          // MOT-4: a submenu written open in a menu the page's markup opens is there at once, before the first paint.
+          if (!this.bar?.quick && documentPainted()) submenu.enter();
           this.following.request();
         }
         walk(submenu, own);
@@ -2065,7 +2084,7 @@ export class TanreiMenu extends LitElement {
       // A radio item that is already checked emits no change.
       if (group && group.value !== item.value) {
         group.value = item.value;
-        this.sync();
+        this.syncs.now();
         group.dispatchEvent(new CustomEvent<TanreiMenuGroupChangeDetail>('change', { bubbles: true, detail: { value: group.value } }));
       }
     }
@@ -2136,6 +2155,7 @@ export class TanreiMenu extends LitElement {
    * @internal
    */
   focusFirstItem() {
+    this.syncs.flush();
     const items = this.rowsOf(this);
     // MBR-9: a menubar's menu opened with Up Arrow takes focus on its last enabled item, and one opened by a pointer without the ring.
     const { end, quiet } = this.bar?.entry ?? { end: 'first', quiet: false };
@@ -2488,8 +2508,9 @@ export class TanreiMenu extends LitElement {
     this.following.start();
     document.addEventListener('pointerdown', this.onOutsidePress, true);
     surface.classList.remove('entering');
-    // MBR-29: no open motion where it takes the place of another menu of a menubar.
-    if (!this.bar?.quick) {
+    // MBR-29: no open motion where it takes the place of another menu of a menubar. MOT-4: none for a menu the page's
+    // markup opens, before the document's first paint — there is nothing it could have grown from.
+    if (!this.bar?.quick && documentPainted()) {
       void surface.offsetWidth; // restart the animation
       surface.classList.add('entering');
     }
@@ -2574,7 +2595,7 @@ export class TanreiMenu extends LitElement {
       else this.hide();
     }
     if ((changed.has('placement') || changed.has('trigger')) && this.open) this.place();
-    this.sync();
+    this.syncs.now();
   }
 
   protected override render() {

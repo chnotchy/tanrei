@@ -2,7 +2,7 @@
 title: الزر المقسَّم
 description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,10 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## نظرة عامة
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[ليس في نظام Tanrei]
-نظام Tanrei الافتراضي لا يتضمن الزر المقسَّم؛ أما إعدادات Material الجاهزة والإعداد الجاهز cupertino فتتضمنه. في Tanrei، الاختيار الواحد من بين عدة خيارات هو [علامات التبويب](/ar/components/tabs/) حيث يغيّر المحتوى الذي تحته، و[أزرار الاختيار](/ar/components/radio-button/) حيث يضبط قيمة؛ والأزرار التي يُبدَّل كل منها على حدة هي [مجموعة الأزرار](/ar/components/button-group/). ويبقى المكوّن يعمل تحت كل نظام، مع تحذير في أثناء التطوير حيث يستبعده النظام. العروض التوضيحية في هذه الصفحة مرسومة تحت الإعداد الجاهز `m3-like`، وهو نظام يتضمنه.
-:::
 
 <DemoFrame label="تحديد واحد، مع أيقونات، أيقونة فقط" system="m3-like">
   <tanrei-segmented-button label="النطاق" value="week">
@@ -67,7 +63,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // يستبعد النظام الافتراضي الزر المقسَّم: تجده في مداخل m3-like وm3-expressive-like وcupertino، وفي /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail هو { value } للاختيار الواحد و { values } لعدة اختيارات.
     <SegmentedButton label="النطاق" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

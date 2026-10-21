@@ -115,9 +115,9 @@ test('initialize: the hard rules arrive as server instructions', () => {
   assert.equal(server.client.getServerVersion().name, 'tanrei');
 });
 
-test('tools/list: eight read-only tools, each with a closed JSON Schema', async () => {
+test('tools/list: twelve read-only tools, each with a closed JSON Schema', async () => {
   const { tools } = await server.client.listTools();
-  assert.deepEqual(tools.map((t) => t.name), ['list_systems', 'search_tokens', 'resolve', 'explain_token', 'diff_systems', 'validate_layer', 'propose_extension', 'mimicry_gaps']);
+  assert.deepEqual(tools.map((t) => t.name), ['list_systems', 'list_components', 'get_component', 'find_component', 'check_usage', 'search_tokens', 'resolve', 'explain_token', 'diff_systems', 'validate_layer', 'propose_extension', 'mimicry_gaps']);
   for (const tool of tools) {
     assert.doesNotMatch(tool.description, /never adds|cannot be added|not a token in a layer/i, `${tool.name}: no tool tells an agent that vocabulary cannot be added`);
     assert.equal(tool.inputSchema.type, 'object');
@@ -355,10 +355,10 @@ test('explain_token: rationale, the layers that touch it, and the legal operatio
   assert.deepEqual(corner.howToChange.map((o) => o.op), ['scale', 're-point alias', 'derive', 'pin $value']);
   assert.deepEqual(corner.howToChange[0].write, { tokens: { 'tanrei.sys.shape.corner.small': { scale: 1.5 } } }, 'every `write` is a fragment of a layer');
   const usedBy = (await server.call('explain_token', { token: 'tanrei.sys.shape.corner.small' })).data.usedBy;
-  // `usedBy.first` shows eight ids in alphabetical order, and the menu is not among
-  // them; the menu's own alias chain says the same thing whatever else aliases the step.
-  const menuShape = (await server.call('explain_token', { token: 'tanrei.comp.menu.container.shape' })).data;
-  assert.ok(usedBy.total >= 1 && JSON.stringify(menuShape.aliasChain ?? []).includes('tanrei.sys.shape.corner.small'), 'in the root system the menu aliases this step; m3-like re-points it');
+  // `usedBy.first` shows eight ids in alphabetical order; whatever else aliases the step, the menu bar's own alias chain
+  // says it is one of them. (A menu's row is not: its corner is its sheet's less the inset, a `sub` rule.)
+  const menubarShape = (await server.call('explain_token', { token: 'tanrei.comp.menubar.container.shape' })).data;
+  assert.ok(usedBy.total >= 1 && JSON.stringify(menubarShape.aliasChain ?? []).includes('tanrei.sys.shape.corner.small'), 'in the root system the menu bar aliases this step');
   assert.ok(!usedBy.first.includes('tanrei.comp.button.container.shape'), 'every button is fully rounded');
   // What `usedBy` means, held from the tokens and not from a list every new component joins: under m3-like every
   // token whose alias reaches the step, directly or through another token, is counted, and the first eight are shown.
@@ -915,9 +915,9 @@ test('mimicry_gaps: the registry, filtered and paginated', async () => {
   assert.equal((await server.call('mimicry_gaps', { status: 'done' })).ok, false);
 });
 
-test('resources: philosophy, the layer schema, every shipped layer', async () => {
+test('resources: philosophy, the layer schema, every shipped layer, every system’s components', async () => {
   const { resources } = await server.client.listResources();
-  assert.deepEqual(resources.map((r) => r.uri), ['tanrei://philosophy', 'tanrei://schema/system', ...SHIPPED.map((id) => `tanrei://systems/${id}`)]);
+  assert.deepEqual(resources.map((r) => r.uri), ['tanrei://philosophy', 'tanrei://schema/system', ...SHIPPED.map((id) => `tanrei://systems/${id}`), ...LISTED.map((id) => `tanrei://components/${id}`)]);
   const read = async (uri) => (await server.client.readResource({ uri })).contents[0];
   const philosophy = await read('tanrei://philosophy');
   assert.equal(philosophy.mimeType, 'text/markdown');
@@ -930,15 +930,20 @@ test('resources: philosophy, the layer schema, every shipped layer', async () =>
   for (const id of SHIPPED) assert.deepEqual(JSON.parse((await read(`tanrei://systems/${id}`)).text), shippedLayer(id), `${id}: the layer file as authored`);
   assert.equal(JSON.parse((await read('tanrei://systems/m3-expressive-like')).text).extends, 'm3-like');
   await assert.rejects(read('tanrei://systems/fluent'), /unknown resource/);
-  assert.equal((await server.client.listResourceTemplates()).resourceTemplates[0].uriTemplate, 'tanrei://systems/{id}');
+  assert.deepEqual((await server.client.listResourceTemplates()).resourceTemplates.map((t) => t.uriTemplate), ['tanrei://systems/{id}', 'tanrei://components/{id}']);
 });
 
 test('the packaged server (bundle + its own copy of the vocabulary and the registry) answers like the sources', async () => {
   execFileSync(process.execPath, [path.join(pkg, 'scripts/build.js')], { cwd: pkg });
-  // Build output is not shipped — the server computes every system from its layers — except the measured fidelity reports.
+  // Build output is not shipped — the server computes every system from its layers — except what the tools read as it
+  // is: the measured fidelity reports, and each system's components manifest.
   const generated = path.join(pkg, 'dist/vocabulary/tokens/generated');
   const shippedOutput = fs.existsSync(generated) ? fs.readdirSync(generated, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile()).map((entry) => path.relative(generated, path.join(entry.parentPath ?? entry.path, entry.name))).sort() : [];
-  assert.deepEqual(shippedOutput, SHIPPED.filter(fidelityReport).map((id) => path.join(id, 'fidelity.json')));
+  assert.deepEqual(shippedOutput, [...SHIPPED.filter(fidelityReport).map((id) => path.join(id, 'fidelity.json')), ...LISTED.map((id) => path.join(id, 'components.json'))].sort());
+  // The component tools answer from the specs and the catalog: every spec is carried.
+  const specs = fs.readdirSync(path.join(repo, 'specs')).filter((name) => name.endsWith('.spec.json'));
+  for (const name of specs) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(pkg, 'dist/vocabulary/specs', name), 'utf8')), readJson('specs', name), name);
+  assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/packages/tokens-build/generated/component-catalog.json')));
   assert.ok(fs.existsSync(path.join(pkg, 'dist/vocabulary/docs/governance/mimicry-gaps.json')));
   const packaged = await connect({ fromSource: false });
   try {
@@ -953,6 +958,12 @@ test('the packaged server (bundle + its own copy of the vocabulary and the regis
       ['explain_token', { token: 'tanrei.comp.button.danger.hovered.container.color', layerFile: extendedFile }],
       ['validate_layer', { layerFile: extendedFile }],
       ['propose_extension', { kind: 'axis-value', component: 'button', axis: 'size', value: '3x', from: 'large', scale: 1.5, layerId: 'shop' }],
+      // The components: the manifests, the catalog for a product's own, and the specs.
+      ['list_components', { system: 'cupertino', limit: 200 }],
+      ['list_components', { layerFile: acmeFile, limit: 200 }],
+      ['get_component', { name: 'text-field', sections: ['props', 'behavior', 'example', 'platforms'] }],
+      ['find_component', { need: 'pick a date' }],
+      ['check_usage', { code: '<tanrei-fab-menu label="Create"></tanrei-fab-menu><tanrei-text-field variant="outlined"></tanrei-text-field>' }],
     ]) {
       const [a, b] = [await packaged.call(name, args), await server.call(name, args)];
       assert.equal(a.ok, true, a.text);

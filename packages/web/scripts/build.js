@@ -4,8 +4,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { build } from 'esbuild';
+import { allStylesheets } from './stylesheets.js';
 import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
+import { bundleSource, entryFiles, readManifests, systemElements } from './entries.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -40,6 +42,12 @@ const tags = JSON.parse(fs.readFileSync('custom-elements.json', 'utf8'))
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
 // light-DOM box it is the same text as a stylesheet.
 const { SHAPE_CSS } = await import('../dist/styles/shape.js');
+// An element that draws in the light DOM settles as one with a shadow root does (MOT-3, src/primitives/element.ts):
+// its rules are the document's, so the rule that starts no transition in it while it settles is written at the end of
+// its stylesheet here, from the one source (`settleRule()`, src/styles/motion.ts) — into the page's copy and the
+// element's own alike.
+const { settleRule } = await import('../dist/styles/motion.js');
+const settled = (tag, source) => `${source.trimEnd()}\n/* MOT-3: nothing in the element starts a transition while it settles (src/styles/motion.ts). */\n${settleRule(tag)}\n`;
 // A stylesheet that draws a glyph of the icon set in a generated box names the box's size and leaves the optical-size
 // axis to the one source that writes it (src/styles/icons.ts): the condition and the axes are written in place here.
 const { writeGlyphAxes } = await import('../dist/styles/icons.js');
@@ -145,7 +153,7 @@ fs.writeFileSync('dist/previous-next-links.css', previousNextSource.replace(PREV
 // (without its comments) is written into the element, which adds it to the root it is connected to — the compiled
 // module here, the bundle below.
 const TABLE_CSS_NAME = 'TANREI_TABLE_CSS';
-const tableSource = sheet('src/styles/table.css');
+const tableSource = settled('tanrei-table', sheet('src/styles/table.css'));
 fs.writeFileSync('dist/table.css', tableSource);
 const tableText = JSON.stringify(
   tableSource
@@ -196,7 +204,7 @@ const CONDITIONED = [
   { file: 'app-shell', source: appShellSource.replace(APP_SHELL_SHAPE, shapeFor(":where(tanrei-app-shell) > [slot='skip-link']:focus-visible::after")) },
   { file: 'page-header', source: sheet('src/styles/page-header.css') },
   { file: 'link-card', source: linkCardSource.replace(LINK_CARD_SHAPE, shapeFor(':where(tanrei-link-card) > :where(a)')) },
-];
+].map((conditioned) => ({ ...conditioned, source: settled(`tanrei-${conditioned.file}`, conditioned.source) }));
 const BREADCRUMBS_SHAPE = '/* breadcrumbs:shape */';
 const breadcrumbsSource = writeGlyphAxes(sheet('src/styles/breadcrumbs.css'));
 if (!breadcrumbsSource.includes(BREADCRUMBS_SHAPE)) throw new Error('breadcrumbs.css: nowhere to write the corner rule');
@@ -208,13 +216,13 @@ const LIGHT_SHEETS = [
   // The breadcrumbs (specs/breadcrumbs.spec.json) keep a shadow root for what the product did not write and let one
   // stylesheet draw the product's own anchors in the document, as the table of contents does. A level's
   // corners are the shared rule, written in place of the `breadcrumbs:shape` mark.
-  { name: 'TANREI_BREADCRUMBS_CSS', file: 'breadcrumbs', module: 'dist/components/breadcrumbs/breadcrumbs.js', source: breadcrumbsSource.replace(BREADCRUMBS_SHAPE, shapeFor(':where(tanrei-breadcrumbs) > :where(a)')) },
-  { name: 'TANREI_DESCRIPTION_LIST_CSS', file: 'description-list', module: 'dist/components/description-list/description-list.js', source: sheet('src/styles/description-list.css') },
+  { name: 'TANREI_BREADCRUMBS_CSS', file: 'breadcrumbs', module: 'dist/components/breadcrumbs/breadcrumbs.js', source: settled('tanrei-breadcrumbs', breadcrumbsSource.replace(BREADCRUMBS_SHAPE, shapeFor(':where(tanrei-breadcrumbs) > :where(a)'))) },
+  { name: 'TANREI_DESCRIPTION_LIST_CSS', file: 'description-list', module: 'dist/components/description-list/description-list.js', source: settled('tanrei-description-list', sheet('src/styles/description-list.css')) },
   {
     name: 'TANREI_FIGURE_CSS',
     file: 'figure',
     module: 'dist/components/figure/figure.js',
-    source: figureSource.replace(FIGURE_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart()),
+    source: settled('tanrei-figure', figureSource.replace(FIGURE_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart())),
   },
   // The skeleton (specs/skeleton.spec.json) is the same form around the product's own layout and its placeholders: the
   // stylesheet is the whole component before any script runs. A placeholder's box and the two bars a text placeholder
@@ -223,13 +231,13 @@ const LIGHT_SHEETS = [
     name: 'TANREI_SKELETON_CSS',
     file: 'skeleton',
     module: 'dist/components/skeleton/skeleton.js',
-    source: skeletonSource.replace(SKELETON_SHAPE, [':where(.tanrei-skeleton-placeholder)', ':where(.tanrei-skeleton-placeholder)::before', ':where(.tanrei-skeleton-placeholder)::after'].map((selector) => shapeFor(selector)).join('\n  ')),
+    source: settled('tanrei-skeleton', skeletonSource.replace(SKELETON_SHAPE, [':where(.tanrei-skeleton-placeholder)', ':where(.tanrei-skeleton-placeholder)::before', ':where(.tanrei-skeleton-placeholder)::after'].map((selector) => shapeFor(selector)).join('\n  '))),
   },
   {
     name: 'TANREI_TREE_VIEW_CSS',
     file: 'tree-view',
     module: 'dist/components/tree-view/tree-view.js',
-    source: treeViewSource.replace(TREE_VIEW_SHAPE, [`${TREE_VIEW_ROW}::after`, `${TREE_VIEW_ROW} > :where(.ripple)`].map((selector) => shapeFor(selector)).join('\n  ')),
+    source: settled('tanrei-tree-view', treeViewSource.replace(TREE_VIEW_SHAPE, [`${TREE_VIEW_ROW}::after`, `${TREE_VIEW_ROW} > :where(.ripple)`].map((selector) => shapeFor(selector)).join('\n  '))),
   },
 ].map((light) => {
   fs.writeFileSync(`dist/${light.file}.css`, light.source);
@@ -254,7 +262,7 @@ const ACCORDION_CSS_NAME = 'TANREI_ACCORDION_CSS';
 const ACCORDION_SHAPE = '/* accordion:shape */';
 const accordionSource = writeGlyphAxes(sheet('src/styles/accordion.css'));
 if (!accordionSource.includes(ACCORDION_SHAPE)) throw new Error('accordion.css: nowhere to write the corner rule');
-const accordionCss = accordionSource.replace(ACCORDION_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart());
+const accordionCss = settled('tanrei-accordion', accordionSource.replace(ACCORDION_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart()));
 fs.writeFileSync('dist/accordion.css', accordionCss);
 const accordionText = JSON.stringify(
   accordionCss
@@ -275,7 +283,7 @@ const TABLE_OF_CONTENTS_CSS_NAME = 'TANREI_TABLE_OF_CONTENTS_CSS';
 const TABLE_OF_CONTENTS_SHAPE = '/* table-of-contents:shape */';
 const tableOfContentsSource = sheet('src/styles/table-of-contents.css');
 if (!tableOfContentsSource.includes(TABLE_OF_CONTENTS_SHAPE)) throw new Error('table-of-contents.css: nowhere to write the corner rule');
-const tableOfContentsCss = tableOfContentsSource.replace(TABLE_OF_CONTENTS_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart());
+const tableOfContentsCss = settled('tanrei-table-of-contents', tableOfContentsSource.replace(TABLE_OF_CONTENTS_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart()));
 fs.writeFileSync('dist/table-of-contents.css', tableOfContentsCss);
 const tableOfContentsText = JSON.stringify(
   tableOfContentsCss
@@ -293,8 +301,27 @@ else if (!tableOfContentsModule.includes(':where(tanrei-table-of-contents)')) th
 const { ICONS_CSS } = await import('../dist/styles/icons.js');
 fs.writeFileSync('dist/icons.css', ICONS_CSS);
 fs.writeFileSync('dist/shape.css', `/* Corner smoothing for a light-DOM box: put data-tanrei-shape on it and name its radius token in --tanrei-corner-radius (and set --tanrei-corner-pill: 1 on a pill). */\n@layer tanrei.components {\n${SHAPE_CSS.replace(/^/gm, '  ')}\n}\n`);
+// The page's base (`@tanrei/web/base.css`), and `@tanrei/web/tanrei.css`: the base, the tokens and every other
+// stylesheet the package exports, in one file, in the order of the exports (prose before the link, the steps and the
+// timeline, whose rules prose says again after its own). The list is the exports' own (scripts/stylesheets.js), so a
+// stylesheet added to them is in the file.
+fs.copyFileSync('src/styles/base.css', 'dist/base.css');
+fs.writeFileSync('dist/tanrei.css', allStylesheets(JSON.parse(fs.readFileSync('package.json', 'utf8')), (file) => fs.readFileSync(file, 'utf8')));
 fs.rmSync('dist/systems', { recursive: true, force: true });
 fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
+// Each shipped system's components manifest, the default's among them (`@tanrei/web/systems/<id>.components.json`):
+// what the system ships, with the module that registers each component, generated beside the system's tokens.
+const manifests = fs.readdirSync('../../tokens/generated', { withFileTypes: true }).filter((entry) => entry.isDirectory() && fs.existsSync(`../../tokens/generated/${entry.name}/components.json`));
+for (const { name } of manifests) fs.copyFileSync(`../../tokens/generated/${name}/components.json`, `dist/systems/${name}.components.json`);
+// The entries written from those manifests (scripts/entries.js): `@tanrei/web/<id>` registers what system
+// <id> ships, `@tanrei/web/all` every component, and `@tanrei/web/custom-elements/<id>.json` is the elements' manifest
+// of the components system <id> ships.
+const shipped = readManifests();
+for (const [file, text] of Object.entries(entryFiles(shipped))) fs.writeFileSync(`dist/${file}`, text);
+fs.rmSync('dist/custom-elements', { recursive: true, force: true });
+fs.mkdirSync('dist/custom-elements');
+const elements = JSON.parse(fs.readFileSync('custom-elements.json', 'utf8'));
+for (const [id, manifest] of shipped.manifests) fs.writeFileSync(`dist/custom-elements/${id}.json`, JSON.stringify(systemElements(elements, manifest, shipped.catalog)));
 // A shipped system that moves a width a condition is written from gets that stylesheet written for it, beside its
 // tokens: `dist/systems/<id>.app-shell.css`, `dist/systems/<id>.page-header.css` (`@tanrei/web/systems/<id>.app-shell.css`).
 // A system that only restyles needs none — the default's conditions are its own — and none is written.
@@ -308,10 +335,10 @@ for (const system of fs.readdirSync('src/generated/systems').filter((file) => fi
     conditionedForSystems.push(`dist/systems/${name}`);
   }
 }
-// The bundle defines every component this package has: the main entry's and those of the layers' own entries
-// (`@tanrei/web/m3-like`), for demos and the test harness, which draw a component under the system it lives in.
+// The bundle defines every component this package has, as `@tanrei/web/all` does, for demos and the test harness,
+// which draw each component under a system that ships it.
 const bundle = await build({
-  stdin: { contents: "export * from './src/index.ts';\nexport * from './src/m3-like.ts';\n", resolveDir: '.', loader: 'ts', sourcefile: 'tanrei.bundle.ts' },
+  stdin: { contents: bundleSource(shipped), resolveDir: '.', loader: 'ts', sourcefile: 'tanrei.bundle.ts' },
   bundle: true,
   format: 'esm',
   target: 'es2022',
@@ -333,4 +360,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

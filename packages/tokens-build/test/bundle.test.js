@@ -35,6 +35,11 @@ test('the schema rejects what the philosophy forbids', () => {
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x', extends: 'tanrei', thresholds: {} }, 'x').join('\n'), /additional properties/);
   // Extending the vocabulary is allowed — with a reason.
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x', extends: 'tanrei', vocabulary: { 'tanrei.sys.space.space950': { $type: 'dimension' } } }, 'x').join('\n'), /rationale/);
+  // A component that lives in a layer says what a system without it uses: a reason, and at least one component.
+  const holding = (outside) => validateLayerFile(REPO_ROOT, { id: 'x', extends: 'core', vocabulary: { 'tanrei.comp.fab-menu': { document: 'comp/fab-menu.tokens.json', rationale: 'Only this line ships it.', outside } } }, 'x').join('\n');
+  assert.equal(holding({ reason: 'A main action button opens a sheet.', insteadUse: ['main-action-button'] }), '');
+  assert.match(holding({ reason: 'A main action button opens a sheet.', insteadUse: [] }), /fewer than 1 items/);
+  assert.match(holding({ insteadUse: ['main-action-button'] }), /reason/);
   assert.match(validateLayerFile(REPO_ROOT, { id: 'x' }, 'x').join('\n'), /only the root layer/);
   assert.match(validateLayerFile(REPO_ROOT, { id: 'y', extends: 'tanrei' }, 'x').join('\n'), /must equal the file name/);
 });
@@ -109,4 +114,9 @@ test('what a system does not ship is worked out down its chain, and every system
   // What lives in a layer the system does not extend is said apart, with that layer.
   const sheet = emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { unavailable: { components: [], variants: {} }, outside: { 'fab-menu': 'm3-like' } });
   assert.match(sheet, /--tanrei-unavailable-layer: "fab-menu=m3-like";/);
+  // What the system uses instead: each component with its replacements in order, and an empty list declared as such.
+  const instead = (replacements) => emitCss({ partial: true, tokens: {}, colors: { light: {}, 'light-medium': {}, 'light-high': {}, dark: {}, 'dark-medium': {}, 'dark-high': {} }, schemes: [] }, { scope: 'b', replacements });
+  assert.match(instead({ 'segmented-button': ['tabs', 'button-group'], carousel: ['list'] }), /--tanrei-unavailable-replacement: "segmented-button=tabs,button-group carousel=list";/);
+  assert.match(instead({}), /--tanrei-unavailable-replacement: "";/);
+  assert.doesNotMatch(sheet, /--tanrei-unavailable-replacement/, 'not declared where none is given');
 });

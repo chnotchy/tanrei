@@ -45,7 +45,7 @@ A combobox field holds what its combobox holds, which is two things. `value` is 
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-combobox-field name="city" label="City" value="tokyo" requirement="required" required-text="Required"
+      <tanrei-combobox-field name="city" label="City" value="tokyo" required required-text="Required"
         clearable clear-label="Clear city" empty-text="No matches">
         <tanrei-option value="kyoto">Kyoto</tanrei-option>
         <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -105,14 +105,14 @@ A combobox field is a [field](/components/field/) with a [combobox](/components/
 
 ```html
 <!-- The combobox field -->
-<tanrei-combobox-field name="city" label="City" requirement="required" required-text="Required"
+<tanrei-combobox-field name="city" label="City" required required-text="Required"
   supporting-text="Where the order is sent." value="tokyo">
   <tanrei-option value="kyoto">Kyoto</tanrei-option>
   <tanrei-option value="tokyo">Tokyo</tanrei-option>
 </tanrei-combobox-field>
 
 <!-- The same, by hand: the frame's properties on the field, everything else — and the options — on the combobox -->
-<tanrei-field label="City" requirement="required" required-text="Required" supporting-text="Where the order is sent.">
+<tanrei-field label="City" required required-text="Required" supporting-text="Where the order is sent.">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">Kyoto</tanrei-option>
     <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -121,7 +121,7 @@ A combobox field is a [field](/components/field/) with a [combobox](/components/
 ```
 
 <DemoFrame label="A field with a combobox in it: the same picture as a combobox field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" requirement="required" required-text="Required" supporting-text="Where the order is sent.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" required required-text="Required" supporting-text="Where the order is sent.">
     <tanrei-combobox value="tokyo" empty-text="No matches">
       <tanrei-option value="kyoto">Kyoto</tanrei-option>
       <tanrei-option value="tokyo">Tokyo</tanrei-option>
@@ -159,7 +159,7 @@ What differs is where the form's control is: by hand it is the combobox, which t
 | Part | What it is |
 | --- | --- |
 | Label | The field's row above the container (`stacked`), or the combobox's own label floating inside it (`filled`, `outlined`). It is the accessible name, drawn or hidden with `labelHidden` |
-| Requirement mark | After the label: the requirement tag in its required form, an asterisk or nothing for `requirement="required"`; the requirement tag in its optional form for `optional`. A floating label takes the asterisk |
+| Requirement mark | After the label: the requirement tag in its required form, an asterisk or nothing for `required`; the requirement tag in its optional form for `optional`. A floating label takes the asterisk |
 | Input | The text: what the person types to find an option and, while they are not typing, the chosen option's label or the custom value. One line, which scrolls |
 | Placeholder | A hint shown while the input is empty. Never a label, and never a value |
 | Leading icon | The glyph in the `leading-icon` slot, or else the chosen option's own |
@@ -213,7 +213,7 @@ While an input method is composing, every key belongs to it. The Enter that conf
 
 - `<tanrei-option>` and `<tanrei-option-group>` are data: they draw nothing. They are the elements a select holds. An option whose value is the empty string is drawn and cannot be chosen, because the empty value means that nothing is chosen.
 - The element's shadow root holds a `<tanrei-field>` around a `<tanrei-combobox>`. Your `<tanrei-option>` children stay its own children and reach the combobox through a slot; nothing is moved or copied.
-- The combobox field is a form-associated element: the one control the form sees. It takes `name`, submits `value` and never the text of an edit that was not committed, resets to the `value` attribute, and reports a missing value to the form while `requirement="required"` and `value` is empty. Enter with no option active submits its form.
+- The combobox field is a form-associated element: the one control the form sees. It takes `name`, submits `value` and never the text of an edit that was not committed, resets to the `value` attribute, and reports a missing value to the form while `required` and `value` is empty. Enter with no option active submits its form.
 - `value`, `inputValue` and `open` are the combobox's at every moment: each is already the new one in every listener.
 - `chevron` is the inverse attribute `no-chevron`, and `readOnly` is `readonly`.
 - `input` is the native event of the text element. `change` and `action` carry `detail.value` and `detail.inputValue`. The four events are the combobox's own, with the combobox field as their target; `toggle` does not bubble.
@@ -268,7 +268,7 @@ While an input method is composing, every key belongs to it. The Enter that conf
 - The input is an editable combobox with a list box. Its name is `label`, drawn or hidden, and never the placeholder. The field gives it to the combobox, which carries it on its own input.
 - The shown supporting or error text is its description, with `optionalText` while the field is optional.
 - An error that appears while focus is in the field is announced once, politely.
-- It is exposed as invalid while `error` is true, as required while `requirement` is `required`, as read-only, and as expanded while its list is open.
+- It is exposed as invalid while `error` is true, as required while `required` is set, as read-only, and as expanded while its list is open.
 - Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text.
 - The list is a list box named by the label. Each option has its name, its description, whether it is the chosen one, whether it is disabled, and its position among the options shown. A group is named by its title.
 - A match is marked by weight, never by color alone. The label is read as one text.

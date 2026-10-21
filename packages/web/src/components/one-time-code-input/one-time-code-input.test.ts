@@ -1111,7 +1111,7 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mountFramed(page, [
-      framed('framed', { label: LABEL, supportingText: 'Enter the 6-digit code we sent you.', requirement: 'required', requiredText: 'Required', errorText: 'That code is not right.' }, { value: '12', groupSize: 3 }),
+      framed('framed', { label: LABEL, supportingText: 'Enter the 6-digit code we sent you.', required: true, requiredText: 'Required', errorText: 'That code is not right.' }, { value: '12', groupSize: 3 }),
       framed('own', { label: 'Code', labelHidden: true }, { label: 'Sign-in code' }),
     ]);
     const semantics = (id: string) => native(page, id).evaluate((input) => Object.fromEntries(['aria-label', 'aria-description', 'aria-required', 'aria-invalid'].map((name) => [name, input.getAttribute(name)])));
@@ -1411,7 +1411,7 @@ test.describe('behavior', () => {
 
   test('OTC-29: in a form it takes a name and submits the code alone — an empty string while it holds none — is reset to the value it was first given, is restored, and reports a missing value while its field says it is required and it is empty; a code shorter than length is reported as nothing', async ({ page }) => {
     await mountFramed(page, [
-      framed('need', { label: LABEL, requirement: 'required', requiredText: 'Required' }, { groupSize: 3 }),
+      framed('need', { label: LABEL, required: true, requiredText: 'Required' }, { groupSize: 3 }),
       framed('free', { label: 'Backup code' }, { groupSize: 3, value: '12' }),
     ]);
     await page.evaluate(() => {
@@ -1450,7 +1450,7 @@ test.describe('behavior', () => {
     expect(await data()).toEqual(['code=987', 'backup=12']);
     // No longer required: nothing is missing.
     await set(page, 'need', { value: '' });
-    await stage(page, 'need').locator('tanrei-field').evaluate((el) => ((el as HTMLElement & { requirement: string }).requirement = 'none'));
+    await stage(page, 'need').locator('tanrei-field').evaluate((el) => ((el as HTMLElement & { required: boolean }).required = false));
     await settled(page, 'need');
     expect(await validity('need')).toMatchObject({ missing: false, valid: true });
   });
@@ -1485,7 +1485,7 @@ test.describe('accessibility', () => {
         theme,
         fixtures: [
           ...fieldSpec.fixtures.filter((f) => f.id === 'code-supporting' || f.id === 'code-error'),
-          framed('required', { label: LABEL, requirement: 'required', requiredText: 'Required' }, { groupSize: 3 }),
+          framed('required', { label: LABEL, required: true, requiredText: 'Required' }, { groupSize: 3 }),
           framed('off', { label: LABEL, disabled: true, supportingText: 'Sent to your phone.' }, { value: '123456' }),
         ],
       });

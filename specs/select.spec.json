@@ -92,6 +92,11 @@
       "optional": true
     },
     {
+      "id": "status",
+      "description": "A row after the options that says what the product's source of options is doing — a loading indicator, a count, a failure — or, while the select holds no option, that there is nothing to choose (the empty text). Not an option: it takes no input and is never active. It stands under the options, outside the region that scrolls.",
+      "optional": true
+    },
+    {
       "id": "focus-ring",
       "description": "Gap-then-ring indicator inside an option's row while the option is the active one by the keyboard. The container itself draws no ring: its focused edge is its focus indicator."
     }
@@ -167,7 +172,7 @@
       "name": "open",
       "type": "boolean",
       "default": false,
-      "description": "Whether the list is shown. The select opens and closes itself and emits toggle; the product may also set it. Ignored while the select is disabled or read-only or holds no option."
+      "description": "Whether the list is shown. The select opens and closes itself and emits toggle; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show: no option, no status row and no empty text (SEL-61)."
     },
     {
       "name": "separation",
@@ -179,6 +184,41 @@
       ],
       "default": "auto",
       "description": "How a group of options is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.select.separation, which follows the design system's choice."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section start on one line — a section being an option group, or a run of adjacent options outside any group. auto: an option keeps the column while another option of its section has a leading icon, so that a section without icons starts its labels where the row's content starts. always: every option keeps it. never: only an option that has an icon has the column. The menu's iconSpace, with the same values and default (SEL-66)."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "idle",
+        "loading",
+        "error"
+      ],
+      "default": "idle",
+      "description": "What the product's source of options is doing, which the product sets: idle (the options given are final), loading (options are on their way: the status row shows a loading indicator and the list is marked busy) or error (the source failed: the status row shows statusText in the error color, announced at once). The combobox's and the search's values, with the same meaning. The select never loads anything itself."
+    },
+    {
+      "name": "statusText",
+      "type": "string",
+      "default": "",
+      "description": "The status row's text, in the product's language, read to assistive technology when the list opens and when it changes: a count (\"20 of 340 projects shown\"), that loading failed (\"Projects could not be loaded\"), or, while status is loading, the loading indicator's name (\"Loading projects\"). Empty draws no status row unless status is loading."
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "default": "",
+      "description": "Shown in the list while the select holds no option, status is idle and statusText is empty, in the product's language (\"No projects yet\"), so that the select still opens and says why there is nothing to choose. The product's: Tanrei has no words for it. Empty reads the product's words (noOptionsText); with neither, the select has nothing to show and does not open (SEL-61), and it is reported.",
+      "words": "noOptionsText"
     }
   ],
   "items": [
@@ -282,7 +322,7 @@
     {
       "id": "SEL-11",
       "text": "THE select SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is its accessible name and the name of its list (SEL-48), whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it is its description. WHILE label is not empty THE select SHALL use it as the accessible name instead, for a select no Field frames or one whose visible label is elsewhere. It SHALL never use placeholder as the name, and IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. WHILE its Field says it is required THE select SHALL expose itself as required, whichever mark is drawn and where none is, and on the web SHALL report a missing value to the form's constraint validation WHILE value is the empty string; it has no requirement setting of its own and SHALL NOT validate because of one. WHILE an option's label is empty THE select SHALL still render the option and in debug builds report that it has no accessible name.",
-      "verify": "Unit: a bare select is named by its label; a select in a Field is named by the Field's label with the Field's labelHidden false and true, and by its own label where it has one; in a Field whose requirement is required it is exposed as required and, on the web, reports a missing value while value is empty."
+      "verify": "Unit: a bare select is named by its label; a select in a Field is named by the Field's label with the Field's labelHidden false and true, and by its own label where it has one; in a required Field it is exposed as required and, on the web, reports a missing value while value is empty."
     },
     {
       "id": "SEL-13",
@@ -311,7 +351,7 @@
     },
     {
       "id": "SEL-20",
-      "text": "WHILE hovered or focused THE select SHALL render its container, outline, active indicator, floating label and its asterisk, value, placeholder, leading icon, chevron and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered; focus gained by pointer or touch SHALL select the focused state, as in a text input (TXI-6), and THE select SHALL be drawn focused for as long as its list is open, and SHALL say so to the Field that frames it, so that the rows of that Field are drawn focused with it (SEL-63, FLD-13). WHILE variant is stacked it SHALL draw no edge at rest (comp.input-box.stacked.outline.color is transparent), SHALL draw its focused outline color and width as a line inside the container's edge that takes no layout space, and WHILE in error SHALL draw that line at rest in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width; a hovered stacked or filled select SHALL show the state layer on its container. WHEN its state changes THE select SHALL animate colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing, and SHALL change them at once where motion is reduced."
+      "text": "WHILE hovered or focused THE select SHALL render its container, outline, active indicator, floating label and its asterisk, value, placeholder, leading icon, chevron and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered; focus gained by pointer or touch SHALL select the focused state, as in a text input (TXI-6), and THE select SHALL be drawn focused for as long as its list is open, and SHALL say so to the Field that frames it, so that the rows of that Field are drawn focused with it (SEL-63, FLD-13). WHILE variant is stacked it SHALL draw no edge at rest (comp.input-box.stacked.outline.color is transparent), SHALL draw its focused outline color and width as a line inside the container's edge that takes no layout space, and WHILE in error SHALL draw that line at rest in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width; a hovered stacked or filled select SHALL show the state layer on its container. WHEN its state changes THE select SHALL animate colors and widths over the state duration of its size (comp.input-box.motion.state-duration.small, .medium or .large) with comp.input-box.motion.state-easing, and SHALL change them at once where motion is reduced."
     },
     {
       "id": "SEL-21",
@@ -323,11 +363,11 @@
     },
     {
       "id": "SEL-23",
-      "text": "WHEN the person presses the container by pointer or touch, or presses Enter, Space, Down Arrow or Up Arrow while the select has focus, WHILE the list is closed and the select is neither disabled nor read-only and holds at least one option, THE select SHALL take focus if it does not have it, set open to true, emit toggle once with open true, and present its list (SEL-24). The container is the list's anchor and its opener (POP-18): THE select SHALL NOT open or close its list when a pointer enters or leaves, when focus arrives, on a long-press or after a time, and SHALL expose on its container that it opens a list box, whether the list is open and which element it is (aria-haspopup with the value listbox, aria-expanded and aria-controls on the web). THE select SHALL NOT change value by opening, and SHALL NOT change value from the keyboard while its list is closed: the arrow keys and typing (SEL-33) open the list instead, so that a value never changes without the person seeing what it changed to and confirming it."
+      "text": "WHEN the person presses the container by pointer or touch, or presses Enter, Space, Down Arrow or Up Arrow while the select has focus, WHILE the list is closed and the select is neither disabled nor read-only and has something to show — an option, a status row or the empty text (SEL-68) — THE select SHALL take focus if it does not have it, set open to true, emit toggle once with open true, and present its list (SEL-24). The container is the list's anchor and its opener (POP-18): THE select SHALL NOT open or close its list when a pointer enters or leaves, when focus arrives, on a long-press or after a time, and SHALL expose on its container that it opens a list box, whether the list is open and which element it is (aria-haspopup with the value listbox, aria-expanded and aria-controls on the web). THE select SHALL NOT change value by opening, and SHALL NOT change value from the keyboard while its list is closed: the arrow keys and typing (SEL-33) open the list instead, so that a value never changes without the person seeing what it changed to and confirming it."
     },
     {
       "id": "SEL-24",
-      "text": "WHILE open is true THE select SHALL present its list in the platform's overlay layer, the one a popover's container and the menu's surface use (POP-1), and SHALL place it against its container as a popover whose placement is bottom-start is placed against its anchor (POP-2, POP-4): comp.select.list.offset below the container with the start edges aligned, its own token in the place of the popover's offset. It SHALL keep the list at least comp.select.list.viewport-margin inside the window's safe area by the steps POP-5 gives, in that order — flipping above the container where below has no room and above has, limiting the list to the room where neither has, shifting along the container, and keeping its side while that side has room — SHALL follow the container as it moves or changes size, SHALL take the on-screen keyboard's top edge as an edge of that area (POP-36), and SHALL take the start edge as the right edge in a right-to-left layout (POP-34). It SHALL stay an anchored list at every window size and SHALL NOT turn into a sheet or a dialog (POP-31). WHEN the container is removed, hidden or scrolled out of sight so that no part of it can be seen THE select SHALL close the list with the reason anchor-hidden (SEL-27), as POP-5 says of a popover's anchor."
+      "text": "WHILE open is true THE select SHALL present its list in the platform's overlay layer, the one a popover's container and the menu's surface use (POP-1), and SHALL place it against its container as a popover whose placement is bottom-start is placed against its anchor (POP-2, POP-4): comp.select.list.offset below the container with the start edges aligned, its own token in the place of the popover's offset. It SHALL keep the list at least comp.select.list.viewport-margin inside the window's safe area by the steps POP-5 gives, in that order — flipping above the container where below has no room and above has, limiting the list to the room where neither has, shifting along the container, and keeping its side while that side has room — SHALL follow the container as it moves or changes size, SHALL take the on-screen keyboard's top edge as an edge of that area (POP-36), and SHALL take the start edge as the right edge in a right-to-left layout (POP-34). It SHALL stay an anchored list at every window size and SHALL NOT turn into a sheet or a dialog (POP-43): a list of options is the menu's kind of surface, which Tanrei's rule for compact windows leaves beside its control. WHEN the container is removed, hidden or scrolled out of sight so that no part of it can be seen THE select SHALL close the list with the reason anchor-hidden (SEL-27), as POP-5 says of a popover's anchor."
     },
     {
       "id": "SEL-25",
@@ -336,7 +376,7 @@
     },
     {
       "id": "SEL-26",
-      "text": "WHILE the list is open THE select SHALL keep focus on its container, because the list is an operated overlay whose focus is the field it belongs to, as the search's docked view is: it SHALL NOT move focus into the list when it opens (this is the select's own rule, where a popover moves focus in, POP-19), SHALL NOT trap focus, make anything inert or draw a scrim; a press on an option, on a group title or on the list's surface SHALL NOT take focus from the container. One option at a time SHALL be the active option, which the keys act on and assistive technology is told of (SEL-48)."
+      "text": "WHILE the list is open THE select SHALL keep focus on its container, because the list is an operated overlay whose focus is the field it belongs to, as the search's docked view is: it SHALL NOT move focus into the list when it opens (this is the select's own rule, where a popover moves focus in, POP-19), SHALL NOT trap focus, make anything inert or draw a scrim; a press on an option, on a group title, on the status row or on the list's surface SHALL NOT take focus from the container. One option at a time SHALL be the active option, which the keys act on and assistive technology is told of (SEL-48)."
     },
     {
       "id": "SEL-27",
@@ -352,11 +392,11 @@
     },
     {
       "id": "SEL-30",
-      "text": "WHEN the list opens THE select SHALL fade it in and grow it from the edge that faces the container, as a popover's container does (POP-26), over comp.select.motion.open-duration with comp.select.motion.open-easing, and WHEN it closes fade it out over comp.select.motion.close-duration with comp.select.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. WHEN it is told to close while still opening, or to open while still closing, it SHALL turn round from where it is, and WHILE closed or closing it SHALL take no pointer input (POP-27). The value and the open state SHALL change when the list closes, not when its motion ends."
+      "text": "WHEN the list opens THE select SHALL make it appear as a popover's container appears (POP-26) — from where that appearance starts it, grown from the middle of the edge that faces the container — over comp.select.motion.open-duration with comp.select.motion.open-easing, and WHEN it closes take it back the same way over comp.select.motion.close-duration with comp.select.motion.close-easing; WHERE motion is reduced it SHALL only fade in and out, over sys.motion.role.reduced. WHEN it is told to close while still opening, or to open while still closing, it SHALL turn round from where it is, and WHILE closed or closing it SHALL take no pointer input (POP-27). The value and the open state SHALL change when the list closes, not when its motion ends."
     },
     {
       "id": "SEL-31",
-      "text": "WHEN the list opens THE select SHALL make the chosen option the active one, or the first option that is not disabled WHILE none is chosen. WHILE the list is open THE select SHALL make active the next option with Down Arrow and the previous one with Up Arrow, in order and across groups, stopping at the last and at the first without wrapping; the first and the last option with Home and End; and the option ten after or ten before, or the last or the first where fewer remain, with Page Down and Page Up. A disabled option SHALL be reached like any other, so that people learn it exists; a group title and a divider are never active. Making an option active SHALL NOT change value. WHEN an option becomes active while part of it is scrolled out of view THE select SHALL scroll it into view."
+      "text": "WHEN the list opens THE select SHALL make the chosen option the active one, or the first option that is not disabled WHILE none is chosen. WHILE the list is open THE select SHALL make active the next option with Down Arrow and the previous one with Up Arrow, in order and across groups, stopping at the last and at the first without wrapping; the first and the last option with Home and End; and the option ten after or ten before, or the last or the first where fewer remain, with Page Down and Page Up. A disabled option SHALL be reached like any other, so that people learn it exists; a group title, a divider and the status row are never active, and WHILE the list holds no option no option is active and Enter and Space choose nothing. Making an option active SHALL NOT change value. WHEN an option becomes active while part of it is scrolled out of view THE select SHALL scroll it into view."
     },
     {
       "id": "SEL-32",
@@ -376,11 +416,11 @@
     },
     {
       "id": "SEL-36",
-      "text": "WHEN the product sets open THE select SHALL show or remove its list without emitting toggle; WHEN the product sets value THE select SHALL show the chosen option's label and SHALL NOT emit change or toggle, and WHILE the list is open SHALL move the fill and the check to the new chosen option and leave the active option where it is. WHEN the options change while the list is open THE select SHALL keep the active option where an option of the same value still exists and otherwise make active the option SEL-31 names for an opening list. WHEN the select becomes disabled or read-only, or loses its last option, while its list is open THE select SHALL close the list without emitting toggle."
+      "text": "WHEN the product sets open THE select SHALL show or remove its list without emitting toggle; WHEN the product sets value THE select SHALL show the chosen option's label and SHALL NOT emit change or toggle, and WHILE the list is open SHALL move the fill and the check to the new chosen option and leave the active option where it is. WHEN the options change while the list is open THE select SHALL keep the active option where an option of the same value still exists and otherwise make active the option SEL-31 names for an opening list. WHEN status, statusText or emptyText change while the list is open THE select SHALL draw the status row as it then is (SEL-68) and keep the list open. WHEN the select becomes disabled or read-only, or is left with nothing to show (SEL-61), while its list is open THE select SHALL close the list without emitting toggle."
     },
     {
       "id": "SEL-37",
-      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (while any option of the list has a leading icon), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; an empty column or box SHALL keep its width in every row so that labels align and wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
+      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (as SEL-66 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
       "verify": "Under the default system an option's label starts 16 from the list's edge (4 of the list's padding and 12 of the row's), which is where the value starts in a medium or large container of the same width."
     },
     {
@@ -435,12 +475,12 @@
     },
     {
       "id": "SEL-51",
-      "text": "WHILE the text size is enlarged THE select SHALL grow its container with the value's line, keeping the height of its size as a minimum and its glyphs at their sizes, SHALL keep the value on one line, SHALL wrap its options and its group titles rather than cut them, and SHALL scroll its list where the taller options no longer fit (SEL-25), so that text enlarged to 200% loses no content in the list and none but a cut value in the container, which the list and assistive technology still give in full."
+      "text": "WHILE the text size is enlarged THE select SHALL grow its container with the value's line, keeping the height of its size as a minimum and its glyphs at their sizes, SHALL keep the value on one line, SHALL wrap its options, its group titles and the status row's text rather than cut them, and SHALL scroll its list where the taller options no longer fit (SEL-25), so that text enlarged to 200% loses no content in the list and none but a cut value in the container, which the list and assistive technology still give in full."
     },
     {
       "id": "SEL-52",
-      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE select SHALL draw its floating label and that label's asterisk in the platform's text color, and SHALL rely on no color of its own to show an error: the error is carried by the invalid state (SEL-9) and by the words the Field that frames it shows, in that Field's own rows (FLD-17).",
-      "verify": "On the web, with forced colors emulated: the floating label of every filled and outlined fixture is CanvasText."
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE select SHALL draw its floating label, that label's asterisk and the status row's text, in error too, in the platform's text color, and SHALL rely on no color of its own to show an error: the error is carried by the invalid state (SEL-9) and by the words the Field that frames it shows, in that Field's own rows (FLD-17).",
+      "verify": "On the web, with forced colors emulated: the floating label of every filled and outlined fixture is CanvasText, and so is the status row of open-status and open-status-error."
     },
     {
       "id": "SEL-53",
@@ -466,21 +506,22 @@
     },
     {
       "id": "SEL-59",
-      "text": "THE select SHALL lay out its placeholder, the value it shows, an option's label and supporting text and a group's title in the same way (SEL-58): each as text of its own direction, isolated, placed and aligned by the layout direction; and SHALL cut a value that does not fit (SEL-16) at the end of its own direction, so that a left-to-right value in a right-to-left layout loses its right end and never its beginning.",
+      "text": "THE select SHALL lay out its placeholder, the value it shows, an option's label and supporting text, a group's title and the status row's text in the same way (SEL-58): each as text of its own direction, isolated, placed and aligned by the layout direction; and SHALL cut a value that does not fit (SEL-16) at the end of its own direction, so that a left-to-right value in a right-to-left layout loses its right end and never its beginning.",
       "verify": "The fixture long-value-rtl draws a left-to-right value in a right-to-left stage: the chevron is at the left, the value begins with its first word and the ellipsis is at the value's right end."
     },
     {
       "id": "SEL-60",
-      "text": "WHEN variant or size names a value that the active design system does not have THE select SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the select does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked select does (SEL-15, SEL-20), with that value's own tokens."
+      "text": "WHEN variant or size names a value that the active design system does not have THE select SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the select does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked select does (SEL-15, SEL-20), with that value's own tokens. WHEN status names a value the select does not define THE select SHALL behave as idle and in debug builds report it."
     },
     {
       "id": "SEL-61",
-      "text": "WHILE the select holds no option THE select SHALL draw its trigger as it is, SHALL stay focusable, SHALL NOT open by any input or because open is true, and in debug builds SHALL report a select without options; it SHALL draw no empty list and no text of its own in one."
+      "text": "WHILE the select has nothing to show — it holds no option, status is idle, statusText is empty and it has no empty text (SEL-68) — THE select SHALL draw its trigger as it is, SHALL stay focusable, SHALL NOT open by any input or because open is true, and in debug builds SHALL report a select without options; it SHALL draw no empty list. WHILE it holds no option and has a status row or an empty text it SHALL open as any select does (SEL-23), its list holding that row alone.",
+      "verify": "Unit: a select without options, status, statusText or emptyText does not open by a press, a key or open, and is reported; given emptyText, statusText or status loading it opens, and its list holds the status row alone."
     },
     {
       "id": "SEL-62",
-      "text": "THE select SHALL have no words of its own and SHALL read none: it shows its options' labels, its placeholder and its name, each given by the product, and nothing else in words, and draws no text of its own in a list (SEL-61). The words of a requirement are read by the Field that frames it (FLD-24).",
-      "verify": "No test finds in a select a word the test did not give."
+      "text": "THE select SHALL have no words of its own: it shows its options' labels, its placeholder, its name and the status row's statusText, each given by the product, and SHALL take its empty text from the instance's emptyText and, WHILE that is empty, from the product's words of the name noOptionsText — the words a product sets once for all its components — and from nowhere else. WHILE neither gives it, the select draws no empty text (SEL-61) and, WHEN the person tries to open a select that holds nothing to show, reports once in debug builds that the words are missing. The words of a requirement are read by the Field that frames it (FLD-24).",
+      "verify": "Unit, with no product's words set: open-empty without emptyText does not open and the report names emptyText; with the product's noOptionsText set, a select without the prop draws it; an instance's own emptyText wins. No test finds in a select a word the test did not give."
     },
     {
       "id": "SEL-63",
@@ -495,6 +536,21 @@
       "id": "SEL-65",
       "text": "THE select SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the line that shows the chosen value and the placeholder, the leading icon and the chevron, the paddings, the gaps and the least height of its size — small included, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are the list's — its surface, its options and their states, its groups, its motion (SEL-25, SEL-37 to SEL-42). WHEN a design system or a product sets a token of the box THE select SHALL follow it, as the text input, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one select is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE select SHALL draw itself from the value it finds there.",
       "verify": "Every value of a select's box is the value of the comp.input-box token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the select's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one select's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    },
+    {
+      "id": "SEL-66",
+      "text": "THE select SHALL decide the leading icon column for each section of its list — an option group, with the options of a group inside it (SEL-44), or a run of adjacent options outside any group: the parts SEL-45 separates. WHILE iconSpace is auto an option SHALL keep the column, empty where it has no icon, WHERE an option of its section has a leading icon, so that the labels of a section start on one line, and a section where no option has one SHALL keep no column, its labels starting at the row's content start; WHILE iconSpace is always every option SHALL keep the column, whether or not any option of the list has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.select.option.leading-icon.size wide with comp.select.option.gap after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (SEL-44). WHEN an option is added or removed, or an option's leadingIcon changes, THE select SHALL decide its section again; WHEN iconSpace names a value the select does not define THE select SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto: in the group Apps, Mail and Messages have icons and Copy link has none, so Copy link's label starts where Messages' does; in the group Files, Print and Save as PDF have none, so their labels start at the row's content start, 16 from the list's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same options, every label after the column. Fixture icon-space-never: Copy link's label starts at the row's content start, Mail's and Messages' after their icons. Test options outside any group (a run of its own), a leadingIcon given to Print (its group then keeps the column on Save as PDF) and taken away, and an unknown value (auto, reported)."
+    },
+    {
+      "id": "SEL-68",
+      "text": "WHILE the list is open and statusText is not empty or status is loading THE select SHALL draw, after the last option, a status row, outside the region that scrolls, under it and inside the list's surface, so that the region that scrolls is the list box the keys move through and the row stays in view while the options scroll (SEL-25): inset by comp.select.option.padding-inline at the sides and padded by comp.select.option.padding-block above and below, taking no input, no state and no focus, never the active option and never reached by typing (SEL-33). WHILE status is idle it SHALL draw statusText, wrapping, in comp.select.status.typescale and comp.select.status.color; WHILE status is error it SHALL draw it in comp.select.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading or error SHALL stay drawn and choosable. WHILE the select holds no option, status is idle and statusText is empty THE select SHALL draw its empty text — emptyText, else the product's words (SEL-62) — in the status row's place and style, so that a person who opens a list with nothing in it is told why instead of facing a select that does not open; WHILE neither gives it the select has nothing to show (SEL-61). The row and the empty text are the combobox's (CMB-32) with the select's own tokens, which hold the combobox's values in every shipped design system; a select filters nothing, so its list is empty only while it holds no option.",
+      "verify": "Fixtures open-loading, open-status, open-status-error and open-empty. Unit: the row stands after the last option and outside the list box, inset and padded as an option, in status.typescale and status.color, status.error.color in error; while loading one small loading indicator named by statusText at the row's start and no text, the row one line tall; the options left in the list while loading are chosen by a press; a press on the row keeps the list open and an arrow key never makes it active; with no status the row takes no room."
+    },
+    {
+      "id": "SEL-69",
+      "text": "THE select SHALL expose the status row as a live region that is present while the list is shown and holds nothing while it is closed: WHEN the list has been shown, and WHILE it is open WHEN statusText changes or the empty text appears, THE select SHALL have assistive technology read the row's text — politely, after what it is saying, WHILE status is idle (the status role on the web), and at once WHILE status is error (the alert role) — so that what the row already says as the list opens is read as well as what it comes to say, focus staying on the container (SEL-26). WHILE status is loading it SHALL announce nothing — the loading indicator does not announce itself (LDG-6) — and SHALL mark the list box as busy (aria-busy on the web) until status leaves loading. THE select SHALL NOT compose, count or translate a text: the number of options is already exposed by the list (SEL-48), and the words are the product's.",
+      "verify": "Unit: with the list closed both regions are empty; once open-empty's list is shown the polite region holds the empty text, and open-status's statusText; open-status-error's text is in the assertive region; while loading both are empty and the list box is busy; a statusText changed while open is a change of the same region; closed, the regions are empty again."
     }
   ],
   "accessibility": {
@@ -533,13 +589,14 @@
         "action": "Closes the list without choosing; focus stays on the select. With the list closed the select does not act on it."
       }
     ],
-    "labeling": "The accessible name of the select and of its list is the label of the Field that frames it, or its own label where no Field does; a filled or outlined select draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name and never the value. The chosen option's label is the select's value. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The select is exposed as invalid while error is true or its Field is in error, required while its Field says so — whichever mark is drawn, and the mark itself is hidden — read-only while readOnly is true, and expanded while its list is open. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options; a group is named by its title. The leading icons, the chevron, the check and the divider are decorative.",
+    "labeling": "The accessible name of the select and of its list is the label of the Field that frames it, or its own label where no Field does; a filled or outlined select draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name and never the value. The chosen option's label is the select's value. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The select is exposed as invalid while error is true or its Field is in error, required while its Field says so — whichever mark is drawn, and the mark itself is hidden — read-only while readOnly is true, and expanded while its list is open. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options; a group is named by its title. The status row is a live region: what it says is read when the list opens and when it changes, politely, and at once while the source failed; while the options are loading the list box is busy and nothing is announced. The leading icons, the chevron, the check and the divider are decorative.",
     "minimumTarget": true,
     "notes": [
       "The select is the bare control: it draws no label row, no requirement mark, no help and no error. In a form it stands in a Field, which is the select field; alone it is for a place where its label stands elsewhere or is plain from where it stands and what it shows — a theme or a language select in a header, a toolbar, a column of a table — and there its own label names it.",
       "The pattern is the WAI-ARIA select-only combobox: focus stays on the field and the active option is its active descendant on the web, as the search's suggestions are (SRC-14), not moved into the list as the menu moves it. The field keeps its name, its description, its invalid and required states and its focused edge while the person reads the options, and typing keeps going to one place. SwiftUI, Compose, Flutter and React Native have no active descendant: there the list's options are focusable items that assistive technology moves through, and a hardware keyboard's arrow keys move the highlight as on the web.",
       "The value changes only when the person confirms an option: a press, Enter or Space. Arrow keys and typing on a closed select open the list instead of changing the value unseen, and Tab, Escape and a press outside close it without choosing, as the menu and the docked picker close without committing (MNU-5, DTM-5). A change event may navigate, save or rebuild a page, so it must never follow a key the person pressed for something else.",
       "A select holds one value from a closed list. Several values are checkboxes, or a list with multiple selection; a list long enough that people would rather type than scroll, or one that accepts a value not in it, is a combobox, which shares this box, this list and these options and adds a text input. A set of actions is a menu: a menu item does something, an option is a value.",
+      "Status: a select whose options come from a source that takes time or can fail says so in its list, as the combobox and the search do, with the same three props: status loading while they are on their way (the list box is busy, and a loading indicator named by statusText stands in the status row), status error with statusText saying what failed, and statusText alone for what the list should add (a count). A select that holds no option says why in emptyText, rather than not opening. The select never fetches, waits or retries: the product sets status, and the words are the product's. The loading and empty states are those of the ARIA listbox and combobox patterns, said in a live region outside the list box, as React Aria's and MUI's lists and Ant Design's select show them.",
       "With up to about five short options and room for them, a radio group or tabs show every choice at once and take one press; a select hides the choices behind a press and is for many options or little room.",
       "Overlay: the list is an operated overlay that is not modal. It draws no scrim, traps nothing and makes nothing inert. It is placed, sized, dismissed and moved as a popover's container is, by the popover's rules cited by id, with three rules of its own: focus stays on the field, Tab closes at once, and what it opens is a list box.",
       "Heights are minimums: at 200% text size the container and the options grow, labels and options wrap, and only the value in the container stays on one line (SEL-51). The list scrolls when it no longer fits; it never scrolls sideways.",
@@ -2656,6 +2713,261 @@
           ]
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-loading",
+      "props": {
+        "label": "Project",
+        "placeholder": "Choose a project",
+        "open": true,
+        "status": "loading",
+        "statusText": "Loading projects"
+      },
+      "items": []
+    },
+    {
+      "id": "open-status",
+      "props": {
+        "label": "Project",
+        "value": "atlas",
+        "open": true,
+        "statusText": "Your 3 most recent projects. Search for others on the Projects page."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Atlas",
+            "value": "atlas"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Beacon",
+            "value": "beacon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Comet",
+            "value": "comet"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-status-error",
+      "props": {
+        "label": "Project",
+        "placeholder": "Choose a project",
+        "open": true,
+        "status": "error",
+        "statusText": "Projects could not be loaded. Check your connection."
+      },
+      "items": []
+    },
+    {
+      "id": "open-empty",
+      "props": {
+        "label": "Project",
+        "placeholder": "Choose a project",
+        "open": true,
+        "emptyText": "No projects yet"
+      },
+      "items": []
     }
   ],
   "platforms": {
@@ -2673,7 +2985,11 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText"
       },
       "events": {
         "change": "change",
@@ -2699,7 +3015,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>` and `<tanrei-menu-group label>`: a `title` attribute would also draw the browser's tooltip."
         }
       },
-      "notes": "The tag `tanrei-select`, the class `TanreiSelect` and the React name `Select` are the bare control, without the frame. Lagging: the element still draws the label row, the requirement mark and the supporting row itself. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value`, restores it on navigation (`formStateRestoreCallback`), resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is empty. Its two calls on `ElementInternals` and its form go through the shared field primitives, so that a select field can repeat them. The trigger is a `<div role=\"combobox\" tabindex=\"0\">` in the shadow root carrying the name, the description, `aria-invalid`, `aria-required`, `aria-readonly`, `aria-haspopup=\"listbox\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant` — set on that element, not through ElementInternals, which axe cannot see. The name and the description are values the Field gives (`tanrei-field-connect`, `src/primitives/field.ts`), written into the select's own shadow root, the select's own `label` winning; the connection runs in both directions (SEL-63): the control's side says `drawsLabel`, `inset: { start, end }` (lengths the select writes from its own tokens and its measured icon box) and `drawnFocused` (true while the list is open), and takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. A select that a Field frames is a block that fills the Field's width (SEL-49); a bare one is an inline box as wide as its widest option, measured from a hidden grid cell that stacks every option's label in the value's style. The options are `<tanrei-option>` and `<tanrei-option-group>` elements, read as data and never drawn in place: the select renders the rows itself in its shadow root, so that the combobox, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. It reads them from its own children, and — in `src/primitives/option-list.ts`, for the combobox too — through any `<slot>` among its children: the elements assigned to that slot, flattened, stand in the slot's place, in order. That is how a select field's options, which are the product's children of `<tanrei-select-field>`, reach the select inside it, and how a product's own element can pass options on. Changes are observed on the children, on each such slot (`slotchange`) and on each element assigned through one. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback and followed with the `FollowController` the menu uses, with the select's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The select sets its own `value` before firing `change` (a composed, bubbling Event, as a native select's) and its own `open` before firing `toggle`, a CustomEvent whose `detail` holds `open` and `reason` — which is composed and not bubbling (the shipped element's is not yet): composed so that it is heard on a select field, not bubbling so that an ancestor's own `toggle` listener, a `<details>`'s, never hears a select's. Attributes: `label-hidden`, `readonly`, the rest as the properties. The `leading-icon` slot is a named slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. The `inline` attribute, for tests and fixtures, draws the open list in place below the trigger. What belongs to the frame and not to the element: the attributes `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text`, `optional-text`, the `label-icon` slot, the parts `label-icon` and `supporting-text`, and the label row of the stacked look. In a debug build the element reports any of those six attributes, or a child for `label-icon`, once, and names `tanrei-select-field`: nothing is kept for them in a production build, and no alias exists. Before the element is defined its options are running text in the page; what a server-rendered page shows then is the product's to guard today: hide `tanrei-select:not(:defined) > *` and reserve the block size of the select's size, and where the page must work without script put a native `<select>` or links in a `<noscript>` beside it. The native `<select>` is not used inside: its list cannot be drawn with the system's tokens, groups, glyphs and supporting text. The chevron is the icon helper's `expand_more` and the check its `check`. The element has no words and reads none."
+      "notes": "The tag `tanrei-select`, the class `TanreiSelect` and the React name `Select` are the bare control, without the frame. Lagging: the element still draws the label row, the requirement mark and the supporting row itself. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value`, restores it on navigation (`formStateRestoreCallback`), resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is empty. Its two calls on `ElementInternals` and its form go through the shared field primitives, so that a select field can repeat them. The trigger is a `<div role=\"combobox\" tabindex=\"0\">` in the shadow root carrying the name, the description, `aria-invalid`, `aria-required`, `aria-readonly`, `aria-haspopup=\"listbox\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant` — set on that element, not through ElementInternals, which axe cannot see. The name and the description are values the Field gives (`tanrei-field-connect`, `src/primitives/field.ts`), written into the select's own shadow root, the select's own `label` winning; the connection runs in both directions (SEL-63): the control's side says `drawsLabel`, `inset: { start, end }` (lengths the select writes from its own tokens and its measured icon box) and `drawnFocused` (true while the list is open), and takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. A select that a Field frames is a block that fills the Field's width (SEL-49); a bare one is an inline box as wide as its widest option, measured from a hidden grid cell that stacks every option's label in the value's style. The options are `<tanrei-option>` and `<tanrei-option-group>` elements, read as data and never drawn in place: the select renders the rows itself in its shadow root, so that the combobox, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. It reads them from its own children, and — in `src/primitives/option-list.ts`, for the combobox too — through any `<slot>` among its children: the elements assigned to that slot, flattened, stand in the slot's place, in order. That is how a select field's options, which are the product's children of `<tanrei-select-field>`, reach the select inside it, and how a product's own element can pass options on. Changes are observed on the children, on each such slot (`slotchange`) and on each element assigned through one. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback and followed with the `FollowController` the menu uses, with the select's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The select sets its own `value` before firing `change` (a composed, bubbling Event, as a native select's) and its own `open` before firing `toggle`, a CustomEvent whose `detail` holds `open` and `reason` — which is composed and not bubbling (the shipped element's is not yet): composed so that it is heard on a select field, not bubbling so that an ancestor's own `toggle` listener, a `<details>`'s, never hears a select's. Attributes: `label-hidden`, `readonly`, the rest as the properties. The `leading-icon` slot is a named slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. The status row (SEL-68, SEL-69) is a `<div part=\"status\">` after the list box, outside it and outside the box that scrolls; its text is drawn in a span kept from assistive technology, and two visually hidden spans, `role=\"status\"` and `role=\"alert\"`, are its live regions, always in the shadow root and given the text one animation frame after the list is shown (empty while it is closed), so that what the row already says as the list opens is read. While loading the list box has `aria-busy=\"true\"` and the row holds one `<tanrei-loading-indicator size=\"small\">` named by `status-text`. `empty-text` left empty is read from the product's words (`setWords({ noOptionsText })`). The `inline` attribute, for tests and fixtures, draws the open list in place below the trigger. What belongs to the frame and not to the element: the attributes `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`, the `label-icon` slot, the parts `label-icon` and `supporting-text`, and the label row of the stacked look. In a debug build the element reports any of those six attributes, or a child for `label-icon`, once, and names `tanrei-select-field`: nothing is kept for them in a production build, and no alias exists. Before the element is defined its options are running text in the page; what a server-rendered page shows then is the product's to guard today: hide `tanrei-select:not(:defined) > *` and reserve the block size of the select's size, and where the page must work without script put a native `<select>` or links in a `<noscript>` beside it. The native `<select>` is not used inside: its list cannot be drawn with the system's tokens, groups, glyphs and supporting text. The chevron is the icon helper's `expand_more` and the check its `check`. The element has no words and reads none."
     },
     "swiftui": {
       "status": "planned",
@@ -2715,7 +3031,11 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "isPresented",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText"
       },
       "events": {
         "change": "selection",
@@ -2757,7 +3077,11 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "open": "expanded",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText"
       },
       "events": {
         "change": "onValueChange",
@@ -2799,7 +3123,11 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "open": "controller",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText"
       },
       "events": {
         "change": "onChanged",
@@ -2841,7 +3169,11 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText"
       },
       "events": {
         "change": "onValueChange",

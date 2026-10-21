@@ -283,8 +283,14 @@
             },
             "shape": {
               "$type": "dimension",
-              "$description": "The corners of a suggestion's highlight, inset in the view by its padding.",
-              "$value": "{tanrei.sys.shape.corner.small}"
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "$description": "The corners of a suggestion's highlight, inset in the view by its padding: the view's corner less that inset, so that the two curves keep one distance.",
+              "$extensions": {
+                "dev.tanrei.concentric": {
+                  "outer": "{tanrei.comp.search.view.container.shape}",
+                  "inset": "{tanrei.comp.search.view.padding-inline}"
+                }
+              }
             }
           },
           "leading-icon": {
@@ -424,32 +430,32 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the ripple takes to spread when sys.behavior.pressed-feedback is ripple."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}"
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}"
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "trigger": {

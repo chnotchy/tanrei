@@ -1,24 +1,43 @@
 ---
 title: モーショントークン
-description: スプリング、時間、イージングのトークン。
+description: 役割ごとの時間、時間のスケール、役割ごとのイージング、面がどこから現れるか、そしてスプリング。
 translationOf: tokens/motion.mdx
-sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+sourceHash: b119d7cccb22639de328461912f2b3d5bf1779d6
 ---
 
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
 `tanrei.sys.motion` 以下にあるモーションのトークンです。使い方の指針は、[モーション](/ja/foundations/motion/)を参照してください。
+
+## 役割ごとの時間
+
+変化にかかる時間は、何が動くかで決まります。状態の変化、選択、大きさが変わる箱、その場で開く内容、そして現れては消える面の種類ごとに役割があります。コンポーネントの時間のトークンは自分の役割の別名なので、レイヤーは 1 行で、同じ役割のコンポーネントすべての時間を変えられます。面は、現れるときより速く消えます。役割の時間はモーションのダイヤルに従います。
+
+<MotionTokens part="role" />
+
+## 時間
+
+役割の時間のもとになるスケールです。
+
+<MotionTokens part="duration" />
+
+## イージング
+
+曲線と、コンポーネントが変化を緩急づける 4 つの役割です。`enter` は現れる面、`exit` は消える面、`state` はその場での状態の変化、`spatial` はその場で動くものや大きさが変わるものに使います。どの役割も、スケールの曲線のどれかを指しています。
+
+<MotionTokens part="easing" />
+
+## 面がどこから現れるか
+
+現れる面はすべて（メニュー、リスト、ポップオーバー、ツールチップ、ダイアログ、スナックバー）、同じ不透明度、拡大率、距離、ぼかしから始まり、消えるときは同じ道を戻ります。これらは 1 つの「種類の選択」がまとめて決めます。レイヤーは別の選択肢を選ぶことも、値の 1 つを固定することもできます。
+
+<BehaviorChoice choice="appearance" />
+
+<MotionTokens part="appear" />
 
 ## スプリング
 
 各スプリングには 4 つのサブトークンがあります。`stiffness` と `damping` は、スプリングアニメーションを持つプラットフォームで使います。`duration` と `easing` は、CSS のようにスプリングを使えない場所のための近似です。
 
 <MotionTokens part="spring" />
-
-## 時間
-
-<MotionTokens part="duration" />
-
-## イージング
-
-<MotionTokens part="easing" />

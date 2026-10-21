@@ -2,7 +2,7 @@
 title: タググループ
 description: タグやチップの集まりを、折り返す行に並べ、中身に合った間隔を取り、1 つの名前付きのリストとして伝えます。メンバーはそのままの姿で、チップが取り除かれた後は、フォーカスが次のチップへ進みます。
 translationOf: components/tag-group.mdx
-sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
+sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -119,7 +119,8 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 | 静的なタグ。記事のカテゴリー、設定が取りうる値、ステータスの並びなど | `spacing="tags"` のタググループ。 |
 | それぞれのタグのページへ進むタグ | タググループに、`href` を持つチップを入れます。タグはテキストで、リンクにはなれません。 |
 | 一覧の上の絞り込み、フィールドの下の候補、ユーザーが入力した項目 | チップを入れたタググループ。 |
-| Tab 1 回で通り過ぎられるようにしたい、長い絞り込みの並び | トグルボタンを入れた[ツールバー](/ja/components/toolbar/)（後述）。 |
+| 1 つのコントロールとして働く絞り込み。一度に 1 つだけ、またはいくつでもオンにでき、Tab 1 回で通り過ぎられる | `selection` を指定し、絞り込みチップを入れたタググループ（後述）。 |
+| 1 行に収めなければならないトグルボタンの並び | [ツールバー](/ja/components/toolbar/)。 |
 | 2〜4 個の異なるアクション | [ボタングループ](/ja/components/button-group/)。 |
 | いくつかの中から 1 つを選ぶ | [ラジオグループ](/ja/components/radio-group/)、[タブ](/ja/components/tabs/)、[セグメントボタン](/ja/components/segmented-button/)のいずれか。 |
 | 目に見えるラベル、必須・任意の表示、エラーが必要なコントロール | [フィールドグループ](/ja/components/field-group/)。 |
@@ -147,37 +148,78 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 - メンバーは、すべて同じサイズにします。サイズの違うメンバーは、行の中央にそろいます。
 - メンバーのないグループは、何も描かず、場所も取りません。タグのない記事を特別に扱う必要はありません。
 
-### Tab で止まる位置を 1 つにした絞り込みの並び
-
-タググループでは、ボタングループのそれぞれのボタンと同じように、チップの 1 つずつが Tab で止まる位置になり、チップの間は Tab で移動します。長い絞り込みの並びを Tab 1 回で通り過ぎられるようにしたい場合は、代わりに絞り込みをトグルボタンとして[ツールバー](/ja/components/toolbar/)に入れます。ツールバーで Tab が止まるのは 1 か所で、ボタンの間は矢印キーで移動し、それぞれのボタンが自分の押された状態を保ちます。ツールバーは 1 行で、折り返しません。
-
-<DemoFrame label="Tab で止まる位置が 1 つの絞り込み：トグルボタンを入れたツールバー">
-  <tanrei-toolbar class="not-content" label="絞り込み">
-    <tanrei-button variant="outlined" toggle selected label="未完了"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="自分の担当"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="レビュー待ち"></tanrei-button>
-  </tanrei-toolbar>
-</DemoFrame>
-
-```html
-<tanrei-toolbar label="絞り込み">
-  <tanrei-button variant="outlined" toggle selected label="未完了"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="自分の担当"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="レビュー待ち"></tanrei-button>
-</tanrei-toolbar>
-```
-
 ### ラベル
 
 `label` は、支援技術に向けた集まりの名前です。「タグ」「絞り込み」のように付けます。描かれることはありません。目に見える名前が必要な場合は、利用者側の見出しやテキストを集まりの前に置き、そのうえで `label` も指定します。
 
 ### 選択
 
-グループは値を持ちません。絞り込みチップは、それぞれが自身の `selected` を持ち、同時にいくつもオンにできます。一度に 1 つだけにするには、1 つがオンになったときに、利用者側でほかをオフにします。
+既定では、グループは値を持ちません。絞り込みチップは、それぞれが自身の `selected` を持ち、チップの 1 つずつが Tab で止まる位置になります。
+
+絞り込みが 1 つのコントロールとして働く場合は、`selection` を指定します。それぞれの絞り込みチップに `value` を付けると、どのチップがオンかをグループが示します。
+
+- `selection="single"`：オンにできるチップは多くても 1 つで、`value` がそれを示します。チップをオンにすると、ほかはオフになります。オンのチップをオフにすると、オンのチップはなくなり、`value` は `null` になります。それぞれのチップがトグルだからです。
+- `selection="multiple"`：いくつでもオンにでき、`values` がそれらを示します。
+
+ユーザーがチップを切り替えると、グループは `value` か `values` を設定し、`detail.value` か `detail.values` を持つ `change` を 1 回発火します。チップ自身の `change` は、グループで止まります。利用者側で `value` や `values` を設定すると、チップが切り替わり、何も発火しません。
+
+選択がある場合、集まりで Tab が止まる位置は 1 つです。最後にフォーカスのあったチップ、それがなければ最初のオンのチップ、それもなければ最初のチップです。矢印キーは、右から左のレイアウトでも、指す向きのとおりにチップの間を移動し、Home と End で最初と最後のチップへ移ります。これらのキーは何も切り替えず、フォーカスは最後のチップから最初のチップへ折り返しません。Space で、フォーカスのあるチップを切り替えます。
+
+<DemoFrame label="一度に 1 つの並び順と、いくつもの絞り込み">
+  <tanrei-tag-group class="not-content" label="並べ替え" selection="single" value="updated">
+    <tanrei-chip kind="filter" label="新しい順" value="newest"></tanrei-chip>
+    <tanrei-chip kind="filter" label="最近更新された順" value="updated"></tanrei-chip>
+    <tanrei-chip kind="filter" label="コメントの多い順" value="comments"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="絞り込み" selection="multiple" values="open review">
+    <tanrei-chip kind="filter" label="未完了" value="open"></tanrei-chip>
+    <tanrei-chip kind="filter" label="自分の担当" value="assigned"></tanrei-chip>
+    <tanrei-chip kind="filter" label="レビュー待ち" value="review"></tanrei-chip>
+    <tanrei-chip kind="filter" label="ブロック中" value="blocked"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group id="filters" label="絞り込み" selection="multiple" values="open">
+      <tanrei-chip kind="filter" label="未完了" value="open"></tanrei-chip>
+      <tanrei-chip kind="filter" label="自分の担当" value="assigned"></tanrei-chip>
+      <tanrei-chip kind="filter" label="レビュー待ち" value="review"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      document.querySelector('#filters').addEventListener('change', (event) => {
+        // detail.values：いまオンになっているチップの値です。グループはすでにこれを持っています。
+        applyFilters(event.detail.values);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup label="並べ替え" selection="single" value={order} onChange={(event) => setOrder(event.detail.value)}>
+      <Chip kind="filter" label="新しい順" value="newest" />
+      <Chip kind="filter" label="最近更新された順" value="updated" />
+      <Chip kind="filter" label="コメントの多い順" value="comments" />
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+選択が扱うのは、絞り込みチップだけです。集まりの中のほかのチップ（「追加」のチップや入力された項目など）にも同じ矢印キーで移り、いつもどおりに働きます。入力された項目は、これまでどおり Backspace か Delete で取り除け、そのときフォーカスを受けたチップが、集まりで Tab が止まる位置になります。
+
+絞り込みチップを取り除いても、グループは `value` と `values` をそのままにします。その絞り込みもなくすべき場合は、利用者側で変更します。
+
+答えが常にちょうど 1 つで、選択を解除する方法がない選択には、[セグメントボタン](/ja/components/segmented-button/)か[ラジオグループ](/ja/components/radio-group/)を使います。
 
 ### チップを取り除く
 
 チップは取り除くことを求め、実際に取り除くのは利用者側です。フォーカスがそのチップか、その取り除くアクションにあった場合、グループは、後ろに続くチップへフォーカスを移します。後ろに続くチップがなければ、前のチップへ移します。いくつもの項目を続けて取り除く人は、いた場所からそのまま続けられます。
+
+チップの取り除くアクションは、そのチップに `destructiveRemove` を付けない限り通常の見た目で、グループはそれを変えません。添付ファイルのように、取り除くと 1 回の操作では戻せないものが失われる場所にだけ付けます。適用中の絞り込みや検索語は、1 回の操作で戻せます。
 
 次の 2 つは、利用者側の役割です。
 
@@ -205,8 +247,9 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 - 集まりは、`label` を名前とする 1 つのリストとして伝わります。メンバーは、それぞれがリストの 1 項目です。タグはそのテキストとして、チップは状態を持つボタンまたはリンクとして、入力チップは取り除くアクションを横に伴って読み上げられます。
 - リストは、メンバーがいくつあり、いまその何番目にいるかを伝えます。「リスト、4 項目」のように読み上げられます。
 - メンバーは、指定した順に読み上げられ、その順にフォーカスを受けます。右から左のレイアウトでも同じです。
-- チップは、1 つずつがフォーカスが止まる位置です。入力チップも 1 か所で、Tab は取り除くアクションを飛ばし、チップ本体での Backspace か Delete で取り除きます。グループ自身はフォーカスを受けず、キーも処理しません。
-- フォーカスのあったチップが取り除かれると、フォーカスは次のチップへ移ります。取り除くアクションへ移ることはありません。
+- 選択がない場合、チップは 1 つずつがフォーカスが止まる位置です。入力チップも 1 か所で、Tab は取り除くアクションを飛ばし、チップ本体での Backspace か Delete で取り除きます。グループ自身はフォーカスを受けず、キーも処理しません。
+- 選択がある場合、集まりでフォーカスが止まる位置は 1 つです。矢印キー、Home、End でチップの間を移動し、それぞれの絞り込みチップは、押されているかどうかをこれまでどおり伝えます。グループはリストのままなので、スクリーンリーダーは、チップがいくつあるかをこれまでどおり伝えます。
+- フォーカスのあったチップが取り除かれると、フォーカスは次のチップへ移ります。取り除くアクションへ移ることはありません。選択がある場合は、そのチップが集まりでフォーカスが止まる位置になります。
 - 空のグループは、何も伝えません。空のリストも、名前もありません。
 - テキストを 200% にすると、メンバーが大きくなり、より多くの行に折り返します。切れるものはなく、横にスクロールすることもありません。
 - 強制カラーモードでも、グループは何も描きません。メンバーが、自身の縁を描きます。
@@ -227,11 +270,10 @@ Web での既知の制約：
   }
   ```
 
-- 集まりの中のチップを矢印キーで移動する機能はありません。チップの 1 つずつが Tab で止まる位置です。フォーカスが止まる位置を 1 つにしたい長い絞り込みの並びは、「Tab で止まる位置を 1 つにした絞り込みの並び」で示したように、トグルボタンを入れた[ツールバー](/ja/components/toolbar/)にします。
-
 ### 利用者側で行うこと
 
 - グループに `label` を指定します。Tanrei は言葉を同梱しません。
 - 入力チップには、その項目の名前を含む `removeLabel` を付けます。
+- 選択がある場合は、それぞれの絞り込みチップに、集まりの中で重複しない `value` を付けます。`value` のない絞り込みチップは選択から外れ、デバッグビルドで報告されます。
 - チップが `remove` を発火したら取り除き、最後の 1 つがなくなったら、利用者側でフォーカスを移します。
 - ステータスは、それぞれのタグの言葉で伝えます。色だけでは伝わりません。

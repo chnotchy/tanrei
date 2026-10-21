@@ -26,11 +26,12 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins; for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
+            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins; the header's height, gap and end inset, the headline's style and color, the close button's Button variant, and the divider below the header (its color, width and when it is drawn); for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
             "rules": [
               "A standard sheet sits over the bottom of the content while the content stays usable; a modal sheet dims and blocks everything else until it is dismissed. Both read the same container tokens.",
               "The drag handle is a control, not decoration: its grip is held to the functional 3:1 boundary, and its box carries hover, focus and press.",
-              "A sheet that can be dismissed only by dragging still needs a visible way out for people who cannot drag: a Close or Done button in the content.",
+              "A sheet that can be dismissed only by dragging still needs a visible way out for people who cannot drag: its close button (closable) or a Close or Done button in the content.",
+              "The close button is an icon-only Button of the small size in the variant comp.bottom-sheet.close-button.variant names (tonal in the default system), as every host's close button is; the sheet draws it while closable is true, in a header with the headline.",
               "Restyle through these tokens in a layer; never fork the component.",
               "drag-handle.state-layer.color is the color hover, focus and press mix into the handle's box; it aliases the grip color."
             ]
@@ -110,6 +111,103 @@
             "$type": "color",
             "$value": "{tanrei.sys.color.on-surface}",
             "$description": "The foreground the sheet hands to its content, as the platform's inherited color."
+          }
+        },
+        "header": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 64,
+              "unit": "px"
+            },
+            "$description": "The header row's minimum height, as the side sheet's; the headline and the close button are centred in it, and it grows with a headline that wraps (BSH-28).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 16
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between the headline and the close button."
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "From the sheet's end edge to the close button: less than the content's inset, so that the close glyph lines up near the text column while its target stays whole."
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product titles a bottom sheet and gives it a close button where a person who cannot drag needs a way out they can see, as it does its side sheets.",
+              "since": "0.1.0"
+            }
+          }
+        },
+        "headline": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}"
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.heading-5}",
+            "$description": "The side sheet's headline style: a sheet's title is a small heading."
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The hairline below the header, drawn as divider.visibility says (BSH-28)."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.divider-visibility}",
+            "$description": "When the divider below the header is drawn. always: whenever the header is drawn, at rest as well as while the content is scrolled. scroll: only while the content is scrolled away from its top (BSH-28). Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product rules a sheet's header off from its content at rest, while another shows the line only once the content has scrolled under it; a bottom sheet may be set apart from the side sheets beside it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "always",
+                  "scroll"
+                ]
+              }
+            }
+          }
+        },
+        "close-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button variant of the close button, an icon-only small Button (BSH-29): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how its bottom sheets' close control stands: a tonal button that reads as a control on any content, or a bare glyph that leaves the header to its headline.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "filled",
+                  "tonal",
+                  "elevated",
+                  "outlined",
+                  "text"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
           }
         },
         "handle": {
@@ -225,34 +323,34 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press on the drag handle takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the modal layer's."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the role of a sheet's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         }
       }

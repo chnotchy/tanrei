@@ -11,6 +11,7 @@
 // root (the FAB menu in `m3-like`), which declares the component's whole vocabulary under `vocabulary`. A system
 // whose chain does not hold that layer does not have the component at all — it is outside, not left out — unless one
 // of its layers includes it from the layer that holds it: `include: [{ "name": "fab-menu", "from": "m3-like" }]`.
+// The layer that holds it says what a system without it uses for its job (`outside`: a reason and `insteadUse`).
 import { CONFIG } from './config.js';
 import { assertSystemId } from './pure.js';
 
@@ -53,6 +54,27 @@ export function heldComponents(ids, read) {
     }
   }
   return held;
+}
+
+/**
+ * What a system that does not have a component that lives in a layer uses for its job, as the layer that holds it says
+ * (`vocabulary["<ns>.comp.<component>"].outside`): component → { reason, insteadUse }. A component the map does not
+ * name has no stand-ins.
+ * @param {string[]} ids the layers to look in (every shipped one)
+ * @param {(id: string) => object} read a layer by id
+ * @returns {Map<string, { reason: string, insteadUse: string[] }>}
+ */
+export function outsideStandIns(ids, read) {
+  const standIns = new Map();
+  const prefix = `${CONFIG.namespace}.comp.`;
+  for (const id of ids) {
+    for (const [key, entry] of Object.entries(read(id).vocabulary ?? {})) {
+      if (key.startsWith(prefix) && entry && typeof entry === 'object' && 'document' in entry && entry.outside) {
+        standIns.set(key.slice(prefix.length), { reason: entry.outside.reason, insteadUse: [...entry.outside.insteadUse] });
+      }
+    }
+  }
+  return standIns;
 }
 
 /**
@@ -128,6 +150,57 @@ export function availabilityOf(chain) {
 }
 
 /**
+ * The manifest's `omitted`: the components the system a chain makes does not have, by name — each a component a layer
+ * left out (`omittedBy`, with its `reason` and what to use instead, `insteadUse`), or one that lives in a layer the
+ * chain does not descend from (`providedBy`, with the `reason` and `insteadUse` the layer that holds it names for a
+ * system without it, `outsideStandIns`, kept to what this system ships — `standInProblems` reports, for a shipped
+ * system, one it does not). Needs no catalog, so the stylesheets read the same list the manifest gives
+ * (`replacementsOf`).
+ * @param {object[]} chain layers, root first
+ * @param {Map<string, string>} held `heldComponents`
+ * @param {Map<string, { reason: string, insteadUse: string[] }>} [standIns] `outsideStandIns` (none when it is not given)
+ * @returns {Array<{ name: string, omittedBy?: string, providedBy?: string, reason?: string, insteadUse?: string[] }>}
+ */
+export function omittedOf(chain, held, standIns = new Map()) {
+  const { components: left } = componentChoices(chain);
+  const outside = outsideComponents(chain, held);
+  const ships = (name) => !left.has(name) && !outside[name];
+  return [
+    ...[...left].map(([name, { layer, reason, insteadUse }]) => ({ name, omittedBy: layer, ...(reason ? { reason } : {}), ...(insteadUse ? { insteadUse } : {}) })),
+    ...Object.entries(outside).map(([name, layer]) => {
+      const instead = standIns.get(name);
+      const insteadUse = instead?.insteadUse.filter(ships) ?? [];
+      return { name, providedBy: layer, ...(instead ? { reason: instead.reason } : {}), ...(insteadUse.length ? { insteadUse } : {}) };
+    }),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * What a system uses instead of each component it does not have, from its manifest's `omitted` (`omittedOf`):
+ * component → the components named in its `insteadUse`, in order. Every entry that names one counts, whatever the
+ * reason it is omitted, so a component that lives in another layer is listed as soon as its entry names a replacement.
+ * The stylesheets carry it as `--tanrei-unavailable-replacement` (emit/css.js), which an element names in its report.
+ * @param {Array<{ name: string, insteadUse?: string[] }>} omitted
+ * @returns {Record<string, string[]>}
+ */
+export function replacementsOf(omitted) {
+  return Object.fromEntries(omitted.filter((entry) => entry.insteadUse?.length).map((entry) => [entry.name, [...entry.insteadUse]]));
+}
+
+/**
+ * What a system's stylesheet says of what the system does not have (emit/css.js `emitCss` options): the components and
+ * variant values it leaves out, the components that live in a layer it does not extend, and what it uses instead —
+ * the same for a shipped system's sheet, a product's, and Theme Studio's preview of a product.
+ * @param {object[]} chain layers, root first
+ * @param {Map<string, string>} held `heldComponents`
+ * @param {Map<string, { reason: string, insteadUse: string[] }>} [standIns] `outsideStandIns` (none when it is not given)
+ * @returns {{ unavailable: { components: string[], variants: Record<string, string[]> }, outside: Record<string, string>, replacements: Record<string, string[]> }}
+ */
+export function sheetAvailability(chain, held, standIns = new Map()) {
+  return { unavailable: availabilityOf(chain), outside: outsideComponents(chain, held), replacements: replacementsOf(omittedOf(chain, held, standIns)) };
+}
+
+/**
  * Problems of what the last layer of a chain says about its components, judged against what its parent ships.
  * @param {object[]} chain layers, root first; the last one is judged
  * @param {{ inventory: Set<string>, variantsOf: (component: string) => { values: string[], default?: string } | undefined, held?: Map<string, string> }} catalog
@@ -185,6 +258,29 @@ export function componentChoiceProblems(chain, { inventory, variantsOf, held = n
     const out = result.variants.get(name) ?? new Map();
     if (variant.default !== undefined && out.has(variant.default)) problems.push(`${where} ${at}.${name}: the default variant "${variant.default}" cannot be left out`);
     if (variant.values.every((value) => out.has(value))) problems.push(`${where} ${at}.${name}: every variant is left out — omit the component instead`);
+  }
+  return problems;
+}
+
+/**
+ * Problems of what a system is told to use instead of the components it does not have because they live in a layer
+ * it does not descend from: each component the holding layer names for that (`outsideStandIns`) is one this system
+ * ships. The components manifest names only those it ships, so one the system lacks would drop out of it unseen.
+ * @param {object[]} chain layers, root first; the last one is the system
+ * @param {Map<string, string>} held `heldComponents`
+ * @param {Map<string, { insteadUse: string[] }>} standIns `outsideStandIns`
+ * @returns {string[]}
+ */
+export function standInProblems(chain, held, standIns) {
+  const where = `${chain.at(-1).id}.system.json`;
+  const { components: left } = componentChoices(chain);
+  const outside = outsideComponents(chain, held);
+  const problems = [];
+  for (const [name, layer] of Object.entries(outside)) {
+    for (const instead of standIns.get(name)?.insteadUse ?? []) {
+      const why = left.has(instead) ? `"${left.get(instead).layer}" leaves it out` : outside[instead] ? `it lives in the layer "${outside[instead]}"` : null;
+      if (why) problems.push(`${where}: "${name}" lives in the layer "${layer}", which names "${instead}" to use instead, but this system does not ship "${instead}" (${why}) — its components manifest drops it from what to use instead`);
+    }
   }
   return problems;
 }

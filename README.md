@@ -7,40 +7,49 @@
 
 **One design system, five platforms, kept honest by machines.**
 
-Tanrei (端麗 — "clean, well-formed") is an open-source, platform-neutral design system. It is not tied to an operating system or a vendor: the same tokens and the same component specs ship to
-
-| Platform | Package | Technology |
-|---|---|---|
-| Web | `@tanrei/web` · `@tanrei/react` | CSS custom properties, Web Components (Lit), generated React bindings |
-| Apple | `Tanrei` (SwiftPM) | SwiftUI |
-| Android | `io.github.chnotchy:tanrei` | Jetpack Compose |
-| Flutter | `tanrei` (pub.dev) | Widgets, no Material dependency |
-| React Native | `@tanrei/react-native` | Pure TypeScript, New Architecture |
-
-> **Status: pre-release.** Nothing has been released and no package is on a registry yet; the APIs can change before the first release. What exists today is always stated by the generated [component status matrix](docs/status/STATUS.md) — it is computed from the repository and cannot claim more than is there. Every component is still marked *lagging*: no implementation has caught up with the current specs yet. The web and React packages build from source; the four native platforms (SwiftUI, Compose, Flutter, React Native) do not build yet, and their CI is paused until they catch up.
+Tanrei (端麗 — "clean, well-formed") is an open-source, platform-neutral design system. It is not tied to an operating system or a vendor: the same tokens and the same component specs ship to the web (CSS custom properties and Web Components built with Lit, with generated React bindings), SwiftUI, Jetpack Compose, Flutter (widgets, no Material dependency) and React Native (pure TypeScript, the New Architecture).
 
 **Documentation: <https://tanrei.chnotchy.com>** — guides for each platform, the foundations, the token reference and every component, in six languages.
 
-## Try it
+## Install
 
-Until the first release, build the web packages from source (Git, Node ≥ 22.12, pnpm 12 — `corepack enable` picks the pinned version):
+```sh
+npm install @tanrei/web            # the tokens as CSS custom properties, and the Web Components
+npm install @tanrei/react          # React bindings for the same elements, beside @tanrei/web
+```
 
-```bash
-git clone https://github.com/chnotchy/tanrei.git && cd tanrei
-pnpm install
-pnpm --filter @tanrei/web --filter @tanrei/react build
-pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
-# then, in your project:
-npm install path/to/tanrei-packages/tanrei-web-*.tgz      # add tanrei-react-*.tgz for the React wrappers
+```js
+import '@tanrei/web/tokens.css';   // the default system's tokens, once, as early as possible
+import '@tanrei/web';              // every element; or one at a time: '@tanrei/web/components/button'
 ```
 
 ```html
-<link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
-<script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
 <tanrei-button variant="filled">Deploy</tanrei-button>
 ```
 
-Each platform's [getting-started guide](https://tanrei.chnotchy.com/getting-started/) shows the same from-source path, and the registry install that will work after the first release. To build your own design system on Tanrei's vocabulary, see [Your own design system](https://tanrei.chnotchy.com/getting-started/your-design-system/) (`@tanrei/cli`, Theme Studio, the MCP server).
+Without a bundler, serve the package's `dist/` and link `dist/tokens.css` and `dist/tanrei.bundle.js` (Lit and every element in one module). Each platform's [getting-started guide](https://tanrei.chnotchy.com/getting-started/) goes further: the presets, dark mode and contrast, your product's words, fonts and icons.
+
+To build **your own design system** on Tanrei's vocabulary — one layer file in, tokens and code for every platform out — see [Your own design system](https://tanrei.chnotchy.com/getting-started/your-design-system/): `@tanrei/cli` (`npx tanrei init`, `tanrei build`), Theme Studio and the `@tanrei/mcp` server for AI agents.
+
+## Status
+
+<!-- tanrei:status -->
+<!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/web@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
+
+| Platform | Package | Components |
+|---|---|---|
+| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 10 alpha · 83 lagging |
+| SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 64 planned |
+| Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 64 planned |
+| Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 64 planned |
+| React Native (paused) | `@tanrei/react-native` (npm) | 29 lagging · 64 planned |
+
+*alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec · *planned*: nothing shippable yet. The [component status matrix](docs/status/STATUS.md) has every component on every platform; it is computed from the repository and cannot claim more than is there.
+
+**Paused:** SwiftUI, Jetpack Compose, Flutter and React Native — not built by CI and not published until each catches up with the specs.
+
+<!-- /tanrei:status -->
 
 ## What it is
 
@@ -64,7 +73,7 @@ specs/   ─┘   (committed output)  └─► status matrix · docs tables · 
 
 Only `tokens/` (DTCG 2025.10, including the layer file of each shipped design system) and `specs/` (schema-validated component contracts) are authored. Everything else is generated — token code once per design system — or checked against them, so documentation, specs and five implementations cannot silently drift apart — including when the work is done by AI agents. Start with [`AGENTS.md`](AGENTS.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/architecture/overview.md`](docs/architecture/overview.md).
 
-## Quick start (contributors)
+## Working in this repository
 
 ```bash
 pnpm install          # pnpm 12 (pinned via packageManager); Node ≥ 22.12
@@ -91,8 +100,8 @@ Platform toolchains are only needed for the platform you touch: Xcode/Swift 6 (`
 | `docs/` | [Architecture](docs/architecture/overview.md), [governance](docs/governance/GOVERNANCE.md), the registries the checks read, generated [status](docs/status/STATUS.md) |
 | `.claude/` | Agent guard-rail hooks, skills and per-platform subagents |
 
-## Contributing · License
+## Issues · License
 
-[Issues](https://github.com/chnotchy/tanrei/issues) are welcome — bugs, questions, proposals. Pull requests are not accepted for now. See [CONTRIBUTING.md](CONTRIBUTING.md), the [governance](docs/governance/GOVERNANCE.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Security reports go privately: [SECURITY.md](SECURITY.md).
+Tanrei does not accept outside contributions: the maintainers make every change, for the supply chain's sake ([CONTRIBUTING.md](CONTRIBUTING.md#outside-contributions-are-not-accepted) says why). [Issues](https://github.com/chnotchy/tanrei/issues) are for bug reports and questions. See also the [governance](docs/governance/GOVERNANCE.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Security reports go privately: [SECURITY.md](SECURITY.md).
 
 Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).

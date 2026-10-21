@@ -30,6 +30,7 @@ import {
 } from '../../primitives/index.js';
 import '../button/button.js';
 import { AXES, styles } from './side-sheet.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiSideSheetVariant = 'standard' | 'modal' | (string & {});
@@ -58,15 +59,15 @@ const PREFIX = '--tanrei-comp-side-sheet';
 const ARRANGEMENTS = ['fill', 'start'] as const;
 
 /**
- * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button
- * and actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or
+ * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and
+ * actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or
  * `modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one
  * action (SSH-16).
  *
  * Contract: specs/side-sheet.spec.json. The content is the default slot. The header holds `headline` (the sheet's
- * accessible name, a heading) and, while `closable`, an icon-only `<tanrei-button>` of the medium size showing the close
- * glyph, named by `close-label`, in the variant `comp.side-sheet.close-button.variant` names (tonal in the default
- * system).
+ * accessible name, a heading) and, while `closable` (the default; the attribute `not-closable` turns it off), an
+ * icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the variant
+ * `comp.side-sheet.close-button.variant` names (tonal in the default system), as every host's close button is.
  *
  * The actions are `<tanrei-button slot="actions">` children, each marked `confirming` or `dismissive`, placed below a
  * divider as a full-width Button group places them: dismissive at the start and confirming at the end of a row the
@@ -110,7 +111,7 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiSideSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `close` (its close button), or for a modal sheet `scrim`, `escape`, `back` or `drag`. Set `open` to false.
  */
-export class TanreiSideSheet extends LitElement implements VariantHost {
+export class TanreiSideSheet extends TanreiElement implements VariantHost {
   private readonly availability = new AvailabilityController(this, 'side-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -124,7 +125,14 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
     variant: { type: String, reflect: true },
     open: { type: Boolean, reflect: true },
     headline: { type: String },
-    closable: { type: Boolean, reflect: true },
+    // An HTML boolean attribute cannot default to true: the attribute is the inverse, `not-closable` (as the chip's
+    // `not-removable`).
+    closable: {
+      type: Boolean,
+      attribute: 'not-closable',
+      reflect: true,
+      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
+    },
     closeLabel: { type: String, attribute: 'close-label' },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     hasActions: { state: true },
@@ -139,10 +147,10 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
   /** What the sheet is about ("Filters"), drawn in its header and used as its accessible name. Required (SSH-12). */
   headline = '';
 
-  /** Draws the close button at the end of the header. Give a standard sheet one unless your own control closes it. Reflected. */
-  closable = false;
+  /** Draws the close button at the end of the header (SSH-5). True by default; false (the `not-closable` attribute) only where your own control or one of the sheet's actions closes it. Reflected. */
+  closable = true;
 
-  /** The close button's accessible name ("Close filters"). Required while `closable` (SSH-5). */
+  /** The close button's accessible name ("Close filters"). Required while `closable`, the default (SSH-5). */
   closeLabel = '';
 
   /**
@@ -607,7 +615,7 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
         ? html`<div part="header" class=${classMap({ header: true, closable: this.closable })}>
             ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
             ${this.closable
-              ? html`<tanrei-button part="close-button" class="close" size="medium" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
+              ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
               : nothing}
             <div part="divider" class="divider below-header" aria-hidden="true"></div>
           </div>`
@@ -632,6 +640,7 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
       return html`<dialog
         part="container"
         class="sheet"
+        data-tanrei-appear
         aria-label=${label}
         tabindex="-1"
         data-tanrei-shape

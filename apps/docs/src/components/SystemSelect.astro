@@ -1,0 +1,71 @@
+---
+// "Design system": the choice of the system whose components the lists show, Tanrei's Select field — its label is
+// drawn, so the choice says what it is a choice of (WCAG 3.3.2) — with one option for each shipped system (its id, and its name as the option's supporting text), read from the components manifests. Before a
+// reader chooses, the lists show the default system's components; a component the chosen system does not have is not
+// drawn in the sidebar or the index, and the index says what that system uses in its stead (lib/listing.mjs). The page
+// of such a component stays in the sidebar while it is read.
+//
+// Every select of a page says the same. The choice is kept in the origin's storage under the docs' key for the shared
+// choice `system` (`tabsKey(SYSTEM_SYNC_KEY)`): the key a set of tabs with `syncKey="system"` keeps its choice under,
+// so the two open on the same system. The head's script reads it before the first paint (`systemBootstrap`), and
+// lib/list-filter.ts takes out of the document what the system does not have, as it does for the switch beside it.
+//
+// Without script nothing is hidden and nothing could be chosen: the control is not drawn.
+import { manifests } from '../lib/repo';
+import { strings } from '../lib/i18n';
+
+interface Props {
+  /** The page's language. */
+  lang: string | undefined;
+  /** The slot of the element the select is a child of (the navigation drawer's `header`), where it has one. */
+  into?: string;
+}
+const t = strings(Astro.props.lang);
+---
+
+<tanrei-select-field class="docs-system" slot={Astro.props.into} size="small" label={t.system.choice} value={manifests[0]?.system} data-docs-system-select>
+  {manifests.map((manifest) => <tanrei-option value={manifest.system} supporting-text={manifest.name}>{manifest.system}</tanrei-option>)}
+</tanrei-select-field>
+
+<script>
+  import '@tanrei/web/components/select-field';
+  import { tabsKey } from './tabs/keys.mjs';
+  import { SYSTEM_SYNC_KEY } from '../lib/listing.mjs';
+  import { showSystem, shownSystem } from '../lib/list-filter';
+
+  type Select = HTMLElement & { value: string };
+  const controls = () => document.querySelectorAll<Select>('[data-docs-system-select]');
+  // What the head's script found before the first paint.
+  const found = shownSystem();
+  if (found) for (const control of controls()) control.value = found;
+
+  document.addEventListener('change', (event) => {
+    const control = event.target as Select;
+    if (!(control instanceof HTMLElement) || !control.matches('[data-docs-system-select]') || !control.value) return;
+    try {
+      localStorage.setItem(tabsKey(SYSTEM_SYNC_KEY), control.value);
+    } catch {}
+    showSystem(control.value);
+    for (const other of controls()) if (other !== control) other.value = control.value;
+  });
+</script>
+
+<style is:global>
+  /* The select field is Tanrei's, and its look is the field's. Until the element is defined its options are running
+     text: none of it is drawn, and the field's room is kept — the label's line, the gap under it and the small
+     select's height — so that nothing beside it moves when it is drawn. */
+  .docs-system:not(:defined) {
+    display: block;
+    min-block-size: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap) + var(--tanrei-comp-input-box-container-height-small));
+    visibility: hidden;
+  }
+  .docs-system:not(:defined) > tanrei-option {
+    display: none;
+  }
+  /* Where no script runs nothing is hidden and nothing can be chosen: the select is not drawn, and takes no room. */
+  @media (scripting: none) {
+    .docs-system:not(:defined) {
+      display: none;
+    }
+  }
+</style>

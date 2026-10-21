@@ -19,8 +19,18 @@ const SUBJECTS = [
   // Modal, one height: the scrim, the sheet's color, top corners (eased in cupertino), elevation and padding, the handle's
   // row and grip (cupertino's 36 × 5 grabber in a 16 row) and the body text. Its baseline is the 400 × 720 window.
   subject('bottom-sheet', (fixture) => fixture.id === 'modal', { window: { width: 400, height: 720 }, wholeWindow: true }),
+  // An arc at its corner, drawn at rest: each preset's line color and thickness, the arc's radius and inset from the
+  // corner (the stage's corner is concentric with it).
+  subject('handle', (fixture) => fixture.id === 'both-bottom-end'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
+  // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
+  subject('meter', (fixture) => fixture.id === 'linear'),
+  // Scrolled to the middle, both edges marked: each preset's scroll edge (shadow in the default system, a line in the m3
+  // presets, a blur in cupertino), its depth and its color over the same content.
+  // Each fixture is its own axe unit: a scroll box that is a focus stop is a region, and a page of every fixture would
+  // hold the spec's regions (named alike, or not at all) side by side, which no product page does.
+  subject('scroll-area', (fixture) => fixture.id === 'default', { reducedMotion: true, axeEach: true }),
   // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.
@@ -64,7 +74,9 @@ const SUBJECTS = [
   // glyph of its icon set, the title's and the body's text styles, and the close button.
   subject('callout', (fixture) => fixture.id === 'closable-title-actions', { icons: true }),
   // Primary with icons: the stacked icon and label, the selected text and filled glyph, the indicator's weight and corners, the divider.
-  subject('tabs', (fixture) => fixture.id === 'primary-icons', { icons: true }),
+  // And the column: the indicator inset all round, the track's concentric corners, and the underline and the divider
+  // on its end edge where a preset draws them (m3-like).
+  subject('tabs', (fixture) => fixture.id === 'primary-icons' || fixture.id === 'vertical', { icons: true }),
   // At rest under the primary tabs: the panel's clip and corners (square in every preset); the page turn the m3 presets
   // and cupertino draw shows only in the Tab view's own test frames.
   subject('tab-view', (fixture) => fixture.id === 'default'),

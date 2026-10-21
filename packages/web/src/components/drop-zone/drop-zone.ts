@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, WordsController, report } from '../../primitives/index.js';
 import { acceptConverter, acceptList } from '../../primitives/file-format.js';
 import { type FileJudgement, type FileRefused, type FileRejectReason, countLimit, dragAnswer, droppedFiles, givenFiles, holdsFiles, judgeFiles, readAccept, sizeLimit } from '../../primitives/file-judge.js';
@@ -7,6 +7,7 @@ import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { debugBuild } from '../../primitives/report.js';
 import { type WordKey, wordPlaces } from '../../generated/words.js';
 import { styles } from './drop-zone.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Why a file was refused — the File picker's reasons: its kind, its size, or how many there were. */
 export type TanreiDropZoneRejectReason = FileRejectReason;
@@ -60,7 +61,7 @@ function pickerOnPage(root: Document | ShadowRoot = document): boolean {
  * @fires select - Files were dropped and passed. Once per drop; `detail.files` is a `File[]`. Bubbles.
  * @fires reject - Files of one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
  */
-export class TanreiDropZone extends LitElement {
+export class TanreiDropZone extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'drop-zone');
   static override styles = styles;
 

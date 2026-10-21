@@ -1,8 +1,9 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiDescriptionListDensityRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
@@ -78,9 +79,13 @@ const columnsRule = (columns: number) => `:where(${TAG}[columns='${columns}']) {
  * DSL-4: an inline list that is narrower than `width` draws every fact as the stacked layout draws it — the term on
  * lines of its own, its values under it — and the two columns again from that width on. A container query of the list
  * itself, so the browser draws the other form as the list is resized, in the same frame and with no script.
+ *
+ * DSL-24: never while the list is measured (`data-measuring`). The rule puts every value in the term's column, so a
+ * list measured while it is stacked would read its longest value as its widest term and write a width it is always
+ * narrower than: it would stay stacked whatever room it is given later.
  */
 const stackRule = (width: string) => {
-  const list = LIST.replace(TAG, `${TAG}[data-stacks-below='${width}']`);
+  const list = LIST.replace(TAG, `${TAG}[data-stacks-below='${width}']:not([data-measuring])`);
   return `@container (inline-size < ${width}px) {
   ${list} { grid-template-columns: minmax(0, 1fr); }
   ${list} > :where(div) > :where(dd), ${list} > :where(dd) { grid-column: 1; padding-inline-start: 0; }
@@ -147,7 +152,7 @@ function mark(element: Element, name: string, value: string | null) {
  * @tag tanrei-description-list
  * @slot - The native `<dl>`: one `<div>` per fact around a `<dt>` and its `<dd>`s. It is a child in the document, not a slotted node: the element has no shadow root.
  */
-export class TanreiDescriptionList extends ReactiveElement {
+export class TanreiDescriptionList extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'description-list');
 
   static override properties: PropertyDeclarations = {
@@ -346,8 +351,9 @@ export class TanreiDescriptionList extends ReactiveElement {
 
   /**
    * DSL-3, DSL-4: for as long as it is held, an inline list is laid out in its two columns with no term wrapped
-   * (`data-measuring`), whatever its width, so that the widest term can be read from the layout itself. Returns
-   * whether this call began it (and `release()` ends it). Nothing is painted in between.
+   * (`data-measuring`), whatever its width — also while it is stacked by its width, whose rule then does not apply
+   * (DSL-24) — so that the widest term can be read from the layout itself. Returns whether this call began it (and
+   * `release()` ends it). Nothing is painted in between.
    */
   private hold(): boolean {
     if (!this.list || this.layout === 'stacked' || this.layout === 'stat' || this.hasAttribute('data-measuring')) return false;
@@ -384,11 +390,11 @@ export class TanreiDescriptionList extends ReactiveElement {
   }
 
   /**
-   * Lists changed size: their text may have (a reader's text size, a design system switched above them, a face), and
-   * with it the widest term. They are measured again here — all held, then all read, one layout for them all — and a
-   * width that differs is written in the next frame: a write inside the observer's own callback would change the size
-   * it observes and be reported as a loop. Resizing a list alone changes no term, so nothing is written and no frame
-   * is asked for.
+   * Lists changed size (DSL-24): their text may have (a reader's text size, a design system switched above them, a
+   * face), and with it the widest term. They are measured again here — all held, then all read, one layout for them
+   * all — and a width that differs is written in the next frame: a write inside the observer's own callback would
+   * change the size it observes and be reported as a loop. Resizing a list alone changes no term, so nothing is
+   * written and no frame is asked for: the list's container query draws the other form at the new width.
    */
   private static resized(boxes: Set<TanreiDescriptionList>) {
     const live = [...boxes].filter((box) => box.isConnected && box.list);

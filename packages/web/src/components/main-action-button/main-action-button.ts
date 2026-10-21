@@ -5,6 +5,7 @@ import { AvailabilityController, FORWARDED_DESCRIPTION, GlyphMirrorController, O
 import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, tonal, surface), plus any a design system's generated `.d.ts` registers. */
 export type TanreiMainActionButtonVariant = keyof TanreiMainActionButtonVariantRegistry;
@@ -47,7 +48,7 @@ const isCollapsed = (extended: boolean, hasIcon: boolean, label: string, fullWid
  * @csspart label - The label text.
  * @fires click - The button was activated by pointer, touch, keyboard or assistive technology.
  */
-export class TanreiMainActionButton extends LitElement {
+export class TanreiMainActionButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'main-action-button');
   static override styles = [styles, hiddenHost];
 

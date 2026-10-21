@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
@@ -32,6 +32,7 @@ import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { TanreiButton } from '../button/button.js';
 import '../skeleton/skeleton.js';
 import { styles } from './image-preview.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Why the preview asks to close (IMP-5): its close control, Escape, the platform's back, or the downward drag by touch. */
 export type TanreiImagePreviewCloseReason = 'button' | 'escape' | 'back' | 'swipe';
@@ -164,7 +165,7 @@ const numberOrNull = {
  *
  * @tag tanrei-image-preview-item
  */
-export class TanreiImagePreviewItem extends LitElement {
+export class TanreiImagePreviewItem extends TanreiElement {
   static override styles = css`
     :host {
       display: none !important;
@@ -248,7 +249,7 @@ export class TanreiImagePreviewItem extends LitElement {
  * @fires {CustomEvent<TanreiImagePreviewControlsHiddenChangeDetail>} controlshiddenchange - The person hid or showed the controls: `detail.hidden`. Not fired when you set `controlsHidden`.
  * @fires {CustomEvent<TanreiImagePreviewLoadErrorDetail>} loaderror - The source of an image the preview asked for did not load: `detail.index`. Once for each source that fails.
  */
-export class TanreiImagePreview extends LitElement {
+export class TanreiImagePreview extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'image-preview');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -1529,12 +1530,13 @@ export class TanreiImagePreview extends LitElement {
     </div>`;
   }
 
+  /** IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium. */
   private control(control: Control, glyph: string, label: string) {
     return html`<tanrei-button
       part=${control}
       exportparts=${BUTTON_PARTS[control].attribute}
       class=${control}
-      size="medium"
+      size=${control === 'previous' || control === 'next' ? 'medium' : 'small'}
       label=${label}
       ?disabled=${this.disabledNow(control)}
       @click=${this.onControl(control)}
@@ -1555,6 +1557,7 @@ export class TanreiImagePreview extends LitElement {
     return html`<dialog
       part="container"
       class=${classMap({ container: true, 'controls-hidden': this.controlsHidden, captioned: !!caption })}
+      data-tanrei-appear
       aria-label=${this.label.trim() ? this.label : nothing}
       tabindex="-1"
       @keydown=${this.onKeyDown}
@@ -1566,7 +1569,7 @@ export class TanreiImagePreview extends LitElement {
       @pointermove=${this.onPointerMove}
     >
       <div class="surface"></div>
-      <div class="pages" @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
+      <div class="pages" data-tanrei-appear @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
         ${repeat(
           three,
           (at) => this.images[at].element,
