@@ -32,7 +32,7 @@ for (const id of Object.keys(shipped)) {
     const from = studio.preview(start);
     assert.ok(from.ok, from.problems?.join('\n'));
     const dials = studio.dials(start);
-    assert.equal(dials.length, 7, 'the seven dials');
+    assert.equal(dials.length, 8, 'the eight dials');
     for (const dial of dials) {
       // Either end of the slider, and a value typed between its steps (the number field takes four decimals).
       const between = Math.round((dial.value + dial.step * 1.37) * 1e4) / 1e4;

@@ -9811,6 +9811,7 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
+      targetMinimum: 28,
       targetPointer: 44,
       targetSpacing: 8,
       targetTouch: 48

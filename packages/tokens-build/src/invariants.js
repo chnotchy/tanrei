@@ -27,7 +27,62 @@ export const leadWithStructure = (warnings) => [...warnings.filter((w) => !/^\[[
  * difference matters for an imitation preset only: the criteria do not apply to it, in any contrast scheme,
  * while a structural or functional failure fails in every system.
  */
-export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9.-]+ on [a-z0-9.-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding);
+export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9.-]+ on [a-z0-9.-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding) || isTargetSizeFinding(finding);
+
+/**
+ * A target size under its criterion: a target token under WCAG 2.5.8's 24px, or a height the core vocabulary floors at
+ * sys.target.minimum that a layer set below it. A criterion, as a contrast pair is: an error in the default system,
+ * a warning in a product layer, information in an imitation preset.
+ */
+const isTargetSizeFinding = (finding) => finding.startsWith('target size: ');
+
+/**
+ * A target-floor finding that fails in every system, a product layer's too: a hit area under the drawn floor
+ * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing, and a density of zero or less draws
+ * nothing at all.
+ */
+export const isRefusedEverywhere = (finding) => finding.startsWith('target floor: ');
+
+/**
+ * The least target size the build holds: WCAG 2.5.8 (Target Size, Minimum), 24 CSS px. A constant, as the contrast
+ * thresholds are; Tanrei's own minimum target is a value of the system, `sys.target.minimum`, which may be anything
+ * from this up.
+ */
+export const TARGET_THRESHOLDS = Object.freeze({ minimum: 24 });
+
+/**
+ * The heights the core vocabulary floors at sys.target.minimum: every token of `documents` whose rule has
+ * `min: {<ns>.sys.target.minimum}`, and every token whose value is an alias of one (transitively). A layer may replace
+ * such a token's rule — pin it, re-point it — and the target-floor check still holds what it resolves to.
+ * @param {object[]} documents DTCG documents of the core vocabulary (its comp/ documents and those its layers hold)
+ * @returns {string[]}
+ */
+export function targetFloors(documents) {
+  const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
+  const floored = new Set();
+  const aliases = new Map();
+  const walk = (node, path) => {
+    if (!node || typeof node !== 'object') return;
+    if ('$value' in node) {
+      const id = path.join('.');
+      if (node.$extensions?.['dev.tanrei.derive']?.min === MIN) floored.add(id);
+      else if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) aliases.set(id, node.$value.slice(1, -1));
+      return;
+    }
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) walk(child, [...path, key]);
+  };
+  for (const doc of documents) walk(doc, []);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [id, target] of aliases) {
+      if (floored.has(target) && !floored.has(id)) {
+        floored.add(id);
+        grew = true;
+      }
+    }
+  }
+  return [...floored].sort();
+}
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
 export const PRESET_CRITERIA_NOTE =
@@ -624,6 +679,29 @@ export function auditInvariants(model) {
       const [box, button] = [model.tokens[boxId]?.value?.value, model.tokens[buttonId]?.value?.value];
       if (typeof box !== 'number' || typeof button !== 'number') failures.push(`${short(boxId)} and ${short(buttonId)} must both be dimensions: a stacked input box is as tall as a Button of the same size`);
       else if (box !== button) failures.push(`${short(boxId)}: ${box}px, but a stacked input box is as tall as a Button of the same size — ${short(buttonId)} is ${button}px; alias it, { "$value": "{${buttonId}}" }`);
+    }
+  }
+
+  // The target floor. sys.target.minimum is the least height (and width, for an icon-only control) anything a person
+  // presses is drawn at, and pointer and touch the least areas a press is taken from: none of them under WCAG 2.5.8's
+  // 24px, a hit area never under what is drawn, and a density above zero. Every height the core floors at the minimum
+  // (`model.floored`, `targetFloors`, and any rule of this system with that `min`) is held at it, so a layer that pins
+  // or re-points one below it is told.
+  const px = (id) => model.tokens[`${CONFIG.namespace}.${id}`]?.value?.value;
+  const minimum = px('sys.target.minimum');
+  for (const name of ['minimum', 'pointer', 'touch']) {
+    const value = px(`sys.target.${name}`);
+    if (typeof value === 'number' && value < TARGET_THRESHOLDS.minimum) failures.push(`target size: sys.target.${name}: ${value}px < ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8: the least target a person presses)`);
+    if (name !== 'minimum' && typeof value === 'number' && typeof minimum === 'number' && value < minimum) failures.push(`target floor: sys.target.${name}: ${value}px is under sys.target.minimum (${minimum}px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above`);
+  }
+  const density = model.tokens[`${CONFIG.namespace}.dial.density`]?.value;
+  if (typeof density === 'number' && !(density > 0)) failures.push(`target floor: dial.density: ${density} — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)`);
+  if (typeof minimum === 'number') {
+    const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
+    const floored = new Set([...(model.floored ?? []), ...Object.values(model.tokens).filter((token) => token.derive?.min === MIN).map((token) => token.id)]);
+    for (const id of [...floored].sort()) {
+      const value = model.tokens[id]?.value?.value;
+      if (typeof value === 'number' && value < minimum) failures.push(`target size: ${id.slice(CONFIG.namespace.length + 1)}: ${value}px < sys.target.minimum ${minimum}px (a box a person presses is drawn at least the minimum target; derive it with "min": "${MIN}", or lower the minimum)`);
     }
   }
 

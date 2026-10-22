@@ -146,6 +146,7 @@
     "tanrei.ref.typeface.mono": {"$value": ["ui-monospace", "SF Mono", "Menlo", "monospace"], "reason": "The platform's monospace font by name only."},
     "tanrei.comp.button.container.shape": {"$value": "{tanrei.sys.shape.corner.full}", "reason": "Current Apple bordered buttons are capsules, labelled and icon-only alike, so one corner draws the capsule and the circle (no icon-only corner token)."},
     "tanrei.comp.button.label.typescale.small": {"$value": "{tanrei.sys.typescale.body-subhead}", "reason": "A small Apple button carries Subheadline (15pt); the medium and large sizes carry Body (17pt)."},
+    "tanrei.sys.target.minimum": {"$value": {"value": 28, "unit": "px"}, "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."},
     "tanrei.comp.button.container.height.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 7}},
     "tanrei.comp.button.container.padding-block.small": {"$value": "{tanrei.sys.space.space50}"},
     "tanrei.comp.button.container.padding-inline-start.small": {"$value": "{tanrei.sys.space.space125}"},

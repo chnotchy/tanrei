@@ -15,7 +15,7 @@ import status from '../../../docs/status/status.json';
 import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
 import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
-import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
+import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
 import { createStudio } from './core.js';
 import { catalogOf } from './listing.js';
 
@@ -51,6 +51,7 @@ export const studio = createStudio({
   outsideStandIns,
   sheetAvailability,
   checkInvariants,
+  targetFloors,
   contrast,
   idToVar,
   cssColor,

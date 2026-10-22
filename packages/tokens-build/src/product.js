@@ -11,7 +11,7 @@ import { emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitShadcnTheme, emitTailwindTheme } from './emit/theme-exports.js';
 import { emitTs } from './emit/ts.js';
-import { checkedPairs } from './invariants.js';
+import { checkedPairs, isRefusedEverywhere } from './invariants.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
@@ -87,6 +87,10 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const { id, chain, files: bundle } = resolved;
   const model = await resolved.model();
   const { failures: warnings, checked } = await resolved.audit();
+  // A product layer is warned of a violation, not failed — except where the system would draw nothing that works: a hit
+  // area under what is drawn, or a density of zero or less.
+  const refused = warnings.filter(isRefusedEverywhere);
+  if (refused.length) throw new Error(`system "${id}" cannot be built:\n${refused.map((finding) => `  - ${finding}`).join('\n')}`);
   const sourceName = layerFile ? path.basename(layerFile) : `${id}${LAYER_SUFFIX}`;
 
   const previous = [...GENERATED_HEADER];

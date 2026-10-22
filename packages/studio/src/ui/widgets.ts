@@ -159,11 +159,11 @@ export function comboWidget(ctx: Ctx, { label, labelHidden = false, options, val
 }
 
 /** Pick a token by id, found by typing; each option shows the resolved value. Returns a `{reference}`. */
-export function tokenSelect(ctx: Ctx, { label, labelHidden = false, ids, value, onchange, allowEmpty }: { label: string; labelHidden?: boolean; ids: string[]; value?: string; onchange: Change; allowEmpty?: string }): Widget<string> {
+export function tokenSelect(ctx: Ctx, { label, labelHidden = false, ids, value, onchange, allowEmpty, attrs = {} }: { label: string; labelHidden?: boolean; ids: string[]; value?: string; onchange: Change; allowEmpty?: string; attrs?: Json }): Widget<string> {
   const tokens = ctx.view().model.tokens;
   const current = unref(value) ?? value;
   const options = [...new Set(current && !ids.includes(current) ? [current, ...ids] : ids)];
-  const box = comboWidget(ctx, { label, labelHidden, value: current, placeholder: allowEmpty, clearable: allowEmpty !== undefined, attrs: { 'data-token-select': true }, options: options.map((id) => ({ value: id, label: short(id, ctx.studio.namespace), supportingText: tokens[id] ? format(tokens[id].type, tokens[id].value, tokens[id]) : undefined })), onchange });
+  const box = comboWidget(ctx, { label, labelHidden, value: current, placeholder: allowEmpty, clearable: allowEmpty !== undefined, attrs: { 'data-token-select': true, ...attrs }, options: options.map((id) => ({ value: id, label: short(id, ctx.studio.namespace), supportingText: tokens[id] ? format(tokens[id].type, tokens[id].value, tokens[id]) : undefined })), onchange });
   return { el: box.el, get: () => (box.get() ? ref(box.get()!) : undefined) };
 }
 
@@ -432,19 +432,31 @@ export function jsonWidget({ label, value, rows = 4, onchange }: { label: string
   return { el, get: () => parsed };
 }
 
-/** `mul`: a coefficient on a dial (or on another token), optionally raised to the type-contrast dial. */
+/**
+ * `mul`: a coefficient on a dial (or on another token), optionally raised to the type-contrast dial, and its three
+ * optional terms: `times` (a number token the product is multiplied by, a density), `round` (the step it lands on) and
+ * `min` (a floor applied after rounding). Each is kept as it was written, shown, and can be set or cleared.
+ */
 export function mulWidget(ctx: Ctx, { type, rule, onchange }: { type: string; rule?: Json; onchange: Change }): Widget<Json> {
   const { t, studio } = ctx;
   const tokens = Object.values(ctx.view().model.tokens) as Json[];
   const unitType = type === 'typography' ? 'dimension' : type;
-  const sources = tokens.filter((token) => token.type === unitType && (token.path[0] === 'dial' || token.path[0] === 'sys') && !token.alias).map((token) => token.id);
+  const own = (kind: string) => tokens.filter((token) => token.type === kind && (token.path[0] === 'dial' || token.path[0] === 'sys') && !token.alias).map((token) => token.id);
+  const sources = own(unitType);
   const of = tokenSelect(ctx, { label: t.editor.of, ids: sources, value: rule?.of ?? sources[0], onchange });
   const by = numberWidget(ctx, { label: t.editor.by, labelHidden: false, value: rule?.by ?? 1, step: 0.0625, min: 0, onchange });
   const contrast = `${studio.namespace}.dial.type.contrast`;
   const exp = selectWidget(ctx, { label: t.editor.exp, options: [{ value: '', label: t.editor.expNone }, { value: contrast, label: short(contrast, studio.namespace) }], value: unref(rule?.exp) === contrast ? contrast : '', onchange });
+  // The factor is a number token; the step and the floor are in the unit of `of`.
+  const times = tokenSelect(ctx, { label: t.editor.times, ids: own('number'), value: rule?.times, allowEmpty: t.editor.termNone, attrs: { 'data-term': 'times' }, onchange });
+  const round = tokenSelect(ctx, { label: t.editor.round, ids: sources, value: rule?.round, allowEmpty: t.editor.termNone, attrs: { 'data-term': 'round' }, onchange });
+  const min = tokenSelect(ctx, { label: t.editor.min, ids: sources, value: rule?.min, allowEmpty: t.editor.termNone, attrs: { 'data-term': 'min' }, onchange });
+  const terms = () => Object.fromEntries((
+    [['times', times], ['round', round], ['min', min]] as const
+  ).flatMap(([name, widget]) => (widget.get() ? [[name, widget.get()]] : [])));
   return {
-    el: h('div', { class: 'ts-grid-2' }, of.el, by.el, type === 'typography' ? exp.el : null),
-    get: () => (of.get() && by.get() !== undefined ? { fn: 'mul', of: of.get(), by: by.get(), ...(exp.get() ? { exp: ref(exp.get()) } : typeof rule?.exp === 'number' ? { exp: rule.exp } : {}) } : undefined),
+    el: h('div', { class: 'ts-grid-2' }, of.el, by.el, type === 'typography' ? exp.el : null, times.el, round.el, min.el),
+    get: () => (of.get() && by.get() !== undefined ? { fn: 'mul', of: of.get(), by: by.get(), ...(exp.get() ? { exp: ref(exp.get()) } : typeof rule?.exp === 'number' ? { exp: rule.exp } : {}), ...terms() } : undefined),
   };
 }
 

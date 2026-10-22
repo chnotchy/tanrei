@@ -178,7 +178,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -219,7 +222,17 @@
             "$type": "dimension",
             "$description": "Padding above and below an option's content.",
             "regular": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.select.option.height.regular}"
+                }
+              }
             },
             "compact": {
               "$value": "{tanrei.comp.menu.container.padding-block.compact}"

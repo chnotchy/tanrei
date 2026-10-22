@@ -501,7 +501,17 @@
             "$type": "dimension",
             "$description": "Padding above and below a row's text; also above and below a group's title and the status row.",
             "regular": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.combobox.option.height.regular}"
+                }
+              }
             },
             "compact": {
               "$value": "{tanrei.comp.menu.container.padding-block.compact}"

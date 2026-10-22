@@ -99,7 +99,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 11
+                  "by": 11,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -112,7 +115,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 8
+                  "by": 8,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }
@@ -126,10 +132,30 @@
             "$type": "dimension",
             "$description": "Above and below a row's label, per density. With one line of the label it gives the density's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
             "regular": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space150}",
+                  "height": "{tanrei.comp.table-of-contents.row.height.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.table-of-contents.row.height.compact}"
+                }
+              }
             }
           },
           "indent": {
@@ -203,7 +229,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               },
               "$description": "The least height of the compact form's row: the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."

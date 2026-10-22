@@ -71,7 +71,9 @@ export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE, lend } = {}
 function scaleRule(rule, factor, id) {
   if (!rule || 'fixed' in rule) throw new SystemError(`${id}: cannot scale a fixed value — set "$value" instead`);
   if (rule.fn === 'mul') return { ...rule, by: rule.by * factor };
-  throw new SystemError(`${id}: "scale" is supported on "mul" rules and aliases, not on "${rule.fn}"`);
+  // A padding that follows its box's height: the padding scales, and still gives up or takes half of what the box does.
+  if (rule.fn === 'pad') return { ...rule, by: (rule.by ?? 1) * factor };
+  throw new SystemError(`${id}: "scale" is supported on "mul" and "pad" rules and aliases, not on "${rule.fn}"`);
 }
 
 /**
