@@ -58,6 +58,8 @@ export type TanreiSnackbarResult = { result: 'action' } | { result: 'dismiss'; r
 const DURATIONS: readonly TanreiSnackbarDuration[] = ['auto', 'short', 'long', 'indefinite'];
 /** SNK-21: each status form's glyph from the system's icon set. */
 const GLYPHS: Record<(typeof STATUSES)[number], string> = { info: 'info', warning: 'warning', error: 'error', success: 'check_circle' };
+/** The glyphs of the bar's controls: expand while collapsed, collapse while expanded, close. */
+const CONTROL_GLYPHS = { expand: 'expand_more', collapse: 'expand_less', close: 'close' } as const;
 
 /**
  * SNK-30: `inverse` is true, false or null, and its attribute says which: absent is null, present (empty, `true` or
@@ -506,8 +508,8 @@ export class TanreiSnackbar extends TanreiElement {
         </div>
         <span class="focus" data-tanrei-shape></span>
         ${action ? this.control('action', this.actionPress, this.onAction, html`<span class="hold">${action}</span>`) : nothing}
-        ${this.expandable ? button('expand', expanded ? 'expand_less' : 'expand_more', this.words.get('expandLabel', this.expandLabel), this.onExpand) : nothing}
-        ${this.closable ? button('close', 'close', this.words.get('closeLabel', this.closeLabel), this.onClose) : nothing}
+        ${this.expandable ? button('expand', expanded ? CONTROL_GLYPHS.collapse : CONTROL_GLYPHS.expand, this.words.get('expandLabel', this.expandLabel), this.onExpand) : nothing}
+        ${this.closable ? button('close', CONTROL_GLYPHS.close, this.words.get('closeLabel', this.closeLabel), this.onClose) : nothing}
       </div>
       <span class="timing" aria-hidden="true"></span>
       <span class="expand-timing" aria-hidden="true"></span>
