@@ -412,10 +412,11 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
 
   /**
    * Of the tokens that move with the dials, those the browser follows by itself: the rules the emitter writes as CSS
-   * arithmetic (`derivedExpression`), `mul`, and `sub` held at zero (an inner corner). A `pick` follows a choice of kind
+   * arithmetic (`derivedExpression`), `mul` (with its density, step and floor), `sub` held at zero (an inner corner) and
+   * `pad` (a block padding that follows its box's height). A `pick` follows a choice of kind
    * and is written as the value it picks: of these types it is valued again, as a text style's tracking is.
    */
-  const LIVE_RULES = new Set(['mul', 'sub']);
+  const LIVE_RULES = new Set(['mul', 'sub', 'pad']);
   const NUMERIC = new Set(['dimension', 'number', 'duration']);
   /**
    * How the sheet of a view follows its dials: a token that moves with them is written as an alias or as the same

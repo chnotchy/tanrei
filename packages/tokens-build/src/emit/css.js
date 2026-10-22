@@ -1,3 +1,4 @@
+import { ruleDependencies } from '@tanrei/token-engine';
 import { CONFIG } from '../config.js';
 import { GENERATED_HEADER, cssColor, kebab, typeFamily } from '../pure.js';
 
@@ -42,15 +43,53 @@ function shadow(token) {
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
 // so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
 // follows an outer one a product sets at runtime; both of its terms are already on the build's step.
-function derivedExpression(rule, type) {
-  if (rule?.fn === 'sub') return `max(${type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px'}, calc(${ref(rule.of.slice(1, -1))} - ${ref(rule.by.slice(1, -1))}))`;
+// A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
+// order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
+// height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
+// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box.
+const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
+const refOf = (v) => ref(v.slice(1, -1));
+function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
+  if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
+  if (rule?.fn === 'pad') {
+    if (unscaling) return read(rule.of);
+    if (!tokens) throw new Error(`css: a "pad" rule is written over the height's own expression, and no tokens were given to read it from (${rule.height})`);
+    return `max(${zeroOf(type)}, round(nearest, calc(${read(rule.of)} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
+  }
   if (!rule || rule.fn !== 'mul') return null;
-  const of = ref(rule.of.slice(1, -1));
-  if (rule.by === 1 && rule.exp === undefined) return of;
-  const exponent = typeof rule.exp === 'string' ? ref(rule.exp.slice(1, -1)) : rule.exp;
+  const of = read(rule.of);
+  const times = rule.times !== undefined && !unscaling ? read(rule.times) : null;
+  const min = rule.min !== undefined && !unscaling ? read(rule.min) : null;
+  const floored = (expression) => (min ? `max(${min}, ${expression})` : expression);
+  if (rule.by === 1 && rule.exp === undefined && !times && rule.round === undefined) return floored(of);
+  const exponent = typeof rule.exp === 'string' ? read(rule.exp) : rule.exp;
   const coefficient = rule.exp === undefined ? String(rule.by) : `pow(${rule.by}, ${exponent})`;
-  if (type === 'number') return `calc(${of} * ${coefficient})`;
-  return `round(nearest, calc(${of} * ${coefficient}), ${type === 'duration' ? '1ms' : '0.25px'})`;
+  const product = `calc(${[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * ')})`;
+  if (rule.round !== undefined) return floored(`round(nearest, ${product}, ${read(rule.round)})`);
+  if (type === 'number') return floored(product);
+  return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
+}
+
+/** Whether a token's value depends on a `times`, a `min` or a `pad` anywhere below it: what `pad` must unscale. */
+function scales(id, tokens, seen = new Set()) {
+  const token = tokens[id];
+  if (!token || seen.has(id)) return false;
+  seen.add(id);
+  if (token.alias) return scales(token.alias, tokens, seen);
+  const rule = token.derive;
+  if (!rule || 'fixed' in rule || token.type === 'typography') return false;
+  if (rule.fn === 'pad' || (rule.fn === 'mul' && (rule.times !== undefined || rule.min !== undefined))) return true;
+  return ruleDependencies(rule).some((dep) => scales(dep, tokens, seen));
+}
+
+/** A token's expression with every `times` read as 1 and no `min`: `var()` where nothing below it scales. */
+function unscaledExpression(id, tokens) {
+  if (!scales(id, tokens)) return ref(id);
+  const token = tokens[id];
+  if (token.alias) return unscaledExpression(token.alias, tokens);
+  const written = derivedExpression(token.derive, token.type, tokens, { read: (v) => unscaledExpression(v.slice(1, -1), tokens), unscaling: true });
+  if (!written) throw new Error(`css: ${id} follows a density or a floor through a "${token.derive.fn}" rule, which CSS cannot write; a "pad" cannot measure its height from it`);
+  return written;
 }
 
 // A computed color is emitted as the same computation over role variables, so it follows the scheme,
@@ -66,8 +105,9 @@ function colorExpression(rule) {
 /**
  * One token → one or more `[name, value]` declarations. Exported for Theme Studio, which writes a dragged dial — and
  * the few declarations that follow it as literals — the way this emitter writes them, without emitting the sheet.
+ * `tokens` (the model's, by id) is what a `pad` reads its height's rules from; nothing else needs it.
  */
-export function declarations(token) {
+export function declarations(token, tokens) {
   const name = idToVar(token.id);
   if (token.alias && token.type !== 'typography') return [[name, ref(token.alias)]];
   // A choice of kind reaches CSS as its NAME — `--tanrei-sys-behavior-pressed-feedback: ripple` — so
@@ -78,7 +118,7 @@ export function declarations(token) {
     if (typeof chosen !== 'string') throw new Error(`css: ${token.id}: ${JSON.stringify(token.value)} is not an index into dev.tanrei.enum.values`);
     return [[name, chosen]];
   }
-  const live = token.type !== 'typography' && derivedExpression(token.derive, token.type);
+  const live = token.type !== 'typography' && derivedExpression(token.derive, token.type, tokens);
   if (live) return [[name, live]];
   switch (token.type) {
     case 'color':
@@ -106,7 +146,7 @@ export function declarations(token) {
       }
       const v = token.value;
       const family = token.partialAlias?.fontFamily ? ref(token.partialAlias.fontFamily) : fontFamily(v.fontFamily);
-      const size = derivedExpression(token.derive?.fontSize, 'dimension') ?? `${+(v.fontSize.value / 16).toFixed(4)}rem`;
+      const size = derivedExpression(token.derive?.fontSize, 'dimension', tokens) ?? `${+(v.fontSize.value / 16).toFixed(4)}rem`;
       // em keeps tracking proportional if a consumer overrides the size.
       const tracking = v.letterSpacing.value === 0 ? '0' : `${+(v.letterSpacing.value / v.fontSize.value).toFixed(4)}em`;
       // Emphasis is a weight step, not a role: `<role>-font-weight-emphasized` is the role's weight plus
@@ -209,7 +249,7 @@ export function emitCss(model, { scope, unavailable, outside, replacements } = {
   for (const token of Object.values(model.tokens)) {
     if (token.path[0] === 'sys' && token.path[1] === 'color') continue;
     if (perScheme.includes(token.id)) base.push(componentLevel('').find(([name]) => name === idToVar(token.id)));
-    else base.push(...declarations(token), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
+    else base.push(...declarations(token, model.tokens), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
   }
 
   const roles = Object.keys(model.colors.light);
