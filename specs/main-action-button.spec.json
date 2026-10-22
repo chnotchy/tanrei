@@ -229,7 +229,8 @@
       "Its place in the focus and reading order is where the layout puts it in the element tree, not where it is drawn. Put it where its action belongs: after the content it acts on, or first when it is the screen's reason to exist.",
       "Extended, text must remain readable at 200% text size: the container grows, the label never truncates. Collapsed, the icon is not text: where sizes are points or dp (SwiftUI, Compose, Flutter, React Native), text size leaves the square and the icon as they are; on the web every Tanrei size follows the root font size (rem), so the square and its icon grow together and stay square and whole. Either way the label is still announced.",
       "A trailing icon that points (an arrow) keeps its glyph in right-to-left layouts; the product chooses the glyph that points the right way for the direction.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WHEN the product sets an ARIA state or relationship on the host THE main action button SHALL expose it on the element that carries its role, except those the main action button owns (aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.main-action-button",

@@ -34,6 +34,8 @@ import {
   syncFocusStyle,
   trapFocus,
   WordsController,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import '../button/button.js';
 // SRC-37: the shortcut hint is drawn by the keyboard shortcut; SRC-47: the status row's indicator is the loading indicator.
@@ -1750,7 +1752,7 @@ export class TanreiSearch extends TanreiElement {
       aria-expanded=${listed ? 'true' : nothing}
       aria-controls=${listed ? 'listbox' : nothing}
       aria-activedescendant=${ifDefined(activeId)}
-      aria-label=${ifDefined(this.label || undefined)}
+      ${delegatedAria(this, { 'aria-label': this.label })}
       .placeholder=${this.placeholder}
       ?disabled=${this.inert_}
       @input=${this.onInput}
@@ -1838,7 +1840,7 @@ export class TanreiSearch extends TanreiElement {
   private renderTrigger(open: boolean, hidden: boolean) {
     const label = this.label || undefined;
     if (this.barForm === 'icon') {
-      return html`<tanrei-button class="trigger-icon" variant="text" label=${ifDefined(label)} ?disabled=${this.inert_} ?hidden=${hidden} @click=${this.onTriggerClick}
+      return html`<tanrei-button class="trigger-icon" variant="text" label=${ifDefined(label)} ${delegatedAria(this, {})} ?disabled=${this.inert_} ?hidden=${hidden} @click=${this.onTriggerClick}
           ><span slot="icon" class="button-glyph"><span class="ink">${SEARCH_GLYPH}</span></span></tanrei-button
         >${this.renderHint(true)}`;
     }
@@ -1847,7 +1849,7 @@ export class TanreiSearch extends TanreiElement {
       class="trigger"
       type="button"
       data-tanrei-shape
-      aria-label=${ifDefined(label)}
+      ${delegatedAria(this, { 'aria-label': label })}
       aria-haspopup="dialog"
       aria-expanded=${open ? 'true' : 'false'}
       ?disabled=${this.inert_}
@@ -1951,6 +1953,9 @@ if (!customElements.get('tanrei-search-suggestion')) customElements.define('tanr
 disabledWaitsWhileFocused(TanreiSearch);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSearch);
+// The product's ARIA on the host is the input's, or the trigger's while the bar is a button; the view it opens, the
+// shortcut its hint draws (SRC-37) and the disabled state are its own.
+delegatesAria(TanreiSearch, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] });
 if (!customElements.get('tanrei-search')) customElements.define('tanrei-search', TanreiSearch);
 
 declare global {

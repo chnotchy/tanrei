@@ -1,5 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, GlyphDrawnController, report, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, report, WordsController, delegatedAria, delegatesAria } from '../../primitives/index.js';
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import '../tooltip/tooltip.js';
@@ -361,6 +361,7 @@ export class TanreiCopyButton extends TanreiElement {
         label=${this.iconOnly ? this.words.get('copyLabel', this.label) : nothing}
         ?disabled=${this.disabled}
         data-form=${this.form}
+        ${delegatedAria(this, {})}
         @click=${this.#onClick}
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>
@@ -375,6 +376,8 @@ export class TanreiCopyButton extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCopyButton);
+// The product's ARIA on the host is the element's that carries the role; it is given to the Button it is drawn by, which exposes it; the disabled state is its own.
+delegatesAria(TanreiCopyButton, { owns: ['aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-copy-button')) customElements.define('tanrei-copy-button', TanreiCopyButton);
 
 declare global {

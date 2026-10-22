@@ -17,6 +17,8 @@ import {
   slottedInteractive,
   syncFocusStyle,
   WordsController,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
@@ -1210,11 +1212,7 @@ export class TanreiCombobox extends TanreiElement {
               .placeholder=${this.placeholder}
               ?disabled=${inert}
               ?readonly=${this.readOnly}
-              aria-label=${name || nothing}
-              aria-describedby=${described ? 'description' : nothing}
-              aria-invalid=${this.inError ? 'true' : nothing}
-              aria-required=${this.frame.required ? 'true' : nothing}
-              aria-readonly=${this.readOnly ? 'true' : nothing}
+              ${delegatedAria(this, { 'aria-label': name, 'aria-describedby': described && 'description', 'aria-invalid': this.inError && 'true', 'aria-required': this.frame.required && 'true', 'aria-readonly': this.readOnly && 'true' })}
               aria-autocomplete="list"
               aria-haspopup="listbox"
               aria-expanded=${expanded ? 'true' : 'false'}
@@ -1253,6 +1251,8 @@ export class TanreiCombobox extends TanreiElement {
 disabledWaitsWhileFocused(TanreiCombobox);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCombobox);
+// The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
+delegatesAria(TanreiCombobox, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
 if (!customElements.get('tanrei-combobox')) customElements.define('tanrei-combobox', TanreiCombobox);
 
 declare global {

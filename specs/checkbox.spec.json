@@ -227,7 +227,8 @@
       "The mark is drawn at its own weight (comp.checkbox.mark.weight, CHK-12), heavier than the system's icons in the default system. Its color already has the contrast of content on its fill; what a light weight loses is the stroke, which at this size is about one pixel wide and is drawn in a mix of the mark's color and the fill's. A system that sets a lighter weight should look at the dash in particular: it is one stroke, and it is all that tells indeterminate from checked.",
       "The selection motion is decoration too: under reduced motion the new condition is drawn whole at once, never later (CHK-17).",
       "The label wraps at 200% text size; the box does not grow with text, because it is a control, not text.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WHEN the product sets an ARIA state or relationship on the host THE checkbox SHALL expose it on the element that carries its role, except those the checkbox owns (aria-checked, aria-pressed, aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.checkbox",

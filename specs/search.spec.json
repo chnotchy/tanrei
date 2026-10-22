@@ -682,7 +682,8 @@
       "The input edits text as the text field does (TXI-1, TXI-4, TXI-20, TXI-24), and its selection is the text field's pair: comp.input-box.selection.color behind the text, comp.input-box.selection.content.color for it.",
       "Heights are minimums: at 200% text size the bar and the header grow, the value stays on one line, and suggestion rows wrap.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WCAG 2.5.8 (target size): for touch every row of the view is at least the touch target high in both densities (SRC-16). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse and the keyboard, it stays above the 24 by 24 the criterion asks, and its rows reach across the view's whole width. A product that cannot accept that uses regular."
+      "WCAG 2.5.8 (target size): for touch every row of the view is at least the touch target high in both densities (SRC-16). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse and the keyboard, it stays above the 24 by 24 the criterion asks, and its rows reach across the view's whole width. A product that cannot accept that uses regular.",
+      "WHEN the product sets an ARIA state or relationship on the host THE search SHALL expose it on the element that carries its role, except those the search owns (aria-haspopup, aria-expanded, aria-controls, aria-keyshortcuts, aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.search",

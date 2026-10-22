@@ -369,7 +369,8 @@
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "In the default system the outline of an outlined chip is the hairline (the divider's color), far below 3:1 against the surface. That is within WCAG 1.4.11: the edge is not what identifies the chip. Its label is text held to 4.5:1, a selected filter chip is shown by its fill and its check, and focus by the focus ring. A product whose chips must show a 3:1 edge sets comp.chip.outlined.outline.color to sys.color.outline in a layer.",
       "An action chip with a destination is a link: the link role, the platform's own link, Enter and not Space. A filter chip and an input chip take no destination. No visited state is drawn.",
-      "A link chip that opens a new context shows the open_in_new mark after its label and says so through targetLabel; the words are the product's."
+      "A link chip that opens a new context shows the open_in_new mark after its label and says so through targetLabel; the words are the product's.",
+      "WHEN the product sets an ARIA state or relationship on the host THE chip SHALL expose it on the element that carries its role, except those the chip owns (aria-pressed, aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.chip",

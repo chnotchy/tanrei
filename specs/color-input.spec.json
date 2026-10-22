@@ -345,7 +345,8 @@
       "Text size: at 200% the container grows with the value's line and the swatch keeps its size (CLI-33); a floating label wraps and is never cut (CLI-15).",
       "Forced colors (CLI-34, CLI-35): the box and the value take the person's colors; the swatch alone keeps the value's color, because showing that color is what it is for.",
       "The input has no label row and no message of its own: a Field frames it and draws them (FLD-2 to FLD-11, FLD-25, FLD-26, FLD-28), or the product names it with label where its visible label is elsewhere. Unframed and unnamed, it is reported (CLI-11).",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WHEN the product sets an ARIA state or relationship on the host THE color input SHALL expose it on the element that carries its role, except those the color input owns (aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.color-input",

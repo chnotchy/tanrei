@@ -621,7 +621,8 @@
       "The hit area of the container meets the minimum target although a small select is 40 high, and options are at least the minimum target tall (WCAG 2.5.8).",
       "A disabled option stays reachable by the arrow keys and is read as unavailable; a select with a single option, or none, is still a select and says so, rather than turning into text.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (SEL-37). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular."
+      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (SEL-37). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular.",
+      "WHEN the product sets an ARIA state or relationship on the host THE select SHALL expose it on the element that carries its role, except those the select owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.select",

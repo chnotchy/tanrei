@@ -5,8 +5,6 @@ import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
-  FORWARDED_DESCRIPTION,
-  FORWARDED_INVALID,
   GROUP_ITEM,
   GlyphMirrorController,
   GroupItemController,
@@ -19,6 +17,8 @@ import {
   type SubmitButtonState,
   type TanreiLinkTarget,
   afterClick,
+  delegatedAria,
+  delegatesAria,
   endsWaiting,
   linkAttributes,
   markPassingSubmitter,
@@ -138,8 +138,6 @@ export class TanreiButton extends TanreiElement {
     value: { type: String },
     hasIcon: { state: true },
     hasLabel: { state: true },
-    forwardedDescription: FORWARDED_DESCRIPTION,
-    forwardedInvalid: FORWARDED_INVALID,
     outsideFocusOrder: OUTSIDE_FOCUS_ORDER,
   };
 
@@ -264,19 +262,6 @@ export class TanreiButton extends TanreiElement {
 
   /** Web only: forwarded to the anchor's `download` (the file name; empty for the address's own). Ignored without `href`. */
   download: string | null = null;
-
-  /**
-   * The host's `aria-description`, read by assistive technology from the native button (src/primitives/description.ts).
-   * @internal
-   */
-  forwardedDescription: string | null = null;
-
-  /**
-   * The host's `aria-invalid`, read by assistive technology from the native button: what a frame writes on a control
-   * it marks invalid (a file upload on its trigger, FUP-16; src/primitives/description.ts).
-   * @internal
-   */
-  forwardedInvalid: string | null = null;
 
   /**
    * A host that steps for the button by keys of its own takes it out of the focus order: it stays a named button to
@@ -694,7 +679,8 @@ export class TanreiButton extends TanreiElement {
     // assistive technology so with aria-disabled in place of the platform's disabled state.
     const reachable = this.reachable;
     const busy = this.busy && !disabled;
-    const description = [this.link.describe(this.forwardedDescription), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
+    // The product's `aria-description` on the host (a badge's on its anchor, BDG-8) comes first (src/primitives/delegated-aria.ts).
+    const description = [this.link.describe(this.getAttribute('aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';
@@ -713,12 +699,13 @@ export class TanreiButton extends TanreiElement {
         ${ref(this[GROUP_ITEM].toneRef)}
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
-        aria-label=${this.label || nothing}
-        aria-description=${description || nothing}
-        aria-invalid=${!link && this.forwardedInvalid === 'true' ? 'true' : nothing}
-        aria-pressed=${this.toggle ? String(this.selected) : nothing}
+        ${delegatedAria(this, {
+          'aria-label': this.label,
+          'aria-description': description,
+          'aria-pressed': this.toggle && String(this.selected),
+          'aria-disabled': !link && reachable && 'true',
+        })}
         ?disabled=${!link && disabled && !reachable}
-        aria-disabled=${!link && reachable ? 'true' : nothing}
         @click=${this.#onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -741,6 +728,8 @@ export class TanreiButton extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiButton);
+// The product's ARIA on the host is the native element's; a toggle's pressed state and the disabled state are its own.
+delegatesAria(TanreiButton, { owns: ['aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-button')) customElements.define('tanrei-button', TanreiButton);
 
 declare global {

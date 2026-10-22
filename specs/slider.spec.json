@@ -318,7 +318,8 @@
       "The value is read from the handle and the active track. The handle must be told apart from each thing it lies on — the track, the active track and the surface behind the slider — by its outline (comp.slider.standard.handle-outline.color, where comp.slider.handle-outline.width is above 0) or by its fill (comp.slider.standard.handle.color), at 3:1 or more; comp.slider.standard.active-track.color must stay at least 3:1 against the track and the surface. In the default system the outline carries it against the track and the surface, and the fill against the active track. A faint track keeps its end visible by the stop dot at the end of the travel (SLD-9).",
       "The handle may be drawn smaller than the minimum target (20 against 48 in the default system): the whole slider takes the press across its axis at the target's size (SLD-7), so every handle keeps its whole target, a range's two handles included, and no target is reported larger than the area that takes the press.",
       "Text size does not change the slider: it has no text of its own except the value indicator, which grows with the text.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WHEN the product sets an ARIA state or relationship on the host THE slider SHALL expose it on the element that carries its role (every handle carries them), except those the slider owns (aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.slider",

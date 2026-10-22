@@ -28,7 +28,9 @@
 //   arc         — arcStyles: a ring of SVG circles (center, radius, stroke, circumference), ring-turn and pulse
 //   range-track — rangeTrackStyles(), renderRangeBar(), renderRangeRing(), rangeOf(), rangeAxes(): a value on a track as a
 //                 bar or a ring, from a component's own tokens (the progress indicator's determinate form, the meter)
-//   description — FORWARDED_DESCRIPTION: the host's aria-description, rendered on the native element (FORWARDED_INVALID: its aria-invalid)
+//   delegated-aria — delegatesAria(Class, { owns }), delegatedAria(host, own): the product's ARIA states and relationships on
+//                 the host, taken off it and exposed on the element inside that carries the role (element reflection for an
+//                 id reference, its text where the engine has none)
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
 //   host-aria   — `hostAria()`: semantics a non-interactive component carries on its host (divider, progress…)
 //   visibility  — VisibilityController: whether the host can be seen, so a running animation pauses off screen
@@ -174,7 +176,7 @@ export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } 
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
 export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
-export { FORWARDED_DESCRIPTION, FORWARDED_INVALID } from './description.js';
+export { DELEGATED_RELATIONS, DELEGATED_STATES, type DelegatedName, type OwnAria, delegatedAria, delegatedNames, delegatesAria } from './delegated-aria.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';

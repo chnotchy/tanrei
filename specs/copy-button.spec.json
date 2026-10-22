@@ -225,7 +225,8 @@
       "The confirmation returns by itself after comp.copy-button.confirmation.duration. Nothing a person must act on is in it, so no timing control is needed (WCAG 2.2.1); a failure a person must act on is the product's to show, on copyfailed, in something that stays.",
       "A sighted person using the icon-only form sees the check and, for as long as it shows, the same words in a bubble drawn as a plain Tooltip (CPY-18): the change of a glyph alone can be missed by a person who does not know the check, or who reads the page magnified. The bubble is not read a second time: the announcement of CPY-5 is the one assistive technology hears.",
       "The labelled form's visible text is its name (WCAG 2.5.3) in every form. By default (labelWidth widest) its width is reserved for the widest of the three texts, so neighbouring controls do not move under a pointer about to press them (CPY-7). labelWidth fit lets the width follow the text — a change the person asked for by pressing, eased over a short motion and at once where motion is reduced (WCAG 2.3.3) — and is for a button that nothing a person may press next stands after; its own box still keeps the minimum target in every form.",
-      "Copying needs the platform's permission and, on the web, a secure page and a press by the person: a copy asked for by script alone may be refused, and is then a failure (CPY-4)."
+      "Copying needs the platform's permission and, on the web, a secure page and a press by the person: a copy asked for by script alone may be refused, and is then a failure (CPY-4).",
+      "WHEN the product sets an ARIA state or relationship on the host THE copy button SHALL expose it on the element that carries its role, except those the copy button owns (aria-pressed, aria-disabled), and the host SHALL carry no name, description or state of its own for it."
     ]
   },
   "tokens": "comp.copy-button",

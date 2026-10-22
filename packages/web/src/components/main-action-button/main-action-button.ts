@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, FORWARDED_DESCRIPTION, GlyphMirrorController, OpenAxesController, PressController, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphMirrorController, OpenAxesController, PressController, report, delegatedAria, delegatesAria, syncFocusStyle } from '../../primitives/index.js';
 import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -69,7 +69,6 @@ export class TanreiMainActionButton extends TanreiElement {
     label: { type: String },
     hasIcon: { state: true },
     resizing: { state: true },
-    forwardedDescription: FORWARDED_DESCRIPTION,
   };
 
   /** Emphasis: filled is the screen's main action at full strength; tonal is quieter; surface keeps the container neutral over colored content (a map, a photo). */
@@ -96,12 +95,6 @@ export class TanreiMainActionButton extends TanreiElement {
 
   /** The visible text while extended, and the accessible name in either form. Required: an icon alone is not a name. */
   label = '';
-
-  /**
-   * The host's `aria-description`, read by assistive technology from the native button (src/primitives/description.ts).
-   * @internal
-   */
-  forwardedDescription: string | null = null;
 
   /** Whether the icon slot has content: the icon selects its side's padding, and is what it collapses to. */
   protected hasIcon = false;
@@ -229,7 +222,7 @@ export class TanreiMainActionButton extends TanreiElement {
         data-tanrei-shape
         class=${classMap({ [side]: this.hasIcon, collapsed: this.collapsed, 'full-width': this.fullWidth && !this.collapsed })}
         ?data-resizing=${this.resizing}
-        aria-description=${this.forwardedDescription ?? nothing}
+        ${delegatedAria(this, {})}
         ?disabled=${this.disabled}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -251,6 +244,8 @@ export class TanreiMainActionButton extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiMainActionButton);
+// The product's ARIA on the host is the native element's; the disabled state is its own.
+delegatesAria(TanreiMainActionButton, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-main-action-button')) customElements.define('tanrei-main-action-button', TanreiMainActionButton);
 
 declare global {
