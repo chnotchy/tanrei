@@ -1,6 +1,8 @@
 // <tanrei-list> and <tanrei-list-item>, driven by specs/list.spec.json: every behaviour id is cited by a test title,
 // every fixture has a baseline, and every state, condition and choice of kind is read back from the tokens — never from
 // a number written here.
+// LST-52: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';

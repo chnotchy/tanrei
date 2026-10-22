@@ -140,6 +140,10 @@
       "id": "LDG-17",
       "text": "THE loading indicator SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the loading indicator is shown THE loading indicator SHALL draw itself for the new direction at once, without a motion of its own, keeping its place in its cycle.",
       "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "LDG-18",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its progressbar role (LDG-5) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE loading indicator SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (LDG-10). WHILE it waits to be shown (LDG-11) it has no role, and SHALL hold them as well, so that nothing names an element with no role, and give them back when it is shown. WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE loading indicator SHALL take it away."
     }
   ],
   "accessibility": {

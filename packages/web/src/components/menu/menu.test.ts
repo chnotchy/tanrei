@@ -1,6 +1,8 @@
 // <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id (MNU-1…63) is cited by a test title,
 // every fixture has a baseline (drawn in place with the `inline` test attribute), and every state, condition and choice
 // of kind is read back from the tokens — never from a number written here.
+// MNU-65, MNU-66: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -464,7 +464,7 @@
     },
     {
       "id": "TBR-22",
-      "text": "THE toolbar SHALL lay out a group's items in its own line, in place, as items of the toolbar (the group draws nothing of its own), SHALL expose a group whose label is not empty as a group named by that label, and a group whose label is empty as nothing (its items are the toolbar's)."
+      "text": "THE toolbar SHALL lay out a group's items in its own line, in place, as items of the toolbar (the group draws nothing of its own), SHALL expose a group whose label is not empty as a group named by that label, and a group whose label is empty as nothing (its items are the toolbar's), unless the product names it (TBR-26)."
     },
     {
       "id": "TBR-23",
@@ -478,6 +478,10 @@
     {
       "id": "TBR-25",
       "text": "THE toolbar SHALL make each half of a Button with menu a stop of its own in the arrow-key order, the leading half first in reading order, each keeping its own name, role and state."
+    },
+    {
+      "id": "TBR-26",
+      "text": "WHERE the platform has ARIA attributes (the web), the toolbar's host and a group's host carries its role (TBR-11, TBR-22) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE toolbar SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (TBR-12). A group whose label is empty and that the product names so SHALL be exposed as a group named by that name, as one with a label is: a group the product names is a named group, and a name on an element with no role would name nothing (TBR-22). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE toolbar SHALL take it away."
     }
   ],
   "accessibility": {

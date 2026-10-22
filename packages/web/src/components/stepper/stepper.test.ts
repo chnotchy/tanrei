@@ -1,6 +1,8 @@
 // <tanrei-stepper> and <tanrei-stepper-step>, driven by specs/stepper.spec.json: every behaviour id (SPR-1…27) is
 // cited by a test title, every fixture has a baseline, and every condition, state and choice of kind is read back from
 // the tokens — never from a number written here.
+// SPR-28: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import {

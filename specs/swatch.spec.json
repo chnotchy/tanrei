@@ -141,7 +141,7 @@
     },
     {
       "id": "SWC-12",
-      "text": "IF decorative is false and label and supportingText are both empty THE swatch SHALL draw its sample alone, expose nothing to assistive technology, and in debug builds report that a color is shown without a name: a sample alone tells its color to no one who cannot see it or tell it from another."
+      "text": "IF decorative is false, label and supportingText are both empty and the product gives it no name (SWC-20) THE swatch SHALL draw its sample alone, expose nothing to assistive technology, and in debug builds report that a color is shown without a name: a sample alone tells its color to no one who cannot see it or tell it from another."
     },
     {
       "id": "SWC-13",
@@ -173,6 +173,10 @@
     {
       "id": "SWC-19",
       "text": "WHEN size or shape names a value that the active design system does not have THE swatch SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "SWC-20",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its image role while it is one (SWC-10) itself, so what the product writes on it is not moved, but for a name: WHILE its name (label, or supportingText where label is empty) is not empty THE swatch SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that its name (label, or supportingText where label is empty) is its whole name although the platform gives aria-labelledby the precedence, and WHEN its name (label, or supportingText where label is empty) is emptied SHALL give them back as they were written; WHILE its name (label, or supportingText where label is empty) is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (SWC-12). WHILE decorative is false and it draws its sample alone — labelHidden is true, or it has no text to draw — and it has no name of its own, a name the product gives so SHALL make it one image named by that name, as SWC-10 says of its own: an image the product names is a named image. WHILE it draws its text (SWC-9) or is decorative (SWC-11) it has no role, and SHALL hold them as well, giving them back when it is an image again. WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE swatch SHALL take it away."
     }
   ],
   "accessibility": {

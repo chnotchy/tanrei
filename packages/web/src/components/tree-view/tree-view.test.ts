@@ -1,6 +1,8 @@
 // <tanrei-tree-view> and tree-view.css, driven by specs/tree-view.spec.json: every behaviour id (TRV-1…42) is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. What a tree of thousands costs is measured in tree-view.perf.test.ts.
+// TRV-54: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type DocumentOptions, type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, setWords, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
