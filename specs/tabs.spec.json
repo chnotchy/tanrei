@@ -288,7 +288,7 @@
     },
     {
       "id": "TAB-22",
-      "text": "WHILE a tab's label is empty and the product gives the tab a name of its own on the element — aria-label, or aria-labelledby naming an element — THE tabs SHALL leave that name to the tab; WHILE a tab's label is empty and the product gives it none THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
+      "text": "WHILE a tab's label is not empty THE tabs SHALL expose it as the tab's accessible name, over a name the product gives the tab on the element (aria-label or aria-labelledby); WHILE a tab's label is empty and the product gives the tab a name of its own on the element — aria-label, or aria-labelledby naming an element — THE tabs SHALL leave that name to the tab; WHILE a tab's label is empty and the product gives it none THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
     },
     {
       "id": "TAB-23",
@@ -470,7 +470,7 @@
     },
     {
       "id": "TAB-62",
-      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the row's host, by the attribute or by the ARIA property that reflects it, THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved."
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the row's host, by the attribute or by the ARIA property that reflects it, THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved, but for a name: WHILE a tab's label is not empty THE tabs SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is the tab's whole name although the platform gives aria-labelledby the precedence (TAB-22), and WHEN label is emptied SHALL give them back as they were written; WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it to null, THE tabs SHALL take it away."
     }
   ],
   "accessibility": {
