@@ -253,6 +253,7 @@ export abstract class TanreiSearchRow extends TanreiElement {
 
   /** `element.focus()` focuses the row. */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.row?.focus(options);
   }
 

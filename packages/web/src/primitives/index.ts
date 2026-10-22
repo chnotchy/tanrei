@@ -131,7 +131,9 @@
 //                 anchored, clipped, MOT-5), Settle with settleStyles / settleRule() (styles/motion.ts: no transition in
 //                 an element's first frames, MOT-3)
 //   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
-//                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet
+//                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet;
+//                 TanreiElement keeps a focus() called before its first update until it has drawn (keepFocusUntilRendered(),
+//                 forgetKeptFocus() for an element's own focus() and blur())
 //   dismiss     — DismissController: Escape (the topmost surface alone, after everything inside heard the key), a press
 //                 outside and focus leaving ask the host to close (POP-21, POP-23); registerOverlay() and
 //                 logicalAncestors(): an overlay opened from inside a surface is that surface's own (POP-24)

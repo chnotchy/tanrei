@@ -264,6 +264,7 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
 
   /** FPK-21: moves focus to the trigger — the file picker's one stop — and opens nothing. */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.trigger?.focus(options);
   }
 
