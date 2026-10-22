@@ -227,6 +227,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -252,6 +255,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -281,6 +287,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -297,6 +306,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       '@types/react':
         specifier: ^19.0.0
         version: 19.3.0
@@ -403,6 +415,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -412,7 +427,11 @@ importers:
 
   packages/swiftui: {}
 
-  packages/token-engine: {}
+  packages/token-engine:
+    devDependencies:
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
 
   packages/tokens-build:
     dependencies:
@@ -428,6 +447,10 @@ importers:
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
+    devDependencies:
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
 
   packages/tools:
     dependencies:

@@ -34,5 +34,8 @@
     "./pure": "./src/pure.js",
     "./config": "./src/config.js",
     "./layers": "./src/layers.js"
+  },
+  "devDependencies": {
+    "@tanrei/tools": "workspace:*"
   }
 }
