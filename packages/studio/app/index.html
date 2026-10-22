@@ -9,15 +9,19 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23111'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23fff'/%3E%3C/svg%3E" />
   </head>
   <body>
-    <header class="app-bar">
-      <a class="app-brand" href="./"><span class="app-mark" aria-hidden="true"></span><bdi class="app-name" dir="ltr">Tanrei <span>Theme Studio</span></bdi></a>
-      <p class="app-session" id="session" aria-live="polite"></p>
+    <!-- The app's items of the Studio's bar: its brand and the file it edits at the start, its language and its theme at
+         the end. main.ts hands them to the Studio, which moves them into its bar. -->
+    <div class="app-bar">
+      <div class="app-start">
+        <a class="app-brand" href="./"><span class="app-mark" aria-hidden="true"></span><bdi class="app-name" dir="ltr">Tanrei <span>Theme Studio</span></bdi></a>
+        <p class="app-session" id="session" aria-live="polite"></p>
+      </div>
       <div class="app-tools">
         <tanrei-select class="app-language" id="lang" size="small" label="Language" label-hidden></tanrei-select>
         <tanrei-button class="app-tool" id="theme" variant="outlined" size="small">Dark</tanrei-button>
       </div>
-    </header>
-    <main id="studio"></main>
+    </div>
+    <div id="studio"></div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

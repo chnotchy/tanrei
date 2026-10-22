@@ -19,7 +19,7 @@ const watchSwitch = (page) =>
   page.evaluate(() => {
     const all = (root) => [...root.querySelectorAll('*')].reduce((n, el) => n + 1 + (el.shadowRoot ? all(el.shadowRoot) : 0), 0);
     const studio = document.querySelector('[data-studio]');
-    const parts = () => [studio.querySelector('[data-controls]'), ...[...studio.children].filter((el) => el.matches('div:not(.ts-layout):not([data-file])'))];
+    const parts = () => [...studio.querySelector('[data-inspector]').children];
     const w = (window.__switch = { elements: () => parts().reduce((n, part) => n + all(part), 0) });
     document.querySelector('[data-levels]').addEventListener('change', () => requestAnimationFrame(() => {
       const drawn = [...document.querySelectorAll('[data-panel]')].map((el) => ({ panel: el.dataset.panel, top: el.getBoundingClientRect().top }));

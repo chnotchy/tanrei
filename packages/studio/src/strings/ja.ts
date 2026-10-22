@@ -437,6 +437,17 @@ const ja: Dictionary = {
     keepMine: '自分の編集を残す（ファイルを上書き）',
     keepOpen: '開いている内容を残す（ファイルを上書き）',
   },
+  frame: {
+    history: '履歴',
+    undo: '元に戻す',
+    redo: 'やり直す',
+    undone: '元に戻しました。',
+    redone: 'やり直しました。',
+    rail: 'レベル',
+    panel: 'プロパティ',
+    resize: 'プロパティのパネルの幅',
+    width: (px: number) => `${px} ピクセル`,
+  },
   app: {
     language: '言語',
     theme: 'テーマ',

@@ -459,6 +459,17 @@ const en = {
     keepOpen: 'Keep what is open (overwrite the file)',
   },
   // The standalone app's own bar (app/main.ts), around the Studio.
+  frame: {
+    history: 'History',
+    undo: 'Undo',
+    redo: 'Redo',
+    undone: 'Undone.',
+    redone: 'Redone.',
+    rail: 'Levels',
+    panel: 'Properties',
+    resize: 'Width of the properties panel',
+    width: (px: number) => `${px} pixels`,
+  },
   app: {
     language: 'Language',
     theme: 'Theme',

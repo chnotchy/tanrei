@@ -62,8 +62,10 @@ for (const scheme of ['light', 'dark']) {
       await unfold(page, name);
       await axe('body', `${name} (${scheme})`);
     }
-    // The one warning of this layer is all in view: its list has its name and is no focus stop (the long one is below).
-    assert.deepEqual(await page.locator('[data-warnings]').evaluate((list) => [list.scrollHeight > list.clientHeight, list.getAttribute('tabindex'), Boolean(list.getAttribute('aria-label'))]), [false, null, true]);
+    // The list of this layer's warnings has its name, and is a focus stop exactly while it scrolls — in the panel beside
+    // the preview its one warning wraps into more lines than the list's box holds (the long list is below).
+    const list = await page.locator('[data-warnings]').evaluate((el) => ({ scrolls: el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1, tabindex: el.getAttribute('tabindex'), named: Boolean(el.getAttribute('aria-label')) }));
+    assert.deepEqual(list, { scrolls: list.scrolls, tabindex: list.scrolls ? '0' : null, named: true });
   });
 
   studioTest(`390px: nothing scrolls sideways at any level — ${scheme}`, { layer, colorScheme: scheme, viewport: { width: 390, height: 844 } }, async ({ page, level, fits }) => {
@@ -102,16 +104,6 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   assert.match(await page.locator('[data-panel="behavior"] h2').textContent(), /ふるまい/);
   assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names are vocabulary: not translated');
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
-});
-
-studioTest('the document’s root says a Studio is mounted, for as long as one is: the attribute the stylesheet reads instead of asking the root :has(.ts)', {}, async ({ page }) => {
-  const root = () => page.evaluate(() => ({ mounted: document.documentElement.hasAttribute('data-ts-mounted'), width: getComputedStyle(document.documentElement).getPropertyValue('--sl-content-width').trim() }));
-  assert.deepEqual(await root(), { mounted: true, width: '84rem' }, 'while the Studio is mounted the page has a tool’s width');
-  await page.evaluate(() => window.tanreiStudio.destroy());
-  assert.deepEqual(await root(), { mounted: false, width: '' }, 'the last Studio to leave gives the width back');
-  // Mounts are counted, so that one of two Studios leaving does not take the width from the other: leaving twice is leaving once.
-  await page.evaluate(() => window.tanreiStudio.destroy());
-  assert.deepEqual(await root(), { mounted: false, width: '' });
 });
 
 studioTest('the two checks above can fail: text the Studio cannot read and a box wider than the phone are both caught', { viewport: { width: 390, height: 844 } }, async ({ page, axe, fits }) => {

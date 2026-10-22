@@ -79,11 +79,18 @@ applyTheme();
 const token = takeToken();
 const session = document.querySelector<HTMLElement>('#session')!;
 const root = document.querySelector<HTMLElement>('#studio')!;
+// The Studio's bar takes the app's items; the holder they stood in goes.
+const holder = document.querySelector<HTMLElement>('.app-bar')!;
+const bar = { start: [document.querySelector<HTMLElement>('.app-start')!], end: [document.querySelector<HTMLElement>('.app-tools')!] };
+const mount = (options: Parameters<typeof mountStudio>[1]) => {
+  mountStudio(root, { ...options, bar });
+  holder.remove();
+};
 
 if (!token) {
   // Opened without a server behind it (a static preview of the build): the Studio still works, in the browser.
   session.textContent = t.app.noFile;
-  mountStudio(root, { lang });
+  mount({ lang });
 } else {
   const adapter = createHttpAdapter({ token });
   adapter
@@ -93,5 +100,5 @@ if (!token) {
       document.title = `${info.id} — Tanrei Theme Studio`;
     })
     .catch((error: Error) => (session.textContent = error.message))
-    .finally(() => mountStudio(root, { lang, adapter }));
+    .finally(() => mount({ lang, adapter }));
 }

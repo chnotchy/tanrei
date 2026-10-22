@@ -2,7 +2,7 @@
 //
 // A stylesheet a script imports is given by the bundler to every page the script's bundle reaches: imported by the
 // Studio's entry, the Studio's sheet — with copies of four of the web package's — was linked from 755 of the 845 built
-// pages (101 KB each). The Studio's page links it itself (components/ThemeStudio.astro).
+// pages (101 KB each). The Studio's page links it itself (components/StudioPage.astro).
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -27,8 +27,8 @@ const walk = (dir, url) => {
 };
 walk(dist, '/');
 
-// The Studio's own sheet is the one that says how the root makes room while the Studio is mounted (packages/studio/src/studio.css).
-const STUDIO_RULE = /\[data-ts-mounted\]/;
+// The Studio's own sheet is the one that lays out its frame (packages/studio/src/studio.css).
+const STUDIO_RULE = /\.ts-frame\b/;
 const studioSheet = new Map();
 const isStudioSheet = (href) => {
   if (!studioSheet.has(href)) studioSheet.set(href, STUDIO_RULE.test(fs.readFileSync(path.join(dist, href), 'utf8')));
