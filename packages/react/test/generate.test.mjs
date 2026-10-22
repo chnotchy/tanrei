@@ -1,5 +1,6 @@
 // How the generator names an event prop: `on` and the event's name as the specs write it, in camelCase, while the
-// element fires the event in lowercase. It runs for real, in a copy of what it reads: the manifest, the specs and itself.
+// element fires the event in lowercase. It runs for real, in a copy of what it reads: the manifest, tanrei.config.json,
+// the specs and itself.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -16,7 +17,7 @@ const SPECS = fs.readdirSync(path.join(REPO, 'specs')).filter((f) => f.endsWith(
 /** A copy of what the generator reads, with `edit(name, spec)` applied to each spec (returning null leaves it out). */
 function tree(edit = (_name, spec) => spec) {
   const root = tempDir('react-generate');
-  for (const rel of ['packages/react/scripts/generate.js', 'packages/web/custom-elements.json']) {
+  for (const rel of ['packages/react/scripts/generate.js', 'packages/web/custom-elements.json', 'tanrei.config.json']) {
     fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
     fs.copyFileSync(path.join(REPO, rel), path.join(root, rel));
   }
