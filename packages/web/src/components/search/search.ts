@@ -1,5 +1,6 @@
 import { type ComplexAttributeConverter, LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
   AvailabilityController,
@@ -139,6 +140,19 @@ export class TanreiSearchSuggestion extends TanreiElement {
 }
 
 const SUGGESTION = 'tanrei-search-suggestion';
+
+/**
+ * SRC-24: each suggestion element's own id for its option — not its place in the list — so that the option the input
+ * names as its active descendant is a new one, and is read as one, when the product replaces the suggestions, and an
+ * option keeps its id when the product moves its element.
+ */
+const OPTION_IDS = new WeakMap<TanreiSearchSuggestion, string>();
+let optionCount = 0;
+function optionId(suggestion: TanreiSearchSuggestion): string {
+  let id = OPTION_IDS.get(suggestion);
+  if (!id) OPTION_IDS.set(suggestion, (id = `option-${++optionCount}`));
+  return id;
+}
 const RESULT = 'tanrei-search-result';
 const RESULT_GROUP = 'tanrei-search-result-group';
 /** The search's slot for its results and result groups: the search puts them there itself (SRC-46). */
@@ -1133,7 +1147,7 @@ export class TanreiSearch extends TanreiElement {
     this.resultCurrent = false;
     if (index < 0) return;
     void this.updateComplete.then(() => {
-      const row = this.renderRoot.querySelector<HTMLElement>(`#option-${index}`);
+      const row = this.suggestions[index] ? this.renderRoot.querySelector<HTMLElement>(`#${optionId(this.suggestions[index])}`) : null;
       if (!row) return;
       syncFocusStyle(this, row);
       this.scrollIntoRoom(row);
@@ -1267,7 +1281,7 @@ export class TanreiSearch extends TanreiElement {
         const result = this.expanded && this.resultCurrent ? this.rows[0] : undefined;
         if (index >= 0 && index < count) {
           // SRC-19: the chosen row shows its press.
-          const row = this.renderRoot.querySelector<HTMLElement>(`#option-${index}`);
+          const row = this.suggestions[index] ? this.renderRoot.querySelector<HTMLElement>(`#${optionId(this.suggestions[index])}`) : null;
           if (row) {
             this.pressRow(row);
             this.rowPress.press(null);
@@ -1922,7 +1936,7 @@ export class TanreiSearch extends TanreiElement {
    * whose active descendant is the active suggestion once the person has moved to it (SRC-14).
    */
   private renderInput(place: 'bar' | 'header', listed: boolean) {
-    const activeId = listed && this.active >= 0 && this.moved ? `option-${this.active}` : undefined;
+    const activeId = listed && this.active >= 0 && this.moved && this.suggestions[this.active] ? optionId(this.suggestions[this.active]) : undefined;
     return html`<input
       part="input"
       class="input"
@@ -1969,14 +1983,16 @@ export class TanreiSearch extends TanreiElement {
     return html`<div class=${this.viewHasContent ? 'scroll' : 'scroll empty'}>
       ${listed
         ? html`<div part="listbox" class="listbox" id="listbox" role="listbox" aria-label=${ifDefined(this.label || undefined)}>
-            ${this.suggestions.map(
+            ${repeat(
+              this.suggestions,
+              (s) => s,
               (s, i) => html`<div
                 class="option"
-                id="option-${i}"
+                id=${optionId(s)}
                 role="option"
                 aria-selected=${i === this.active ? 'true' : 'false'}
-                aria-labelledby="headline-${i}"
-                aria-describedby=${ifDefined(s.supportingText ? `supporting-${i}` : undefined)}
+                aria-labelledby="${optionId(s)}-headline"
+                aria-describedby=${ifDefined(s.supportingText ? `${optionId(s)}-supporting` : undefined)}
                 data-index=${i}
                 ?data-active=${i === this.active}
                 data-tanrei-shape
@@ -1988,8 +2004,8 @@ export class TanreiSearch extends TanreiElement {
               >
                 ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
                 <span class="text">
-                  <span class="headline" id="headline-${i}">${s.headline}</span>
-                  ${s.supportingText ? html`<span class="supporting" id="supporting-${i}">${s.supportingText}</span>` : nothing}
+                  <span class="headline" id="${optionId(s)}-headline">${s.headline}</span>
+                  ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
                 </span>
               </div>`,
             )}

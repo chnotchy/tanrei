@@ -13,3 +13,6 @@ On an on-screen keyboard nothing is made active by itself any more, neither the 
 the keyboard's Search or Go key submits the query as typed, as a search field on a phone does, and the person touches the
 suggestion they want. The search counts the keyboard as on-screen when a touch or a pen gave the input focus, and as a
 hardware keyboard again after an arrow key, Home, End or a mouse press on the input.
+
+Each suggestion's option now has an id of its own element instead of one by its place in the list, so suggestions the
+product replaces are new options to a screen reader, and one the product moves keeps its id.

@@ -26,7 +26,8 @@ const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanre
 const bar = (page: P, id: string) => host(page, id).locator('.bar');
 const input = (page: P, id: string) => host(page, id).locator('.bar .input');
 const headerInput = (page: P, id: string) => host(page, id).locator('.header .input');
-const row = (page: P, id: string, n: number) => host(page, id).locator(`#option-${n}`);
+/** The suggestion's option at place `n` of the list (its id is its element's own, SRC-24). */
+const row = (page: P, id: string, n: number) => host(page, id).locator(`.option[data-index="${n}"]`);
 const view = (page: P, id: string) => host(page, id).locator('.view');
 const dialog = (page: P, id: string) => host(page, id).locator('.full');
 const css = (locator: Locator, property: string, pseudo?: string) =>
@@ -989,7 +990,7 @@ test.describe('suggestions', () => {
     const field = input(page, 's');
     await field.focus();
     const active = () => activeOption(page, 's');
-    const told = () => field.getAttribute('aria-activedescendant');
+    const told = () => toldOption(page, 's');
     const selected = () => host(page, 's').evaluate((el) => [...el.shadowRoot!.querySelectorAll('[role="option"]')].map((o) => o.getAttribute('aria-selected')));
     expect(await active(), 'closed: nothing is active').toBeNull();
     await page.keyboard.press('ArrowDown'); // opens, with the first active at once
@@ -1141,13 +1142,13 @@ test.describe('suggestions', () => {
     // The person moves: the first Down Arrow stays on the first and makes it the active descendant, so it is read; each
     // suggestion an arrow key moves to after that is read too.
     await page.keyboard.press('ArrowDown');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
     await page.keyboard.press('ArrowDown');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to b"' });
     await page.keyboard.press('ArrowUp');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
     // Typing again: the new first is active and selected, and nothing is read for it.
     await page.keyboard.type('k');
@@ -1162,6 +1163,36 @@ test.describe('suggestions', () => {
     await expect.poll(() => activeOption(page, 's'), 'confirmed: the first again').toBe('option-0');
     await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     expect(await prop(s, 'value')).toBe('tok検');
+  });
+
+  test('SRC-24: each option’s id is its suggestion element’s own, not its place — suggestions the product replaces are new options for the input to name, and an element the product moves keeps its option’s id; names and descriptions resolve', async ({ page }) => {
+    await mount(page, [live('s', { value: 'inv' })]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await field.focus();
+    await page.keyboard.press('ArrowDown'); // opens, the first named
+    const named = () => field.getAttribute('aria-activedescendant');
+    const ids = () => s.evaluate((el) => [...el.shadowRoot!.querySelectorAll('.option')].map((option) => option.id));
+    const before = await ids();
+    expect(new Set(before).size).toBe(3);
+    expect(await named()).toBe(before[0]);
+    await expect(page.getByRole('option', { name: 'Invoices', exact: true })).toHaveAccessibleDescription('Folder · 24 messages');
+    // The product replaces the suggestions while the first is active: none of the new options takes an old id, so the
+    // option the input names next is a new one, which a screen reader reads as new.
+    await s.evaluate((el) => {
+      el.querySelectorAll('tanrei-search-suggestion').forEach((each) => each.remove());
+      el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="n1" headline="new one" supporting-text="first"></tanrei-search-suggestion><tanrei-search-suggestion value="n2" headline="new two"></tanrei-search-suggestion>');
+    });
+    await expect.poll(ids).toHaveLength(2);
+    const after = await ids();
+    expect(after.filter((id) => before.includes(id))).toEqual([]);
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(named).toBe(after[0]);
+    await expect(page.getByRole('option', { name: 'new one', exact: true })).toHaveAccessibleDescription('first');
+    await expect(page.getByRole('option', { name: 'new one', exact: true })).toHaveAttribute('aria-selected', 'true');
+    // An element moved keeps its option's id.
+    await s.evaluate((el) => el.append(el.querySelector('tanrei-search-suggestion')!));
+    await expect.poll(ids).toEqual([after[1], after[0]]);
   });
 
   test('SRC-14: a suggestion that becomes active while scrolled out of view is scrolled into view', async ({ page }) => {
@@ -1214,7 +1245,7 @@ test.describe('suggestions', () => {
     await r.hover();
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 0, 200)');
     expect(await css(r, 'background-color')).toBe(await resolveColor(page, S('hovered-suggestion-container-color')));
-    expect(await input(page, 's').getAttribute('aria-activedescendant'), 'the pointer made nothing active').toBe('option-0');
+    expect(await toldOption(page, 's'), 'the pointer made nothing active').toBe('option-0');
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 200, 0)');
     expect(await css(r, 'background-color')).toBe(await resolveColor(page, S('focused-suggestion-container-color')));
@@ -1251,11 +1282,11 @@ test.describe('suggestions', () => {
     // A suggestion by Enter: pressed at once (the view opens with the first active, SRC-14).
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
-    await expect.poll(() => input(page, 's').getAttribute('aria-activedescendant')).toBe('option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     const pressed = await host(page, 's').evaluate((el) => {
       const input = el.shadowRoot!.querySelector('.bar .input')!;
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
-      return (el.shadowRoot!.querySelector('#option-0') as HTMLElement).dataset.pressed;
+      return (el.shadowRoot!.querySelector('.option[data-index="0"]') as HTMLElement).dataset.pressed;
     });
     expect(pressed).toBe('overlay');
   });
@@ -1512,7 +1543,7 @@ test.describe('accessibility', () => {
     const folder = page.getByRole('option', { name: 'Invoices', exact: true });
     await expect(folder).toHaveAccessibleDescription('Folder · 24 messages');
     // SRC-14: the Down Arrow that opened the view moved to the first suggestion: it is the active descendant.
-    await expect(combo).toHaveAttribute('aria-activedescendant', 'option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     await expect(page.getByRole('option', { name: 'invoices', exact: true })).toHaveAttribute('aria-selected', 'true');
     expect(await host(page, 's').locator('.option-icon[aria-hidden="true"]').count()).toBe(3);
     // Closed: a search field again.
@@ -1631,8 +1662,23 @@ const focused = (page: P) =>
     return active ? `${active.localName}${root instanceof ShadowRoot ? `@${root.host.localName.replace('tanrei-search', 'search')}:${(root.host as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
   });
 const toggles = async (page: P) => (await log(page)).filter((entry) => entry.startsWith('toggle'));
-/** The active suggestion — the option drawn active, whether or not it is announced — by its id, or null. */
-const activeOption = (page: P, id: string) => host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.option[data-active]')?.id ?? null);
+/** The active suggestion — the option drawn active, whether or not it is announced — by its place (`option-<n>`), or null. */
+const activeOption = (page: P, id: string) =>
+  host(page, id).evaluate((el) => {
+    const option = el.shadowRoot!.querySelector<HTMLElement>('.option[data-active]');
+    return option ? `option-${option.dataset.index}` : null;
+  });
+/**
+ * The suggestion the input names as its active descendant — the one assistive technology reads — by its place
+ * (`option-<n>`), or null: none named. The id it names is the suggestion element's own (SRC-24).
+ */
+const toldOption = (page: P, id: string, place: 'bar' | 'header' = 'bar') =>
+  host(page, id).evaluate((el, at) => {
+    const named = el.shadowRoot!.querySelector(`.${at} .input`)?.getAttribute('aria-activedescendant');
+    if (!named) return null;
+    const option = el.shadowRoot!.getElementById(named);
+    return option ? `option-${option.dataset.index}` : `missing:${named}`;
+  }, place);
 /**
  * What Chromium's accessibility tree tells assistive technology of the focused field: its role and name, and the node
  * it names as its active descendant (null: none, so nothing is read for it).
@@ -2545,9 +2591,9 @@ test.describe('keys through results', () => {
     await expect.poll(() => activeOption(page, 's')).toBe('option-0');
     await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     await page.keyboard.press('ArrowDown');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     await page.keyboard.press('ArrowDown');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
     expect(await focused(page)).toBe('input@search:inv');
     // With suggestions in the view no result is current: the first suggestion is the first row.
     await expect(host(page, 's').locator('tanrei-search-result-group .row[data-current], tanrei-search-result .row[data-current]')).toHaveCount(0);
@@ -2573,7 +2619,7 @@ test.describe('keys through results', () => {
     // From the first result back to the input, the last suggestion active.
     await page.keyboard.press('ArrowUp');
     expect(await focused(page)).toBe('input@search:inv');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
     expect(await prop(host(page, 's'), 'expanded')).toBe(true);
     // With no suggestion in the view the first result is current while focus stays in the input (SRC-49): the first
     // Down Arrow moves focus to it — current without being announced, it is where the first press goes — and the next to
@@ -3226,7 +3272,7 @@ test.describe('on-screen keyboard', () => {
     // A hardware keyboard's Down Arrow: the first is active, and read out; typing makes the first active again.
     await page.keyboard.press('ArrowDown');
     await expect.poll(active).toBe('option-0');
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
     await page.keyboard.type('i');
     await expect.poll(active).toBe('option-0');
     // A touch on the focused input brings the on-screen keyboard back: none active as the person types.
