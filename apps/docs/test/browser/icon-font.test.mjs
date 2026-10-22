@@ -102,7 +102,7 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   // Drawn: the components' own glyphs in their shadow roots and generated boxes, after they are defined. A glyph
   // drawn only once something is opened is in the list the components' code gives (glyphs.json, tested with the
   // font in packages/tools/test/glyphs.test.js).
-  for (const [url] of rootPages.filter(([url]) => !url.includes('/theme-studio/'))) {
+  for (const [url] of rootPages.filter(([url]) => url !== '/studio/')) {
     test(`drawn on ${url}`, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
@@ -206,7 +206,7 @@ describe('the Theme Studio page', () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     try {
       const page = await context.newPage();
-      await page.goto(`${origin}/foundations/theme-studio/`, { waitUntil: 'load' });
+      await page.goto(`${origin}/studio/`, { waitUntil: 'load' });
       // A glyph no list names, drawn in the default icon family: its name in letters, wider than its 1 em box,
       // until the full file is the family's face.
       const width = () => page.evaluate(() => {
