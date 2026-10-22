@@ -5455,6 +5455,19 @@ private let cupertinoMainActionButtonTokens = TanreiMainActionButtonTokens(
   )
 )
 
+private let cupertinoMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 250,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let cupertinoMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
   containerShape: 8,
@@ -6570,6 +6583,16 @@ private let cupertinoNumberInputTokens = TanreiNumberInputTokens(
   stepperInset: 4
 )
 
+private let cupertinoNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 400,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
+)
+
 private let cupertinoOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 2,
   containerGap: 6,
@@ -7152,6 +7175,29 @@ private let cupertinoRadioButtonTokens = TanreiRadioButtonTokens(
     containerShape: 9999,
     opacity: 1
   )
+)
+
+private let cupertinoResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 14,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 250,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionIndicatorExitDuration: 200,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 8,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: cupertinoTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
 )
 
 private let cupertinoScrollAreaTokens = TanreiScrollAreaTokens(
@@ -9765,6 +9811,7 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
+      targetMinimum: 28,
       targetPointer: 44,
       targetSpacing: 8,
       targetTouch: 48
@@ -9891,6 +9938,7 @@ extension TanreiSystem {
     list: cupertinoListTokens,
     loadingIndicator: cupertinoLoadingIndicatorTokens,
     mainActionButton: cupertinoMainActionButtonTokens,
+    marqueeText: cupertinoMarqueeTextTokens,
     menu: cupertinoMenuTokens,
     menubar: cupertinoMenubarTokens,
     meter: cupertinoMeterTokens,
@@ -9898,6 +9946,7 @@ extension TanreiSystem {
     navigationBar: cupertinoNavigationBarTokens,
     navigationDrawer: cupertinoNavigationDrawerTokens,
     numberInput: cupertinoNumberInputTokens,
+    numberTicker: cupertinoNumberTickerTokens,
     oneTimeCodeInput: cupertinoOneTimeCodeInputTokens,
     pageHeader: cupertinoPageHeaderTokens,
     pagination: cupertinoPaginationTokens,
@@ -9906,6 +9955,7 @@ extension TanreiSystem {
     progressIndicator: cupertinoProgressIndicatorTokens,
     prose: cupertinoProseTokens,
     radioButton: cupertinoRadioButtonTokens,
+    resizableFrame: cupertinoResizableFrameTokens,
     scrollArea: cupertinoScrollAreaTokens,
     search: cupertinoSearchTokens,
     segmentedButton: cupertinoSegmentedButtonTokens,

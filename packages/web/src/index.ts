@@ -68,6 +68,13 @@ export {
   type TanreiHandleStepDetail,
 } from './components/handle/handle.js';
 export {
+  TanreiResizableFrame,
+  type TanreiResizableFrameHandle,
+  type TanreiResizableFrameSizeDetail,
+  type TanreiResizableFrameSizeIndicator,
+  type TanreiResizableFrameVariant,
+} from './components/resizable-frame/resizable-frame.js';
+export {
   TanreiBottomSheet,
   type TanreiBottomSheetCloseDetail,
   type TanreiBottomSheetCloseReason,
@@ -334,6 +341,16 @@ export {
   type TanreiProgressIndicatorVariant,
 } from './components/progress-indicator/progress-indicator.js';
 export { TanreiMeter, type TanreiMeterSeparation, type TanreiMeterSize, type TanreiMeterStatus, type TanreiMeterVariant } from './components/meter/meter.js';
+export {
+  TanreiNumberTicker,
+  type TanreiNumberTickerAnimation,
+  type TanreiNumberTickerLive,
+  type TanreiNumberTickerNotation,
+  type TanreiNumberTickerNumberStyle,
+  type TanreiNumberTickerSettleDetail,
+  type TanreiNumberTickerSignDisplay,
+  type TanreiNumberTickerTrend,
+} from './components/number-ticker/number-ticker.js';
 export { TanreiRadioButton, type TanreiRadioButtonChangeDetail, type TanreiRadioButtonOwner } from './components/radio-button/radio-button.js';
 export {
   TanreiRadioGroup,
@@ -358,6 +375,7 @@ export {
   type TanreiSearchToggleDetail,
 } from './components/search/search.js';
 export { TanreiScrollArea, type TanreiScrollAreaEdge, type TanreiScrollAreaScrollEdge } from './components/scroll-area/scroll-area.js';
+export { TanreiMarqueeText, type TanreiMarqueeTextLoop, type TanreiMarqueeTextPausedChangeDetail, type TanreiMarqueeTextTrigger } from './components/marquee-text/marquee-text.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,

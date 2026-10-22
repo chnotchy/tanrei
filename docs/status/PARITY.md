@@ -79,6 +79,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
 | `density-compact` | <img src="../../packages/web/snapshots/list/density-compact.png" alt="web density-compact" width="160"> |
 
+## Marquee text
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/marquee-text/default.png" alt="web default" width="160"> |
+| `fits` | <img src="../../packages/web/snapshots/marquee-text/fits.png" alt="web fits" width="160"> |
+| `bounce` | <img src="../../packages/web/snapshots/marquee-text/bounce.png" alt="web bounce" width="160"> |
+| `always` | <img src="../../packages/web/snapshots/marquee-text/always.png" alt="web always" width="160"> |
+| `always-control` | <img src="../../packages/web/snapshots/marquee-text/always-control.png" alt="web always-control" width="160"> |
+| `always-paused` | <img src="../../packages/web/snapshots/marquee-text/always-paused.png" alt="web always-paused" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/marquee-text/rtl.png" alt="web rtl" width="160"> |
+
 ## Meter
 
 | Fixture | Web Components |
@@ -109,6 +121,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `open` | <img src="../../packages/web/snapshots/modal-layer/open.png" alt="web open" width="160"> |
 | `no-scrim` | <img src="../../packages/web/snapshots/modal-layer/no-scrim.png" alt="web no-scrim" width="160"> |
 
+## Number ticker
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/number-ticker/default.png" alt="web default" width="160"> |
+| `currency-ja` | <img src="../../packages/web/snapshots/number-ticker/currency-ja.png" alt="web currency-ja" width="160"> |
+| `percent` | <img src="../../packages/web/snapshots/number-ticker/percent.png" alt="web percent" width="160"> |
+| `compact` | <img src="../../packages/web/snapshots/number-ticker/compact.png" alt="web compact" width="160"> |
+| `signed` | <img src="../../packages/web/snapshots/number-ticker/signed.png" alt="web signed" width="160"> |
+| `arabic-digits` | <img src="../../packages/web/snapshots/number-ticker/arabic-digits.png" alt="web arabic-digits" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/number-ticker/rtl.png" alt="web rtl" width="160"> |
+
 ## Pagination
 
 | Fixture | Web Components |
@@ -129,6 +153,19 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `compact-numbers` | <img src="../../packages/web/snapshots/pagination/compact-numbers.png" alt="web compact-numbers" width="160"> |
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
+
+## Resizable frame
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/resizable-frame/default.png" alt="web default" width="160"> |
+| `all-handles` | <img src="../../packages/web/snapshots/resizable-frame/all-handles.png" alt="web all-handles" width="160"> |
+| `bottom-only` | <img src="../../packages/web/snapshots/resizable-frame/bottom-only.png" alt="web bottom-only" width="160"> |
+| `indicator-always` | <img src="../../packages/web/snapshots/resizable-frame/indicator-always.png" alt="web indicator-always" width="160"> |
+| `no-handles` | <img src="../../packages/web/snapshots/resizable-frame/no-handles.png" alt="web no-handles" width="160"> |
+| `plain` | <img src="../../packages/web/snapshots/resizable-frame/plain.png" alt="web plain" width="160"> |
+| `plain-start` | <img src="../../packages/web/snapshots/resizable-frame/plain-start.png" alt="web plain-start" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/resizable-frame/rtl.png" alt="web rtl" width="160"> |
 
 ## Scroll area
 

@@ -9,15 +9,15 @@
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/header.test.mjs   # in one engine (all three by default)
 //
-// It reads `dist/` and serves it on a free port.
+// It reads `dist/` and serves it on a free port, as the host does (host.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as playwright from '@playwright/test';
+import { serveDist } from './host.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -26,26 +26,17 @@ const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm' };
 const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium,firefox,webkit').split(',').map((name) => name.trim());
-let server;
+let host;
 let origin;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    response.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist);
+  origin = host.origin;
 });
 
 after(async () => {
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 const PAGE = '/foundations/accessibility/';

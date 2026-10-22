@@ -681,6 +681,15 @@
       "events": {
         "dismiss": "dismiss"
       },
+      "parts": {
+        "container": "container",
+        "outline": "container@outline",
+        "icon": "icon",
+        "title": "title",
+        "body": "body",
+        "actions": "actions",
+        "close-button": "close-button"
+      },
       "notes": "`<tanrei-callout>` with the body as light-DOM children, the glyph in the `icon` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h3 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as the snackbar's and the app bar's), and Buttons or links in the `actions` slot. `statusLabel` and `closeLabel` are the `status-label` and `close-label` attributes. `open` is a boolean property that defaults to true; the `open` attribute spells it, and `open=\"false\"` is how markup starts a callout closed. The host is `display: block` with no margin, `role=\"note\"` and `aria-labelledby` naming the title, set through ElementInternals where axe can see it and as attributes otherwise; with `live` the host's role is `status` or `alert` by status, and the announcement is made through a visually hidden live region in the shadow root that exists from the element's first render, so that a callout opened later is announced (CLO-21). `statusLabel` is drawn as visually hidden text before the title in the shadow root, followed by a comma and a space; the glyph is `aria-hidden`. The body takes the form's content color and the size's text style through inherited `color` and `font`, so text placed directly in the element is styled, and a body that is rendered Markdown is wrapped by the product in `<div class=\"tanrei-prose\" data-measure=\"false\">` with the callout's `data-size` (prose re-enters inside a Tanrei element). The glyph's opacity is applied to its color (a mix with transparent), never as an element's `opacity`. The close button is a `<tanrei-button size=\"small\">` with the close glyph in its `icon` slot and `close-label` as its `label`, in the shadow root (part `close-button`); the callout gives it the variant `--tanrei-comp-callout-close-button-variant` names and, in a look with a fill, the tone of its form (the form's `body-color` custom property) through the Button's internal channel, after each update (CLO-10). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (CLO-24). The stylesheet of `@tanrei/web` gives `tanrei-callout:not(:defined)` `display: block`, so the content keeps its place before the element is defined. `dismiss` is a CustomEvent."
     },
     "swiftui": {

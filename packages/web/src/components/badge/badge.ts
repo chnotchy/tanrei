@@ -104,7 +104,7 @@ export class TanreiBadge extends TanreiElement {
     if (pill && this.lead) this.lead.observe(pill);
   }
 
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     this.anchor = (event.target as HTMLSlotElement).assignedElements()[0] ?? null;
   }
 
@@ -188,7 +188,7 @@ export class TanreiBadge extends TanreiElement {
     // BDG-5: a count of 0 draws nothing; BDG-16: nor does a badge with no anchor. BDG-8: what is drawn is hidden from
     // assistive technology.
     return html`
-      <slot @slotchange=${this.onSlotChange}></slot>
+      <slot @slotchange=${this.#onSlotChange}></slot>
       <span class="corner ${form}" aria-hidden="true" ?hidden=${shown === 0 || !this.anchor}>
         ${form === 'dot'
           ? html`<span part="container" class="container"></span>`

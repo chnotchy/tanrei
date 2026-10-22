@@ -352,6 +352,7 @@ public data class TanreiColorSchemes(
 /** The dials the values were derived from. Informational: derivation happens at build time. */
 @Immutable
 public data class TanreiDials(
+    public val density: Float,
     public val motionUnit: Float,
     public val shapeUnit: Float,
     public val sizeUnit: Float,
@@ -527,6 +528,7 @@ public data class TanreiMeasure(
     public val iconLarge: Dp,
     public val iconMedium: Dp,
     public val iconSmall: Dp,
+    public val targetMinimum: Dp,
     public val targetPointer: Dp,
     public val targetSpacing: Dp,
     public val targetTouch: Dp,
@@ -546,6 +548,7 @@ public data class TanreiMeasure(
         "icon-large" -> iconLarge
         "icon-medium" -> iconMedium
         "icon-small" -> iconSmall
+        "target-minimum" -> targetMinimum
         "target-pointer" -> targetPointer
         "target-spacing" -> targetSpacing
         "target-touch" -> targetTouch
@@ -6455,6 +6458,24 @@ public data class TanreiMainActionButtonTokens(
     }
 }
 
+/** `comp.marquee-text`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiMarqueeTextTokens(
+    public val fadeExtent: Dp,
+    public val gap: Dp,
+    public val motionEasing: TanreiCubicBezier,
+    public val motionEndPause: Int,
+    public val motionReturnDuration: Int,
+    public val motionReturnEasing: TanreiCubicBezier,
+    public val motionStartDelay: Int,
+    public val motionStartPause: Int,
+    public val playbackGap: Dp,
+    public val speed: Float,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+    }
+}
+
 /**
  * A condition of menu: the key of one entry of [TanreiMenuConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -7400,6 +7421,21 @@ public data class TanreiNumberInputTokens(
     }
 }
 
+/** `comp.number-ticker`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiNumberTickerTokens(
+    public val animation: Float,
+    public val blurSlideDistance: Dp,
+    public val blurRadius: Dp,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val motionReducedDuration: Int,
+    public val motionStagger: Int,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+    }
+}
+
 /**
  * A condition of one-time-code-input: the key of one entry of [TanreiOneTimeCodeInputConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -8285,6 +8321,37 @@ public data class TanreiRadioButtonTokens(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(conditions.referencedRoles())
+    }
+}
+
+/** `comp.resizable-frame`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiResizableFrameTokens(
+    public val containerMinHeight: Dp,
+    public val containerMinWidth: Dp,
+    public val containerShape: Dp,
+    public val handleGap: Dp,
+    public val motionIndicatorEnterDuration: Int,
+    public val motionIndicatorEnterEasing: TanreiCubicBezier,
+    public val motionIndicatorExitDuration: Int,
+    public val motionIndicatorExitEasing: TanreiCubicBezier,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val sizeIndicatorContainerColor: TanreiPaint,
+    public val sizeIndicatorContainerHeight: Dp,
+    public val sizeIndicatorContainerPaddingInline: Dp,
+    public val sizeIndicatorContainerShape: Dp,
+    public val sizeIndicatorLabelColor: TanreiPaint,
+    public val sizeIndicatorLabelTypescale: TanreiTextStyle,
+    public val sizeIndicatorOffset: Dp,
+    public val snapDistance: Dp,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(outlineColor.roles())
+        addAll(sizeIndicatorContainerColor.roles())
+        addAll(sizeIndicatorLabelColor.roles())
     }
 }
 
@@ -11559,6 +11626,7 @@ public data class TanreiSystem(
     public val list: TanreiListTokens,
     public val loadingIndicator: TanreiLoadingIndicatorTokens,
     public val mainActionButton: TanreiMainActionButtonTokens,
+    public val marqueeText: TanreiMarqueeTextTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
     public val meter: TanreiMeterTokens,
@@ -11566,6 +11634,7 @@ public data class TanreiSystem(
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
     public val numberInput: TanreiNumberInputTokens,
+    public val numberTicker: TanreiNumberTickerTokens,
     public val oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     public val pageHeader: TanreiPageHeaderTokens,
     public val pagination: TanreiPaginationTokens,
@@ -11574,6 +11643,7 @@ public data class TanreiSystem(
     public val progressIndicator: TanreiProgressIndicatorTokens,
     public val prose: TanreiProseTokens,
     public val radioButton: TanreiRadioButtonTokens,
+    public val resizableFrame: TanreiResizableFrameTokens,
     public val scrollArea: TanreiScrollAreaTokens,
     public val search: TanreiSearchTokens,
     public val segmentedButton: TanreiSegmentedButtonTokens,
@@ -11647,6 +11717,7 @@ public data class TanreiSystem(
         addAll(list.referencedRoles())
         addAll(loadingIndicator.referencedRoles())
         addAll(mainActionButton.referencedRoles())
+        addAll(marqueeText.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
         addAll(meter.referencedRoles())
@@ -11654,6 +11725,7 @@ public data class TanreiSystem(
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
         addAll(numberInput.referencedRoles())
+        addAll(numberTicker.referencedRoles())
         addAll(oneTimeCodeInput.referencedRoles())
         addAll(pageHeader.referencedRoles())
         addAll(pagination.referencedRoles())
@@ -11662,6 +11734,7 @@ public data class TanreiSystem(
         addAll(progressIndicator.referencedRoles())
         addAll(prose.referencedRoles())
         addAll(radioButton.referencedRoles())
+        addAll(resizableFrame.referencedRoles())
         addAll(scrollArea.referencedRoles())
         addAll(search.referencedRoles())
         addAll(segmentedButton.referencedRoles())

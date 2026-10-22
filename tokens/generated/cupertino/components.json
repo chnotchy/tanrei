@@ -868,6 +868,22 @@
       ]
     },
     {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-marquee-text",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/marquee-text"
+      },
+      "react": {
+        "name": "MarqueeText",
+        "import": "@tanrei/react/cupertino"
+      }
+    },
+    {
       "name": "menu",
       "title": "Menu",
       "level": "base",
@@ -1015,6 +1031,22 @@
         "filled",
         "outlined"
       ]
+    },
+    {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "level": "base",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-number-ticker",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/number-ticker"
+      },
+      "react": {
+        "name": "NumberTicker",
+        "import": "@tanrei/react/cupertino"
+      }
     },
     {
       "name": "one-time-code-field",
@@ -1173,6 +1205,26 @@
         "name": "RadioGroup",
         "import": "@tanrei/react/cupertino"
       }
+    },
+    {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "level": "composed",
+      "listing": "default",
+      "layer": "core",
+      "web": {
+        "tag": "tanrei-resizable-frame",
+        "import": "@tanrei/web/cupertino",
+        "module": "@tanrei/web/components/resizable-frame"
+      },
+      "react": {
+        "name": "ResizableFrame",
+        "import": "@tanrei/react/cupertino"
+      },
+      "variants": [
+        "outlined",
+        "plain"
+      ]
     },
     {
       "name": "scroll-area",

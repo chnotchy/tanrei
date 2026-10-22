@@ -16,7 +16,9 @@ const { anatomyOf, anatomyAlt } = await import('../src/lib/visuals/anatomy.ts');
 const { measuresOf } = await import('../src/lib/visuals/measure.ts');
 const { motionsOf } = await import('../src/lib/visuals/motion.ts');
 const { rolesOf } = await import('../src/lib/visuals/roles.ts');
-const { matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
+const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
+const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
+const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
 const { controlsOf, SIDE_BY_SIDE } = await import('../src/lib/visuals/playground.ts');
 const { strings } = await import('../src/lib/i18n.ts');
 const { specs } = await import('../src/lib/repo.ts');
@@ -192,6 +194,88 @@ describe('the state matrix', () => {
   test('rows by another choice, and a choice the spec does not have is refused', () => {
     assert.equal(matrixOf('button', 'size').rows.prop, 'size');
     assert.throws(() => matrixOf('button', 'no-such-choice'), /no choice named "no-such-choice"/);
+  });
+  test('the button drawn: each variant at rest and selected, every cell the first fixture’s element with the row’s and the column’s props, in the room of its baseline', () => {
+    const matrix = drawnMatrixOf('button');
+    const variants = specs.button.props.find((prop) => prop.name === 'variant').values;
+    assert.deepEqual(
+      matrix.drawn.map((row) => [row.value, row.also]),
+      variants.flatMap((variant) => [
+        [variant, []],
+        [variant, ['toggle', 'selected']],
+      ]),
+    );
+    const content = specs.button.fixtures[0].content;
+    for (const row of matrix.drawn) {
+      assert.deepEqual(
+        row.cells.map((cell) => [cell.state, cell.held]),
+        matrix.columns.map((column) => [column.state, column.by === 'pseudo' ? column.state : null]),
+      );
+      for (const cell of row.cells) {
+        const open = /^<tanrei-button([^>]*)>(.*)<\/tanrei-button>$/.exec(cell.html);
+        assert.ok(open, cell.html);
+        assert.equal(open[2], content);
+        const attributes = open[1].trim().split(/\s+/).sort();
+        const wanted = [`variant="${row.value}"`, ...row.also, ...(cell.state === 'disabled' ? ['disabled'] : [])].sort();
+        assert.deepEqual(attributes, wanted, cell.html);
+        assert.ok(cell.room && cell.room.width > 0 && cell.room.height > 0, `${row.value}: the room of its baseline`);
+      }
+    }
+  });
+  test('every component whose first fixture’s document holds its web element draws its matrix, each cell holding that element; the others are refused', () => {
+    const drawable = names.filter((name) => drawsStateMatrix(name));
+    assert.ok(drawable.includes('button'));
+    for (const name of drawable) {
+      const matrix = drawnMatrixOf(name);
+      assert.equal(matrix.tag, specs[name].platforms.web.name, name);
+      assert.ok(matrix.drawn.length > 0, name);
+      for (const row of matrix.drawn) {
+        assert.equal(row.cells.length, matrix.columns.length, name);
+        for (const cell of row.cells) assert.ok(cell.html.includes(`<${matrix.tag}`), `${name}: ${cell.html.slice(0, 60)}`);
+      }
+    }
+    for (const name of names.filter((each) => fixtureDocument(each) && !drawsStateMatrix(each))) assert.throws(() => drawnMatrixOf(name), /holds no .* element/, name);
+  });
+  test('every state a column of any spec shows has a name in every language', () => {
+    const shown = new Set(names.flatMap((name) => matrixOf(name).columns.map((column) => column.state)));
+    for (const lang of languages) for (const state of shown) assert.ok(strings(lang).visuals.stateNames[state]?.trim(), `${lang}: visuals.stateNames.${state}`);
+    for (const lang of languages) assert.match(strings(lang).visuals.statesNotShown, /\{states\}/, `${lang}: statesNotShown names the states`);
+  });
+});
+
+describe('holding a state', () => {
+  test('a condition is taken out of the selector and required of the host, at the same specificity', () => {
+    const cases = [
+      // At the top level: the host is required in `:where()`, and `:host` weighs what the condition did.
+      ['button:hover:where(:not(.busy))', ':host(:where([data-docs-state~="hovered"])) button:where(:not(.busy))'],
+      ['button:focus-visible::after', ':host(:where([data-docs-state~="focused"])) button::after'],
+      // In the host's own argument, or after a host that says something of itself: required there, one attribute for one.
+      [':host([variant="filled"]) button:hover', ':host([variant="filled"][data-docs-state~="hovered"]) button'],
+      [':host(:hover)', ':host([data-docs-state~="hovered"])'],
+      [':host(:focus-within) .ring', ':host([data-docs-state~="focused"]) .ring'],
+      [':host .x:focus-visible', ':host([data-docs-state~="focused"]) .x'],
+      // A press: each feedback a state of its own, and "any feedback" weighing the two attributes it is written with.
+      ['button[data-pressed="overlay"]', ':host(:where([data-docs-state~="pressed-overlay"])) button'],
+      [":host(:not([variant])) button[data-pressed]:not([data-pressed='none'])", ':host(:not([variant])[data-docs-state~="pressed"][data-docs-state]) button'],
+      // A condition that was a compound of its own leaves the universal selector.
+      ['.list :hover', ':host(:where([data-docs-state~="hovered"])) .list *'],
+    ];
+    for (const [selector, held] of cases) assert.equal(holdSelector(selector), held, selector);
+  });
+  test('a list keeps the selectors that name a condition; one inside :not() or :has(), or none at all, is not held', () => {
+    assert.equal(holdSelectorList('button[data-pressed="ripple"], button[data-pressed="dim"]'), ':host(:where([data-docs-state~="pressed-ripple"])) button, :host(:where([data-docs-state~="pressed-dim"])) button');
+    assert.equal(holdSelectorList(':host(:focus-within) .ring, .a'), ':host([data-docs-state~="focused"]) .ring');
+    assert.equal(holdSelectorList('button:not(:hover)'), null);
+    assert.equal(holdSelectorList('.cell:has(> .container[data-pressed="overlay"]) .label'), null);
+    assert.equal(holdSelectorList(':host([disabled]) button'), null);
+  });
+  test('a press is drawn as the system answers one: a ripple as the overlay it ends as, nothing for none', () => {
+    assert.deepEqual(wordsOf('pressed', 'overlay'), ['pressed', 'pressed-overlay']);
+    assert.deepEqual(wordsOf('pressed', 'ripple'), ['pressed', 'pressed-overlay']);
+    assert.deepEqual(wordsOf('pressed', 'dim'), ['pressed', 'pressed-dim']);
+    assert.deepEqual(wordsOf('pressed', 'none'), []);
+    assert.deepEqual(wordsOf('hovered', 'none'), ['hovered']);
+    assert.deepEqual(wordsOf('', 'overlay'), []);
   });
 });
 

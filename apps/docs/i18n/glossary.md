@@ -104,6 +104,11 @@ A translation is natural technical writing in its language, not word for word: s
 | scroll edge (the mark at an edge of a box that scrolls while content lies beyond it) | スクロールエッジ | 滚动边缘 |
 | fade (the scroll edge that fades the content itself; a state change that fades is フェードする / 渐变) | フェード | 渐隐 |
 | blur (a scroll edge, a surface's appearance) | ぼかし | 模糊 |
+| pass (one run of a marquee text's motion) | 流れ（1 回の流れ） | 一轮 |
+| trigger (of a marquee text: what makes it move) | トリガー | 触发条件 |
+| playback control (a pause and play button) | 再生コントロール | 播放控件 |
+| ellipsis (where a cut line ends) | 省略記号 | 省略号 |
+| copy (a second drawing of a text that repeats) | コピー | 副本 |
 | overlay | オーバーレイ | 浮层 |
 | motion | モーション | 动效 |
 | duration, easing | 時間、イージング | 时长、缓动 |
@@ -208,12 +213,14 @@ As common nouns: page titles, headings, running text.
 | List row | リスト行 — its parts: オーバーライン, 見出し (headline), 補足テキスト, 末尾テキスト | 列表行 — its parts: 上标文本 (overline), 标题 (headline), 辅助文本, 后置文本 |
 | Loading indicator | ローディングインジケーター | 加载指示器 |
 | Main action button | メインアクションボタン | 主操作按钮 |
+| Marquee text | マーキーテキスト | 跑马灯文本 |
 | Menu | メニュー | 菜单 |
 | Menubar | メニューバー | 菜单栏 |
 | Meter (a level in a known range; a task under way is the Progress indicator) | メーター | 计量条 |
 | Navigation bar | ナビゲーションバー | 导航栏 |
 | Navigation drawer | ナビゲーションドロワー | 导航抽屉 |
 | Number field | 数値フィールド | 数字字段 |
+| Number ticker (a number whose changed digits move to the new value) | ナンバーティッカー | 数字滚动器 |
 | One-time-code input | ワンタイムコード入力欄 | 一次性验证码输入框 |
 | Page header | ページヘッダー | 页头 |
 | Pagination | ページネーション | 分页 |
@@ -222,6 +229,7 @@ As common nouns: page titles, headings, running text.
 | Progress indicator | プログレスインジケーター | 进度指示器 |
 | Radio button | ラジオボタン | 单选按钮 |
 | Radio group | ラジオグループ | 单选组 |
+| Resizable frame | サイズ変更できる枠 — 枠 as the Handle page already calls the box its handle stands on; フレーム is an animation frame | 可调整大小的框 — short 框, as the Handle page writes 预览框; 帧 is an animation frame |
 | Scroll area | スクロールエリア | 滚动区域 |
 | Search | 検索 | 搜索 |
 | Segmented button | セグメントボタン | 分段按钮 |
@@ -336,6 +344,11 @@ As common nouns: page titles, headings, running text.
 | scroll edge | borde de desplazamiento | स्क्रॉल एज | حافة التمرير |
 | fade (the scroll edge that fades the content itself) | desvanecido — «el contenido se desvanece» | फ़ेड | التلاشي — «يتلاشى المحتوى» |
 | blur (a scroll edge) | desenfoque | ब्लर | التمويه |
+| pass (one run of a marquee text's motion) | pasada | दौर (masculine) | الدورة |
+| trigger (of a marquee text: what makes it move) | activador | ट्रिगर | المحفِّز — `المشغِّل` stays the trigger of a select |
+| playback control (a pause and play button) | control de reproducción | प्लेबैक कंट्रोल (masculine) | عنصر التحكم في التشغيل |
+| ellipsis (where a cut line ends) | puntos suspensivos | एलिप्सिस (…) | علامة الحذف (…) |
+| copy (a second drawing of a text that repeats) | copia | कॉपी (feminine) | النسخة |
 | overlay | superposición | ओवरले | التراكب |
 | motion | movimiento | मोशन | الحركة |
 | duration, easing | duración, curva de aceleración | अवधि, ईज़िंग | المدة، منحنى التسارع |
@@ -437,12 +450,14 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | List row | Fila de lista — its parts: sobretítulo (overline), titular (headline), texto de apoyo, texto final | लिस्ट पंक्ति — its parts: ओवरलाइन, हेडलाइन, सहायक टेक्स्ट, अंतिम टेक्स्ट | صف القائمة — its parts: السطر العلوي (overline)، العنوان الرئيسي (headline)، النص المساعد، النص في النهاية |
 | Loading indicator | Indicador de carga | लोडिंग इंडिकेटर | مؤشر التحميل |
 | Main action button | Botón de acción principal | मुख्य ऐक्शन बटन | زر الإجراء الرئيسي |
+| Marquee text | Texto en marquesina — masculine, «el texto en marquesina»; the effect alone is «la marquesina» | मार्की टेक्स्ट (masculine) — the line it draws is लाइन (feminine) | النص المتحرك (marquee) — the gloss on a page's first mention |
 | Menu | Menú | मेन्यू | قائمة الخيارات |
 | Menubar | Barra de menús | मेन्यू बार | شريط القوائم |
 | Meter | Medidor | मीटर | العدّاد |
 | Navigation bar | Barra de navegación | नेविगेशन बार | شريط التنقل |
 | Navigation drawer | Panel de navegación | नेविगेशन ड्रॉअर | درج التنقل |
 | Number field | Campo numérico | नंबर फ़ील्ड | حقل العدد |
+| Number ticker | Contador animado | नंबर टिकर | عارض الأرقام المتحرّك |
 | One-time-code input | Entrada de código de un solo uso — feminine, short «la entrada»; «Campo de código de un solo uso» is the One-time-code field, and neither is shortened to «campo de código», which is the text field of `type="code"` | वन-टाइम कोड इनपुट | حقل إدخال الرمز لمرة واحدة — short «حقل الرمز»; never «حقل الشيفرة», which is the text field of `type="code"` |
 | Page header | Cabecera de página | पेज हेडर | رأس الصفحة |
 | Pagination | Paginación | पेजिनेशन | التنقل بين الصفحات |
@@ -451,6 +466,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Progress indicator | Indicador de progreso | प्रोग्रेस इंडिकेटर | مؤشر التقدم |
 | Radio button | Botón de opción | रेडियो बटन | زر الاختيار |
 | Radio group | Grupo de botones de opción | रेडियो ग्रुप | مجموعة أزرار الاختيار |
+| Resizable frame | Marco redimensionable — short «el marco», masculine; an animation frame is «fotograma» | साइज़ बदलने वाला फ़्रेम (masculine), short फ़्रेम, after साइज़ हैंडल | الإطار القابل لتغيير الحجم, with `(resizable frame)` on the page's first mention; short `الإطار`; an animation frame is said without إطار (`مع كل تحديث للرسم`) |
 | Scroll area | Área de desplazamiento — feminine, written «el área» / «un área» (its adjectives agree: «el área marcada») | स्क्रॉल एरिया (masculine) | منطقة التمرير — short `المنطقة` |
 | Search | Búsqueda | खोज | البحث |
 | Segmented button | Botón segmentado | सेगमेंटेड बटन | الزر المقسَّم |
@@ -665,6 +681,7 @@ After the first full translation each language rendered some recurring terms in 
 
 | English | Japanese | Simplified Chinese | Spanish | Hindi | Arabic |
 |---|---|---|---|---|---|
+| a column of a state matrix: enabled / disabled / hovered / focused / pressed (the state's name as a label) | 有効 / 無効 / ホバー / フォーカス / 押下 | 启用 / 禁用 / 悬停 / 聚焦 / 按下 | Habilitado / Deshabilitado / Con el cursor encima / Con foco / Pulsado | सक्षम / अक्षम / होवर / फ़ोकस / दबाया हुआ | مُمكَّن / معطَّل / التحويم / التركيز / الضغط |
 | lagging (a platform's status; the site's status label) | 追従待ち | 待跟进 — "until they catch up" is 在跟上之前 | rezagado (van rezagados) | पीछे | متأخر |
 | previous revision (what a lagging platform ships) | 以前の版 | 上一版 | revisión anterior | पिछला संशोधन | المراجعة السابقة — never التنقيح, which is "debug" |
 | fling | フリング | 快速滑动 | lanzamiento (verb: lanzar) | फ़्लिंग (verb: फ़्लिंग करना) | دفعة سريعة (fling) — the gloss on a page's first mention; fling velocity is سرعة الدفع |

@@ -22,15 +22,22 @@ const SUBJECTS = [
   // An arc at its corner, drawn at rest: each preset's line color and thickness, the arc's radius and inset from the
   // corner (the stage's corner is concentric with it).
   subject('handle', (fixture) => fixture.id === 'both-bottom-end'),
+  // Outlined with its size indicator drawn: each preset's corners and edge for the box, and the indicator's height,
+  // padding, corners, inverse colors and monospaced digits.
+  subject('resizable-frame', (fixture) => fixture.id === 'indicator-always'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
   // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
   subject('meter', (fixture) => fixture.id === 'linear'),
+  // A dashboard's figure: each preset's text style around it (the ticker has none of its own) and its tabular digits.
+  subject('number-ticker', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // Scrolled to the middle, both edges marked: each preset's scroll edge (shadow in the default system, a line in the m3
   // presets, a blur in cupertino), its depth and its color over the same content.
   // Each fixture is its own axe unit: a scroll box that is a focus stop is a region, and a page of every fixture would
   // hold the spec's regions (named alike, or not at all) side by side, which no product page does.
   subject('scroll-area', (fixture) => fixture.id === 'default', { reducedMotion: true, axeEach: true }),
+  // At rest, cut with its ellipsis: the line drawn in the text style around it under each preset (it has no style of its own).
+  subject('marquee-text', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.

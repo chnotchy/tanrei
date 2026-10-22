@@ -42,7 +42,8 @@ function measureTargets(min) {
   const found = [];
   const shown = (el) => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0 && getComputedStyle(el).visibility !== 'hidden' && !el.closest('[hidden], [inert], details:not([open]) > :not(summary)');
   const round = (n) => Math.round(n * 10) / 10;
-  for (const el of document.querySelectorAll('a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="tab"], [role="treeitem"], [tabindex="0"]')) {
+  // A tab is found by its element as well as its role: a row of tabs without panels is a radio group, its tabs radios.
+  for (const el of document.querySelectorAll('a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="tab"], tanrei-tab, [role="treeitem"], [tabindex="0"]')) {
     if (el.disabled || el.closest('[data-scope]')) continue;
     // A radio or a checkbox is pressed on its label.
     const host = (el.matches('input[type="radio"], input[type="checkbox"]') && el.closest('label')) || el;

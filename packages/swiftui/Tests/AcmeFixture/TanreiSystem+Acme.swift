@@ -5627,6 +5627,19 @@ private let acmeMainActionButtonTokens = TanreiMainActionButtonTokens(
   )
 )
 
+private let acmeMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 250,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let acmeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 0,
   containerShape: 4,
@@ -6742,6 +6755,16 @@ private let acmeNumberInputTokens = TanreiNumberInputTokens(
   stepperInset: 4
 )
 
+private let acmeNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 400,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
+)
+
 private let acmeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 1,
   containerGap: 6,
@@ -7324,6 +7347,29 @@ private let acmeRadioButtonTokens = TanreiRadioButtonTokens(
     containerShape: 9999,
     opacity: 1
   )
+)
+
+private let acmeResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 12,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 250,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionIndicatorExitDuration: 200,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
+  motionResizeDuration: 300,
+  motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 6,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: acmeTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
 )
 
 private let acmeScrollAreaTokens = TanreiScrollAreaTokens(
@@ -9940,6 +9986,7 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
+      targetMinimum: 32,
       targetPointer: 44,
       targetSpacing: 8,
       targetTouch: 48
@@ -10072,6 +10119,7 @@ extension TanreiSystem {
     list: acmeListTokens,
     loadingIndicator: acmeLoadingIndicatorTokens,
     mainActionButton: acmeMainActionButtonTokens,
+    marqueeText: acmeMarqueeTextTokens,
     menu: acmeMenuTokens,
     menubar: acmeMenubarTokens,
     meter: acmeMeterTokens,
@@ -10079,6 +10127,7 @@ extension TanreiSystem {
     navigationBar: acmeNavigationBarTokens,
     navigationDrawer: acmeNavigationDrawerTokens,
     numberInput: acmeNumberInputTokens,
+    numberTicker: acmeNumberTickerTokens,
     oneTimeCodeInput: acmeOneTimeCodeInputTokens,
     pageHeader: acmePageHeaderTokens,
     pagination: acmePaginationTokens,
@@ -10087,6 +10136,7 @@ extension TanreiSystem {
     progressIndicator: acmeProgressIndicatorTokens,
     prose: acmeProseTokens,
     radioButton: acmeRadioButtonTokens,
+    resizableFrame: acmeResizableFrameTokens,
     scrollArea: acmeScrollAreaTokens,
     search: acmeSearchTokens,
     segmentedButton: acmeSegmentedButtonTokens,

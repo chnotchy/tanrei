@@ -39,11 +39,11 @@ To build **your own design system** on Tanrei's vocabulary — one layer file in
 
 | Platform | Package | Components |
 |---|---|---|
-| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 10 alpha · 83 lagging |
-| SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 64 planned |
-| Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 64 planned |
-| Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 64 planned |
-| React Native (paused) | `@tanrei/react-native` (npm) | 29 lagging · 64 planned |
+| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 13 alpha · 83 lagging |
+| SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 67 planned |
+| Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 67 planned |
+| Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 67 planned |
+| React Native (paused) | `@tanrei/react-native` (npm) | 29 lagging · 67 planned |
 
 *alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec · *planned*: nothing shippable yet. The [component status matrix](docs/status/STATUS.md) has every component on every platform; it is computed from the repository and cannot claim more than is there.
 
@@ -56,7 +56,7 @@ To build **your own design system** on Tanrei's vocabulary — one layer file in
 - **The structure is tiers of tokens, and most values are generated**: token tiers (`ref` → `sys` → `comp`, with numeric dials underneath), color roles with guaranteed `on-*` pairings, generated tonal palettes, light/dark × three contrast levels, state layers, a typescale, a shape scale, elevation levels, spring motion, 48/44 minimum targets.
 - **The look is its own**: near-monochrome surfaces, 1px hairlines, ring-plus-soft-shadow elevation instead of tint, 6px controls, large light tightly-tracked display type, a monochrome primary and a single accent reserved for links, focus and selection.
 - **Text styles are named by level**: sixteen roles — `display`, `heading-1`…`heading-6` (h1–h6), `body-large` / `body` / `body-small` (lead, p, small), `label` / `label-small` / `caption`, `code` / `code-small`, `eyebrow` — and emphasis is a weight step per family that every platform's text API takes as `emphasized`, not a second set of roles. Corner smoothing is an amount, 0–1 with Figma's meaning (0.6 = the iOS corner), and the web, Compose and Flutter draw the same curve for it.
-- **Values are derived, and a design system is a layer**: seven dials sit under every size, distance, radius and duration, so one change propagates to five platforms in one commit. A design system is a small JSON file that extends another — it changes values, declares palettes, picks among a few choices of kind (ripple or dim; ring or glow) and, where it must, extends the vocabulary. Three presets ship next to the default as proof and as starting points: `m3-like`, `m3-expressive-like` and `cupertino`. How exactly a preset matches its reference is measured, not claimed.
+- **Values are derived, and a design system is a layer**: eight dials sit under every size, distance, radius and duration, so one change propagates to five platforms in one commit. A design system is a small JSON file that extends another — it changes values, declares palettes, picks among a few choices of kind (ripple or dim; ring or glow) and, where it must, extends the vocabulary. Three presets ship next to the default as proof and as starting points: `m3-like`, `m3-expressive-like` and `cupertino`. How exactly a preset matches its reference is measured, not claimed.
 - **Accessibility is enforced, not recommended**: every color pair in all six schemes is contrast-checked on each build; functional boundaries must reach 3:1; keyboard focus is always visible; hit areas meet the minimum even when the control looks smaller. The thresholds are constants. In the default system a violation fails the build; in a product's layer it is a warning that is printed and written into the generated files. An imitation preset is held to fidelity to the system it imitates instead, in every contrast scheme: Tanrei's criteria do not apply to it, and what the ruler measures there is information, not a warning. A functional failure fails in every system.
 
 Tanrei is an independent project. Third-party notices: [NOTICE](NOTICE).

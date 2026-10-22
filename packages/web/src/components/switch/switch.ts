@@ -159,11 +159,11 @@ export class TanreiSwitch extends TanreiElement {
   }
 
   /** SWT-9: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.input);
   }
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
   }
@@ -172,7 +172,7 @@ export class TanreiSwitch extends TanreiElement {
    * SWT-25: read-only, the activation is cancelled — the native checkbox goes back to what it was and fires no input and
    * no change — whatever started it: a press, Space, the label, assistive technology or element.click().
    */
-  private onClick(event: Event) {
+  #onClick(event: Event) {
     if (this.readOnly) event.preventDefault();
   }
 
@@ -180,7 +180,7 @@ export class TanreiSwitch extends TanreiElement {
    * A click on the label's text or on the target around the track is the label's; only the input's click is let out.
    * SWT-20: the click that follows a drag the switch took is not an activation — it never reaches the label.
    */
-  private onRootClick(event: Event) {
+  #onRootClick(event: Event) {
     if (event.target === this.input) return;
     event.stopPropagation();
     if (!this.swallowClick) return;
@@ -217,7 +217,7 @@ export class TanreiSwitch extends TanreiElement {
   };
 
   /** SWT-1: the native switch switched; the element takes the new value before anyone hears of it. */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     // SWT-13: the native switch is the new condition already, and the next style pass draws it.
     this.markTravel();
@@ -225,7 +225,7 @@ export class TanreiSwitch extends TanreiElement {
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
-  private onChange() {
+  #onChange() {
     this.dispatchEvent(new CustomEvent<TanreiSwitchChangeDetail>('change', { bubbles: true, detail: { checked: this.checked } }));
   }
 
@@ -272,7 +272,7 @@ export class TanreiSwitch extends TanreiElement {
   }
 
   /** SWT-19: a press on the track, the handle or the target around them may become a drag; the label is not part of the control. */
-  private onControlPointerDown(event: PointerEvent) {
+  #onControlPointerDown(event: PointerEvent) {
     // SWT-25: a read-only switch takes no drag.
     if (this.drag || this.selection.disabled || this.readOnly || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
     this.drag = new SheetDrag(event, 'x');
@@ -372,7 +372,7 @@ export class TanreiSwitch extends TanreiElement {
     this.press.release(event);
     if (!switches) return;
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    this.onChange();
+    this.#onChange();
   };
 
   private readonly onPointerCancel = (event: PointerEvent) => {
@@ -388,7 +388,7 @@ export class TanreiSwitch extends TanreiElement {
   };
 
   /** SWT-21: a capture taken away (a system gesture) cancels the drag; after a release there is none left to cancel. */
-  private onLostPointerCapture(event: PointerEvent) {
+  #onLostPointerCapture(event: PointerEvent) {
     if (this.drag?.following && event.pointerId === this.drag.id) this.cancelDrag();
   }
 
@@ -426,14 +426,14 @@ export class TanreiSwitch extends TanreiElement {
     }
   }
 
-  /** A new press: whatever click a drag left unanswered is not coming any more. Presses on the control arrive here after `onControlPointerDown`. */
-  private onRootPointerDown(event: PointerEvent) {
+  /** A new press: whatever click a drag left unanswered is not coming any more. Presses on the control arrive here after `#onControlPointerDown`. */
+  #onRootPointerDown(event: PointerEvent) {
     this.swallowClick = false;
     this.press.onPointerDown(event);
   }
 
   /** SWT-19: the switch stays pressed for as long as a drag lasts, wherever the captured pointer goes. */
-  private onPointerLeave(event: PointerEvent) {
+  #onPointerLeave(event: PointerEvent) {
     if (!this.drag?.following) this.press.release(event);
   }
 
@@ -472,13 +472,13 @@ export class TanreiSwitch extends TanreiElement {
         ?data-checked-icon=${!!this.checkedIcon}
         ?data-unchecked-icon=${!!this.uncheckedIcon}
         ?data-readonly=${this.readOnly}
-        @click=${this.onRootClick}
-        @pointerdown=${this.onRootPointerDown}
+        @click=${this.#onRootClick}
+        @pointerdown=${this.#onRootPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
-        @pointerleave=${this.onPointerLeave}
+        @pointerleave=${this.#onPointerLeave}
       >
-        <span class="control" @pointerdown=${this.onControlPointerDown} @lostpointercapture=${this.onLostPointerCapture}>
+        <span class="control" @pointerdown=${this.#onControlPointerDown} @lostpointercapture=${this.#onLostPointerCapture}>
           <input
             class="native"
             type="checkbox"
@@ -490,13 +490,13 @@ export class TanreiSwitch extends TanreiElement {
             aria-invalid=${this.selection.field.invalid ? 'true' : nothing}
             aria-required=${this.selection.field.required ? 'true' : nothing}
             aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
-            @click=${this.onClick}
-            @input=${this.onInput}
-            @change=${this.onChange}
-            @keydown=${this.onKeyDown}
+            @click=${this.#onClick}
+            @input=${this.#onInput}
+            @change=${this.#onChange}
+            @keydown=${this.#onKeyDown}
             @keyup=${this.press.onKeyUp}
             @blur=${this.press.onBlur}
-            @focus=${this.onFocus}
+            @focus=${this.#onFocus}
           />
           <span part="track" class="track" data-tanrei-shape aria-hidden="true"><span class="fill off"></span><span class="fill on"></span></span>
           <span class="thumb" aria-hidden="true" @transitionend=${this.endTravel} @transitioncancel=${this.endTravel}>

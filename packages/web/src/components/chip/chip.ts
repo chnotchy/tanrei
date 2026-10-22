@@ -318,7 +318,7 @@ export class TanreiChip extends TanreiElement {
   }
 
   /** CHP-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus(event: FocusEvent) {
+  #onFocus(event: FocusEvent) {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
@@ -328,7 +328,7 @@ export class TanreiChip extends TanreiElement {
    * has finished its way through the page. Its last stop is the window, so `change` is fired from a listener added
    * there for this click; a listener that stops the click on its way still gets its `change`, in the next task.
    */
-  private onClick() {
+  #onClick() {
     if (this.effectiveKind !== 'filter' || this.disabled) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
@@ -336,7 +336,7 @@ export class TanreiChip extends TanreiElement {
   }
 
   /** CHP-19: Backspace or Delete on a focused input chip asks for its removal, once per press. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.press.onKeyDown(event);
     if (!this.removes || this.disabled || event.repeat) return;
     if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -349,7 +349,7 @@ export class TanreiChip extends TanreiElement {
    * CHP-18: the remove action fires `remove`, never `click`: its native click stops at the remove button, inside the
    * shadow root, so it never reaches the element's listeners.
    */
-  private onRemoveClick(event: MouseEvent) {
+  #onRemoveClick(event: MouseEvent) {
     event.stopPropagation();
     if (this.disabled || !this.removes) return;
     this.requestRemove();
@@ -360,11 +360,11 @@ export class TanreiChip extends TanreiElement {
     this.dispatchEvent(new Event('remove', { bubbles: true }));
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
-  private onAvatarSlotChange(event: Event) {
+  #onAvatarSlotChange(event: Event) {
     this.hasAvatar = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -429,22 +429,22 @@ export class TanreiChip extends TanreiElement {
           aria-pressed=${kind === 'filter' ? String(this.selected) : nothing}
           aria-keyshortcuts=${this.removes && !this.disabled ? 'Delete Backspace' : nothing}
           ?disabled=${!link && this.disabled}
-          @click=${this.onClick}
+          @click=${this.#onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
           @pointercancel=${this.press.release}
           @pointerleave=${this.press.release}
-          @keydown=${this.onKeyDown}
+          @keydown=${this.#onKeyDown}
           @keyup=${this.press.onKeyUp}
           @blur=${this.press.onBlur}
-          @focus=${this.onFocus}
+          @focus=${this.#onFocus}
         >
           <span class="lead" aria-hidden="true">
             <span class="lead-clip">
               <span class="lead-item">
-                <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.onAvatarSlotChange}></slot></span>
+                <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.#onAvatarSlotChange}></slot></span>
                 <span class="glyphs">
-                  <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
+                  <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
                   <span part="check" class="glyph check">${CHECK_GLYPH}</span>
                 </span>
               </span>
@@ -462,7 +462,7 @@ export class TanreiChip extends TanreiElement {
           aria-label=${this.removeLabel || nothing}
           ?disabled=${this.disabled}
           ?hidden=${!this.removes}
-          @click=${this.onRemoveClick}
+          @click=${this.#onRemoveClick}
           @pointerdown=${this.removePress.onPointerDown}
           @pointerup=${this.removePress.release}
           @pointercancel=${this.removePress.release}
@@ -470,7 +470,7 @@ export class TanreiChip extends TanreiElement {
           @keydown=${this.removePress.onKeyDown}
           @keyup=${this.removePress.onKeyUp}
           @blur=${this.removePress.onBlur}
-          @focus=${this.onFocus}
+          @focus=${this.#onFocus}
         >
           <span class="glyph" aria-hidden="true">${REMOVE_GLYPH}</span><span class="hold"></span>
         </button>

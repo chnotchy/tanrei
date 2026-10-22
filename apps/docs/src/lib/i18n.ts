@@ -275,6 +275,12 @@ const en = {
     do: 'Do',
     dont: 'Don’t',
     caution: 'Caution',
+    // The state matrix (components/visuals/StateMatrix.astro): its title, the name of each state a column shows, the
+    // caption, and the sentence that names the states it does not draw (`{states}`, their names as code).
+    statesTitle: 'States',
+    stateNames: { enabled: 'Enabled', disabled: 'Disabled', hovered: 'Hovered', focused: 'Focused', pressed: 'Pressed' } as Record<string, string>,
+    statesHeld: 'Each cell is the live component, held still in its state: it cannot be used.',
+    statesNotShown: 'Not drawn here: {states}.',
   },
 };
 
@@ -498,6 +504,10 @@ const ja: typeof en = {
     do: '推奨',
     dont: '非推奨',
     caution: '注意',
+    statesTitle: '状態',
+    stateNames: { enabled: '有効', disabled: '無効', hovered: 'ホバー', focused: 'フォーカス', pressed: '押下' },
+    statesHeld: 'どのセルも実際のコンポーネントを、その状態のまま止めて描いています。操作はできません。',
+    statesNotShown: 'ここに描いていない状態: {states}。',
   },
 };
 
@@ -723,6 +733,10 @@ const zh: typeof en = {
     do: '推荐',
     dont: '避免',
     caution: '注意',
+    statesTitle: '状态',
+    stateNames: { enabled: '启用', disabled: '禁用', hovered: '悬停', focused: '聚焦', pressed: '按下' },
+    statesHeld: '每个单元格都是真实的组件，停留在该状态下，无法操作。',
+    statesNotShown: '此处未绘制：{states}。',
   },
 };
 
@@ -947,6 +961,10 @@ const es: typeof en = {
     do: 'Recomendado',
     dont: 'Evita',
     caution: 'Precaución',
+    statesTitle: 'Estados',
+    stateNames: { enabled: 'Habilitado', disabled: 'Deshabilitado', hovered: 'Con el cursor encima', focused: 'Con foco', pressed: 'Pulsado' },
+    statesHeld: 'Cada celda es el componente real, detenido en su estado: no se puede usar.',
+    statesNotShown: 'No se dibujan aquí: {states}.',
   },
 };
 
@@ -1171,6 +1189,10 @@ const hi: typeof en = {
     do: 'करें',
     dont: 'न करें',
     caution: 'सावधानी',
+    statesTitle: 'स्टेट',
+    stateNames: { enabled: 'सक्षम', disabled: 'अक्षम', hovered: 'होवर', focused: 'फ़ोकस', pressed: 'दबाया हुआ' },
+    statesHeld: 'हर सेल असली कंपोनेंट है, जो अपनी स्टेट में रुका हुआ है। इसे इस्तेमाल नहीं किया जा सकता।',
+    statesNotShown: 'यहाँ नहीं दिखाई गईं: {states}।',
   },
 };
 
@@ -1398,6 +1420,10 @@ const ar: typeof en = {
     do: 'افعل',
     dont: 'لا تفعل',
     caution: 'تنبيه',
+    statesTitle: 'الحالات',
+    stateNames: { enabled: 'مُمكَّن', disabled: 'معطَّل', hovered: 'التحويم', focused: 'التركيز', pressed: 'الضغط' },
+    statesHeld: 'كل خلية هي المكوّن الحقيقي، ثابتًا على حالته، ولا يمكن استخدامه.',
+    statesNotShown: 'لا تُرسم هنا: {states}.',
   },
 };
 

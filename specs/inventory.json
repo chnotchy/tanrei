@@ -86,6 +86,13 @@
       "listing": "default"
     },
     {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",
@@ -647,9 +654,23 @@
       "listing": "default"
     },
     {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "category": "communication",
       "level": "base",
       "listing": "default"
     }

@@ -611,7 +611,7 @@ export class TanreiSelect extends TanreiElement {
     else if (!this.readOnly) this.openList(false);
   }
 
-  private onPointerDown(event: PointerEvent) {
+  #onPointerDown(event: PointerEvent) {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
     this.pressed = true;
     // A press that ends somewhere else brings no click: it is over once the pointer is lifted.
@@ -626,7 +626,7 @@ export class TanreiSelect extends TanreiElement {
   }
 
   /** A touch, a pen and assistive technology press with a click; a mouse press was answered as it went down. */
-  private onClick(event: MouseEvent) {
+  #onClick(event: MouseEvent) {
     if (this.pressed) {
       this.pressed = false;
       // The click of that mouse press; a click made by script or by assistive technology (detail 0) is a press of its own.
@@ -635,7 +635,7 @@ export class TanreiSelect extends TanreiElement {
     this.toggleByPress();
   }
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || event.isComposing || this.inert_ || this.readOnly) return;
     const { key } = event;
     const plain = !event.ctrlKey && !event.metaKey && !event.altKey;
@@ -674,17 +674,17 @@ export class TanreiSelect extends TanreiElement {
     this.list.key(key);
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     // SEL-21: where style queries are missing, the focus style is read when focus arrives.
     syncFocusStyle(this, this.renderRoot.querySelector<HTMLElement>('.field'));
   }
 
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
   }
 
-  private onLeadingSlotChange(event: Event) {
+  #onLeadingSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     this.hasLeading = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     // SEL-18: the slot's content is a glyph only.
@@ -872,13 +872,13 @@ export class TanreiSelect extends TanreiElement {
           aria-expanded=${expanded ? 'true' : 'false'}
           aria-controls="list"
           aria-activedescendant=${(expanded && this.list.activeId) || nothing}
-          @pointerdown=${this.onPointerDown}
-          @click=${this.onClick}
-          @keydown=${this.onKeyDown}
-          @focus=${this.onFocus}
-          @blur=${this.onBlur}
+          @pointerdown=${this.#onPointerDown}
+          @click=${this.#onClick}
+          @keydown=${this.#onKeyDown}
+          @focus=${this.#onFocus}
+          @blur=${this.#onBlur}
         >
-          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.onLeadingSlotChange}></slot></span>
+          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
           <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
             <span class="sizer" aria-hidden="true">${this.sizerLines(model)}</span>

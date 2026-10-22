@@ -21,7 +21,7 @@ declare module '@tanrei/react-native' {
 
 export const tonePerState = {
   id: "tone-per-state",
-  dials: { motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { density: 1, motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["accent", "brand", "error", "info", "primary", "secondary", "success", "warning"],
   colors: {
     light: {
@@ -604,7 +604,7 @@ export const tonePerState = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 2, outerWidth: 2 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 32, pointer: 44, spacing: 8, touch: 48 },
   },
   typefaces: {
     brand: {
@@ -8926,6 +8926,18 @@ export const tonePerState = {
         },
       },
     },
+    marqueeText: {
+      fadeExtent: 16,
+      gap: 48,
+      motionEasing: [0, 0, 1, 1],
+      motionEndPause: 1200,
+      motionReturnDuration: 250,
+      motionReturnEasing: [0.2, 0, 0, 1],
+      motionStartDelay: 300,
+      motionStartPause: 1200,
+      playbackGap: 8,
+      speed: 30,
+    },
     menu: {
       checkboxItemMark: 0,
       containerShape: 4,
@@ -10895,6 +10907,15 @@ export const tonePerState = {
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
+    numberTicker: {
+      animation: 0,
+      blurSlideDistance: 8,
+      blurRadius: 8,
+      motionDuration: 400,
+      motionEasing: [0.2, 0, 0, 1],
+      motionReducedDuration: 100,
+      motionStagger: 50,
+    },
     oneTimeCodeInput: {
       caretWidth: 1,
       containerGap: 6,
@@ -11636,6 +11657,28 @@ export const tonePerState = {
           },
         },
       },
+    },
+    resizableFrame: {
+      containerMinHeight: 200,
+      containerMinWidth: 320,
+      containerShape: 12,
+      handleGap: 8,
+      motionIndicatorEnterDuration: 250,
+      motionIndicatorEnterEasing: [0.2, 0, 0, 1],
+      motionIndicatorExitDuration: 200,
+      motionIndicatorExitEasing: [0.3, 0, 1, 1],
+      motionResizeDuration: 300,
+      motionResizeEasing: [0.2, 0, 0, 1],
+      outlineColor: { kind: "role", role: "outlineVariant" },
+      outlineWidth: 1,
+      sizeIndicatorContainerColor: { kind: "role", role: "inverseSurface" },
+      sizeIndicatorContainerHeight: 24,
+      sizeIndicatorContainerPaddingInline: 8,
+      sizeIndicatorContainerShape: 6,
+      sizeIndicatorLabelColor: { kind: "role", role: "inverseOnSurface" },
+      sizeIndicatorLabelTypescale: "codeSmall",
+      sizeIndicatorOffset: 8,
+      snapDistance: 8,
     },
     scrollArea: {
       blurExtent: 48,

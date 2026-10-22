@@ -46,7 +46,7 @@ declare module '../vocabulary' {
 
 export const m3Like = {
   id: "m3-like",
-  dials: { motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { density: 1, motionUnit: 50, shapeUnit: 4, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["error", "info", "primary", "secondary", "success", "tertiary", "warning"],
   colors: {
     light: {
@@ -721,7 +721,7 @@ export const m3Like = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 2, outerWidth: 3 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 32, pointer: 44, spacing: 8, touch: 48 },
   },
   typefaces: {
     brand: {
@@ -8349,6 +8349,18 @@ export const m3Like = {
         },
       },
     },
+    marqueeText: {
+      fadeExtent: 16,
+      gap: 48,
+      motionEasing: [0, 0, 1, 1],
+      motionEndPause: 1200,
+      motionReturnDuration: 150,
+      motionReturnEasing: [0.2, 0, 0, 1],
+      motionStartDelay: 300,
+      motionStartPause: 1200,
+      playbackGap: 8,
+      speed: 30,
+    },
     menu: {
       checkboxItemMark: 1,
       containerShape: 0,
@@ -10118,6 +10130,15 @@ export const m3Like = {
       },
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
+    numberTicker: {
+      animation: 0,
+      blurSlideDistance: 8,
+      blurRadius: 8,
+      motionDuration: 500,
+      motionEasing: [0.27, 1.06, 0.18, 1],
+      motionReducedDuration: 100,
+      motionStagger: 50,
+    },
     oneTimeCodeInput: {
       caretWidth: 2,
       containerGap: 6,
@@ -10859,6 +10880,28 @@ export const m3Like = {
           },
         },
       },
+    },
+    resizableFrame: {
+      containerMinHeight: 200,
+      containerMinWidth: 320,
+      containerShape: 16,
+      handleGap: 8,
+      motionIndicatorEnterDuration: 200,
+      motionIndicatorEnterEasing: [0.05, 0.7, 0.1, 1],
+      motionIndicatorExitDuration: 150,
+      motionIndicatorExitEasing: [0.3, 0, 0.8, 0.15],
+      motionResizeDuration: 200,
+      motionResizeEasing: [0.27, 1.06, 0.18, 1],
+      outlineColor: { kind: "role", role: "outlineVariant" },
+      outlineWidth: 1,
+      sizeIndicatorContainerColor: { kind: "role", role: "inverseSurface" },
+      sizeIndicatorContainerHeight: 24,
+      sizeIndicatorContainerPaddingInline: 8,
+      sizeIndicatorContainerShape: 8,
+      sizeIndicatorLabelColor: { kind: "role", role: "inverseOnSurface" },
+      sizeIndicatorLabelTypescale: "codeSmall",
+      sizeIndicatorOffset: 8,
+      snapDistance: 8,
     },
     scrollArea: {
       blurExtent: 48,

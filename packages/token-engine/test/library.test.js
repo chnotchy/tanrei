@@ -357,5 +357,5 @@ test('a value that follows a choice of kind moves with the choice a layer makes,
   assert.deepEqual(distance(far), { value: 8, unit: 'px' }, 'the choice sets the value');
   assert.deepEqual(distance(far, { id: 'airy', extends: 'far', tokens: { 'tanrei.dial.space.unit': { $value: { value: 10, unit: 'px' }, reason: 'Airy marketing pages.' } } }), { value: 10, unit: 'px' }, 'an alias it picks follows its own dial');
   assert.deepEqual(distance(far, { id: 'pinned', extends: 'far', tokens: { 'tanrei.sys.travel.distance': { $value: { value: 2, unit: 'px' }, reason: 'A product of small moves.' } } }), { value: 2, unit: 'px' }, 'a pin wins over the choice');
-  assert.throws(() => distance({ id: 'scaled', extends: 'tanrei', tokens: { 'tanrei.sys.travel.distance': { scale: 2 } } }), /"scale" is supported on "mul" rules/);
+  assert.throws(() => distance({ id: 'scaled', extends: 'tanrei', tokens: { 'tanrei.sys.travel.distance': { scale: 2 } } }), /"scale" is supported on "mul" and "pad" rules/);
 });

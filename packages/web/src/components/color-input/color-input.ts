@@ -506,7 +506,7 @@ export class TanreiColorInput extends TanreiElement {
     return true;
   }
 
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     // CLI-17: a composition is left to the native element; the text is read when it ends, and nothing is said meanwhile.
     // An edit that leaves `value` as it was says nothing either: the native element's own `input` stops here, at the
     // shadow root. The `input` of an edit that changed `value` is the color input's (`said()`).
@@ -547,7 +547,7 @@ export class TanreiColorInput extends TanreiElement {
    * form, or the form of the element composed around it (src/primitives/default-button.ts, `formOf`). While an input
    * method composes, every key is its own (CLI-17).
    */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || this.inert_) return;
     if (event.isComposing || this.native.composing || event.keyCode === 229) return;
     if (event.key !== 'Enter') return;
@@ -559,14 +559,14 @@ export class TanreiColorInput extends TanreiElement {
     }
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     // CLI-23: where style queries are missing, the focus style is read when focus arrives.
     syncFocusStyle(this, this.renderRoot.querySelector<HTMLElement>('.field'));
   }
 
   /** CLI-19: the input lost focus: the text is committed. */
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
     this.commit();
   }
@@ -579,7 +579,7 @@ export class TanreiColorInput extends TanreiElement {
    * none, inside the same user activation. Where the browser has none to present, nothing is presented, nothing
    * changes and no focus moves.
    */
-  private onPickerClick() {
+  #onPickerClick() {
     if (this.inert_) return;
     const request = new CustomEvent<TanreiColorInputPickerRequestDetail>('pickerrequest', { bubbles: true, composed: true, cancelable: true, detail: { value: this.ownValue } });
     if (!this.dispatchEvent(request)) return;
@@ -603,7 +603,7 @@ export class TanreiColorInput extends TanreiElement {
    * own form, the swatch drawn in it, an entry error ended, and `input` fired when it changed the value — for every
    * pick the browser reports, a drag across the picker included.
    */
-  private onPick(event: Event) {
+  #onPick(event: Event) {
     const well = event.target as HTMLInputElement;
     const value = this.inert_ ? null : picked(well.value);
     this.pickSeen = well.value;
@@ -622,10 +622,10 @@ export class TanreiColorInput extends TanreiElement {
   }
 
   /** CLI-29: the browser's picker closed: its `change`, or — where a browser gives none — the page's next focus. */
-  private onPickerChange(event: Event) {
+  #onPickerChange(event: Event) {
     // A browser that reports a pick only when its picker closes: the pick is taken first. The browser's own `change`
     // stops here: the color input's is fired by `pickerClosed`, while the value differs from the one last committed.
-    this.onPick(event);
+    this.#onPick(event);
     event.stopPropagation();
     this.pickerClosed('picker');
   }
@@ -662,9 +662,9 @@ export class TanreiColorInput extends TanreiElement {
   /**
    * CLI-24: a press on the container's padding, on the swatch or on a floating label moves focus to the input and does
    * nothing else. A press in the input places the caret; the picker button keeps its own press. CLI-25: while the
-   * picker button is shown a press on the swatch is the picker button's instead (`onSwatchClick`), and moves no focus.
+   * picker button is shown a press on the swatch is the picker button's instead (`#onSwatchClick`), and moves no focus.
    */
-  private onContainerPress(event: MouseEvent) {
+  #onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest('.input, .picker')) return;
@@ -678,9 +678,9 @@ export class TanreiColorInput extends TanreiElement {
    * picker button does (CLI-28), as a label passes its press to its control: the swatch takes no focus and draws no
    * answer of its own, and the keyboard's way stays the picker button.
    */
-  private onSwatchClick(event: MouseEvent) {
+  #onSwatchClick(event: MouseEvent) {
     if (!this.picker || this.inert_ || event.button !== 0) return;
-    this.onPickerClick();
+    this.#onPickerClick();
   }
 
   override disconnectedCallback() {
@@ -762,8 +762,8 @@ export class TanreiColorInput extends TanreiElement {
         ?data-has-value=${this.text !== ''}
         ?data-picker=${this.picker}
       >
-        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
-          <span part="swatch" class="swatch" data-tanrei-shape aria-hidden="true" @click=${this.onSwatchClick} ?data-filled=${this.ownValue !== ''} style=${styleMap({ '--_value': this.ownValue || null })}></span>
+        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.#onContainerPress}>
+          <span part="swatch" class="swatch" data-tanrei-shape aria-hidden="true" @click=${this.#onSwatchClick} ?data-filled=${this.ownValue !== ''} style=${styleMap({ '--_value': this.ownValue || null })}></span>
           <div class="body">
             <input
               id="input"
@@ -781,10 +781,10 @@ export class TanreiColorInput extends TanreiElement {
               aria-describedby=${described ? 'description' : nothing}
               aria-invalid=${wrong ? 'true' : nothing}
               aria-required=${this.required_ ? 'true' : nothing}
-              @input=${this.onInput}
-              @keydown=${this.onKeyDown}
-              @focus=${this.onFocus}
-              @blur=${this.onBlur}
+              @input=${this.#onInput}
+              @keydown=${this.#onKeyDown}
+              @focus=${this.#onFocus}
+              @blur=${this.#onBlur}
               @compositionstart=${this.native.onCompositionStart}
               @compositionend=${this.native.onCompositionEnd}
             />
@@ -797,10 +797,10 @@ export class TanreiColorInput extends TanreiElement {
                   tabindex="-1"
                   aria-hidden="true"
                   ?disabled=${inert}
-                  @input=${this.onPick}
-                  @change=${this.onPickerChange}
+                  @input=${this.#onPick}
+                  @change=${this.#onPickerChange}
                   @click=${(event: Event) => event.stopPropagation()}
-                /><tanrei-button part="picker-button" class="picker-button" variant="text" size=${this.pickerSize} label=${this.pickerLabel} ?disabled=${inert} @click=${this.onPickerClick}
+                /><tanrei-button part="picker-button" class="picker-button" variant="text" size=${this.pickerSize} label=${this.pickerLabel} ?disabled=${inert} @click=${this.#onPickerClick}
                   ><span slot="icon" class="picker-glyph"><span class="ink">palette</span></span></tanrei-button
                 ></span
               >`

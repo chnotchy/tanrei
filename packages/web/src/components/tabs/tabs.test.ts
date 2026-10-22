@@ -281,10 +281,10 @@ test.describe('selection and keyboard', () => {
     await page.keyboard.press('Space');
     await tabAt(page, 'r', 1).evaluate((el) => (el as HTMLElement).click());
     expect(await log(page)).toEqual(['activity:activity', 'settings:settings', 'overview:overview', 'activity:activity']);
-    await expect(tabAt(page, 'r', 1)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, 'r', 1)).toHaveAttribute('aria-checked', 'true');
     // The product sets value: no change.
     await row(page, 'r').evaluate((el: any) => (el.value = 'settings'));
-    await expect(tabAt(page, 'r', 2)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, 'r', 2)).toHaveAttribute('aria-checked', 'true');
     expect(await log(page)).toHaveLength(4);
   });
 
@@ -303,7 +303,7 @@ test.describe('selection and keyboard', () => {
     await page.keyboard.press('ArrowRight');
     expect(await focused(page)).toBe('overview');
     // A selected tab that is disabled is not the Tab stop: the first enabled tab is.
-    await expect(tabAt(page, 'primary-selected-disabled', 2)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, 'primary-selected-disabled', 2)).toHaveAttribute('aria-checked', 'true');
     await expect(tabAt(page, 'primary-selected-disabled', 2)).not.toHaveAttribute('tabindex');
     await expect(tabAt(page, 'primary-selected-disabled', 0)).toHaveAttribute('tabindex', '0');
   });
@@ -325,8 +325,8 @@ test.describe('selection and keyboard', () => {
     await expect(tabs(page, 'none').and(page.locator('[aria-selected="true"]'))).toHaveCount(0);
     for (const v of ['overview', 'activity', 'settings']) await expect(panel(page, 'none', v)).toBeHidden();
     await expect(tabAt(page, 'odd', 0)).toBeVisible();
-    await expect(tabAt(page, 'odd', 1)).toHaveAttribute('aria-selected', 'true');
-    await expect(tabAt(page, 'odd', 2)).toHaveAttribute('aria-selected', 'false');
+    await expect(tabAt(page, 'odd', 1)).toHaveAttribute('aria-checked', 'true');
+    await expect(tabAt(page, 'odd', 2)).toHaveAttribute('aria-checked', 'false');
     await expect.poll(() => seen.filter((w) => w.includes('TAB-11')).length).toBe(3);
     expect(seen.join('\n')).toMatch(/value "nothing" names no tab; none is drawn selected \(TAB-11\)/);
     expect(seen.join('\n')).toMatch(/the tab "Empty" has an empty value/);
@@ -826,7 +826,7 @@ test.describe('layout', () => {
         await expect.poll(() => css(layer(page, id, n), 'background-color'), id).toBe(await resolveColor(page, T('primary-pressed-container-color')));
         expect(await css(box(page, id, n), 'background-color'), id).toBe('rgba(0, 0, 0, 0)');
         await page.mouse.up();
-        await expect(tabAt(page, id, n)).toHaveAttribute('aria-selected', 'true');
+        await expect(tabAt(page, id, n)).toHaveAttribute('aria-checked', 'true');
         return;
       }
       if (unit.part === 'the layers') {
@@ -1000,7 +1000,7 @@ test.describe('layout', () => {
     // A clip, not a blend mode.
     for (const part of ['.cover', '.cover .label', '.tab > .content']) expect(await css(tabAt(page, 'primary', 0).locator(part), 'mix-blend-mode'), part).toBe('normal');
     // Each label exposed once: the copy is hidden, the tab named by its label.
-    const tree = await row(page, 'primary').locator('[role="tablist"]').ariaSnapshot();
+    const tree = await row(page, 'primary').locator('[part="tablist"]').ariaSnapshot();
     expect(tree.match(/Overview/g)).toHaveLength(1);
 
     // Mid-slide, with motion: a label the indicator passes over is covered where it is covered — in the same frame as
@@ -1038,7 +1038,7 @@ test.describe('layout', () => {
     await expect(tip(page, 'cut', 1)).toHaveCount(1);
     await expect(tip(page, 'cut', 2)).toHaveCount(1);
     // The whole label is the name, once: no description, and the tooltip is hidden from assistive technology.
-    await expect(page.getByRole('tab', { name: 'Recent activity', exact: true })).toHaveCount(1);
+    await expect(page.getByRole('radio', { name: 'Recent activity', exact: true })).toHaveCount(1);
     for (const n of [1, 2]) {
       await expect(tip(page, 'cut', n)).toHaveAttribute('aria-hidden', 'true');
       await expect(tabAt(page, 'cut', n)).not.toHaveAttribute('aria-describedby');
@@ -1140,7 +1140,7 @@ test.describe('layout', () => {
     expect(await slides(page, 'r')).toBe(0);
     const after = await pill(page, 'r', 0);
     expect([after.x, after.width]).toEqual([expect.closeTo(before.x, 0), expect.closeTo(before.width, 0)]);
-    await expect(tabAt(page, 'r', 2)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, 'r', 2)).toHaveAttribute('aria-checked', 'true');
     // Back to 0: on the selected tab at once.
     now = await set(0, 2);
     expect([now.x, now.slides]).toEqual([expect.closeTo(landed[2].x, 0), 0]);
@@ -1555,7 +1555,7 @@ test.describe('concentric at every size', () => {
     const landed = await pill(page, id, 1);
     expect(landed.x - seats[0].x).toBeCloseTo(travel, 1);
     expect(landed.width).toBeCloseTo(circle, 1);
-    await expect(tabAt(page, id, 1)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, id, 1)).toHaveAttribute('aria-checked', 'true');
     // The drag: from the selected (second) tab's centre to the first one's, held on the way — the same circle.
     await override(page, { [T('motion-indicator-duration')]: '0s' });
     const [c0, c1] = [await centreX(page, id, 0), await centreX(page, id, 1)];
@@ -1571,7 +1571,7 @@ test.describe('concentric at every size', () => {
       expect(thumb.x + thumb.width / 2, `drag at ${x}`).toBeCloseTo(x, 0);
     }
     await pointer(page, id, 'pointerup', c0);
-    await expect(tabAt(page, id, 0)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, id, 0)).toHaveAttribute('aria-checked', 'true');
     await frames(page, 3);
     expect((await pill(page, id, 0)).x).toBeCloseTo(seats[0].x, 1);
     // The tab that is not selected (the second): hovered, then focused — a 40 circle concentric with the other end.
@@ -1590,7 +1590,7 @@ test.describe('concentric at every size', () => {
     expect(Number.parseFloat(await css(ring(page, id, 1), 'border-top-left-radius'))).toBeGreaterThanOrEqual(circle / 2);
   });
 
-  test('TAB-35: a tap in the track’s inset at each end selects the nearer tab; the row stays a row of tabs — each a tab named by its label — and activating the selected one changes nothing', async ({ page }) => {
+  test('TAB-35, TAB-42: a tap in the track’s inset at each end selects the nearer tab; the row stays one choice of two, not a switch — a radio group, each radio named by its label, as a row without panels is — and activating the selected one changes nothing', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: spec.fixtures.filter((f) => f.id === 'primary-two-icons') });
     const id = 'primary-two-icons';
     await wire(page);
@@ -1599,7 +1599,7 @@ test.describe('concentric at every size', () => {
     // The inset at the end: beyond the last circle, inside the track.
     await page.mouse.click(outer.x + outer.width - 1, middle);
     expect(await log(page)).toEqual(['dark:dark']);
-    await expect(tabAt(page, id, 1)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, id, 1)).toHaveAttribute('aria-checked', 'true');
     // …and at the start.
     await page.mouse.click(outer.x + 1, middle);
     expect(await log(page)).toEqual(['dark:dark', 'light:light']);
@@ -1610,9 +1610,9 @@ test.describe('concentric at every size', () => {
     await page.keyboard.press('Enter');
     await page.keyboard.press('Space');
     expect(await log(page)).toEqual(['dark:dark', 'light:light']);
-    await expect(tabAt(page, id, 0)).toHaveAttribute('aria-selected', 'true');
-    // A row of tabs, not a switch: a tab list of two tabs, each named by its label; the arrows select.
-    expect(await row(page, id).locator('[role="tablist"]').ariaSnapshot()).toBe(['- tablist "Theme":', '  - tab "Light" [selected]', '  - tab "Dark"'].join('\n'));
+    await expect(tabAt(page, id, 0)).toHaveAttribute('aria-checked', 'true');
+    // One choice of two, not a switch: a radio group of two radios, each named by its label; the arrows select.
+    expect(await row(page, id).locator('[part="tablist"]').ariaSnapshot()).toBe(['- radiogroup "Theme":', '  - radio "Light" [checked]', '  - radio "Dark"'].join('\n'));
     await expect(row(page, id).getByRole('switch')).toHaveCount(0);
     await page.keyboard.press('ArrowRight');
     expect(await log(page)).toEqual(['dark:dark', 'light:light', 'dark:dark']);
@@ -1624,7 +1624,7 @@ test.describe('the track and the drag', () => {
   const state = (page: P, id: string) =>
     row(page, id).evaluate((el: any) => ({
       value: el.value as string | null,
-      selected: [...el.querySelectorAll('tanrei-tab')].map((tab) => tab.getAttribute('aria-selected')),
+      selected: [...el.querySelectorAll('tanrei-tab')].map((tab) => tab.getAttribute('aria-selected') ?? tab.getAttribute('aria-checked')),
       stops: [...el.querySelectorAll('tanrei-tab')].map((tab) => tab.getAttribute('tabindex')),
       hidden: [...el.querySelectorAll('tanrei-tab-panel')].map((panel) => panel.hasAttribute('hidden')),
       focus: (document.activeElement as HTMLElement | null)?.getAttribute('value') ?? null,
@@ -2021,7 +2021,7 @@ test.describe('the track and the drag', () => {
     expect(on.x).toBeCloseTo((await seat(page, d, 1)).x, 0);
     await pointer(page, d, 'pointerup', billing.x + billing.width / 2);
     expect(await row(page, d).evaluate((el: any) => el.value)).toBe('activity');
-    expect(await tabAt(page, d, 2).getAttribute('aria-selected')).toBe('false');
+    expect(await tabAt(page, d, 2).getAttribute('aria-checked')).toBe('false');
 
     // The release is not also a tap: with a real mouse, pressed on Overview and released on Settings, a listener hears one
     // change — and a click right after it is a tap again.
@@ -2779,7 +2779,8 @@ const member = (id: string, value: string, props: Fixture['props'] = {}, content
 /** The row's `value` and the tab it exposes as selected, which are the same tab's: what the row shows. */
 const shows = (page: P, id: string) =>
   row(page, id).evaluate((el: any) => {
-    const exposed = [...el.querySelectorAll(':scope > tanrei-tab')].filter((each: any) => each.getAttribute('aria-selected') === 'true').map((each: any) => each.value);
+    // A tab is exposed as selected; a radio of a row without panels (TAB-42), as checked.
+    const exposed = [...el.querySelectorAll(':scope > tanrei-tab')].filter((each: any) => (each.getAttribute('aria-selected') ?? each.getAttribute('aria-checked')) === 'true').map((each: any) => each.value);
     // While `value` is null the row selects its first enabled tab (TAB-11).
     return exposed.length === 1 && (el.value ?? exposed[0]) === exposed[0] ? (exposed[0] as string) : `${el.value}≠${exposed.join(',')}`;
   });
@@ -2852,10 +2853,10 @@ async function serve(page: P, fixtures: Fixture[], { blocked = false } = {}) {
       new MutationObserver((records) => {
         for (const { target, attributeName } of records) {
           const el = target as Element;
-          if (attributeName === 'aria-selected' && el.getAttribute('aria-selected') === 'true') w.exposed.push(`${el.closest('[data-fixture]')?.getAttribute('data-fixture')}:tab:${el.getAttribute('value')}`);
+          if ((attributeName === 'aria-selected' || attributeName === 'aria-checked') && el.getAttribute(attributeName) === 'true') w.exposed.push(`${el.closest('[data-fixture]')?.getAttribute('data-fixture')}:tab:${el.getAttribute('value')}`);
           if (attributeName === 'hidden' && !el.hasAttribute('hidden') && el.localName === 'tanrei-tab-panel') w.exposed.push(`${el.closest('[data-fixture]')?.getAttribute('data-fixture')}:panel:${el.getAttribute('value')}`);
         }
-      }).observe(document, { subtree: true, attributes: true, attributeFilter: ['aria-selected', 'hidden'] });
+      }).observe(document, { subtree: true, attributes: true, attributeFilter: ['aria-selected', 'aria-checked', 'hidden'] });
     });
   }
   await page.goto(ORIGIN);
@@ -3351,7 +3352,7 @@ test.describe('a shared choice', () => {
       const motions = (each: Element) => [each, ...each.querySelectorAll(':scope > tanrei-tab')].flatMap((host) => host.shadowRoot!.getAnimations()).length;
       return {
         values: [...new Set(rows.map((each) => each.value))],
-        exposed: [...new Set(rows.map((each) => each.querySelector('[aria-selected="true"]')?.value))],
+        exposed: [...new Set(rows.map((each) => each.querySelector('[aria-selected="true"], [aria-checked="true"]')?.value))],
         moving: rows.filter((each) => each !== acted).reduce((sum, each) => sum + motions(each), 0),
         acted: motions(acted),
       };
@@ -3470,8 +3471,9 @@ test.describe('variants, the track, sizes and the transition', () => {
     // The three variants are one control: the same roles, names and states.
     const said = (id: string) =>
       row(page, id).evaluate((el) => [
-        el.shadowRoot!.querySelector('[role="tablist"]')!.getAttribute('aria-label'),
-        ...[...el.querySelectorAll('tanrei-tab')].map((tab) => ['role', 'aria-selected', 'aria-label', 'aria-posinset', 'aria-setsize', 'aria-controls', 'tabindex'].map((name) => tab.getAttribute(name)).join('|')),
+        el.shadowRoot!.querySelector('[part="tablist"]')!.getAttribute('role'),
+        el.shadowRoot!.querySelector('[part="tablist"]')!.getAttribute('aria-label'),
+        ...[...el.querySelectorAll('tanrei-tab')].map((tab) => ['role', 'aria-selected', 'aria-checked', 'aria-label', 'aria-posinset', 'aria-setsize', 'aria-controls', 'tabindex'].map((name) => tab.getAttribute(name)).join('|')),
       ]);
     await mountFixtures(page, spec, { fixtures: only('primary', 'secondary', 'tonal') });
     expect(await said('secondary')).toEqual(await said('primary'));
@@ -3885,40 +3887,80 @@ test.describe('variants, the track, sizes and the transition', () => {
     await row(page, id).evaluate((el: any) => (el.indicatorOffset = 0));
   });
 
-  test('TAB-42, TAB-12, TAB-13: a row without panels is a tab list named by its label whose tabs control nothing; the arrows select and emit, and Tab leaves the row to what follows it', async ({ page, browserName }) => {
+  test('TAB-42, TAB-12, TAB-13: a row without panels is a radio group named by its label, its tabs radios that control nothing, the selected one checked; every arrow moves and selects, and Tab leaves the row to what follows it; a panel makes it a tab list and taking it away a radio group again', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { fixtures: only('tonal-small-no-track-no-transition') });
     const id = 'tonal-small-no-track-no-transition';
     await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.insertAdjacentHTML('beforeend', '<button id="after">After</button>'));
     await wire(page);
-    const said = await row(page, id).evaluate((el) => ({
-      list: [el.shadowRoot!.querySelector('[role="tablist"]')!.getAttribute('aria-label'), el.shadowRoot!.querySelectorAll('[role="tablist"]').length],
-      tabs: [...el.querySelectorAll('tanrei-tab')].map((tab) => ['role', 'aria-selected', 'aria-label', 'aria-posinset', 'aria-setsize', 'aria-controls'].map((name) => tab.getAttribute(name))),
-      panels: document.querySelectorAll('[role="tabpanel"]').length + el.shadowRoot!.querySelectorAll('[role="tabpanel"]').length,
-    }));
-    expect(said).toEqual({
-      list: ['Contrast', 1],
+    const exposed = () =>
+      row(page, id).evaluate((el) => ({
+        row: ['role', 'aria-label', 'aria-orientation'].map((name) => el.shadowRoot!.querySelector('[part="tablist"]')!.getAttribute(name)),
+        tabs: [...el.querySelectorAll('tanrei-tab')].map((tab) => ['role', 'aria-checked', 'aria-selected', 'aria-label', 'aria-posinset', 'aria-setsize', 'aria-controls'].map((name) => tab.getAttribute(name))),
+        roles: ['tablist', 'tab', 'tabpanel'].map((role) => document.querySelectorAll(`[role="${role}"]`).length + el.shadowRoot!.querySelectorAll(`[role="${role}"]`).length),
+      }));
+    expect(await exposed()).toEqual({
+      row: ['radiogroup', 'Contrast', null],
       tabs: [
-        ['tab', 'true', 'Standard', '1', '3', null],
-        ['tab', 'false', 'Medium', '2', '3', null],
-        ['tab', 'false', 'High', '3', '3', null],
+        ['radio', 'true', null, 'Standard', '1', '3', null],
+        ['radio', 'false', null, 'Medium', '2', '3', null],
+        ['radio', 'false', null, 'High', '3', '3', null],
       ],
-      panels: 0,
+      roles: [0, 0, 0],
     });
     if (browserName === 'chromium') {
       const { axTree } = await import('../../../test/ax-tree.js');
       const tree = await axTree(page, `[data-fixture="${id}"] tanrei-tabs`);
-      expect(tree.filter((line) => /^\s*tablist "Contrast"/.test(line)).length).toBe(1);
-      expect(tree.filter((line) => /^\s*tab "/.test(line)).map((line) => line.trim().split(' focusable')[0])).toEqual(['tab "Standard"', 'tab "Medium"', 'tab "High"']);
-      expect(tree.some((line) => /tabpanel/.test(line))).toBe(false);
+      expect(tree.filter((line) => /^\s*radiogroup "Contrast"/.test(line)).length).toBe(1);
+      expect(tree.filter((line) => /^\s*radio "/.test(line)).map((line) => line.trim().split(' focusable')[0])).toEqual(['radio "Standard" checked=true', 'radio "Medium" checked=false', 'radio "High" checked=false']);
+      expect(tree.some((line) => /tablist|tabpanel|^\s*tab "/.test(line))).toBe(false);
     }
+    // Every arrow moves and selects, as a radio group's do, wrapping; Tab leaves the row.
     await tabTo(page, tabAt(page, id, 0));
+    const moves: string[] = [];
+    for (const key of ['ArrowRight', 'ArrowDown', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'End', 'Home']) {
+      await page.keyboard.press(key);
+      moves.push((await focused(page)) as string);
+    }
+    expect(moves).toEqual(['medium', 'high', 'standard', 'high', 'medium', 'high', 'standard']);
+    expect(await log(page)).toEqual(['medium:medium', 'high:high', 'standard:standard', 'high:high', 'medium:medium', 'high:high', 'standard:standard']);
     await page.keyboard.press('ArrowRight');
-    expect([await selectedValue(page, id), await focused(page), await log(page)]).toEqual(['medium', 'medium', ['medium:medium']]);
-    expect(await tabAt(page, id, 1).getAttribute('aria-selected')).toBe('true');
+    expect([await selectedValue(page, id), await focused(page)]).toEqual(['medium', 'medium']);
+    expect(await tabAt(page, id, 1).getAttribute('aria-checked')).toBe('true');
+    // Right-to-left: Left Arrow is next, Down Arrow still next.
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('high');
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('medium');
+    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => el.removeAttribute('dir'));
     await tab(page);
     expect(await focused(page)).toBe('after');
-    // A row with a panel for some tabs only: each tab that has one controls it, and none is shown for a tab without.
+    // A panel makes it a tab list — the same tab selected, focus where it was — and taking it away a radio group again.
+    await tabTo(page, tabAt(page, id, 1));
+    const heard = (await log(page)).length;
+    await row(page, id).evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-tab-panel value="medium"><p>Medium</p></tanrei-tab-panel>'));
+    await expect.poll(async () => (await exposed()).row[0]).toBe('tablist');
+    const withPanel = await exposed();
+    expect(withPanel.tabs.map((each) => each.slice(0, 3))).toEqual([
+      ['tab', null, 'false'],
+      ['tab', null, 'true'],
+      ['tab', null, 'false'],
+    ]);
+    expect(withPanel.tabs[1][6]).toBe(await panel(page, id, 'medium').getAttribute('id'));
+    expect(await focused(page)).toBe('medium');
+    await row(page, id).evaluate((el) => el.querySelector('tanrei-tab-panel')!.remove());
+    await expect.poll(async () => (await exposed()).row[0]).toBe('radiogroup');
+    expect((await exposed()).tabs.map((each) => each.slice(0, 3))).toEqual([
+      ['radio', 'false', null],
+      ['radio', 'true', null],
+      ['radio', 'false', null],
+    ]);
+    expect([await selectedValue(page, id), await focused(page), (await log(page)).length]).toEqual(['medium', 'medium', heard]);
+    // A row with a panel for some tabs only is a tab list: each tab that has one controls it, and none is shown for a
+    // tab without.
     await mountFixtures(page, spec, { fixtures: [fixture('some', THREE, { value: 'overview' }, panels(['activity']))] });
+    await expect(row(page, 'some').locator('[part="tablist"]')).toHaveAttribute('role', 'tablist');
+    await expect(tabAt(page, 'some', 0)).toHaveAttribute('role', 'tab');
     expect(await Promise.all([0, 1, 2].map((n) => tabAt(page, 'some', n).getAttribute('aria-controls')))).toEqual([null, await panel(page, 'some', 'activity').getAttribute('id'), null]);
     expect(await panel(page, 'some', 'activity').evaluate((el) => el.hasAttribute('hidden'))).toBe(true);
   });
@@ -3999,6 +4041,8 @@ test.describe('variants, the track, sizes and the transition', () => {
 test.describe('vertical', () => {
   const V = 'vertical';
   const only = (...ids: string[]) => ids.map((id) => spec.fixtures.find((f) => f.id === id)!);
+  /** The fixture with a panel for each of its tabs: a tab list, whose arrow keys follow its axis (TAB-54, TAB-55). */
+  const withPanels = (f: Fixture): Fixture => ({ ...f, content: panels(f.items!.map((item) => String(item.props!.value))) });
   /** Every tab's box on the page, in order. */
   const boxes = async (page: P, id: string) => {
     const out: { x: number; y: number; width: number; height: number }[] = [];
@@ -4006,8 +4050,8 @@ test.describe('vertical', () => {
     return out;
   };
 
-  test('TAB-54, TAB-12: in a column Down and Up Arrow move focus and select, wrapping, Home and End go to the ends, and Right and Left do nothing in either direction; in a row Down and Up do nothing', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: only(V, 'vertical-disabled-tab', 'primary') });
+  test('TAB-54, TAB-12, TAB-42: in a column with panels Down and Up Arrow move focus and select, wrapping, Home and End go to the ends, and Right and Left do nothing in either direction; in a row with panels Down and Up do nothing; a column without panels moves by Right and Left too', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [...only(V, 'vertical-disabled-tab', 'primary').map(withPanels), { ...only(V)[0], id: 'no-panels' }] });
     await wire(page);
     await tabAt(page, V, 0).focus();
     const moves: string[] = [];
@@ -4037,17 +4081,31 @@ test.describe('vertical', () => {
     expect(await focused(page)).toBe('overview');
     await page.keyboard.press('ArrowRight');
     expect(await focused(page)).toBe('activity');
+    // A column without panels is a radio group (TAB-42): Right and Left move and select as Down and Up do.
+    await tabAt(page, 'no-panels', 0).focus();
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('notifications');
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('general');
+    expect((await log(page)).slice(-2)).toEqual(['notifications:notifications', 'general:general']);
   });
 
-  test('TAB-55: a column’s tab list is exposed as vertical, a row’s with the default orientation; every tab keeps its role, name, state and position', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: only(V, 'primary') });
-    await expect(row(page, V).locator('[role="tablist"]')).toHaveAttribute('aria-orientation', 'vertical');
-    await expect(row(page, 'primary').locator('[role="tablist"]')).not.toHaveAttribute('aria-orientation');
+  test('TAB-55, TAB-42: a column’s tab list is exposed as vertical, a row’s with the default orientation; every tab keeps its role, name, state and position; a column without panels is a radio group with no orientation', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [...only(V, 'primary').map(withPanels), { ...only(V)[0], id: 'no-panels', props: { ...only(V)[0].props, label: 'Preferences' } }] });
+    await expect(row(page, V).locator('[part="tablist"]')).toHaveAttribute('role', 'tablist');
+    await expect(row(page, V).locator('[part="tablist"]')).toHaveAttribute('aria-orientation', 'vertical');
+    await expect(row(page, 'primary').locator('[part="tablist"]')).toHaveAttribute('role', 'tablist');
+    await expect(row(page, 'primary').locator('[part="tablist"]')).not.toHaveAttribute('aria-orientation');
     await expect(page.getByRole('tablist', { name: 'Settings' })).toHaveCount(1);
     await expect(tabAt(page, V, 0)).toHaveAttribute('aria-selected', 'true');
     await expect(tabAt(page, V, 4)).toHaveAttribute('aria-posinset', '5');
     await expect(tabAt(page, V, 4)).toHaveAttribute('aria-setsize', '5');
     await expect(tabAt(page, V, 4)).toHaveAttribute('aria-label', 'Accessibility');
+    await expect(row(page, 'no-panels').locator('[part="tablist"]')).toHaveAttribute('role', 'radiogroup');
+    await expect(row(page, 'no-panels').locator('[part="tablist"]')).not.toHaveAttribute('aria-orientation');
+    await expect(page.getByRole('radiogroup', { name: 'Preferences' })).toHaveCount(1);
+    await expect(tabAt(page, 'no-panels', 0)).toHaveAttribute('aria-checked', 'true');
+    await expect(tabAt(page, 'no-panels', 4)).toHaveAttribute('aria-posinset', '5');
   });
 
   test('TAB-51, TAB-52: the tabs stand one above another, all as wide as the widest, each the container height and at least the minimum target tall, the icon before the label at the start edge; the indicator and every container are the tab less track.padding all round', async ({ page }) => {
@@ -4147,7 +4205,7 @@ test.describe('vertical', () => {
     await tabAt(page, id, 10).focus();
     await page.keyboard.press('End');
     await expect.poll(() => inView(11)).toBe(true);
-    await expect(tabAt(page, id, 11)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, id, 11)).toHaveAttribute('aria-checked', 'true');
     // fullWidth is not a column's.
     const before = await boxes(page, V);
     await row(page, V).evaluate(async (el: any) => {
@@ -4180,14 +4238,14 @@ test.describe('vertical', () => {
     await finishCatchUp(page, V);
     const [p0, p1, mid] = [await seat(page, V, 0), await seat(page, V, 1), await pill(page, V, 0)];
     expect(mid.y).toBeCloseTo((p0.y + p1.y) / 2, 0);
-    await expect(tabAt(page, V, 0)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, V, 0)).toHaveAttribute('aria-checked', 'true');
     // Cancelled: it returns, and nothing is selected (TAB-30).
     await pointer(page, V, 'pointercancel');
     await frames(page);
     expect(await log(page)).toEqual([]);
     // A mouse released a whole tab down selects it, with one change.
     await drag(page, V, 0, down(b.y - a.y), { pointerType: 'mouse' });
-    await expect(tabAt(page, V, 1)).toHaveAttribute('aria-selected', 'true');
+    await expect(tabAt(page, V, 1)).toHaveAttribute('aria-checked', 'true');
     expect(await log(page)).toEqual(['notifications:notifications']);
   });
 
@@ -4231,7 +4289,7 @@ test.describe('vertical', () => {
     const [a, b] = [await bounds(tabAt(page, 'odd', 0)), await bounds(tabAt(page, 'odd', 1))];
     expect(b.y).toBeCloseTo(a.y, 0);
     expect(b.x).toBeGreaterThan(a.x + a.width - 0.5);
-    await expect(row(page, 'odd').locator('[role="tablist"]')).not.toHaveAttribute('aria-orientation');
+    await expect(row(page, 'odd').locator('[part="tablist"]')).not.toHaveAttribute('aria-orientation');
     await expect.poll(() => seen.join('\n')).toMatch(/orientation "diagonal" is not an orientation of the tabs/);
   });
 
@@ -4251,7 +4309,8 @@ test.describe('vertical', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, with panels', async ({ page }) => {
+  // TAB-13, TAB-42: every fixture is a row without panels, a radio group; the row with panels is a tab list.
+  test('no axe violations in light and dark, as radio groups without panels and as a tab list with them', async ({ page }) => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
     for (const theme of ['light', 'dark'] as const) {
       // Read at once: a row's first appearance draws every tab in its colors without a motion (the first appearance tests).

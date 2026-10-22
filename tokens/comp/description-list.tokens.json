@@ -71,10 +71,34 @@
             "$type": "dimension",
             "$description": "The space between a fact and the fact below it, per density: once where facts are told apart by space, and on each side of the line where they are told apart by a line. The list has no row height of its own: a fact is as tall as its term and its values.",
             "regular": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space150}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space75}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           }
         },

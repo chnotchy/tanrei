@@ -1040,6 +1040,85 @@ region; nothing of `status` is exposed. A size the active system lacks draws med
 the meter does not define draws linear, auto or default; each is reported (MTR-11). Parts: `track`, `indicator`,
 `stop-indicator`.
 
+## `<tanrei-number-ticker>`
+
+A number that changes, its changed digits moved to the new value (`specs/number-ticker.spec.json`, NTK-1…17).
+
+```html
+<tanrei-number-ticker value="1234"></tanrei-number-ticker>
+<tanrei-number-ticker value="1234" number-style="currency" currency="JPY" label="Revenue"></tanrei-number-ticker>
+<tanrei-number-ticker value="0.426" number-style="percent" fraction-digits="1" trend="digit"></tanrei-number-ticker>
+<tanrei-number-ticker value="512" start-value="0" live="polite"></tanrei-number-ticker>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `value` | number | `0` | not a finite number is written as `Intl` writes it, at once (NTK-12) |
+| `numberStyle` / `number-style` | `decimal` \| `percent` \| `currency` \| `unit` | `decimal` | the spec's `style`, renamed: `style` is every element's own |
+| `currency`, `unit` | string | `""` | a code `Intl.supportedValuesOf('currency')` lists, a unit `Intl.NumberFormat` accepts; anything else writes decimal (NTK-12) |
+| `notation` | `standard` \| `compact` | `standard` | |
+| `fractionDigits` / `fraction-digits` | number \| null | `null` | minimum and maximum fraction digits at once |
+| `signDisplay` / `sign-display` | `auto` \| `always` \| `except-zero` | `auto` | |
+| `locale` | string | `""` | empty: the nearest `lang` through shadow roots, then the browser's |
+| `trend` | `auto` \| `up` \| `down` \| `digit` | `auto` | NTK-3 |
+| `animation` | `auto` \| `slide` \| `blur` \| `blur-slide` \| `flip` \| `none` | `auto` | `auto` reads `--tanrei-comp-number-ticker-animation` when a change starts (never cached) |
+| `startValue` / `start-value` | number \| null | `null` | NTK-8, by an `IntersectionObserver` |
+| `duration` | number \| null | `null` | ms; null: `motion.duration` |
+| `live` | `off` \| `polite` | `off` | NTK-10 |
+| `label` | string | `""` | read before the number, never drawn |
+
+Event: `settle` (`detail.value`), once per change at its end; a replaced change emits none (NTK-11).
+
+**Drawing.** `Intl.NumberFormat(…).formatToParts()` gives the characters. The `.digits` box lays them out as flex
+items in the locale's own direction (`localeDirection()`, NTK-13), the digits with their group and decimal separators in
+one `.core` run that is always left to right; every other character is a `.char` (inline-block, `white-space: pre`).
+Each digit is a `.place`: an in-flow sizer (the locale's zero, hidden) that makes the window one digit wide and one line
+high, clipped above and below (`clip-path: inset(0 -1em)`, so a blur still shows sideways), and an absolute `.column`
+of the locale's digits 0…9 three times over, moved by `transform: translateY(-p × 100 / 30 %)`. A column rests in the
+middle copy (position `10 + digit`), so a digit going on past 9 to 0, or back, has the next copy to go to; at the end
+of a change it is put back in the middle copy, which looks the same. Keys keep a place from one value to the next: `i<n>`
+is the digit of 10^n, `f<n>` a fraction digit, `g<n>` the separator before `i<n>`, other characters their part type and
+count. A character keeps no font, size or color: the host inherits all of them and draws in `tabular-nums`.
+
+**A change** (NTK-3…6). What is drawn is read first: each character's box and each column's position, from its computed
+transform (so a change in the middle of another goes on from where it is, NTK-6; a reading within 1/50 of a step of a
+whole step is that step — the engine rounds a percentage transform). Every motion under way is cancelled, the new
+characters replace the old (each place that stays is the same element), and then:
+
+- the width: the shared `AnimatedSize` on `.number`, inline axis, with the ticker's duration and easing; the number
+  stands at the box's start edge, so a box whose end stays still (the ticker set at the end of its line) carries the
+  number with its start edge;
+- every character that stays: from where it was drawn to its new place, a `translate` animation over the same duration
+  and curve (a FLIP), counted from where the box's start edge was and will be, so that it moves in a straight line
+  with the width;
+- what comes fades in, a digit's column one step before its digit moving in; what goes is made absolute where it was
+  drawn and fades out, its column moving on one step, its drift with the box compensated;
+- each place whose digit changes: `slide` animates its column from its position to the target the trend gives (NTK-3),
+  each place `motion.stagger` after the one before, most significant first; `blur` and `blur-slide` put the old digit
+  in a `.layer` that fades and blurs out (and moves by `blur-slide.distance`) while the column fades and sharpens in
+  (a layer fading out runs on through a later change); `flip` draws four half `.layer`s — the new upper half behind,
+  the old lower half until the middle of the change, the old upper half turning down to 90° and the new lower half
+  turning down from 90° — under `perspective` on the place.
+
+The duration, stagger, reduced duration, curve, blur radius and distance are read from one hidden probe whose
+`transition-duration`, `transition-timing-function`, `inline-size` and `block-size` are the tokens. `settle` waits for
+every animation of the change (`Promise.allSettled` of their `finished`) and is emitted only for the latest change.
+
+**At once** (NTK-7, NTK-12, NTK-14): `animation="none"`, a value or a previous value that is not finite, a change of
+the locale's digits, a change of formatting props without a change of value, and a change of an ancestor's `lang` (one
+`MutationObserver` of `lang` on the document and each shadow root on the way, shared by every ticker). Under
+`prefers-reduced-motion: reduce` the new number and its width are there at once and a copy of the old number fades out
+over `motion.reduced-duration` while the new one fades in; `settle` is emitted at once. A change of the direction around
+it (`DirectionController`) finishes every motion under way.
+
+**Semantics** (NTK-9, NTK-10). A visually hidden `.text` holds `label` and the formatted number; `.number` is
+`aria-hidden`. The host has no role. With `live="polite"` the `.text` is `aria-live="polite" aria-atomic="true"` and
+is written when a change settles, so what the region holds is what it says once; a replaced change never reaches it.
+
+**Not continuous.** A `flip` interrupted by a new change starts the new flip from the digit the interrupted one was
+going to (the half-turned flap is not carried over); a `blur` interrupted keeps its fading layer and starts the new
+cross-fade from the column at full opacity.
+
 ## `<tanrei-loading-indicator>`
 
 A short wait of unknown length (`specs/loading-indicator.spec.json`, LDG-1…16).
@@ -1456,6 +1535,84 @@ finishes the transitions the flip started (the fade's mask is placed by physical
 
 **Semantics.** The marks are `aria-hidden` and `pointer-events: none`: presses, hovers and the wheel reach the content
 under them. The area has no words of its own (SCA-17).
+
+## `<tanrei-marquee-text>`
+
+One line of text that does not fit its place and, while its trigger holds, moves sideways at a steady pace to show all
+of it (`specs/marquee-text.spec.json`, MRQ-1…18).
+
+```html
+<tanrei-marquee-text>Track 7 — A very long title that does not fit</tanrei-marquee-text>
+<tanrei-marquee-text trigger="always" playback-control>Now playing: …</tanrei-marquee-text>
+<tanrei-marquee-text loop="bounce" iterations="1">…</tanrei-marquee-text>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `trigger` | `hover-or-focus` \| `hover` \| `focus` \| `always` | `hover-or-focus` | when the text moves; anything else is the default, reported (MRQ-15); reflected |
+| `loop` | `repeat` \| `bounce` | `repeat` | repeat: a copy follows a gap behind; bounce: to the end, rest, back; reflected |
+| `speed` | number \| null | `null` | pixels per second; null takes `comp.marquee-text.speed` (30) |
+| `startPause` / `start-pause` | number \| null | `null` | ms resting at the start before each pass; null takes `comp.marquee-text.motion.start-pause` (1200) |
+| `endPause` / `end-pause` | number \| null | `null` | bounce: ms resting with the end in view; null takes `comp.marquee-text.motion.end-pause` |
+| `iterations` | number \| null | `null` | passes a trigger plays; null plays until the trigger ends (without end for `always`) |
+| `paused` | boolean | `false` | holds the motion where it is; reflected |
+| `playbackControl` / `playback-control` | boolean | `false` | with `always`: draws the pause / play button at the line's end |
+| `playLabel` / `play-label`, `pauseLabel` / `pause-label` | string | `""` | the button's names; empty reads `marqueePlayLabel` / `marqueePauseLabel` from the product's words |
+
+Event: `pausedchange` (`detail.paused`), from the playback control only.
+
+**WCAG 2.2.2.** The defaults can conflict with Pause, Stop, Hide: `always` draws no playback control, and a hover or a
+focus plays passes until it ends. With `always`, set `playback-control` or bind the page's own pause control to `paused`
+(a debug build reports a moving line with neither, MRQ-10); with a hover or a focus, set `iterations` so that the motion
+ends within five seconds.
+
+**Fit and measure** (MRQ-1, MRQ-14). Whether the text fits is read from the slotted text's inline box against the
+viewport — when the viewport's size changes (a `ResizeObserver`, which also sees a change of text size through the line's
+height), when the slotted text changes (a `MutationObserver` on the host) and when fonts finish loading (`loadingdone`,
+and `document.fonts.ready` after a read taken while a face was loading: WebKit on Linux does not always fire
+`loadingdone` for a face already loading, and the width read in its fallback face is another); never while the text
+moves. A text that fits is a plain line: no copy, no control, and no trigger starts anything. At rest the track is
+the cut line (`text-overflow: ellipsis`).
+
+**Motion** (MRQ-3…6). A run of passes is one Web Animations API animation of the track's `translate`, and one of the
+viewport's `mask-size` / `mask-position` with the same timing: an iteration is one pass and the rest after it, the
+keyframes holding the pauses, the travel lasting the distance divided by the speed (`easing.linear` between keyframes).
+`always` starts the run with `delay` = the start pause; a hover or a focus waits the start delay on a timer (a pointer
+that passes over the line sets nothing moving) and starts with no delay. When the trigger ends the run is cancelled and
+the text returns over `motion.return-duration` with `motion.return-easing` — a repeat past half its distance goes on to
+where its copy began, which looks the same. A change of speed, a pause, the loop or iterations cuts the run after the
+pass in play (`updateTiming`), and the next is built from the new values. The copy is a clone of the host's children in
+the shadow root (`aria-hidden`, `inert`): a product's styles for its own inline content do not reach it.
+
+**The fade** (MRQ-6). One mask layer, the viewport's box with a band `fade.extent` deep at each side, widened by the band
+(and moved) past each side behind which no text lies hidden; its keyframes move with the text's, the band growing over
+the first `fade.extent` of travel. Without the keyframes (before the run's animation exists, or in a screenshot, which
+cancels an endless animation) the stylesheet draws the look of the rest at the start: only the end edge of the text's
+direction fades. In forced colors there is no mask (`!important`, over the keyframes, MRQ-18).
+
+**Trigger** (MRQ-3, MRQ-9). The area is the nearest ancestor, across shadow roots and slots, that takes presses or focus
+(a link, a button, an element with a `tabindex` or an interactive role, or a custom element whose shadow root holds one),
+else the host. Hover is `pointerenter` of a mouse or a pen, ended by `pointerleave` or `mouseleave` (Chromium does not
+always send `pointerleave` when a mouse leaves); focus is focus within the area on an element that matches
+`:focus-visible`. With `always` the area is the host: a hover or focus within it holds the run (`Animation.pause()`), as
+`paused` does; out of view (an `IntersectionObserver` on the host) or on a hidden page the run is cancelled, and started
+again from the start when it is back.
+
+**Reduced motion** (MRQ-8). No animation. A hover or a focus shows the text a viewport's width at a time — the track's
+`translate` set at once, on a timer of the start pause per view, the last view ending at the text's end — and returns at
+once; `always` rests as the cut line with no control.
+
+**Direction** (MRQ-7, MRQ-16, MRQ-17). The viewport's `dir` is the text's own: the first strong character's (a letter of
+a right-to-left script, or another letter), else the layout direction. The control's place follows the layout
+direction (the host is a flex row). A change of the layout direction (`DirectionController`) rests the line at once and
+measures again.
+
+**Text size** (MRQ-13). The speed is multiplied by the browser's default text size (a probe with `font-size: medium`)
+over 16 px; page zoom already scales CSS pixels.
+
+**Semantics** (MRQ-11). The slotted text is read once where it stands; the line has no role and no `tabindex`; nothing
+is announced. The playback control is a `<tanrei-button variant="text" size="small">` (part `playback`) with the
+`pause` and `play_arrow` glyphs.
 
 ## `<tanrei-carousel>` and `<tanrei-carousel-item>`
 
@@ -4530,7 +4687,10 @@ that side has less room than the surface within `surface.viewport-margin` and th
 anchor to stay inside that margin, its height limited to the room left (the items scroll), and followed while open —
 by events, frame by frame only while something moves (`FollowController`, below). It fades in and grows from the edge facing the anchor over `motion.open-duration` / `-easing`, and fades out
 over `motion.close-duration` / `-easing` (at once under reduced motion). Opening focuses the first enabled item; closing
-returns focus to the anchor when it was inside the menu. It is not modal: no focus trap, nothing inert, no scrim. **A press
+returns focus to the anchor when it was inside the menu. Where that item is not drawn yet — a menu mounted open, or
+opened in the task that gives it new groups, renders before its groups draw their slots, and Chromium and Firefox focus
+nothing that is not drawn (WebKit does) — the menu waits for itself, its groups and its rows to finish rendering (their
+`updateComplete`, microtasks only, so no input comes between), then places focus. It is not modal: no focus trap, nothing inert, no scrim. **A press
 outside also reaches the element under it** (the menu listens in the capture phase and prevents nothing). Tab asks to
 close and moves focus to the anchor first, so the Tab itself goes on from the anchor. A press on the anchor is the
 anchor's own: it neither closes the menu nor counts as outside, so your anchor handler decides (toggle it).
@@ -4839,7 +4999,7 @@ own row, or linked to it — whose panels take their place.
 | `track` | boolean \| `null` | `null` | whether the track is filled (TAB-49): the attribute is absent for null (the system's choice, `--tanrei-comp-tabs-track-visible`), bare for true and `track="false"` for false. Off fills nothing and changes nothing else |
 | `transition` | `auto` \| `slide` \| `none` | `auto` | how a new selection is drawn (TAB-43): `none` whole in one frame; `auto` — and any other value, reported — takes `--tanrei-comp-tabs-motion-transition`; reflected |
 | `value` | string \| `null` | `null` | the selected tab's value, as a `<select>`'s; `null` selects the first enabled tab. A value naming no tab selects none and shows no panel (reported, TAB-11). Not reflected |
-| `label` | string | `""` | the tab list's accessible name |
+| `label` | string | `""` | the accessible name of the tab list, or of the radio group a row without panels is (TAB-42) |
 | `indicatorOffset` | number | `0` | property only, no attribute (TAB-26): draws the indicator and the underline between the selected tab (0) and the next (1) or previous (−1) enabled tab, each edge interpolated, clamped to 1, in the frame it is set and without a slide; on the selected tab where there is no enabled tab in that direction. A linked Tab view writes it while it is swiped; leave it at 0 otherwise. While it is not 0 the row follows no drag of its own. A drag across the row does not pass through this property |
 | `group` | string | `""` | names a choice this row shares with every other `<tanrei-tabs>` of the document that names the same group, compared exactly — placed by the product or drawn by a `<tanrei-tab-view>`, in shadow trees too (TAB-36). Empty: the row's choice is its own. Not reflected |
 | `rememberAs` / `remember-as` | string | `""` | the key of the origin's `localStorage` under which a person's choice on this row is kept, and from which it is restored before the row is first drawn (TAB-39). Used exactly as given; only the tab's value is stored. Empty: no storage is read or written. Not reflected |
@@ -4868,6 +5028,17 @@ the tabs (their slot); the panels are slotted after it, so the list owns nothing
 `hidden`. A panel with nothing focusable gets `tabindex="0"`. Tabs and panels without an id get one. The icon, the
 container, the indicator with its covered copy of the label and icon, the focus ring's box, the underline and the divider
 are `aria-hidden`, and the track is the scroller's own background, so each label is exposed once.
+
+**A row without panels is a radio group (TAB-42).** While the row has no panel — no `<tanrei-tab-panel>` of its own, and
+no panel of a linked `<tanrei-tab-view>` (or of the view that draws it) for any of its tabs' values — the same element
+is `role="radiogroup"`, named by `label`, with no `aria-orientation`, and each tab's host is a `radio` with
+`aria-checked` in place of `aria-selected`, and no `aria-controls`; position, name, disabled state and the one Tab stop
+are unchanged. Every arrow key then moves and selects, in either orientation (Right and Left mirrored in right-to-left),
+as a radio group's arrows do. The row reads which it is in each `sync()`, from the panels it would associate, and draws
+the role again when that changes; there is no prop for it, so it cannot disagree with what the row holds. An element of
+the library that draws a row and the panel it switches separately links that panel as a view does (`linkView()` with an
+object answering `panelFor()`; the `LinkedTabView` interface asks only `isConnected` of it): the date-time picker
+links its time section to the entry-mode tabs (DTM-13), which are then a tab list controlling it.
 
 **A truncated label (TAB-25).** While a tab's drawn label is cut short (`text-overflow: ellipsis`, measured as its
 `scrollWidth` exceeding its box, again whenever the label's box resizes), the tab holds a plain `<tanrei-tooltip>` over
@@ -6488,6 +6659,78 @@ disabled (`forced-color-adjust: none` on the line only); the box is transparent;
 
 The fixtures are drawn by the test harness (`test/harness.ts`) on a 160 × 96 box whose corners are concentric with the
 arc, the handle at its bottom edge, its end edge or its corner.
+
+## `<tanrei-resizable-frame>`
+
+A box whose width and height a person changes by a handle on its edge or its corner, from the keyboard, or by
+activating the handle (`specs/resizable-frame.spec.json`, RSF-1…19). It is built from `<tanrei-handle>`: one per name
+in `handles`, in its shadow root, given its `value`, `min`, `max`, `label` and `revealed` by the frame on every render.
+
+```html
+<!-- A preview checked at a phone's width, a tablet's and a laptop's. -->
+<tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="Resize preview width">
+  <iframe title="Preview" src="/preview"></iframe>
+</tanrei-resizable-frame>
+<!-- A side bar at the end of a layout: plain, resized from its start edge, its width kept from one visit to the next. -->
+<tanrei-resizable-frame variant="plain" handles="start" width="320" min-width="240" max-width="560" size-indicator="none" width-label="Resize side bar">
+  <aside>…</aside>
+</tanrei-resizable-frame>
+<script type="module">
+  const bar = document.querySelectorAll('tanrei-resizable-frame')[1];
+  bar.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+</script>
+```
+
+| `<tanrei-resizable-frame>` | Type | Default | |
+|---|---|---|---|
+| `variant` | `outlined` \| `plain` | `outlined` | outlined: corners, one hairline, the handles in tracks beyond the box. plain: nothing drawn, the content fills the box, each handle centred on its edge. Any other value is `outlined`, reported (RSF-16); reflected |
+| `handles` | array of `start`, `end`, `bottom`, `bottom-end` | `["end"]` | the attribute is space-separated or a JSON array; an empty attribute draws none. Unknown names are not drawn, reported |
+| `width` / `height` | number \| null | `null` | the box's size in px; null takes the layout's (the content's height where the layout gives none). A person's drag, key or activation sets it; setting it sends no event (RSF-12) |
+| `minWidth` / `min-width` | number \| null | `null` | null is `comp.resizable-frame.container.min-width` (320) |
+| `maxWidth` / `max-width` | number \| null | `null` | null is the room the layout gives, less the handles' tracks |
+| `minHeight` / `min-height`, `maxHeight` / `max-height` | number \| null | `null` | null is `container.min-height`, and no greatest |
+| `snapWidths` / `snap-widths` | array of numbers | `[]` | a drag that changes the width snaps within `snap-distance`; a width that is not a whole number above zero is ignored, reported |
+| `step` / `largeStep` (`large-step`) | number | `10` / `100` | px per arrow key, and with Shift or Page Up/Down |
+| `sizeIndicator` / `size-indicator` | `none` \| `active` \| `always` | `active` | active: while a handle is held or has keyboard focus |
+| `widthLabel`, `heightLabel`, `cornerLabel` (`width-label`…) | string | `""` | the names of the start and end handle, the bottom one and the corner one; an empty one of a drawn handle is reported (RSF-9) |
+
+| Event | When |
+|---|---|
+| `resize` | each frame a drag changes the size: `detail.width`, `detail.height` |
+| `change` | once a person has changed it: a drag ended, a key, an activation. Neither is sent for a size you set |
+
+Both are composed and bubble; the Handle's own events stay in the shadow root, where the frame hears them.
+
+**Layout (RSF-1, RSF-3, RSF-12).** The host is a block; `.room` is its content box, a flex row that puts the frame at
+its start, or at its end while `handles` has `start` and not `end`. `.frame` is a grid whose areas are written per
+render: outlined, the box and a track for each edge a handle stands beyond, `handle.gap` apart; plain, the box's cell
+alone, the handles in it, aligned to an edge and moved half their size across it (`translate`, mirrored for
+right-to-left). The box's width is written as `--_rsf-w` on the box (the content inherits the name, so it is the
+frame's alone): the person's or the product's width within the least and the greatest. The greatest is measured — the
+room's width less the handles' tracks and gaps, read from the grid's resolved columns by a `ResizeObserver` on the
+room, the box, the content and the handles — and so are the token lengths the element counts with (`container.min-*`,
+`snap-distance`), each as the width of a hidden probe. A narrower room narrows the box and keeps `width`, which comes
+back when there is room.
+
+**A drag (RSF-4…6).** On a handle's `resizestart` the frame takes the shown size and sets `pointer-events: none` on
+every slotted `<iframe>`, `<object>` and `<embed>` (and those inside slotted elements), putting back each one's own
+inline value on `resizeend`. Each `resize` sets `width` and/or `height` from the distance (the start handle's taken the
+other way), snapped and clamped, and sends `resize` when the size changed; `resizeend` sends one `change` where it did.
+
+**Keys and activation (RSF-7, RSF-8).** `step` moves the size its axis stands for; Home and End give the least and the
+greatest from either edge. `activate` switches to the greatest and back to the size before; the bottom handle's greatest
+is the content's height while `max-height` is null. Both move through `AnimatedSize` (src/primitives/motion.ts) on the
+box, over `motion.resize-duration` with `motion.resize-easing`, at once where motion is reduced; a size you set and a
+drag never move.
+
+**What it shows (RSF-2, RSF-10, RSF-11, RSF-19).** Outlined, the box scrolls its content (`overflow: auto`, its edge
+`outline.width` in `outline.color` as the box's border, its corners through `heldShape()`), and is a focus stop while
+the content is taller than it. The indicator is a grid item over the box's top-end corner, `dir="ltr"`, its digits from
+`Intl.NumberFormat` for the nearest `lang`, without grouping; it fades by `opacity` on the hint's role and does not
+transition during a drag. Outlined, a mouse over the frame sets `revealed` on its handles; plain leaves them to the
+Handle's own rule.
+
+The fixtures are drawn by the test harness in a room 640 wide, their content a block in `surface-container-low`.
 
 ## `<tanrei-side-sheet>`
 

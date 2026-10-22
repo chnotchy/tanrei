@@ -268,6 +268,7 @@ export interface TanreiState {
 
 /** The dial values this system was derived from (informational at runtime: derivation is build-time). */
 export interface TanreiDials {
+  readonly density: number;
   readonly motionUnit: number;
   readonly shapeUnit: number;
   readonly sizeUnit: number;
@@ -301,6 +302,7 @@ export interface TanreiIconMeasure {
 }
 
 export interface TanreiTargetMeasure {
+  readonly minimum: number;
   readonly pointer: number;
   readonly spacing: number;
   readonly touch: number;
@@ -3195,6 +3197,23 @@ export interface TanreiMainActionButtonTokens {
 }
 
 /**
+ * `comp.marquee-text`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiMarqueeTextTokens {
+  readonly fadeExtent: number;
+  readonly gap: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionEndPause: number;
+  readonly motionReturnDuration: number;
+  readonly motionReturnEasing: TanreiCubicBezier;
+  readonly motionStartDelay: number;
+  readonly motionStartPause: number;
+  readonly playbackGap: number;
+  readonly speed: number;
+}
+
+/**
  * Every value of `comp.menu`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `unselected` (with a dev-only warning).
@@ -3660,6 +3679,20 @@ export interface TanreiNumberInputTokens {
 }
 
 /**
+ * `comp.number-ticker`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiNumberTickerTokens {
+  readonly animation: number;
+  readonly blurSlideDistance: number;
+  readonly blurRadius: number;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionReducedDuration: number;
+  readonly motionStagger: number;
+}
+
+/**
  * Every value of `comp.one-time-code-input`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `standard` (with a dev-only warning).
@@ -4099,6 +4132,33 @@ export interface TanreiRadioButtonTokens {
   readonly ringSize: number;
   readonly ringWidth: number;
   readonly conditions: TanreiRadioButtonConditions;
+}
+
+/**
+ * `comp.resizable-frame`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiResizableFrameTokens {
+  readonly containerMinHeight: number;
+  readonly containerMinWidth: number;
+  readonly containerShape: number;
+  readonly handleGap: number;
+  readonly motionIndicatorEnterDuration: number;
+  readonly motionIndicatorEnterEasing: TanreiCubicBezier;
+  readonly motionIndicatorExitDuration: number;
+  readonly motionIndicatorExitEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
+  readonly outlineColor: TanreiPaint;
+  readonly outlineWidth: number;
+  readonly sizeIndicatorContainerColor: TanreiPaint;
+  readonly sizeIndicatorContainerHeight: number;
+  readonly sizeIndicatorContainerPaddingInline: number;
+  readonly sizeIndicatorContainerShape: number;
+  readonly sizeIndicatorLabelColor: TanreiPaint;
+  readonly sizeIndicatorLabelTypescale: TanreiTypescaleRole;
+  readonly sizeIndicatorOffset: number;
+  readonly snapDistance: number;
 }
 
 /**
@@ -5734,6 +5794,7 @@ export interface TanreiComponents {
   readonly list: TanreiListTokens;
   readonly loadingIndicator: TanreiLoadingIndicatorTokens;
   readonly mainActionButton: TanreiMainActionButtonTokens;
+  readonly marqueeText: TanreiMarqueeTextTokens;
   readonly menu: TanreiMenuTokens;
   readonly menubar: TanreiMenubarTokens;
   readonly meter: TanreiMeterTokens;
@@ -5741,6 +5802,7 @@ export interface TanreiComponents {
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
   readonly numberInput: TanreiNumberInputTokens;
+  readonly numberTicker: TanreiNumberTickerTokens;
   readonly oneTimeCodeInput: TanreiOneTimeCodeInputTokens;
   readonly pageHeader: TanreiPageHeaderTokens;
   readonly pagination: TanreiPaginationTokens;
@@ -5749,6 +5811,7 @@ export interface TanreiComponents {
   readonly progressIndicator: TanreiProgressIndicatorTokens;
   readonly prose: TanreiProseTokens;
   readonly radioButton: TanreiRadioButtonTokens;
+  readonly resizableFrame: TanreiResizableFrameTokens;
   readonly scrollArea: TanreiScrollAreaTokens;
   readonly search: TanreiSearchTokens;
   readonly segmentedButton: TanreiSegmentedButtonTokens;

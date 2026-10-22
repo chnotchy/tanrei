@@ -497,7 +497,7 @@ export class TanreiListItem extends TanreiElement {
   };
 
   /** LST-15: a press on a disabled item does not focus it (as on a native disabled control); the arrow keys still reach it. */
-  private onMouseDown(event: MouseEvent) {
+  #onMouseDown(event: MouseEvent) {
     if (this.mode !== 'static' && this.disabled) event.preventDefault();
   }
 
@@ -522,7 +522,7 @@ export class TanreiListItem extends TanreiElement {
   }
 
   /** The content changed: what it holds is inspected, the list hears that the item's name may have changed. */
-  private onContentChange() {
+  #onContentChange() {
     this.tellContent();
     this.requestUpdate();
     void this.inspectContent();
@@ -548,7 +548,7 @@ export class TanreiListItem extends TanreiElement {
   }
 
   /** LST-33: the handle was pressed — by pointer, touch, Enter or assistive technology, as a Button is. */
-  private onHandleClick(event: Event) {
+  #onHandleClick(event: Event) {
     const list = this.parentElement;
     // A press that carried the item is no press of the handle.
     if (list instanceof TanreiList && list.swallowsHandleClick()) {
@@ -560,12 +560,12 @@ export class TanreiListItem extends TanreiElement {
   }
 
   /** LST-33: the menu asks to be closed — Escape, a press outside, Tab, focus leaving, an item chosen. */
-  private onMenuClose() {
+  #onMenuClose() {
     this.menuOpen = false;
   }
 
   /** LST-33: a move was chosen. */
-  private onMoveChosen(move: Move) {
+  #onMoveChosen(move: Move) {
     this.menuOpen = false;
     const list = this.parentElement;
     if (list instanceof TanreiList) list.requestMenuMove(this, move);
@@ -651,7 +651,7 @@ export class TanreiListItem extends TanreiElement {
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
-        @mousedown=${this.onMouseDown}
+        @mousedown=${this.#onMouseDown}
       >
         ${reorder
           ? html`<tanrei-button
@@ -664,17 +664,17 @@ export class TanreiListItem extends TanreiElement {
               .forwardedDescription=${this.context.handleHint || null}
               ?disabled=${lone}
               focusable-when-disabled
-              @click=${this.onHandleClick}
+              @click=${this.#onHandleClick}
               ><span slot="icon" class="handle-glyph" data-mirror="never"><span class="ink">${HANDLE_GLYPH}</span></span></tanrei-button
             >`
           : nothing}
-        <span part="content" class="content"><slot @slotchange=${this.onContentChange}></slot></span>
+        <span part="content" class="content"><slot @slotchange=${this.#onContentChange}></slot></span>
         <span class="hold" aria-hidden="true"></span>
         ${link?.opensNew ? html`<span part="new-context" class="new-context" aria-hidden="true"><span class="ink">${LINK_MARK}</span></span>` : nothing}
         ${this.context.selectable ? html`<span part="mark" class="mark" aria-hidden="true"><span class="ink">${CHECK_GLYPH}</span></span>` : nothing}
       </${tag}>
       ${reorder && this.menuDrawn
-        ? html`<tanrei-menu anchor="handle" placement="bottom-start" .open=${this.menuOpen && !lone} @close=${this.onMenuClose}>
+        ? html`<tanrei-menu anchor="handle" placement="bottom-start" .open=${this.menuOpen && !lone} @close=${this.#onMenuClose}>
             ${MOVES.map(
               (move) =>
                 html`<tanrei-menu-item
@@ -682,7 +682,7 @@ export class TanreiListItem extends TanreiElement {
                   leading-icon=${MOVE_GLYPHS[orientation][move]}
                   ?disabled=${useless[move]}
                   data-move=${move}
-                  @click=${() => this.onMoveChosen(move)}
+                  @click=${() => this.#onMoveChosen(move)}
                 ></tanrei-menu-item>`,
             )}
           </tanrei-menu>`

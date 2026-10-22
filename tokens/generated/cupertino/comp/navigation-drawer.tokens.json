@@ -158,10 +158,34 @@
             "$type": "dimension",
             "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes, per density. Each cell's hit area reaches half of it above and below. Compact keeps the two shapes apart by the least room, as a dense sidebar does.",
             "regular": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space50}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space25}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           }
         },
@@ -218,7 +242,10 @@
                     "dev.tanrei.derive": {
                       "fn": "mul",
                       "of": "{tanrei.dial.size.unit}",
-                      "by": 12
+                      "by": 12,
+                      "times": "{tanrei.dial.density}",
+                      "round": "{tanrei.dial.size.unit}",
+                      "min": "{tanrei.sys.target.minimum}"
                     }
                   }
                 },
@@ -231,7 +258,10 @@
                     "dev.tanrei.derive": {
                       "fn": "mul",
                       "of": "{tanrei.dial.size.unit}",
-                      "by": 8
+                      "by": 8,
+                      "times": "{tanrei.dial.density}",
+                      "round": "{tanrei.dial.size.unit}",
+                      "min": "{tanrei.sys.target.minimum}"
                     }
                   }
                 }
@@ -381,7 +411,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 9
+                  "by": 9,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}"
                 }
               }
             },
@@ -394,7 +426,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 7
+                  "by": 7,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}"
                 }
               }
             }
@@ -414,7 +448,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 12
+                    "by": 12,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               },
@@ -427,7 +464,10 @@
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 8
+                    "by": 8,
+                    "times": "{tanrei.dial.density}",
+                    "round": "{tanrei.dial.size.unit}",
+                    "min": "{tanrei.sys.target.minimum}"
                   }
                 }
               }
@@ -459,10 +499,30 @@
               }
             },
             "regular": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.navigation-drawer.item.container.height.regular}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.navigation-drawer.item.container.height.compact}"
+                }
+              }
             }
           },
           "gap": {

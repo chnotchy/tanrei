@@ -5570,6 +5570,19 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
   )
 )
 
+private let m3LikeMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 150,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let m3LikeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
   containerShape: 0,
@@ -6685,6 +6698,16 @@ private let m3LikeNumberInputTokens = TanreiNumberInputTokens(
   stepperInset: 4
 )
 
+private let m3LikeNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 500,
+  motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
+)
+
 private let m3LikeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
   caretWidth: 2,
   containerGap: 6,
@@ -7267,6 +7290,29 @@ private let m3LikeRadioButtonTokens = TanreiRadioButtonTokens(
     containerShape: 9999,
     opacity: 1
   )
+)
+
+private let m3LikeResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 16,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 200,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionIndicatorExitDuration: 150,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionResizeDuration: 200,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 8,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: m3LikeTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
 )
 
 private let m3LikeScrollAreaTokens = TanreiScrollAreaTokens(
@@ -9880,6 +9926,7 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
+      targetMinimum: 32,
       targetPointer: 44,
       targetSpacing: 8,
       targetTouch: 48
@@ -10006,6 +10053,7 @@ extension TanreiSystem {
     list: m3LikeListTokens,
     loadingIndicator: m3LikeLoadingIndicatorTokens,
     mainActionButton: m3LikeMainActionButtonTokens,
+    marqueeText: m3LikeMarqueeTextTokens,
     menu: m3LikeMenuTokens,
     menubar: m3LikeMenubarTokens,
     meter: m3LikeMeterTokens,
@@ -10013,6 +10061,7 @@ extension TanreiSystem {
     navigationBar: m3LikeNavigationBarTokens,
     navigationDrawer: m3LikeNavigationDrawerTokens,
     numberInput: m3LikeNumberInputTokens,
+    numberTicker: m3LikeNumberTickerTokens,
     oneTimeCodeInput: m3LikeOneTimeCodeInputTokens,
     pageHeader: m3LikePageHeaderTokens,
     pagination: m3LikePaginationTokens,
@@ -10021,6 +10070,7 @@ extension TanreiSystem {
     progressIndicator: m3LikeProgressIndicatorTokens,
     prose: m3LikeProseTokens,
     radioButton: m3LikeRadioButtonTokens,
+    resizableFrame: m3LikeResizableFrameTokens,
     scrollArea: m3LikeScrollAreaTokens,
     search: m3LikeSearchTokens,
     segmentedButton: m3LikeSegmentedButtonTokens,

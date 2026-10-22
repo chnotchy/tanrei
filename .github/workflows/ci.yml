@@ -77,7 +77,7 @@ jobs:
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
           fetch-depth: 0
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -223,7 +223,7 @@ jobs:
       - if: github.event_name == 'workflow_dispatch' && inputs.grep
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - if: github.event_name == 'workflow_dispatch' && inputs.grep
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -436,7 +436,7 @@ jobs:
         with:
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -489,7 +489,7 @@ jobs:
         with:
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -528,27 +528,28 @@ jobs:
       # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
       # carries the same files into the merged report; this one is the shard's own, without merging.
       - if: ${{ failure() && steps.playwright.outcome == 'failure' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-results-${{ matrix.engine }}-${{ matrix.shard }}
           path: packages/web/test-results
           retention-days: 7
           if-no-files-found: ignore
-      # What needs no browser runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
+      # What is not a Playwright test runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
       # here never costs a shard its Playwright results): the web package's Node tests — the links build helper and the
-      # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests, which read both
+      # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests (their types, and the
+      # wrappers rendered by React in each of the image's three browsers, a few seconds), which read both
       # packages' builds. Locally, `pnpm test` runs the same scripts (turbo.json). A targeted run skips them: its pattern
       # selects Playwright tests only.
       - name: Node tests of the web package (the links build helper, the manifest against the built elements)
         if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 && needs.changes.outputs.targeted != 'true' }}
         run: pnpm --filter @tanrei/web test:node
-      - name: React bindings (their types compile against the elements; their Node tests)
+      - name: React bindings (their types compile against the elements; their Node tests; the wrappers in three browsers)
         if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 && needs.changes.outputs.targeted != 'true' }}
         run: pnpm --filter @tanrei/react build && pnpm --filter @tanrei/react test
       # The shard's blob report (playwright.config.ts, on CI): every result, with each failure's screenshots, diffs and
       # trace as attachments — what test-results held — for web-report to merge. Uploaded whether the shard passed or not.
       - if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blob-report-${{ matrix.engine }}-${{ matrix.shard }}
           path: packages/web/blob-report
@@ -578,12 +579,12 @@ jobs:
         with:
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: blob-report-*
           merge-multiple: true
@@ -593,7 +594,7 @@ jobs:
         run: |
           pnpm exec playwright merge-reports --reporter html ./all-blob-reports
           df -h /
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
           path: packages/web/playwright-report
@@ -614,7 +615,7 @@ jobs:
           filter: blob:none
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -664,7 +665,7 @@ jobs:
           sudo xcode-select -s "$app/Contents/Developer"
           xcodebuild -version
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -679,7 +680,7 @@ jobs:
       - if: ${{ !cancelled() }}
         run: cp -R "$TMPDIR/tanrei-snapshot-failures" swiftui-snapshot-failures || true
       - if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: swiftui-snapshot-failures
           path: swiftui-snapshot-failures
@@ -750,7 +751,7 @@ jobs:
               walk(n, [])
           " || echo "No result bundle (the build or the simulator failed before any test ran)."
       - if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: swiftui-dynamic-type-xcresult
           path: ${{ runner.temp }}/dynamic-type.xcresult
@@ -876,7 +877,7 @@ jobs:
               walk(n, [])
           " || echo "No result bundle (the build or the simulator failed before any test ran)."
       - if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: swiftui-gallery-xcresult-${{ matrix.shard }}
           path: ${{ runner.temp }}/gallery.xcresult
@@ -914,7 +915,7 @@ jobs:
           flutter test
           flutter build web
       - if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: flutter-golden-failures
           path: packages/flutter/test/**/failures
@@ -942,7 +943,7 @@ jobs:
       - working-directory: packages/compose
         run: ./gradlew :tanrei:assembleDebug :tanrei:testDebugUnitTest :tanrei:verifyRoborazziDebug :gallery:assembleDebug :gallery:assembleDebugAndroidTest
       - if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: compose-roborazzi-diffs
           path: packages/compose/tanrei/build/outputs/roborazzi
@@ -1016,7 +1017,7 @@ jobs:
           # On a failure, print each failing test's message into the log (the HTML report stays on the runner).
           script: ./gradlew :gallery:connectedDebugAndroidTest || { find gallery/build/outputs/androidTest-results -name '*.xml' -exec grep -h -B 1 -A 25 '<failure' {} + | head -n 400; exit 1; }
       - if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: compose-instrumented-results
           path: packages/compose/gallery/build/reports/androidTests
@@ -1033,7 +1034,7 @@ jobs:
         with:
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm

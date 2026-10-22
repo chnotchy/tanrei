@@ -5,6 +5,7 @@ import { ROOT_SYSTEM, availabilityOf, componentChoiceProblems, heldComponents, l
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { forwards, fromProblems, resolveAll, resolveFrom, twinProblems } from './from.js';
 import { levelProblems, listingProblems } from './levels.js';
+import { partsProblems } from './parts.js';
 import { placesProblems } from './places.js';
 
 const IMPLEMENTED = new Set(['alpha', 'beta', 'stable', 'deprecated']);
@@ -56,10 +57,11 @@ export function compileSpecSchema() {
   return ajv.compile(JSON.parse(read('specs/component.schema.json')));
 }
 
-/** A `strings` prop takes a list of strings; no other prop takes a list. */
+/** A `strings` prop takes a list of strings and a `numbers` prop a list of finite numbers; no other prop takes a list. */
 function shapeProblem(prop, value) {
   const list = Array.isArray(value);
   if (prop.type === 'strings') return list && value.every((v) => typeof v === 'string') ? null : 'a strings prop takes a list of strings';
+  if (prop.type === 'numbers') return list && value.every((v) => typeof v === 'number' && Number.isFinite(v)) ? null : 'a numbers prop takes a list of numbers';
   return list ? `a ${prop.type} prop does not take a list` : null;
 }
 
@@ -69,7 +71,7 @@ export function validateSpecs() {
   const vocabulary = vocabularyIds();
   const specs = loadSpecs();
   const byName = new Map(specs.map(({ spec }) => [spec.name, spec]));
-  return [...specs.flatMap(({ file, spec }) => specProblems(file, spec, { validate, vocabulary, byName })), ...validateLevels(), ...validateListing(), ...validateFrom(specs), ...validatePlaces(specs), ...validateSharedSets()];
+  return [...specs.flatMap(({ file, spec }) => specProblems(file, spec, { validate, vocabulary, byName })), ...validateLevels(), ...validateListing(), ...validateFrom(specs), ...validatePlaces(specs), ...validateWebParts(specs), ...validateSharedSets()];
 }
 
 /**
@@ -93,6 +95,18 @@ export function validateFrom(specs = loadSpecs()) {
 /** Every spec with its forwarded props, events and slots written out (`resolveFrom`): what reads them for what they are reads these. */
 export function loadResolvedSpecs() {
   return resolveAll(loadSpecs());
+}
+
+/** A component's web stylesheets, read: its implementation where that is a stylesheet, and the stylesheet beside its element. */
+const webStylesheets = (name) =>
+  [PLATFORMS.web.implementation(name), PLATFORMS.web.stylesheet(name)].filter((file) => file?.endsWith('.css') && exists(file)).map(read).join('\n');
+
+/**
+ * Where each part of the anatomy is drawn on the web, held for every spec that writes it against the element manifest
+ * and the light-DOM stylesheets: see `partsProblems`.
+ */
+export function validateWebParts(specs = loadSpecs()) {
+  return partsProblems(specs, JSON.parse(read('packages/web/custom-elements.json')), webStylesheets);
 }
 
 /** The levels of the components, held across every spec and the inventory: see `levelProblems`. */

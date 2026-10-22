@@ -1087,8 +1087,18 @@ const STAGING: Record<string, Staging> = {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
   // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
+  // A marquee text is as wide as its place (MRQ-1): its stage gives it 240 in the body text style and color, which the
+  // long fixtures' text does not fit and "Short title" does.
+  'marquee-text': {
+    css: () => `tanrei-marquee-text { inline-size: 240px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+  },
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
+  },
+  // A ticker has no text style of its own (NTK-1): it is staged as a dashboard's figure, in a heading's style and the
+  // surface's text color, which it takes from its stage.
+  'number-ticker': {
+    css: () => `.stage:has(> tanrei-number-ticker) { font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
   },
   // A scroll area is as large as its layout gives it (SCA-1): its stage gives it a box 280 × 160, and the fixture's text
   // is content that does not fit it — twenty-four lines of "Long content", or a row of twelve tiles that cannot wrap
@@ -1232,6 +1242,15 @@ const STAGING: Record<string, Staging> = {
       .owner[data-axis='both'][data-corner^='top'] > tanrei-handle { align-self: start; }
       .owner[data-axis='both'][data-corner$='start'] > tanrei-handle { justify-self: start; }`,
     wrap: (element, f) => `<div class="owner" data-axis="${f.props.axis ?? 'vertical'}" data-corner="${f.props.corner ?? 'bottom-end'}" data-size="${f.props.size ?? 'medium'}">${element}</div>`,
+  },
+  // A resizable frame is given a room 640 wide, wider than any fixture's box and its handles, so that the greatest
+  // width is the room's and a plain frame's box at the end of its room (a side bar, RSF-1) stands apart from its start.
+  // What a fixture puts in it stands for the product's content: a block that fills the box, in a surface of its own,
+  // its text in the body style.
+  'resizable-frame': {
+    css: () => `.stage > tanrei-resizable-frame { inline-size: 640px; }
+      .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => (name === 'default' ? `<div class="resizable-frame-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>` : undefined),
   },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.

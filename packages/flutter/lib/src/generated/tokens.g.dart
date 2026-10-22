@@ -1278,6 +1278,7 @@ class TanreiMeasure {
     required this.iconLarge,
     required this.iconMedium,
     required this.iconSmall,
+    required this.targetMinimum,
     required this.targetPointer,
     required this.targetSpacing,
     required this.targetTouch,
@@ -1306,6 +1307,8 @@ class TanreiMeasure {
   final double iconMedium;
   /// `sys.icon.small`
   final double iconSmall;
+  /// `sys.target.minimum`
+  final double targetMinimum;
   /// `sys.target.pointer`
   final double targetPointer;
   /// `sys.target.spacing`
@@ -1330,6 +1333,7 @@ class TanreiMeasure {
     double? iconLarge,
     double? iconMedium,
     double? iconSmall,
+    double? targetMinimum,
     double? targetPointer,
     double? targetSpacing,
     double? targetTouch,
@@ -1346,6 +1350,7 @@ class TanreiMeasure {
         iconLarge: iconLarge ?? this.iconLarge,
         iconMedium: iconMedium ?? this.iconMedium,
         iconSmall: iconSmall ?? this.iconSmall,
+        targetMinimum: targetMinimum ?? this.targetMinimum,
         targetPointer: targetPointer ?? this.targetPointer,
         targetSpacing: targetSpacing ?? this.targetSpacing,
         targetTouch: targetTouch ?? this.targetTouch,
@@ -1366,6 +1371,7 @@ class TanreiMeasure {
         'icon-large' => iconLarge,
         'icon-medium' => iconMedium,
         'icon-small' => iconSmall,
+        'target-minimum' => targetMinimum,
         'target-pointer' => targetPointer,
         'target-spacing' => targetSpacing,
         'target-touch' => targetTouch,
@@ -14903,6 +14909,69 @@ class TanreiMainActionButtonTokens {
       };
 }
 
+/// `comp.marquee-text.*`
+@immutable
+class TanreiMarqueeTextTokens {
+  const TanreiMarqueeTextTokens({
+    required this.fadeExtent,
+    required this.gap,
+    required this.motionEasing,
+    required this.motionEndPause,
+    required this.motionReturnDuration,
+    required this.motionReturnEasing,
+    required this.motionStartDelay,
+    required this.motionStartPause,
+    required this.playbackGap,
+    required this.speed,
+  });
+
+  /// `comp.marquee-text.fade-extent`
+  final double fadeExtent;
+  /// `comp.marquee-text.gap`
+  final double gap;
+  /// `comp.marquee-text.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.marquee-text.motion-end-pause`
+  final int motionEndPause;
+  /// `comp.marquee-text.motion-return-duration`
+  final int motionReturnDuration;
+  /// `comp.marquee-text.motion-return-easing`
+  final TanreiCubicBezier motionReturnEasing;
+  /// `comp.marquee-text.motion-start-delay`
+  final int motionStartDelay;
+  /// `comp.marquee-text.motion-start-pause`
+  final int motionStartPause;
+  /// `comp.marquee-text.playback-gap`
+  final double playbackGap;
+  /// `comp.marquee-text.speed`
+  final double speed;
+
+  /// A copy with the given tokens replaced.
+  TanreiMarqueeTextTokens copyWith({
+    double? fadeExtent,
+    double? gap,
+    TanreiCubicBezier? motionEasing,
+    int? motionEndPause,
+    int? motionReturnDuration,
+    TanreiCubicBezier? motionReturnEasing,
+    int? motionStartDelay,
+    int? motionStartPause,
+    double? playbackGap,
+    double? speed,
+  }) => TanreiMarqueeTextTokens(
+        fadeExtent: fadeExtent ?? this.fadeExtent,
+        gap: gap ?? this.gap,
+        motionEasing: motionEasing ?? this.motionEasing,
+        motionEndPause: motionEndPause ?? this.motionEndPause,
+        motionReturnDuration: motionReturnDuration ?? this.motionReturnDuration,
+        motionReturnEasing: motionReturnEasing ?? this.motionReturnEasing,
+        motionStartDelay: motionStartDelay ?? this.motionStartDelay,
+        motionStartPause: motionStartPause ?? this.motionStartPause,
+        playbackGap: playbackGap ?? this.playbackGap,
+        speed: speed ?? this.speed,
+      );
+}
+
 /// The key of a condition of menu (`comp.menu`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -17114,6 +17183,54 @@ class TanreiNumberInputTokens {
       );
 }
 
+/// `comp.number-ticker.*`
+@immutable
+class TanreiNumberTickerTokens {
+  const TanreiNumberTickerTokens({
+    required this.animation,
+    required this.blurSlideDistance,
+    required this.blurRadius,
+    required this.motionDuration,
+    required this.motionEasing,
+    required this.motionReducedDuration,
+    required this.motionStagger,
+  });
+
+  /// `comp.number-ticker.animation`
+  final double animation;
+  /// `comp.number-ticker.blur-slide-distance`
+  final double blurSlideDistance;
+  /// `comp.number-ticker.blur-radius`
+  final double blurRadius;
+  /// `comp.number-ticker.motion-duration`
+  final int motionDuration;
+  /// `comp.number-ticker.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.number-ticker.motion-reduced-duration`
+  final int motionReducedDuration;
+  /// `comp.number-ticker.motion-stagger`
+  final int motionStagger;
+
+  /// A copy with the given tokens replaced.
+  TanreiNumberTickerTokens copyWith({
+    double? animation,
+    double? blurSlideDistance,
+    double? blurRadius,
+    int? motionDuration,
+    TanreiCubicBezier? motionEasing,
+    int? motionReducedDuration,
+    int? motionStagger,
+  }) => TanreiNumberTickerTokens(
+        animation: animation ?? this.animation,
+        blurSlideDistance: blurSlideDistance ?? this.blurSlideDistance,
+        blurRadius: blurRadius ?? this.blurRadius,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionEasing: motionEasing ?? this.motionEasing,
+        motionReducedDuration: motionReducedDuration ?? this.motionReducedDuration,
+        motionStagger: motionStagger ?? this.motionStagger,
+      );
+}
+
 /// The key of a condition of one-time-code-input (`comp.one-time-code-input`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -19164,6 +19281,119 @@ class TanreiRadioButtonTokens {
         TanreiInteractionState.pressed => pressed,
         TanreiInteractionState.disabled => disabled,
       };
+}
+
+/// `comp.resizable-frame.*`
+@immutable
+class TanreiResizableFrameTokens {
+  const TanreiResizableFrameTokens({
+    required this.containerMinHeight,
+    required this.containerMinWidth,
+    required this.containerShape,
+    required this.handleGap,
+    required this.motionIndicatorEnterDuration,
+    required this.motionIndicatorEnterEasing,
+    required this.motionIndicatorExitDuration,
+    required this.motionIndicatorExitEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.sizeIndicatorContainerColor,
+    required this.sizeIndicatorContainerHeight,
+    required this.sizeIndicatorContainerPaddingInline,
+    required this.sizeIndicatorContainerShape,
+    required this.sizeIndicatorLabelColor,
+    required this.sizeIndicatorLabelTypescale,
+    required this.sizeIndicatorOffset,
+    required this.snapDistance,
+  });
+
+  /// `comp.resizable-frame.container-min-height`
+  final double containerMinHeight;
+  /// `comp.resizable-frame.container-min-width`
+  final double containerMinWidth;
+  /// `comp.resizable-frame.container-shape`
+  final double containerShape;
+  /// `comp.resizable-frame.handle-gap`
+  final double handleGap;
+  /// `comp.resizable-frame.motion-indicator-enter-duration`
+  final int motionIndicatorEnterDuration;
+  /// `comp.resizable-frame.motion-indicator-enter-easing`
+  final TanreiCubicBezier motionIndicatorEnterEasing;
+  /// `comp.resizable-frame.motion-indicator-exit-duration`
+  final int motionIndicatorExitDuration;
+  /// `comp.resizable-frame.motion-indicator-exit-easing`
+  final TanreiCubicBezier motionIndicatorExitEasing;
+  /// `comp.resizable-frame.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.resizable-frame.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
+  /// `comp.resizable-frame.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.resizable-frame.outline-width`
+  final double outlineWidth;
+  /// `comp.resizable-frame.size-indicator-container-color`
+  final TanreiPaint sizeIndicatorContainerColor;
+  /// `comp.resizable-frame.size-indicator-container-height`
+  final double sizeIndicatorContainerHeight;
+  /// `comp.resizable-frame.size-indicator-container-padding-inline`
+  final double sizeIndicatorContainerPaddingInline;
+  /// `comp.resizable-frame.size-indicator-container-shape`
+  final double sizeIndicatorContainerShape;
+  /// `comp.resizable-frame.size-indicator-label-color`
+  final TanreiPaint sizeIndicatorLabelColor;
+  /// `comp.resizable-frame.size-indicator-label-typescale`
+  final TanreiTextStyle sizeIndicatorLabelTypescale;
+  /// `comp.resizable-frame.size-indicator-offset`
+  final double sizeIndicatorOffset;
+  /// `comp.resizable-frame.snap-distance`
+  final double snapDistance;
+
+  /// A copy with the given tokens replaced.
+  TanreiResizableFrameTokens copyWith({
+    double? containerMinHeight,
+    double? containerMinWidth,
+    double? containerShape,
+    double? handleGap,
+    int? motionIndicatorEnterDuration,
+    TanreiCubicBezier? motionIndicatorEnterEasing,
+    int? motionIndicatorExitDuration,
+    TanreiCubicBezier? motionIndicatorExitEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? sizeIndicatorContainerColor,
+    double? sizeIndicatorContainerHeight,
+    double? sizeIndicatorContainerPaddingInline,
+    double? sizeIndicatorContainerShape,
+    TanreiPaint? sizeIndicatorLabelColor,
+    TanreiTextStyle? sizeIndicatorLabelTypescale,
+    double? sizeIndicatorOffset,
+    double? snapDistance,
+  }) => TanreiResizableFrameTokens(
+        containerMinHeight: containerMinHeight ?? this.containerMinHeight,
+        containerMinWidth: containerMinWidth ?? this.containerMinWidth,
+        containerShape: containerShape ?? this.containerShape,
+        handleGap: handleGap ?? this.handleGap,
+        motionIndicatorEnterDuration: motionIndicatorEnterDuration ?? this.motionIndicatorEnterDuration,
+        motionIndicatorEnterEasing: motionIndicatorEnterEasing ?? this.motionIndicatorEnterEasing,
+        motionIndicatorExitDuration: motionIndicatorExitDuration ?? this.motionIndicatorExitDuration,
+        motionIndicatorExitEasing: motionIndicatorExitEasing ?? this.motionIndicatorExitEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        sizeIndicatorContainerColor: sizeIndicatorContainerColor ?? this.sizeIndicatorContainerColor,
+        sizeIndicatorContainerHeight: sizeIndicatorContainerHeight ?? this.sizeIndicatorContainerHeight,
+        sizeIndicatorContainerPaddingInline: sizeIndicatorContainerPaddingInline ?? this.sizeIndicatorContainerPaddingInline,
+        sizeIndicatorContainerShape: sizeIndicatorContainerShape ?? this.sizeIndicatorContainerShape,
+        sizeIndicatorLabelColor: sizeIndicatorLabelColor ?? this.sizeIndicatorLabelColor,
+        sizeIndicatorLabelTypescale: sizeIndicatorLabelTypescale ?? this.sizeIndicatorLabelTypescale,
+        sizeIndicatorOffset: sizeIndicatorOffset ?? this.sizeIndicatorOffset,
+        snapDistance: snapDistance ?? this.snapDistance,
+      );
 }
 
 /// `comp.scroll-area.*`
@@ -26698,6 +26928,7 @@ class TanreiSystem {
     required this.list,
     required this.loadingIndicator,
     required this.mainActionButton,
+    required this.marqueeText,
     required this.menu,
     required this.menubar,
     required this.meter,
@@ -26705,6 +26936,7 @@ class TanreiSystem {
     required this.navigationBar,
     required this.navigationDrawer,
     required this.numberInput,
+    required this.numberTicker,
     required this.oneTimeCodeInput,
     required this.pageHeader,
     required this.pagination,
@@ -26713,6 +26945,7 @@ class TanreiSystem {
     required this.progressIndicator,
     required this.prose,
     required this.radioButton,
+    required this.resizableFrame,
     required this.scrollArea,
     required this.search,
     required this.segmentedButton,
@@ -26799,6 +27032,7 @@ class TanreiSystem {
   final TanreiListTokens list;
   final TanreiLoadingIndicatorTokens loadingIndicator;
   final TanreiMainActionButtonTokens mainActionButton;
+  final TanreiMarqueeTextTokens marqueeText;
   final TanreiMenuTokens menu;
   final TanreiMenubarTokens menubar;
   final TanreiMeterTokens meter;
@@ -26806,6 +27040,7 @@ class TanreiSystem {
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
   final TanreiNumberInputTokens numberInput;
+  final TanreiNumberTickerTokens numberTicker;
   final TanreiOneTimeCodeInputTokens oneTimeCodeInput;
   final TanreiPageHeaderTokens pageHeader;
   final TanreiPaginationTokens pagination;
@@ -26814,6 +27049,7 @@ class TanreiSystem {
   final TanreiProgressIndicatorTokens progressIndicator;
   final TanreiProseTokens prose;
   final TanreiRadioButtonTokens radioButton;
+  final TanreiResizableFrameTokens resizableFrame;
   final TanreiScrollAreaTokens scrollArea;
   final TanreiSearchTokens search;
   final TanreiSegmentedButtonTokens segmentedButton;
@@ -26899,6 +27135,7 @@ class TanreiSystem {
     TanreiListTokens? list,
     TanreiLoadingIndicatorTokens? loadingIndicator,
     TanreiMainActionButtonTokens? mainActionButton,
+    TanreiMarqueeTextTokens? marqueeText,
     TanreiMenuTokens? menu,
     TanreiMenubarTokens? menubar,
     TanreiMeterTokens? meter,
@@ -26906,6 +27143,7 @@ class TanreiSystem {
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
     TanreiNumberInputTokens? numberInput,
+    TanreiNumberTickerTokens? numberTicker,
     TanreiOneTimeCodeInputTokens? oneTimeCodeInput,
     TanreiPageHeaderTokens? pageHeader,
     TanreiPaginationTokens? pagination,
@@ -26914,6 +27152,7 @@ class TanreiSystem {
     TanreiProgressIndicatorTokens? progressIndicator,
     TanreiProseTokens? prose,
     TanreiRadioButtonTokens? radioButton,
+    TanreiResizableFrameTokens? resizableFrame,
     TanreiScrollAreaTokens? scrollArea,
     TanreiSearchTokens? search,
     TanreiSegmentedButtonTokens? segmentedButton,
@@ -26997,6 +27236,7 @@ class TanreiSystem {
         list: list ?? this.list,
         loadingIndicator: loadingIndicator ?? this.loadingIndicator,
         mainActionButton: mainActionButton ?? this.mainActionButton,
+        marqueeText: marqueeText ?? this.marqueeText,
         menu: menu ?? this.menu,
         menubar: menubar ?? this.menubar,
         meter: meter ?? this.meter,
@@ -27004,6 +27244,7 @@ class TanreiSystem {
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,
         numberInput: numberInput ?? this.numberInput,
+        numberTicker: numberTicker ?? this.numberTicker,
         oneTimeCodeInput: oneTimeCodeInput ?? this.oneTimeCodeInput,
         pageHeader: pageHeader ?? this.pageHeader,
         pagination: pagination ?? this.pagination,
@@ -27012,6 +27253,7 @@ class TanreiSystem {
         progressIndicator: progressIndicator ?? this.progressIndicator,
         prose: prose ?? this.prose,
         radioButton: radioButton ?? this.radioButton,
+        resizableFrame: resizableFrame ?? this.resizableFrame,
         scrollArea: scrollArea ?? this.scrollArea,
         search: search ?? this.search,
         segmentedButton: segmentedButton ?? this.segmentedButton,

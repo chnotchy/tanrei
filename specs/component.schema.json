@@ -123,6 +123,10 @@
         }
       }
     },
+    "anatomyFixture": {
+      "type": "string",
+      "description": "The fixture an anatomy diagram draws, by id: one that shows every optional part, where the first fixture does not. Left out where the first fixture serves. `validate` holds that it names a fixture of this spec."
+    },
     "props": {
       "type": "array",
       "items": {
@@ -434,16 +438,60 @@
           "$ref": "#/$defs/platform"
         },
         "swiftui": {
-          "$ref": "#/$defs/platform"
+          "allOf": [
+            {
+              "$ref": "#/$defs/platform"
+            },
+            {
+              "not": {
+                "required": [
+                  "parts"
+                ]
+              }
+            }
+          ]
         },
         "compose": {
-          "$ref": "#/$defs/platform"
+          "allOf": [
+            {
+              "$ref": "#/$defs/platform"
+            },
+            {
+              "not": {
+                "required": [
+                  "parts"
+                ]
+              }
+            }
+          ]
         },
         "flutter": {
-          "$ref": "#/$defs/platform"
+          "allOf": [
+            {
+              "$ref": "#/$defs/platform"
+            },
+            {
+              "not": {
+                "required": [
+                  "parts"
+                ]
+              }
+            }
+          ]
         },
         "react-native": {
-          "$ref": "#/$defs/platform"
+          "allOf": [
+            {
+              "$ref": "#/$defs/platform"
+            },
+            {
+              "not": {
+                "required": [
+                  "parts"
+                ]
+              }
+            }
+          ]
         }
       }
     }
@@ -490,9 +538,10 @@
             "boolean",
             "string",
             "number",
-            "strings"
+            "strings",
+            "numbers"
           ],
-          "description": "`strings` is a list of strings (the values selected in a multiple-select list); its default is an array."
+          "description": "`strings` is a list of strings (the values selected in a multiple-select list); `numbers` is a list of numbers (the widths a resizable frame snaps to). The default of either is an array."
         },
         "values": {
           "type": "array",
@@ -516,7 +565,10 @@
             "array"
           ],
           "items": {
-            "type": "string"
+            "type": [
+              "string",
+              "number"
+            ]
           }
         },
         "description": {
@@ -717,6 +769,35 @@
                 "type": "string"
               }
             }
+          }
+        },
+        "parts": {
+          "type": "object",
+          "description": "Web only. Where each part of the anatomy is drawn, by anatomy id: what the docs' anatomy and measurement diagrams outline and their tests measure. A value is a target, optionally followed by an aspect. Targets: `host` (the element itself); `<css part>` (a part the element exports); `slot` or `slot:<name>` (what is placed in the default or a named slot); `<child tag>` or `<child tag> <css part>` (a child element of the component, or a part of it; a child of a child is `<child tag> <child tag>`, and so on); `.<class>` (a class of the light-DOM stylesheet). Aspects: `@outline` (the border or ring the target draws at its edge, inside or outside it), `@focus-ring` (the focus indicator the target draws, around it or inside its edge) and `@backdrop` (the scrim a modal target draws behind itself, its `::backdrop`, across the viewport). `{ \"noBox\": \"<why>\" }` where the part is not drawn as a box of its own on the web (a caret, a selection), saying why. A key is an anatomy id of this spec, or `<member part>.<id>` — an anatomy id that names a component of `builtFrom`, then an anatomy id of that member — for a composed component's diagram that shows its members' parts. Where it is written, `validate` holds that every anatomy id is a key and that every target exists in packages/web/custom-elements.json or the stylesheet (packages/tools/src/parts.js).",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*(\\.[a-z][a-z0-9]*(-[a-z0-9]+)*)*$"
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "noBox"
+                ],
+                "properties": {
+                  "noBox": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Why the part has no box of its own on the web."
+                  }
+                }
+              }
+            ]
           }
         },
         "notes": {

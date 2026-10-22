@@ -108,8 +108,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
+                  "of": "{tanrei.sys.control.height.small}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }
@@ -176,7 +177,17 @@
               "$value": "{tanrei.sys.space.space25}"
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.chip.container.height.medium}"
+                }
+              }
             }
           },
           "gap": {

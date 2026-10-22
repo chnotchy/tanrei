@@ -28,7 +28,7 @@ private object CupertinoSystemSource {
         val elevation = elevation()
         TanreiSystem(
             id = "cupertino",
-            dials = TanreiDials(motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
+            dials = TanreiDials(density = 1f, motionUnit = 50f, shapeUnit = 2f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
             intents = listOf(TanreiColorRole.Error, TanreiColorRole.Info, TanreiColorRole.Primary, TanreiColorRole.Secondary, TanreiColorRole.Success, TanreiColorRole.Warning),
             colors = TanreiColorSchemes(
                 light = lightColors(),
@@ -103,6 +103,7 @@ private object CupertinoSystemSource {
             list = list(typescale, elevation),
             loadingIndicator = loadingIndicator(typescale, elevation),
             mainActionButton = mainActionButton(typescale, elevation),
+            marqueeText = marqueeText(typescale, elevation),
             menu = menu(typescale, elevation),
             menubar = menubar(typescale, elevation),
             meter = meter(typescale, elevation),
@@ -110,6 +111,7 @@ private object CupertinoSystemSource {
             navigationBar = navigationBar(typescale, elevation),
             navigationDrawer = navigationDrawer(typescale, elevation),
             numberInput = numberInput(typescale, elevation),
+            numberTicker = numberTicker(typescale, elevation),
             oneTimeCodeInput = oneTimeCodeInput(typescale, elevation),
             pageHeader = pageHeader(typescale, elevation),
             pagination = pagination(typescale, elevation),
@@ -118,6 +120,7 @@ private object CupertinoSystemSource {
             progressIndicator = progressIndicator(typescale, elevation),
             prose = prose(typescale, elevation),
             radioButton = radioButton(typescale, elevation),
+            resizableFrame = resizableFrame(typescale, elevation),
             scrollArea = scrollArea(typescale, elevation),
             search = search(typescale, elevation),
             segmentedButton = segmentedButton(typescale, elevation),
@@ -573,6 +576,7 @@ private object CupertinoSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
+        targetMinimum = 28.dp,
         targetPointer = 44.dp,
         targetSpacing = 8.dp,
         targetTouch = 48.dp,
@@ -5170,6 +5174,21 @@ private object CupertinoSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun marqueeText(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMarqueeTextTokens =
+        TanreiMarqueeTextTokens(
+            fadeExtent = 16.dp,
+            gap = 48.dp,
+            motionEasing = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionEndPause = 1200,
+            motionReturnDuration = 250,
+            motionReturnEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionStartDelay = 300,
+            motionStartPause = 1200,
+            playbackGap = 8.dp,
+            speed = 30f,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun menu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMenuTokens =
         TanreiMenuTokens(
             checkboxItemMark = 1f,
@@ -6189,6 +6208,18 @@ private object CupertinoSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun numberTicker(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNumberTickerTokens =
+        TanreiNumberTickerTokens(
+            animation = 0f,
+            blurSlideDistance = 8.dp,
+            blurRadius = 8.dp,
+            motionDuration = 400,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionReducedDuration = 100,
+            motionStagger = 50,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun oneTimeCodeInput(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiOneTimeCodeInputTokens =
         TanreiOneTimeCodeInputTokens(
             caretWidth = 2.dp,
@@ -6710,6 +6741,31 @@ private object CupertinoSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun resizableFrame(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiResizableFrameTokens =
+        TanreiResizableFrameTokens(
+            containerMinHeight = 200.dp,
+            containerMinWidth = 320.dp,
+            containerShape = 14.dp,
+            handleGap = 8.dp,
+            motionIndicatorEnterDuration = 250,
+            motionIndicatorEnterEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionIndicatorExitDuration = 200,
+            motionIndicatorExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionResizeDuration = 300,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            outlineWidth = 1.dp,
+            sizeIndicatorContainerColor = TanreiPaint.Role(TanreiColorRole.InverseSurface),
+            sizeIndicatorContainerHeight = 24.dp,
+            sizeIndicatorContainerPaddingInline = 8.dp,
+            sizeIndicatorContainerShape = 8.dp,
+            sizeIndicatorLabelColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
+            sizeIndicatorLabelTypescale = typescale.codeSmall,
+            sizeIndicatorOffset = 8.dp,
+            snapDistance = 8.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")

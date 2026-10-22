@@ -23949,6 +23949,400 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/marquee-text/marquee-text.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "TRIGGERS",
+          "type": {
+            "text": "['hover-or-focus', 'hover', 'focus', 'always']"
+          },
+          "default": "['hover-or-focus', 'hover', 'focus', 'always']",
+          "description": "The `trigger` prop, the default first (MRQ-3, MRQ-15)."
+        },
+        {
+          "kind": "variable",
+          "name": "LOOPS",
+          "type": {
+            "text": "['repeat', 'bounce']"
+          },
+          "default": "['repeat', 'bounce']",
+          "description": "The `loop` prop, the default first (MRQ-4, MRQ-5, MRQ-15)."
+        },
+        {
+          "kind": "variable",
+          "name": "SPEED",
+          "default": "`${PREFIX}-speed`",
+          "description": "The component token of the speed, in pixels per second, read by the script (MRQ-4)."
+        },
+        {
+          "kind": "variable",
+          "name": "FADE",
+          "default": "`${PREFIX}-fade-extent`",
+          "description": "The component token of the fade's depth, read by the script for the fade's keyframes (MRQ-6)."
+        },
+        {
+          "kind": "variable",
+          "name": "GAP",
+          "default": "`${PREFIX}-gap`",
+          "description": "The component token of the copy's gap, read by the script for the distance of a pass (MRQ-4)."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ directionProbeStyles, css` :host { display: flex; align-items: center; min-inline-size: 0; max-inline-size: 100%; gap: ${unsafeCSS(T('playback-gap'))}; /* The fade's mask: the line's own box, widened by the fade's depth beyond each edge where no text lies hidden. */ --_fade: ${unsafeCSS(T('fade-extent'))}; } /* MRQ-1: one line high, as wide as its place, clipping the text. */ .viewport { flex: 1 1 auto; min-inline-size: 0; overflow: hidden; white-space: nowrap; } /* MRQ-2: at rest, the line cut with the platform's ellipsis at the end of the text's direction. */ .track { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* MRQ-4, MRQ-5: while it plays, the text and its copy on one row as wide as they are, which the motion moves. */ .viewport[data-playing] .track { display: flex; inline-size: max-content; overflow: visible; text-overflow: clip; } .text { white-space: nowrap; } .copy { white-space: nowrap; margin-inline-start: ${unsafeCSS(T('gap'))}; } /* MRQ-6: the fade of the edges behind which text lies hidden. One mask layer, the line's box with a band of the fade's depth at each side: widened past a side (and moved) where no text lies hidden there, so that side shows no fade. The script's keyframes move it with the text; at rest there is none. Without them — before the run's animation exists, or where it is cancelled — the line looks as it does resting at its start: only the end edge of the text's direction fades. */ .viewport[data-playing] { mask-image: linear-gradient(to right, transparent 0, black var(--_fade), black calc(100% - var(--_fade)), transparent 100%); mask-repeat: no-repeat; mask-size: calc(100% + var(--_fade)) 100%; mask-position: calc(-1 * var(--_fade)) 0; } .viewport[data-playing][dir='rtl'] { mask-position: 0 0; } .copy[hidden], .control[hidden] { display: none; } .timing { position: absolute; inline-size: 0; block-size: 0; overflow: hidden; visibility: hidden; pointer-events: none; transition-property: opacity; transition-duration: 0s; } .timing.start-pause { transition-delay: ${unsafeCSS(T('motion-start-pause'))}; } .timing.end-pause { transition-delay: ${unsafeCSS(T('motion-end-pause'))}; } .timing.start-delay { transition-delay: ${unsafeCSS(T('motion-start-delay'))}; } .timing.pass { transition-timing-function: ${unsafeCSS(T('motion-easing'))}; } .timing.return { transition-delay: ${unsafeCSS(T('motion-return-duration'))}; transition-timing-function: ${unsafeCSS(T('motion-return-easing'))}; } /* MRQ-13: the browser's default text size, against which an enlarged text size is measured. */ .timing.medium { font-size: medium; } /* MRQ-18: in forced colors there is no fade; the text is clipped at the viewport's edge. Important, so that it holds over the fade's keyframes. */ @media (forced-colors: active) { .viewport, .viewport[data-playing] { mask-image: none !important; } } `, hiddenHost, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TRIGGERS",
+          "declaration": {
+            "name": "TRIGGERS",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "LOOPS",
+          "declaration": {
+            "name": "LOOPS",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SPEED",
+          "declaration": {
+            "name": "SPEED",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FADE",
+          "declaration": {
+            "name": "FADE",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "GAP",
+          "declaration": {
+            "name": "GAP",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/marquee-text/marquee-text.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/marquee-text/marquee-text.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "textDirection",
+          "return": {
+            "type": {
+              "text": "'ltr' | 'rtl' | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The base direction of a text: that of its first strong character (MRQ-7), or null where it has none."
+        },
+        {
+          "kind": "class",
+          "description": "One line of text that does not fit its place and, while its trigger holds, moves sideways at a steady pace to show\nall of it, resting at its start between passes; at rest it is cut with an ellipsis.\n\nContract: specs/marquee-text.spec.json. The line is as wide as its place and drawn in the text style, color and\ndirection of where it stands; it moves only while the text does not fit, never where motion is reduced, and is read\nonce, whole. It is never a focus stop: `focus` is the focus of the control it stands in (a row, a chip).\n\n`trigger` — `hover-or-focus` (the default), `hover`, `focus` or `always`. `loop` — `repeat` (a copy follows a gap\nbehind) or `bounce`. `speed` is in pixels per second; `start-pause`, `end-pause` in milliseconds; `iterations` the\npasses a trigger plays (none: until the trigger ends). With `always`, `playback-control` draws a pause button at the\nline's end; without it the product must give the page a control that sets `paused` (WCAG 2.2.2), which a debug build\nreports.\n\nThe motion of a run of passes is one Web Animations API animation of the text's `translate` (and one of the fade's\nmask, with the same timing), its keyframes holding the pauses: nothing is measured while it runs.",
+          "name": "TanreiMarqueeText",
+          "cssParts": [
+            {
+              "description": "The line's box, which clips the text.",
+              "name": "viewport"
+            },
+            {
+              "description": "The playback control, a small text `<tanrei-button>`.",
+              "name": "playback"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text: plain text, or inline content (a bold run, an inline mark).",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "trigger",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMarqueeTextTrigger"
+              },
+              "default": "'hover-or-focus'",
+              "description": "When the text scrolls (MRQ-3): `hover-or-focus` (the default), `hover`, `focus` or `always`. Anything else is the default, reported in debug builds. Reflected.",
+              "attribute": "trigger",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "loop",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMarqueeTextLoop"
+              },
+              "default": "'repeat'",
+              "description": "How a pass goes: `repeat` (the default) or `bounce` (MRQ-4, MRQ-5). Anything else is `repeat`, reported in debug builds. Reflected.",
+              "attribute": "loop",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "speed",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How fast the text moves, in pixels per second; null takes `comp.marquee-text.speed`. Not positive: null, reported in debug builds.",
+              "attribute": "speed"
+            },
+            {
+              "kind": "field",
+              "name": "startPause",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long the text rests at its start before each pass, in ms; 0 rests none; null takes `comp.marquee-text.motion.start-pause`.",
+              "attribute": "start-pause"
+            },
+            {
+              "kind": "field",
+              "name": "endPause",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "While loop is bounce: how long the text rests with its end in view, in ms; null takes `comp.marquee-text.motion.end-pause`.",
+              "attribute": "end-pause"
+            },
+            {
+              "kind": "field",
+              "name": "iterations",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many passes a trigger plays before the text rests; null plays until the trigger ends (and without end for always).",
+              "attribute": "iterations"
+            },
+            {
+              "kind": "field",
+              "name": "paused",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Holds the motion where it is: set by the playback control, or by the product's control that pauses every moving part of the page. Reflected.",
+              "attribute": "paused",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "playbackControl",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "While trigger is always: draws the playback control at the line's end. Off by default: give the page a control that sets `paused` instead (WCAG 2.2.2).",
+              "attribute": "playback-control",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "playLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the motion is paused (\"Play scrolling text\"); empty reads the product's words.",
+              "attribute": "play-label"
+            },
+            {
+              "kind": "field",
+              "name": "pauseLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the text moves (\"Pause scrolling text\"); empty reads the product's words.",
+              "attribute": "pause-label"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<TanreiMarqueeTextPausedChangeDetail>"
+              },
+              "description": "The person paused or played the motion with the playback control; `detail.paused` is the new value. Not fired when `paused` is set.",
+              "name": "pausedchange"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "trigger",
+              "type": {
+                "text": "TanreiMarqueeTextTrigger"
+              },
+              "default": "'hover-or-focus'",
+              "description": "When the text scrolls (MRQ-3): `hover-or-focus` (the default), `hover`, `focus` or `always`. Anything else is the default, reported in debug builds. Reflected.",
+              "fieldName": "trigger"
+            },
+            {
+              "name": "loop",
+              "type": {
+                "text": "TanreiMarqueeTextLoop"
+              },
+              "default": "'repeat'",
+              "description": "How a pass goes: `repeat` (the default) or `bounce` (MRQ-4, MRQ-5). Anything else is `repeat`, reported in debug builds. Reflected.",
+              "fieldName": "loop"
+            },
+            {
+              "name": "speed",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How fast the text moves, in pixels per second; null takes `comp.marquee-text.speed`. Not positive: null, reported in debug builds.",
+              "fieldName": "speed"
+            },
+            {
+              "name": "start-pause",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long the text rests at its start before each pass, in ms; 0 rests none; null takes `comp.marquee-text.motion.start-pause`.",
+              "fieldName": "startPause"
+            },
+            {
+              "name": "end-pause",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "While loop is bounce: how long the text rests with its end in view, in ms; null takes `comp.marquee-text.motion.end-pause`.",
+              "fieldName": "endPause"
+            },
+            {
+              "name": "iterations",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many passes a trigger plays before the text rests; null plays until the trigger ends (and without end for always).",
+              "fieldName": "iterations"
+            },
+            {
+              "name": "paused",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Holds the motion where it is: set by the playback control, or by the product's control that pauses every moving part of the page. Reflected.",
+              "fieldName": "paused"
+            },
+            {
+              "name": "playback-control",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "While trigger is always: draws the playback control at the line's end. Off by default: give the page a control that sets `paused` instead (WCAG 2.2.2).",
+              "fieldName": "playbackControl"
+            },
+            {
+              "name": "play-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the motion is paused (\"Play scrolling text\"); empty reads the product's words.",
+              "fieldName": "playLabel"
+            },
+            {
+              "name": "pause-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The playback control's accessible name while the text moves (\"Pause scrolling text\"); empty reads the product's words.",
+              "fieldName": "pauseLabel"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-marquee-text",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "textDirection",
+          "declaration": {
+            "name": "textDirection",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiMarqueeText",
+          "declaration": {
+            "name": "TanreiMarqueeText",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-marquee-text",
+          "declaration": {
+            "name": "TanreiMarqueeText",
+            "module": "src/components/marquee-text/marquee-text.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/menu/menu.styles.ts",
       "declarations": [
         {
@@ -32021,6 +32415,512 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/number-ticker/number-ticker.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ANIMATIONS",
+          "type": {
+            "text": "['slide', 'blur', 'blur-slide', 'flip']"
+          },
+          "default": "['slide', 'blur', 'blur-slide', 'flip']",
+          "description": "How a digit changes (`comp.number-ticker.animation`), in the order of its token: the first is what an unknown name draws."
+        },
+        {
+          "kind": "variable",
+          "name": "ANIMATION_VALUES",
+          "type": {
+            "text": "['auto', ...ANIMATIONS, 'none']"
+          },
+          "default": "['auto', ...ANIMATIONS, 'none']",
+          "description": "The `animation` prop: `auto` takes the component token; `none` is the instance's only (NTK-7)."
+        },
+        {
+          "kind": "variable",
+          "name": "TRENDS",
+          "type": {
+            "text": "['auto', 'up', 'down', 'digit']"
+          },
+          "default": "['auto', 'up', 'down', 'digit']"
+        },
+        {
+          "kind": "variable",
+          "name": "NUMBER_STYLES",
+          "type": {
+            "text": "['decimal', 'percent', 'currency', 'unit']"
+          },
+          "default": "['decimal', 'percent', 'currency', 'unit']"
+        },
+        {
+          "kind": "variable",
+          "name": "NOTATIONS",
+          "type": {
+            "text": "['standard', 'compact']"
+          },
+          "default": "['standard', 'compact']"
+        },
+        {
+          "kind": "variable",
+          "name": "SIGN_DISPLAYS",
+          "type": {
+            "text": "['auto', 'always', 'except-zero']"
+          },
+          "default": "['auto', 'always', 'except-zero']"
+        },
+        {
+          "kind": "variable",
+          "name": "LIVE_VALUES",
+          "type": {
+            "text": "['off', 'polite']"
+          },
+          "default": "['off', 'polite']"
+        },
+        {
+          "kind": "variable",
+          "name": "CHOICE",
+          "default": "`${PREFIX}-animation`",
+          "description": "The component token the `animation` prop's `auto` reads, from the cascade when a change starts."
+        },
+        {
+          "kind": "variable",
+          "name": "COPIES",
+          "type": {
+            "text": "number"
+          },
+          "default": "3",
+          "description": "How many copies of the digits 0…9 a column stacks: a digit moving on past 9 to 0 (or back) has the next copy to go to."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "type": {
+            "text": "array"
+          },
+          "default": "[ directionProbeStyles, css` :host { display: inline-block; position: relative; unicode-bidi: isolate; white-space: nowrap; font-variant-numeric: tabular-nums; } .text { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* NTK-5: the box the size transition moves; the number stands at its start edge. */ .number { display: inline-flex; align-items: baseline; vertical-align: baseline; } .digits { position: relative; display: inline-flex; flex: none; align-items: baseline; } /* NTK-13: the digits are written left to right in every locale, whatever direction the characters around them take. */ .core { display: inline-flex; align-items: baseline; direction: ltr; unicode-bidi: isolate; } .char { display: inline-block; white-space: pre; } /* NTK-2: a window one line high, as wide as one digit (every digit is: tabular figures), clipped above and below. */ .place { position: relative; display: inline-block; clip-path: inset(0 -1em); } .sizer { visibility: hidden; } .column { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; display: flex; flex-direction: column; text-align: center; } .column > span { display: block; } .layer { position: absolute; inset: 0; text-align: center; backface-visibility: hidden; } /* NTK-4 flip: each half is the whole digit, clipped to its half, turning about the digit's middle. */ .place[data-flip] { perspective: 4em; } .layer.top { clip-path: inset(0 0 50% 0); } .layer.bottom { clip-path: inset(50% 0 0 0); } /* A character or a digit place that goes, drawn where it was while it fades out (NTK-5). */ .leaving { position: absolute; inset-block-start: 0; pointer-events: none; } .timing { position: absolute; visibility: hidden; pointer-events: none; inline-size: ${unsafeCSS(T('blur-radius'))}; block-size: ${unsafeCSS(T('blur-slide-distance'))}; transition-property: none; transition-duration: ${unsafeCSS(T('motion-duration'))}, ${unsafeCSS(T('motion-stagger'))}, ${unsafeCSS(T('motion-reduced-duration'))}; transition-timing-function: ${unsafeCSS(T('motion-easing'))}; } `, hiddenHost, ]"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ANIMATIONS",
+          "declaration": {
+            "name": "ANIMATIONS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ANIMATION_VALUES",
+          "declaration": {
+            "name": "ANIMATION_VALUES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TRENDS",
+          "declaration": {
+            "name": "TRENDS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "NUMBER_STYLES",
+          "declaration": {
+            "name": "NUMBER_STYLES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "NOTATIONS",
+          "declaration": {
+            "name": "NOTATIONS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SIGN_DISPLAYS",
+          "declaration": {
+            "name": "SIGN_DISPLAYS",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "LIVE_VALUES",
+          "declaration": {
+            "name": "LIVE_VALUES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CHOICE",
+          "declaration": {
+            "name": "CHOICE",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "COPIES",
+          "declaration": {
+            "name": "COPIES",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/number-ticker/number-ticker.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/number-ticker/number-ticker.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shows a number that changes — a count, a price, a score, a figure on a dashboard — by moving each changed digit to its\nnew value, so that a person sees that it changed, which way and roughly by how much, while assistive technology is\ntold only the value it settles on.\n\nContract: specs/number-ticker.spec.json. The number is written by `Intl.NumberFormat` (`numberStyle`, `currency`,\n`unit`, `notation`, `fractionDigits`, `signDisplay`, `locale`); every digit it writes (in the locale's own digits) is a\nwindow over a column of the digits 0…9, every other character plain text. It is drawn in the text style of where it\nstands, in tabular figures, with no fill, edge or color of its own.\n\nA change moves each changed digit's column (`slide`), cross-fades it (`blur`, `blur-slide`) or turns it over as a\nsplit-flap board (`flip`) over `comp.number-ticker.motion.duration`, every changed digit with the whole number by\ndefault (`trend`); the width follows with the shared size transition (`AnimatedSize`). A change while one runs goes on\nfrom what is drawn. Under `prefers-reduced-motion: reduce` the new number cross-fades in at once.\n\nAssistive technology reads one text — `label`, then the number as written — and none of the drawn digits; with\n`live=\"polite\"` that text is a polite live region, written once each change has settled.",
+          "name": "TanreiNumberTicker",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The number shown. Not a finite number is written as the formatter writes it, at once (NTK-12).",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "numberStyle",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerNumberStyle"
+              },
+              "default": "'decimal'",
+              "description": "How the number is written: `decimal`, `percent` (× 100, with the locale's percent sign), `currency`, `unit`. The spec's `style`.",
+              "attribute": "number-style"
+            },
+            {
+              "kind": "field",
+              "name": "currency",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The currency while `number-style` is `currency`, as its three-letter code (\"JPY\", \"EUR\").",
+              "attribute": "currency"
+            },
+            {
+              "kind": "field",
+              "name": "unit",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The unit while `number-style` is `unit`, as a unit identifier of `Intl.NumberFormat` (\"kilometer-per-hour\", \"megabyte\").",
+              "attribute": "unit"
+            },
+            {
+              "kind": "field",
+              "name": "notation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerNotation"
+              },
+              "default": "'standard'",
+              "description": "`standard` writes every digit; `compact` writes it short with the locale's suffix (1.2K, 1.2万).",
+              "attribute": "notation"
+            },
+            {
+              "kind": "field",
+              "name": "fractionDigits",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many digits after the decimal separator are always written; null leaves it to the formatter.",
+              "attribute": "fraction-digits"
+            },
+            {
+              "kind": "field",
+              "name": "signDisplay",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerSignDisplay"
+              },
+              "default": "'auto'",
+              "description": "When a sign is written: `auto` (negative only), `always`, `except-zero`.",
+              "attribute": "sign-display"
+            },
+            {
+              "kind": "field",
+              "name": "locale",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A BCP 47 tag (\"ja-JP\", \"ar-EG\"); empty takes the nearest `lang` (through shadow roots), then the browser's.",
+              "attribute": "locale"
+            },
+            {
+              "kind": "field",
+              "name": "trend",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerTrend"
+              },
+              "default": "'auto'",
+              "description": "Which way the digits move (NTK-3).",
+              "attribute": "trend"
+            },
+            {
+              "kind": "field",
+              "name": "animation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerAnimation"
+              },
+              "default": "'auto'",
+              "description": "How a digit changes (NTK-3, NTK-4, NTK-7); `auto` takes `comp.number-ticker.animation`.",
+              "attribute": "animation"
+            },
+            {
+              "kind": "field",
+              "name": "startValue",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "A value to move from the first time the ticker comes into view (NTK-8); null draws the first value at once.",
+              "attribute": "start-value"
+            },
+            {
+              "kind": "field",
+              "name": "duration",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long a change takes, in milliseconds; null takes `comp.number-ticker.motion.duration`.",
+              "attribute": "duration"
+            },
+            {
+              "kind": "field",
+              "name": "live",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiNumberTickerLive"
+              },
+              "default": "'off'",
+              "description": "`polite` tells assistive technology each value once it settles (NTK-10); `off` tells it nothing by itself.",
+              "attribute": "live"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Words read before the value (\"Revenue\"), where nothing visible beside the number says what it is. Never drawn.",
+              "attribute": "label"
+            },
+            {
+              "kind": "method",
+              "name": "languageMayHaveChanged",
+              "description": "NTK-14: an ancestor's `lang` changed somewhere; the number is written again, at once, if it changed this ticker's language."
+            }
+          ],
+          "events": [
+            {
+              "name": "settle",
+              "type": {
+                "text": "CustomEvent<TanreiNumberTickerSettleDetail>"
+              },
+              "description": "The digits came to rest at `value`: once at the end of each change's motion (at once where there is none). `detail.value` is the value."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The number shown. Not a finite number is written as the formatter writes it, at once (NTK-12).",
+              "fieldName": "value"
+            },
+            {
+              "name": "number-style",
+              "type": {
+                "text": "TanreiNumberTickerNumberStyle"
+              },
+              "default": "'decimal'",
+              "description": "How the number is written: `decimal`, `percent` (× 100, with the locale's percent sign), `currency`, `unit`. The spec's `style`.",
+              "fieldName": "numberStyle"
+            },
+            {
+              "name": "currency",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The currency while `number-style` is `currency`, as its three-letter code (\"JPY\", \"EUR\").",
+              "fieldName": "currency"
+            },
+            {
+              "name": "unit",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The unit while `number-style` is `unit`, as a unit identifier of `Intl.NumberFormat` (\"kilometer-per-hour\", \"megabyte\").",
+              "fieldName": "unit"
+            },
+            {
+              "name": "notation",
+              "type": {
+                "text": "TanreiNumberTickerNotation"
+              },
+              "default": "'standard'",
+              "description": "`standard` writes every digit; `compact` writes it short with the locale's suffix (1.2K, 1.2万).",
+              "fieldName": "notation"
+            },
+            {
+              "name": "fraction-digits",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How many digits after the decimal separator are always written; null leaves it to the formatter.",
+              "fieldName": "fractionDigits"
+            },
+            {
+              "name": "sign-display",
+              "type": {
+                "text": "TanreiNumberTickerSignDisplay"
+              },
+              "default": "'auto'",
+              "description": "When a sign is written: `auto` (negative only), `always`, `except-zero`.",
+              "fieldName": "signDisplay"
+            },
+            {
+              "name": "locale",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A BCP 47 tag (\"ja-JP\", \"ar-EG\"); empty takes the nearest `lang` (through shadow roots), then the browser's.",
+              "fieldName": "locale"
+            },
+            {
+              "name": "trend",
+              "type": {
+                "text": "TanreiNumberTickerTrend"
+              },
+              "default": "'auto'",
+              "description": "Which way the digits move (NTK-3).",
+              "fieldName": "trend"
+            },
+            {
+              "name": "animation",
+              "type": {
+                "text": "TanreiNumberTickerAnimation"
+              },
+              "default": "'auto'",
+              "description": "How a digit changes (NTK-3, NTK-4, NTK-7); `auto` takes `comp.number-ticker.animation`.",
+              "fieldName": "animation"
+            },
+            {
+              "name": "start-value",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "A value to move from the first time the ticker comes into view (NTK-8); null draws the first value at once.",
+              "fieldName": "startValue"
+            },
+            {
+              "name": "duration",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How long a change takes, in milliseconds; null takes `comp.number-ticker.motion.duration`.",
+              "fieldName": "duration"
+            },
+            {
+              "name": "live",
+              "type": {
+                "text": "TanreiNumberTickerLive"
+              },
+              "default": "'off'",
+              "description": "`polite` tells assistive technology each value once it settles (NTK-10); `off` tells it nothing by itself.",
+              "fieldName": "live"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Words read before the value (\"Revenue\"), where nothing visible beside the number says what it is. Never drawn.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-number-ticker",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "notation"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiNumberTicker",
+          "declaration": {
+            "name": "TanreiNumberTicker",
+            "module": "src/components/number-ticker/number-ticker.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-number-ticker",
+          "declaration": {
+            "name": "TanreiNumberTicker",
+            "module": "src/components/number-ticker/number-ticker.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/one-time-code-field/one-time-code-field.ts",
       "declarations": [
         {
@@ -36175,6 +37075,471 @@
           "declaration": {
             "name": "TanreiRadioGroup",
             "module": "src/components/radio-group/radio-group.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/resizable-frame/resizable-frame.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "VARIANTS",
+          "type": {
+            "text": "['outlined', 'plain']"
+          },
+          "default": "['outlined', 'plain']",
+          "description": "The variants and the handles the component defines (RSF-16: anything else is drawn as outlined, or not drawn)."
+        },
+        {
+          "kind": "variable",
+          "name": "HANDLES",
+          "type": {
+            "text": "['start', 'end', 'bottom', 'bottom-end']"
+          },
+          "default": "['start', 'end', 'bottom', 'bottom-end']"
+        },
+        {
+          "kind": "variable",
+          "name": "SIZE_INDICATORS",
+          "type": {
+            "text": "['none', 'active', 'always']"
+          },
+          "default": "['none', 'active', 'always']"
+        },
+        {
+          "kind": "variable",
+          "name": "styles"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "VARIANTS",
+          "declaration": {
+            "name": "VARIANTS",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "HANDLES",
+          "declaration": {
+            "name": "HANDLES",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SIZE_INDICATORS",
+          "declaration": {
+            "name": "SIZE_INDICATORS",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/resizable-frame/resizable-frame.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/resizable-frame/resizable-frame.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Gives its content — a component preview, a page in an embedded document, a navigation drawer, a side bar — a width\nand a height a person changes by dragging a handle on its edge or its corner, from the keyboard (each handle is a\nseparator: the arrows, Page Up and Page Down, Home and End), or by activating the handle, which switches between the\ngreatest size and the one before it.\n\nContract: specs/resizable-frame.spec.json. Built from `<tanrei-handle>`, one for each name in `handles`, in its\nshadow root: the frame gives each its value, least, greatest and name, and hears its events there; they do not\nleave the shadow root. The frame's own events are `resize` (in every frame of a drag) and `change` (once a person\nhas changed the size), both with `{ width, height }`; neither is sent when you set `width` or `height`.\n\n`variant=\"outlined\"` (the default) is a box a preview is checked in: rounded corners, one hairline, the handles\noutside the box so that they cover nothing, drawn at rest while a mouse is over the frame. `variant=\"plain\"` is a\npane's edge: no edge or corners of its own, the content filling the box with its own surface, each handle centred on\nits edge and out of sight until it is used. `handles=\"start\"` is for content at the end of a layout (a side bar): the\nbox then stands at the end of its room.\n\n`width` and `height` are null until a person or you give one: the box then takes the width the layout gives and the\nheight the layout gives (or the content's). The least width is `min-width`, or 320 (the reflow width of WCAG\n1.4.10); the greatest is `max-width`, or the room the layout gives. While a drag lasts, every `<iframe>`, `<object>`\nand `<embed>` in the content takes no pointer, so the drag is not lost over it.",
+          "name": "TanreiResizableFrame",
+          "cssParts": [
+            {
+              "description": "The box the content is laid out in.",
+              "name": "container"
+            },
+            {
+              "description": "The width × height label (hidden from assistive technology).",
+              "name": "size-indicator"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the start edge.",
+              "name": "start-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the end edge.",
+              "name": "end-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` on the bottom edge.",
+              "name": "bottom-handle"
+            },
+            {
+              "description": "The `<tanrei-handle>` at the bottom-end corner.",
+              "name": "corner-handle"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content: a component, an embedded document, a layout, a navigation drawer.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "variant",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameVariant"
+              },
+              "default": "'outlined'",
+              "description": "`outlined`: a box with rounded corners and one hairline, its handles outside it. `plain`: a pane's edge, the handles centred on it.",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "handles",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameHandle[]"
+              },
+              "default": "['end']",
+              "description": "Which handles it draws: any of `start`, `end`, `bottom`, `bottom-end`. The attribute is space-separated.",
+              "attribute": "handles"
+            },
+            {
+              "kind": "field",
+              "name": "width",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's width in pixels; null takes the width the layout gives. A person's drag, key or activation changes it.",
+              "attribute": "width"
+            },
+            {
+              "kind": "field",
+              "name": "height",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's height in pixels; null takes the height the layout gives, or the content's.",
+              "attribute": "height"
+            },
+            {
+              "kind": "field",
+              "name": "minWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give; null is `--tanrei-comp-resizable-frame-container-min-width` (320).",
+              "attribute": "min-width"
+            },
+            {
+              "kind": "field",
+              "name": "maxWidth",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width; null is the width the layout gives.",
+              "attribute": "max-width"
+            },
+            {
+              "kind": "field",
+              "name": "minHeight",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least height; null is `--tanrei-comp-resizable-frame-container-min-height`.",
+              "attribute": "min-height"
+            },
+            {
+              "kind": "field",
+              "name": "maxHeight",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest height; null is unlimited.",
+              "attribute": "max-height"
+            },
+            {
+              "kind": "field",
+              "name": "snapWidths",
+              "privacy": "public",
+              "type": {
+                "text": "number[]"
+              },
+              "default": "[]",
+              "description": "Widths in whole pixels a drag that changes the width snaps to (`snap-widths=\"360 600 1024\"`).",
+              "attribute": "snap-widths"
+            },
+            {
+              "kind": "field",
+              "name": "step",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "10",
+              "description": "Pixels one arrow key changes a size by.",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "largeStep",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "Pixels Shift with an arrow key, Page Up or Page Down changes a size by.",
+              "attribute": "large-step"
+            },
+            {
+              "kind": "field",
+              "name": "sizeIndicator",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiResizableFrameSizeIndicator"
+              },
+              "default": "'active'",
+              "description": "When the size indicator is drawn: `none`, `active` (while a handle is held or has keyboard focus) or `always`.",
+              "attribute": "size-indicator"
+            },
+            {
+              "kind": "field",
+              "name": "widthLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the start and the end handle (\"Resize preview width\"), in your words. Required while one is drawn.",
+              "attribute": "width-label"
+            },
+            {
+              "kind": "field",
+              "name": "heightLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the bottom handle (\"Resize preview height\"). Required while it is drawn.",
+              "attribute": "height-label"
+            },
+            {
+              "kind": "field",
+              "name": "cornerLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the corner handle (\"Resize preview\"). Required while it is drawn.",
+              "attribute": "corner-label"
+            }
+          ],
+          "events": [
+            {
+              "name": "resize",
+              "type": {
+                "text": "CustomEvent<TanreiResizableFrameSizeDetail>"
+              },
+              "description": "The size changed during a drag, in every frame it changes."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<TanreiResizableFrameSizeDetail>"
+              },
+              "description": "A person finished changing the size: a drag ended, a key changed it, or a handle was activated."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "TanreiResizableFrameVariant"
+              },
+              "default": "'outlined'",
+              "description": "`outlined`: a box with rounded corners and one hairline, its handles outside it. `plain`: a pane's edge, the handles centred on it.",
+              "fieldName": "variant"
+            },
+            {
+              "name": "handles",
+              "type": {
+                "text": "TanreiResizableFrameHandle[]"
+              },
+              "default": "['end']",
+              "description": "Which handles it draws: any of `start`, `end`, `bottom`, `bottom-end`. The attribute is space-separated.",
+              "fieldName": "handles"
+            },
+            {
+              "name": "width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's width in pixels; null takes the width the layout gives. A person's drag, key or activation changes it.",
+              "fieldName": "width"
+            },
+            {
+              "name": "height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The box's height in pixels; null takes the height the layout gives, or the content's.",
+              "fieldName": "height"
+            },
+            {
+              "name": "min-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least width a person can give; null is `--tanrei-comp-resizable-frame-container-min-width` (320).",
+              "fieldName": "minWidth"
+            },
+            {
+              "name": "max-width",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest width; null is the width the layout gives.",
+              "fieldName": "maxWidth"
+            },
+            {
+              "name": "min-height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The least height; null is `--tanrei-comp-resizable-frame-container-min-height`.",
+              "fieldName": "minHeight"
+            },
+            {
+              "name": "max-height",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The greatest height; null is unlimited.",
+              "fieldName": "maxHeight"
+            },
+            {
+              "name": "snap-widths",
+              "type": {
+                "text": "number[]"
+              },
+              "default": "[]",
+              "description": "Widths in whole pixels a drag that changes the width snaps to (`snap-widths=\"360 600 1024\"`).",
+              "fieldName": "snapWidths"
+            },
+            {
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "default": "10",
+              "description": "Pixels one arrow key changes a size by.",
+              "fieldName": "step"
+            },
+            {
+              "name": "large-step",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "Pixels Shift with an arrow key, Page Up or Page Down changes a size by.",
+              "fieldName": "largeStep"
+            },
+            {
+              "name": "size-indicator",
+              "type": {
+                "text": "TanreiResizableFrameSizeIndicator"
+              },
+              "default": "'active'",
+              "description": "When the size indicator is drawn: `none`, `active` (while a handle is held or has keyboard focus) or `always`.",
+              "fieldName": "sizeIndicator"
+            },
+            {
+              "name": "width-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the start and the end handle (\"Resize preview width\"), in your words. Required while one is drawn.",
+              "fieldName": "widthLabel"
+            },
+            {
+              "name": "height-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the bottom handle (\"Resize preview height\"). Required while it is drawn.",
+              "fieldName": "heightLabel"
+            },
+            {
+              "name": "corner-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the corner handle (\"Resize preview\"). Required while it is drawn.",
+              "fieldName": "cornerLabel"
+            }
+          ],
+          "superclass": {
+            "name": "TanreiElement",
+            "module": "src/primitives/element.ts"
+          },
+          "tagName": "tanrei-resizable-frame",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "around",
+          "type": {
+            "text": "number"
+          },
+          "default": "0"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiResizableFrame",
+          "declaration": {
+            "name": "TanreiResizableFrame",
+            "module": "src/components/resizable-frame/resizable-frame.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-resizable-frame",
+          "declaration": {
+            "name": "TanreiResizableFrame",
+            "module": "src/components/resizable-frame/resizable-frame.ts"
           }
         }
       ]
@@ -44980,7 +46345,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "One tab of a row — the spec's item kind `tab`: a label, an optional icon, and the value that selects it.\nPlaced as a child of `<tanrei-tabs>`, as `<option>` in a `<select>`; the row decides whether it is selected, which tab\nis the Tab stop, and answers its activation.\n\nThe host carries the tab's semantics — the tab role, its selected state, its position, the number of tabs and its\nname, its label whether or not the label is drawn — and takes focus itself.\n\nA label that does not fit its tab (a row that fills) is truncated with an ellipsis and shown whole in a plain tooltip on\nhover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.",
+          "description": "One tab of a row — the spec's item kind `tab`: a label, an optional icon, and the value that selects it.\nPlaced as a child of `<tanrei-tabs>`, as `<option>` in a `<select>`; the row decides whether it is selected, which tab\nis the Tab stop, and answers its activation.\n\nThe host carries the tab's semantics — the tab role, its selected state, its position, the number of tabs and its\nname, its label whether or not the label is drawn — and takes focus itself. In a row without panels it is a radio,\nchecked while it is selected (TAB-42).\n\nA label that does not fit its tab (a row that fills) is truncated with an ellipsis and shown whole in a plain tooltip on\nhover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.",
           "name": "TanreiTab",
           "cssParts": [
             {
@@ -45249,11 +46614,11 @@
         },
         {
           "kind": "class",
-          "description": "Switches between views of the same subject with a row of labelled tabs, one of them selected, above the view it shows.\n\nContract: specs/tabs.spec.json. `<tanrei-tab>` children are the tabs, in order; `<tanrei-tab-panel>` children after\nthem are the panels, matched to tabs by `value` — or, where a `<tanrei-tab-view tabs=\"<this row's id>\">` is linked to\nthe row, the view's panels take their place (TAB-13), and the view draws the indicator between two tabs while it is\nswiped (`indicatorOffset`, TAB-26). The row's selected tab is its `value`, as a `<select>`'s: `null`\nselects the first enabled tab. The row sets it when a tab is activated — by pointer, touch, Enter, Space, or the arrow\nkeys, which select the tab they reach (automatic activation) — and then fires `change`.\n\nThree variants say how much the selection weighs — `primary`, `secondary`, and `tonal`, the quiet row whose indicator\nis a soft layer under a darker label — and are one control in everything else. `size` is the row's height (`medium`,\nthe default, and `small`, which stands in a header beside small controls: it stays as low as it is, and a press just\nabove or below it, on nothing that would answer the press itself, still selects the tab in line with it).\n\nThe row sits on a track: one constant color per variant, the same whichever tab is selected (a capsule in the\ndefault system); `track=\"false\"` fills none and changes nothing else, `track` draws it whatever the design system\nsays, and without the attribute the system decides (`--tanrei-comp-tabs-track-visible`). The tabs hug their content and scroll sideways inside the track (the default), or share the row's\nwidth (`full-width`), truncating a label that does not fit. The selected tab's active indicator — the thumb on the\ntrack: as tall as the row less the track's padding on every tab, a capsule as wide as the tab's content plus its\npadding or a circle where that content is not wider than it is tall, and the tab's whole share in a row that fills —\nslides to a newly selected tab with the underline, and each label and icon it passes over takes its covered colors\nwhere it is covered.\n\nA drag across the row — by touch, a pen or a mouse, past 8 px and further sideways than up or down — carries the\nindicator with the pointer, its place, its width and the covered colors changing continuously. Nothing is selected\nbefore the release, which chooses the nearer of the two tabs the indicator lies between (or the one a fling is\ntoward), sets `value` and fires `change` once; Escape, a cancelled pointer, or `value` set meanwhile returns it.\n\n`transition` says how a new selection is drawn: `slide` as above, `none` whole in one frame — nothing travels and no\ncolor fades between selected and not, a tab out of view is brought in at once, and a drag still carries the indicator\nand lands at once on release — and `auto`, the default, as the design system says\n(`--tanrei-comp-tabs-motion-transition`). Hover, focus and press are answered the same under each.\n\nEvery visual value comes from `--tanrei-comp-tabs-*` tokens, per variant, look (selected or not) and state. How a\npress is answered and how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`),\nread from the cascade.",
+          "description": "Switches between views of the same subject with a row of labelled tabs, one of them selected, above the view it shows.\n\nContract: specs/tabs.spec.json. `<tanrei-tab>` children are the tabs, in order; `<tanrei-tab-panel>` children after\nthem are the panels, matched to tabs by `value` — or, where a `<tanrei-tab-view tabs=\"<this row's id>\">` is linked to\nthe row, the view's panels take their place (TAB-13), and the view draws the indicator between two tabs while it is\nswiped (`indicatorOffset`, TAB-26). The row's selected tab is its `value`, as a `<select>`'s: `null`\nselects the first enabled tab. The row sets it when a tab is activated — by pointer, touch, Enter, Space, or the arrow\nkeys, which select the tab they reach (automatic activation) — and then fires `change`.\n\nA row with panels is a tab list. A row without them — one choice among a few, whose result the product draws on\n`change` — is a radio group named by `label`, its tabs radios, and every arrow key moves and selects (TAB-42).\n\nThree variants say how much the selection weighs — `primary`, `secondary`, and `tonal`, the quiet row whose indicator\nis a soft layer under a darker label — and are one control in everything else. `size` is the row's height (`medium`,\nthe default, and `small`, which stands in a header beside small controls: it stays as low as it is, and a press just\nabove or below it, on nothing that would answer the press itself, still selects the tab in line with it).\n\nThe row sits on a track: one constant color per variant, the same whichever tab is selected (a capsule in the\ndefault system); `track=\"false\"` fills none and changes nothing else, `track` draws it whatever the design system\nsays, and without the attribute the system decides (`--tanrei-comp-tabs-track-visible`). The tabs hug their content and scroll sideways inside the track (the default), or share the row's\nwidth (`full-width`), truncating a label that does not fit. The selected tab's active indicator — the thumb on the\ntrack: as tall as the row less the track's padding on every tab, a capsule as wide as the tab's content plus its\npadding or a circle where that content is not wider than it is tall, and the tab's whole share in a row that fills —\nslides to a newly selected tab with the underline, and each label and icon it passes over takes its covered colors\nwhere it is covered.\n\nA drag across the row — by touch, a pen or a mouse, past 8 px and further sideways than up or down — carries the\nindicator with the pointer, its place, its width and the covered colors changing continuously. Nothing is selected\nbefore the release, which chooses the nearer of the two tabs the indicator lies between (or the one a fling is\ntoward), sets `value` and fires `change` once; Escape, a cancelled pointer, or `value` set meanwhile returns it.\n\n`transition` says how a new selection is drawn: `slide` as above, `none` whole in one frame — nothing travels and no\ncolor fades between selected and not, a tab out of view is brought in at once, and a drag still carries the indicator\nand lands at once on release — and `auto`, the default, as the design system says\n(`--tanrei-comp-tabs-motion-transition`). Hover, focus and press are answered the same under each.\n\nEvery visual value comes from `--tanrei-comp-tabs-*` tokens, per variant, look (selected or not) and state. How a\npress is answered and how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`),\nread from the cascade.",
           "name": "TanreiTabs",
           "cssParts": [
             {
-              "description": "The row that holds the tabs: the tab list.",
+              "description": "The row that holds the tabs: the tab list, or the radio group of a row without panels (TAB-42).",
               "name": "tablist"
             },
             {

@@ -30,7 +30,7 @@ nor because a component uses it today. Core changes happen only in the Tanrei re
 Four tiers, one reference order: \`dial < ref < sys < comp\`. Components read \`comp\` tokens only. Seven numeric dials sit
 under everything: type.base 16px, type.contrast 1, space.unit 8px, size.unit 4px, shape.unit 2px, stroke.unit 1px,
 motion.unit 50ms. Color seeds are palette declarations, not dials. Every value is one of three kinds:
-- **derived** — a rule in a closed language: \`mul\`, \`scale\`, \`clamp\`, \`sub\` ({ of, by } → max(0, of − by): a corner inside another at an inset), \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
+- **derived** — a rule in a closed language: \`mul\` ({ of, by, exp?, times?, round?, min? } → max(min, round(of × by^exp × times, round)): times a number token such as a density, round a step, ties upward, min a floor after rounding), \`scale\`, \`clamp\`, \`sub\` ({ of, by } → max(0, of − by): a corner inside another at an inset), \`pad\` ({ of, height, by? } → max(0, of × by + (height − height₁) / 2), by being 1 unless a scale multiplies it and height₁ being the height with every times at 1 and no min: a block padding that gives up or takes half of what its box's height lost or gained), \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
   \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No other arithmetic, conditionals or user functions.
 - **fixed** — a literal with a stated reason, exempt from the dials.   - **alias** — a reference that can be re-pointed.
 

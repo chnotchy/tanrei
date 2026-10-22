@@ -3941,7 +3941,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: at sys.target.touch minus an item's width (in a row) or height (in a column) or more, the item keeps its full target between neighbours. The default system's 16 is 48 minus its narrowest and lowest item (a small icon-only Button, 32)."
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 48 − 32 = 16 in the default system."
           }
         }
       },
@@ -55974,6 +55974,94 @@
           }
         }
       },
+      "marquee-text": {
+        "fade": {
+          "extent": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "While the text plays: how deep each edge behind which text lies hidden fades, from clear at the edge to the text's full color."
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 48,
+            "unit": "px"
+          },
+          "$description": "While the text repeats: the distance from the text's end to the copy that follows it, so that the end and the start are not read as one sentence."
+        },
+        "motion": {
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "$description": "The motion of a pass: steady, so that the speed means pixels per second all the way."
+          },
+          "end-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "While the text bounces: how long it rests with its end in view before it moves back. Unless the instance gives another (endPause)."
+          },
+          "return-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the text takes to return to its start when its trigger ends before its passes do."
+          },
+          "return-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          },
+          "start-delay": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long a hover or a focus holds before the text starts to move, so that a pointer passing over a list sets no row moving."
+          },
+          "start-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "How long the text rests at its start before each pass, so that the line's beginning can be read. Unless the instance gives another (startPause)."
+          }
+        },
+        "playback": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The distance from the line's end to its playback control."
+          }
+        },
+        "speed": {
+          "$type": "number",
+          "$value": 30,
+          "$description": "How fast the text moves, in pixels per second at the default text size (it grows with the text). Unless the instance gives another (speed)."
+        }
+      },
       "menu": {
         "checkbox-item": {
           "mark": {
@@ -67752,6 +67840,69 @@
           }
         }
       },
+      "number-ticker": {
+        "animation": {
+          "$type": "number",
+          "$value": 0,
+          "$description": "How a digit changes: slide (its column moves through the window), blur, blur-slide or flip (a split-flap board). The animation prop's auto reads it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+        },
+        "blur-slide": {
+          "distance": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far a digit moves out and in during a blur-slide change, in the direction a slide would move it."
+          }
+        },
+        "blur": {
+          "radius": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How blurred a digit is at the far end of a blur or blur-slide change: the old one blurs to it as it fades out, the new one sharpens from it as it fades in."
+          }
+        },
+        "motion": {
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long one change takes: the digits and the width move together, so it is the role of a large change of size."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ],
+            "$description": "The curve of the digits' and the width's motion."
+          },
+          "reduced-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "The cross-fade from the old number to the new one while motion is reduced."
+          },
+          "stagger": {
+            "$type": "duration",
+            "$value": {
+              "value": 50,
+              "unit": "ms"
+            },
+            "$description": "How much later each digit place starts than the one before it, from the most significant to the least. Shorter than sys.motion.duration.stagger, which spaces the items of a list: the digits of one number would lag half a second behind over six places."
+          }
+        }
+      },
       "one-time-code-input": {
         "caret": {
           "width": {
@@ -73115,6 +73266,216 @@
           }
         }
       },
+      "resizable-frame": {
+        "container": {
+          "min-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The least height a person can give while the product sets none: room for a few lines of the content and its own header."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The least width a person can give while the product sets none: 320 CSS pixels, the width at which content must reflow without scrolling sideways (WCAG 1.4.10), so that a person checking a design reaches that width and no narrower by accident."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "The outlined box's corners: the step of a card, so that a preview reads as one of the page's blocks. The content is clipped to them. The plain frame has no corners of its own."
+          }
+        },
+        "handle": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far each handle's box stands outside the outlined box's edge, so that it covers none of the content. The plain frame centres its handle on its edge instead."
+          }
+        },
+        "motion": {
+          "indicator-enter-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the size indicator takes to fade in: a hint, as a tooltip is."
+          },
+          "indicator-enter-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.05,
+              0.7,
+              0.1,
+              1
+            ]
+          },
+          "indicator-exit-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the size indicator takes to fade out."
+          },
+          "indicator-exit-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              0.8,
+              0.15
+            ]
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the box takes to reach a size a key or an activation gave it. A drag is followed without a motion."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ]
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.7922,
+                0.7686,
+                0.8157
+              ],
+              "hex": "#cac4d0",
+              "alpha": 1
+            },
+            "$description": "The outlined box's edge: decoration that shows where the content's room ends, in the color a divider and an outlined card draw theirs in. What a person drags is the handle, which is held to the 3:1 boundary of a control."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The width of the outlined box's edge, drawn inside its size."
+          }
+        },
+        "size-indicator": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1961,
+                  0.1843,
+                  0.2078
+                ],
+                "hex": "#322f35",
+                "alpha": 1
+              },
+              "$description": "The size indicator's fill: the inverse surface, which reads over whatever the content draws beneath it."
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$description": "The size indicator's height: the least height of a plain tooltip, a label of the same kind laid over content."
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$description": "Before and after the size indicator's numbers."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$description": "The size indicator's corners."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9608,
+                  0.9373,
+                  0.9686
+                ],
+                "hex": "#f5eff7",
+                "alpha": 1
+              },
+              "$description": "The size indicator's numbers, on the inverse surface."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto Mono",
+                  "ui-monospace",
+                  "monospace"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              },
+              "$description": "The size indicator's numbers: a face whose digits are all one width, so that the label does not shake as the numbers change under a drag."
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "How far the size indicator stands in from the box's top edge and its end edge."
+          }
+        },
+        "snap-distance": {
+          "$type": "dimension",
+          "$value": {
+            "value": 8,
+            "unit": "px"
+          },
+          "$description": "How near a drag must come to one of the widths the frame snaps to for the width to be taken as that one."
+        }
+      },
       "scroll-area": {
         "blur": {
           "extent": {
@@ -73237,7 +73598,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. The default system's 16 is 48 minus the narrowest button there (the bar's small clear button, 32). The action buttons stand button-gap from one another instead."
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 48 − 32 = 16 in the default system. The action buttons stand button-gap from one another instead."
           },
           "height": {
             "$type": "dimension",
@@ -99612,6 +99973,10 @@
       }
     },
     "dial": {
+      "density": {
+        "$type": "number",
+        "$value": 1
+      },
       "motion": {
         "unit": {
           "$type": "duration",
@@ -104352,6 +104717,45 @@
           "$description": "Something needs attention before it becomes an error: caution banners, risky choices."
         }
       },
+      "control": {
+        "height": {
+          "extra-large": {
+            "$type": "dimension",
+            "$value": {
+              "value": 72,
+              "unit": "px"
+            }
+          },
+          "extra-small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            }
+          },
+          "large": {
+            "$type": "dimension",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            }
+          },
+          "medium": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            }
+          },
+          "small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            }
+          }
+        }
+      },
       "elevation": {
         "level0": {
           "$type": "shadow",
@@ -105832,6 +106236,14 @@
         }
       },
       "target": {
+        "minimum": {
+          "$type": "dimension",
+          "$value": {
+            "value": 32,
+            "unit": "px"
+          },
+          "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
+        },
         "pointer": {
           "$type": "dimension",
           "$value": {

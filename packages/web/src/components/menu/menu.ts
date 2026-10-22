@@ -2124,7 +2124,7 @@ export class TanreiMenu extends TanreiElement {
       // The triangle is taken anew each time the pointer leaves the submenu's item: from where it was last on it.
       this.endAim();
       this.apex = { submenu: aimed, x: event.clientX, y: event.clientY };
-    } else if (aimed && this.apex?.submenu === aimed && this.onTheWay(event, aimed)) {
+    } else if (aimed && this.apex?.submenu === aimed && this.#onTheWay(event, aimed)) {
       if (item) {
         item.suppressHover(true);
         this.crossed.add(item);
@@ -2142,7 +2142,7 @@ export class TanreiMenu extends TanreiElement {
   };
 
   /** MNU-45: whether the pointer is inside the triangle to `submenu`'s surface, which follows the side it is placed on. */
-  private onTheWay(event: PointerEvent, submenu: TanreiSubmenu): boolean {
+  #onTheWay(event: PointerEvent, submenu: TanreiSubmenu): boolean {
     const surface = submenu.surfaceElement;
     const row = submenu.rowElement;
     if (!surface || !row || !this.apex) return false;
@@ -2170,12 +2170,50 @@ export class TanreiMenu extends TanreiElement {
    * @internal
    */
   focusFirstItem() {
+    // MBR-9: a menubar's menu opened with Up Arrow takes focus on its last enabled item, and one opened by a pointer without the ring.
+    const entry = this.bar?.entry ?? { end: 'first', quiet: false };
+    if (!this.undrawn()) {
+      this.enterAt(entry);
+      return;
+    }
+    // MNU-1: an item that is not drawn yet takes no focus — one in a group that has not drawn its slot, or in a menu
+    // that has not drawn the slot of a child it was just given (a menu mounted open, or opened in the task that gives
+    // it its groups). Focus waits for them: their renders run in this turn's microtasks, so no input comes between.
+    void this.drawn().then(() => {
+      if (this.open && !this.focusless) this.enterAt(entry);
+    });
+  }
+
+  /** MNU-1, MBR-9: focus to the first or the last enabled item of the menu's own surface (its first or last item where none is enabled). */
+  private enterAt({ end, quiet }: { end: 'first' | 'last'; quiet: boolean }) {
     this.syncs.flush();
     const items = this.rowsOf(this);
-    // MBR-9: a menubar's menu opened with Up Arrow takes focus on its last enabled item, and one opened by a pointer without the ring.
-    const { end, quiet } = this.bar?.entry ?? { end: 'first', quiet: false };
     const item = end === 'last' ? ([...items].reverse().find((each) => !each.disabled) ?? items.at(-1)) : (items.find((each) => !each.disabled) ?? items[0]);
     this.placeFocus(() => (quiet ? item?.focusFromPointer() : item?.focus()));
+  }
+
+  /**
+   * Whether an item of the menu's own surface is not drawn yet: the menu has children whose slots it has not drawn,
+   * or a group or a row has not rendered once (a group's slot, a link item's anchor, MNU-53).
+   */
+  private undrawn(): boolean {
+    // The child list as it is now, where the observer that reads it has not run yet.
+    const children = [...this.children];
+    if (children.length !== this.blocks.length || children.some((child, i) => child !== this.blocks[i])) this.readChildren();
+    this.syncs.flush();
+    return this.isUpdatePending || this.groups.some((group) => !group.hasUpdated) || this.rowsOf(this).some((row) => !row.hasUpdated);
+  }
+
+  /**
+   * Resolves once the menu, its groups and its rows have drawn: each render may ask for another (the menu draws the
+   * slots of what it reads). One that will not draw (its render threw) is waited for no longer than it is pending.
+   */
+  private async drawn(): Promise<void> {
+    while (this.undrawn()) {
+      const pending = [this, ...this.groups, ...this.rowsOf(this)].filter((element) => element.isUpdatePending);
+      if (pending.length === 0) return;
+      await Promise.all(pending.map((element) => element.updateComplete.catch(() => false)));
+    }
   }
 
   /**

@@ -311,7 +311,7 @@ export class TanreiNumberInput extends TanreiElement {
    * NMI-26: the stepper whose press has begun and whose `mousedown` is still to come (0: none). The step is taken at
    * `pointerdown`; a step that reaches the limit does not disable that stepper before the `mousedown` of the same
    * press has been heard — at once for a mouse, at the release for a touch — because that event is where the field
-   * keeps focus where it is (`onContainerPress`), and a control disabled in between is not sent it: focus left the
+   * keeps focus where it is (`#onContainerPress`), and a control disabled in between is not sent it: focus left the
    * input, or the control it was on, for the page.
    */
   protected pressing: 1 | -1 | 0 = 0;
@@ -607,7 +607,7 @@ export class TanreiNumberInput extends TanreiElement {
     this.said(reading.kind === 'number' ? numberOf(reading.value) : null);
   }
 
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     // The native element's own `input` stops at the shadow root: the number input's carries a number (NMI-19).
     event.stopPropagation();
     // NMI-16: a composition is left to the native element; the text is read when it ends.
@@ -707,7 +707,7 @@ export class TanreiNumberInput extends TanreiElement {
    * and after its tenth repeated step once every `motion.repeat-interval-fast`, until the press ends, the pointer
    * leaves the stepper, or the value reaches the limit. Every step is one step; `change` follows once, when it ends.
    */
-  private onStepperDown(event: PointerEvent, direction: 1 | -1) {
+  #onStepperDown(event: PointerEvent, direction: 1 | -1) {
     if (!event.isPrimary || event.button !== 0) return;
     this.release();
     this.pressed = true;
@@ -758,7 +758,7 @@ export class TanreiNumberInput extends TanreiElement {
   };
 
   /** NMI-26: a stepper activated through assistive technology — a `click` no press of a pointer began — steps once. */
-  private onStepperClick(event: MouseEvent, direction: 1 | -1) {
+  #onStepperClick(event: MouseEvent, direction: 1 | -1) {
     const pointer = this.pressed && event.detail > 0;
     this.pressed = false;
     if (!pointer) this.stepBy(direction, 1);
@@ -770,7 +770,7 @@ export class TanreiNumberInput extends TanreiElement {
    * unless `action` was cancelled. Home, End, Left Arrow and Right Arrow, and every arrow or page key with a modifier,
    * are the text's. While an input method composes, every key is its own.
    */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || this.inert_) return;
     if (event.isComposing || this.native.composing || event.keyCode === 229) return;
     const { key } = event;
@@ -791,14 +791,14 @@ export class TanreiNumberInput extends TanreiElement {
     this.stepBy(step[0], step[1]);
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     // NMI-15: where style queries are missing, the focus style is read when focus arrives.
     syncFocusStyle(this, this.renderRoot.querySelector<HTMLElement>('.field'));
   }
 
   /** NMI-20: the input lost focus: the text is committed. */
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
     this.commit();
   }
@@ -808,7 +808,7 @@ export class TanreiNumberInput extends TanreiElement {
    * nothing else. A press in the input places the caret. NMI-26: a press on a stepper moves no focus: a field that was
    * not focused stays unfocused, and a focused input keeps its focus and its caret.
    */
-  private onContainerPress(event: MouseEvent) {
+  #onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest('.input')) return;
@@ -998,7 +998,7 @@ export class TanreiNumberInput extends TanreiElement {
         ?data-has-value=${this.text !== ''}
         ?data-steppers=${steppers}
       >
-        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
+        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.#onContainerPress}>
           <div class="body" dir=${run}>
             <span part="prefix" class="prefix" aria-hidden="true">${this.prefixText}</span>
             <input
@@ -1024,10 +1024,10 @@ export class TanreiNumberInput extends TanreiElement {
               aria-valuemin=${min ? canonical(min) : nothing}
               aria-valuemax=${max ? canonical(max) : nothing}
               aria-valuetext=${valueText || nothing}
-              @input=${this.onInput}
-              @keydown=${this.onKeyDown}
-              @focus=${this.onFocus}
-              @blur=${this.onBlur}
+              @input=${this.#onInput}
+              @keydown=${this.#onKeyDown}
+              @focus=${this.#onFocus}
+              @blur=${this.#onBlur}
               @compositionstart=${this.native.onCompositionStart}
               @compositionend=${this.native.onCompositionEnd}
             />
@@ -1044,9 +1044,9 @@ export class TanreiNumberInput extends TanreiElement {
                   aria-hidden=${decrementLabel ? nothing : 'true'}
                   .outsideFocusOrder=${true}
                   ?disabled=${this.atLimit(-1) && this.pressing !== -1}
-                  @pointerdown=${(event: PointerEvent) => this.onStepperDown(event, -1)}
+                  @pointerdown=${(event: PointerEvent) => this.#onStepperDown(event, -1)}
                   @pointerleave=${this.release}
-                  @click=${(event: MouseEvent) => this.onStepperClick(event, -1)}
+                  @click=${(event: MouseEvent) => this.#onStepperClick(event, -1)}
                   ><span slot="icon" class="stepper-glyph"><span class="ink">remove</span></span></tanrei-button
                 ><tanrei-button
                   part="stepper"
@@ -1057,9 +1057,9 @@ export class TanreiNumberInput extends TanreiElement {
                   aria-hidden=${incrementLabel ? nothing : 'true'}
                   .outsideFocusOrder=${true}
                   ?disabled=${this.atLimit(1) && this.pressing !== 1}
-                  @pointerdown=${(event: PointerEvent) => this.onStepperDown(event, 1)}
+                  @pointerdown=${(event: PointerEvent) => this.#onStepperDown(event, 1)}
                   @pointerleave=${this.release}
-                  @click=${(event: MouseEvent) => this.onStepperClick(event, 1)}
+                  @click=${(event: MouseEvent) => this.#onStepperClick(event, 1)}
                   ><span slot="icon" class="stepper-glyph"><span class="ink">add</span></span></tanrei-button
                 ></span
               >`

@@ -139,8 +139,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 10
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -153,7 +154,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -165,8 +169,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 14
+                  "of": "{tanrei.sys.control.height.large}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }
@@ -201,26 +206,86 @@
             "$type": "dimension",
             "$description": "Vertical padding around the value's line of a filled or an outlined box whose label is not drawn; a stacked box reads stacked.container.padding-block. Heights are minimums, so this shows only for several lines or enlarged text.",
             "small": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.input-box.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space125}"
+              "$value": {
+                "value": 10,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space125}",
+                  "height": "{tanrei.comp.input-box.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space175}"
+              "$value": {
+                "value": 14,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space175}",
+                  "height": "{tanrei.comp.input-box.container.height.large}"
+                }
+              }
             }
           },
           "padding-block-with-label": {
             "$type": "dimension",
             "$description": "Vertical padding of a filled box whose label is shown: the floated label and the value's line stack inside it.",
             "small": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.input-box.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.input-box.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space50}"
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space50}",
+                  "height": "{tanrei.comp.input-box.container.height.large}"
+                }
+              }
             }
           },
           "gap": {
@@ -366,13 +431,43 @@
               "$type": "dimension",
               "$description": "Vertical padding around the value's line of a stacked box: little enough that a line of the size's input text fits in stacked.container.height. Heights are minimums, so this shows only for several lines or enlarged text.",
               "small": {
-                "$value": "{tanrei.sys.space.space50}"
+                "$value": {
+                  "value": 4,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space50}",
+                    "height": "{tanrei.comp.input-box.stacked.container.height.small}"
+                  }
+                }
               },
               "medium": {
-                "$value": "{tanrei.sys.space.space75}"
+                "$value": {
+                  "value": 6,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space75}",
+                    "height": "{tanrei.comp.input-box.stacked.container.height.medium}"
+                  }
+                }
               },
               "large": {
-                "$value": "{tanrei.sys.space.space175}"
+                "$value": {
+                  "value": 14,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "pad",
+                    "of": "{tanrei.sys.space.space175}",
+                    "height": "{tanrei.comp.input-box.stacked.container.height.large}"
+                  }
+                }
               }
             }
           },

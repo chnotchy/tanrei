@@ -1,0 +1,110 @@
+{
+  "tanrei": {
+    "comp": {
+      "marquee-text": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows a line of text that does not fit — a row's title, a navigation label, the name of what is playing — whole, by moving it sideways, and wants every such line in the product to move at one pace, rest as long at its start and keep one distance to the copy that follows it.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a marquee text reads besides the text style of where it stands: how fast the text moves, how long it rests at its start and at its end, how long a trigger waits before the motion starts, how the text returns when the trigger ends, the gap to the copy that follows it, the depth of the fade at a hidden edge, and the gap to the playback control. It has no type style and no color of its own; the playback control is a Button and draws from the Button's tokens.",
+            "rules": [
+              "speed is in pixels per second, so that a long text and a short one move at the same pace. Never express the motion as the time of one pass.",
+              "The pauses are reading times: the motion dial, which speeds or slows animation, does not shorten them.",
+              "The marquee text never moves where motion is reduced; a product does not restyle that."
+            ]
+          }
+        },
+        "speed": {
+          "$type": "number",
+          "$value": 30,
+          "$description": "How fast the text moves, in pixels per second at the default text size (it grows with the text). Unless the instance gives another (speed).",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product moves every line of text at one pace: the name of what is playing and a row's title moving at different speeds would look unsettled.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.derive": {
+              "fixed": "A speed, not a time: the motion dial scales durations, and multiplying a speed by it would slow the text where the dial asks for faster motion."
+            }
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space600}",
+          "$description": "While the text repeats: the distance from the text's end to the copy that follows it, so that the end and the start are not read as one sentence."
+        },
+        "fade": {
+          "extent": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "While the text plays: how deep each edge behind which text lies hidden fades, from clear at the edge to the text's full color."
+          }
+        },
+        "playback": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The distance from the line's end to its playback control."
+          }
+        },
+        "motion": {
+          "start-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "How long the text rests at its start before each pass, so that the line's beginning can be read. Unless the instance gives another (startPause).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long its moving lines rest at their start, long enough to read how they begin.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          },
+          "end-pause": {
+            "$type": "duration",
+            "$value": {
+              "value": 1200,
+              "unit": "ms"
+            },
+            "$description": "While the text bounces: how long it rests with its end in view before it moves back. Unless the instance gives another (endPause).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long a bouncing line rests with its end in view, long enough to read how it ends.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          },
+          "start-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.show-delay}",
+            "$description": "How long a hover or a focus holds before the text starts to move, so that a pointer passing over a list sets no row moving."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.linear}",
+            "$description": "The motion of a pass: steady, so that the speed means pixels per second all the way."
+          },
+          "return-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.default}",
+            "$description": "How long the text takes to return to its start when its trigger ends before its passes do."
+          },
+          "return-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}"
+          }
+        }
+      }
+    }
+  }
+}

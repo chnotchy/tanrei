@@ -111,7 +111,7 @@ export class TanreiTag extends TanreiElement {
     return isStatus(this.status) ? this.status : 'default';
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -159,7 +159,7 @@ export class TanreiTag extends TanreiElement {
       <span part="container" class="container ${classMap({ 'has-lead': this.hasIcon || dot, 'has-icon': this.hasIcon })}" data-tanrei-shape>
         <span class="row">
           <span class="lead" aria-hidden="true">
-            <span part="icon" class="icon"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
+            <span part="icon" class="icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
             ${dot ? html`<span part="dot" class="dot"></span>` : nothing}
           </span>
           ${spoken ? html`<span class="status">${spoken}, </span>` : nothing}<span part="label" class="label" dir=${ownDirection(this.label)}>${this.label}</span>
