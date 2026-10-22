@@ -8232,6 +8232,16 @@ the font's default `opsz`, 24, at every size). The box size becomes a number thr
 dropped — and only under `@supports` for that arithmetic; an engine without it keeps `font-optical-sizing: auto`.
 Grade is 0. Icon names belong to the product.
 
+The name can be an attribute instead of the text: `<span class="tanrei-icon" data-icon="folder"></span>` draws the same
+glyph as `<span class="tanrei-icon">folder</span>`, as the element's `::before` (a ligature is formed in generated
+content as in text), with an empty alternative (`content: attr(data-icon) / ''`). The name is then in none of the
+page's text — not in `textContent` or `innerText`, not in what people copy or a test compares, not in the accessible
+name of the control around it — so it is the form for a glyph in a row, a cell or a label whose text is read. The
+element holds nothing else. Size, selection, mirroring and the slots of the components take it as they take the text
+form; `data-icon=""` is no name, and the text is read again. The empty alternative is read from Chrome and Edge 77,
+Firefox 128 and Safari 17.4; an engine before that (Firefox 126 and 127 are inside the package's floor) puts the name in
+the accessible name, so `aria-hidden="true"` stays the rule for a glyph whose text beside it says the same.
+
 One weight is not `sys.icon.weight`: a control's own mark — the check and the dash of a checkbox, the glyph on a switch's
 handle, the check in the box of a menu's checkbox item — is drawn at the weight its component token names, which aliases
 `sys.icon.mark.weight` (500 in the default system, the preset's icon weight under a preset). `iconGlyph()`
@@ -8256,8 +8266,9 @@ and everything vertical are not. Which names mirror is a fact about the icon set
 
 Decide for one use with `data-mirror="auto | always | never"` (default `auto`, by the list) on the `.tanrei-icon` or on
 the element in the slot: `never` for a physical direction or a mark that must not change (`format_align_left` in a text
-editor, a question mark in Hebrew), `always` for a name the list does not have. The glyph's name is the element's text
-without the white space around it; text that is not one name (letters, digits, underscores) is not a glyph. A change of
+editor, a question mark in Hebrew), `always` for a name the list does not have. The glyph's name is a `.tanrei-icon`'s
+`data-icon` where it has one, else the element's text without the white space around it; text that is not one name
+(letters, digits, underscores) is not a glyph. A change of
 `dir` on any ancestor, at any time, is followed by CSS alone; a changed name, a changed `data-mirror` and a design system
 switched on the document's root are followed by script. Not followed: `data-tanrei-system` changed on an element other
 than the root while the page runs, and a glyph given as a bare text node in a slot (give it in an element).
