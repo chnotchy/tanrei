@@ -8,8 +8,8 @@
 // other module the package's `exports` name — esbuild bundles it alone, as a product's bundler would (honouring the
 // package's `sideEffects`), and its metafile gives the modules the bundle keeps. Each kept module's source is read
 // with TypeScript's parser for the tags it writes: in a tagged template (`html\`<tanrei-button …>\``), by
-// `createElement('tanrei-…')`, or as a static tag (`literal\`tanrei-…\``, `unsafeStatic('tanrei-…')`). Comments and
-// plain strings are not markup and are not read. The manifest (custom-elements.json) says which module defines each
+// `createElement('tanrei-…')`, or as a static tag (`literal\`tanrei-…\``, `unsafeStatic('tanrei-…')`). Comments, style
+// sheets (`css\``) and plain strings are not markup and are not read. The manifest (custom-elements.json) says which module defines each
 // tag; every tag written must be defined by a kept module. A gap is listed in ALLOWED with its reason; the list only
 // shrinks. Run after the build (`dist/`), by `pnpm --filter @tanrei/web test:node`.
 import assert from 'node:assert/strict';
@@ -44,10 +44,11 @@ function written(file) {
   const visit = (node) => {
     if (ts.isTaggedTemplateExpression(node)) {
       const parts = pieces(node.template);
-      for (const piece of parts) {
+      const name = ts.isIdentifier(node.tag) ? node.tag.text : '';
+      // A style sheet (`css\``) is not markup: a `<tanrei-…>` in it is a comment naming an element, not one drawn.
+      for (const piece of name === 'css' ? [] : parts) {
         for (const match of piece.text.matchAll(TAG)) at(node, match[1], lineOf(piece.getStart(source)) + (piece.text.slice(0, match.index).match(/\n/g)?.length ?? 0));
       }
-      const name = ts.isIdentifier(node.tag) ? node.tag.text : '';
       if (name === 'literal' && parts.length === 1 && STATIC_TAG.test(parts[0].text.trim())) at(node, parts[0].text.trim());
     } else if (ts.isCallExpression(node) && node.arguments.length > 0 && ts.isStringLiteralLike(node.arguments[0])) {
       const callee = ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : ts.isIdentifier(node.expression) ? node.expression.text : '';
