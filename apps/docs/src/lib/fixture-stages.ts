@@ -54,6 +54,19 @@ function laidOutBy(stage: Element): { sized: HTMLElement; width: number } | unde
 }
 
 /**
+ * The inline stages, fitted to their rows by one observer: it is told of every stage drawn or resized in a frame at
+ * once (a stage is fitted when it is first observed, before it is painted), reads the room of each, and only then
+ * writes their widths. A stage that read the layout after the one before it had written a width would lay the whole
+ * page out again: drawing the stages near the view as the reader scrolled did that for every stage, and spent most of
+ * its time on it on a page of hundreds (the Field's has 368).
+ */
+const fitters = new Map<Element, () => () => void>();
+const rows = new ResizeObserver((entries) => {
+  const writes = entries.flatMap((entry) => fitters.get(entry.target)?.() ?? []);
+  for (const write of writes) write();
+});
+
+/**
  * An inline stage whose fixture is as wide as its layout: it starts at the width its staging gives it, and is never
  * wider than the stage's row — a layout wider than the column is laid out at the column's width, as a product's is.
  * The handle sets the width the reader wants, which the stage keeps for as long as the row has room for it.
@@ -69,10 +82,14 @@ function inlineStage(canvas: HTMLElement, { sized, width: natural }: { sized: HT
     const edges = parseFloat(box.paddingLeft) + parseFloat(box.paddingRight) + parseFloat(box.borderLeftWidth) + parseFloat(box.borderRightWidth);
     return sized === stage ? (box.boxSizing === 'border-box' ? 0 : edges) : edges;
   };
-  const apply = () => {
+  // Reads the layout and returns the write it calls for: the observer of rows reads every stage it is told of before it
+  // writes any.
+  const fit = () => {
     const width = Math.max(LEAST - around(), Math.min(wanted, room(canvas) - around()));
     const next = Math.abs(width - natural) < 0.5 ? '' : `${width}px`;
-    if (sized.style.inlineSize !== next) sized.style.inlineSize = next;
+    return () => {
+      if (sized.style.inlineSize !== next) sized.style.inlineSize = next;
+    };
   };
   resizeHandle(handle, {
     value: () => canvas.getBoundingClientRect().width,
@@ -81,10 +98,11 @@ function inlineStage(canvas: HTMLElement, { sized, width: natural }: { sized: HT
   });
   handle.addEventListener(RESIZE_EVENT, (event) => {
     wanted = (event as CustomEvent<{ value: number }>).detail.value - around();
-    apply();
+    fit()();
   });
-  new ResizeObserver(apply).observe(canvas.parentElement ?? canvas);
-  apply();
+  const row = canvas.parentElement ?? canvas;
+  fitters.set(row, fit);
+  rows.observe(row);
 }
 
 /**

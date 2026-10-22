@@ -34,7 +34,9 @@ export function resizeHandle(handle: HTMLElement, range: ResizeRange): void {
     show(next);
     handle.dispatchEvent(new CustomEvent(RESIZE_EVENT, { bubbles: true, detail: { value: next } }));
   };
-  show(clamp(range.value()));
+  // Its first value is read in the next frame, not now: a handle set up as its stage is drawn would otherwise lay the
+  // page out at once, for each stage drawn, between one stage's writes and the next's.
+  requestAnimationFrame(() => show(clamp(range.value())));
   // The handle stands at the stage's end: in a right-to-left layout that is its left, and moving it left widens the stage.
   const sign = () => (getComputedStyle(handle).direction === 'rtl' ? -1 : 1);
 
