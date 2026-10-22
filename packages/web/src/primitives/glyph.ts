@@ -1,4 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
+import { FacesWatch } from './faces.js';
 
 /**
  * A glyph of the icon set is a ligature: while its font is missing (still loading, failed, or never made available —
@@ -87,17 +88,16 @@ const iconFamilies = new Set<string>();
 const familyName = (family: string) => family.trim().replace(/^["']|["']$/g, '').toLowerCase();
 
 /**
- * One subscription to the fonts of the page for every host (not two for each: a page of a thousand checkboxes had two
- * thousand). A face that finishes loading, or fails to, has every host read all its glyphs again — once, together —
- * unless it is of none of the families the glyphs were read in: a text face's arrival leaves every ligature as wide as
- * it was. Without an observer to report what this skips, every load is read.
+ * One watch of the fonts of the page for every host (`FacesWatch`). A face that finishes loading, or fails to, has
+ * every host read all its glyphs again — once, together — unless it is of none of the families the glyphs were read
+ * in: a text face's arrival leaves every ligature as wide as it was. Without an observer to report what this skips,
+ * every load is read; so is the moment the faces are ready after a glyph was read while one loaded, which names no face.
  */
 const connected = new Set<GlyphDrawnController>();
-function fontsChanged(event: Event) {
-  const faces = (event as Event & { fontfaces?: readonly FontFace[] }).fontfaces;
-  if (observer && faces && !faces.some((face) => iconFamilies.has(familyName(face.family)))) return;
+const faces = new FacesWatch((loaded) => {
+  if (observer && loaded && !loaded.some((face) => iconFamilies.has(familyName(face.family)))) return;
   for (const host of connected) decideTogether(host, true);
-}
+});
 
 /**
  * A mark written here, between two frames, was read from a width the observer has not been told of: it compares an
@@ -145,11 +145,8 @@ export class GlyphDrawnController implements ReactiveController {
 
   hostConnected() {
     this.connected = true;
-    if (!connected.size) {
-      document.fonts?.addEventListener('loadingdone', fontsChanged);
-      document.fonts?.addEventListener('loadingerror', fontsChanged);
-    }
     connected.add(this);
+    faces.connect();
   }
 
   hostDisconnected() {
@@ -161,10 +158,7 @@ export class GlyphDrawnController implements ReactiveController {
     }
     this.observed.clear();
     connected.delete(this);
-    if (!connected.size) {
-      document.fonts?.removeEventListener('loadingdone', fontsChanged);
-      document.fonts?.removeEventListener('loadingerror', fontsChanged);
-    }
+    if (!connected.size) faces.disconnect();
   }
 
   /**
@@ -217,6 +211,8 @@ export class GlyphDrawnController implements ReactiveController {
         for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
       } else readUnder.delete(ink!);
     }
+    // After the layout the reads forced: the icon face a glyph first asked for in it is loading now.
+    if (readings.length) faces.measured();
     return readings;
   }
 }

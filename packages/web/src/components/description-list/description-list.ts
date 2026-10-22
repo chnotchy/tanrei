@@ -4,6 +4,7 @@ import { debugBuild } from '../../primitives/report.js';
 import type { TanreiDescriptionListDensityRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { FacesWatch } from '../../primitives/faces.js';
 
 /** How a fact is drawn (DSL-3, DSL-5, DSL-6): the term beside its value, above it, or under it as a figure's label. */
 export type TanreiDescriptionListLayout = 'inline' | 'stacked' | 'stat';
@@ -197,6 +198,8 @@ export class TanreiDescriptionList extends TanreiLightElement {
   private static frame = 0;
 
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
+  /** A face arrived, or the faces are ready after a term was measured while one loaded: the widest term may be another. */
+  private readonly faces = new FacesWatch(() => this.read());
   /** The list the box holds now, and the one the observer of sizes watches. */
   private list: HTMLDListElement | null = null;
   private watched: HTMLDListElement | null = null;
@@ -210,7 +213,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
     super.connectedCallback();
     adoptUnlessDrawn(this, sheet('list', () => LIST_CSS), '--_dl-fact-gap');
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true });
-    document.fonts?.addEventListener?.('loadingdone', this.read);
+    this.faces.connect();
     if (this.hasUpdated) this.read();
   }
 
@@ -218,7 +221,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
     super.disconnectedCallback();
     this.watch(null);
     this.mutations?.disconnect();
-    document.fonts?.removeEventListener?.('loadingdone', this.read);
+    this.faces.disconnect();
     TanreiDescriptionList.due.delete(this);
     TanreiDescriptionList.later.delete(this);
     if (TanreiDescriptionList.frame && !TanreiDescriptionList.later.size) {
@@ -378,6 +381,8 @@ export class TanreiDescriptionList extends TanreiLightElement {
     const value = list.querySelector(':scope > dd');
     const gap = Number.parseFloat(style.columnGap) || (value ? Number.parseFloat(getComputedStyle(value).paddingInlineStart) : 0) || 0;
     const least = Number.parseFloat(style.scrollPaddingTop);
+    // After the layout the reads forced: a face the terms first asked for in it is loading now.
+    this.faces.measured();
     // Not drawn (no box, or a browser that lays out no grid here): the stylesheet's own form stays.
     if (!Number.isFinite(term) || !Number.isFinite(least)) return null;
     // A hundredth of a pixel is as fine as a layout is.
