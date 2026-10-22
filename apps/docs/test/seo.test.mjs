@@ -123,10 +123,12 @@ describe('the structured data', () => {
     assert.equal(seo.gettingStartedPlatform('getting-started'), undefined);
     assert.equal(seo.gettingStartedPlatform('getting-started/your-design-system'), undefined);
     assert.equal(seo.softwareSourceCode('https://site.test/', 'D', ['compose']).programmingLanguage, 'Kotlin');
-    for (const platform of [...config.platforms, 'react']) assert.ok(seo.PLATFORM_CODE[platform], platform);
-    for (const page of fs.readdirSync(new URL('src/content/docs/getting-started/', docs)).map((file) => file.replace(/\.mdx?$/, ''))) {
-      if (page !== 'index' && page !== 'your-design-system') assert.ok(seo.gettingStartedPlatform(`getting-started/${page}`), page);
-    }
+    const platforms = [...config.platforms, 'react'];
+    for (const platform of platforms) assert.ok(seo.PLATFORM_CODE[platform], platform);
+    // A page named after a platform is that platform's; the others (the index, presets, AI agents, your own system) are none's.
+    const pages = fs.readdirSync(new URL('src/content/docs/getting-started/', docs)).map((file) => file.replace(/\.mdx?$/, ''));
+    for (const platform of platforms) assert.ok(pages.includes(platform), `getting-started/${platform}`);
+    for (const page of pages) assert.equal(seo.gettingStartedPlatform(`getting-started/${page}`), platforms.includes(page) ? page : undefined, page);
   });
   test('the only author is the account that owns the repository', () => {
     const code = seo.softwareSourceCode('https://site.test/', 'D');
