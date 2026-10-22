@@ -665,6 +665,7 @@ After the first full translation each language rendered some recurring terms in 
 
 | English | Japanese | Simplified Chinese | Spanish | Hindi | Arabic |
 |---|---|---|---|---|---|
+| a column of a state matrix: enabled / disabled / hovered / focused / pressed (the state's name as a label) | 有効 / 無効 / ホバー / フォーカス / 押下 | 启用 / 禁用 / 悬停 / 聚焦 / 按下 | Habilitado / Deshabilitado / Con el cursor encima / Con foco / Pulsado | सक्षम / अक्षम / होवर / फ़ोकस / दबाया हुआ | مُمكَّن / معطَّل / التحويم / التركيز / الضغط |
 | lagging (a platform's status; the site's status label) | 追従待ち | 待跟进 — "until they catch up" is 在跟上之前 | rezagado (van rezagados) | पीछे | متأخر |
 | previous revision (what a lagging platform ships) | 以前の版 | 上一版 | revisión anterior | पिछला संशोधन | المراجعة السابقة — never التنقيح, which is "debug" |
 | fling | フリング | 快速滑动 | lanzamiento (verb: lanzar) | फ़्लिंग (verb: फ़्लिंग करना) | دفعة سريعة (fling) — the gloss on a page's first mention; fling velocity is سرعة الدفع |

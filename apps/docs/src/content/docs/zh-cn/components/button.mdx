@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: 1f36f0bae5338228cbecfc2e4a454e81bf6bbfb9
+sourceHash: a587774eb5411058152f514ed38199d856c52a81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## 概览
 
@@ -343,6 +344,8 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
+
+<StateMatrix name="button" />
 
 <ComponentSpecs name="button" />
 

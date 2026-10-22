@@ -17,7 +17,8 @@
 // to the component what the component's own stylesheet does not allow: a stylesheet loaded where the page's layers
 // beat it, a stylesheet the page does not load, a page rule that reaches into the component. Not what it cannot see:
 // a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page) or one the page stages files into
-// (`data-fixture-files`) is in a state the copy is not, and is left out; parts placed against something outside the
+// (`data-fixture-files`) is in a state the copy is not, and is left out, as is a state matrix (its cells are held in
+// states the copy is not in; test/browser/state-matrix.test.mjs checks each against its tokens); parts placed against something outside the
 // preview (an open surface's list) and visually hidden parts are not compared.
 export async function comparePreviews({ componentCss, still }) {
   const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
@@ -30,7 +31,7 @@ export async function comparePreviews({ componentCss, still }) {
     '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
     '.docs-stage-box[data-tanrei-demo] .fixture-element > *',
     '.docs-file-tree > figure > [data-part=stage] > *',
-    '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay])',
+    '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay], .docs-state-matrix)',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
   // A fixture of the gallery is written in a template and drawn when its stage comes near the view: every one is drawn
