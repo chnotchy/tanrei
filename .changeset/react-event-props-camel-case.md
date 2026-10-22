@@ -3,7 +3,7 @@
 ---
 
 **Breaking — React event props.** Every event prop is now `on` and the event's name in camel case, as React names its
-own (`onKeyDown`): 20 props that took the DOM event's lowercase name are renamed. The elements still fire their events
+own (`onKeyDown`): 22 props that took the DOM event's lowercase name are renamed. The elements still fire their events
 in lowercase (`expandedchange`), as the platform's own events are named, so a listener added with `addEventListener`
 is unchanged.
 
@@ -23,6 +23,8 @@ is unchanged.
 | `onPausedchange` | `onPausedChange` |
 | `onPickerrequest` | `onPickerRequest` |
 | `onPresentationchange` | `onPresentationChange` |
+| `onResizeend` | `onResizeEnd` |
+| `onResizestart` | `onResizeStart` |
 | `onRowschange` | `onRowsChange` |
 | `onSelectionchange` | `onSelectionChange` |
 | `onSendablechange` | `onSendableChange` |

@@ -2,7 +2,7 @@
 title: 调整手柄
 description: 用拖动或键盘移动它，来改变它所在之物（面板、字段、窗格、预览框）的大小的标记。一个方向是一段短线，两个方向是一段四分之一圆弧。它报告被移动了多少；改变大小的是它的所有者。
 translationOf: components/handle.mdx
-sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -77,7 +77,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       min={2}
       max={12}
       valueText={`${rows} 行`}
-      onResizestart={() => setStart(rows)}
+      onResizeStart={() => setStart(rows)}
       onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
       onStep={(e) => setRows(stepped(rows, e.detail))}
       onActivate={() => setRows(rows < 12 ? 12 : 2)}
