@@ -1,5 +1,6 @@
 // Theme Studio's page (components/StudioPage.astro): the Studio, the whole window, with its own bar and none of the
-// documentation's frame; its layer in the page's address, so that a link opens it on the same layer; undo and redo,
+// documentation's frame; the rail of the look and the panel it opens; its layer in the page's address, so that a link
+// opens it on the same layer, without writing over the one a browser kept; undo and redo,
 // from the bar and from the keyboard; every part of it within reach of the Tab key; and nothing axe finds, wide and
 // narrow.
 //
@@ -43,7 +44,7 @@ async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-U
   // The base system is switched after a confirmation: the person says yes.
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto(origin + url);
-  await page.waitForSelector('[data-studio][data-level] [data-levels]');
+  await page.waitForSelector('[data-studio][data-pane] [data-rail] [data-row]');
   await page.evaluate(async () => {
     await Promise.all([...new Set([...document.querySelectorAll('*')].map((el) => el.localName).filter((name) => name.includes('-')))].map((name) => customElements.whenDefined(name)));
     await document.fonts.ready;
@@ -55,8 +56,11 @@ async function open(browser, { viewport = WIDE, url = '/studio/', locale = 'en-U
 const box = (page, selector) => page.locator(selector).first().evaluate((el) => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), top: Math.round(r.top), bottom: Math.round(r.bottom), width: Math.round(r.width) }; });
 const layer = (page) => page.evaluate(() => window.tanreiStudio.getLayer());
 const param = (page) => page.evaluate(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
-/** Choose a base system in Essentials, as a person does: press its radio button. */
-const chooseBase = (page, id) => page.locator(`[data-panel="base"] tanrei-radio-button[data-value="${id}"]`).click();
+/** Choose a base system, as a person does: the rail's Base system, then its radio button. */
+const chooseBase = async (page, id) => {
+  if (!(await page.locator('[data-panel="base"]').count())) await page.locator('[data-rail] [data-row="base"]').click();
+  await page.locator(`[data-panel="base"] tanrei-radio-button[data-value="${id}"]`).click();
+};
 /** Where the focus is: the element that has it, through shadow roots, and the Studio's part it stands in. */
 const focused = (page) =>
   page.evaluate(() => {
@@ -87,7 +91,9 @@ for (const engine of ENGINES) {
         assert.ok(preview.width > panel.width && panel.width >= 320, `the preview has the most room: ${preview.width}, the panel ${panel.width}`);
         const scroll = await page.evaluate(() => ({ width: document.scrollingElement.scrollWidth, height: document.scrollingElement.scrollHeight }));
         assert.deepEqual(scroll, { width: WIDE.width, height: WIDE.height }, 'the page itself does not scroll');
-        assert.equal(await page.locator('[data-levels]').getAttribute('orientation'), 'vertical', 'the levels stand in a column in the rail');
+        assert.equal(await page.locator('[data-rail] .ts-rail-rows').evaluate((el) => getComputedStyle(el).display), 'grid', 'the rows stand in a column in the rail');
+        assert.equal(await page.locator('[data-rail-rows] [data-row]').count(), 9, 'the nine rows of the look');
+        assert.equal(await page.locator('[data-rail] [data-row="color"]').getAttribute('aria-current'), 'true', 'the brand color is the row the panel shows');
         assert.deepEqual(problems, []);
       } finally {
         await close();
@@ -117,14 +123,15 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('390 wide: one column under the bar — the levels, the preview, the panel — and nothing scrolls sideways', async () => {
+    test('390 wide: one column under the bar — the rail, the preview, the panel — and nothing scrolls sideways', async () => {
       const { page, problems, close } = await open(browser, { viewport: NARROW });
       try {
         const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
         assert.ok(rail.bottom <= preview.top && preview.bottom <= panel.top, `one above the other: ${JSON.stringify({ rail, preview, panel })}`);
-        assert.equal(await page.locator('[data-levels]').getAttribute('orientation'), 'horizontal');
+        assert.deepEqual(await page.locator('[data-rail] .ts-rail-rows').evaluate((el) => [getComputedStyle(el).display, getComputedStyle(el).overflowX, el.getBoundingClientRect().right <= innerWidth + 1]), ['flex', 'auto', true], 'the rows stand in one line that scrolls by itself, inside the page');
         assert.equal(await page.locator('[data-panel-handle]').evaluate((el) => el.getBoundingClientRect().width), 0, 'no handle: nothing to resize');
-        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
+        // (What stands inside a list of the rail is in a box that scrolls by itself.)
+        const wide = await page.evaluate(() => [...document.querySelectorAll('[data-bar] *, [data-rail] *, [data-inspector] [data-panel] > header *')].filter((el) => !el.closest('.ts-rail-rows, .ts-rail-more') && el.getBoundingClientRect().right > innerWidth + 1).map((el) => el.localName));
         assert.deepEqual({ page: await page.evaluate(() => document.scrollingElement.scrollWidth), wide }, { page: NARROW.width, wide: [] });
         assert.deepEqual(problems, []);
       } finally {
@@ -149,6 +156,7 @@ for (const engine of ENGINES) {
       const second = await open(browser, { url: link.slice(origin.length) });
       try {
         assert.equal((await layer(second.page)).extends, 'cupertino', 'the link’s layer');
+        await second.page.locator('[data-rail] [data-row="base"]').click();
         assert.equal(await second.page.locator('[data-panel="base"] tanrei-radio-group').evaluate((group) => group.value), 'cupertino', 'and the controls show it');
         assert.deepEqual(second.problems, []);
       } finally {
@@ -177,7 +185,7 @@ for (const engine of ENGINES) {
         let visit = 0;
         const openLink = async () => {
           await page.goto(`${origin}/studio/?visit=${++visit}${link.slice(link.indexOf('#'))}`);
-          await page.waitForSelector('[data-studio][data-level]');
+          await page.waitForSelector('[data-studio][data-pane]');
           await page.waitForFunction(() => window.tanreiStudio.getLayer().extends === 'cupertino');
         };
         await openLink();
@@ -223,7 +231,7 @@ for (const engine of ENGINES) {
         assert.equal((await layer(page)).extends, 'cupertino', 'and redoes');
         await page.waitForFunction(() => location.hash.includes('layer='));
         // The keys, with the focus in the rail (a control that holds no text).
-        await page.locator('[data-levels] tanrei-tab[data-value="essentials"]').focus();
+        await page.locator('[data-rail] [data-row="color"]').focus();
         await page.keyboard.press('ControlOrMeta+z');
         assert.equal((await layer(page)).extends, 'tanrei', '⌘Z undoes');
         await page.keyboard.press('ControlOrMeta+Shift+z');
@@ -246,7 +254,8 @@ for (const engine of ENGINES) {
         const seen = [];
         // WebKit moves through buttons and links with Option+Tab, as Safari does unless the reader asks otherwise.
         const tab = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
-        for (let i = 0; i < 80; i += 1) {
+        // (The rail's rows, their locks and the rest of what a layer holds are stops of their own.)
+        for (let i = 0; i < 120; i += 1) {
           await page.keyboard.press(tab);
           const at = await focused(page);
           seen.push(at);
