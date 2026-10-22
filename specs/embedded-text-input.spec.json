@@ -278,6 +278,10 @@
     {
       "id": "ETI-28",
       "text": "WHILE the embedded text input is drawn with nothing around it that marks a box THE embedded text input SHALL still render and work exactly as it does in one: it cannot see whether a box is drawn, reports nothing about it, and falls back to no look of its own. That a box is drawn, that it shows focus (ETI-11), marks an error and a disabled input, pads the text and passes a press on (ETI-12) are held where the holder is: in the spec and the tests of a Tanrei component that is built from it, and by the product for a box of its own."
+    },
+    {
+      "id": "ETI-29",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE embedded text input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the embedded text input is invalid — except those the embedded text input owns (aria-label, aria-labelledby, aria-description, aria-describedby, aria-errormessage, aria-invalid, aria-required, aria-readonly, aria-disabled), which it SHALL move and not expose: they reach it as props (ETI-13). WHEN the product removes the aria- attribute or its data-aria- twin THE embedded text input SHALL take it off that element. WHEN the product sets an aria- attribute the embedded text input owns THE embedded text input SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -324,8 +328,7 @@
       "Text entry happens in the platform's native element, so input methods, autofill, dictation, selection and the platform's own text services work as they do everywhere. A composition's Enter never becomes an action (ETI-4): this is a functional requirement for every language written through candidates.",
       "A height that follows the text changes with a short motion; where motion is reduced it changes at once (WCAG 2.3.3). The motion is the height's alone: text never slides, fades or scales.",
       "At 200 % text in a width of 320 a multi-line input shows every character and scrolls in no direction but its own vertical one beyond maxRows (WCAG 1.4.4, 1.4.10). maxRows counts lines, so a holder at the bottom of a small screen should set one that leaves the conversation in view at that size.",
-      "Web: a touch browser zooms the page into a text element whose text is smaller than 16 px. The default text style is 16 px; a layer that sets a smaller one brings the zoom back.",
-      "WHEN the product sets an aria- attribute on the host THE embedded text input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the embedded text input is invalid — except those the embedded text input owns (aria-label, aria-labelledby, aria-description, aria-describedby, aria-errormessage, aria-invalid, aria-required, aria-readonly, aria-disabled), which it SHALL move and not expose: they reach it as props (ETI-13). WHEN the product removes the aria- attribute or its data-aria- twin THE embedded text input SHALL take it off that element. WHEN the product sets an aria- attribute the embedded text input owns THE embedded text input SHALL report it in debug builds."
+      "Web: a touch browser zooms the page into a text element whose text is smaller than 16 px. The default text style is 16 px; a layer that sets a smaller one brings the zoom back."
     ]
   },
   "tokens": "comp.embedded-text-input",

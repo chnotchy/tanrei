@@ -267,6 +267,10 @@
       "id": "TXF-67",
       "text": "WHILE counter is true THE text field SHALL give its Field, as its count text (FLD-27), the count its text input keeps (TXI-19), as the input writes it, and SHALL give the new one in the same frame in which the value changes — by typing, by a paste, because the product set value or maxLength — without a motion and without an announcement of its own: the input describes and announces its count itself (TXI-19) and the Field keeps the drawn text from assistive technology (FLD-27). WHILE counter is false THE text field SHALL give its Field no count text. THE text field SHALL NOT count, format or write a digit itself.",
       "verify": "Fixtures stacked-counter, outlined-counter, stacked-code-multiline-counter and stacked-code-multiline-rtl, each the same picture as its twin, whose Field is given the same count text by hand. Unit: type one character into a text field with counter: the Field's counter part shows the new count in the next frame; set counter to false: the part is gone."
+    },
+    {
+      "id": "TXF-68",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE text field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the text field is invalid — except those the text field owns (aria-label, aria-labelledby, aria-disabled), which it SHALL move and not expose: its name is label (TXF-62). WHEN the product removes the aria- attribute or its data-aria- twin THE text field SHALL take it off that element. WHEN the product sets an aria- attribute the text field owns THE text field SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -281,8 +285,7 @@
     "minimumTarget": true,
     "notes": [
       "One level down is the same thing: a Field with a text input in it. Every fixture has that pair as its twin, and the accessibility tree of the two is the same (TXF-62). What the pair by hand does not do by itself is keep the Field's count text equal to the input's count as the person types (TXF-67): the product writes it at each input.",
-      "On the web the two members stand in the text field's own shadow root, so the form meets the text field and not the input (TXF-63); focus passes through to the input (TXF-64).",
-      "WHEN the product sets an aria- attribute on the host THE text field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the text field is invalid — except those the text field owns (aria-label, aria-labelledby, aria-disabled), which it SHALL move and not expose: its name is label (TXF-62). WHEN the product removes the aria- attribute or its data-aria- twin THE text field SHALL take it off that element. WHEN the product sets an aria- attribute the text field owns THE text field SHALL report it in debug builds."
+      "On the web the two members stand in the text field's own shadow root, so the form meets the text field and not the input (TXF-63); focus passes through to the input (TXF-64)."
     ]
   },
   "tokens": "comp.field",

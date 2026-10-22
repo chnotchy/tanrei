@@ -249,6 +249,10 @@
       "id": "OTC-30",
       "text": "THE one-time-code input SHALL have no words of its own: it SHALL draw no word in any language and expose none. Its name is the Field's label or its own label, each the product's (OTC-22); what a required, a wrong or an expired code is called is the Field's requiredText, supportingText and errorText; the group mark and the mask are marks, not words. It SHALL read no key of the product's words.",
       "verify": "Unit: no test finds, in the rendering or in the accessibility tree of any fixture, a word the fixture did not give."
+    },
+    {
+      "id": "OTC-31",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE one-time-code input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the one-time-code input is invalid — except those the one-time-code input owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE one-time-code input SHALL take it off that element. WHEN the product sets an aria- attribute the one-time-code input owns THE one-time-code input SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -297,8 +301,7 @@
       "Web: a touch browser zooms the page into an input whose text is smaller than 16 px. The character style is 16 px in the default system; a layer that sets a smaller style brings the zoom back.",
       "Heights are minimums: at 200% text size the cells grow and the row narrows or wraps (OTC-23, OTC-24); nothing is cut (WCAG 1.4.4, 1.4.10).",
       "Not pressable: a press focuses the field and is not an action (OTC-25), so BTN-8, BTN-9 and BTN-10 are not copied.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WHEN the product sets an aria- attribute on the host THE one-time-code input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the one-time-code input is invalid — except those the one-time-code input owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE one-time-code input SHALL take it off that element. WHEN the product sets an aria- attribute the one-time-code input owns THE one-time-code input SHALL report it in debug builds."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
     ]
   },
   "tokens": "comp.one-time-code-input",

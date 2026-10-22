@@ -206,6 +206,10 @@
     {
       "id": "CRD-23",
       "text": "WHEN target names a value the card does not define THE card SHALL behave as same, and in debug builds report the unknown value. IF href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE card SHALL be the card its interactive makes it, without a destination, and in the last two cases report it in debug builds."
+    },
+    {
+      "id": "CRD-24",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE card SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the card is invalid — except those the card owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE card SHALL take it off that element. WHEN the product sets an aria- attribute the card owns THE card SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -229,8 +233,7 @@
       "Text size does not clip a card: it grows with its content at 200% text size.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "A card with a destination is a link: one element with the link role, the platform's own link, Enter and not Space, so that on the web the card can be opened in a new tab and its address copied. No visited state is drawn.",
-      "A link card that opens a new context says so through targetLabel. The card draws no mark of its own, since it does not lay out its content; a product that shows one puts the glyph open_in_new of the system's icon set in the content, where the icon helper mirrors it in a right-to-left layout.",
-      "WHEN the product sets an aria- attribute on the host THE card SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the card is invalid — except those the card owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE card SHALL take it off that element. WHEN the product sets an aria- attribute the card owns THE card SHALL report it in debug builds."
+      "A link card that opens a new context says so through targetLabel. The card draws no mark of its own, since it does not lay out its content; a product that shows one puts the glyph open_in_new of the system's icon set in the content, where the icon helper mirrors it in a right-to-left layout."
     ]
   },
   "tokens": "comp.card",
