@@ -25,7 +25,7 @@ interface Subject {
   path: string[];
   /** What the component owns: never taken from the host. */
   owns: string[];
-  /** A name it gives itself that is its whole name, over the product's aria-labelledby (a Button's label, BTN-16). */
+  /** The name it gives itself — its label, which is its whole name over the product's aria-label and aria-labelledby (BTN-16, TXI-23…). */
   ownName?: string;
   /** The tag of the subject, where the page is loaded for another (a segment, in its set): `tanrei-<name>` otherwise. */
   tag?: string;
@@ -48,33 +48,33 @@ const GROUP_OWNS = [...FIELD_OWNS, 'aria-required', 'aria-invalid', 'aria-errorm
 
 const SUBJECTS: Record<string, Subject> = {
   button: { sentence: 'BTN-46', markup: (rest) => `<tanrei-button id="subject" ${rest}>Send</tanrei-button>`, path: ['button'], owns: ['aria-pressed', 'aria-disabled'] },
-  'button-with-menu': { sentence: 'SPB-36',
+  'button-with-menu': { sentence: 'SPB-36', ownName: 'Save',
     markup: (rest) => `<tanrei-button-with-menu id="subject" ${rest} label="Save" menu-label="More"><tanrei-menu-item label="One"></tanrei-menu-item></tanrei-button-with-menu>`,
     path: ['button.leading'],
     owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
   },
-  'main-action-button': { sentence: 'MAB-25', markup: (rest) => `<tanrei-main-action-button id="subject" ${rest} label="New"><span slot="icon">add</span></tanrei-main-action-button>`, path: ['button'], owns: ['aria-disabled'] },
+  'main-action-button': { sentence: 'MAB-25', ownName: 'New', markup: (rest) => `<tanrei-main-action-button id="subject" ${rest} label="New"><span slot="icon">add</span></tanrei-main-action-button>`, path: ['button'], owns: ['aria-disabled'] },
   'copy-button': { sentence: 'CPY-20', markup: (rest) => `<tanrei-copy-button id="subject" ${rest} value="a" label="Copy" copied-label="Copied"></tanrei-copy-button>`, path: ['tanrei-button', 'button'], owns: ['aria-pressed', 'aria-disabled'], ownName: 'Copy' },
-  chip: { sentence: 'CHP-40', markup: (rest) => `<tanrei-chip id="subject" ${rest} label="Chip"></tanrei-chip>`, path: ['.container'], owns: ['aria-pressed', 'aria-disabled'] },
-  card: { sentence: 'CRD-24', markup: (rest) => `<tanrei-card id="subject" ${rest} interactive label="Card">Card</tanrei-card>`, path: ['.container'], owns: ['aria-disabled'] },
-  checkbox: { sentence: 'CHK-25', markup: (rest) => `<tanrei-checkbox id="subject" ${rest} label="Checkbox"></tanrei-checkbox>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
-  switch: { sentence: 'SWT-26', markup: (rest) => `<tanrei-switch id="subject" ${rest} label="Switch"></tanrei-switch>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
-  'radio-button': { sentence: 'RAD-29', markup: (rest) => `<tanrei-radio-button id="subject" ${rest} label="Radio" value="a"></tanrei-radio-button>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
-  slider: { sentence: 'SLD-27', markup: (rest) => `<tanrei-slider id="subject" ${rest} label="Slider" value="40"></tanrei-slider>`, path: ['[role="slider"]'], owns: ['aria-disabled'] },
-  'text-input': { sentence: 'TXI-70', markup: (rest) => `<tanrei-text-input id="subject" ${rest} label="Text"></tanrei-text-input>`, path: ['input'], owns: ['aria-disabled'] },
-  select: { sentence: 'SEL-71',
+  chip: { sentence: 'CHP-40', ownName: 'Chip', markup: (rest) => `<tanrei-chip id="subject" ${rest} label="Chip"></tanrei-chip>`, path: ['.container'], owns: ['aria-pressed', 'aria-disabled'] },
+  card: { sentence: 'CRD-24', ownName: 'Card', markup: (rest) => `<tanrei-card id="subject" ${rest} interactive label="Card">Card</tanrei-card>`, path: ['.container'], owns: ['aria-disabled'] },
+  checkbox: { sentence: 'CHK-25', ownName: 'Checkbox', markup: (rest) => `<tanrei-checkbox id="subject" ${rest} label="Checkbox"></tanrei-checkbox>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
+  switch: { sentence: 'SWT-26', ownName: 'Switch', markup: (rest) => `<tanrei-switch id="subject" ${rest} label="Switch"></tanrei-switch>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
+  'radio-button': { sentence: 'RAD-29', ownName: 'Radio', markup: (rest) => `<tanrei-radio-button id="subject" ${rest} label="Radio" value="a"></tanrei-radio-button>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
+  slider: { sentence: 'SLD-27', ownName: 'Slider', markup: (rest) => `<tanrei-slider id="subject" ${rest} label="Slider" value="40"></tanrei-slider>`, path: ['[role="slider"]'], owns: ['aria-disabled'] },
+  'text-input': { sentence: 'TXI-70', ownName: 'Text', markup: (rest) => `<tanrei-text-input id="subject" ${rest} label="Text"></tanrei-text-input>`, path: ['input'], owns: ['aria-disabled'] },
+  select: { sentence: 'SEL-71', ownName: 'Select',
     markup: (rest) => `<tanrei-select id="subject" ${rest} label="Select"><tanrei-option value="a">Alpha</tanrei-option></tanrei-select>`,
     path: ['[role="combobox"]'],
     owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
   },
-  combobox: { sentence: 'CMB-69',
+  combobox: { sentence: 'CMB-69', ownName: 'Combobox',
     markup: (rest) => `<tanrei-combobox id="subject" ${rest} label="Combobox"><tanrei-option value="a">Alpha</tanrei-option></tanrei-combobox>`,
     path: ['input'],
     owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
   },
-  search: { sentence: 'SRC-54', markup: (rest) => `<tanrei-search id="subject" ${rest} label="Search"></tanrei-search>`, path: ['input'], owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] },
-  'number-input': { sentence: 'NMI-48', markup: (rest) => `<tanrei-number-input id="subject" ${rest} label="Number" increment-label="More" decrement-label="Less"></tanrei-number-input>`, path: ['input'], owns: ['aria-disabled'] },
-  'color-input': { sentence: 'CLI-46', markup: (rest) => `<tanrei-color-input id="subject" ${rest} label="Color" value="#0f766e"></tanrei-color-input>`, path: ['input'], owns: ['aria-disabled'] },
+  search: { sentence: 'SRC-54', ownName: 'Search', markup: (rest) => `<tanrei-search id="subject" ${rest} label="Search"></tanrei-search>`, path: ['input'], owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] },
+  'number-input': { sentence: 'NMI-48', ownName: 'Number', markup: (rest) => `<tanrei-number-input id="subject" ${rest} label="Number" increment-label="More" decrement-label="Less"></tanrei-number-input>`, path: ['input'], owns: ['aria-disabled'] },
+  'color-input': { sentence: 'CLI-46', ownName: 'Color', markup: (rest) => `<tanrei-color-input id="subject" ${rest} label="Color" value="#0f766e"></tanrei-color-input>`, path: ['input'], owns: ['aria-disabled'] },
   // A composed field passes the product's ARIA on to its control, which moves and exposes it; its name is label.
   'text-field': { sentence: 'TXF-68', markup: (rest) => `<tanrei-text-field id="subject" ${rest} label="Text"></tanrei-text-field>`, path: ['tanrei-text-input', 'input'], owns: [...FIELD_OWNS], ownName: 'Text' },
   'number-field': { sentence: 'NUM-52',
@@ -106,28 +106,28 @@ const SUBJECTS: Record<string, Subject> = {
     owns: ['aria-label', 'aria-labelledby', 'aria-description', 'aria-describedby', 'aria-errormessage', 'aria-invalid', 'aria-required', 'aria-readonly', 'aria-disabled'],
     ownName: 'Message',
   },
-  'one-time-code-input': { sentence: 'OTC-31', markup: (rest) => `<tanrei-one-time-code-input id="subject" ${rest} label="Code"></tanrei-one-time-code-input>`, path: ['input'], owns: ['aria-disabled'] },
-  segment: { sentence: 'SEG-29',
+  'one-time-code-input': { sentence: 'OTC-31', ownName: 'Code', markup: (rest) => `<tanrei-one-time-code-input id="subject" ${rest} label="Code"></tanrei-one-time-code-input>`, path: ['input'], owns: ['aria-disabled'] },
+  segment: { sentence: 'SEG-29', ownName: 'Alpha',
     markup: (rest) => `<tanrei-segmented-button label="View"><tanrei-segment id="subject" ${rest} value="a" label="Alpha"></tanrei-segment><tanrei-segment value="b" label="Beta"></tanrei-segment></tanrei-segmented-button>`,
     path: ['button'],
     owns: ['aria-checked', 'aria-pressed', 'aria-disabled'],
     tag: 'tanrei-segment',
   },
-  'fab-menu': { sentence: 'FBM-28',
+  'fab-menu': { sentence: 'FBM-28', ownName: 'Create',
     markup: (rest) =>
       `<tanrei-fab-menu id="subject" ${rest} label="Create" inline><span slot="icon">add</span><tanrei-fab-menu-item label="Edit" icon="edit"></tanrei-fab-menu-item><tanrei-fab-menu-item label="Mail" icon="mail"></tanrei-fab-menu-item></tanrei-fab-menu>`,
     path: ['button'],
     owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
   },
   // The current destination is the component's own: the subject is never the bar's or the drawer's value.
-  'navigation-bar-item': { sentence: 'NVB-34',
+  'navigation-bar-item': { sentence: 'NVB-34', ownName: 'Home',
     markup: (rest) =>
       `<tanrei-navigation-bar label="Main" value="b"><tanrei-navigation-bar-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-bar-item><tanrei-navigation-bar-item value="b" label="Mail" icon="mail"></tanrei-navigation-bar-item></tanrei-navigation-bar>`,
     path: ['[part="cell"]'],
     owns: ['aria-current', 'aria-disabled'],
     hostOwn: LIST_ITEM,
   },
-  'navigation-drawer-item': { sentence: 'NVD-78',
+  'navigation-drawer-item': { sentence: 'NVD-78', ownName: 'Home',
     markup: (rest) =>
       `<tanrei-navigation-drawer open label="Side" value="b"><tanrei-navigation-drawer-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="b" label="Mail" icon="mail"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
     path: ['[part="cell"]'],
@@ -135,7 +135,7 @@ const SUBJECTS: Record<string, Subject> = {
     hostOwn: LIST_ITEM,
   },
   // The rail: the drawer's collapsed form draws the same item as an icon cell.
-  'navigation-drawer-item (collapsed)': { sentence: 'NVD-78',
+  'navigation-drawer-item (collapsed)': { sentence: 'NVD-78', ownName: 'Home',
     markup: (rest) =>
       `<tanrei-navigation-drawer open collapsible label="Rail" value="b"><tanrei-navigation-drawer-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="b" label="Mail" icon="mail"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
     path: ['[part="cell"]'],
@@ -143,7 +143,7 @@ const SUBJECTS: Record<string, Subject> = {
     tag: 'tanrei-navigation-drawer-item',
     hostOwn: LIST_ITEM,
   },
-  'navigation-drawer-group': { sentence: 'NVD-78',
+  'navigation-drawer-group': { sentence: 'NVD-78', ownName: 'Projects',
     markup: (rest) =>
       `<tanrei-navigation-drawer open label="Groups" value="b"><tanrei-navigation-drawer-group id="subject" ${rest} label="Projects" icon="folder" open><tanrei-navigation-drawer-item value="b" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item></tanrei-navigation-drawer-group></tanrei-navigation-drawer>`,
     path: ['#row'],
@@ -152,7 +152,7 @@ const SUBJECTS: Record<string, Subject> = {
     namedNodes: 2,
     hostOwn: LIST_ITEM,
   },
-  tabs: { sentence: 'TAB-62',
+  tabs: { sentence: 'TAB-62', ownName: 'Sections',
     markup: (rest) => `<tanrei-tabs id="subject" ${rest} label="Sections" value="a"><tanrei-tab value="a" label="Alpha"></tanrei-tab><tanrei-tab value="b" label="Beta"></tanrei-tab></tanrei-tabs>`,
     path: ['[role="tablist"]'],
     owns: [],
@@ -193,9 +193,11 @@ const SUBJECTS: Record<string, Subject> = {
   // A drawer's own host: its navigation landmark, or its dialog while it is a modal drawer that is shown (NVD-78).
   'navigation-drawer': {
     sentence: 'NVD-78',
-    markup: (rest) => `<tanrei-navigation-drawer id="subject" ${rest} open label="Side" value="a"><tanrei-navigation-drawer-item value="a" label="Home" icon="home"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    // A label of its own among the drawers of the axe page, which names each landmark once.
+    markup: (rest) => `<tanrei-navigation-drawer id="subject" ${rest} open label="Landmark" value="a"><tanrei-navigation-drawer-item value="a" label="Home" icon="home"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
     path: ['nav'],
     owns: [],
+    ownName: 'Landmark',
   },
   'navigation-drawer (modal)': {
     sentence: 'NVD-78',
@@ -204,6 +206,7 @@ const SUBJECTS: Record<string, Subject> = {
     path: ['dialog'],
     owns: [],
     tag: 'tanrei-navigation-drawer',
+    ownName: 'Side',
     alone: true,
   },
   // The tab list of the row the view places in its light DOM (TBV-16), which moves and exposes what the view gives it.
@@ -403,6 +406,30 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     expect(tree.filter((line) => line.includes('Described text')), dump).toHaveLength(describes ? 1 : 0);
     expect(tree.filter((line) => /^\s*generic "[^"]|^\s*generic "[^"]*" \(/.test(line)), 'no node without a role has a name or a description').toEqual([]);
   });
+
+  if (subject.ownName) {
+    const ownName = subject.ownName;
+    // The name a product gives reaches the element while the label is empty, unless the component owns it.
+    const yields = !subject.owns.includes('aria-label');
+    test(`${subject.sentence} ${name}: its own label is its whole name, over the product's aria-label and over its aria-labelledby${yields ? '; emptied, the product’s name is the name' : ''}`, async ({ page, browserName }) => {
+      for (const given of ['aria-label="Product name"', 'aria-labelledby="named"']) {
+        await load(page, tag, subject.markup(given));
+        const element = exposedOn(page, subject.path);
+        await expect(element, `${given}: the label is the name`).toHaveAccessibleName(ownName);
+        const said = await read_(page, subject.path, ['aria-label'], subject.hostOwn);
+        expect(said.inner['aria-label'], 'the element says its own name').toBe(ownName);
+        expect(said.labelledBy, 'and names no element of the product’s').toEqual([]);
+        if (browserName === 'chromium') {
+          const tree = subject.alone ? await axTree(page, '#subject', subject.path) : await axTree(page, '#stage');
+          expect(tree.filter((line) => line.includes('Product name') || line.includes('"Named text"')), tree.join('\n')).toEqual([]);
+        }
+        if (!yields) continue;
+        await page.evaluate(() => ((document.querySelector('#subject') as HTMLElement & { label: string }).label = ''));
+        await settle(page);
+        await expect(element, `${given}: label emptied, the product’s name is the name`).toHaveAccessibleName(given.startsWith('aria-label=') ? 'Product name' : 'Named text');
+      }
+    });
+  }
 
   test(`${subject.sentence} ${name}: in a debug build, each name the component owns that the product sets is reported, once, citing the sentence; a name it exposes is not`, async ({ page }) => {
     const reported: string[] = [];

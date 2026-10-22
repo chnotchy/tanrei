@@ -346,6 +346,8 @@ export class TanreiCopyButton extends TanreiElement {
     // CPY-6: icon-only, the name is `label` in every form; labelled, the name is the text it shows.
     const shown = this.form === 'copied' ? 'copied' : this.form === 'failed' ? 'failed' : 'label';
     const text = (name: string, value: string) => html`<span class=${name === shown ? 'shown' : ''}>${value}</span>`;
+    // CPY-17: labelled, the text it shows is said as its name too, so that it is the whole name over the product's.
+    const said = this.iconOnly ? '' : shown === 'copied' ? this.words.get('copiedLabel', this.copiedLabel) : shown === 'failed' ? this.words.get('copyFailedLabel', this.failedLabel) : this.words.get('copyLabel', this.label);
     // CPY-18: the Button is always inside the Tooltip, so that showing a confirmation moves nothing in the tree (and
     // never focus); the Tooltip opens only when the copy button opens it.
     return html`
@@ -361,7 +363,7 @@ export class TanreiCopyButton extends TanreiElement {
         label=${this.iconOnly ? this.words.get('copyLabel', this.label) : nothing}
         ?disabled=${this.disabled}
         data-form=${this.form}
-        ${delegatedAria(this, {})}
+        ${delegatedAria(this, { 'aria-label': said })}
         @click=${this.#onClick}
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>

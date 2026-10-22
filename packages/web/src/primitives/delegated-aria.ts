@@ -28,11 +28,15 @@
 //                                    that moves it owns what that member owns as well (`ownedNames()`).
 //   delegatedAria(host, own)         on the element that carries the role, in the template: `own` is what the component
 //                                    says itself (`'aria-label': this.label`); an empty value leaves the name to the
-//                                    product's, and an owned name is never the product's. A relationship of its own is
-//                                    ids of its shadow root (`'aria-describedby': 'description'`), joined in front of
-//                                    the product's elements; `null` for a relationship keeps the product's out (a
-//                                    Button's label is its whole name, BTN-16). Nothing else on that element binds a
-//                                    name it writes; an owned name it does not pass may stay a binding of its own.
+//                                    product's, and an owned name is never the product's. A name of its own — a
+//                                    non-empty `aria-label`, or ids of its own in `aria-labelledby` — is its whole name
+//                                    while it is set: the product's `aria-label` and `aria-labelledby` are kept out (a
+//                                    label given is the name, BTN-16, TXI-23…), so a control named by its content passes
+//                                    that text as its `aria-label` (a chip's label). A relationship of its own is ids of
+//                                    its shadow root (`'aria-describedby': 'description'`), joined in front of the
+//                                    product's elements; `null` for a relationship keeps the product's out. Nothing else
+//                                    on that element binds a name it writes; an owned name it does not pass may stay a
+//                                    binding of its own.
 //                                    On a member that moves the product's ARIA itself (a composed field's control, a
 //                                    Copy button's Button), it writes on the member's host as a product would, and
 //                                    the member moves and exposes it; that write is the component's (`asComponent()`).
@@ -419,7 +423,8 @@ const same = (a: readonly Element[] | null | undefined, b: readonly Element[] | 
 
 /**
  * What the component says itself on the element: a name's value, or nothing (empty, undefined, false) — and then the
- * product's. `null` is nothing too for a state; for a relationship it keeps the product's out as well.
+ * product's. `null` is nothing too for a state; for a relationship it keeps the product's out as well. A non-empty
+ * `aria-label` or `aria-labelledby` keeps the product's name out: neither its `aria-label` nor its `aria-labelledby`.
  */
 export type OwnAria = Partial<Record<string, string | null | undefined | false>>;
 
@@ -445,17 +450,19 @@ export class DelegatedAriaWriter {
     const inner = delegates(element);
     const exposed = new Set<string>(delegatedNames(host));
     const values = new Map<string, string>();
+    // A name of the component's own is its whole name while it is set: the product's is kept out (BTN-16, TXI-23…).
+    const ownName = !!(own['aria-label'] || own['aria-labelledby']);
     // A state: the component's own, else the product's.
     for (const [name, value] of Object.entries(own)) if (value && !isRelation(name)) values.set(name, value);
     for (const name of exposed) {
-      if (isRelation(name) || values.has(name)) continue;
+      if (isRelation(name) || values.has(name) || (ownName && name === 'aria-label')) continue;
       const value = host.getAttribute(dataName(name));
       if (value !== null) values.set(name, value);
     }
     const invalid = values.get('aria-invalid') === 'true';
     // A relationship: the component's own ids (in its shadow root) and the product's elements, one list. The error
     // message is never a relationship of the control: while it is invalid, its elements join the description.
-    const product = (name: RelationName) => (exposed.has(name) && own[name] !== null ? relationElements(host, name) : []);
+    const product = (name: RelationName) => (exposed.has(name) && own[name] !== null && !(ownName && name === 'aria-labelledby') ? relationElements(host, name) : []);
     const lists = new Map<RelationName, { ids: string; given: Element[] }>();
     for (const name of Object.keys(DELEGATED_RELATIONS) as RelationName[]) {
       if (name === 'aria-errormessage') continue;

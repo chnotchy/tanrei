@@ -665,8 +665,9 @@ export class TanreiButtonWithMenu extends TanreiElement {
     const presented = open && this.hasItems;
     // SPB-17: two native buttons in reading order, each its own tab stop — unless the component that places it keeps one
     // Tab stop among its items and says which half it is (SPB-33) — and no element of its own around them. The
-    // leading half is named by its label; the trailing half by menuLabel, and the menu tells it that it opens a menu,
-    // whether it is open and which (aria-haspopup, aria-expanded, aria-controls). The icon and the chevron are hidden.
+    // leading half is named by its label, over the product's name (SPB-20); the trailing half by menuLabel, and the
+    // menu tells it that it opens a menu, whether it is open and which (aria-haspopup, aria-expanded, aria-controls).
+    // The icon and the chevron are hidden.
     // SPB-21: the closed glyph is the chevron slot's, or the icon set's expand_more when it is empty; with a chevron-open
     // glyph the two cross-fade (`swap`), else the closed one turns.
     const swap = this.chevronOpenChildren.length > 0;
@@ -678,7 +679,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
           data-tanrei-shape
           class=${classMap({ leading: true, 'with-icon': this.iconChildren.length > 0, ...this.leadingPlace.classes() })}
           tabindex=${this.rovingStop === undefined ? nothing : this.rovingStop === 0 ? '0' : '-1'}
-          ${delegatedAria(this, {})}
+          ${delegatedAria(this, { 'aria-label': this.label })}
           ?disabled=${this.disabled}
           @pointerdown=${this.onHalfPointerDown}
           @pointerup=${this.leadingPress.release}
