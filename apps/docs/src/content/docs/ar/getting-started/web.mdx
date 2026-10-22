@@ -2,7 +2,7 @@
 title: Web
 description: استخدم رموز CSS و Web Components من Tanrei في أي مشروع ويب.
 translationOf: getting-started/web.mdx
-sourceHash: b795991094209ca4e3878521a44be6737c299786
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -228,4 +228,36 @@ import '@tanrei/web/icons.css';
 
 ## دعم المتصفحات
 
-تعتمد الرموز على `light-dark()` وعلى طبقات التتالي (cascade layers)، وهما متاحتان في الإصدارات الحالية من Chrome و Edge و Firefox و Safari.
+يعمل Tanrei في هذه الإصدارات وما بعدها:
+
+| المتصفح | الإصدار |
+|---|---|
+| Chrome و Edge | 125 |
+| Firefox | 126 |
+| Safari، على macOS و iOS | 17.5 |
+
+كل رقم هو الإصدار الذي جاء بأحدث الميزات التي لا يستطيع Tanrei الرسم من دونها، ولا بديل لأيٍّ منها:
+
+- **CSS.** كل لون زوجٌ من `light-dark()`‏ (Chrome و Edge 123، و Firefox 120، و Safari 17.5). وتُقرَّب المقاسات وأحجام الخط بالدالة `round()` في CSS‏ (Chrome و Edge 125، و Firefox 118، و Safari 15.4). وتغيّر المكوّنات مظهرها بحسب الحالات المخصّصة `:state()`‏ (Chrome و Edge 125، و Firefox 126، و Safari 17.4). وتُفتح قوائم الخيارات والتلميحات وأشرطة الإشعار في الطبقة العليا بواجهة Popover API‏ (Chrome و Edge 114، و Firefox 125، و Safari 17). أما طبقات التتالي (cascade layers) التي تُغلَّف بها أوراق الأنماط فمتاحة قبل ذلك (Chrome و Edge 99، و Firefox 97، و Safari 15.4).
+- **JavaScript.** الحزمة مكتوبة بـ ES2022، ويفشل بناؤها إن تجاوزها أي ملف تنشره. وأحدث صياغة فيها، كتل static في الأصناف، تعمل منذ Chrome و Edge 94، و Firefox 93، و Safari 16.4. ولا يخفّض تحويلُ الحزمة إلى هدف أقدم الحدَّ الأدنى: فـ CSS المذكورة أعلاه تبقى كما هي.
+
+وبعض الميزات الأحدث لا تُستعمل إلا حيث يظل المتصفح الذي يفتقدها يعمل: من دون `@starting-style` لا تُعرض حركة الفتح، ومن دون `corner-shape` تبقى الزاوية مستديرة.
+
+### إبلاغ الزائر بأن متصفحه قديم جدًا
+
+لا يفعل Tanrei ذلك بنفسه: فهذه مهمة نقطة الدخول في منتجك. افحص الميزات أولًا، ولا تحمّل التطبيق، ومعه Tanrei، إلا حين تتوفر:
+
+```html
+<p id="unsupported" hidden>يحتاج هذا الموقع إلى Chrome أو Edge 125، أو Firefox 126، أو Safari 17.5، أو إصدار أحدث.</p>
+<script type="module">
+  // light-dark() يحدّد الحد الأدنى لـ Safari، و round() لـ Chrome و Edge، و :state() لـ Firefox
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // تطبيقك، الذي يستورد @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+اجعل هذا السكربت صغيرًا وبسيطًا: فمتصفح كل زائر يشغّله، والقديمة منها أيضًا. مع `import` ثابت، يحمّل المتصفح التطبيق قبل أن يعمل هذا السكربت، والمتصفح القديم الذي لا يستطيع تحليله لا يصل إلى الفحص أصلًا؛ أما `import()` فلا يحمّله إلا بعد الفحص.

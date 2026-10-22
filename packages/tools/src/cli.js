@@ -7,6 +7,7 @@ import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
 import { GENERATORS, regenerate } from './drift.js';
 import { citationFiles, writeCitation } from './citation.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
+import { syntaxProblems, targetEdition } from './syntax.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
 import { draftParts, manifestElements, withParts } from './parts.js';
 import { wordPackProblems } from './words.js';
@@ -155,7 +156,19 @@ function parts() {
 }
 
 const parity = () => report('spec ↔ implementation parity', checkParity());
-const commands = { validate, status, parity, drift, parts, 'sync-versions': syncVersions };
+/**
+ * The web package's `dist/**\/*.js` parses as the ECMAScript edition its tsconfig targets (syntax.js). The package's
+ * build runs it last, so `pnpm build`, `pnpm check` and every CI job that builds the package run it.
+ */
+function syntax() {
+  const web = path.join(REPO_ROOT, 'packages/web');
+  const dist = path.join(web, 'dist');
+  if (!fs.existsSync(dist)) return report('web dist syntax', ['packages/web/dist does not exist: build the package first (pnpm --filter @tanrei/web build)']);
+  const year = targetEdition(path.join(web, 'tsconfig.json'));
+  const { files, problems } = syntaxProblems(dist, year);
+  return report(`web dist parses as ES${year} (${files} files)`, problems.map((problem) => `packages/web/dist/${problem} — write it in ES${year}, or have the build lower it`));
+}
+const commands = { validate, status, parity, drift, parts, syntax, 'sync-versions': syncVersions };
 const command = commands[process.argv[2]];
 if (!command) {
   console.error(`usage: tanrei <${Object.keys(commands).join('|')}>\nplatforms: ${CONFIG.platforms.map((p) => PLATFORMS[p].label).join(', ')}`);

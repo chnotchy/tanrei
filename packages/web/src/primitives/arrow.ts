@@ -35,7 +35,12 @@ export function shadowLayers(value: string): ShadowLayer[] {
   // Split at the commas between layers, not those inside a color function.
   for (const layer of value.split(/,(?![^(]*\))/)) {
     const color = /[a-z-]+\([^)]*\)|#[0-9a-f]+/i.exec(layer)?.[0] ?? layer.trim().split(/\s+/).find((word) => /^[a-z]+$/i.test(word) && word !== 'inset') ?? '';
-    const [x = 0, y = 0, blur = 0, spread = 0] = (layer.replace(color, ' ').match(/-?[\d.]+(?:e-?\d+)?px|(?<![\w.])0(?![\w.])/g) ?? []).map((length) => Number.parseFloat(length));
+    // A length is a number in px, or a bare 0 that is not part of a word or of another number — told by the character
+    // before it, not by a lookbehind: a bundler cannot lower a lookbehind for an older target, and this needs none.
+    const rest = layer.replace(color, ' ');
+    const [x = 0, y = 0, blur = 0, spread = 0] = [...rest.matchAll(/-?[\d.]+(?:e-?\d+)?px|0(?![\w.])/g)]
+      .filter((length) => length[0] !== '0' || !/[\w.]/.test(rest.charAt(length.index - 1)))
+      .map((length) => Number.parseFloat(length[0]));
     // No alpha at all: `transparent`, a fourth component of 0 (`rgba(0, 0, 0, 0)`) or one after a slash (`color(srgb 0 0 0 / 0)`).
     const clear = color === 'transparent' || /^[a-z-]+\((?:[^,]+,){3}\s*0(?:\.0+)?%?\s*\)$/i.test(color) || /\/\s*0(?:\.0+)?%?\s*\)$/.test(color);
     if (/\binset\b/.test(layer) || clear || !color || (x === 0 && y === 0 && blur === 0 && spread <= 0)) continue;
