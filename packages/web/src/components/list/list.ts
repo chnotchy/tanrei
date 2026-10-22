@@ -455,7 +455,8 @@ export class TanreiListItem extends TanreiElement {
     const target = this.focusTarget;
     if (target === this) super.focus(options);
     else if (target) target.focus(options);
-    else this.handle?.focus(options);
+    else if (this.handle) this.handle.focus(options);
+    else this.keepFocusUntilRendered(options);
   }
 
   /** `element.click()` activates an action or an option as a person would, and follows a link item; a static or disabled item does nothing (LST-7, LST-15). */

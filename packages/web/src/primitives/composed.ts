@@ -135,11 +135,13 @@ export abstract class ComposedElement extends TanreiElement {
 
   /** W7, item 2: focus is the control's. */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.control?.focus(options);
   }
 
   /** W7, item 2: what has focus inside the control loses it (an engine does not take it from inside a host it blurs). */
   override blur() {
+    this.forgetKeptFocus();
     let active = this.shadowRoot?.activeElement ?? null;
     while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
     (active as HTMLElement | null)?.blur();
