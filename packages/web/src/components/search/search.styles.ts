@@ -107,11 +107,15 @@ const onTrigger = (state: string) => `.trigger:where(${state})`;
  * one. A result is never disabled.
  */
 const onResult = (state: string) =>
-  state === ':disabled' ? '.row:where(.never)' : state === ':focus-visible' ? '.row:where(:focus-visible, [data-current])' : `.row:where(${state})`;
+  state === ':disabled' ? '.row:where(.never)' : state === ':focus-visible' ? '.row:where([data-focused], [data-current])' : `.row:where(${state})`;
 
-/** SRC-42, SRC-49: the focused result's row and the current one take the focus ring inside the row (ring or glow). */
+/**
+ * SRC-42, SRC-49: the focused result's row and the current one take the focus ring inside the row (ring or glow). The
+ * focus is its control's, the element's own child (SRC-50), which the row is told of (`data-focused`) while the browser
+ * shows it.
+ */
 const onResultFocus = (focus: string) =>
-  focus === ':focus-visible' ? '.row:is(:focus-visible, [data-current])' : ".row[data-focus-style='glow']:is(:focus-visible, [data-current])";
+  focus === ':focus-visible' ? '.row:is([data-focused], [data-current])' : ".row[data-focus-style='glow']:is([data-focused], [data-current])";
 
 /** The input's text: the value and the placeholder in input.typescale, their colors, the caret and the selection (SRC-3). */
 const inputStyles = `
@@ -993,7 +997,7 @@ export const rowStyles = css`
     }
   }
   @media (forced-colors: active) {
-    .row:is(:focus-visible, [data-current]) {
+    .row:is([data-focused], [data-current]) {
       outline: 2px solid Highlight;
       outline-offset: -2px;
     }
