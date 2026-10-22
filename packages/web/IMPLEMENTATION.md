@@ -9172,8 +9172,10 @@ Good to know:
 - **A large head narrower than the wide width** draws the medium title and the medium space under it (PGH-12).
 - **The dot between two meta items** is each item's `::before` (so an item is `position: relative`), and the row is
   cut short of the dot at its start edge (`clip-path`), which hides the dot of an item that begins a row. An item of
-  text (`span`, `time`, `data`, `li`, `div`) that holds an element — an avatar, a glyph — centres it with its text;
-  a Tag, a Link or any other component as an item is placed and not styled.
+  text (`span`, `time`, `data`, `li`, `div`) that begins with an Avatar or a glyph (`tanrei-avatar`, `.tanrei-icon`,
+  an `svg` or an `img`) centres it with its text, `meta.icon.gap` apart; an item whose text holds another element
+  (`Published <time>…</time>`) stays a run of text with its own spaces. A Tag, a Link or any other component as an
+  item is placed and not styled.
 - **No tracking in scripts a tracked word falls apart in** (PGH-4): the title and the eyebrow take `letter-spacing: 0`
   under `:lang()` of Japanese, Chinese, Korean, Arabic, Persian, Urdu, Hindi and the like — set `lang`.
 - **An empty head** (no element child) is `display: none`; one built by script appears when its parts are written.
