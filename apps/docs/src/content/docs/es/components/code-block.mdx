@@ -2,7 +2,7 @@
 title: Bloque de código
 description: Líneas de código para leer, comparar y copiar, en el tipo de letra de código, que se desplazan dentro del propio bloque o saltan de línea, con una cabecera, números de línea, líneas marcadas, un prompt y un botón de copiar opcionales. Si le das el código y su lenguaje, resalta el código por sí mismo.
 translationOf: components/code-block.mdx
-sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
+sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="Un título, una etiqueta de lenguaje y un botón de copiar; el código se resalta a partir de su lenguaje" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -62,7 +62,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -93,7 +93,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     import '@tanrei/web/code.css';
 
     {/* El elemento dispone el código en líneas, así que deja que el código sea suyo: pásale el texto. */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="Copiar" copiedLabel="Copiado" copyFailedLabel="No se pudo copiar" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="Copiar" copiedLabel="Copiado" copyFailedLabel="No se pudo copiar" />
     ```
   </TabItem>
 </Tabs>
@@ -104,11 +104,11 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 <DemoFrame label="Filled y outlined, medium y small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="Ejemplo"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="Números de línea, una línea resaltada y líneas añadidas y eliminadas" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Resaltada" removed-lines="4" added-lines="5" removed-label="Eliminada" added-label="Añadida" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Resaltada" removed-lines="4" added-lines="5" removed-label="Eliminada" added-label="Añadida" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="Una línea larga se desplaza dentro del bloque, o salta de línea" plain column>
@@ -118,7 +118,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 <DemoFrame label="Un prompt y un límite de líneas visibles" plain column>
   <tanrei-code-block style="inline-size: 100%" label="Instalación" prompt="$" language="sh" language-label="Shell" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **Dos aspectos.** `filled` es un relleno discreto, para el código en una página. `outlined` no tiene relleno y va dentro de una línea fina, para el código dentro de una tarjeta o de un panel que ya tienen relleno.
@@ -157,7 +157,7 @@ El código se dibuja enseguida, sin resaltar. Sus colores llegan un momento desp
 | vacío, `text`, `plain`, `plaintext` | Sin resaltar. No se notifica nada. |
 | cualquier otro valor | Sin resaltar. Una compilación de depuración notifica una vez el lenguaje desconocido. |
 
-El bloque nunca adivina el lenguaje: ni por el código, ni por el `title`, ni por el `language-label`. Un código corto es ambiguo, y una suposición equivocada colorea mal el código.
+El bloque nunca adivina el lenguaje: ni por el código, ni por el `headline`, ni por el `language-label`. Un código corto es ambiguo, y una suposición equivocada colorea mal el código.
 
 **Cómo desactivarlo.** `highlight="false"` desactiva el resaltador propio del bloque para un solo bloque. Los tramos que das tú se siguen dibujando.
 
@@ -264,7 +264,7 @@ Algunos resaltadores nombran lo que encuentran con nombres de ámbito (scopes) s
 
 ### Recomendado
 
-- Da un `title` o un `label` a un bloque que pueda desplazarse. El cuerpo que se desplaza es una parada de foco y necesita un nombre.
+- Da un `headline` o un `label` a un bloque que pueda desplazarse. El cuerpo que se desplaza es una parada de foco y necesita un nombre.
 - Usa `outlined` dentro de una tarjeta o de un panel, y `filled` en una página y sobre un contenedor de color.
 - Usa un prompt para un bloque de comandos que hay que escribir. El prompt no se copia.
 - Da a cada bloque su `language`. Usa `language="text"` para un texto que no tiene sintaxis.
@@ -282,7 +282,7 @@ Algunos resaltadores nombran lo que encuentran con nombres de ámbito (scopes) s
 
 ### De qué se encarga el componente
 
-- El código es el elemento `code` dentro de un grupo que recibe su nombre de `title`, o de `label`.
+- El código es el elemento `code` dentro de un grupo que recibe su nombre de `headline`, o de `label`.
 - Un cuerpo que puede desplazarse es una parada en el orden del foco, después del botón de copiar, y se desplaza con las teclas de flecha. Un cuerpo que cabe no es una parada, así que una página de ejemplos cortos no añade ninguna.
 - Los números de línea, los signos, las barras y el prompt quedan ocultos para la tecnología de apoyo. A una línea marcada la precede su etiqueta, con palabras.
 - La página nunca se desplaza hacia los lados por un bloque de código, con 320 de ancho y con el texto al doble de tamaño.

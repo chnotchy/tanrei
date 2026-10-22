@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import {
   AvailabilityController,
   DestinationsController,
@@ -15,6 +15,7 @@ import {
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
 import { barStyles, itemStyles } from './navigation-bar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export type { TanreiLabelVisibility, TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -261,7 +262,7 @@ interface Following {
  * @fires {CustomEvent<TanreiNavigationChangeDetail>} change - The user activated another destination, or released a drag of the active indicator on one: `detail.value` (and, for a button destination, the bar's `value`) is its value. For a link it is fired before the link is followed, only for a plain activation of a link that opens in place, carries `detail.href`, leaves `value` to the page, and is cancelable: `preventDefault()` stops the browser's navigation.
  * @fires {CustomEvent<TanreiNavigationChangeDetail>} reselect - The user activated the selected destination again: `detail.value` is its value; for a link, as `change`. A drag that returns the indicator to it does not fire it.
  */
-export class TanreiNavigationBar extends LitElement {
+export class TanreiNavigationBar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-bar');
   static override styles = barStyles;
 

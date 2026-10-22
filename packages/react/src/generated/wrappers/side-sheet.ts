@@ -6,7 +6,7 @@ import type { TanreiEvent } from '../../events.js';
 import { TanreiSideSheet as TanreiSideSheetElement, type TanreiSideSheetCloseDetail } from '@tanrei/web/components/side-sheet';
 
 /**
- * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or `modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one action (SSH-16).
+ * Shows supplementary content or a secondary task in a panel at the end edge, with a headline, a close button and actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or `modal`, over the content with a scrim, holding focus until it closes (a modal overlay), with at least one action (SSH-16).
  *
  * Children, by their `slot`:
  * - default — The content: it gets `content.color` as its color, and plain text the body role; it scrolls between the header and the actions.

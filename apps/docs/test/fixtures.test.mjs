@@ -12,7 +12,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { STAGED_FILES, drawsFixture, drawsLive, liveFixture, specimenFixtures } = await import('../src/lib/fixtures.ts');
+const { STAGED_FILES, drawsFixture, drawsLive, holderReadsAttribute, liveFixture, specimenFixtures } = await import('../src/lib/fixtures.ts');
 const { definedTags, specs, webAttribute } = await import('../src/lib/repo.ts');
 
 const repo = (file) => fileURLToPath(new URL(`../../../${file}`, import.meta.url));
@@ -142,7 +142,7 @@ describe('every fixture of every spec', () => {
       for (const each of drawnFixtures(spec)) {
         for (const { tag, attributes } of tanreiElements(liveFixture(spec, each).html)) {
           for (const [name] of attributes) {
-            if (declared.get(tag)?.has(name) || isGlobal(name)) continue;
+            if (declared.get(tag)?.has(name) || isGlobal(name) || holderReadsAttribute(spec, tag, name)) continue;
             unknown.set(`<${tag} ${name}>`, [...(unknown.get(`<${tag} ${name}>`) ?? []), `${spec.name} / ${each.id}`]);
           }
         }
@@ -170,6 +170,17 @@ describe('every fixture of every spec', () => {
       }
     }
     assert.deepEqual(wrong, []);
+  });
+
+  test('an attribute the holder reads on its item is drawn, and only one the holder\'s mapping names in its own namespace', () => {
+    const pinned = specs.toolbar.fixtures.find((each) => each.id === 'inline-overflow-pinned');
+    assert.ok(drawsFixture(specs.toolbar, pinned));
+    assert.ok(tanreiElements(liveFixture(specs.toolbar, pinned).html).some(({ tag, attributes }) => tag === 'tanrei-button' && attributes.some(([name, value]) => name === 'toolbar-overflow' && value === 'never')));
+    assert.equal(declared.get('tanrei-button')?.has('toolbar-overflow'), false, 'the Button does not read it itself');
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-button', 'toolbar-overflow'), true);
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-button', 'label'), false, 'outside the holder\'s namespace');
+    assert.equal(holderReadsAttribute(specs.toolbar, 'tanrei-chip', 'toolbar-overflow'), false, 'not an element of its items');
+    assert.equal(holderReadsAttribute(specs['tag-group'], 'tanrei-button', 'toolbar-overflow'), false, 'another holder\'s mapping');
   });
 });
 
@@ -202,7 +213,7 @@ describe('a prop whose attribute is not the kebab-case of its name', () => {
         seen.push(spec.name);
       }
     }
-    assert.deepEqual([...new Set(seen)].sort(), ['chip-field', 'combobox', 'combobox-field', 'embedded-text-input', 'file-item', 'number-field', 'number-input', 'one-time-code-input', 'select', 'select-field', 'text-field', 'text-input']);
+    assert.deepEqual([...new Set(seen)].sort(), ['checkbox', 'chip-field', 'combobox', 'combobox-field', 'embedded-text-input', 'file-item', 'number-field', 'number-input', 'one-time-code-input', 'radio-button', 'select', 'select-field', 'switch', 'text-field', 'text-input']);
   });
 
   test('a boolean that defaults to true and has an attribute for its opposite: false is that attribute, true is none', () => {
@@ -211,8 +222,12 @@ describe('a prop whose attribute is not the kebab-case of its name', () => {
     assert.ok(names('bottom-sheet', 'no-handle').includes('no-handle'));
     assert.deepEqual(names('carousel', 'fixed-width').filter((name) => /width|scroll|snap/.test(name)), ['fixed-width', 'free-scroll']);
     assert.ok(names('main-action-button', 'filled-collapsed').includes('collapsed'));
-    assert.ok(names('chip', 'input-plain-remove').includes('no-destructive-remove'));
-    assert.ok(!names('chip', 'input-destructive-remove').some((name) => name.includes('destructive')), 'true is the default: nothing is written');
+  });
+
+  test('a boolean that defaults to false is its own bare attribute when true, and nothing when false', () => {
+    const names = (name, id) => opened(name, id).attributes.map(([attribute, value]) => (value === undefined ? attribute : `${attribute}="${value}"`));
+    assert.ok(names('chip', 'input-destructive-remove').includes('destructive-remove'));
+    assert.ok(!names('chip', 'input-plain-remove').some((name) => name.includes('destructive')), 'false is the default: nothing is written');
   });
 
   test('a boolean that defaults to true and has no such attribute is turned off by name="false" alone', () => {
@@ -482,7 +497,7 @@ describe('the text input, the text field and the field around a text input', () 
       assert.equal(each.items.length, 1, each.id);
       assert.ok(html.endsWith(`>${icons(each.items[0].content)}</${INPUT}></tanrei-field>`), `${each.id}: ${html.slice(-140)}`);
       // Nothing of the frame is written on the input: the field names it, describes it and says its error.
-      for (const [name] of inner.attributes) assert.ok(!['label', 'label-hidden', 'supporting-text', 'error-text', 'requirement', 'count-text', 'style', 'class'].includes(name), `${each.id}: ${name} on the input`);
+      for (const [name] of inner.attributes) assert.ok(!['label', 'label-hidden', 'supporting-text', 'error-text', 'required', 'optional', 'count-text', 'style', 'class'].includes(name), `${each.id}: ${name} on the input`);
     }
     assert.ok(twins.some((each) => each.items[0].content), 'some twins name icons');
   });

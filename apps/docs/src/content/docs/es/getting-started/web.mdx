@@ -2,23 +2,29 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## Instalación
 
+### Desde npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### Desde el código fuente
 
-Necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
+Para usar el código fuente tal como está en `main`, antes de que se publique, necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,36 +39,43 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-El archivo empaquetado contiene lo mismo que publicará un lanzamiento, así que todo lo que sigue funciona igual. Para usar un estado más reciente del código fuente, haz pull, compila y empaqueta de nuevo, y luego instala el archivo nuevo.
-
-### Después del primer lanzamiento
-
-```sh
-npm install @tanrei/web
-```
+El archivo empaquetado contiene lo mismo que publica un lanzamiento, así que todo lo que sigue funciona igual. Para usar un estado más reciente del código fuente, haz pull, compila y empaqueta de nuevo, y luego instala el archivo nuevo.
 
 ## Uso
 
 <Steps>
 
-1. Carga los tokens una sola vez, lo antes posible. Están envueltos en una capa de cascada (`tanrei.tokens`), así que tus propios estilos siempre prevalecen.
+1. Carga las hojas de estilo una sola vez, lo antes posible. Están envueltas en capas de cascada (`tanrei.*`), así que tus propios estilos siempre prevalecen.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` lo tiene todo en un archivo: la base de la página, los tokens y las hojas de estilo de las partes que se dibujan sin un elemento (los estilos de texto, la tabla, el acordeón y las demás). Para cargar solo lo que usas, toma los tokens, la base si la quieres, y cada una de esas hojas de estilo cuando la necesites:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // la página con la superficie, el color de texto y la fuente de cuerpo del sistema, sin margen en el body
    ```
 
-2. Registra los componentes. Importa todo, o solo los elementos que uses.
+   La base da a la página la superficie del sistema, a tu propio texto el color on-surface y la fuente de cuerpo, y quita el margen que el navegador pone al body. Sin ella, la página conserva los valores predeterminados del navegador.
+
+2. Registra los componentes de tu sistema de diseño, o solo los elementos que uses.
 
    ```js
    import '@tanrei/web';
+   // con un preajuste, su entrada en su lugar: m3-like, m3-expressive-like o cupertino
+   import '@tanrei/web/m3-like';
    // o bien, un elemento cada vez:
    import '@tanrei/web/components/button';
    ```
 
+   `@tanrei/web` registra los componentes que incluye el sistema predeterminado y ningún otro, así que un producto construido sobre él no puede llegar a uno que su sistema no tiene. La entrada de un preajuste, `@tanrei/web/<id>`, registra lo que ese preajuste incluye, y `@tanrei/web/all`, todos los componentes del paquete. Un componente que solo incluye un preajuste, como el [botón segmentado](/es/components/segmented-button/), se puede usar igualmente a propósito: inclúyelo en la capa de tu sistema e importa su propio módulo.
+
    Los especificadores `@tanrei/web/…` son exportaciones del paquete: los resuelve un empaquetador (Vite, webpack, esbuild). Sin él, un navegador no puede resolver un especificador desnudo en `<link>` ni en `<script src>`, así que sirve el directorio `dist/` del paquete y apunta a los archivos: las hojas de estilos tal como están, y `tanrei.bundle.js`, que incluye Lit y todos los elementos:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
@@ -73,15 +86,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
    ```
 
-4. Da los textos de tu producto. Tanrei no incluye textos propios: el texto de un tag de obligatoriedad, el nombre de un botón de cerrar y otros parecidos son tuyos. Dilos una sola vez, por idioma, o en cada elemento.
+4. Da los textos de tu producto. Un componente no tiene textos propios: el texto de un tag de obligatoriedad, el nombre de un botón de cerrar y otros parecidos son de tu producto. Para empezar con un inglés llano en todos ellos, importa una vez el paquete de textos en inglés:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   Para cambiar cualquiera de ellos, o para dar los textos de otro idioma, llama a `setWords()` después. Un texto que das gana sobre el paquete, y un texto en un elemento gana sobre ambos.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'Obligatorio', optionalText: 'Opcional', closeLabel: 'Cerrar' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'Obligatorio', optionalText: 'Opcional', closeLabel: 'Cerrar' }, { lang: 'es' });
    ```
 
-   Un componente sigue funcionando sin un texto, y te dice en la consola cuál le falta. Consulta [Textos](/es/foundations/words/).
+   Sin el paquete y sin tus textos, un componente sigue funcionando, y te dice en la consola cuál le falta. Consulta [Textos](/es/foundations/words/).
 
 </Steps>
 
@@ -89,6 +109,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">Desplegar</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
 </DemoFrame>
+
+## El manifiesto de los elementos
+
+Los editores y los agentes de programación leen los elementos del paquete en su [manifiesto de custom elements](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`: cada elemento con sus atributos, propiedades, eventos, slots y partes, y nada que un producto no pueda alcanzar. `@tanrei/web/custom-elements/<id>.json` contiene solo los elementos que incluye el sistema `<id>`, así que una herramienta que trabaja en un sistema no ofrece nada más.
 
 ## Tema y contraste
 
@@ -108,6 +132,50 @@ Para tomar el control, define estos atributos:
   Ambos atributos funcionan en `<html>` o en cualquier subárbol. La hoja de estilos generada declara el conjunto completo de tokens en `:root, [data-tanrei-contrast]`, de modo que un `data-tanrei-contrast` en un elemento anidado vuelve a resolver, para ese nivel de contraste, los tokens de componente que hay dentro, y no solo los colores de sistema.
 </Callout>
 
+### Conservar el tema que elige una persona
+
+Si en tu producto se puede elegir un tema, guarda la elección y ponla en `<html>` antes de que la página se dibuje por primera vez: si la pone un script que se ejecuta después, la página muestra el tema del sistema durante un fotograma. `@tanrei/web/theme-script` hace las dos cosas. `themeScript()` es un script pequeño que se escribe en línea en `<head>`, antes de las hojas de estilo, y `saveTheme()` guarda una elección y la dibuja al momento.
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light', 'dark', o 'system' para volver a seguir al sistema operativo
+loadTheme();       // lo guardado: 'light', 'dark' o 'system'
+```
+
+En Next.js (App Router), escríbelo en línea en el layout raíz. `suppressHydrationWarning` está ahí porque el script cambia un atributo de `<html>` antes de que React lo hidrate.
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+En Astro, escríbelo en línea en el layout:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## Tokens en tu propio CSS
 
 Cada token es una propiedad personalizada que lleva el nombre de su ruta: `tanrei.sys.color.primary` se convierte en `--tanrei-sys-color-primary`.
@@ -120,6 +188,8 @@ Cada token es una propiedad personalizada que lleva el nombre de su ruta: `tanre
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+Para poner un token desde un script, usa `setTokens()` de `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` en la raíz, o con `{ on: element }` para una parte de la página. Un solo token puesto en la raíz con `style.setProperty()` hace que Safari vuelva a calcular los estilos de toda la página durante segundos; `setTokens()` lo escribe de forma que no ocurra.
 
 ## Estilos de texto
 
@@ -158,4 +228,36 @@ El archivo completo de Material Symbols Rounded contiene todos los glifos en tod
 
 ## Compatibilidad con navegadores
 
-Los tokens dependen de `light-dark()` y de las capas de cascada, que están disponibles en las versiones actuales de Chrome, Edge, Firefox y Safari.
+Tanrei funciona en estas versiones y en las posteriores:
+
+| Navegador | Versión |
+|---|---|
+| Chrome y Edge | 125 |
+| Firefox | 126 |
+| Safari, en macOS e iOS | 17.5 |
+
+Cada número es la versión que trajo la más reciente de las funciones sin las que Tanrei no puede dibujar, y ninguna tiene alternativa:
+
+- **CSS.** Cada color es un par de `light-dark()` (Chrome y Edge 123, Firefox 120, Safari 17.5). Los tamaños y los tamaños de letra se redondean con la función `round()` de CSS (Chrome y Edge 125, Firefox 118, Safari 15.4). Los componentes cambian de estilo según estados personalizados, `:state()` (Chrome y Edge 125, Firefox 126, Safari 17.4). Los menús, los tooltips y los snackbars se abren en la capa superior con la API Popover (Chrome y Edge 114, Firefox 125, Safari 17). Las capas de cascada que envuelven las hojas de estilo llegaron antes (Chrome y Edge 99, Firefox 97, Safari 15.4).
+- **JavaScript.** El paquete es ES2022, y su compilación falla si algún archivo que publica va más allá. Su sintaxis más reciente, los bloques estáticos de clase, funciona desde Chrome y Edge 94, Firefox 93 y Safari 16.4. Transpilar el paquete a un objetivo más antiguo no baja el mínimo: el CSS de arriba sigue siendo el mismo.
+
+Algunas funciones más recientes se usan solo donde un navegador sin ellas sigue funcionando: sin `@starting-style` no se reproduce la animación de apertura, y sin `corner-shape` la esquina se queda redondeada.
+
+### Avisar al visitante de que su navegador es demasiado antiguo
+
+Tanrei no lo hace por sí mismo: le corresponde al punto de entrada de tu producto. Comprueba primero las funciones, y carga la aplicación, y Tanrei con ella, solo cuando estén disponibles:
+
+```html
+<p id="unsupported" hidden>Este sitio necesita Chrome o Edge 125, Firefox 126 o Safari 17.5, o una versión posterior.</p>
+<script type="module">
+  // light-dark() fija el mínimo de Safari; round(), el de Chrome y Edge; :state(), el de Firefox.
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // tu aplicación, que importa @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+Mantén este script pequeño y sencillo: lo ejecuta el navegador de cada visitante, también los antiguos. Con un `import` estático, el navegador carga la aplicación antes de ejecutar este script, y uno antiguo que no pueda analizarla nunca llega a hacer la comprobación; `import()` la carga solo después.

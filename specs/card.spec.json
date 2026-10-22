@@ -340,6 +340,12 @@
       "events": {
         "click": "click"
       },
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "content": "content",
+        "focus-ring": "container@focus-ring"
+      },
       "notes": "The content is the default slot. `inset` is a boolean property that defaults to true; its attribute is the inverse `flush`, because an HTML boolean attribute cannot default to true. `click` fires only while interactive is true and disabled is false. With `href` the shadow root holds an `<a part=\"container\">` around the slot in place of the element with role button; `click` then fires for a link card too. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link."
     },
     "swiftui": {

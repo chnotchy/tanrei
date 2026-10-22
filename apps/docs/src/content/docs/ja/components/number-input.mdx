@@ -2,7 +2,7 @@
 title: 数値入力欄
 description: 数値のボックスです。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にある数値や、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="倍率" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
@@ -99,7 +100,7 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
 フィールドで数値入力欄を囲むと、数値フィールドを自分で書いたものになります。入力欄の `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、範囲、単位は入力欄に指定します。
 
 ```html
-<tanrei-field label="数量" requirement="required" required-text="必須"
+<tanrei-field label="数量" required required-text="必須"
   supporting-text="1 回の注文は 99 個までです。">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="数値を入力してください。"
     increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
@@ -107,7 +108,7 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
 ```
 
 <DemoFrame label="フィールドの中の数値入力欄。見た目は数値フィールドと同じです" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" requirement="required" required-text="必須" supporting-text="1 回の注文は 99 個までです。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必須" supporting-text="1 回の注文は 99 個までです。">
     <tanrei-number-input min="1" max="99" invalid-text="数値を入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -147,7 +148,7 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
 | 持つもの | 値、範囲と `step`、フォームの中での位置、イベント | なし |
 | 支援技術に伝えるもの | スピンボタン。値、範囲、値のテキストです | 名前、補足またはエラーテキスト、必須、invalid、無効 |
 
-3 つのバリアントと、3 つのサイズ `small`（40）、`medium`（48）、`large`（56）は、テキスト入力欄のものです。ボックスは、同じバリアントとサイズの[テキスト入力欄](/ja/components/text-input/)と同じ見た目と寸法です。既定のシステムが提供するのは `stacked` だけです。
+3 つのバリアントと、3 つのサイズ `small`（32）、`medium`（40）、`large`（56）は、テキスト入力欄のものです。ボックスは、同じバリアントとサイズの[テキスト入力欄](/ja/components/text-input/)と同じ見た目と寸法です。既定のシステムが提供するのは `stacked` だけです。
 
 2 つのステッパーは、`medium` サイズのテキストボタンで、横に並びます。既定のシステムでは、ボックスの幅のうち 88 を使い、それぞれがタッチターゲットを満たします。小さく描くことも、縦に重ねることもしません。その幅を取れない行では、ステッパーをなくしてください。キーでは引き続き増減できます。ステッパーはボタン自身のトークンで描かれ、エラーの状態にはなりません。
 

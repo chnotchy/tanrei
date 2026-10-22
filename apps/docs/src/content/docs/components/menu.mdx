@@ -428,6 +428,10 @@ The mark of a checkbox or radio item stands in the mark column at the start of a
 
 Each surface decides for itself, and a submenu follows its menu's `iconSpace`. A group's title starts where the rows' content starts, whatever its rows keep. The [tree view](/components/tree-view/) and the [navigation drawer](/components/navigation-drawer/) have the same `iconSpace`, with the same values and default.
 
+### Density
+
+`density` sets how much room a row takes. `regular` (the default: a 48 row with 24 glyphs) is for a product people use by touch as well as with a pointer. `compact` (a 32 row with 20 glyphs, the [tree view](/components/tree-view/)'s compact row) is for a tool used with a mouse, whose menus are long and opened often. The text keeps its size in both. For touch a row is never lower than the touch target, so a compact menu on a phone still has rows of 48. Every submenu takes its menu's density.
+
 ### Links
 
 A link item is the platform's own link, so the browser's context menu, opening in a new tab and the address shown on hover all work. It has no look of its own: it is drawn as the action in the next row, in every state.

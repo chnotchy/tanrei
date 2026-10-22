@@ -394,6 +394,13 @@
         "align": "align",
         "live": "live"
       },
+      "parts": {
+        "container": "container",
+        "media": "media",
+        "title": "title",
+        "description": "description",
+        "actions": "actions"
+      },
       "notes": "It is the form the callout takes. `<tanrei-empty-state>` with the description as light-DOM children, the glyph or the picture in the `media` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h2 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as on the callout), which the shadow root draws as an element with `role=\"heading\"` and `aria-level` from `level` (a number property and attribute, 2 by default), and Buttons or links in the `actions` slot. Everything the product writes stays in the document: the title where it is slotted, the description, the links and the Buttons are light-DOM content, read by a crawler and by a page without script. **Before the element is defined** the stylesheet of `@tanrei/web` gives `tanrei-empty-state:not(:defined)` `display: block`, the block and inline padding of its `size`, the description's text style and color, and `text-align` by its `align`, so the content is readable in its place and the block keeps most of its height; a `headline` attribute does not show until the element is defined, which is why a page that must read without script gives the title in the slot. The host has no `role`, no `tabindex` and no listeners; the glyph is `aria-hidden`. With `live` the announcement is made through a visually hidden `role=\"status\"` region in the shadow root that exists from the element's first render and is filled, with the title and the description's text, only when the element is connected or changed after the document's first presentation (EMP-9); the host itself gets no live role, so slotted content is not read twice. The text block's width is `max-inline-size: calc(var(--tanrei-comp-empty-state-content-measure) * 1em)` on the element that carries the description's font size (EMP-2). The description takes its color and text style through inherited `color` and `font`, so text placed directly in the element is styled. In a table the element goes in one `<td colspan>` of a body row, or directly after the table, which keeps its caption and its header row (the Table spec says nothing of an empty body); in a list it takes the list's place rather than being an item. Nothing changes under `forced-colors: active` but the colors the mode sets (EMP-12)."
     },
     "swiftui": {

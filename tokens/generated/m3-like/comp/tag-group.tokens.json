@@ -4,7 +4,7 @@
       "tag-group": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product shows several tags or chips as one set — the tags of an article, the filters above a list, a few suggestions under a field — and decides once how far apart the members of such a set stand along a line and how far apart its lines stand when the set wraps: closer for static tags, and for chips far enough that each keeps its whole touch target.",
+            "rationale": "One product shows several tags or chips as one set — the tags of an article, the filters above a list, a few suggestions under a field — and decides once how far apart the members of such a set stand along a line and how far apart its lines stand when the set wraps: closer for static tags, and for chips far enough that each keeps its whole touch target — and how a member moves to its new place when the set is laid out again.",
             "since": "0.1.0"
           },
           "dev.tanrei.axes": {
@@ -21,7 +21,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a tag group reads: for each spacing (tags, chips) the distance between two members on a line and the distance between two lines. The tags and chips inside keep their own tokens.",
+            "usage": "Everything a tag group reads: for each spacing (tags, chips) the distance between two members on a line and the distance between two lines, and the motion that moves a member to its new place when the set is laid out again. The tags and chips inside keep their own tokens.",
             "rules": [
               "A tag group lays out a set of tags or chips in lines that wrap, and exposes it as one list. It draws nothing of its own: no container, no label, no divider.",
               "Set spacing to chips for a set whose members take input; row-gap.chips is what keeps each chip's touch target whole between two lines.",
@@ -49,6 +49,17 @@
           },
           "chips": {
             "$value": "{tanrei.sys.space.space200}"
+          }
+        },
+        "motion": {
+          "move-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.selection.travel}",
+            "$description": "How long a member takes to move to its new place when a member is added, removed or changes its size and the set is laid out again (TGR-10): along its line, or from one line to another. Longer than a change of color: the member crosses the length of a neighbour, or a whole line."
+          },
+          "move-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         }
       }

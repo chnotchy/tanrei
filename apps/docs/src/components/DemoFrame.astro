@@ -77,17 +77,11 @@ const id = figureId(Astro);
     justify-content: safe center;
     gap: 1rem 0.75rem;
   }
-  /* A preset's scope sets its own color-scheme (following the OS); the stage follows the site's theme instead,
-     and draws the preset's surface (under the Figure's pattern, which is read in the preset's scope too). */
+  /* A preset's scope inherits the site's theme like any other subtree; the stage draws the preset's surface (under the
+     Figure's pattern, which is read in the preset's scope too). */
   .stage[data-tanrei-system] {
     background-color: var(--tanrei-sys-color-surface);
     color: var(--tanrei-sys-color-on-surface);
-  }
-  :global(:root[data-theme='light']) .stage[data-tanrei-system] {
-    color-scheme: light;
-  }
-  :global(:root[data-theme='dark']) .stage[data-tanrei-system] {
-    color-scheme: dark;
   }
   .stage.column {
     flex-direction: column;

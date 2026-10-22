@@ -24,8 +24,6 @@ const keyed = (obj, fn = (v) => v) => Object.fromEntries(Object.entries(obj).map
 const isIdentifier = (s) => /^[A-Za-z_$][\w$]*$/.test(s);
 const prop = (s) => (isIdentifier(s) ? s : JSON.stringify(s));
 
-const isLive = (t) => !t.deprecated;
-
 function paint(p) {
   switch (p.kind) {
     case 'role':
@@ -68,11 +66,6 @@ function componentValue(token) {
   if (token.type === 'shadow') return c(token.elevation);
   return token.value;
 }
-
-const liveMeasure = (ir) =>
-  Object.fromEntries(
-    Object.entries(ir.measure).map(([group, entries]) => [group, Object.fromEntries(Object.entries(entries).filter(([k]) => !ir.deprecatedMeasures.includes(`${group}-${k}`)))]),
-  );
 
 /** JSON, but leaves (objects and arrays of primitives: a color, a bezier, a flat paint) stay on one line. */
 function literal(value, indent = '') {
@@ -202,7 +195,7 @@ const RESTING = 'enabled';
 
 /** The axes of one component as the emitter needs them: type names, the field of the token object, its states. */
 function axesOf(ir, component) {
-  const tokens = ir.componentTokens[component].filter(isLive);
+  const tokens = ir.componentTokens[component];
   const base = `Tanrei${pascal([component])}`;
   return Object.entries(ir.axes[component] ?? {}).map(([axis, def]) => {
     const own = tokens.filter((t) => t.axis === axis);
@@ -349,7 +342,7 @@ function stepAccessors(ir, value) {
 }
 
 function emitVocabulary(ir, core) {
-  const measure = liveMeasure(ir);
+  const measure = ir.measure;
   const coreRoles = ir.roles.filter((r) => core.has(r));
   const springNames = Object.keys(Object.values(ir.spring)[0] ?? {});
   const springFields = Object.entries(Object.values(Object.values(ir.spring)[0] ?? {})[0] ?? {});
@@ -523,7 +516,7 @@ function emitVocabulary(ir, core) {
       ` * \`<state><Part>\`), then one holder per axis${axes.length ? ` (${axes.map((a) => `\`${a.field}\``).join(', ')})` : ''}, keyed by the axis value.`,
       ' */',
       `export interface Tanrei${pascal([name])}Tokens {`,
-      ...tokens.filter((t) => isLive(t) && t.axis === null).map((t) => `  readonly ${prop(c(t.name))}: ${componentType(t)};`),
+      ...tokens.filter((t) => t.axis === null).map((t) => `  readonly ${prop(c(t.name))}: ${componentType(t)};`),
       ...axes.map((a) => `  readonly ${a.field}: ${a.holder};`),
       '}',
       '',
@@ -582,7 +575,7 @@ function emitSystem(ir, core) {
     shape: { [SHAPE_CORNER_SMOOTHING]: cornerSmoothingValue(ir), ...keyed(ir.shape) },
     space: keyed(ir.space),
     state: keyed(ir.state),
-    measure: keyed(liveMeasure(ir), (g) => keyed(g)),
+    measure: keyed(ir.measure, (g) => keyed(g)),
     typefaces: keyed(ir.typefaces, (font) => fontStackValue(font, 'a typeface')),
     icon: iconStyle(ir),
     behavior: behaviorValue(ir),
@@ -591,7 +584,7 @@ function emitSystem(ir, core) {
     components: Object.fromEntries(
       Object.entries(ir.componentTokens).map(([name, tokens]) => [
         c(name),
-        { ...Object.fromEntries(tokens.filter((t) => isLive(t) && t.axis === null).map((t) => [c(t.name), componentValue(t)])), ...Object.fromEntries(axesOf(ir, name).map((a) => [a.field, axisValues(name, a)])) },
+        { ...Object.fromEntries(tokens.filter((t) => t.axis === null).map((t) => [c(t.name), componentValue(t)])), ...Object.fromEntries(axesOf(ir, name).map((a) => [a.field, axisValues(name, a)])) },
       ]),
     ),
   };

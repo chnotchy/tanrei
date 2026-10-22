@@ -133,10 +133,16 @@ export function trapFocus(event: KeyboardEvent, container: HTMLElement) {
 /** The overlays holding the page's scroll, and what the root's own overflow was before the first of them. */
 const holders = new Set<Element>();
 let heldOverflow: string | null = null;
+/** What the hold wrote on the root to keep the scroll bar's room, each with the root's own inline value of it. */
+let heldRoom: [property: string, value: string][] = [];
 
 /**
- * The page's scroll, held while any modal overlay is open (DLG-1, NVD-19): `overflow: hidden` on the root from the first
- * holder until the last lets go, then the root's own value back.
+ * The page's scroll, held while any modal overlay is open (DLG-1, NVD-19, MDL-2): `overflow: hidden` on the root from the
+ * first holder until the last lets go, then the root's own value back. A root whose scroll bar takes room (a classic
+ * scroll bar, not an overlay one) keeps that room while it is held, so that nothing behind moves sideways as the bar
+ * goes and comes back: `scrollbar-gutter: stable`, and — where the engine keeps no gutter for the bar (WebKit, for a bar
+ * styled with `::-webkit-scrollbar`) — as much padding on the bar's side. A root with no bar, or one that keeps its
+ * gutter already, is given nothing: a stable gutter where no bar is drawn would make room for one, and move the page.
  */
 export function holdPageScroll(holder: Element, hold: boolean) {
   if (hold) holders.add(holder);
@@ -145,13 +151,33 @@ export function holdPageScroll(holder: Element, hold: boolean) {
   // A document being torn down has no root element left to give back.
   if (!root) {
     heldOverflow = null;
+    heldRoom = [];
     return;
   }
+  const write = (property: string, value: string) => {
+    heldRoom.push([property, root.style.getPropertyValue(property)]);
+    root.style.setProperty(property, value);
+  };
   if (holders.size > 0 && heldOverflow === null) {
     heldOverflow = root.style.overflow;
+    const width = root.clientWidth;
+    const style = getComputedStyle(root);
+    const room = window.innerWidth - width > 0 && !/stable/.test(style.getPropertyValue('scrollbar-gutter'));
+    const side = root.clientLeft > 0 ? 'padding-left' : 'padding-right';
+    const padding = style.getPropertyValue(side);
     root.style.overflow = 'hidden';
+    if (room) {
+      write('scrollbar-gutter', 'stable');
+      const lost = root.clientWidth - width;
+      if (lost > 0) write(side, `calc(${padding} + ${lost}px)`);
+    }
   } else if (holders.size === 0 && heldOverflow !== null) {
     root.style.overflow = heldOverflow;
     heldOverflow = null;
+    for (const [property, value] of heldRoom.reverse()) {
+      if (value) root.style.setProperty(property, value);
+      else root.style.removeProperty(property);
+    }
+    heldRoom = [];
   }
 }

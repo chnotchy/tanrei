@@ -340,12 +340,12 @@ test.describe('behavior: the box, its name and its Field', () => {
     await mountSpec(page, ['stacked-filled', 'stacked-large', 'stacked-small', 'stacked-picker', 'stacked-picker-large', 'filled-filled']);
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small'], ['stacked-picker', 'medium'], ['stacked-picker-large', 'large']] as const) {
       const [c, s, field] = [await box(container(page, id)), await box(swatch(page, id)), await box(input(page, id))];
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       near(s.x - c.x, await token(page, `container-padding-inline-with-icon-${size}`), `${id}: the swatch from the start edge`);
       near(field.x - (s.x + s.width), await token(page, `container-gap-${size}`), `${id}: container.gap after the swatch`);
       near(s.y + s.height / 2, c.y + c.height / 2, `${id} swatch centred`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
-      expect((c.height - Math.max(s.height, field.height)) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - Math.max(s.height, field.height)) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
       if (id.includes('picker')) {
@@ -356,8 +356,8 @@ test.describe('behavior: the box, its name and its Field', () => {
       } else near(c.x + c.width - (field.x + field.width), await token(page, `container-padding-inline-${size}`), `${id}: the input ends padding-inline from the end edge`);
       near(c.width, (await box(host(page, id))).width, `${id}: as wide as the field`);
     }
-    // The default system's numbers: 48 and 56 high; the swatch 24, 12 from the start edge; the value 16 after it.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([48, 56, 24, 12, 16]);
+    // The default system's numbers: a stacked box 40 and 56 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([40, 56, 24, 12, 16]);
     // As wide as its layout gives it: the host is a block.
     expect(await css(host(page, 'stacked-filled'), 'display')).toBe('block');
     await host(page, 'stacked-filled').evaluate((el) => (el.parentElement!.style.inlineSize = '400px'));
@@ -458,11 +458,11 @@ test.describe('behavior: the box, its name and its Field', () => {
 
   test('CLI-7: a filled or outlined color input draws the asterisk after its floating label while the Field that frames it gives it one — for requiredMark tag, asterisk, and auto under a system that marks a required control — requirement.asterisk-gap from the text, in the label’s style and place, in its required-asterisk color (the error part while in error), hidden from assistive technology; it draws no chip and no optional tag; with the mark none, a hidden label, a stacked look or no Field it draws no mark, and the required state is kept', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined', value: '#0f766e' })], { reducedMotion: true });
-    const framing = { label: 'Brand color', requirement: 'required', requiredText: 'Required' };
+    const framing = { label: 'Brand color', required: true, requiredText: 'Required' };
     for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, `outlined-${mark}`, { ...framing, requiredMark: mark }, { variant: 'outlined' });
     await frame(page, 'filled-auto', framing, { variant: 'filled', value: '#0f766e' });
     await frame(page, 'hidden', { ...framing, labelHidden: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Accent color', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Accent color', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
     await frame(page, 'stacked', { ...framing, requiredMark: 'asterisk' }, {});
     await frame(page, 'in-error', { ...framing, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
     const star = (id: string) => part(page, id, '.floating .asterisk');
@@ -558,10 +558,10 @@ test.describe('behavior: the box, its name and its Field', () => {
   test('CLI-11: the accessible name of the input is the label of the Field that frames it, drawn or not, and its own label wins; the Field’s shown text and its optional text are its description; with neither name it still renders and is reported; while its Field says it is required it is exposed as required whichever mark is drawn, and reports a missing value to the form while value is empty — it has no requirement of its own and raises no error for an empty or a half-typed text', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('own', {}), fx('unnamed', { label: '' })]);
-    await frame(page, 'framed', { label: 'Brand color', supportingText: 'Six hexadecimal digits.', requirement: 'optional', optionalText: 'Optional' }, {});
-    await frame(page, 'hidden', { label: 'Brand color', labelHidden: true, requirement: 'required' }, {});
+    await frame(page, 'framed', { label: 'Brand color', supportingText: 'Six hexadecimal digits.', required: false, optional: true, optionalText: 'Optional' }, {});
+    await frame(page, 'hidden', { label: 'Brand color', labelHidden: true, required: true }, {});
     await frame(page, 'both', { label: '' }, { label: 'Its own' });
-    await frame(page, 'none', { label: 'Text', requirement: 'required', requiredMark: 'none' }, { value: '#000000' });
+    await frame(page, 'none', { label: 'Text', required: true, requiredMark: 'none' }, { value: '#000000' });
     const name = async (id: string) => (await input(page, id).getAttribute('aria-label')) ?? '';
     expect([await name('own'), await name('framed'), await name('hidden'), await name('both'), await name('none'), await name('unnamed')]).toEqual(['Brand color', 'Brand color', 'Brand color', 'Its own', 'Text', '']);
     expect(await input(page, 'framed').getAttribute('aria-labelledby'), 'named by one thing').toBeNull();
@@ -575,7 +575,7 @@ test.describe('behavior: the box, its name and its Field', () => {
     await expect.poll(() => seen.some((w) => w.includes('CLI-11') && w.includes('accessible name'))).toBe(true);
     expect(seen.filter((w) => w.includes('CLI-11')).length).toBe(1);
     // Required is the Field's to say: the input has no requirement setting.
-    expect(await host(page, 'own').evaluate((el) => ['requirement', 'requiredMark', 'requiredText', 'optionalText'].filter((prop) => prop in el))).toEqual([]);
+    expect(await host(page, 'own').evaluate((el) => ['optional', 'requiredMark', 'requiredText', 'optionalText'].filter((prop) => prop in el))).toEqual([]);
     expect([await input(page, 'hidden').getAttribute('aria-required'), await input(page, 'none').getAttribute('aria-required'), await input(page, 'framed').getAttribute('aria-required'), await input(page, 'own').getAttribute('aria-required')]).toEqual(['true', 'true', null, null]);
     const validity = (id: string) => host(page, id).evaluate((el) => { const v = (el as unknown as HTMLInputElement).validity; return { valid: v.valid, missing: v.valueMissing, message: (el as unknown as HTMLInputElement).validationMessage }; });
     expect(await validity('hidden'), 'no value and required: missing').toMatchObject({ valid: false, missing: true });
@@ -594,7 +594,7 @@ test.describe('behavior: the box, its name and its Field', () => {
 
   test('CLI-13: the focus order is the input and then, while it is shown, the picker button, and no other stop — the swatch is not one; a press on the label row of the Field that frames it moves focus to the input and does nothing else — it asks for no picker and changes no value — and a press on that Field’s supporting row does nothing', async ({ page }) => {
     await mount(page, [fx('one', { value: '#0f766e', picker: true, pickerLabel: 'Choose color' }), fx('plain', { value: '#000000' }), fx('after', {})]);
-    await frame(page, 'framed', { label: 'Brand color', requirement: 'required', requiredText: 'Required', supportingText: 'Help.' }, { value: '#0f766e', picker: true, pickerLabel: 'Choose color' });
+    await frame(page, 'framed', { label: 'Brand color', required: true, requiredText: 'Required', supportingText: 'Help.' }, { value: '#0f766e', picker: true, pickerLabel: 'Choose color' });
     await stubPicker(page);
     await listen(page, 'framed');
     for (const selector of ['.label-row > .label', '.requirement-tag'] as const) {
@@ -916,7 +916,7 @@ test.describe('behavior: the value and its text', () => {
     const seen = warnings(page);
     const WORDS = 'Enter six hexadecimal digits, like #0f766e.';
     await mount(page, [fx('bare', { invalidText: 'Enter six hexadecimal digits.' }), fx('bare-wordless', {})], { reducedMotion: true });
-    await frame(page, 'one', { label: 'Brand color', supportingText: 'The color of the buttons.', requirement: 'required' }, { invalidText: WORDS, picker: true, pickerLabel: 'Choose color' });
+    await frame(page, 'one', { label: 'Brand color', supportingText: 'The color of the buttons.', required: true }, { invalidText: WORDS, picker: true, pickerLabel: 'Choose color' });
     await frame(page, 'fallback', { label: 'Brand color', errorText: 'Check this color.' }, {});
     await frame(page, 'wordless', { label: 'Brand color', supportingText: 'The help.' }, {});
     await stubPicker(page);
@@ -1089,8 +1089,8 @@ test.describe('behavior: the value and its text', () => {
     // The motion: the state duration, and none where motion is reduced.
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('CLI-23: the focused edge is the focus indicator — under the default system the focus-ring role at the thick width, by keyboard and by pointer — and no ring is drawn around the container or the input; where the focus style is glow the glow is drawn around the container too', async ({ page }) => {
@@ -1147,7 +1147,7 @@ test.describe('behavior: the value and its text', () => {
     // The hit area: the container's ::before reaches the minimum target, and the container keeps its height.
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect(await container(page, 'one').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBeGreaterThanOrEqual(target - 0.6);
-    await override(page, { [T('container-height-medium')]: '32px', [T('container-padding-block-medium')]: '0px' });
+    await override(page, { [T('stacked-container-height-medium')]: '32px', [T('stacked-container-padding-block-medium')]: '0px' });
     await frames(page);
     near((await box(container(page, 'one'))).height, 32, 'a short container stays short');
     expect(await container(page, 'one').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height)), 'and its hit area reaches the target').toBeGreaterThanOrEqual(target - 0.6);
@@ -1480,7 +1480,7 @@ test.describe('behavior: the swatch and the picker', () => {
     // The one input of the page, framed where it stands.
     await page.evaluate(async () => {
       const control = document.querySelector('tanrei-color-input')! as HTMLElement & { updateComplete: Promise<unknown> };
-      const framing = Object.assign(document.createElement('tanrei-field'), { label: 'Brand color', supportingText: 'Six hexadecimal digits.', requirement: 'optional', optionalText: 'Optional' }) as HTMLElement & { updateComplete: Promise<unknown> };
+      const framing = Object.assign(document.createElement('tanrei-field'), { label: 'Brand color', supportingText: 'Six hexadecimal digits.', required: false, optional: true, optionalText: 'Optional' }) as HTMLElement & { updateComplete: Promise<unknown> };
       framing.innerHTML = '<span slot="label-icon">format_paint</span>';
       control.before(framing);
       framing.append(control);
@@ -1501,7 +1501,7 @@ test.describe('behavior: the swatch and the picker', () => {
     [box_] = await axNodes(page, 'textbox');
     expect(box_.value).toBe('#0f76e');
     // Required and invalid — an entry error — then disabled.
-    await setField(page, 'one', { requirement: 'required' });
+    await setField(page, 'one', { required: true });
     await blurInput(page, 'one');
     await settle(page, 'one');
     [box_] = await axNodes(page, 'textbox');
@@ -1518,7 +1518,7 @@ test.describe('behavior: the swatch and the picker', () => {
   test('CLI-31: a disabled color input — by its own disabled, or by the Field that frames it — is not focusable or editable, nor its picker button, emits nothing, is exposed as disabled, and draws every part of its container, the floating label and its asterisk included, from the disabled tokens of its variant; the swatch’s fill is drawn at the disabled content opacity and its edge kept', async ({ page }) => {
     await mountSpec(page, ['stacked-disabled', 'stacked-picker-disabled', 'stacked-filled'], { reducedMotion: true });
     await frame(page, 'framed', { label: 'Brand color', disabled: true }, { value: '#0f766e', picker: true, pickerLabel: 'Choose color' });
-    await frame(page, 'floating', { label: 'Brand color', disabled: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined', value: '#0f766e' });
+    await frame(page, 'floating', { label: 'Brand color', disabled: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined', value: '#0f766e' });
     await stubPicker(page);
     const id = 'stacked-picker-disabled';
     await listen(page, id);
@@ -1579,7 +1579,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
       document.body.insertAdjacentHTML(
         'beforeend',
         `<form id="f"><fieldset id="set">
-           <tanrei-field label="Brand" requirement="required"><tanrei-color-input id="c" name="brand" value="0F766E" invalid-text="Sechs Hexadezimalziffern."></tanrei-color-input></tanrei-field>
+           <tanrei-field label="Brand" required><tanrei-color-input id="c" name="brand" value="0F766E" invalid-text="Sechs Hexadezimalziffern."></tanrei-color-input></tanrei-field>
            <tanrei-color-input id="off" name="off" label="Off" value="#000000" disabled></tanrei-color-input>
            <tanrei-color-input id="none" name="none" label="None"></tanrei-color-input></fieldset></form>`,
       );
@@ -1658,7 +1658,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await page.addStyleTag({ content: '.stage:has(> tanrei-color-input) { box-sizing: border-box; inline-size: 100%; padding-inline: 0; }' });
     await frames(page);
     const before = (await box(container(page, 'one'))).height;
-    near(before, await token(page, 'container-height-medium'), 'at its size’s height');
+    near(before, await token(page, 'stacked-container-height-medium'), 'at its size’s height');
     await page.evaluate(() => (document.documentElement.style.fontSize = '300%'));
     await frames(page, 6);
     const [c, s, field, button] = [await box(container(page, 'one')), await box(swatch(page, 'one')), await box(input(page, 'one')), await box(pickerButton(page, 'one'))];
@@ -1675,7 +1675,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     // At 200% the minimum still holds where the line is shorter than it.
     await page.evaluate(() => (document.documentElement.style.fontSize = '100%'));
     await frames(page, 4);
-    near((await box(container(page, 'one'))).height, await token(page, 'container-height-medium'), 'the height of its size is the minimum');
+    near((await box(container(page, 'one'))).height, await token(page, 'stacked-container-height-medium'), 'the height of its size is the minimum');
     // Narrower than its text: one line, scrolling inside the input, never cut with an ellipsis, the caret in view.
     await host(page, 'narrow').evaluate((el) => (el.style.inlineSize = '96px'));
     await frames(page);
@@ -1689,14 +1689,14 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await expect.poll(() => narrow.evaluate((el) => el.scrollLeft), { message: 'scrolled to keep the caret in view' }).toBeGreaterThan(0);
     for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowLeft');
     await expect.poll(() => narrow.evaluate((el) => el.scrollLeft)).toBe(0);
-    near((await box(container(page, 'narrow'))).height, await token(page, 'container-height-medium'), 'and the container keeps its height');
+    near((await box(container(page, 'narrow'))).height, await token(page, 'stacked-container-height-medium'), 'and the container keeps its height');
   });
 
   test('CLI-34: in forced colors the label that floats in the box and its asterisk are drawn in the text color, and no color of its own tells an error: the invalid state does, and the words of the Field that frames it', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     await mountFixtures(page, spec, { icons: true });
-    await frame(page, 'star', { label: 'Brand color', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Too light.' }, { variant: 'outlined', value: '#0f766e' });
+    await frame(page, 'star', { label: 'Brand color', required: true, requiredMark: 'asterisk', error: true, errorText: 'Too light.' }, { variant: 'outlined', value: '#0f766e' });
     const canvasText = await systemColor(page, 'CanvasText');
     const grayText = await systemColor(page, 'GrayText');
     // The floating label of every fixture that draws one is CanvasText (GrayText in a disabled one).
@@ -1895,7 +1895,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await frame(page, 'framed-odd', { label: 'Brand color', supportingText: 'Help.' }, { size: 'huge', value: '#0f766e' });
     near((await box(row(page, 'framed-odd', '.supporting-text'))).x, (await box(input(page, 'framed-odd'))).x, 'the row starts at the value’s text');
     // A requirement, a required mark: not the input's to know (FLD-22).
-    expect(await host(page, 'plain').evaluate((el) => ['requirement', 'requiredMark'].filter((prop) => prop in el))).toEqual([]);
+    expect(await host(page, 'plain').evaluate((el) => ['optional', 'requiredMark'].filter((prop) => prop in el))).toEqual([]);
   });
   test('CLI-42: the color input has no words of its own and reads none of the product’s — an input given no invalidText, pickerLabel or label draws and exposes no word, with the product’s words set and with none; an entry error without words still marks it, and a picker button without a name still asks', async ({ page }) => {
     await mount(page, [fx('one', { value: '#0f766e', picker: true }), fx('nameless', { label: '', picker: true })]);
@@ -1981,7 +1981,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await expect(row(page, 'one', '.label-row')).toHaveCount(0);
     expect([await part(page, 'one', '.floating').textContent(), await input(page, 'one').getAttribute('aria-label')]).toEqual(['Brand color', 'Brand color']);
     // What it takes: the label hidden, an asterisk, the description, and the three states.
-    await setField(page, 'one', { requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Too light.' });
+    await setField(page, 'one', { required: true, requiredMark: 'asterisk', error: true, errorText: 'Too light.' });
     await settle(page, 'one');
     expect(await part(page, 'one', '.floating').textContent()).toBe('Brand color*');
     expect([await input(page, 'one').getAttribute('aria-required'), await input(page, 'one').getAttribute('aria-invalid'), await description(page, 'one')]).toEqual(['true', 'true', 'Too light.']);
@@ -2010,7 +2010,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
       expect(await css(host(page, id), 'display'), id).toBe('block');
     }
     // It has none of the frame's settings.
-    expect(await host(page, 'stacked-filled').evaluate((el) => ['supportingText', 'errorText', 'requirement', 'requiredMark', 'requiredText', 'optionalText'].filter((prop) => prop in el))).toEqual([]);
+    expect(await host(page, 'stacked-filled').evaluate((el) => ['supportingText', 'errorText', 'optional', 'requiredMark', 'requiredText', 'optionalText'].filter((prop) => prop in el))).toEqual([]);
     // Complete bare: the box, the swatch, the value, the picker button, its states and its events.
     await listen(page, 'stacked-picker');
     await retype(page, 'stacked-picker', 'fde047');

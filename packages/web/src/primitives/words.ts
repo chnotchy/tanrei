@@ -3,7 +3,7 @@ import { type TanreiWords, type WordKey, wordKeys, wordPlaces } from '../generat
 import { placeFaults } from './places.js';
 import { debugBuild } from './report.js';
 
-// The product's words. Tanrei ships no words: a word a component draws or exposes is the
+// The product's words. No component has words of its own: a word a component draws or exposes is the
 // instance's own prop, else what the product said once for every component — here — else nothing. The keys are the
 // specs' (`words` on a prop), generated into `src/generated/words.ts`; nothing in this file names one.
 //

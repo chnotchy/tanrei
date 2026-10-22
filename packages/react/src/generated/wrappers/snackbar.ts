@@ -6,7 +6,7 @@ import type { TanreiEvent } from '../../events.js';
 import { TanreiSnackbar as TanreiSnackbarElement, type TanreiSnackbarDismissDetail, type TanreiSnackbarExpandedChangeDetail } from '@tanrei/web/components/snackbar';
 
 /**
- * Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), with at most one action, without taking focus or interrupting their work.
+ * Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened (neutrally, or as information, a warning, an error or a success), with at most one action, without taking focus or interrupting their work.
  *
  * Events:
  * - `onAction` (`action`) — The action was activated; the snackbar closes.

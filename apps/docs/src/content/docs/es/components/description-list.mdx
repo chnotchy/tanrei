@@ -2,7 +2,7 @@
 title: Lista de descripciones
 description: Presenta lo que se sabe de una cosa como datos con nombre, un término discreto y el valor que le responde, con los términos al lado de sus valores, encima de ellos o debajo de una cifra grande. Se dispone según su propia anchura y nunca es un control.
 translationOf: components/description-list.mdx
-sourceHash: 1289656e657a4f0fc8fcc2c50310af62690aea86
+sourceHash: 19b77e343ee682dd4da1249daeb3a93d679c1efb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -143,7 +143,7 @@ Una `<dl>` sin los grupos `<div>`, como la escriben algunos renderizadores de Ma
 
 La lista lo decide todo a partir de su propia anchura, nunca de la de la ventana. La misma lista queda bien en una página, una tarjeta, un panel lateral y un diálogo.
 
-- **La disposición en línea se apila por sí sola.** Cuando a los valores les quedaría menos de 144 al lado del término más ancho, todos los datos se dibujan con el término encima de su valor, todos a la vez, y la lista vuelve a las dos columnas cuando hay sitio. No cambies tú la disposición para una ventana pequeña.
+- **La disposición en línea se apila por sí sola.** Cuando a los valores les quedaría menos de 144 al lado del término más ancho, todos los datos se dibujan con el término encima de su valor, todos a la vez, y la lista vuelve a las dos columnas cuando hay sitio. Lo decide de nuevo cada vez que cambia su ancho, también una lista que se dispuso primero sin ancho, en un panel o una pestaña que aún no se mostraba. No cambies tú la disposición para una ventana pequeña.
 - **Las columnas se reducen por sí solas.** `columns` es el máximo de columnas que dibujan las disposiciones apilada y stat. Cada columna tiene al menos 144 de ancho, así que cuatro cifras son cuatro columnas en una página ancha, dos y dos en una estrecha y una sola columna en un teléfono. Una lista nunca dibuja más columnas que datos tiene.
 - **Una lista en línea es una sola columna.** `columns` no tiene efecto en ella.
 - **Nada se corta.** Los valores saltan de línea. Un identificador o una dirección que no pueden partirse se parten en el borde de la columna. La lista nunca se desplaza hacia los lados.

@@ -2,7 +2,7 @@
 title: コードブロック
 description: 読み、比べ、コピーするための複数行のコードです。コード用の書体で描き、ブロックの中でスクロールするか折り返します。ヘッダー、行番号、行のマーク、プロンプト、コピーボタンを付けられます。コードとその言語を渡すと、コードブロックが自分でハイライトします。
 translationOf: components/code-block.mdx
-sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
+sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="タイトル、言語のラベル、コピーボタン。コードは言語をもとにハイライトされます" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -62,7 +62,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -93,7 +93,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     import '@tanrei/web/code.css';
 
     {/* 要素がコードを行に分けるので、コードは要素に任せます。テキストを渡してください。 */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="コピー" copiedLabel="コピーしました" copyFailedLabel="コピーできませんでした" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="コピー" copiedLabel="コピーしました" copyFailedLabel="コピーできませんでした" />
     ```
   </TabItem>
 </Tabs>
@@ -104,11 +104,11 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 <DemoFrame label="Filled と Outlined、medium と small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="例"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="行番号、強調した行、追加した行と削除した行" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="強調" removed-lines="4" added-lines="5" removed-label="削除" added-label="追加" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="強調" removed-lines="4" added-lines="5" removed-label="削除" added-label="追加" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="長い行は、ブロックの中でスクロールするか、折り返します" plain column>
@@ -118,7 +118,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 <DemoFrame label="プロンプトと、表示する行数の上限" plain column>
   <tanrei-code-block style="inline-size: 100%" label="インストール" prompt="$" language="sh" language-label="Shell" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **2 つの見た目。** `filled` は控えめな塗りで、ページ上のコードに使います。`outlined` は塗りがなく、1 本の細い線で囲みます。すでに塗りのあるカードやパネルの中のコードに使います。
@@ -157,7 +157,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 | 空、`text`、`plain`、`plaintext` | プレーンです。何も報告しません。 |
 | それ以外 | プレーンです。デバッグビルドでは、知らない言語を 1 度だけ報告します。 |
 
-コードブロックは、コードからも、`title` からも、`language-label` からも、言語を推測しません。短いコードはどの言語にも見え、推測を誤るとコードに誤った色が付くためです。
+コードブロックは、コードからも、`headline` からも、`language-label` からも、言語を推測しません。短いコードはどの言語にも見え、推測を誤るとコードに誤った色が付くためです。
 
 **オフにする。** `highlight="false"` は、そのブロックについて、コードブロック自身のハイライターをオフにします。プロダクトが渡したランは描かれます。
 
@@ -264,7 +264,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### 推奨
 
-- スクロールできるブロックには `title` か `label` を付けます。スクロールする本体はフォーカスが止まる位置なので、名前が必要です。
+- スクロールできるブロックには `headline` か `label` を付けます。スクロールする本体はフォーカスが止まる位置なので、名前が必要です。
 - カードやパネルの中では `outlined` を、ページ上や色の付いたコンテナの上では `filled` を使います。
 - 入力するコマンドのブロックにはプロンプトを使います。プロンプトはコピーされません。
 - すべてのブロックに `language` を指定します。構文のないテキストには `language="text"` を使います。
@@ -282,7 +282,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### コンポーネントが担うこと
 
-- コードは `code` 要素で、`title`（なければ `label`）を名前とするグループの中にあります。
+- コードは `code` 要素で、`headline`（なければ `label`）を名前とするグループの中にあります。
 - スクロールできる本体は、フォーカスの順序の中で、コピーボタンの次にある 1 つの止まる位置で、矢印キーでスクロールできます。コードが収まっている本体には止まりません。そのため、短い例が並ぶページで、フォーカスが止まる位置が増えることはありません。
 - 行番号、記号、バー、プロンプトは支援技術から隠します。マークした行の前では、そのラベルを言葉で読み上げます。
 - 幅 320 でも、テキストサイズが 2 倍でも、コードブロックのためにページが横にスクロールすることはありません。

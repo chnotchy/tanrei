@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { literal, html as staticHtml } from 'lit/static-html.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -22,6 +22,7 @@ import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.j
 import { wordPlaces } from '../../generated/words.js';
 import '../progress-indicator/progress-indicator.js';
 import { styles } from './file-item.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How the file is shown: one line across the width its layout gives (`row`), or a box of a width and a height with the texts beneath it (`tile`). */
 export type TanreiFileItemForm = 'row' | 'tile';
@@ -87,7 +88,7 @@ const isFile = (value: unknown): value is File => typeof File !== 'undefined' &&
  * @fires remove - The person asked to take this file back. Bubbles and is composed; `detail.value` is the file item's value. Whoever holds the file item removes it.
  * @fires retry - The person asked to try a failed file again. Bubbles and is composed; `detail.value` is the file item's value.
  */
-export class TanreiFileItem extends LitElement {
+export class TanreiFileItem extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'file-item');
   static override styles = styles;
 
@@ -348,6 +349,7 @@ export class TanreiFileItem extends LitElement {
 
   /** Moves focus to the file item's first stop: its body where that is pressable, else its retry action, else its remove action. */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.renderRoot?.querySelector<HTMLElement>('.body.pressable:not(:disabled):not([aria-disabled="true"]), .action:not(:disabled)')?.focus(options);
   }
 

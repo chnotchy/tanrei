@@ -1,0 +1,6 @@
+@import url("https://example.com/base.css");
+/* tanrei-carousel { } */
+tanrei-fab-menu-item[label="tanrei-carousel"] { color: inherit; }
+@media (min-width: 40rem) {
+  tanrei-card tanrei-segmented-button { display: none; }
+}

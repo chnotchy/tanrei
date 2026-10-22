@@ -1,5 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, nothing, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
+import { ref } from 'lit/directives/ref.js';
 import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -30,6 +31,7 @@ import {
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import { AXES, WIDTHS, styles } from './button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants, plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonVariant = keyof TanreiButtonVariantRegistry;
@@ -98,7 +100,7 @@ export interface TanreiButtonChangeDetail {
  * @fires click - The button was activated by pointer, touch, keyboard or assistive technology. A link button fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  * @fires {CustomEvent<TanreiButtonChangeDetail>} change - A toggle was activated; fired after its `click`. `detail.selected` (and the element's `selected`) is the new value.
  */
-export class TanreiButton extends LitElement {
+export class TanreiButton extends TanreiElement {
   /** BTN-29: one of its form's controls, for its form owner and for a disabled fieldset (BTN-32). */
   static formAssociated = true;
 
@@ -154,7 +156,9 @@ export class TanreiButton extends LitElement {
    * keeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in
    * its tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error
    * color. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says
-   * what is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).
+   * what is destroyed (BTN-42). Ignored on a toggle (BTN-41), and on a link — while `href` is not empty — which only
+   * leads somewhere and deletes nothing (BTN-43); both are reported in debug builds. The action at the link's
+   * destination is the one that deletes, and the one to mark destructive.
    */
   destructive = false;
 
@@ -333,8 +337,8 @@ export class TanreiButton extends LitElement {
   /**
    * BTN-10, BGR-1…4, BGR-7, BGR-16, BGR-22, BGR-23: where a button group places it (src/primitives/group-item.ts) — its
    * corners and minimum size as a connected group sets them, the padding the group adds at a rounded outer end, no
-   * outline or ring along an edge joined under a divider, its label free to wrap when the group narrows it. Internal
-   * between Tanrei elements.
+   * outline or ring along an edge joined under a divider, its label free to wrap when the group narrows it — and the
+   * variant (DLG-20, SSH-17) and the tone (BTN-45) a host gives it. Internal between Tanrei elements.
    * @internal
    */
   readonly [GROUP_ITEM] = new GroupItemController(this, () => this.container);
@@ -469,15 +473,15 @@ export class TanreiButton extends LitElement {
   }
 
   /** BTN-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
-  private onLabelSlotChange(event: Event) {
+  #onLabelSlotChange(event: Event) {
     this.hasLabel = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     this.reportName();
   }
@@ -567,7 +571,7 @@ export class TanreiButton extends LitElement {
    * BTN-14: a toggle switches its own `selected`, then fires `click`, then `change` (src/primitives/after-click.ts): a
    * `click` listener on the element already sees the new value, and `change` follows once the click has gone through the page.
    */
-  private onClick() {
+  #onClick() {
     if (!this.toggle || this.refuses) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
@@ -626,6 +630,10 @@ export class TanreiButton extends LitElement {
     // BTN-41: a toggle has no destructive look; the styles draw it as the toggle it is.
     if ((changed.has('destructive') || changed.has('toggle')) && this.destructive && this.toggle) {
       report(this, 'BTN-41', 'a toggle has no destructive look: destructive is ignored while toggle is true');
+    }
+    // BTN-43: a link deletes nothing; the styles draw it as the link of its variant.
+    if ((changed.has('destructive') || changed.has('href') || changed.has('toggle')) && this.destructive && this.link.form) {
+      report(this, 'BTN-43', 'a link only leads somewhere and does not itself delete anything: destructive is ignored while href is not empty. The action that deletes is the one at its destination; mark that one destructive');
     }
     if (changed.has('type') || changed.has('toggle') || changed.has('href')) {
       this.watch();
@@ -702,6 +710,7 @@ export class TanreiButton extends LitElement {
         data-tanrei-shape
         class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, 'full-width': full, busy, ...this[GROUP_ITEM].classes() })}
         data-host-variant=${this[GROUP_ITEM].variant ?? nothing}
+        ${ref(this[GROUP_ITEM].toneRef)}
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
         aria-label=${this.label || nothing}
@@ -710,7 +719,7 @@ export class TanreiButton extends LitElement {
         aria-pressed=${this.toggle ? String(this.selected) : nothing}
         ?disabled=${!link && disabled && !reachable}
         aria-disabled=${!link && reachable ? 'true' : nothing}
-        @click=${this.onClick}
+        @click=${this.#onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -718,10 +727,10 @@ export class TanreiButton extends LitElement {
         @keydown=${this.press.onKeyDown}
         @keyup=${this.press.onKeyUp}
         @blur=${this.press.onBlur}
-        @focus=${this.onFocus}
+        @focus=${this.#onFocus}
       >
-        <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
-        <span part="label" class="label"><slot @slotchange=${this.onLabelSlotChange}></slot></span>
+        <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
+        <span part="label" class="label"><slot @slotchange=${this.#onLabelSlotChange}></slot></span>
         ${mark ? html`<span part="icon" class="mark" aria-hidden="true">${LINK_MARK}</span>` : nothing}
         ${busy ? html`<span class="busy-arc" aria-hidden="true">${svg`<svg focusable="false"><circle></circle></svg>`}</span>` : nothing}
       </${tag}>

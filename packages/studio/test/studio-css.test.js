@@ -1,7 +1,7 @@
 // Where `:has()` may stand in the Studio's stylesheets.
 //
-// `src/studio.css` is imported by the package's entry, so a site that hosts the Studio on one page carries the sheet
-// in the bundle of every page. A `:has()` whose argument looks down from the root (`:root:has(.ts)`) makes every
+// A site that hosts the Studio on one page may load `src/studio.css` on every page (a host that imports it from a
+// script its pages share does). A `:has()` whose argument looks down from the root (`:root:has(.ts)`) makes every
 // element of each of those pages one whose changes the root must be asked about again, and the root's question is the
 // whole document: 35 to 60 ms of style time on a component page of the docs, measured. What the root needs to know
 // about the Studio it is told with an attribute (`data-ts-mounted`, written by `mountStudio`).

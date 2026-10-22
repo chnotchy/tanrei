@@ -1,8 +1,8 @@
 ---
 title: टूलबार
-description: मौजूदा स्क्रीन या चयन की क्रियाओं की एक छोटी पंक्ति रखता है, निचले किनारे पर डॉक किया हुआ या कॉन्टेंट के ऊपर तैरता हुआ। यह एक Tab स्टॉप है, और ऐरो कुंजियाँ फ़ोकस को इसकी क्रियाओं के बीच ले जाती हैं।
+description: आपस में जुड़े कंट्रोल के एक सेट को एक Tab स्टॉप के रूप में रखता है, जहाँ उसके कॉन्टेंट को ज़रूरत हो वहीं इनलाइन, निचले किनारे पर डॉक किया हुआ, या कॉन्टेंट के ऊपर तैरता हुआ। ऐरो कुंजियाँ फ़ोकस को इसके कंट्रोल के बीच ले जाती हैं, और जो समाता नहीं वह ओवरफ़्लो मेन्यू में चला जाता है।
 translationOf: components/toolbar.mdx
-sourceHash: 208b8298cc2fa085a6bfd76cf0992d8e087dc579
+sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,69 +15,112 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="डॉक किया हुआ और तैरता हुआ" column>
-  <tanrei-toolbar label="संदेश की क्रियाएँ" style="inline-size: 22rem">
+<DemoFrame label="इनलाइन, डॉक किया हुआ और तैरता हुआ" column>
+  <tanrei-toolbar label="फ़ॉर्मैटिंग">
+    <tanrei-toolbar-group label="टेक्स्ट की स्टाइल">
+      <tanrei-button variant="text" toggle selected label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
+      <tanrei-button variant="text" label="इमेज डालें"><span slot="icon">image</span></tanrei-button>
+    </tanrei-toolbar-group>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="संदेश की क्रियाएँ" style="inline-size: 22rem">
     <tanrei-button variant="text" label="आर्काइव करें"><span slot="icon">archive</span></tanrei-button>
     <tanrei-button variant="text" label="हटाएँ"><span slot="icon">delete</span></tanrei-button>
     <tanrei-button variant="text" label="अपठित के रूप में चिह्नित करें"><span slot="icon">mark_email_unread</span></tanrei-button>
     <tanrei-button variant="text" label="ले जाएँ"><span slot="icon">drive_file_move</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="फ़ॉर्मैटिंग">
-    <tanrei-button variant="text" toggle selected label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
-    <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
+  <tanrei-toolbar variant="floating" label="ड्रॉइंग टूल">
+    <tanrei-button variant="text" label="पेन"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="हाइलाइटर"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="इरेज़र"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="हो गया"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
 </DemoFrame>
 
 ### इस्तेमाल
 
-टूलबार में दो प्रकार के आइटम रहते हैं: `action`, जो आइकन वाला और बिना लेबल का Tanrei [Button](/hi/components/button/) है (बोल्ड जैसा टॉगल भी यही है, जिस पर `toggle` सेट है), और `button`, जो लेबल वाला Tanrei Button है। ये आपके अपने कंपोनेंट हैं, हर एक अपने लेबल, click और स्टेट के साथ। टूलबार इन्हें पढ़ने के क्रम में रखता है और कीबोर्ड फ़ोकस को इनके बीच चलाता है। वह इनकी स्टाइल कभी नहीं बदलता, इसलिए टूलबार में सिर्फ़ आइकन वाला Button वैसा ही दिखता और वैसा ही व्यवहार करता है जैसा कहीं और। हर प्लैटफ़ॉर्म इन्हें उसी तरह लेता है जैसे वह दोहराए जाने वाले चाइल्ड को लेता है: वेब पर चाइल्ड एलिमेंट, SwiftUI पर व्यू बिल्डर, Compose पर कॉन्टेंट लैम्ब्डा के भीतर के कॉल, Flutter पर `children` की लिस्ट और React Native पर चाइल्ड एलिमेंट।
+टूलबार आपस में जुड़े कंट्रोल का एक सेट रखता है: क्रियाएँ, टॉगल, मेन्यू खोलने वाला बटन, [मेन्यू वाला बटन](/hi/components/button-with-menu/)। इसके आइटम आपके अपने Tanrei [Button](/hi/components/button/) और मेन्यू वाले बटन हैं, हर एक अपने लेबल, click और स्टेट के साथ। टूलबार इन्हें पढ़ने के क्रम में रखता है, ग्रुप को अलग करता है, कीबोर्ड फ़ोकस को इनके बीच चलाता है और जो नहीं समाता उसे ओवरफ़्लो मेन्यू में छिपा देता है। वह इनकी स्टाइल कभी नहीं बदलता, इसलिए टूलबार में सिर्फ़ आइकन वाला Button वैसा ही दिखता और वैसा ही व्यवहार करता है जैसा कहीं और।
+
+इसमें छह प्रकार के आइटम होते हैं:
+
+- `action`: सिर्फ़ आइकन वाला Button। "बोल्ड" जैसा टॉगल भी यही है, जिस पर `toggle` सेट है।
+- `button`: लेबल वाला Button, जो टॉगल भी हो सकता है, जैसे कोई फ़िल्टर जो चालू या बंद है।
+- `menu-button`: ऐसा Button जिस पर Tanrei का [Menu](/hi/components/menu/) ऐंकर किया गया है, जैसे "क्रमबद्ध करें" या "डालें"। मेन्यू आपका है और अपने Button के बग़ल में रहता है। टूलबार उसे लेआउट नहीं करता।
+- `button-with-menu`: एक मुख्य क्रिया, साथ में उससे जुड़ी क्रियाओं का मेन्यू। हर हिस्सा ऐरो कुंजियों का अपना अलग स्टॉप है।
+- `group`: आपस में जुड़े आइटम की एक कड़ी, जैसे "बोल्ड", "इटैलिक" और "अंडरलाइन"। यह अपना कुछ नहीं बनाता। जब ग्रुप बनाना व्यक्ति के लिए कुछ मायने रखता हो, जैसे "टेक्स्ट की स्टाइल", तो इसे `label` दें।
+- `separator`: ऐसे दो आइटम के बीच की रेखा जो किसी ग्रुप में नहीं हैं। वेब पर यह एक [डिवाइडर](/hi/components/divider/) है, जिसे टूलबार वैसे ही बनाता है जैसे दो ग्रुप के बीच की रेखा।
+
+**इनलाइन (डिफ़ॉल्ट)।** इनलाइन टूलबार वहीं रहता है जहाँ आपका लेआउट उसे रखता है, उसी कॉन्टेंट में जिस पर वह काम करता है: टेबल के ऊपर, एडिटर के सबसे ऊपर, लिस्ट के बग़ल में फ़िल्टर की पंक्ति के रूप में। वह उतना ही लंबा होता है जितना उसके आइटम को चाहिए, और लेआउट जितनी इजाज़त दे उससे कभी ज़्यादा नहीं। डिफ़ॉल्ट सिस्टम में उसकी अपनी कोई सरफ़ेस, शैडो या किनारा नहीं होता, और उसके सिरे आस-पास के कॉन्टेंट की सीध में रहते हैं।
 
 **डॉक किया हुआ।** डॉक किया हुआ टूलबार स्क्रीन के निचले किनारे पर पूरी चौड़ाई में फैला रहता है। उसका रंग होम इंडिकेटर या जेस्चर बार के नीचे तक पहुँचता है, और उसके आइटम उस बार के ऊपर और किनारों के इनसेट के भीतर रहते हैं। वेब `env(safe-area-inset-bottom)` पढ़ता है, SwiftUI बार को `.safeAreaInset(edge: .bottom)` से रखता है, Compose `windowInsets` लेता है (डिफ़ॉल्ट रूप से नेविगेशन बार के), और Flutter `MediaQuery` की नीचे की पैडिंग पढ़ता है। React Native अपने इनसेट टूलबार की `insets` प्रॉपर्टी से या `TanreiProvider` से लेता है, क्योंकि Tanrei सेफ़ एरिया की कोई डिपेंडेंसी नहीं लेता।
 
 **तैरता हुआ।** तैरता हुआ टूलबार अपनी जगह ख़ुद तय नहीं करता, जैसे [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) भी नहीं करता। उसे आपका लेआउट रखता है, आम तौर पर कॉन्टेंट के निचले सिरे के ऊपर बीच में, या जब वह खड़ा हो तो कॉन्टेंट के अंतिम किनारे के बग़ल में।
 
-Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी टूलबार और बटन का पिछला संशोधन देते हैं, जिसमें सिर्फ़ आइकन वाली क्रिया एक अलग आइकन बटन है, और जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं। वे अभी टूलबार और बटन का पिछला संशोधन देते हैं, जिसमें टूलबार तब तक डॉक किया हुआ रहता है जब तक आप कुछ और न कहें, उसमें सिर्फ़ Button रहते हैं, जो नहीं समाता वह स्क्रॉल होता है, और सिर्फ़ आइकन वाली क्रिया एक अलग आइकन बटन है। जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-toolbar label="संदेश की क्रियाएँ">
-      <tanrei-button variant="text" label="आर्काइव करें"><span slot="icon">archive</span></tanrei-button>
-      <tanrei-button variant="text" label="हटाएँ"><span slot="icon">delete</span></tanrei-button>
-      <tanrei-button variant="text" label="ले जाएँ"><span slot="icon">drive_file_move</span></tanrei-button>
-      <tanrei-button variant="filled">जवाब दें</tanrei-button>
+    <tanrei-toolbar label="फ़ॉर्मैटिंग" overflow-label="फ़ॉर्मैटिंग के और विकल्प">
+      <tanrei-toolbar-group label="टेक्स्ट की स्टाइल">
+        <tanrei-button variant="text" toggle selected label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+        <tanrei-button variant="text" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+      </tanrei-toolbar-group>
+      <tanrei-toolbar-group>
+        <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
+        <tanrei-button variant="text" id="insert" label="डालें"><span slot="icon">add</span></tanrei-button>
+        <tanrei-menu anchor="insert">
+          <tanrei-menu-item label="टेबल"></tanrei-menu-item>
+          <tanrei-menu-item label="आड़ी रेखा"></tanrei-menu-item>
+        </tanrei-menu>
+      </tanrei-toolbar-group>
+      <tanrei-divider></tanrei-divider>
+      <tanrei-button variant="filled" toolbar-overflow="never">प्रकाशित करें</tanrei-button>
     </tanrei-toolbar>
 
-    <!-- तैरता हुआ और खड़ा: इसे पेज रखता है। -->
-    <tanrei-toolbar variant="floating" orientation="vertical" label="नक़्शे के कंट्रोल" class="map-controls">
-      <tanrei-button variant="text" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
-      <tanrei-button variant="text" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
+    <!-- स्क्रीन के निचले किनारे पर डॉक किया हुआ। -->
+    <tanrei-toolbar variant="docked" label="संदेश की क्रियाएँ">
+      <tanrei-button variant="text" label="आर्काइव करें"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="हटाएँ"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="filled">जवाब दें</tanrei-button>
     </tanrei-toolbar>
 
     <script type="module">
       import '@tanrei/web/components/toolbar';
       import '@tanrei/web/components/button';
+      import '@tanrei/web/components/divider';
+      import '@tanrei/web/components/menu';
       // आइटम आपके हैं: टूलबार अपना कोई इवेंट नहीं जोड़ता।
-      document.querySelector('[label="आर्काइव करें"]').addEventListener('click', archive);
+      document.querySelector('[label="लिंक डालें"]').addEventListener('click', insertLink);
+      const insert = document.querySelector('tanrei-menu[anchor="insert"]');
+      document.querySelector('#insert').addEventListener('click', () => (insert.open = !insert.open));
+      insert.addEventListener('close', () => (insert.open = false));
     </script>
     ```
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Toolbar } from '@tanrei/react';
+    import { Button, Divider, Toolbar, ToolbarGroup } from '@tanrei/react';
 
-    <Toolbar label="संदेश की क्रियाएँ">
-      <Button variant="text" label="आर्काइव करें" onClick={archive}><span slot="icon">archive</span></Button>
-      <Button variant="text" label="हटाएँ" onClick={remove}><span slot="icon">delete</span></Button>
-      <Button variant="text" label="ले जाएँ" onClick={move}><span slot="icon">drive_file_move</span></Button>
-      <Button variant="filled" onClick={reply}>जवाब दें</Button>
+    <Toolbar label="फ़ॉर्मैटिंग" overflowLabel="फ़ॉर्मैटिंग के और विकल्प">
+      <ToolbarGroup label="टेक्स्ट की स्टाइल">
+        <Button variant="text" toggle selected={bold} label="बोल्ड" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+        <Button variant="text" toggle selected={italic} label="इटैलिक" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+      </ToolbarGroup>
+      <ToolbarGroup>
+        <Button variant="text" label="लिंक डालें" onClick={insertLink}><span slot="icon">link</span></Button>
+      </ToolbarGroup>
+      <Divider />
+      <Button variant="filled" toolbar-overflow="never" onClick={publish}>प्रकाशित करें</Button>
     </Toolbar>
 
-    <Toolbar variant="floating" label="फ़ॉर्मैटिंग">
-      <Button variant="text" toggle selected={bold} label="बोल्ड" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
-      <Button variant="text" label="लिंक डालें" onClick={insertLink}><span slot="icon">link</span></Button>
+    <Toolbar variant="docked" label="संदेश की क्रियाएँ">
+      <Button variant="text" label="आर्काइव करें" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="filled" onClick={reply}>जवाब दें</Button>
     </Toolbar>
     ```
   </TabItem>
@@ -180,32 +223,50 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="बटन आइटम, एक ही आइटम, अक्षम आइटम, filled क्रिया, खड़ा" plain column>
-  <tanrei-toolbar label="संदेश लिखें" style="inline-size: 22rem">
+<DemoFrame label="ग्रुप और एक सेपरेटर, मेन्यू बटन, मेन्यू वाला बटन, लेबल वाले टॉगल, ओवरफ़्लो मेन्यू" plain column>
+  <tanrei-toolbar label="दस्तावेज़ की क्रियाएँ">
+    <tanrei-button variant="text" label="पहले जैसा करें"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" label="फिर से करें"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-divider></tanrei-divider>
+    <tanrei-button variant="text" id="toolbar-demo-sort" label="क्रमबद्ध करें"><span slot="icon">sort</span></tanrei-button>
+    <tanrei-menu anchor="toolbar-demo-sort">
+      <tanrei-menu-item label="नाम"></tanrei-menu-item>
+      <tanrei-menu-item label="बदलाव की तारीख़"></tanrei-menu-item>
+    </tanrei-menu>
+    <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प" variant="tonal">
+      <tanrei-menu-item slot="menu" label="इस रूप में सेव करें"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="फ़िल्टर">
+    <tanrei-button variant="outlined" toggle selected>खुले</tanrei-button>
+    <tanrei-button variant="outlined" toggle>मुझे सौंपे गए</tanrei-button>
+    <tanrei-button variant="outlined" toggle>अटैचमेंट वाले</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="संदेश की क्रियाएँ" overflow-label="और क्रियाएँ" style="inline-size: 15rem">
+    <tanrei-button variant="text" label="आर्काइव करें"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="हटाएँ"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="अपठित के रूप में चिह्नित करें"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="ले जाएँ"><span slot="icon">drive_file_move</span></tanrei-button>
+    <tanrei-button variant="text" label="लेबल लगाएँ"><span slot="icon">label</span></tanrei-button>
+    <tanrei-button variant="text" label="फ़्लैग करें"><span slot="icon">flag</span></tanrei-button>
+    <tanrei-button variant="text" label="बाद में याद दिलाएँ"><span slot="icon">snooze</span></tanrei-button>
+    <tanrei-button variant="text" label="प्रिंट करें"><span slot="icon">print</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="संदेश लिखें" style="inline-size: 22rem">
     <tanrei-button variant="text" label="फ़ाइल अटैच करें"><span slot="icon">attach_file</span></tanrei-button>
     <tanrei-button variant="text" label="फ़ोटो डालें"><span slot="icon">image</span></tanrei-button>
     <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
     <tanrei-button variant="filled">भेजें</tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar label="जवाब दें" style="inline-size: 22rem">
-    <tanrei-button variant="tonal">जवाब दें</tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar label="संदेश की क्रियाएँ" style="inline-size: 22rem">
-    <tanrei-button variant="text" label="आर्काइव करें"><span slot="icon">archive</span></tanrei-button>
-    <tanrei-button variant="text" label="हटाएँ" disabled><span slot="icon">delete</span></tanrei-button>
-    <tanrei-button variant="text" label="अपठित के रूप में चिह्नित करें"><span slot="icon">mark_email_unread</span></tanrei-button>
-    <tanrei-button variant="text" label="ले जाएँ"><span slot="icon">drive_file_move</span></tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="ड्रॉइंग टूल">
-    <tanrei-button variant="text" label="पेन"><span slot="icon">edit</span></tanrei-button>
-    <tanrei-button variant="text" label="हाइलाइटर"><span slot="icon">ink_highlighter</span></tanrei-button>
-    <tanrei-button variant="text" label="इरेज़र"><span slot="icon">ink_eraser</span></tanrei-button>
-    <tanrei-button variant="filled" label="हो गया"><span slot="icon">check</span></tanrei-button>
-  </tanrei-toolbar>
   <tanrei-toolbar variant="floating" orientation="vertical" label="नक़्शे के कंट्रोल">
-    <tanrei-button variant="text" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
-    <tanrei-button variant="text" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
-    <tanrei-button variant="text" label="मेरी लोकेशन"><span slot="icon">my_location</span></tanrei-button>
+    <tanrei-toolbar-group label="ज़ूम">
+      <tanrei-button variant="text" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="मेरी लोकेशन"><span slot="icon">my_location</span></tanrei-button>
+      <tanrei-button variant="text" label="लेयर"><span slot="icon">layers</span></tanrei-button>
+    </tanrei-toolbar-group>
   </tanrei-toolbar>
 </DemoFrame>
 
@@ -215,20 +276,21 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ### कब इस्तेमाल करें
 
-जो चीज़ व्यक्ति के सामने है, उस पर होने वाली कुछ क्रियाओं के लिए टूलबार इस्तेमाल करें: खुले संदेश के लिए "आर्काइव करें", "हटाएँ" और "ले जाएँ"; एडिटर में "बोल्ड", "इटैलिक" और "लिंक"; ड्रॉइंग ऐप में पेन और इरेज़र; नक़्शे पर ज़ूम और लोकेशन। ये क्रियाएँ मौजूदा स्क्रीन या चयन पर काम करती हैं, इस पर नहीं कि व्यक्ति आगे कहाँ जाता है।
+जो चीज़ व्यक्ति के सामने है, उस पर काम करने वाले कंट्रोल के सेट के लिए टूलबार इस्तेमाल करें: एडिटर के ऊपर "बोल्ड", "इटैलिक" और "लिंक"; टेबल के ऊपर "फ़िल्टर", "क्रमबद्ध करें" और "डाउनलोड करें"; खुले संदेश के लिए "आर्काइव करें", "हटाएँ" और "ले जाएँ"; ड्रॉइंग के ऊपर पेन और इरेज़र; नक़्शे पर ज़ूम और लोकेशन। ये कंट्रोल मौजूदा कॉन्टेंट या चयन पर काम करते हैं, इस पर नहीं कि व्यक्ति आगे कहाँ जाता है।
 
 स्क्रीन के शीर्षक, वापस जाने के रास्ते और एक-दो ग्लोबल क्रियाओं के लिए ऊपर का [ऐप बार](/hi/components/app-bar/) इस्तेमाल करें। ऐप के सबसे ऊपरी स्तर के गंतव्यों के बीच जाने के लिए [नेविगेशन बार](/hi/components/navigation-bar/) इस्तेमाल करें। डॉक किया हुआ टूलबार और नेविगेशन बार कभी एक ही स्क्रीन पर नहीं रहते: दोनों निचला किनारा माँगते हैं।
 
-### डॉक किया हुआ या तैरता हुआ
+### इनलाइन, डॉक किया हुआ या तैरता हुआ
 
 | वेरिएंट | यह कहाँ रहता है | आइटम | किसके लिए |
 | --- | --- | --- | --- |
-| Docked (डिफ़ॉल्ट) | निचले किनारे पर पूरी चौड़ाई में, उससे सटा हुआ, और उसका रंग सिस्टम बार के नीचे तक पहुँचता है | चौड़ाई में फैले हुए, बीच में बराबर जगह के साथ | डिटेल स्क्रीन की क्रियाएँ: खुला संदेश, फ़ोटो, दस्तावेज़ |
-| Floating | कॉन्टेंट के ऊपर एक गोल कोनों वाली, उठी हुई सरफ़ेस, जिसे आपका लेआउट रखता है | पास-पास, उतने ही लंबे जितनी उन्हें ज़रूरत है, और हर एक अपने टच टार्गेट की जगह रखते हुए | उस कॉन्टेंट के ऊपर के टूल जिसे उनके आस-पास दिखते रहना चाहिए: एडिटर, कैनवस, नक़्शा |
+| Inline (डिफ़ॉल्ट) | कॉन्टेंट में अपनी जगह पर, जहाँ आपका लेआउट उसे रखता है, डिफ़ॉल्ट सिस्टम में बिना अपनी सरफ़ेस के | पास-पास, उतने ही लंबे जितनी उन्हें ज़रूरत है, और हर एक अपने टच टार्गेट की जगह रखते हुए | पेज के किसी हिस्से के कंट्रोल: एडिटर की फ़ॉर्मैटिंग, टेबल की क्रियाएँ, फ़िल्टर की पंक्ति |
+| Docked | निचले किनारे पर पूरी चौड़ाई में, उससे सटा हुआ, और उसका रंग सिस्टम बार के नीचे तक पहुँचता है | चौड़ाई में फैले हुए, बीच में बराबर जगह के साथ | फ़ोन पर डिटेल स्क्रीन की क्रियाएँ: खुला संदेश, फ़ोटो, दस्तावेज़ |
+| Floating | कॉन्टेंट के ऊपर एक गोल कोनों वाली, उठी हुई सरफ़ेस, जिसे आपका लेआउट रखता है | पास-पास, उतने ही लंबे जितनी उन्हें ज़रूरत है, और हर एक अपने टच टार्गेट की जगह रखते हुए | उस कॉन्टेंट के ऊपर के टूल जिसे उनके आस-पास दिखते रहना चाहिए: कैनवस, नक़्शा |
 
-डॉक किया हुआ टूलबार हमेशा आड़ा होता है। तैरता हुआ टूलबार खड़ा हो सकता है, बड़ी स्क्रीन पर कॉन्टेंट के बग़ल में, जैसे नक़्शे के कंट्रोल होते हैं। एक ही प्रॉडक्ट कुछ स्क्रीन पर अपने टूलबार को डॉक कर सकता है और कुछ पर उसे तैरता रख सकता है। जो वेरिएंट कोई डिज़ाइन सिस्टम जोड़ता है, वह अपने मानों के साथ डॉक किए हुए टूलबार की बनावट लेता है।
+डॉक किया हुआ टूलबार हमेशा आड़ा होता है। इनलाइन या तैरता हुआ टूलबार खड़ा हो सकता है, कॉन्टेंट के बग़ल में। एक ही प्रॉडक्ट एक स्क्रीन पर टूलबार को इनलाइन रख सकता है, दूसरी पर एक को डॉक कर सकता है और तीसरी पर एक को तैरता रख सकता है। जो वेरिएंट कोई डिज़ाइन सिस्टम जोड़ता है, वह अपने मानों के साथ इनलाइन टूलबार की बनावट लेता है।
 
-डॉक किया हुआ टूलबार अपने आइटम को चौड़ाई में फैलाता है और उन्हें कभी अपने गैप (डिफ़ॉल्ट सिस्टम में 16) से ज़्यादा पास नहीं लाता। तैरता हुआ टूलबार अपने आइटम को पास-पास रखता है: डिफ़ॉल्ट सिस्टम में उसका गैप 0 है, और दो पड़ोसी सिर्फ़ उतने दूर रहते हैं जितना हर एक को पंक्ति की दिशा में अपना टच टार्गेट बनाए रखने के लिए चाहिए। large बटन एक-दूसरे को छूते हैं, medium बटन 8 की दूरी पर रहते हैं और small बटन 16 की। इसके लिए टूलबार किसी आइटम को न चौड़ा करता है, न उसकी स्टाइल बदलता है, और यह दूरी माउस और टच के लिए एक जैसी है।
+डॉक किया हुआ टूलबार अपने आइटम को चौड़ाई में फैलाता है और उन्हें कभी अपने गैप (डिफ़ॉल्ट सिस्टम में 16) से ज़्यादा पास नहीं लाता। इनलाइन या तैरता हुआ टूलबार अपने आइटम को पास-पास रखता है: दो पड़ोसी सिर्फ़ उतने दूर रहते हैं जितना हर एक को पंक्ति की दिशा में अपना टच टार्गेट बनाए रखने के लिए चाहिए, और गैप से कभी ज़्यादा पास नहीं (डिफ़ॉल्ट सिस्टम में इनलाइन के लिए 4 और तैरते हुए के लिए 0)। large बटन एक-दूसरे को छूते हैं, medium बटन 8 की दूरी पर रहते हैं और small बटन 16 की। इसके लिए टूलबार किसी आइटम को न चौड़ा करता है, न उसकी स्टाइल बदलता है, और यह दूरी माउस और टच के लिए एक जैसी है।
 
 <DemoFrame label="तैरता हुआ: small, medium और large आइटम, और narrow और wide आइटम" plain column>
   <tanrei-toolbar variant="floating" label="फ़ॉर्मैटिंग, small">
@@ -259,18 +321,30 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 - ज़्यादातर क्रियाओं के लिए `text` वेरिएंट के सिर्फ़ आइकन वाले [Button](/hi/components/button/) इस्तेमाल करें। टूलबार जिस एक क्रिया तक ले जाता है, जैसे "भेजें" या "हो गया", उसे ज़्यादा वज़न दें: सिर्फ़ आइकन वाला filled बटन, शायद `wide` चौड़ाई पर, या लेबल वाला filled बटन, जब शब्द आइकन से बेहतर समझ आए।
 - `narrow` चौड़ाई का सिर्फ़ आइकन वाला बटन उस टूलबार के लिए ठीक है जिसमें कई छोटी क्रियाएँ हों। वह अपने टार्गेट से सँकरा बनता है, और टूलबार उसके पड़ोसियों के बीच टार्गेट के लिए जगह रखता है।
-- जो क्रिया किसी चीज़ को चालू-बंद करती है ("बोल्ड", "म्यूट"), उसे `toggle` वाला, सिर्फ़ आइकन वाला बटन बनाएँ। वह अपना selected स्टेट और अपनी घोषणा ख़ुद रखता है।
+- जो क्रिया किसी चीज़ को चालू-बंद करती है ("बोल्ड", "म्यूट"), उसे `toggle` वाला, सिर्फ़ आइकन वाला बटन बनाएँ। जो फ़िल्टर चालू या बंद है, वह `toggle` वाला, लेबल वाला बटन है। हर एक अपना selected स्टेट और अपनी घोषणा ख़ुद रखता है।
+- जो कंट्रोल कई कमांड में से चुनने देता है, उसके लिए टूलबार के किसी Button पर [मेन्यू](/hi/components/menu/) ऐंकर करें। जिस मुख्य क्रिया के कई रूप हों, जैसे "सेव करें" और "इस रूप में सेव करें", उसके लिए [मेन्यू वाला बटन](/hi/components/button-with-menu/) इस्तेमाल करें।
 - क्रम स्थिर रखें। लोग क्रियाओं को उनकी जगह से ढूँढ़ते हैं, और जिस टूलबार के आइटम एक स्क्रीन से दूसरी स्क्रीन पर जगह बदलते हैं उसे सीखना मुश्किल होता है।
-- एक आइटम वाला टूलबार उसे बीच में रखता है। सोचें कि कहीं वह आइटम कॉन्टेंट में तो नहीं होना चाहिए।
+- एक आइटम वाला डॉक किया हुआ टूलबार उसे बीच में रखता है। सोचें कि कहीं वह आइटम कॉन्टेंट में तो नहीं होना चाहिए।
+
+### ग्रुप और सेपरेटर
+
+आपस में जुड़े आइटम को एक ग्रुप में रखें: "बोल्ड", "इटैलिक" और "अंडरलाइन"; "पहले जैसा करें" और "फिर से करें"; "ज़ूम इन करें" और "ज़ूम आउट करें"। टूलबार दो ग्रुप को, और किसी ग्रुप को ग्रुप से बाहर के आइटम से, उसी तरह अलग करता है जैसे डिज़ाइन सिस्टम दूसरी जगहों पर हिस्सों को अलग करता है: डिफ़ॉल्ट सिस्टम में एक छोटी रेखा और हर ओर 8 की जगह से, या जिस डिज़ाइन सिस्टम में अलगाव जगह से होता है उसमें 16 की ख़ाली जगह से, बिना रेखा के। किसी टूलबार पर `separation` सिर्फ़ उसकी अपनी किसी वजह से सेट करें। सेपरेटर आइटम ऐसे दो आइटम के बीच वही रेखा बनाता है जो किसी ग्रुप में नहीं हैं।
+
+टूलबार किसी भी सिरे पर कभी रेखा नहीं बनाता, और कभी दो रेखाएँ अगल-बगल नहीं। जब ग्रुप बनाना व्यक्ति के लिए कुछ मायने रखता हो ("टेक्स्ट की स्टाइल"), तो ग्रुप को `label` दें, ताकि स्क्रीन रीडर उसका नाम बताए। बिना लेबल के ग्रुप अपने आइटम को अलग करता है और कुछ नहीं कहता।
 
 ### जब आइटम समाते नहीं
 
-टूलबार किसी आइटम को कभी अगली पंक्ति में नहीं भेजता, छोटा नहीं करता और छिपाता नहीं। अगर आइटम को टूलबार में मौजूद जगह से ज़्यादा जगह चाहिए, तो पंक्ति स्क्रॉल होती है ताकि हर आइटम तक पहुँचा जा सके, और डीबग बिल्ड आपको यह बताते हैं। अतिरिक्त क्रियाओं को अपने ओवरफ़्लो [मेन्यू](/hi/components/menu/) में रखें, जिसका ऐंकर टूलबार के अंत का "और विकल्प" वाला आइकन बटन हो।
+टूलबार किसी आइटम को कभी अगली पंक्ति में नहीं भेजता और छोटा नहीं करता। जब उसके आइटम को उसके पास मौजूद जगह से ज़्यादा जगह चाहिए, तो वह अंत से एक-एक करके आइटम छिपाता है, और बचे हुए आख़िरी आइटम के बाद एक ओवरफ़्लो बटन दिखाता है। यह बटन छिपे हुए आइटम का मेन्यू खोलता है, उनके क्रम में, उनके लेबल, आइकन और स्टेट के साथ: क्रिया एक मेन्यू आइटम बनती है, टॉगल एक चेकबॉक्स आइटम, मेन्यू बटन एक सबमेन्यू, और मेन्यू वाला बटन उसकी मुख्य क्रिया और उसके बाद एक सबमेन्यू। इनमें से किसी को चुनना ठीक वही करता है जो छिपा हुआ आइटम करता है। ओवरफ़्लो बटन को `overflow-label` से नाम दें ("और क्रियाएँ"), या पूरे प्रॉडक्ट के लिए एक बार `setWords({ toolbarOverflowLabel: … })` से।
+
+जिस आइटम को रहना ही है, जैसे "भेजें" या "हो गया", उसे `toolbar-overflow="never"` से चिह्नित करें: तब टूलबार उससे पहले के आइटम छिपाता है। अगर जो कभी नहीं छिपता वह फिर भी नहीं समाता, तो पंक्ति का बाक़ी हिस्सा स्क्रॉल होता है। हर आइटम को पंक्ति में रखने और किसी को छिपाने की जगह उन्हें स्क्रॉल करने के लिए `overflow="scroll"` सेट करें।
+
+क्या छिपेगा, यह टूलबार के बनने से पहले तय होता है, और फिर उस फ़्रेम में जिसमें उसकी लंबाई बदलती है, इसलिए कोई आइटम कभी बनकर फिर छिपता नहीं, और पंक्ति कभी उछलती नहीं।
 
 ### करें
 
-- टूलबार को उस काम से नाम दें जो उसकी क्रियाएँ करती हैं: "फ़ॉर्मैटिंग", "संदेश की क्रियाएँ"।
+- टूलबार को उस काम से नाम दें जो उसके कंट्रोल करते हैं: "फ़ॉर्मैटिंग", "संदेश की क्रियाएँ"।
 - जो क्रिया अभी लागू नहीं हो सकती, उसे हटाने की जगह अक्षम करें, ताकि बाक़ी अपनी जगह से न हिलें।
+- आइटम को ऐसे क्रम में रखें कि जिनकी लोगों को सबसे ज़्यादा ज़रूरत है वे पहले आएँ: टूलबार अंत से छिपाता है।
 - तैरते हुए टूलबार को उस कॉन्टेंट से हटाकर रखें जिसे लोगों को उसे इस्तेमाल करते समय देखना होता है, और नेविगेशन बार और सिस्टम के इनसेट से भी हटाकर।
 
 ### न करें
@@ -278,7 +352,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 - टूलबार में टेक्स्ट फ़ील्ड, स्लाइडर या चिप का सेट न रखें। इनमें से हर एक को उन ऐरो कुंजियों की ज़रूरत होती है जिनसे टूलबार फ़ोकस चलाता है। खोज की जगह ऐप बार या पेज में है।
 - डॉक किया हुआ टूलबार और नेविगेशन बार एक ही स्क्रीन पर इस्तेमाल न करें।
 - टूलबार को ज़ोरदार दिखाने के लिए आइटम की स्टाइल न बदलें। इसकी जगह बटनों के लिए tonal या filled वेरिएंट चुनें।
-- टूलबार में नेविगेशन के गंतव्य न रखें। उसके आइटम क्रियाएँ हैं।
+- टूलबार में नेविगेशन के गंतव्य न रखें। उसके आइटम ऐसे कंट्रोल हैं जो कॉन्टेंट पर काम करते हैं।
 
 ## सुलभता
 
@@ -287,21 +361,28 @@ Web और React के उदाहरण मौजूदा स्पेक �
 ### कंपोनेंट क्या सँभालता है
 
 - टूलबार एक Tab स्टॉप है, WAI-ARIA के टूलबार पैटर्न के अनुसार। Tab दबाने पर फ़ोकस उसमें उस आइटम पर आता है जिस पर पिछली बार कीबोर्ड फ़ोकस था, नहीं तो पहले ऐसे आइटम पर जो अक्षम नहीं है, और अगली Tab फ़ोकस को उससे बाहर ले जाती है। आठ टॉगल वाले फ़ॉर्मैटिंग टूलबार को पार करने में Tab एक बार दबानी पड़ती है, आठ बार नहीं।
-- भीतर, उसके अक्ष की दिशा वाली ऐरो कुंजियाँ अगले या पिछले आइटम पर ले जाती हैं और सिरों पर घूमकर दूसरे सिरे पर पहुँचती हैं: आड़े टूलबार में Right Arrow और Left Arrow, खड़े टूलबार में Down Arrow और Up Arrow। Home और End पहले और आख़िरी आइटम पर ले जाती हैं। दाएँ से बाएँ वाले लेआउट में Left Arrow अगले आइटम पर ले जाती है।
+- भीतर, उसके अक्ष की दिशा वाली ऐरो कुंजियाँ अगले या पिछले आइटम पर ले जाती हैं और सिरों पर घूमकर दूसरे सिरे पर पहुँचती हैं: आड़े टूलबार में Right Arrow और Left Arrow, खड़े टूलबार में Down Arrow और Up Arrow। Home और End पहले और आख़िरी आइटम पर ले जाती हैं। दाएँ से बाएँ वाले लेआउट में Left Arrow अगले आइटम पर ले जाती है। ग्रुप के आइटम टूलबार के ही आइटम हैं, मेन्यू वाले बटन का हर हिस्सा अपना अलग स्टॉप है, सेपरेटर छोड़ दिए जाते हैं, और ओवरफ़्लो बटन आख़िरी स्टॉप है।
 - फ़ोकस के पहुँचने भर से कोई आइटम कभी सक्रिय नहीं होता। Enter और Space फ़ोकस वाले आइटम पर वही करती हैं जो वह आइटम करता है, इसलिए टॉगल फिर भी बदलता है।
+- जब किसी आइटम पर ऐंकर किया गया मेन्यू खुला हो, तो कुंजियाँ मेन्यू की होती हैं। उसके बंद होने पर फ़ोकस उसी आइटम पर लौटता है जिससे वह खुला था।
+- जब टूलबार सँकरा होने के कारण फ़ोकस वाला आइटम छिप जाता है, तो फ़ोकस ओवरफ़्लो बटन पर चला जाता है।
 - ऐरो कुंजियाँ अक्षम आइटम को छोड़कर आगे बढ़ती हैं, और अक्षम आइटम कभी Tab स्टॉप नहीं होते, क्योंकि अक्षम बटन पर फ़ोकस नहीं जा सकता।
 - रोविंग फ़ोकस वही है जिसे हर प्लैटफ़ॉर्म पर लिस्ट, मेन्यू और टैब इस्तेमाल करते हैं।
 - जहाँ प्लैटफ़ॉर्म में टूलबार का रोल है (वेब, React Native), वहाँ टूलबार सहायक तकनीक को `label` के नाम वाले टूलबार के रूप में मिलता है, अपने ओरिएंटेशन के साथ। SwiftUI, Compose और Flutter में ऐसा कोई रोल नहीं है: वहाँ वह `label` के नाम वाला एक ग्रुप है जिसमें उसके आइटम क्रम से रहते हैं।
+- `label` वाला ग्रुप सहायक तकनीक को उसी नाम वाले ग्रुप के रूप में मिलता है। ग्रुप के बीच की रेखाएँ सेपरेटर के रूप में मिलती हैं।
+- ओवरफ़्लो बटन सहायक तकनीक को मेन्यू खोलने वाले बटन के रूप में मिलता है, अपने expanded स्टेट के साथ, और उसके मेन्यू में हर छिपा हुआ आइटम अपने नाम और स्टेट के साथ रहता है।
 - हर आइटम अपना नाम, रोल, स्टेट और टार्गेट ख़ुद रखता है। टूलबार इनमें कुछ नहीं जोड़ता और इनकी स्टाइल कभी नहीं बदलता।
-- दो आइटम के बीच हिट एरिया कभी एक-दूसरे पर नहीं चढ़ते। डॉक किए हुए टूलबार में वे गैप के बीचोबीच मिलते हैं, और डिफ़ॉल्ट सिस्टम का गैप (16) इतना चौड़ा है कि हर आइटम वहाँ भी अपना पूरा 48 का टच टार्गेट बनाए रखता है; सँकरे गैप वाला डिज़ाइन सिस्टम आइटम के बीच के टार्गेट को सँकरा कर देता है। तैरते हुए टूलबार में आइटम बस उतने दूर रहते हैं कि हर एक पंक्ति की दिशा में अपने टच टार्गेट जितनी लंबाई बनाए रख सके, पॉइंटर चाहे जो हो, इसलिए narrow या small बटन को उसके पड़ोसी कभी नहीं दबाते। जिस ओर कोई पड़ोसी नहीं है, वहाँ आइटम अपना पूरा टार्गेट बनाए रखता है।
-- जब कीबोर्ड फ़ोकस पाने वाला आइटम स्क्रॉल होकर नज़र से बाहर हो, तो टूलबार उसे स्क्रॉल करके पूरी तरह नज़र में ले आता है।
+- दो आइटम के बीच हिट एरिया कभी एक-दूसरे पर नहीं चढ़ते। डॉक किए हुए टूलबार में वे गैप के बीचोबीच मिलते हैं, और डिफ़ॉल्ट सिस्टम का गैप (16) इतना चौड़ा है कि हर आइटम वहाँ भी अपना पूरा 48 का टच टार्गेट बनाए रखता है; सँकरे गैप वाला डिज़ाइन सिस्टम आइटम के बीच के टार्गेट को सँकरा कर देता है। इनलाइन या तैरते हुए टूलबार में आइटम बस उतने दूर रहते हैं कि हर एक पंक्ति की दिशा में अपने टच टार्गेट जितनी लंबाई बनाए रख सके, पॉइंटर चाहे जो हो, इसलिए narrow या small बटन को उसके पड़ोसी कभी नहीं दबाते। जिस ओर कोई पड़ोसी नहीं है, वहाँ आइटम अपना पूरा टार्गेट बनाए रखता है।
+- जब `overflow` का मान `scroll` हो और कीबोर्ड फ़ोकस पाने वाला आइटम स्क्रॉल होकर नज़र से बाहर हो, तो टूलबार उसे स्क्रॉल करके पूरी तरह नज़र में ले आता है।
 - बड़े टेक्स्ट साइज़ पर टूलबार अपने आइटम को समाने के लिए अपने अक्ष के आड़े बढ़ता है। वह उन्हें स्केल नहीं करता।
-- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: `label` का न होना, बिना आइटम वाला टूलबार, ऐसा आइटम जो Tanrei का Button नहीं है, खड़ा सेट किया गया डॉक किया हुआ टूलबार, आइटम का न समाना, और अनजान वेरिएंट या ओरिएंटेशन।
+- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: `label` का न होना, बिना आइटम वाला टूलबार, ऐसा आइटम जो इसके किसी प्रकार का नहीं है, खड़ा सेट किया गया डॉक किया हुआ टूलबार, ओवरफ़्लो बटन के नाम का न होना, और अनजान वेरिएंट, ओरिएंटेशन, overflow या separation।
 
 प्लैटफ़ॉर्म की ज्ञात कमियाँ:
 
 - SwiftUI, Compose और Flutter में टूलबार का कोई रोल नहीं है। स्क्रीन रीडर एक नाम वाला ग्रुप सुनता है, टूलबार नहीं, और हर पैकेज का README यह बताता है। ग्रुप अपना ओरिएंटेशन नहीं देता।
+- SwiftUI, Compose, Flutter और React Native पीछे हैं: उनमें इनलाइन वेरिएंट नहीं है, ग्रुप या सेपरेटर नहीं हैं, ओवरफ़्लो मेन्यू नहीं है, और वे आइटम के रूप में सिर्फ़ Button लेते हैं।
 - Web: डॉक किया हुआ टूलबार `env(safe-area-inset-bottom)` पढ़ता है, जो शून्य रहता है जब तक पेज के viewport मेटा में `viewport-fit=cover` न हो।
+- Web: खड़े टूलबार का ओवरफ़्लो मेन्यू ओवरफ़्लो बटन के नीचे खुलता है, उसके बग़ल में नहीं, क्योंकि मेन्यू में बग़ल में खुलने की कोई प्लेसमेंट नहीं है।
+- Web: इनलाइन या तैरता हुआ टूलबार यह कि उसे कितनी जगह मिल सकती है, अपने पैरेंट एलिमेंट से नापता है। जिस टूलबार की जगह flex पंक्ति में उसके पैरेंट से नहीं, उसके सिबलिंग से तय होती है, वह क्या समाता है यह सिर्फ़ तब तय करता है जब उसके पैरेंट या उसके आइटम का साइज़ बदलता है।
 - Web: जब आइटम स्क्रॉल होते हैं, तो किसी आइटम का जो भी हिस्सा टूलबार के अक्ष के आड़े उससे बाहर निकलता है, वह कट जाता है: उसका हिट एरिया, उसकी फ़ोकस रिंग या ग्लो, elevated बटन की शैडो। कोई स्क्रॉलबार नहीं दिखाया जाता।
 - SwiftUI पर वह एक Tab स्टॉप कीबोर्ड के लिए एक फ़ोकस ग्रुप है: Full Keyboard Access उसके आइटम के बीच ऐरो कुंजियों से चलता है और Tab से उससे बाहर जाता है। कुंजियाँ नियमों के रूप में टेस्ट की गई हैं, असली कीबोर्ड के साथ अभी नहीं।
 - SwiftUI: जब आइटम स्क्रॉल होते हैं, तो सिरे के आइटम का हिट एरिया टूलबार के किनारे पर रुक जाता है। जब साइज़ बदलने से आइटम स्क्रॉल होने लगते हैं या स्क्रॉल होना बंद करते हैं, तो वे दोबारा बनाए जाते हैं, इसलिए आइटम का कीबोर्ड फ़ोकस या उस पर चल रहा दबाना छूट जाता है।
@@ -312,8 +393,8 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ### आपको क्या करना है
 
-- टूलबार को `label` दें, और हर आइटम को अपने प्रॉडक्ट की भाषा में उसका अपना लेबल, सिर्फ़ आइकन वाली क्रियाओं समेत।
-- इसमें सिर्फ़ Tanrei के Button रखें, सिर्फ़ आइकन वाले या लेबल वाले।
+- टूलबार को `label` दें, हर आइटम को अपने प्रॉडक्ट की भाषा में उसका अपना लेबल, सिर्फ़ आइकन वाली क्रियाओं समेत, और ओवरफ़्लो बटन को `overflow-label` से या अपने प्रॉडक्ट के शब्दों से नाम दें।
+- इसमें सिर्फ़ Tanrei के Button और मेन्यू वाले बटन रखें, अकेले, ग्रुप में, या उन पर ऐंकर किए गए मेन्यू के साथ।
 - जब कोई क्रिया लागू नहीं हो सकती, तो उसे अक्षम करें, और जब कारण साफ़ न हो तो पास में बताएँ कि क्यों।
-- जब क्रियाएँ न समाएँ, तो ओवरफ़्लो मेन्यू ख़ुद दें।
+- मेन्यू बटन का मेन्यू ख़ुद खोलें और बंद करें, जैसे आप किसी भी मेन्यू के लिए करते हैं।
 - तैरते हुए टूलबार को इस तरह रखें कि वह उस कॉन्टेंट को न ढके जिसकी ज़रूरत टूलबार खुला रहते अब भी है।

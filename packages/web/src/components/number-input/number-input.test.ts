@@ -314,19 +314,19 @@ test.describe('behavior: the box', () => {
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-prefix', 'stacked-no-steppers', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
       const down = await box(stepper(page, id, 'down'));
       near(field.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
       near(down.x - (field.x + field.width), await token(page, `container-gap-${size}`), `${id} container.gap after the input line`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
       near(down.y + down.height / 2, c.y + c.height / 2, `${id} steppers centred`);
-      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: the text input's 48 and 56, and 16.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([48, 56, 16]);
+    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, and 16.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([40, 56, 16]);
     // The row: the prefix, the input, the suffix, the steppers — in that order, on one line.
     const id = 'stacked-prefix';
     const [prefix, field, suffix, down, up] = [await box(part(page, id, '.prefix')), await box(input(page, id)), await box(part(page, id, '.suffix')), await box(stepper(page, id, 'down')), await box(stepper(page, id, 'up'))];
@@ -399,13 +399,13 @@ test.describe('behavior: the box', () => {
 
   test('NMI-7: in a Field a filled or outlined number input draws "*" after its floating label exactly while the Field gives it an asterisk — for the mark asterisk, and for a tag, which reaches a floating label as the asterisk — in the label’s style, its own color and hidden from assistive technology; it draws no chip and no optional label; bare, under the mark none, or with no label drawn it draws no mark; a stacked input draws none: the mark is its Field’s', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined' })], { system: 'm3-like', reducedMotion: true });
-    const required = { label: 'Quantity', requirement: 'required', requiredText: 'Required' };
+    const required = { label: 'Quantity', required: true, requiredText: 'Required' };
     await frame(page, 'tag', { ...required, requiredMark: 'tag' }, { variant: 'outlined' });
     await frame(page, 'asterisk', { ...required, requiredMark: 'asterisk' }, { variant: 'outlined' });
     await frame(page, 'filled', { ...required, requiredMark: 'asterisk' }, { variant: 'filled' });
     await frame(page, 'none', { ...required, requiredMark: 'none' }, { variant: 'outlined' });
     await frame(page, 'hidden', { ...required, requiredMark: 'asterisk', labelHidden: true }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Quantity', requirement: 'optional', optionalText: 'Optional' }, { variant: 'filled' });
+    await frame(page, 'optional', { label: 'Quantity', required: false, optional: true, optionalText: 'Optional' }, { variant: 'filled' });
     await frame(page, 'wrong', { ...required, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
     await frame(page, 'stacked', { ...required, requiredMark: 'asterisk' }, {});
     const drawn = (id: string) => host(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll<HTMLElement>('.floating .asterisk')].some((node) => getComputedStyle(node).display !== 'none' && node.getClientRects().length > 0));
@@ -567,10 +567,10 @@ test.describe('behavior: the box', () => {
     expect(await input(page, 'own').getAttribute('aria-required'), 'no requirement of its own').toBeNull();
     expect(await host(page, 'own').evaluate((el) => (el as unknown as HTMLInputElement).validity.valid), 'not required: valid').toBe(true);
     await frame(page, 'framed', { label: 'Weight', supportingText: 'In kilograms.' }, { placeholder: '1 to 99' });
-    await frame(page, 'hidden', { label: 'Weight', labelHidden: true, requirement: 'required', requiredText: 'Required' }, {});
+    await frame(page, 'hidden', { label: 'Weight', labelHidden: true, required: true, requiredText: 'Required' }, {});
     await frame(page, 'wins', { label: 'Weight' }, { label: 'Net weight' });
-    await frame(page, 'none', { label: 'Weight', requirement: 'required', requiredMark: 'none', requiredText: 'Required' }, { value: 0 });
-    await frame(page, 'optional', { label: 'Weight', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'none', { label: 'Weight', required: true, requiredMark: 'none', requiredText: 'Required' }, { value: 0 });
+    await frame(page, 'optional', { label: 'Weight', required: false, optional: true, optionalText: 'Optional' }, {});
     expect(await name('framed')).toBe('Weight');
     expect(await name('hidden')).toBe('Weight');
     expect(await name('wins')).toBe('Net weight');
@@ -686,8 +686,8 @@ test.describe('behavior: the box', () => {
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     expect(await px(edge, 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
     // Glow: the halo around the container while focused, and still no ring.
     await mount(page, [fx('one', { value: 12 })], { system: 'acme', systemCss: await acmeSystemCss() });
     await tabTo(page, input(page, 'one'));
@@ -1629,7 +1629,7 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     // The words of a requirement are the Field's (FLD-24): the input reads none of them, and holds none.
     await setWords(page, { incrementLabel: 'Increase', decrementLabel: 'Decrease', requiredText: 'Required', optionalText: 'Optional' });
     expect(await host(page, 'own').evaluate((el) => el.shadowRoot!.textContent)).not.toMatch(/Required|Optional/);
-    expect(await host(page, 'own').evaluate((el) => ['requiredText', 'optionalText', 'requirement', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
+    expect(await host(page, 'own').evaluate((el) => ['requiredText', 'optionalText', 'optional', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
   });
 });
 
@@ -1658,7 +1658,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     test.skip(browserName !== 'chromium', 'the accessibility tree is read over the DevTools protocol');
     // In a Field, which names and describes it (FLD-10, FLD-11) — and alone on the page.
     await mount(page, [fx('base', {})]);
-    await frame(page, 'one', { label: 'Corner radius', supportingText: 'In pixels.', requirement: 'optional', optionalText: 'Optional' }, { value: 12, min: 0, max: 100, suffixText: 'px', prefixText: '~' });
+    await frame(page, 'one', { label: 'Corner radius', supportingText: 'In pixels.', required: false, optional: true, optionalText: 'Optional' }, { value: 12, min: 0, max: 100, suffixText: 'px', prefixText: '~' });
     await stage(page, 'base').evaluate((el) => el.remove());
     let [spin] = await axNodes(page, 'spinbutton');
     expect(spin).toMatchObject({ name: 'Corner radius', description: 'In pixels. Optional', valuemin: 0, valuemax: 100, focusable: true });
@@ -1688,7 +1688,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(await read(page, 'one'), 'no value: nothing is given').toMatchObject({ now: null, valueText: null });
     expect(spin.valuetext ?? '', 'and no value text is computed').toBe('');
     // Required and invalid — an entry error too — then read-only, then disabled.
-    await setField(page, 'one', { requirement: 'required', requiredText: 'Required' });
+    await setField(page, 'one', { required: true, requiredText: 'Required' });
     await set(page, 'one', { invalidText: 'Enter a number.' });
     await retype(page, 'one', 'wide');
     await blurInput(page, 'one');
@@ -1722,7 +1722,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
       document.body.insertAdjacentHTML(
         'beforeend',
         `<form id="f"><fieldset id="set">
-           <tanrei-field id="frame" label="Weight" requirement="required" required-text="Required"><tanrei-number-input id="n" name="weight" value="1.5" locale="de-DE" invalid-text="Zahl eingeben."></tanrei-number-input></tanrei-field>
+           <tanrei-field id="frame" label="Weight" required required-text="Required"><tanrei-number-input id="n" name="weight" value="1.5" locale="de-DE" invalid-text="Zahl eingeben."></tanrei-number-input></tanrei-field>
            <tanrei-number-input id="ar" name="count" label="Count" value="12" locale="ar-EG"></tanrei-number-input>
            <tanrei-number-input id="ro" name="fixed" label="Fixed" value="7" readonly></tanrei-number-input>
            <tanrei-number-input id="off" name="off" label="Off" value="3" disabled></tanrei-number-input>
@@ -1942,7 +1942,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-error', 'stacked-value', 'filled-value', 'outlined-value', 'stacked-disabled', 'stacked-prefix'].includes(f.id))]);
-    await frame(page, 'star', { label: 'Quantity', requirement: 'required', requiredMark: 'asterisk', requiredText: 'Required' }, { variant: 'outlined', value: 12 });
+    await frame(page, 'star', { label: 'Quantity', required: true, requiredMark: 'asterisk', requiredText: 'Required' }, { variant: 'outlined', value: 12 });
     const canvasText = await systemColor(page, 'CanvasText');
     for (const [id, selector] of [['stacked-prefix', '.input'], ['stacked-prefix', '.prefix'], ['stacked-prefix', '.suffix'], ['outlined-value', '.floating'], ['star', '.floating'], ['star', '.floating .asterisk'], ['stacked-error', '.input']] as const) {
       expect(await css(part(page, id, selector), 'color'), `${id} ${selector}`).toBe(canvasText);
@@ -1990,7 +1990,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     near(field.x - (down.x + down.width), await token(page, 'container-gap-medium'), 'container.gap before the input line');
     expect(await host(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.stepper')].map((s) => s.classList.contains('down'))), 'down is first in reading order').toEqual([true, false]);
     // A floating label: from the right edge, at the text padding, its asterisk at its left end.
-    await frame(page, 'float', { label: 'כמות', requirement: 'required', requiredMark: 'asterisk', requiredText: 'חובה' }, { variant: 'filled' });
+    await frame(page, 'float', { label: 'כמות', required: true, requiredMark: 'asterisk', requiredText: 'חובה' }, { variant: 'filled' });
     await stage(page, 'float').evaluate((el) => (el.dir = 'rtl'));
     await frames(page, 6);
     const [box_, label, asterisk] = [await box(container(page, 'float')), await box(part(page, 'float', '.floating')), await box(part(page, 'float', '.floating .asterisk'))];
@@ -2227,10 +2227,10 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     const seen = warnings(page);
     await mount(page, [fx('base', {})], { system: 'm3-like' });
     const help = 'Up to 99 per order.';
-    await frame(page, 'stacked', { label: 'Quantity', supportingText: help, requirement: 'required', requiredText: 'Required' }, { value: 12, invalidText: 'Enter a number.' });
+    await frame(page, 'stacked', { label: 'Quantity', supportingText: help, required: true, requiredText: 'Required' }, { value: 12, invalidText: 'Enter a number.' });
     await frame(page, 'bare', { label: 'Quantity', supportingText: help }, { value: 12, noSteppers: true });
     await frame(page, 'large', { label: 'Quantity', supportingText: help }, { value: 12, size: 'large', prefixText: '$' });
-    await frame(page, 'floating', { label: 'Quantity', supportingText: help, requirement: 'required', requiredMark: 'asterisk', requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'floating', { label: 'Quantity', supportingText: help, required: true, requiredMark: 'asterisk', requiredText: 'Required' }, { variant: 'outlined' });
     // FLD-25: it draws the label — the Field draws no label row and no tag; a stacked input draws none, and the Field does.
     await expect(row(page, 'floating').locator('.label-row')).toHaveCount(0);
     await expect(part(page, 'floating', '.floating')).toHaveText('Quantity*');
@@ -2268,7 +2268,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     // What it takes: the name, the description, required, invalid, disabled, the hidden label and the asterisk.
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-required'), el.getAttribute('aria-invalid'), (el as HTMLInputElement).disabled])).toEqual(['Quantity', 'true', null, false]);
     expect(await described(page, 'stacked')).toBe(help);
-    await setField(page, 'stacked', { error: true, errorText: 'Order at least 1.', disabled: true, requirement: 'none' });
+    await setField(page, 'stacked', { error: true, errorText: 'Order at least 1.', disabled: true, required: false, optional: false });
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-required'), el.getAttribute('aria-invalid'), (el as HTMLInputElement).disabled])).toEqual(['Quantity', null, 'true', true]);
     expect(await described(page, 'stacked'), 'the error text in the help’s place (FLD-11)').toBe('Order at least 1.');
     await setField(page, 'floating', { labelHidden: true });
@@ -2380,7 +2380,7 @@ test.describe('accessibility', () => {
 
     test(`axe: a focused field, one in an entry error and one at its limit have no violations in ${theme}`, async ({ page }) => {
       await mount(page, [fx('one', { value: 12, suffixText: 'px' }), fx('wrong', { invalidText: 'Enter a number.' }), fx('limit', { value: 99, min: 1, max: 99 })], { theme, reducedMotion: true });
-      await frame(page, 'framed', { label: 'Quantity', supportingText: 'Up to 99 per order.', requirement: 'required', requiredText: 'Required' }, { invalidText: 'Enter a number.' });
+      await frame(page, 'framed', { label: 'Quantity', supportingText: 'Up to 99 per order.', required: true, requiredText: 'Required' }, { invalidText: 'Enter a number.' });
       for (const id of ['wrong', 'framed']) {
         await retype(page, id, 'twelve');
         await blurInput(page, id);

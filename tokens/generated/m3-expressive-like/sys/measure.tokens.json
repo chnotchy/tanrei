@@ -99,16 +99,17 @@
       },
       "target": {
         "$type": "dimension",
-        "$description": "Minimum hit area. Visual size may be smaller; the hit area may not.",
+        "$description": "The least sizes of what a person presses. minimum is the least height (and, for an icon-only control, width) anything pressable is drawn at; touch and pointer are the least hit areas, which a control reaches past what it draws where it stands alone.",
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product is used by touch and by pointer, which need different minimum hit areas, and needs spacing between targets.",
+            "rationale": "One product decides the least size it draws anything a person presses at, is used by touch and by pointer, which may take a press from larger areas than that, and needs spacing between targets.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Minimum interactive target sizes (touch, pointer) and the spacing between targets. The hit area grows to these without changing how large a control looks.",
+            "usage": "The least drawn size of anything pressable (minimum), the least hit areas (touch, pointer) and the spacing between targets. Every height of a pressable box or row is derived with min: sys.target.minimum, so no density or size step draws it lower; a hit area grows to touch or pointer without changing how large a control looks.",
             "rules": [
-              "Never shrink a hit area below these to fit a layout."
+              "Never shrink a hit area below these to fit a layout.",
+              "minimum is the developer's value: set it in a layer; no dial scales it."
             ]
           }
         },
@@ -138,6 +139,18 @@
             }
           }
         },
+        "minimum": {
+          "$value": {
+            "value": 32,
+            "unit": "px"
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "The developer's value: a floor that shrank with the dials it floors would be no floor."
+            }
+          },
+          "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
+        },
         "spacing": {
           "$value": {
             "value": 8,
@@ -148,6 +161,99 @@
               "fn": "mul",
               "of": "{tanrei.dial.size.unit}",
               "by": 2
+            }
+          }
+        }
+      },
+      "control": {
+        "$type": "dimension",
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product draws its controls at a few heights, the same for every control of one size name, and moves them all with one density.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "The control height ladder: extra-small 24, small 32, medium 40, large 56, extra-large 72 at density 1, each dial.size.unit × a step × dial.density rounded to dial.size.unit. A component height of one of these sizes aliases its step, with min: sys.target.minimum where a person presses it.",
+            "rules": [
+              "The ladder itself has no minimum: extra-small is for things nobody presses (a tag, a keyboard shortcut). A pressable height reads a step through { \"fn\": \"mul\", \"of\": \"{step}\", \"by\": 1, \"min\": \"{tanrei.sys.target.minimum}\" }."
+            ]
+          }
+        },
+        "height": {
+          "$description": "The heights a control is drawn at, one per size name, on the size unit's grid and moved by the density.",
+          "extra-small": {
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
+              }
+            }
+          },
+          "small": {
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
+              }
+            }
+          },
+          "medium": {
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
+              }
+            }
+          },
+          "large": {
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
+              }
+            }
+          },
+          "extra-large": {
+            "$value": {
+              "value": 72,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 18,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
+              }
             }
           }
         }

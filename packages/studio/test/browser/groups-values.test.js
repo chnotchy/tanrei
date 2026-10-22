@@ -44,7 +44,7 @@ studioTest('Essentials: a brand color and the sliders reach the file and the pre
 studioTest('Groups: a dial keeps its reason; palettes are added, recolored and removed; the tone table fixes single tones', {}, async ({ page, level, saved, onDisk, css, scope, lightPane }) => {
   await level('groups');
   assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['base', 'dials', 'color', 'typefaces', 'icons', 'shape', 'behavior', 'components', 'add', 'about']);
-  assert.equal(await page.locator('[data-dials] [data-dial]').count(), 7, 'all seven dials');
+  assert.equal(await page.locator('[data-dials] [data-dial]').count(), 8, 'all eight dials');
 
   // A dial: typed, with a reason of its own; reset removes the entry.
   const shape = page.locator('[data-dial="tanrei.dial.shape.unit"]');

@@ -1,8 +1,9 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, svg } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, OpenAxesController, VisibilityController, hostAria, report } from '../../primitives/index.js';
 import type { TanreiLoadingIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './loading-indicator.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLoadingIndicatorSize = keyof TanreiLoadingIndicatorSizeRegistry;
@@ -50,7 +51,7 @@ interface Run {
  * @csspart container - The raised circle behind the indicator (filled only when contained).
  * @csspart indicator - The turning arc.
  */
-export class TanreiLoadingIndicator extends LitElement {
+export class TanreiLoadingIndicator extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'loading-indicator');
   static override styles = styles;
 

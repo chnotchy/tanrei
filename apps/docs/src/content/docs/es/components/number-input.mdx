@@ -2,7 +2,7 @@
 title: Entrada numérica
 description: La caja de un número (escrito en la forma de la configuración regional o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), sin fila de etiqueta, ayuda ni texto de error propios. Para un número cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ En la web es `<tanrei-number-input>`. Las demás plataformas todavía no la han 
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="Escala" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
@@ -99,7 +100,7 @@ Un control deslizante es para un valor que se elige a ojo, y una entrada numéri
 Un campo alrededor de una entrada numérica es un campo numérico escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value`, los límites y la unidad, en la entrada.
 
 ```html
-<tanrei-field label="Cantidad" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Cantidad" required required-text="Obligatorio"
   supporting-text="Hasta 99 por pedido.">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Introduce un número."
     increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
@@ -107,7 +108,7 @@ Un campo alrededor de una entrada numérica es un campo numérico escrito por ex
 ```
 
 <DemoFrame label="Un campo con una entrada numérica dentro: la misma imagen que un campo numérico" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" requirement="required" required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" required required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
     <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -147,7 +148,7 @@ Un número y su unidad son una sola pieza de escritura. El prefijo se escribe an
 | Contiene | El valor, los límites y el paso, su lugar en un formulario, los eventos | Nada |
 | Dice a la tecnología de apoyo | Un botón de número (spin button): su valor, sus límites, el texto de su valor | El nombre, la ayuda o el texto de error, obligatorio, no válido, deshabilitado |
 
-Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los de la entrada de texto, y la caja se dibuja y se mide como la [entrada de texto](/es/components/text-input/) de la misma variante y el mismo tamaño. El sistema predeterminado solo incluye `stacked`.
+Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (56), son los de la entrada de texto, y la caja se dibuja y se mide como la [entrada de texto](/es/components/text-input/) de la misma variante y el mismo tamaño. El sistema predeterminado solo incluye `stacked`.
 
 Los dos botones de paso son Buttons de texto de tamaño mediano, uno junto al otro. En el sistema predeterminado ocupan 88 del ancho de la caja, y cada uno es un objetivo táctil completo. Nunca se dibujan más pequeños ni se apilan: donde una fila no puede permitírselos, desactívalos. Las teclas siguen dando los pasos. Se dibujan con los propios tokens del Button, y nunca están en error.
 

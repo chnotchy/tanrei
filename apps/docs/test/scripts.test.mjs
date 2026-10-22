@@ -2,9 +2,10 @@
 //
 // A page defines the elements it draws, and no others: a script of the site imports the module of each element it
 // needs (`@tanrei/web/components/<name>`), and lib/register-web.ts defines the elements of a page's demos from the
-// table of the package's manifest (lib/element-modules.mjs, lib/define-on-demand.ts). The package's entry
-// (`@tanrei/web`) imports every module of the package — about 2.4 MB, 540 KB compressed — so no script of the site
-// imports it, but for the console's `await tanrei`, which fetches it only when a person asks for it.
+// table of the package's manifest (lib/element-modules.mjs, lib/define-on-demand.ts). The package's entries
+// (`@tanrei/web`, a system's `@tanrei/web/<id>`, `@tanrei/web/all`) import every module of their system — about
+// 2.4 MB, 540 KB compressed — so no script of the site imports one, but for the console's `await tanrei`, which
+// fetches `@tanrei/web/all` only when a person asks for it.
 //
 // What a built page then asks for and defines is asked of a browser in test/browser/scripts.test.mjs.
 //
@@ -29,19 +30,24 @@ const rel = (file) => path.relative(docs, file);
 /** Every tag the package's manifest declares. */
 const declared = manifest.modules.flatMap((module) => (module.declarations ?? []).filter((declaration) => declaration.customElement && declaration.tagName).map((declaration) => declaration.tagName));
 
-describe('the package’s entry', () => {
-  test('no script of the site imports it: neither for its elements nor for a function, which its own module exports', () => {
+/** The package's entries: its own, every shipped system's (`@tanrei/web/<id>`, from the generated manifests) and `all`. */
+const generated = path.join(docs, '../../tokens/generated');
+const systemIds = fs.readdirSync(generated).filter((id) => fs.existsSync(path.join(generated, id, 'components.json')));
+const entry = `@tanrei/web(?:/(?:${['all', ...systemIds].join('|')}))?`;
+
+describe('the package’s entries', () => {
+  test('no script of the site imports one: neither for its elements nor for a function, which its own module exports', () => {
     const found = [];
     for (const file of sources) {
-      for (const match of read(file).matchAll(/^\s*import\s+(?!type\b)(?:[^'";]*?\sfrom\s+)?['"]@tanrei\/web['"]/gm)) found.push(`${rel(file)}: ${match[0].trim()}`);
+      for (const match of read(file).matchAll(new RegExp(`^\\s*import\\s+(?!type\\b)(?:[^'";]*?\\sfrom\\s+)?['"]${entry}['"]`, 'gm'))) found.push(`${rel(file)}: ${match[0].trim()}`);
     }
     assert.deepEqual(found, []);
   });
 
-  test('only the console asks for it, when a person does: `await tanrei`', () => {
-    const asking = sources.filter((file) => /import\(\s*['"]@tanrei\/web['"]\s*\)/.test(read(file))).map(rel);
+  test('only the console asks for one, when a person does: `await tanrei`', () => {
+    const asking = sources.filter((file) => new RegExp(`import\\(\\s*['"]${entry}['"]\\s*\\)`).test(read(file))).map(rel);
     assert.deepEqual(asking, ['src/lib/register-web.ts']);
-    assert.match(read(path.join(src, 'lib/register-web.ts')), /Object\.defineProperty\(window, 'tanrei', \{ configurable: true, get: \(\) => import\('@tanrei\/web'\) \}\);/);
+    assert.match(read(path.join(src, 'lib/register-web.ts')), /Object\.defineProperty\(window, 'tanrei', \{ configurable: true, get: \(\) => import\('@tanrei\/web\/all'\) \}\);/);
   });
 
   test('the demos’ elements are defined from the table, and the page’s words are set before any of their modules arrives', () => {
@@ -86,6 +92,19 @@ describe('the table of the module that defines each element', () => {
     assert.equal([...source.matchAll(/^const m\d+ = \(\) => import\("@tanrei\/web\/components\/[a-z-]+"\);$/gm)].length, rows.length);
     for (const [index, { tags }] of rows.entries()) for (const tag of tags) assert.ok(source.includes(`  "${tag}": m${index},`), tag);
     assert.match(source, new RegExp(`^export const modules = ${rows.length};$`, 'm'));
+  });
+
+  test('loads another module of a folder by the folder’s export when the folder’s module re-exports its element', () => {
+    const element = (name, tagName) => ({ kind: 'class', name, customElement: true, tagName });
+    const folder = {
+      modules: [
+        { path: 'src/components/bar/bar-part.ts', declarations: [element('BarPart', 'tanrei-bar-part')] },
+        { path: 'src/components/bar/bar.ts', declarations: [element('Bar', 'tanrei-bar')], exports: [{ kind: 'js', name: 'BarPart', declaration: { name: 'BarPart', module: './bar-part.js' } }] },
+      ],
+    };
+    assert.deepEqual(elementModules(folder), [{ specifier: '@tanrei/web/components/bar', tags: ['tanrei-bar-part', 'tanrei-bar'] }]);
+    const unexported = { modules: [folder.modules[0], { ...folder.modules[1], exports: [] }] };
+    assert.throws(() => elementModules(unexported), /src\/components\/bar\/bar-part\.ts defines tanrei-bar-part/);
   });
 
   test('refuses a module the package has no export for', () => {

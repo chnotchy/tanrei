@@ -14,23 +14,31 @@ export const ELEMENT_MODULES = 'virtual:tanrei-element-modules';
 const RESOLVED = `\0${ELEMENT_MODULES}`;
 
 /**
- * The modules that define elements, from a Custom Elements Manifest: one row for each module, with the package's
- * export that loads it and every tag it defines, in the manifest's order.
- * @param {{ modules?: { path: string, declarations?: { customElement?: boolean, tagName?: string }[] }[] }} manifest
+ * The modules that define elements, from a Custom Elements Manifest: one row for each export of the package that
+ * loads them, with every tag that loading it defines, in the manifest's order.
+ * @param {{ modules?: { path: string, declarations?: { name?: string, customElement?: boolean, tagName?: string }[], exports?: { kind: string, name: string, declaration?: { name: string, module?: string } }[] }[] }} manifest
  * @returns {{ specifier: string, tags: string[] }[]}
  */
 export function elementModules(manifest) {
-  const rows = [];
-  for (const module of manifest.modules ?? []) {
-    const tags = (module.declarations ?? []).filter((declaration) => declaration.customElement && declaration.tagName).map((declaration) => declaration.tagName);
-    if (!tags.length) continue;
+  const modules = manifest.modules ?? [];
+  const byPath = new Map(modules.map((module) => [module.path, module]));
+  const rows = new Map();
+  for (const module of modules) {
+    const elements = (module.declarations ?? []).filter((declaration) => declaration.customElement && declaration.tagName);
+    if (!elements.length) continue;
+    const tags = elements.map((declaration) => declaration.tagName);
     // The package exports `./components/<name>` as `dist/components/<name>/<name>.js`: a module that defines an element
-    // is the one of its folder's name. One elsewhere would have no export to load it by, so it is refused here.
+    // is the one of its folder's name, or another module of that folder whose elements the folder's module re-exports
+    // (the toolbar's group, `toolbar-group.ts`), and so imports. One elsewhere would have no export to load it by, so
+    // it is refused here.
     const [, folder, file] = /^src\/components\/([^/]+)\/([^/]+)\.ts$/.exec(module.path) ?? [];
-    if (!folder || file !== folder) throw new Error(`${ELEMENT_MODULES}: ${module.path} defines ${tags.join(', ')}, but @tanrei/web exports only src/components/<name>/<name>.ts as @tanrei/web/components/<name>`);
-    rows.push({ specifier: `@tanrei/web/components/${folder}`, tags });
+    const main = folder && byPath.get(`src/components/${folder}/${folder}.ts`);
+    const reexported = (declaration) => (main?.exports ?? []).some((exported) => exported.kind === 'js' && exported.declaration?.name === declaration.name && exported.declaration?.module === `./${file}.js`);
+    if (!folder || (file !== folder && !elements.every(reexported))) throw new Error(`${ELEMENT_MODULES}: ${module.path} defines ${tags.join(', ')}, but @tanrei/web exports only src/components/<name>/<name>.ts as @tanrei/web/components/<name>, and that module does not re-export it`);
+    const specifier = `@tanrei/web/components/${folder}`;
+    rows.set(specifier, [...(rows.get(specifier) ?? []), ...tags]);
   }
-  return rows;
+  return [...rows].map(([specifier, tags]) => ({ specifier, tags }));
 }
 
 /**

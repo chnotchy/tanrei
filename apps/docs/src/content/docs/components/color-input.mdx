@@ -71,7 +71,8 @@ On the web it is `<tanrei-color-input>`. The other platforms have not implemente
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="Primary, tone 40" value={tone} picker pickerLabel="Choose the color of Primary, tone 40"
       onChange={(event) => setTone(event.currentTarget.value)} />
@@ -84,7 +85,7 @@ On the web it is `<tanrei-color-input>`. The other platforms have not implemente
 A field around a color input is a color field written out. Leave the input's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, `invalidText` and the picker on the input.
 
 ```html
-<tanrei-field label="Brand color" requirement="required" required-text="Required"
+<tanrei-field label="Brand color" required required-text="Required"
   supporting-text="Six hexadecimal digits, like #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="Enter six hexadecimal digits, like #0f766e."
@@ -93,7 +94,7 @@ A field around a color input is a color field written out. Leave the input's own
 ```
 
 <DemoFrame label="A field with a color input in it: the same picture as a color field" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" requirement="required" required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" required required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -126,7 +127,7 @@ The input tells its field what only it knows. The field's help starts where the 
 
 The box itself is the same bare, framed and in a color field, and is described once, on the color field's page: [the parts of the box](/components/color-field/#the-field), [the value and the text](/components/color-field/#the-value-and-the-text), and [the picker](/components/color-field/#the-picker).
 
-The three variants and the three sizes, `small` (40), `medium` (48) and `large` (56), are the text input's. The default system ships `stacked` only. The swatch stands where a text input's leading icon stands, at that icon's size, so a color input under a text input with a leading icon shares its start edges.
+The three variants and the three sizes, `small` (32), `medium` (40) and `large` (56), are the text input's. The default system ships `stacked` only. The swatch stands where a text input's leading icon stands, at that icon's size, so a color input under a text input with a leading icon shares its start edges.
 
 ### Bare, without a field
 

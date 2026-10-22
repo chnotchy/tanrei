@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, focusGlow, focusGlowEnds, focusRing, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -32,24 +32,29 @@ const PARTS = {
   s: 'leading-icon-color',
   t: 'trailing-icon-color',
   r: 'caret-color',
-  // The asterisk after a floating label (TXI-50) and the resize grip (TXI-39).
+  // The asterisk after a floating label (TXI-50).
   ra: 'required-asterisk-color',
-  rg: 'resize-grip-color',
 } as const;
 /** The two looks of each variant (TXI-11): the plain parts, and their `error.` twins while error is true. */
 const LOOKS = { plain: '', error: 'error-' } as const;
-/** The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: font and tracking. */
+/**
+ * The members of the size axis (`dev.tanrei.axes.size.members`). Text styles are used whole: font and tracking. A stacked
+ * field has a height and a block padding of its own, as tall as a Button of the same size (TXI-16).
+ */
 const SIZE_MEMBERS = {
   height: 'container-height',
+  'stacked-height': 'stacked-container-height',
   pad: 'container-padding-inline',
   'pad-icon': 'container-padding-inline-with-icon',
   'pad-block': 'container-padding-block',
+  'stacked-pad-block': 'stacked-container-padding-block',
   'pad-label': 'container-padding-block-with-label',
   gap: 'container-gap',
   label: 'label-typescale',
   floated: 'label-floated-typescale',
   input: 'input-typescale',
   icon: 'icon-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 const TYPESCALES = new Set(['label-typescale', 'label-floated-typescale', 'input-typescale']);
 
@@ -59,11 +64,8 @@ const TYPESCALES = new Set(['label-typescale', 'label-floated-typescale', 'input
  * their colors in each look and state. The select, the combobox, the number input and the color input read the same.
  */
 const BOX = '--tanrei-comp-input-box';
-/** What a text input alone draws: the resize grip, a date or time segment, the code face, the entries place, the motion of a height that follows its text. */
+/** What a text input alone draws: a date or time segment, the code face, the entries place, the motion of a height that follows its text. */
 const OWN = '--tanrei-comp-text-input';
-/** The parts a state recolors that are the text input's own, and not the box's. */
-const OWN_PARTS: ReadonlySet<string> = new Set(['resize-grip-color']);
-const prefixOf = (part: string) => (OWN_PARTS.has(part) ? OWN : BOX);
 // A value the core does not have may be missing from the active design system: fall back to the default's token.
 const ref = (name: (key: string) => string, key: string, fallback: string | null) => (fallback ? `var(${name(key)}, var(${name(fallback)}))` : `var(${name(key)})`);
 
@@ -73,7 +75,7 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
   `${selector} {\n${Object.entries(LOOKS)
     .flatMap(([look, prefix]) =>
       Object.entries(STATES).flatMap(([state, suffix]) =>
-        Object.entries(PARTS).map(([key, part]) => `  --_${look}-${key}${suffix}: ${ref((v) => `${prefixOf(part)}-${v}-${state ? `${state}-` : ''}${prefix}${part}`, variant, fallback)};`),
+        Object.entries(PARTS).map(([key, part]) => `  --_${look}-${key}${suffix}: ${ref((v) => `${BOX}-${v}-${state ? `${state}-` : ''}${prefix}${part}`, variant, fallback)};`),
       ),
     )
     .join('\n')}\n}`;
@@ -209,7 +211,13 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     min-inline-size: 0;
-    transition: opacity var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: opacity var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+  }
+  /* TXI-16: a stacked field is as tall as a Button of the same size, with the block padding that leaves room for its line
+     in that height; a filled or an outlined field keeps the taller height, which holds the label floated in it. */
+  ${unsafeCSS(STACKED)} {
+    --_height: var(--_stacked-height);
+    --_pad-block: var(--_stacked-pad-block);
   }
   /* TXI-51: a filled field that draws its label sets the line under the floated label's band, as a single-line one does —
      centred in what container.height leaves below the band, where that is more than a line. */
@@ -264,7 +272,7 @@ export const styles = css`
     background: var(--_c);
     cursor: text;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: background-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   ${unsafeCSS(FILLED)} .container {
     border-end-start-radius: calc(var(${unsafeCSS(BOX)}-container-shape-bottom) * var(--_corner-scale));
@@ -355,8 +363,8 @@ export const styles = css`
     text-align: start;
     cursor: inherit;
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      caret-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      caret-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* A single line is one line of the input's text style, as the label's and the affixes' beside it are: two engines of
      three give a text input no line shorter than the face's own ("normal"), so with a face whose own line is taller
@@ -403,7 +411,7 @@ export const styles = css`
      the person gave it (manual) or minRows (fixed), which the element writes — never fewer than minRows nor more than
      maxRows (--_rows-min / --_rows-max, on the container). An auto-resized field shows no scrollbar while every line
      fits; beyond maxRows (data-overflows), and in a field whose height does not follow its text, the text scrolls. The
-     browser's own grip is never drawn: the field's is its own part (TXI-39). */
+     browser's own grip is never drawn: the field's is its own resize handle (TXI-39). */
   textarea.input {
     resize: none;
     overflow-y: hidden;
@@ -421,7 +429,7 @@ export const styles = css`
   .field:not([data-resize='auto']) textarea.input {
     overflow-y: auto;
   }
-  /* TXI-38: a change of height that follows the value (or the grip's keys, TXI-41) moves over motion.resize-*; the
+  /* TXI-38: a change of height that follows the value (or the handle's keys, TXI-41) moves over motion.resize-*; the
      element sets data-resizing for that change only, so a changed width or text size changes the height at once.
      TXI-51: the text never moves with it. The box is already as tall as it will be — so nothing scrolls inside it to
      keep the caret in view — and what moves is the room it takes: the margin goes from the difference to nothing, and
@@ -433,8 +441,8 @@ export const styles = css`
   }
   textarea.input[data-resizing]:not([data-resizing='from']) {
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      caret-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      caret-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       margin-block-end var(${unsafeCSS(OWN)}-motion-resize-duration) var(${unsafeCSS(OWN)}-motion-resize-easing),
       clip-path var(${unsafeCSS(OWN)}-motion-resize-duration) var(${unsafeCSS(OWN)}-motion-resize-easing);
   }
@@ -535,12 +543,12 @@ export const styles = css`
     block-size: calc(var(--_rows, var(--_rows-min, 2)) * var(--_input-line) + var(--_bar, 0px));
     max-block-size: calc(var(--_rows-max, 1e5) * var(--_input-line) + var(--_bar, 0px));
   }
-  /* TXI-53: in a right-to-left layout the resize grip (data-axis: a field resized by hand, not disabled) stands in the
-     corner where a line of code begins. The input keeps room after its last line — the grip's size and its inset — that
-     it scrolls through: scrolled to its end, the last line stands above the grip. Room, not height: the box is the
-     lines the field gives it, as in a left-to-right layout. */
+  /* TXI-53: in a right-to-left layout the resize handle (data-axis: a field resized by hand, not disabled) stands in the
+     corner where a line of code begins. The input keeps room after its last line — the handle's box — that it scrolls
+     through: scrolled to its end, the last line stands above the handle. Room, not height: the box is the lines the
+     field gives it, as in a left-to-right layout. */
   :host(:dir(rtl)) .field[data-code][data-axis] textarea.input {
-    padding-block-end: calc(var(${unsafeCSS(OWN)}-resize-grip-size) + var(${unsafeCSS(OWN)}-resize-grip-inset));
+    padding-block-end: var(--tanrei-comp-handle-container-breadth-small);
   }
 
   /* TXI-42: a date, time or date-time field's row of segments, in place of the input: one left-to-right run (dir="ltr"
@@ -558,12 +566,12 @@ export const styles = css`
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     cursor: inherit;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .literal {
     flex: none;
     white-space: pre;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .row[data-empty] .literal {
     color: var(--_h);
@@ -609,7 +617,7 @@ export const styles = css`
   .segment:empty::before {
     content: attr(data-placeholder);
     color: var(--_h);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   /* TXI-43: the focused segment is drawn as selected text — selection.color behind it, and its number or its
      placeholder in selection.content.color. Neither is animated: the pair is readable only together. */
@@ -642,7 +650,7 @@ export const styles = css`
     color: var(--_a);
     white-space: pre;
     line-height: var(--_input-line-height);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .prefix {
     margin-inline-end: var(${unsafeCSS(BOX)}-affix-gap);
@@ -668,7 +676,7 @@ export const styles = css`
   /* TXI-22: the icons, at the size's icon size in the family and fill of an unselected icon, colored by their part, gap
      from the text. A slotted element that is larger (the product's icon button) keeps its own size. TXI-35: iconGlyph()
      mirrors the slotted glyph GlyphMirrorController marked, in right-to-left, in its own box. */
-  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${BOX}-motion-state-duration`, easing: `${BOX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: '--_state-duration', easing: `${BOX}-motion-state-easing` })}
   .icon {
     position: relative;
     display: none;
@@ -682,8 +690,8 @@ export const styles = css`
     overflow: visible;
     cursor: default;
     transition:
-      color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      font-variation-settings var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      font-variation-settings var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .field[data-leading] .leading,
   .field[data-trailing] .trailing {
@@ -782,7 +790,7 @@ export const styles = css`
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
       var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-label-duration),
-      var(${unsafeCSS(BOX)}-motion-label-duration), var(${unsafeCSS(BOX)}-motion-state-duration);
+      var(${unsafeCSS(BOX)}-motion-label-duration), var(--_state-duration);
     transition-timing-function:
       var(${unsafeCSS(BOX)}-motion-label-easing), var(${unsafeCSS(BOX)}-motion-label-easing),
       var(${unsafeCSS(BOX)}-motion-label-easing), var(${unsafeCSS(BOX)}-motion-label-easing),
@@ -887,7 +895,7 @@ export const styles = css`
   .asterisk {
     margin-inline-start: var(${unsafeCSS(BOX)}-requirement-asterisk-gap);
     color: var(--_ra);
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    transition: color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* TXI-26: a stacked field's edge is a line inside the container's edge, following its corners, that takes no layout
@@ -903,8 +911,8 @@ export const styles = css`
     corner-shape: inherit;
     pointer-events: none;
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* The outlined variant's edge (TXI-13, TXI-16): three pieces, so that the floated label opens a gap of
@@ -924,8 +932,8 @@ export const styles = css`
     border-block-width: var(--_ow);
     corner-shape: inherit;
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
   .outline-start {
     flex: none;
@@ -940,8 +948,8 @@ export const styles = css`
     grid-template-columns: minmax(0, 0fr);
     max-inline-size: calc(100% - var(--_pad) - var(--_end));
     transition:
-      border-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      border-width var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      border-width var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
       grid-template-columns var(${unsafeCSS(BOX)}-motion-label-duration) var(${unsafeCSS(BOX)}-motion-label-easing) !important;
   }
   ${unsafeCSS(FLOATED)} .outline-notch {
@@ -978,8 +986,8 @@ export const styles = css`
     background: var(--_i);
     pointer-events: none;
     transition:
-      background-color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
-      block-size var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+      background-color var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing),
+      block-size var(--_state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
   }
 
   /* TXI-7: where the focus style is glow, the glow around the container while the input is focused (no ring ever). */
@@ -987,50 +995,16 @@ export const styles = css`
   /* A filled box's bottom corners are container.shape-bottom's: the glow follows them. */
   ${focusGlowEnds((focus) => (focus === ':focus-visible' ? `${FILLED}:has(${ENTRY_FOCUS}) .container` : `${FILLED}[data-focus-style='glow']:has(${ENTRY_FOCUS}) .container`), `var(${BOX}-container-shape-bottom)`)}
 
-  /* TXI-39: the resize grip of a field resized by hand — a glyph of the icon set at resize-grip.size, resize-grip.inset
-     from the container's bottom edge and from its end edge (the bottom-left corner in right-to-left, TXI-24), in its
-     resize-grip color, over the text and inside a stacked field's inner line. It is never mirrored (TXI-35).
-     TXI-40: its hit area is the minimum target, centred on the glyph and reaching past the container's edges; a fine
-     pointer over it shows the resize cursor of the axes it resizes. TXI-41: keyboard focus is shown around the glyph as
-     the focus style names; focus gained by a pointer is not, and there is no state layer and no pressed answer. */
-  ${iconGlyph('.grip-glyph', { size: `${OWN}-resize-grip-size`, selected: '.never-selected', duration: `${BOX}-motion-state-duration`, easing: `${BOX}-motion-state-easing` })}
-  .grip {
+  /* TXI-39: the resize handle of a field resized by hand — a Handle of size small, its box against the container's bottom
+     edge and its end edge (the bottom-left corner in right-to-left, TXI-24), over the text and inside a stacked field's
+     inner line. Everything it draws, its target and its cursor are the Handle's (TXI-40); the field gives it no color.
+     Its box shares the container's corner where arc.radius plus inset is the box's corner (HDL-2). */
+  .resize-handle {
     position: absolute;
     z-index: 2;
-    inset-block-end: var(${unsafeCSS(OWN)}-resize-grip-inset);
-    inset-inline-end: var(${unsafeCSS(OWN)}-resize-grip-inset);
-    display: flex;
-    inline-size: var(${unsafeCSS(OWN)}-resize-grip-size);
-    block-size: var(${unsafeCSS(OWN)}-resize-grip-size);
-    ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
-    color: var(--_rg);
-    cursor: ns-resize;
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: color var(${unsafeCSS(BOX)}-motion-state-duration) var(${unsafeCSS(BOX)}-motion-state-easing);
+    inset-block-end: 0;
+    inset-inline-end: 0;
   }
-  .grip:focus {
-    outline: none;
-  }
-  /* Until the icon set can draw the glyph nothing stands in its place (GlyphDrawnController sets data-drawn): the grip
-     keeps its box, its hit area and its keys. */
-  .grip-glyph {
-    visibility: hidden;
-  }
-  .grip-glyph[data-drawn] {
-    visibility: visible;
-  }
-  .grip-glyph > .ink {
-    display: inline-block;
-  }
-  .field[data-axis='both'] .grip {
-    cursor: nwse-resize;
-  }
-  :host(:dir(rtl)) .field[data-axis='both'] .grip {
-    cursor: nesw-resize;
-  }
-  ${minimumTarget('.grip')}
-  ${focusRing((focus) => `.grip${focus}`)}
   /* TXI-39: what a field resized both ways is never narrower than, beside its paddings and icons: sys.target.touch. */
   .touch-probe {
     position: absolute;
@@ -1071,7 +1045,6 @@ export const styles = css`
     .row,
     .literal,
     .segment::before,
-    .grip,
     .edge,
     .prefix,
     .suffix,
@@ -1094,7 +1067,6 @@ export const styles = css`
     .label,
     .asterisk,
     .row,
-    .grip,
     .prefix,
     .suffix {
       color: FieldText;

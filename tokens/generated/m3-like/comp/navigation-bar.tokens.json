@@ -45,7 +45,6 @@
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
               "Hover, focus and press show on the item container, the box the active indicator has or would have on that destination, never on the whole cell and never on a shape around the content alone.",
               "A look that draws no item container at rest draws none when disabled.",
-              "item.container.width and item.container.height are kept only for platforms that still draw a pill around the icon and label; nothing in the current spec reads them.",
               "Restyle through these tokens in a layer; never fork the component.",
               "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content on that container."
             ]
@@ -121,36 +120,6 @@
         },
         "item": {
           "container": {
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 64,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 16
-                }
-              },
-              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
-            },
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
-                }
-              },
-              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
-            },
             "shape": {
               "$type": "dimension",
               "$value": "{tanrei.sys.shape.corner.full}",
@@ -568,26 +537,26 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a state change takes, and how long the active indicator takes to come to the pointer when a drag is taken away from where it rests."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.travel}",
             "$description": "How long the active indicator takes to slide to the newly selected destination, or to settle or return when a drag of it is released (the covered icon and label follow it over the same time), the icon indicator to grow in and the previous one to fade out, and labels to appear and disappear."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           }
         }
       }

@@ -98,7 +98,8 @@ test.describe('one-time-code field', () => {
         text: [...root.childNodes, ...frame.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim() !== '').length,
         parts: [frame.getAttribute('part'), control.getAttribute('part')],
         exported: [frame.getAttribute('exportparts'), control.getAttribute('exportparts')],
-        // Its own sheet: the host's display and the hidden rule. No token is read and no size, gap or color is named.
+        // Its own sheet: the host's display and the hidden rule, and the rule every element has that starts no transition
+        // while it settles (MOT-3, src/styles/motion.ts), which draws nothing. No token is read and no size, gap or color is named.
         sheet: [...root.adoptedStyleSheets].flatMap((sheet) => [...sheet.cssRules].map((rule) => rule.cssText.replace(/\s+/g, ' '))),
         display: getComputedStyle(el).display,
         widths: [box(el.parentElement!).width - 32, box(el).width, box(frame).width, box(control).width],
@@ -110,7 +111,7 @@ test.describe('one-time-code field', () => {
     expect(made).toMatchObject({ frame: true, control: true, text: 0, parts: ['field', 'one-time-code-input'], display: 'block', delegates: false });
     expect(made.exported).toEqual(['label, label-icon, requirement-label, supporting-text, error-text', 'input, cell, character, caret, separator']);
     expect(made.sheet.join(' ')).not.toContain('--');
-    expect(made.sheet.every((rule) => /^:host(\(.*\))? \{ display: (block|none); \}$/.test(rule)), made.sheet.join(' | ')).toBe(true);
+    expect(made.sheet.every((rule) => /^:host(\(.*\))? \{ display: (block|none); \}$/.test(rule) || /^:host\(\[data-tanrei-settling\][^{]* \{ transition-property: none !important; \}$/.test(rule)), made.sheet.join(' | ')).toBe(true);
     // As wide as its place, the frame as wide as it, and the control filling the frame; as tall as its Field.
     expect(new Set(made.widths).size, `widths ${made.widths.join(', ')}`).toBe(1);
     expect(made.height[0]).toBe(made.height[1]);
@@ -142,7 +143,7 @@ test.describe('one-time-code field', () => {
     test.skip(browserName !== 'chromium', 'the accessibility tree is read over the DevTools protocol');
     await mount(page, [
       ...spec.fixtures,
-      fx('hidden-optional', { labelHidden: true, supportingText: 'Help', requirement: 'optional', optionalText: 'Optional' }),
+      fx('hidden-optional', { labelHidden: true, supportingText: 'Help', required: false, optional: true, optionalText: 'Optional' }),
       fx('read-only', { readOnly: true, value: '123456' }),
       fx('masked', { mask: true, value: '12' }),
     ]);
@@ -166,22 +167,22 @@ test.describe('one-time-code field', () => {
     expect(await host(page, 'supporting').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual([null, null]);
   });
 
-  test('OTF-2: each prop goes unchanged to the member it is from — ten to the Field, six to the One-time-code input — and the input\'s own label, error and disabled are never set: the Field\'s label names it, its error puts it in error and its disabled disables it', async ({ page }) => {
-    await mount(page, [fx('all', { labelHidden: true, supportingText: 'Help', errorText: 'Wrong', error: true, disabled: true, requirement: 'required', requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional', value: '12AB', length: 4, type: 'alphanumeric', groupSize: 2, mask: true, readOnly: true })]);
+  test('OTF-2: each prop goes unchanged to the member it is from — eleven to the Field, six to the One-time-code input — and the input\'s own label, error and disabled are never set: the Field\'s label names it, its error puts it in error and its disabled disables it', async ({ page }) => {
+    await mount(page, [fx('all', { labelHidden: true, supportingText: 'Help', errorText: 'Wrong', error: true, disabled: true, required: true, requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional', value: '12AB', length: 4, type: 'alphanumeric', groupSize: 2, mask: true, readOnly: true })]);
     const given = await host(page, 'all').evaluate((el) => {
       const pick = (element: Element, names: string[]) => Object.fromEntries(names.map((name) => [name, (element as unknown as Record<string, unknown>)[name]]));
       const frame = el.shadowRoot!.querySelector('tanrei-field')!;
       const control = el.shadowRoot!.querySelector('tanrei-one-time-code-input')!;
       const inner = control.shadowRoot!.querySelector('input')!;
       return {
-        frame: pick(frame, ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText']),
+        frame: pick(frame, ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText']),
         control: pick(control, ['value', 'length', 'type', 'groupSize', 'mask', 'readOnly']),
         own: pick(control, ['label', 'error', 'disabled', 'name']),
         attributes: [...control.attributes].map((attribute) => attribute.name).sort(),
         said: { name: inner.getAttribute('aria-label'), invalid: inner.getAttribute('aria-invalid'), disabled: inner.disabled, cellsInError: control.shadowRoot!.querySelector('.field')!.hasAttribute('data-error') },
       };
     });
-    expect(given.frame).toEqual({ label: 'Verification code', labelHidden: true, supportingText: 'Help', errorText: 'Wrong', error: true, disabled: true, requirement: 'required', requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional' });
+    expect(given.frame).toEqual({ label: 'Verification code', labelHidden: true, supportingText: 'Help', errorText: 'Wrong', error: true, disabled: true, required: true, optional: false, requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional' });
     expect(given.control).toEqual({ value: '12AB', length: 4, type: 'alphanumeric', groupSize: 2, mask: true, readOnly: true });
     // Said once, on the frame: the control's own three stay as they were, and it is told by the Field's connection.
     expect(given.own).toEqual({ label: '', error: false, disabled: false, name: '' });
@@ -191,12 +192,12 @@ test.describe('one-time-code field', () => {
 
   test('OTF-2: a value a member does not know is passed on as given and answered by that member, under the member\'s own sentence (FLD-22, OTC-19)', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('unknown', { requirement: 'sometimes', type: 'letters', length: 0 })]);
+    await mount(page, [fx('unknown', { required: true, requiredMark: 'sometimes', type: 'letters', length: 0 })]);
     await settle(page);
-    expect(await field(page, 'unknown').evaluate((el) => (el as HTMLElement & { requirement: string }).requirement)).toBe('sometimes');
+    expect(await field(page, 'unknown').evaluate((el) => (el as HTMLElement & { requiredMark: string }).requiredMark)).toBe('sometimes');
     expect(await input(page, 'unknown').evaluate((el) => [(el as HTMLElement & { type: string }).type, (el as HTMLElement & { length: number }).length])).toEqual(['letters', 0]);
     // The element keeps what it was given; the members answer.
-    expect(await host(page, 'unknown').evaluate((el) => [(el as HTMLElement & { requirement: string }).requirement, (el as HTMLElement & { type: string }).type, (el as HTMLElement & { length: number }).length])).toEqual(['sometimes', 'letters', 0]);
+    expect(await host(page, 'unknown').evaluate((el) => [(el as HTMLElement & { requiredMark: string }).requiredMark, (el as HTMLElement & { type: string }).type, (el as HTMLElement & { length: number }).length])).toEqual(['sometimes', 'letters', 0]);
     expect(await input(page, 'unknown').locator('.cell').count()).toBe(6);
     expect(seen.some((text) => text.includes(`<${FIELD}>`) && text.includes('FLD-22'))).toBe(true);
     expect(seen.filter((text) => text.includes(`<${INPUT}>`) && text.includes('OTC-19'))).toHaveLength(2);
@@ -228,7 +229,7 @@ test.describe('one-time-code field', () => {
   });
 
   test('OTF-4: in a form it is the one control the form meets — it takes name, submits the code alone, an empty string while it holds none and nothing while disabled, resets to the value it was first given, reports a missing value while required and empty and nothing for a code shorter than length; its members add no entry', async ({ page }) => {
-    await page_(page, `<form id="form"><${TAG} id="code" name="code" label="Verification code" requirement="required" value="12"></${TAG}></form>`);
+    await page_(page, `<form id="form"><${TAG} id="code" name="code" label="Verification code" required value="12"></${TAG}></form>`);
     const form = () =>
       page.evaluate(async () => {
         const el = document.getElementById('code') as HTMLElement & { updateComplete: Promise<unknown>; validity: ValidityState; value: string; form: HTMLFormElement };
@@ -240,7 +241,7 @@ test.describe('one-time-code field', () => {
     expect(await form()).toEqual({ entries: ['code=12'], controls: [TAG], mine: true, valid: true, missing: false, short: false });
     await code(page).evaluate((el) => ((el as HTMLElement & { value: string }).value = ''));
     expect(await form()).toMatchObject({ entries: ['code='], valid: false, missing: true });
-    await code(page).evaluate((el) => ((el as HTMLElement & { requirement: string }).requirement = 'none'));
+    await code(page).evaluate((el) => ((el as HTMLElement & { required: boolean }).required = false));
     expect(await form()).toMatchObject({ entries: ['code='], valid: true, missing: false });
     await page.evaluate(() => (document.getElementById('form') as HTMLFormElement).reset());
     expect(await form()).toMatchObject({ entries: ['code=12'] });
@@ -485,7 +486,7 @@ test.describe('one-time-code field', () => {
   });
 
   test('OTF-7: it has no words of its own — the required and the optional text are the Field\'s props, read by the Field: the instance\'s, else the product\'s words of the same name, else none (FLD-24)', async ({ page }) => {
-    await mount(page, [fx('given', { requirement: 'required', requiredText: 'Needed' }), fx('none', { requirement: 'required' }), fx('optional', { requirement: 'optional' })]);
+    await mount(page, [fx('given', { required: true, requiredText: 'Needed' }), fx('none', { required: true }), fx('optional', { required: false, optional: true })]);
     expect(await requirementDrawn(field(page, 'given'))).toMatchObject({ tag: 'Needed', asterisk: false });
     // Tanrei has no word: the asterisk stands in the tag's place, and the control is still required.
     expect(await requirementDrawn(field(page, 'none'))).toMatchObject({ tag: null, asterisk: true });
@@ -568,7 +569,7 @@ test.describe('one-time-code field', () => {
 
   test('no axe violations, light and dark: every fixture, and a field in each condition', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      await mount(page, [...spec.fixtures, fx('optional', { requirement: 'optional', optionalText: 'Optional', supportingText: 'Help' }), fx('read-only', { readOnly: true, value: '123456' }), fx('masked', { mask: true, value: '12' }), fx('label-hidden', { labelHidden: true })], { theme });
+      await mount(page, [...spec.fixtures, fx('optional', { required: false, optional: true, optionalText: 'Optional', supportingText: 'Help' }), fx('read-only', { readOnly: true, value: '123456' }), fx('masked', { mask: true, value: '12' }), fx('label-hidden', { labelHidden: true })], { theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
     }

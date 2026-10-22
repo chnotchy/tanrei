@@ -163,11 +163,20 @@ test('parents: the layers next to the file come with it, read-only, and the Stud
 
 test('SSE: every connection is opened with a single-use ticket; the token never appears in a URL', async () => {
   const urls = [];
-  const spying = createHttpAdapter({ baseUrl: server.origin, token: server.token, retryMs: 50, fetch: (url, init) => (urls.push(String(url)), fetch(url, init)) });
+  /** The streams the server has answered: a ticket is spent when the server opens its stream, not when it is asked for. */
+  const opened = [];
+  const spying = createHttpAdapter({ baseUrl: server.origin, token: server.token, retryMs: 50, fetch: (url, init) => {
+    urls.push(String(url));
+    const response = fetch(url, init);
+    if (String(url).includes('/api/events?ticket=')) response.then((answer) => opened.push({ url: String(url), status: answer.status }), () => {});
+    return response;
+  } });
   const stop = spying.watch(() => {});
   try {
-    assert.ok(await until(() => urls.some((url) => url.includes('/api/events?ticket='))));
-    const stream = urls.find((url) => url.includes('/api/events?ticket='));
+    // Presented before the server has opened the first stream, the ticket would open the test's request instead.
+    assert.ok(await until(() => opened.length > 0), 'the stream is opened');
+    const stream = opened[0].url;
+    assert.equal(opened[0].status, 200, 'with the ticket it was given');
     assert.ok(urls.every((url) => !url.includes(server.token)), 'no request line carries the token');
     assert.equal(urls.filter((url) => url.endsWith('/api/events/ticket')).length, 1);
     // The ticket opened that one stream; presented again — by anyone who saw the URL — it opens nothing.

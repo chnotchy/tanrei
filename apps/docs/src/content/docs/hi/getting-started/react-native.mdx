@@ -2,15 +2,15 @@
 title: React Native
 description: किसी React Native ऐप में Tanrei जोड़ें।
 translationOf: getting-started/react-native.mdx
-sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+sourceHash: 56d00833d4aaf691c31d6cf20eca6ee3e7b8aa51
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react-native` TypeScript में लिखा है और इसमें कोई नेटिव मॉड्यूल नहीं है, इसलिए लिंक करने के लिए कुछ नहीं है और यह Expo के साथ चलता है। यह New Architecture के लिए बना है और इसके लिए React 19 और React Native 0.78 या उसके बाद का वर्शन ज़रूरी है।
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+<ReleaseNotice platform="react-native" registry="npm" pkg="@tanrei/react-native" />
 
 ## इंस्टॉल करें
 
@@ -36,7 +36,7 @@ pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 ```
 
-### पहली रिलीज़ के बाद
+### प्रकाशित होने के बाद
 
 ```sh
 npm install @tanrei/react-native

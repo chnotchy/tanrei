@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { ROOT_SYSTEM } from '../../tokens-build/src/layers.js';
 import { systemAvailability } from './checks.js';
 import { CONFIG, DOCS_PAGES, PLATFORMS, REPO_ROOT, exists, loadSpecs, read } from './conventions.js';
 import { LEVELS, LISTINGS, levelCounts, listingCounts } from './levels.js';
+import { readmeFiles } from './readme.js';
 import { wordsFiles } from './words.js';
 
 const ICON = { planned: '·', lagging: '◌', alpha: '◔', beta: '◑', stable: '●', deprecated: '✕' };
@@ -34,7 +36,9 @@ export function buildStatus() {
     // The level, the members and what else the component is built with: the spec's, and the
     // inventory's level where no spec exists yet.
     // `listing`: whether the component is listed by default, for every reader of this file.
-    return { name: item.name, title: spec?.title ?? item.title, category: item.category, level: spec?.level ?? item.level, listing: spec?.listing ?? item.listing, builtFrom: spec?.builtFrom ?? [], uses: spec?.uses ?? [], hasSpec: Boolean(spec), docs: docsAddress(item.name), platforms };
+    // `layer`: where a component that does not live in the root lives — only the systems that descend from it have it.
+    const layer = spec?.layer ?? item.layer;
+    return { name: item.name, title: spec?.title ?? item.title, category: item.category, level: spec?.level ?? item.level, listing: spec?.listing ?? item.listing, ...(layer && layer !== ROOT_SYSTEM ? { layer } : {}), builtFrom: spec?.builtFrom ?? [], uses: spec?.uses ?? [], hasSpec: Boolean(spec), docs: docsAddress(item.name), platforms };
   });
   const unknown = [...specs.keys()].filter((n) => !rows.some((r) => r.name === n));
   if (unknown.length) throw new Error(`Spec(s) not listed in specs/inventory.json: ${unknown.join(', ')}`);
@@ -138,6 +142,8 @@ export function statusFiles() {
     'docs/status/PARITY.md': paritySheet(),
     // The keys of the product's words and the web's type of them, from the specs' `words` fields.
     ...wordsFiles(),
+    // The status block of each README (readme.js): what is released, and what each platform has.
+    ...readmeFiles(status),
   };
 }
 

@@ -1,0 +1,35 @@
+---
+// A piece of code a docs component writes from the repository's data (a layer's lines, an import), drawn as every
+// fenced block of a page is: Tanrei's Code block, highlighted where the page is built (lib/markdown.mjs does the same
+// for Markdown), with its copy button. The code is the caller's; nothing here knows a name.
+import { highlightToNodes, loadLanguage, type TanreiCodeNode } from '@tanrei/web/highlight';
+
+interface Props {
+  /** The code, as it is to be copied. */
+  code: string;
+  /** Its language, as a fence names it (`js`, `json`, `css`, `html`). */
+  language: string;
+  /** The code block's accessible name, in the page's language (COD-22). */
+  label: string;
+}
+const { code, language, label } = Astro.props;
+
+await loadLanguage(language);
+const nodes = await highlightToNodes(code, language, { lines: {} });
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const attribute = (text: string) => escape(text).replaceAll('"', '&quot;');
+const html = (node: TanreiCodeNode): string =>
+  typeof node === 'string'
+    ? escape(node)
+    : `<${node.name}${Object.entries(node.attributes)
+        .map(([name, value]) => ` ${name}="${attribute(value)}"`)
+        .join('')}>${node.children.map(html).join('')}</${node.name}>`;
+---
+
+<tanrei-code-block language={language} label={label} copy
+  ><pre translate="no" spellcheck="false"><code data-syntax-of={language} set:html={nodes.map(html).join('')} /></pre></tanrei-code-block
+>
+
+<script>
+  import '../lib/register-web';
+</script>

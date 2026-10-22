@@ -113,7 +113,7 @@ The avatar draws the first of these that it has:
 3. The glyph in its `icon` slot.
 4. The system's own glyph: a person for a circle, a neutral mark for a square.
 
-The box keeps its size from the first paint. While a picture loads, the fallback is drawn in its place, and the picture takes over when it arrives. Nothing around the avatar moves. A picture that cannot be loaded leaves the fallback: there is no broken-picture mark, and the avatar does not ask again.
+The box keeps its size from the first paint. While a picture loads, the fallback is drawn in its place, and when the picture arrives it fades in as the fallback fades out. A picture the browser already holds is drawn at once. Nothing around the avatar moves. A picture that cannot be loaded leaves the fallback: there is no broken-picture mark, and the avatar does not ask again.
 
 ### Initials
 

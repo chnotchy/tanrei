@@ -457,13 +457,13 @@ describe('heights and layout (BSH-6 … BSH-8, BSH-12, BSH-24, BSH-26)', () => {
     expect(textStyle(q('text')!)).toMatchObject({ color: painted(tokens.contentColor), fontSize: body.fontSize, lineHeight: body.lineHeight, fontFamily: body.fontFamily });
   });
 
-  test('BSH-12: the handle\'s box — handle.container-width × container-height with container-shape corners, handle.margin-block above and below, centred, in drag-handle.container.color — and the grip centred in it, handle.grip-width × grip-height, grip-shape, in drag-handle.grip.color; it stays out of the scrolled content', async () => {
+  test('BSH-12: the handle\'s box — handle.container-width × container-height with container-shape corners, handle.margin-block above and below, centred, in drag-handle.container.color — and the grip centred in it, handle.grip-width × grip-height with round ends, in drag-handle.grip.color; it stays out of the scrolled content', async () => {
     for (const scheme of ['light', 'dark'] as const) {
       const view = await mountInPlace({}, { theme: scheme });
       expect(viewStyle(q('handle.row')!)).toMatchObject({ alignSelf: 'center', marginVertical: tokens.handleMarginBlock });
       expect(viewStyle(handle())).toMatchObject({ width: tokens.handleContainerWidth, height: tokens.handleContainerHeight, borderRadius: tokens.handleContainerShape, alignItems: 'center', justifyContent: 'center' });
       expect(viewStyle(handle()).backgroundColor).toBe(fill(handleTokens.enabled.containerColor, scheme));
-      expect(viewStyle(q('handle.grip')!)).toMatchObject({ width: tokens.handleGripWidth, height: tokens.handleGripHeight, borderRadius: tokens.handleGripShape, backgroundColor: painted(handleTokens.enabled.gripColor, scheme) });
+      expect(viewStyle(q('handle.grip')!)).toMatchObject({ width: tokens.handleGripWidth, height: tokens.handleGripHeight, borderRadius: tokens.handleContainerShape, backgroundColor: painted(handleTokens.enabled.gripColor, scheme) });
       const ancestors: (string | undefined)[] = [];
       for (let node = handle().parent; node; node = node.parent) ancestors.push(node.props?.testID);
       expect(ancestors).not.toContain(`${ID}.scroll`);

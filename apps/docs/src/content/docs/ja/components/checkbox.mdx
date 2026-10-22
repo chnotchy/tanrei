@@ -2,7 +2,7 @@
 title: チェックボックス
 description: 独立した 1 つの選択をオンまたはオフにします。一部だけがオンになった親の選択や、必須なのに選ばれていない選択も示せます。
 translationOf: components/checkbox.mdx
-sourceHash: 5f5b384760649426cba12f3085fb27fa6c7a5c97
+sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,6 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox disabled checked label="無効、チェック"></tanrei-checkbox>
     <tanrei-checkbox disabled indeterminate label="無効、中間状態"></tanrei-checkbox>
   </div>
+  <tanrei-checkbox readonly checked label="読み取り専用、チェック"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="行を選択"></tanrei-checkbox>
 </DemoFrame>
 
@@ -164,6 +165,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ほかの選択に左右されない選択に使います。いくつ選んでもよい（1 つも選ばなくてもよい）選択肢の一覧や、利用規約への同意のような「はい」か「いいえ」かの 1 つの選択です。選択が反映されるのは、フォームの送信や保存のように、利用者が確定したときです。表の行やリストの項目を選ぶのにも使います。
 
 中間状態は、子の一部だけにチェックが入っている親のチェックボックス（リストの上の「すべて選択」など）のためのものです。利用者が選べる 3 つ目の答えではありません。
+
+### 読み取り専用
+
+読み取り専用のチェックボックスは、読めるが変えられない答えを示します。注文を送る前の確認画面や、一部の人だけが変えられる設定などです。フォーカス順に残り、状態とともに読み取り専用であることが読み上げられ、フォームとともに送信されます。見た目は有効なチェックボックスと同じで、ホバーと押下の反応だけがありません。使えないものではなく、答えとして読めるようにするためです。選択そのものが当てはまらないときは `disabled` を使い、誰もたどる必要がないときは答えを文章で書きます。
 
 ### チェックボックス、ラジオボタン、スイッチの使い分け
 
@@ -197,6 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - ラベルは、描かれていても `labelHidden` で隠されていても、アクセシブルネームになります。描かれたテキストは支援技術から隠すので、名前が読まれるのは 1 度だけです。
 - ラベルをクリックまたはタップするとチェックボックスが切り替わります。ラベルもヒット領域に含まれ、ヒット領域は最小ターゲットを満たします。
 - Space で切り替わります。Enter で切り替わるのは、フォーカスのあるコントロールを Enter で操作するのが慣習のプラットフォーム（Android、tvOS）だけです。Web では Enter はフォームを送信します。
+- `readOnly` の間は、フォーカスでき、状態とともに読み取り専用であることが伝わります。押下、Space、ラベルのクリック、`click()` のどれでも変わらず、ホバーと押下の反応も出ません。Web では値はそのまま送信され、必須でも値がないとは報告しません。HTML の `readonly` はチェックボックスには効かないので、コンポーネントが自分でこれを行います。
 - フォーカスインジケーターは、キーボードフォーカスのときだけ、ボックスの周りに表示します。
 - チェックと横線は支援技術から隠します。チェックありと mixed は状態として読み上げ、グリフの名前から読み上げることはありません。
 - 動きを減らす設定では、新しい状態を変化の直後のフレームで完全に描き、遅らせたり途中の姿を見せたりしません。変化の途中で再び変わったときは、その時点で描かれている姿から続けます。
@@ -207,6 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter、React Native は、まだチェックと横線を独自の印で描き、独自の動きで切り替えます。印専用の太さと、1 つの形として描くボックスにも、まだ対応していません。
+- `readOnly` はいまのところ Web だけにあります。SwiftUI、Compose、Flutter、React Native にはまだありません。
 - `m3-like` では、チェックはアイコンセットのグリフで、フェードインしながら大きくなります。Material はチェックを独自に描き、線をなぞるように描き入れ、横線へと曲げて変えます（mimicry-gaps 台帳 `checkbox-mark-drawn-on`）。
 
 ### 利用者側で行うこと

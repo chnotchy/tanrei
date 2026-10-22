@@ -1,8 +1,9 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, findInteractive, hostAria, report } from '../../primitives/index.js';
 import { type LinkedTabView, type TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsSize, type TanreiTabsVariant } from '../tabs/tabs.js';
 import { tabViewStyles } from './tab-view.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What `change` carries: the value of the panel the user selected or swiped to, which the view's `value` (and its tabs') now holds. */
 export interface TanreiTabViewChangeDetail {
@@ -130,7 +131,7 @@ const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
  * @csspart container - The region that holds the panels and clips them to its corners.
  * @fires {CustomEvent<TanreiTabViewChangeDetail>} change - The user selected another panel — by a tab of the view's own row, or by a swipe: `detail.value` (and the view's and the tabs' `value`) is its value.
  */
-export class TanreiTabView extends LitElement implements LinkedTabView {
+export class TanreiTabView extends TanreiElement implements LinkedTabView {
   private readonly availability = new AvailabilityController(this, 'tab-view');
   static override styles = tabViewStyles;
 

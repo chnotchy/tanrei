@@ -3,6 +3,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   GlyphMirrorController,
   OpenAxesController,
   PressController,
@@ -14,6 +15,7 @@ import {
   answersPress,
   choiceAttribute,
   compChoice,
+  countWork,
   findInteractive,
   hostAria,
   keepInPlace,
@@ -29,12 +31,15 @@ import {
 import type { TanreiTabsSizeRegistry, TanreiTabsVariantRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
-import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
+import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, ORIENTATIONS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (primary, secondary, tonal), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsVariant = keyof TanreiTabsVariantRegistry | (string & {});
 /** The core sizes (small, medium), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsSize = keyof TanreiTabsSizeRegistry | (string & {});
+/** The direction the tabs run (TAB-51): a row, or a column beside the views. */
+export type TanreiTabsOrientation = (typeof ORIENTATIONS)[number];
 /** How a row draws a new selection (TAB-43): `auto` takes the design system's answer, `comp.tabs.motion.transition`. */
 export type TanreiTabsTransition = (typeof TRANSITION_VALUES)[number];
 
@@ -46,9 +51,12 @@ export interface TanreiTabsChangeDetail {
 /**
  * @internal What a linked `<tanrei-tab-view>` offers the row it is linked to (TAB-13, TBV-2, TBV-9): its panel of a
  * value, and a call when the row's selection, its tabs or its panels may have changed. The view links itself with
- * `linkView()`; nothing else implements it.
+ * `linkView()`. The one other holder of panels is a Tanrei element that draws a row together with the panel it
+ * switches (the date-time picker's entry-mode tabs, DTM-13), which links that panel the same way (TAB-42).
  */
-export interface LinkedTabView extends HTMLElement {
+export interface LinkedTabView {
+  /** Whether the holder is in the document: the row uses its panels only while it is. */
+  readonly isConnected: boolean;
   /** The view's panel of `value` — the first with it — or null. */
   panelFor(value: string): HTMLElement | null;
   /**
@@ -86,8 +94,12 @@ interface TabContext {
   secondary: boolean;
   /** The row fills (`fullWidth`): the indicator's box is the tab's whole share (TAB-16). */
   fill: boolean;
+  /** TAB-51: the tabs run in a column: the tab is as wide as it, its content at its start edge, its box inset all round. */
+  vertical: boolean;
   /** The selected tab is disabled, so the indicator is drawn in its disabled color wherever it passes (TAB-6). */
   pillDisabled: boolean;
+  /** TAB-42: the row has no panel, so it is a radio group and the tab a radio, checked while it is selected. */
+  choice: boolean;
 }
 
 /** A box in a tab's own coordinates (or the row's), in CSS px. */
@@ -98,11 +110,20 @@ interface Box {
   h: number;
 }
 
+/** Where the underline is along the row (TAB-16) — or along the column (TAB-53): where it starts and how long it is. */
+interface Line {
+  at: number;
+  length: number;
+}
+
 /** Where the indicator and the underline are, in the row's track coordinates (TAB-16). */
 interface Mark {
   pill: Box;
-  line: { x: number; w: number };
+  line: Line;
 }
+
+/** TAB-16, TAB-53: the edge of a tab the underline lies on: the bottom of a row, the end of a column (left in RTL). */
+type LineEdge = 'bottom' | 'right' | 'left';
 
 /** What the row measures of a tab to place the indicator: the tab, its container (the indicator's box) and its plain content. */
 interface TabParts {
@@ -152,8 +173,8 @@ interface RowDrag {
   pressed: TanreiTab | null;
   /** `taken`: the indicator follows the pointer. `cancelled`: it has returned, and the pointer is still down. */
   state: 'pending' | 'taken' | 'cancelled';
-  /** The pointer's place along the row at its last move (clientX). */
-  x: number;
+  /** The pointer's place along the row at its last move (clientX; clientY along a column, TAB-57). */
+  at: number;
   /** TAB-28: the catch-up from where the indicator rested to the pointer's place, while it runs. */
   catchUp: { animation: Animation; from: Mark } | null;
   /** Where the indicator was last drawn. */
@@ -180,10 +201,10 @@ const HAIR = 0.02;
 const lerp = (a: number, b: number, p: number) => a + (b - a) * p;
 /** Whether two places of the indicator are one, to what a length is written to. */
 const sameMark = (a: Mark, b: Mark) =>
-  (['x', 'y', 'w', 'h'] as const).every((k) => Math.abs(a.pill[k] - b.pill[k]) < 0.01) && Math.abs(a.line.x - b.line.x) < 0.01 && Math.abs(a.line.w - b.line.w) < 0.01;
+  (['x', 'y', 'w', 'h'] as const).every((k) => Math.abs(a.pill[k] - b.pill[k]) < 0.01) && Math.abs(a.line.at - b.line.at) < 0.01 && Math.abs(a.line.length - b.line.length) < 0.01;
 const between = (a: Mark, b: Mark, p: number): Mark => ({
   pill: { x: lerp(a.pill.x, b.pill.x, p), y: lerp(a.pill.y, b.pill.y, p), w: lerp(a.pill.w, b.pill.w, p), h: lerp(a.pill.h, b.pill.h, p) },
-  line: { x: lerp(a.line.x, b.line.x, p), w: lerp(a.line.w, b.line.w, p) },
+  line: { at: lerp(a.line.at, b.line.at, p), length: lerp(a.line.length, b.line.length, p) },
 });
 
 let ids = 0;
@@ -193,6 +214,18 @@ function composedContains(ancestor: Element, node: Node): boolean {
   return false;
 }
 const px = (n: number) => `${Math.round(n * 100) / 100}px`;
+/**
+ * Whether `element` is laid out right to left, asked of the document (`:dir()`, answered from the `dir` attributes
+ * around it) and not of the cascade, so that asking styles nothing; an engine that cannot answer is asked for the
+ * computed value.
+ */
+function rtlOf(element: Element): boolean {
+  try {
+    return element.matches(':dir(rtl)');
+  } catch {
+    return getComputedStyle(element).direction === 'rtl';
+  }
+}
 const num = (n: number) => Math.round(n * 100) / 100;
 
 /** A tab's box and its plain content's box within it, as the row read them, in the row's own pixels. */
@@ -209,7 +242,7 @@ interface TabFrame {
  * as the browser clamps it: at most half of either side), so a browser that interpolates two of these draws what this
  * function gives for the place in between: a slide's frames (TAB-17) are a drag's (TAB-28).
  */
-function pieces(pill: Box, line: { x: number; w: number }, { size, content }: TabFrame, radius: number) {
+function pieces(pill: Box, line: Line, { size, content }: TabFrame, radius: number, edge: LineEdge = 'bottom') {
   // Reaching it by less than what a length is written to (a hundredth of a pixel: two boxes that meet, measured apart)
   // is not reaching it — it would be a hairline of the indicator's color drawn beside the indicator, on its neighbour.
   const reaches = pill.w > HAIR && pill.h > HAIR && pill.x < size.w - HAIR && pill.x + pill.w > HAIR && pill.y < size.h - HAIR && pill.y + pill.h > HAIR;
@@ -220,8 +253,26 @@ function pieces(pill: Box, line: { x: number; w: number }, { size, content }: Ta
     meets: reaches && x < content.w - HAIR && x + w > HAIR && y < content.h - HAIR && y + h > HAIR,
     cover: `inset(${px(pill.y)} ${px(size.w - pill.x - pill.w)} ${px(size.h - pill.y - pill.h)} ${px(pill.x)} round ${px(r)})`,
     plain: `path(evenodd, "M-99999 -99999H99999V99999H-99999Z M${num(x + r)} ${num(y)}H${num(x + w - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w)} ${num(y + r)}V${num(y + h - r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + w - r)} ${num(y + h)}H${num(x + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x)} ${num(y + h - r)}V${num(y + r)}A${num(r)} ${num(r)} 0 0 1 ${num(x + r)} ${num(y)}Z")`,
-    underline: `inset(0 ${px(size.w - line.x - line.w)} 0 ${px(line.x)} round var(--_us) var(--_us) 0 0)`,
+    // The corners that face away from the divider are rounded: the top ones of a row's underline, the start ones of a
+    // column's (TAB-53).
+    underline:
+      edge === 'bottom'
+        ? `inset(0 ${px(size.w - line.at - line.length)} 0 ${px(line.at)} round var(--_us) var(--_us) 0 0)`
+        : `inset(${px(line.at)} 0 ${px(size.h - line.at - line.length)} 0 round ${edge === 'right' ? 'var(--_us) 0 0 var(--_us)' : '0 var(--_us) var(--_us) 0'})`,
   };
+}
+
+/**
+ * What the row has read of its layout in one go (`TanreiTabs.reading`): every box it asked for once, the strip's box,
+ * computed style and scale, the indicator's timing and its corner. Nothing the row writes in between moves a box — a
+ * clip, the visibility of a copy, an animation — except what `boxes()` writes and a scroll, after which it is read
+ * afresh.
+ */
+interface Reading {
+  rects: Map<Element, DOMRect>;
+  strip?: { rect: DOMRect; style: CSSStyleDeclaration; scale: Scale };
+  motion?: { duration: number; easing: string };
+  radius?: number;
 }
 
 /** The slide's own name on every animation of it: the row's clock on the strip, and each tab's pieces (TAB-17). */
@@ -233,7 +284,8 @@ const SLIDE = 'tanrei-tabs-slide';
  * is the Tab stop, and answers its activation.
  *
  * The host carries the tab's semantics — the tab role, its selected state, its position, the number of tabs and its
- * name, its label whether or not the label is drawn — and takes focus itself.
+ * name, its label whether or not the label is drawn — and takes focus itself. In a row without panels it is a radio,
+ * checked while it is selected (TAB-42).
  *
  * A label that does not fit its tab (a row that fills) is truncated with an ellipsis and shown whole in a plain tooltip on
  * hover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.
@@ -243,9 +295,9 @@ const SLIDE = 'tanrei-tabs-slide';
  * @csspart icon - The glyph (hidden from assistive technology).
  * @csspart label - The tab's text.
  * @csspart active-indicator - The indicator's piece on this tab, carrying the covered copy of the icon and label, clipped to where the indicator is (hidden from assistive technology).
- * @csspart underline - The underline's piece on the tab's bottom edge, clipped to where the underline is (hidden from assistive technology).
+ * @csspart underline - The underline's piece on the tab's bottom edge (its end edge in a vertical row), clipped to where the underline is (hidden from assistive technology).
  */
-export class TanreiTab extends LitElement {
+export class TanreiTab extends TanreiElement {
   static override styles = [tabStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -274,7 +326,7 @@ export class TanreiTab extends LitElement {
   disabled = false;
 
   /** What the row says about this tab. */
-  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, pillDisabled: false };
+  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, vertical: false, pillDisabled: false, choice: false };
 
   /** TAB-23: whether a row has told this tab what it is since the tab was last connected. */
   private told = false;
@@ -405,8 +457,9 @@ export class TanreiTab extends LitElement {
     // What the page rounds a box to, read through the scale, is the measurement's and not the content's: a glyph as
     // wide as it is tall is a circle at any scale.
     const circle = content.width <= tall + CIRCLE_SLACK / Math.min(1, scale.x, scale.y);
-    // In a row that fills the box is the tab's whole share (the stylesheet's), whatever the tab holds.
-    const fill = this.context.fill;
+    // In a row that fills the box is the tab's whole share (the stylesheet's), whatever the tab holds; in a column it is
+    // the tab less the inset all round (TAB-52): as wide as the tab, never a circle.
+    const fill = this.context.fill || this.context.vertical;
     const width = fill ? tab : circle ? height : Math.min(tab, Math.max(height, parts.plate.getBoundingClientRect().width / scale.x));
     const round = circle && !fill;
     // The track's inset is the box's own, above and below (the stylesheet's).
@@ -467,13 +520,13 @@ export class TanreiTab extends LitElement {
    * and the covered copy — is clipped to the indicator; the plain content has the same shape cut out, so nothing is
    * drawn twice under a translucent indicator. `null` draws neither.
    */
-  paintIndicator(pill: Box | null, line: { x: number; w: number } | null, size: { w: number; h: number }, content: Box, radius: number) {
+  paintIndicator(pill: Box | null, line: Line | null, size: { w: number; h: number }, content: Box, radius: number) {
     const root = this.renderRoot;
     const cover = root?.querySelector<HTMLElement>('.cover');
     const underline = root?.querySelector<HTMLElement>('.underline');
     const plain = root?.querySelector<HTMLElement>('.tab > .content');
     if (!cover || !underline || !plain) return;
-    const piece = pill && line ? pieces(pill, line, { size, content }, radius) : null;
+    const piece = pill && line ? pieces(pill, line, { size, content }, radius, this.lineEdge) : null;
     // A tab the indicator does not reach draws no copy at all: hidden, not only clipped away, so that nothing reads it as
     // text on the indicator's color (an accessibility checker does not see a clip).
     cover.style.visibility = piece?.reaches ? '' : 'hidden';
@@ -490,17 +543,18 @@ export class TanreiTab extends LitElement {
    * and shows when they are over; while they run the covered layer is drawn on every tab the indicator passes.
    * Returns the animations: the row holds them.
    */
-  slideIndicator(stops: { pill: Box; line: { x: number; w: number } }[], frame: TabFrame, radius: number, timing: KeyframeEffectOptions, start: number | null): Animation[] {
+  slideIndicator(stops: { pill: Box; line: Line }[], frame: TabFrame, radius: number, timing: KeyframeEffectOptions, start: number | null): Animation[] {
     const root = this.renderRoot;
     const cover = root?.querySelector<HTMLElement>('.cover');
     const underline = root?.querySelector<HTMLElement>('.underline');
     const plain = root?.querySelector<HTMLElement>('.tab > .content');
     if (!cover || !underline || !plain) return [];
-    const drawn = stops.map((stop) => pieces(stop.pill, stop.line, frame, radius));
+    const edge = this.lineEdge;
+    const drawn = stops.map((stop) => pieces(stop.pill, stop.line, frame, radius, edge));
     // Everything the indicator passes between its stops: the box around them all.
     const [left, right] = [Math.min(...stops.map((stop) => stop.pill.x)), Math.max(...stops.map((stop) => stop.pill.x + stop.pill.w))];
     const [top, bottom] = [Math.min(...stops.map((stop) => stop.pill.y)), Math.max(...stops.map((stop) => stop.pill.y + stop.pill.h))];
-    const passed = pieces({ x: left, y: top, w: right - left, h: bottom - top }, stops[0].line, frame, 0);
+    const passed = pieces({ x: left, y: top, w: right - left, h: bottom - top }, stops[0].line, frame, 0, edge);
     // Every tab is given the indicator's and the underline's clip — each draws its piece of one box, wherever the box
     // is — and the tabs the indicator passes draw their covered layer while it slides, with its shape cut out of their
     // plain content.
@@ -518,7 +572,12 @@ export class TanreiTab extends LitElement {
     });
   }
 
-  /** @internal The indicator's corner as drawn on this tab, in px (TAB-16). */
+  /** TAB-16, TAB-53: the edge the underline's piece lies on — the bottom of a row's tab, the end of a column's. */
+  private get lineEdge(): LineEdge {
+    return this.context.vertical ? (rtlOf(this) ? 'left' : 'right') : 'bottom';
+  }
+
+  /** @internal The indicator's corner as drawn on this tab, in px (TAB-16). The row reads it once for each reading. */
   get indicatorRadius(): number {
     const plate = this.renderRoot?.querySelector('.plate');
     return plate ? Number.parseFloat(getComputedStyle(plate).borderTopLeftRadius) || 0 : 0;
@@ -547,6 +606,19 @@ export class TanreiTab extends LitElement {
 
   private get tooltip(): TanreiTooltip | null {
     return this.renderRoot?.querySelector<TanreiTooltip>('.tip') ?? null;
+  }
+
+  /**
+   * TAB-14, TAB-25: whether what the row told the tab may cut its label anew: the first the tab is told, its structure
+   * (secondary), whether the row fills — or, in a row that fills, its selection, whose heavier weight (TAB-50) may not
+   * fit the share where the lighter one did. A row that hugs never cuts a label, so a selection that moves along it
+   * measures none.
+   */
+  private labelRoomChanged(changed: PropertyValues<this>): boolean {
+    if (!changed.has('context' as keyof TanreiTab)) return false;
+    const before = changed.get('context' as keyof TanreiTab) as TabContext | undefined;
+    const now = this.context;
+    return !before || before.secondary !== now.secondary || before.fill !== now.fill || (now.fill && before.selected !== now.selected);
   }
 
   /** TAB-1: Enter activates on key-down and Space on key-up, as a native button does; the activation is a click. */
@@ -610,13 +682,15 @@ export class TanreiTab extends LitElement {
     if (!label) this.truncated = false;
     else if (reported) {
       // Measured in the coming frame.
-    } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (changed.has('context' as keyof TanreiTab) && !this.labelDeferred)) this.measureTruncation();
-    const { selected, tabStop, position, size } = this.context;
+    } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (this.labelRoomChanged(changed) && !this.labelDeferred)) this.measureTruncation();
+    const { selected, tabStop, position, size, choice } = this.context;
     // TAB-2, TAB-12, TAB-13: the tab role, its selection, position and name; one Tab stop per row; a disabled tab takes
-    // no focus at all, so a pointer cannot focus it either.
+    // no focus at all, so a pointer cannot focus it either. TAB-42: in a row without panels, the radio role and its
+    // checked state instead.
     hostAria(this, {
-      role: 'tab',
-      'aria-selected': String(selected),
+      role: choice ? 'radio' : 'tab',
+      'aria-selected': choice ? null : String(selected),
+      'aria-checked': choice ? String(selected) : null,
       'aria-disabled': this.disabled ? 'true' : null,
       'aria-label': this.label || null,
       'aria-posinset': position ? String(position) : null,
@@ -638,7 +712,7 @@ export class TanreiTab extends LitElement {
   }
 
   protected override render() {
-    const { selected, secondary, fill, pillDisabled, position, size } = this.context;
+    const { selected, secondary, fill, vertical, pillDisabled, position, size } = this.context;
     // TAB-18: where style queries are missing, the size's icon placement is read here for the same rules.
     const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
@@ -651,7 +725,7 @@ export class TanreiTab extends LitElement {
     // assistive technology, so each label is exposed once.
     return html`
       <div
-        class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, stacked: !secondary && icon && label })}
+        class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, vertical, stacked: !secondary && !vertical && icon && label })}
         data-placement=${placement ?? nothing}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -681,7 +755,7 @@ export class TanreiTab extends LitElement {
  * @tag tanrei-tab-panel
  * @slot - The view.
  */
-export class TanreiTabPanel extends LitElement {
+export class TanreiTabPanel extends TanreiElement {
   static override styles = panelStyles;
 
   static override properties: PropertyDeclarations = {
@@ -747,6 +821,9 @@ export class TanreiTabPanel extends LitElement {
  * selects the first enabled tab. The row sets it when a tab is activated — by pointer, touch, Enter, Space, or the arrow
  * keys, which select the tab they reach (automatic activation) — and then fires `change`.
  *
+ * A row with panels is a tab list. A row without them — one choice among a few, whose result the product draws on
+ * `change` — is a radio group named by `label`, its tabs radios, and every arrow key moves and selects (TAB-42).
+ *
  * Three variants say how much the selection weighs — `primary`, `secondary`, and `tonal`, the quiet row whose indicator
  * is a soft layer under a darker label — and are one control in everything else. `size` is the row's height (`medium`,
  * the default, and `small`, which stands in a header beside small controls: it stays as low as it is, and a press just
@@ -777,13 +854,13 @@ export class TanreiTabPanel extends LitElement {
  *
  * @tag tanrei-tabs
  * @slot - `<tanrei-tab>` children (the tabs) and `<tanrei-tab-panel>` children (the panels).
- * @csspart tablist - The row that holds the tabs: the tab list.
- * @csspart scroller - The box that lays the tabs out and scrolls them sideways when they do not fit; it is also the track.
+ * @csspart tablist - The row that holds the tabs: the tab list, or the radio group of a row without panels (TAB-42).
+ * @csspart scroller - The box that lays the tabs out and scrolls them sideways (up and down in a vertical row) when they do not fit; it is also the track.
  * @csspart track - The constant background of the whole row (the same element as `scroller`): its color and its corners.
- * @csspart divider - The line along the bottom of the whole row.
+ * @csspart divider - The line along the bottom of the whole row (along its end edge in a vertical row).
  * @fires {CustomEvent<TanreiTabsChangeDetail>} change - The user selected another tab: `detail.value` (and the row's `value`) is its value.
  */
-export class TanreiTabs extends LitElement {
+export class TanreiTabs extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tabs');
   static override styles = [tabsStyles, hiddenHost];
 
@@ -795,6 +872,7 @@ export class TanreiTabs extends LitElement {
     size: { type: String, reflect: true },
     track: { reflect: true, converter: choiceAttribute },
     fullWidth: { type: Boolean, attribute: 'full-width', reflect: true },
+    orientation: { type: String, reflect: true },
     value: { type: String },
     transition: { type: String, reflect: true },
     label: { type: String },
@@ -830,6 +908,15 @@ export class TanreiTabs extends LitElement {
    * fit its share, showing it whole in a tooltip (for two to five short labels).
    */
   fullWidth = false;
+
+  /**
+   * The direction the tabs run. `horizontal` (the default) is a row above the views. `vertical` stacks the tabs in a
+   * column at the start edge, beside the views — the categories of a settings page or a dialog — every tab as wide as
+   * the column, its icon before its label; Down and Up Arrow move between them, the tabs scroll up and down when they
+   * do not fit the row's height, and `fullWidth` does not apply. It switches views of one subject, as a row does; moving
+   * between the destinations of an app is the navigation drawer's. Any other value is horizontal.
+   */
+  orientation: TanreiTabsOrientation = 'horizontal';
 
   /**
    * The value of the selected tab; `null` selects the first enabled tab. The row sets it when a tab is activated. While
@@ -907,7 +994,7 @@ export class TanreiTabs extends LitElement {
     if (offset) this.cancelDrag(false);
     // TAB-26: no motion of their own — a running slide (TAB-17) ends where the offset puts them.
     this.stopSliding();
-    this.draw(this.at(this.selectedTab));
+    this.readOnce(() => this.draw(this.at(this.selectedTab)));
   }
 
   /** TAB-13, TBV-9: the Tab view linked to this row, whose panels take the place of the row's own. */
@@ -920,7 +1007,26 @@ export class TanreiTabs extends LitElement {
   private readonly axes = new OpenAxesController(this, { component: 'tabs', behavior: 'TAB-7', axes: AXES });
 
   private readonly keys = new RovingKeys({ wrap: true });
-  private readonly children$ = new MutationObserver(() => this.sync());
+  /**
+   * The re-read of the tabs and panels (`sync()`), once per turn however many of them said they changed in it: a row of
+   * N tabs built, or N labels changed at once, re-reads its N tabs once — not once per tab, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the tabs' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
+  /**
+   * TAB-14, TAB-16: whether what the tabs' containers are sized from may have changed since the row last sized them —
+   * a tab, a panel, the row's own props, its link — so that the next re-read sizes them again. A new selection alone
+   * changes no tab's size (TAB-50), and is not re-sized: what does change a size later (a font, the text size) is seen
+   * by the resize observer.
+   */
+  private reshaped = true;
+  /** A tab or a panel said it changed, or the children did: the row re-reads them, and sizes them again. */
+  private readonly itemsChanged = () => {
+    this.reshaped = true;
+    this.syncs.request();
+  };
+  private readonly children$ = new MutationObserver(this.itemsChanged);
   /**
    * TAB-15, TAB-17: a change of size or place (a font arriving, the text size, the row resizing) puts things back at
    * once. One observer for every row (TAB-41): the rows that changed in a frame are told together, so that they are
@@ -982,13 +1088,15 @@ export class TanreiTabs extends LitElement {
 
   constructor() {
     super();
+    // Before every handler below: a tab that changed in this task is read as it is now.
+    for (const type of ['keydown', 'click', 'pointerdown', 'focusin']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown);
     this.addEventListener('click', this.onClickCapture, { capture: true });
     this.addEventListener('click', this.onClick);
     this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('lostpointercapture', this.onLostCapture);
     this.addEventListener('focusin', this.onFocusIn);
-    this.addEventListener('tanrei-tab-update', () => this.sync());
+    this.addEventListener('tanrei-tab-update', this.itemsChanged);
   }
 
   override connectedCallback() {
@@ -1000,7 +1108,8 @@ export class TanreiTabs extends LitElement {
     if (this.hasUpdated) this.observe(null, this.strip, this.scroller);
     // TAB-36, TAB-39: a row that enters the document joins its group and takes its choice before it is drawn.
     this.followGroup();
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   override disconnectedCallback() {
@@ -1024,7 +1133,8 @@ export class TanreiTabs extends LitElement {
   linkView(view: LinkedTabView) {
     if (this.linked === view) return;
     this.linked = view;
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** @internal TBV-16: the Tab view that draws this row as its own (null: none); it announces the row's selections (TBV-18). */
@@ -1036,7 +1146,8 @@ export class TanreiTabs extends LitElement {
   unlinkView(view: LinkedTabView) {
     if (this.linked !== view) return;
     this.linked = null;
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** @internal The linked Tab view, if it is connected. */
@@ -1051,7 +1162,8 @@ export class TanreiTabs extends LitElement {
 
   /** @internal The panels changed in the linked view: the tabs control them anew (TAB-13). */
   relink() {
-    this.sync();
+    this.reshaped = true;
+    this.syncs.now();
   }
 
   /** The row's tabs, in order. */
@@ -1062,6 +1174,17 @@ export class TanreiTabs extends LitElement {
   private get panels(): TanreiTabPanel[] {
     return [...this.children].filter((child): child is TanreiTabPanel => child instanceof TanreiTabPanel);
   }
+
+  /**
+   * TAB-13, TAB-42: whether the row has a panel — one of its own, or, where a Tab view (or the element that draws the
+   * row with its panel) is linked, its panel of one of the tabs' values. A row with none is a radio group.
+   */
+  private holdsPanel(view: LinkedTabView | null, panels: TanreiTabPanel[], tabs: TanreiTab[]): boolean {
+    return view ? tabs.some((tab) => !!tab.value && !!view.panelFor(tab.value)) : panels.length > 0;
+  }
+
+  /** TAB-42: the row has no panel, so it is exposed as a radio group — as it was last drawn. */
+  private choice = false;
 
   private get scroller(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.scroller') ?? null;
@@ -1085,6 +1208,27 @@ export class TanreiTabs extends LitElement {
     const tabs = this.tabs;
     if (this.value === null || this.value === undefined) return tabs.find((tab) => !tab.disabled) ?? null;
     return tabs.find((tab) => tab.value === this.value) ?? null;
+  }
+
+  /** TAB-51, TAB-60: whether the tabs run in a column: `orientation` is exactly `vertical`; any other value is a row. */
+  private get vertical(): boolean {
+    return this.orientation === 'vertical';
+  }
+
+  /** How far the tabs are scrolled along the row's axis (TAB-15, TAB-56). */
+  private scrolled(scroller: HTMLElement): number {
+    return this.vertical ? scroller.scrollTop : scroller.scrollLeft;
+  }
+
+  /** Scrolls the tabs to `to` along the row's axis (TAB-15, TAB-56). */
+  private setScroll(scroller: HTMLElement, to: number) {
+    if (this.vertical) scroller.scrollTop = to;
+    else scroller.scrollLeft = to;
+  }
+
+  /** A box on the page along the row's axis: its start, its end and its length (left to right, or top to bottom). */
+  private span(rect: DOMRectReadOnly): { start: number; end: number; length: number } {
+    return this.vertical ? { start: rect.top, end: rect.bottom, length: rect.height } : { start: rect.left, end: rect.right, length: rect.width };
   }
 
   /** The tab an event came from. */
@@ -1124,7 +1268,7 @@ export class TanreiTabs extends LitElement {
     if (group) group.choice = value;
     this.value = value;
     this.known = value;
-    if (now) this.sync();
+    if (now) this.syncs.now();
     // TAB-40: the followers' panels have changed in this task; where `hold` is now is read with everything else the
     // followers read, once, before the frame is drawn. (The row acted on is drawn first: a Tab view that starts its
     // switch measures itself, and does so before anything else is written.)
@@ -1210,7 +1354,7 @@ export class TanreiTabs extends LitElement {
   private followNow(together: Following[]) {
     if (!this.adopt() || !this.hasUpdated) return;
     this.following = together;
-    this.sync();
+    this.syncs.now();
     this.following = null;
     this.followed = this.value;
   }
@@ -1277,14 +1421,13 @@ export class TanreiTabs extends LitElement {
   private placing(selected: TanreiTab | null, measured: boolean): () => void {
     const scroller = this.scroller;
     const scrolls = measured && this.scrolls;
-    const draw = this.drawing(this.at(selected));
-    const to = this.revealing(selected);
+    const [draw, to] = this.readOnce(() => [this.drawing(this.at(selected)), this.revealing(selected)] as const);
     return () => {
       if (measured) scroller?.classList.toggle('scrolls', scrolls);
       draw();
       if (to === null || !scroller) return;
       this.stopScrolling();
-      scroller.scrollLeft = to;
+      this.setScroll(scroller, to);
     };
   }
 
@@ -1296,14 +1439,18 @@ export class TanreiTabs extends LitElement {
 
   /**
    * TAB-12: Right and Left Arrow move to the next and previous enabled tab, wrapping (mirrored in right-to-left), Home and
-   * End to the first and last; each move selects the tab it reaches. Disabled tabs are skipped (TAB-2).
+   * End to the first and last; each move selects the tab it reaches. Disabled tabs are skipped (TAB-2). TAB-54: in a
+   * column Down and Up Arrow do, and Right and Left do nothing. TAB-42: in a row without panels, a radio group, every
+   * arrow moves, in either orientation.
    */
   private readonly onKeyDown = (event: KeyboardEvent) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const tab = this.tabOf(event);
     if (!tab || event.composedPath()[0] !== tab) return;
-    const rtl = getComputedStyle(this).direction === 'rtl';
-    const keys: Record<string, string> = { ArrowRight: rtl ? 'ArrowUp' : 'ArrowDown', ArrowLeft: rtl ? 'ArrowDown' : 'ArrowUp', Home: 'Home', End: 'End' };
+    const across = rtlOf(this) ? { ArrowRight: 'ArrowUp', ArrowLeft: 'ArrowDown' } : { ArrowRight: 'ArrowDown', ArrowLeft: 'ArrowUp' };
+    const along = { ArrowDown: 'ArrowDown', ArrowUp: 'ArrowUp' };
+    const ends = { Home: 'Home', End: 'End' };
+    const keys: Record<string, string> = this.choice ? { ...across, ...along, ...ends } : this.vertical ? { ...along, ...ends } : { ...across, ...ends };
     const key = keys[event.key];
     if (!key) return;
     const tabs = this.tabs;
@@ -1315,15 +1462,24 @@ export class TanreiTabs extends LitElement {
     if (target === null) return;
     event.preventDefault();
     const next = tabs[target];
-    // The focus moves without the browser's own jump; the row brings the tab into view over its motion (TAB-15).
-    next.focus({ preventScroll: true });
+    // The focus moves without the browser's own jump; the row brings the tab into view over its motion (TAB-15) — as it
+    // draws the selection the move makes, from the same reading of the row, where the move selects another tab.
+    this.selecting = next === this.selectedTab ? null : next;
+    try {
+      next.focus({ preventScroll: true });
+    } finally {
+      this.selecting = null;
+    }
     this.select(next);
   };
+
+  /** TAB-12, TAB-15: the tab a key moves focus to and is about to select: its selection brings it into view. */
+  private selecting: TanreiTab | null = null;
 
   /** TAB-15: a tab that receives keyboard focus is brought into view. */
   private readonly onFocusIn = (event: FocusEvent) => {
     const tab = this.tabOf(event);
-    if (tab && tab.matches(':focus-visible')) this.reveal(tab, true);
+    if (tab && tab !== this.selecting && tab.matches(':focus-visible')) this.reveal(tab, true);
   };
 
   /**
@@ -1332,6 +1488,7 @@ export class TanreiTabs extends LitElement {
    */
   private sync() {
     if (!this.hasUpdated) return;
+    countWork('tabs.sync');
     this.syncChoices();
     // TAB-36: a row that gained a tab of its group's choice, or had one enabled, has it selected in this frame.
     this.adopt();
@@ -1350,15 +1507,22 @@ export class TanreiTabs extends LitElement {
 
     const selected = this.selectedTab;
     if (this.value !== null && this.value !== undefined && !selected && tabs.length) report(this, 'TAB-11', `value "${this.value}" names no tab; none is drawn selected`);
-    const values = tabs.map((tab) => tab.value);
-    for (const tab of tabs) if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
-    for (const value of new Set(values.filter(Boolean))) {
-      if (values.filter((each) => each === value).length > 1) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
+    // Each value's first tab and first panel, looked up once each: a row of N tabs is read in O(N), never a search of
+    // every tab for each tab or panel.
+    const tabOfValue = new Map<string, TanreiTab>();
+    const repeated = new Set<string>();
+    for (const tab of tabs) {
+      if (!tab.value) report(this, 'TAB-11', `the tab "${tab.label}" has an empty value; it cannot be selected by value`);
+      else if (tabOfValue.has(tab.value)) repeated.add(tab.value);
+      else tabOfValue.set(tab.value, tab);
     }
+    for (const value of repeated) report(this, 'TAB-11', `the value "${value}" is given to more than one tab; the first of them is the one it selects`);
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
-    const fill = this.fullWidth;
+    // TAB-56: a column does not fill.
+    const vertical = this.vertical;
+    const fill = this.fullWidth && !vertical;
     // TAB-30: the product set the selection, or removed or disabled a tab the indicator lies between: the drag is over
     // and the indicator goes to the selected tab — the one just set — from where it is.
     const drag = this.drag;
@@ -1374,11 +1538,20 @@ export class TanreiTabs extends LitElement {
     // TAB-13: where a Tab view is linked, each tab controls the view's panel of its value, and the row's own panels are
     // all hidden (TBV-15: the view reports them).
     const view = this.linkedView;
-    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panels.find((panel) => panel.value === tab.value) : undefined);
+    const panelOfValue = new Map<string, TanreiTabPanel>();
+    for (const panel of panels) if (!panelOfValue.has(panel.value)) panelOfValue.set(panel.value, panel);
+    const ownPanelOf = (tab: TanreiTab) => (tab.value ? panelOfValue.get(tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
+    // TAB-42: a row without panels is a radio group of radios; it becomes a tab list the moment it has a panel, and the
+    // row's own role is drawn again for it.
+    const choice = !this.holdsPanel(view, panels, tabs);
+    if (choice !== this.choice) {
+      this.choice = choice;
+      this.requestUpdate();
+    }
     const appearing: TanreiTab[] = [];
     tabs.forEach((tab, index) => {
-      if (tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, pillDisabled })) appearing.push(tab);
+      if (tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, vertical, pillDisabled, choice })) appearing.push(tab);
       hostAria(tab, { 'aria-controls': panelOf(tab)?.id ?? null });
     });
     // TAB-23: a tab that appears — every tab in the row's first frame, or one added to the row — is drawn as it is at
@@ -1388,7 +1561,7 @@ export class TanreiTabs extends LitElement {
     // TAB-13: the selected tab's panel, named by its tab; the others hidden; a panel with nothing focusable is a Tab stop.
     const shown = selected && !view ? ownPanelOf(selected) : undefined;
     for (const panel of panels) {
-      const tab = tabs.find((each) => each.value && each.value === panel.value);
+      const tab = panel.value ? tabOfValue.get(panel.value) : undefined;
       const focusable = [...panel.children].some((child) => findInteractive(child));
       hostAria(panel, {
         role: 'tabpanel',
@@ -1400,6 +1573,8 @@ export class TanreiTabs extends LitElement {
     const changed = selected !== this.shownTab;
     const from = this.shownTab;
     this.shownTab = selected;
+    const reshaped = this.reshaped;
+    this.reshaped = false;
     // TAB-38: the row follows its group's choice, or one restored from storage: no slide, no color motion, and the
     // tab in view at once. (A drag of its own that the choice ends returns as TAB-30 says.)
     const follows = this.atOnce && changed && !returns;
@@ -1414,8 +1589,10 @@ export class TanreiTabs extends LitElement {
       this.following.push({ row: this, tabs, from, selected });
     }
     // TAB-16, TAB-17: once the tabs have drawn what they are now, the indicator slides to a newly selected tab, or is put
-    // on the selected one at once (the row appearing, a tab or the variant changing).
-    else {
+    // on the selected one at once (the row appearing, a tab or the variant changing). A re-read that changed neither the
+    // selection nor what the tabs are sized from — the update that follows a selection the row drew already — draws
+    // nothing again.
+    else if (changed || reshaped || returns) {
       void Promise.all(tabs.map((tab) => tab.updateComplete)).then(() => {
         const watched = this.observed.size;
         for (const tab of tabs) this.observeTab(tab);
@@ -1432,12 +1609,16 @@ export class TanreiTabs extends LitElement {
           this.awaitsObserver = true;
           return;
         }
-        this.boxes();
-        // TAB-26: a selection made while the indicator is drawn at an offset is placed at once, without a slide.
-        if (!follows && changed && from && selected && from.isConnected && this.mark && this.offset === 0) this.slide(from, selected);
-        else if (returns && selected && this.mark && this.offset === 0) this.slide(null, selected);
-        else this.place();
-        if (changed && selected) this.reveal(selected, !!from && !follows);
+        // TAB-12, TAB-17: a new selection is drawn from one reading of the row — the indicator's slide and the scroll
+        // that brings its tab into view read every box once between them.
+        this.readOnce(() => {
+          if (reshaped) this.boxes();
+          // TAB-26: a selection made while the indicator is drawn at an offset is placed at once, without a slide.
+          if (!follows && changed && from && selected && from.isConnected && this.mark && this.offset === 0) this.slide(from, selected);
+          else if (returns && selected && this.mark && this.offset === 0) this.slide(null, selected);
+          else this.place(false);
+          if (changed && selected) this.reveal(selected, !!from && !follows);
+        });
       });
     }
     // TBV-1, TBV-2: a linked view follows the row's selection — at once where the row itself follows (TBV-20).
@@ -1504,8 +1685,56 @@ export class TanreiTabs extends LitElement {
 
   /** The indicator's timing (TAB-15, TAB-17): the tokens, read through real properties — 0 where motion is reduced. */
   private motion(): { duration: number; easing: string } {
+    if (this.reading?.motion) return this.reading.motion;
     const style = getComputedStyle(this.scroller ?? this);
-    return { duration: (Number.parseFloat(style.animationDuration) || 0) * 1000, easing: style.animationTimingFunction || 'ease' };
+    const motion = { duration: (Number.parseFloat(style.animationDuration) || 0) * 1000, easing: style.animationTimingFunction || 'ease' };
+    if (this.reading) this.reading.motion = motion;
+    return motion;
+  }
+
+  /**
+   * TAB-12, TAB-16, TAB-17: what the row reads of its layout while `run` runs is read once — each box, the strip's style
+   * and scale, the indicator's timing and corner — however many of its steps ask for it (a slide measures its two tabs,
+   * then every tab, then the scroll the tab it goes to; each used to read them again). Nested, it is the outer one.
+   */
+  private readOnce<T>(run: () => T): T {
+    if (this.reading) return run();
+    this.reading = { rects: new Map() };
+    try {
+      return run();
+    } finally {
+      this.reading = null;
+    }
+  }
+
+  /** The reading going on now (`readOnce`), or null: everything is read when it is asked for. */
+  private reading: Reading | null = null;
+
+  /** `element`'s box on the page — once for each reading. */
+  private rect(element: Element): DOMRect {
+    const reading = this.reading;
+    if (!reading) return element.getBoundingClientRect();
+    let rect = reading.rects.get(element);
+    if (!rect) reading.rects.set(element, (rect = element.getBoundingClientRect()));
+    return rect;
+  }
+
+  /** The strip's box on the page, its computed style and the scale it is drawn at (`layoutScale`), once for each reading. */
+  private stripReading(): { rect: DOMRect; style: CSSStyleDeclaration; scale: Scale } | null {
+    const strip = this.strip;
+    if (!strip) return null;
+    const reading = this.reading;
+    if (reading?.strip) return reading.strip;
+    const rect = this.rect(strip);
+    const style = getComputedStyle(strip);
+    const read = { rect, style, scale: layoutScale(strip, rect, style) };
+    if (reading) reading.strip = read;
+    return read;
+  }
+
+  /** Something the row wrote may have moved a box (`boxes()`, a scroll): what the reading holds is read afresh. */
+  private readAgain() {
+    if (this.reading) this.reading = { rects: new Map() };
   }
 
   /**
@@ -1517,9 +1746,11 @@ export class TanreiTabs extends LitElement {
     // is read once more, in the same frame.
     const sizes = this.readBoxes();
     if (!sizes) return;
+    this.readAgain();
     if (this.writeBoxes(sizes)) this.writeBoxes(this.readBoxes());
     const scroller = this.scroller;
     scroller?.classList.toggle('scrolls', this.scrolls);
+    this.readAgain();
   }
 
   /** The reading half of `boxes()`: what every tab says of its container now, or null while the row is drawn flat. */
@@ -1543,6 +1774,15 @@ export class TanreiTabs extends LitElement {
     for (const [name, value] of [['--_reach-start', reach(sizes[0])], ['--_reach-end', reach(sizes[sizes.length - 1])]] as const) {
       if (strip && strip.style.getPropertyValue(name) !== value) strip.style.setProperty(name, value);
     }
+    // TAB-58: a column's track is rounded concentric with the indicator at its ends: the stylesheet takes the
+    // indicator's height at the first and the last tab (the lower of the two) from here.
+    const scroller = this.scroller;
+    const ends = [sizes[0], sizes[sizes.length - 1]].filter((size): size is BoxSize => !!size);
+    const height = this.vertical && ends.length ? px(Math.min(...ends.map((size) => size.height))) : '';
+    if (scroller && scroller.style.getPropertyValue('--_ih') !== height) {
+      if (height) scroller.style.setProperty('--_ih', height);
+      else scroller.style.removeProperty('--_ih');
+    }
     return resized;
   }
 
@@ -1552,8 +1792,7 @@ export class TanreiTabs extends LitElement {
    * reports the end of a transform, so the row never keeps a box measured in the page's pixels.
    */
   private scale(): Scale {
-    const strip = this.strip;
-    const scale = strip ? layoutScale(strip) : UNSCALED;
+    const scale = this.stripReading()?.scale ?? UNSCALED;
     this.watchScale(scale);
     return scale.x && scale.y ? scale : UNSCALED;
   }
@@ -1600,17 +1839,17 @@ export class TanreiTabs extends LitElement {
    * is seen, so nothing is written; `watchScale()` places the indicator once it is not flat.
    */
   private flat(): boolean {
-    const strip = this.strip;
-    const scale = strip ? layoutScale(strip) : UNSCALED;
+    const scale = this.stripReading()?.scale ?? UNSCALED;
     if (scale.x && scale.y) return false;
     this.watchScale(scale);
     return true;
   }
 
-  /** TAB-14, TAB-28: whether the tabs do not fit and scroll inside the track. */
+  /** TAB-14, TAB-28, TAB-56: whether the tabs do not fit and scroll inside the track, along the row or the column. */
   private get scrolls(): boolean {
     const scroller = this.scroller;
-    return !!scroller && scroller.scrollWidth - scroller.clientWidth > 0.5;
+    if (!scroller) return false;
+    return this.vertical ? scroller.scrollHeight - scroller.clientHeight > 0.5 : scroller.scrollWidth - scroller.clientWidth > 0.5;
   }
 
   /**
@@ -1618,18 +1857,25 @@ export class TanreiTabs extends LitElement {
    * container (its box): as tall as the row less track.padding above and below and, in a row that hugs, as wide as the
    * content plus active-indicator.padding-inline on each side — a circle where the content is not wider than it is tall
    * — or, in a row that fills, as wide as the tab. The underline spans the content (primary) or the tab (secondary).
+   * TAB-52, TAB-53: in a column the indicator is the tab less the inset all round, and the underline is as tall as the
+   * tab, in every variant.
    */
   private measure(tab: TanreiTab): Mark | null {
     const strip = this.strip;
     const parts = tab.indicatorParts;
     if (!strip || !parts || !tab.isConnected || this.flat()) return null;
-    const origin = strip.getBoundingClientRect();
+    const origin = this.rect(strip);
     const scale = this.scale();
-    const [whole, box, content] = [parts.tab.getBoundingClientRect(), parts.box.getBoundingClientRect(), parts.content.getBoundingClientRect()];
+    const [whole, box, content] = [this.rect(parts.tab), this.rect(parts.box), this.rect(parts.content)];
     const wide = parts.tab.classList.contains('wide');
+    const line = this.vertical
+      ? { at: (whole.top - origin.top) / scale.y, length: whole.height / scale.y }
+      : wide
+        ? { at: (whole.left - origin.left) / scale.x, length: whole.width / scale.x }
+        : { at: (content.left - origin.left) / scale.x, length: content.width / scale.x };
     return {
       pill: { x: (box.left - origin.left) / scale.x, y: (box.top - origin.top) / scale.y, w: box.width / scale.x, h: box.height / scale.y },
-      line: wide ? { x: (whole.left - origin.left) / scale.x, w: whole.width / scale.x } : { x: (content.left - origin.left) / scale.x, w: content.width / scale.x },
+      line,
     };
   }
 
@@ -1646,10 +1892,11 @@ export class TanreiTabs extends LitElement {
   private drawing(mark: Mark | null): () => void {
     this.rest = mark;
     const { read, radius } = this.frames();
+    const vertical = this.vertical;
     return () => {
       for (const each of read) {
         const pill = mark ? { ...mark.pill, x: mark.pill.x - each.x, y: mark.pill.y - each.y } : null;
-        const line = mark ? { x: mark.line.x - each.x, w: mark.line.w } : null;
+        const line = mark ? { at: mark.line.at - (vertical ? each.y : each.x), length: mark.line.length } : null;
         each.tab.paintIndicator(pill, line, each.size, each.content, radius);
       }
     };
@@ -1659,13 +1906,13 @@ export class TanreiTabs extends LitElement {
   private frames(): { read: ({ tab: TanreiTab; x: number; y: number } & TabFrame)[]; radius: number } {
     const strip = this.strip;
     if (!strip) return { read: [], radius: 0 };
-    const origin = strip.getBoundingClientRect();
+    const origin = this.rect(strip);
     const scale = this.scale();
-    const radius = this.selectedTab?.indicatorRadius ?? 0;
+    const radius = this.radius();
     const read = this.tabs.flatMap((tab) => {
       const parts = tab.indicatorParts;
       if (!parts) return [];
-      const [box, content] = [parts.tab.getBoundingClientRect(), parts.content.getBoundingClientRect()];
+      const [box, content] = [this.rect(parts.tab), this.rect(parts.content)];
       return [
         {
           tab,
@@ -1677,6 +1924,15 @@ export class TanreiTabs extends LitElement {
       ];
     });
     return { read, radius };
+  }
+
+  /** The selected tab's indicator corner (TAB-16), once for each reading. */
+  private radius(): number {
+    const reading = this.reading;
+    if (reading?.radius !== undefined) return reading.radius;
+    const radius = this.selectedTab?.indicatorRadius ?? 0;
+    if (reading) reading.radius = radius;
+    return radius;
   }
 
   /** The tab the indicator was last put on at rest (no offset, no slide, no drag), or null. */
@@ -1706,8 +1962,12 @@ export class TanreiTabs extends LitElement {
    * TAB-17, TAB-26: puts the indicator on the selected tab (at the current offset) at once — or, while it slides, sends
    * the slide there; while a drag carries it (TAB-28), it stays where the pointer is.
    */
-  private place() {
-    this.boxes();
+  private place(sized = true) {
+    this.readOnce(() => this.placeNow(sized));
+  }
+
+  private placeNow(sized: boolean) {
+    if (sized) this.boxes();
     if (this.drag?.state === 'taken') {
       this.follow(this.drag);
       return;
@@ -1737,19 +1997,23 @@ export class TanreiTabs extends LitElement {
     for (const part of sliding.parts) part.cancel();
   }
 
-  /** The enabled tabs in the order they are drawn along the row, left to right, with each one's box on the page. */
+  /**
+   * The enabled tabs in the order they are drawn along the row, left to right (top to bottom along a column), with each
+   * one's box on the page along it.
+   */
   private stops(): { tab: TanreiTab; left: number; right: number }[] {
     return this.tabs
       .filter((tab) => !tab.disabled)
       .map((tab) => {
-        const box = tab.getBoundingClientRect();
-        return { tab, left: box.left, right: box.right };
+        const { start, end } = this.span(this.rect(tab));
+        return { tab, left: start, right: end };
       })
       .sort((a, b) => a.left - b.left);
   }
 
   /**
-   * TAB-28: where the indicator is drawn while the pointer is at `x` (clientX): on an enabled tab at that tab's centre,
+   * TAB-28: where the indicator is drawn while the pointer is at `x` (clientX; clientY along a column, TAB-57): on an
+   * enabled tab at that tab's centre,
    * halfway between two neighbouring enabled tabs where they meet (the middle of any disabled tabs between them), each
    * edge at the linear interpolation in between, and on the first or last enabled tab before or beyond its centre.
    * Nothing changes at the place where two tabs meet: it is only where `p` passes one half.
@@ -1789,6 +2053,10 @@ export class TanreiTabs extends LitElement {
    * From anywhere else it goes straight to the tab, each edge interpolated.
    */
   private slide(old: TanreiTab | null, tab: TanreiTab) {
+    this.readOnce(() => this.slideNow(old, tab));
+  }
+
+  private slideNow(old: TanreiTab | null, tab: TanreiTab) {
     const to = this.measure(tab);
     const resting = !!old && !this.sliding && this.markTab === old;
     const from = resting ? (this.measure(old) ?? this.mark) : this.mark;
@@ -1823,7 +2091,9 @@ export class TanreiTabs extends LitElement {
     const { read, radius } = this.frames();
     const to = stops[stops.length - 1];
     this.rest = to;
-    for (const each of read) each.tab.paintIndicator({ ...to.pill, x: to.pill.x - each.x, y: to.pill.y - each.y }, { x: to.line.x - each.x, w: to.line.w }, each.size, each.content, radius);
+    const vertical = this.vertical;
+    const lineOn = (line: Line, each: { x: number; y: number }) => ({ at: line.at - (vertical ? each.y : each.x), length: line.length });
+    for (const each of read) each.tab.paintIndicator({ ...to.pill, x: to.pill.x - each.x, y: to.pill.y - each.y }, lineOn(to.line, each), each.size, each.content, radius);
     // No fill: once finished they leave their elements' animations, and the clock's progress (null) reads as the end.
     const running = clock ?? new Animation(new KeyframeEffect(strip, [], timing));
     const now = strip.ownerDocument.timeline.currentTime;
@@ -1835,7 +2105,7 @@ export class TanreiTabs extends LitElement {
     const started = clock ? clock.startTime : now;
     const parts = read.flatMap((each) =>
       each.tab.slideIndicator(
-        stops.map((stop) => ({ pill: { ...stop.pill, x: stop.pill.x - each.x, y: stop.pill.y - each.y }, line: { x: stop.line.x - each.x, w: stop.line.w } })),
+        stops.map((stop) => ({ pill: { ...stop.pill, x: stop.pill.x - each.x, y: stop.pill.y - each.y }, line: lineOn(stop.line, each) })),
         each,
         radius,
         clock ? (clock.effect?.getTiming() ?? timing) : timing,
@@ -1878,13 +2148,16 @@ export class TanreiTabs extends LitElement {
     if (this.drag && this.drag.state !== 'taken') this.unwatch(this.drag);
     if (this.drag || !event.isPrimary || event.button !== 0 || this.offset !== 0) return;
     if (!['touch', 'pen', 'mouse'].includes(event.pointerType)) return;
+    // TAB-57: along a column only a mouse or a pen carries the indicator; a touch scrolls whatever holds the row.
+    if (this.vertical && event.pointerType === 'touch') return;
     const scroller = this.scroller;
     if (!scroller || !event.composedPath().includes(scroller)) return;
     const selected = this.selectedTab;
     if (!selected || !this.tabs.some((tab) => !tab.disabled)) return;
     const pressed = this.tabOf(event);
     if (this.scrolls && pressed !== selected) return;
-    this.drag = { gesture: new SheetDrag(event, 'x'), pressed, state: 'pending', x: event.clientX, catchUp: null, place: null, frameTime: 0 };
+    const vertical = this.vertical;
+    this.drag = { gesture: new SheetDrag(event, vertical ? 'y' : 'x'), pressed, state: 'pending', at: vertical ? event.clientY : event.clientX, catchUp: null, place: null, frameTime: 0 };
     this.watchPointer(true);
   };
 
@@ -1918,7 +2191,7 @@ export class TanreiTabs extends LitElement {
       this.endDrag(drag);
       return;
     }
-    drag.x = event.clientX;
+    drag.at = this.vertical ? event.clientY : event.clientX;
     if (step === 'start') this.takeDrag(drag, event);
     if (drag.state !== 'taken') return;
     event.preventDefault();
@@ -1964,7 +2237,11 @@ export class TanreiTabs extends LitElement {
    * while the drag carries it toward an end of the track.
    */
   private follow(drag: RowDrag) {
-    const place = this.placeAt(drag.x);
+    this.readOnce(() => this.followPointer(drag));
+  }
+
+  private followPointer(drag: RowDrag) {
+    const place = this.placeAt(drag.at);
     if (!place) return;
     drag.place = place;
     let mark = place.mark;
@@ -1981,13 +2258,14 @@ export class TanreiTabs extends LitElement {
     const scroller = this.scroller;
     const strip = this.strip;
     if (!scroller || !strip || !this.scrolls) return;
-    const view = scroller.getBoundingClientRect();
+    const view = this.span(this.rect(scroller));
     // The mark is in the row's own pixels and the view on the page; the scroll is the row's own again.
     const scale = this.scale();
-    const left = strip.getBoundingClientRect().left + place.mark.pill.x * scale.x;
-    const right = left + place.mark.pill.w * scale.x;
-    const beyond = (right > view.right ? right - view.right : left < view.left ? left - view.left : 0) / scale.x;
-    if (beyond) scroller.scrollLeft += Math.sign(beyond) * Math.min(Math.abs(beyond), DRAG_SCROLL_SPEED * elapsed);
+    const [k, origin] = this.vertical ? [scale.y, this.rect(strip).top + place.mark.pill.y * scale.y] : [scale.x, this.rect(strip).left + place.mark.pill.x * scale.x];
+    const [left, right] = [origin, origin + (this.vertical ? place.mark.pill.h : place.mark.pill.w) * k];
+    const beyond = (right > view.end ? right - view.end : left < view.start ? left - view.start : 0) / k;
+    if (beyond) this.setScroll(scroller, this.scrolled(scroller) + Math.sign(beyond) * Math.min(Math.abs(beyond), DRAG_SCROLL_SPEED * elapsed));
+    this.readAgain();
   }
 
   /**
@@ -2000,13 +2278,14 @@ export class TanreiTabs extends LitElement {
     const drag = this.drag;
     if (!drag || event.pointerId !== drag.gesture.id) return;
     const taken = drag.state === 'taken';
-    if (taken) drag.x = event.clientX;
-    const place = taken ? (this.placeAt(drag.x) ?? drag.place) : null;
+    if (taken) drag.at = this.vertical ? event.clientY : event.clientX;
+    const place = taken ? (this.placeAt(drag.at) ?? drag.place) : null;
     const velocity = taken ? drag.gesture.velocity(event) : 0;
     this.endDrag(drag);
     if (!taken || !place) return;
     const fling = Math.abs(velocity) >= SHEET_FLING_VELOCITY;
-    // `from` is the tab toward the left and `to` the one toward the right, as they are drawn.
+    // `from` is the tab toward the left (the top of a column) and `to` the one toward the right (the bottom), as they are
+    // drawn.
     const chosen = fling ? (velocity > 0 ? place.to : place.from) : place.p >= 0.5 ? place.to : place.from;
     this.settle(chosen);
   };
@@ -2129,10 +2408,11 @@ export class TanreiTabs extends LitElement {
     const to = this.revealing(tab);
     if (to === null || !scroller) return;
     this.stopScrolling();
-    const from = scroller.scrollLeft;
+    const from = this.scrolled(scroller);
     const { duration, easing } = this.motion();
     if (!animate || duration <= 0 || typeof KeyframeEffect === 'undefined') {
-      scroller.scrollLeft = to;
+      this.setScroll(scroller, to);
+      this.readAgain();
       return;
     }
     // No fill: once finished it leaves the scroller's animations, and its progress (null) reads as the end.
@@ -2142,7 +2422,7 @@ export class TanreiTabs extends LitElement {
     timing.play();
     const step = () => {
       const progress = timing.effect?.getComputedTiming().progress ?? 1;
-      scroller.scrollLeft = from + (to - from) * progress;
+      this.setScroll(scroller, from + (to - from) * progress);
       if (timing.playState === 'finished' || timing.playState === 'idle' || this.scrolling !== timing) return;
       this.scrollFrame = requestAnimationFrame(step);
     };
@@ -2156,21 +2436,26 @@ export class TanreiTabs extends LitElement {
     // The whole tab, with the track's padding beside it: the space its focus ring is drawn in (TAB-4), and what brings
     // the first and the last tab to the track's very ends.
     // (What an end tab reaches into the inset is not padding any more, TAB-34: each side has its own.)
-    const strip = this.strip;
-    const inset = strip ? getComputedStyle(strip) : null;
+    const inset = this.stripReading()?.style ?? null;
     // The boxes are read on the page, where the row may be drawn scaled; the padding and the scroll are its own pixels.
     const scale = this.scale();
-    const [padLeft, padRight] = [inset ? (Number.parseFloat(inset.paddingLeft) || 0) * scale.x : 0, inset ? (Number.parseFloat(inset.paddingRight) || 0) * scale.x : 0];
-    const bounds = scroller.getBoundingClientRect();
-    const view = { left: bounds.left + padLeft, right: bounds.right - padRight, width: bounds.width - padLeft - padRight };
-    const box = tab.getBoundingClientRect();
-    const rtl = getComputedStyle(this).direction === 'rtl';
+    // Along the row, or down the column (TAB-56).
+    const vertical = this.vertical;
+    const k = vertical ? scale.y : scale.x;
+    const pad = (name: 'paddingLeft' | 'paddingRight' | 'paddingTop' | 'paddingBottom') => (inset ? (Number.parseFloat(inset[name]) || 0) * k : 0);
+    const [padStart, padEnd] = vertical ? [pad('paddingTop'), pad('paddingBottom')] : [pad('paddingLeft'), pad('paddingRight')];
+    const bounds = this.span(this.rect(scroller));
+    const view = { start: bounds.start + padStart, end: bounds.end - padEnd, length: bounds.length - padStart - padEnd };
+    // The tab's own box (its host's: the host lays out nothing else), read once with the indicator's.
+    const box = this.span(this.rect(tab.indicatorParts?.tab ?? tab));
+    // A column runs from top to bottom in either direction (TAB-21).
+    const rtl = !vertical && rtlOf(this);
     let delta = 0;
-    if (box.width >= view.width) delta = rtl ? box.right - view.right : box.left - view.left;
-    else if (box.left < view.left) delta = box.left - view.left;
-    else if (box.right > view.right) delta = box.right - view.right;
-    delta /= scale.x;
-    return Math.abs(delta) < 0.5 ? null : scroller.scrollLeft + delta;
+    if (box.length >= view.length) delta = rtl ? box.end - view.end : box.start - view.start;
+    else if (box.start < view.start) delta = box.start - view.start;
+    else if (box.end > view.end) delta = box.end - view.end;
+    delta /= k;
+    return Math.abs(delta) < 0.5 ? null : this.scrolled(scroller) + delta;
   }
 
   /**
@@ -2252,6 +2537,8 @@ export class TanreiTabs extends LitElement {
    * nearest to it. Null for a row as tall as the target.
    */
   private tabBeside(event: MouseEvent): TanreiTab | null {
+    // TAB-51: a column's tabs are the minimum target tall in layout; nothing beside it is theirs.
+    if (this.vertical) return null;
     const scroller = this.scroller;
     const targets = this.renderRoot?.querySelector('.divider');
     if (!scroller || !targets || this.ownerDocument !== (event.target as Node | null)?.ownerDocument) return null;
@@ -2336,14 +2623,23 @@ export class TanreiTabs extends LitElement {
         this.reveal(this.selectedTab, false);
       }
     }
-    // TAB-13: the tab list, named by the row's label.
-    this.sync();
+    // TAB-60: a value the tabs do not define is horizontal. TAB-56: a column does not fill.
+    if (changed.has('orientation') && this.orientation && !(ORIENTATIONS as readonly string[]).includes(this.orientation)) {
+      report(this, 'TAB-60', `orientation "${this.orientation}" is not an orientation of the tabs; they are laid out horizontally`);
+    }
+    if ((changed.has('orientation') || changed.has('fullWidth')) && this.vertical && this.fullWidth) report(this, 'TAB-56', 'full-width does not apply to vertical tabs; it is ignored');
+    // TAB-13: the tab list, named by the row's label. Anything but a new value may change what the tabs are sized from.
+    if ([...changed.keys()].some((key) => key !== 'value')) this.reshaped = true;
+    this.syncs.now();
     if (changed.has('fullWidth') && changed.get('fullWidth') !== undefined) void this.selectedTab?.updateComplete.then(() => this.reveal(this.selectedTab, false));
   }
 
   protected override render() {
+    // TAB-13, TAB-42, TAB-55: a tab list while the row has a panel, vertical in a column; a radio group, whose arrows do
+    // not depend on the orientation, while it has none.
+    const choice = (this.choice = !this.holdsPanel(this.linkedView, this.panels, this.tabs));
     return html`
-      <div part="tablist" class="row" role="tablist" aria-label=${this.label || nothing}>
+      <div part="tablist" class="row" role=${choice ? 'radiogroup' : 'tablist'} aria-label=${this.label || nothing} aria-orientation=${this.vertical && !choice ? 'vertical' : nothing}>
         <div part="divider" class="divider" aria-hidden="true"></div>
         <div part="scroller track" class="scroller" data-tanrei-shape><div class="tabs"><slot></slot></div></div>
       </div>

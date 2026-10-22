@@ -5,6 +5,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -229,6 +231,71 @@ test.describe('presentation, focus and closing', () => {
     const rect = (locator: Locator) => locator.evaluate((el) => ((r) => ({ top: r.top, bottom: r.bottom, height: r.height }))(el.getBoundingClientRect()));
     await expect.poll(async () => Math.abs((await rect(s)).bottom - ((await rect(opener(page, 'd'))).top - offset))).toBeLessThan(0.1);
     expect((await rect(s)).height % 1, 'the picker is not a whole number of pixels tall').not.toBeCloseTo(0, 1);
+  });
+
+  test('DTM-2: a docked picker stays inside the visible part of the window — above the on-screen keyboard, which shrinks the visual viewport and not the layout one — and takes its place again when the keyboard hides', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 260px; left: 8px;'));
+    await open(page, 'd');
+    const s = surface(page, 'd');
+    const before = await bounds(s);
+    const vm = await resolveToken(page, T('docked-viewport-margin'));
+    // The keyboard: the visual viewport loses its lower 360 pixels (the layout viewport keeps its size).
+    const keyboard = (covers: number) =>
+      page.evaluate((cover) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = { height: window.innerHeight - cover, width: window.innerWidth, offsetTop: 0, offsetLeft: 0, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => (cover ? fake : real) });
+        window.dispatchEvent(new Event('resize'));
+      }, covers);
+    expect(before.y + before.height, 'below the keyboard’s top edge before it shows').toBeGreaterThan(360);
+    await keyboard(360);
+    await expect.poll(async () => ((b) => b.y + b.height)(await bounds(s))).toBeLessThanOrEqual(360 - vm + 0.5);
+    expect((await bounds(s)).y).toBeGreaterThanOrEqual(vm - 0.5);
+    await keyboard(0);
+    await expect.poll(() => bounds(s)).toEqual(before);
+  });
+
+  test('DTM-51: an open docked picker whose anchor is no longer drawn — display none, taken out of the page, skipped by content-visibility — emits close once with the reason anchor-hidden and no change, and focus does not stay in it; a modal picker whose opener is hidden stays open', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' }), modal('m', { value: '2026-09-17' })]);
+    // The anchor in a box of its own, which content-visibility can skip without skipping the picker.
+    await page.evaluate(() => {
+      const anchor = document.getElementById('a-d')!;
+      const box = Object.assign(document.createElement('div'), { id: 'box-d' });
+      anchor.before(box);
+      box.append(anchor);
+    });
+    const ways = ['display', 'removed', 'content-visibility'] as const;
+    const hide = (way: (typeof ways)[number], hidden: boolean) =>
+      page.evaluate(
+        ([w, h]) => {
+          const box = document.getElementById('box-d')!;
+          const anchor = (document.getElementById('a-d') ?? (window as any).__anchor) as HTMLElement;
+          (window as any).__anchor = anchor;
+          if (w === 'display') anchor.style.display = h ? 'none' : '';
+          else if (w === 'content-visibility') box.style.contentVisibility = h ? 'hidden' : '';
+          else if (h) anchor.remove();
+          else box.append(anchor);
+        },
+        [way, hidden] as const,
+      );
+    for (const way of ways) {
+      await page.evaluate(() => ((window as any).log.length = 0));
+      await open(page, 'd');
+      await hide(way, true);
+      await expect.poll(() => log(page), { message: way }).toEqual(['close:anchor-hidden']);
+      await expect.poll(() => isOpen(page, 'd'), { message: way }).toBe(false);
+      await expect.poll(() => page.evaluate(() => !document.activeElement?.closest('tanrei-date-time-picker')), { message: `${way}: focus is not left in the closed picker` }).toBe(true);
+      expect(await log(page), `${way}: once, and nothing chosen`).toEqual(['close:anchor-hidden']);
+      await hide(way, false);
+    }
+    // A modal picker is placed against no anchor: its opener hidden, it stays open.
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await open(page, 'm');
+    await opener(page, 'm').evaluate((el) => ((el as HTMLElement).style.display = 'none'));
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    expect(await isOpen(page, 'm')).toBe(true);
+    expect(await log(page)).toEqual([]);
   });
 
   test('DTM-2: placed again as the page moves or the window resizes, a scrolled body keeps its offset and the focused day stays in view', async ({ page }) => {
@@ -1734,6 +1801,43 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(await surface(page, 'd').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
   });
 
+  test('DTM-35: a modal picker appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — about its centre over the open motion, and leaves the same way back over the close motion, its last frame leaving no more than the accelerating curve does; where reduced it only fades over sys.motion.role.reduced', async ({ page }) => {
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const s = surface(page, 'm');
+    const drawn = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && ['opacity', 'scale'].includes(motion.name));
+    const opening = await sampleFrames(s, () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    expectNoFlicker(opening);
+    for (const motion of drawn(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('modal-motion-open-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('modal-motion-open-easing')));
+    }
+    // (WebKit reports the scrim's fade as the surface's own — its pseudo-element unnamed — so the properties are counted once each.)
+    expect([...new Set(drawn(opening).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
+    // Closed, it is drawn in the top layer until its exit has played, in every engine (MDL-7).
+    const closing = await sampleFrames(s, () => host(page, 'm').evaluate((el: any) => (el.open = false)), { probe: appearProbe, elements: false });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    // (The exit is read from the probe alone: every element of a picker read in every frame is more than a slow machine
+    // draws in time.)
+    expect([...new Set(drawn(closing).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
+    const exit = await resolveEasing(page, T('modal-motion-close-easing'));
+    for (const motion of drawn(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('modal-motion-close-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expectExitEnd(closing, { duration: await resolveToken(page, T('modal-motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && !['display', 'overlay'].includes(motion.name)).map((motion) => [motion.name, motion.duration]);
+    const fading = await sampleFrames(surface(page, 'm'), () => host(page, 'm').evaluate((el: any) => (el.open = true)), { probe: appearProbe, elements: false });
+    expectAppearStart(fading.frames[0]!, { opacity: 0, scale: 1 });
+    expect(own(fading)).toContainEqual(['opacity', reduced]);
+    expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
+  });
+
   test('DTM-36: in a short window the header and the actions stay and the body scrolls between them; in a narrow one the picker is the window less the margins', async ({ page }) => {
     await mount(page, [opened('v', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 560 } });
     const body = host(page, 'v').locator('.body');
@@ -1753,6 +1857,11 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await expect(host(page, 'm').locator('#time-panel')).toHaveAttribute('role', 'tabpanel');
     await expect(host(page, 'm').locator('#time-panel')).toHaveAttribute('aria-labelledby', 'entry-wheels');
     await expect.poll(() => tabOf(page, 'm', 'entry-wheels').getAttribute('aria-controls')).toBe('time-panel');
+    await expect(tabOf(page, 'm', 'entry-dial')).toHaveAttribute('aria-controls', 'time-panel');
+    // The time section is linked to the row as its panel, so the row is a tab list and not the radio group a row
+    // without panels is (TAB-42).
+    await expect(host(page, 'm').locator('tanrei-tabs [part="tablist"]')).toHaveAttribute('role', 'tablist');
+    await expect(host(page, 'm').getByRole('radiogroup')).toHaveCount(0);
     await expect(host(page, 'm').locator('.dial, .rows').first()).toHaveAttribute('aria-hidden', 'true');
     // One tab list and one panel: the entry mode's. The period is a spin button of two values named periodLabel.
     await expect(host(page, 'm').locator('tanrei-tabs')).toHaveCount(1);

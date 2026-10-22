@@ -1,0 +1,24 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.chnotchy/tanrei",
+  "title": "Tanrei",
+  "description": "Lets an AI agent search, resolve and explain Tanrei's design tokens and write a valid system layer.",
+  "repository": {
+    "url": "https://github.com/chnotchy/tanrei",
+    "source": "github",
+    "subfolder": "packages/mcp"
+  },
+  "websiteUrl": "https://tanrei.chnotchy.com/getting-started/your-design-system/",
+  "version": "0.1.0-next.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@tanrei/mcp",
+      "version": "0.1.0-next.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

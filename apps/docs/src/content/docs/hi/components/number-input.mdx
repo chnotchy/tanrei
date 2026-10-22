@@ -2,7 +2,7 @@
 title: नंबर इनपुट
 description: किसी संख्या का बॉक्स — जो लोकेल के रूप में टाइप की जाती है या किसी कुंजी या बटन से स्टेप-दर-स्टेप बदली जाती है, सीमाओं के भीतर रखी जाती है, और जिसकी इकाई उसके बग़ल में रहती है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस संख्या के लिए जिसका लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: dce0932eb10e932bf7ed5fddd2518bad0e7343d8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="स्केल" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
@@ -99,7 +100,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 नंबर इनपुट के चारों ओर का फ़ील्ड, हाथ से पूरा लिखा गया नंबर फ़ील्ड है। इनपुट का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर बताया जाता है; `name`, `value`, सीमाएँ और इकाई इनपुट पर।
 
 ```html
-<tanrei-field label="मात्रा" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="मात्रा" required required-text="ज़रूरी"
   supporting-text="हर ऑर्डर में 99 तक।">
   <tanrei-number-input name="quantity" min="1" max="99" invalid-text="कोई संख्या डालें।"
     increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
@@ -107,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="एक फ़ील्ड जिसके भीतर नंबर इनपुट है: वही तस्वीर जो नंबर फ़ील्ड की है" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" requirement="required" required-text="ज़रूरी" supporting-text="हर ऑर्डर में 99 तक।">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" required required-text="ज़रूरी" supporting-text="हर ऑर्डर में 99 तक।">
     <tanrei-number-input min="1" max="99" invalid-text="कोई संख्या डालें।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
   </tanrei-field>
 </DemoFrame>
@@ -147,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | क्या रखता है | मान, सीमाएँ और स्टेप, फ़ॉर्म में उसकी जगह, इवेंट | कुछ नहीं |
 | सहायक तकनीक को क्या बताता है | एक स्पिन बटन: उसका मान, उसकी सीमाएँ, उसका मान टेक्स्ट | नाम, सहायता या त्रुटि टेक्स्ट, ज़रूरी, अमान्य, अक्षम |
 
-तीनों वेरिएंट और तीनों साइज़, `small` (40), `medium` (48) और `large` (56), टेक्स्ट इनपुट के हैं, और बॉक्स उसी वेरिएंट और साइज़ के [टेक्स्ट इनपुट](/hi/components/text-input/) की तरह बनता है और उसी की नाप का होता है। डिफ़ॉल्ट सिस्टम के साथ सिर्फ़ `stacked` आता है।
+तीनों वेरिएंट और तीनों साइज़, `small` (32), `medium` (40) और `large` (56), टेक्स्ट इनपुट के हैं, और बॉक्स उसी वेरिएंट और साइज़ के [टेक्स्ट इनपुट](/hi/components/text-input/) की तरह बनता है और उसी की नाप का होता है। डिफ़ॉल्ट सिस्टम के साथ सिर्फ़ `stacked` आता है।
 
 दोनों स्टेपर medium साइज़ के text बटन हैं, अगल-बग़ल रखे हुए। डिफ़ॉल्ट सिस्टम में वे बॉक्स की चौड़ाई में से 88 लेते हैं, और हर एक पूरा टच टार्गेट है। वे कभी छोटे नहीं बनाए जाते और कभी एक के ऊपर एक नहीं रखे जाते: जिस पंक्ति में उनके लिए जगह नहीं है, वहाँ उन्हें बंद कर दें। कुंजियाँ फिर भी मान बढ़ाती और घटाती हैं। वे Button के अपने टोकन से बनते हैं, और कभी त्रुटि में नहीं होते।
 

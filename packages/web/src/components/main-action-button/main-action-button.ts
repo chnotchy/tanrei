@@ -5,6 +5,7 @@ import { AvailabilityController, FORWARDED_DESCRIPTION, GlyphMirrorController, O
 import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, tonal, surface), plus any a design system's generated `.d.ts` registers. */
 export type TanreiMainActionButtonVariant = keyof TanreiMainActionButtonVariantRegistry;
@@ -47,7 +48,7 @@ const isCollapsed = (extended: boolean, hasIcon: boolean, label: string, fullWid
  * @csspart label - The label text.
  * @fires click - The button was activated by pointer, touch, keyboard or assistive technology.
  */
-export class TanreiMainActionButton extends LitElement {
+export class TanreiMainActionButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'main-action-button');
   static override styles = [styles, hiddenHost];
 
@@ -164,11 +165,11 @@ export class TanreiMainActionButton extends LitElement {
   }
 
   /** MAB-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -237,10 +238,10 @@ export class TanreiMainActionButton extends LitElement {
         @keydown=${this.press.onKeyDown}
         @keyup=${this.press.onKeyUp}
         @blur=${this.press.onBlur}
-        @focus=${this.onFocus}
+        @focus=${this.#onFocus}
       >
         <span class="content">
-          <span class="icon-box"><span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span></span>
+          <span class="icon-box"><span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span></span>
           <span class="label-box"><span class="label-clip"><span part="label" class="label">${this.label}</span></span></span>
         </span>
       </button>

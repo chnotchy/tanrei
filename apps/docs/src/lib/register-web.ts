@@ -5,8 +5,8 @@
 // page imported the entry: the marks of mirrored glyphs on bare `.tanrei-icon`s and the text links' behaviour on every
 // such page, and the scripts of the steps, the timelines and the previous and next links on a page that has them.
 //
-// The docs' link forms hold a plain anchor until their element is defined (link-fallback.ts): it goes first.
-import './link-fallback';
+// The docs' link forms hold a plain anchor until their element is defined: lib/link-fallback.ts takes it away, from
+// the head of every page (components/frame/Head.astro), not from here.
 import '@tanrei/web/icons';
 import '@tanrei/web/link';
 import { type TanreiWords, setWords } from '@tanrei/web/words';
@@ -28,10 +28,11 @@ const PAGE_SCRIPTS: Record<string, () => Promise<unknown>> = {
 };
 for (const [name, load] of Object.entries(PAGE_SCRIPTS)) if (document.querySelector(`.${name}`)) void load();
 
-// The whole package, for a person at the browser's console: `await tanrei`. It is fetched only when it is asked for.
+// The whole package with every element (`@tanrei/web/all`), for a person at the browser's console: `await tanrei`.
+// It is fetched only when it is asked for.
 declare global {
   interface Window {
-    readonly tanrei: Promise<typeof import('@tanrei/web')>;
+    readonly tanrei: Promise<typeof import('@tanrei/web/all')>;
   }
 }
-Object.defineProperty(window, 'tanrei', { configurable: true, get: () => import('@tanrei/web') });
+Object.defineProperty(window, 'tanrei', { configurable: true, get: () => import('@tanrei/web/all') });
