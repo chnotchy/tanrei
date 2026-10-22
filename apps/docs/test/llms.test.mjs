@@ -259,8 +259,10 @@ describe('llms-full.txt', () => {
 });
 
 describe('a crawler may read them', () => {
-  test('robots.txt disallows none of their addresses', () => {
-    const robots = fs.readFileSync(here('../public/robots.txt'), 'utf8');
+  test('robots.txt disallows none of their addresses', async () => {
+    // robots.txt is written by the build (src/pages/robots.txt.ts): its route is asked, as the build asks it.
+    const { GET } = await import('../src/pages/robots.txt.ts');
+    const robots = await (await GET({ site })).text();
     const disallowed = [...robots.matchAll(/^Disallow:\s*(\S+)/gim)].map((match) => match[1]);
     for (const path of ['/llms.txt', '/llms-full.txt', markdownPath('button'), systemIndexPath(defaultId)]) assert.ok(!disallowed.some((rule) => path.startsWith(rule)), path);
   });
