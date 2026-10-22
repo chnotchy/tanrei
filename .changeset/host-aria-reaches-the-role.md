@@ -28,6 +28,9 @@ For products:
 - An id reference must name an element in the same tree as the control or in a tree around it, never one inside
   another component's shadow root.
 - `aria-hidden` stays on the control.
+- Playwright's `toHaveAccessibleDescription()` does not see a description given by `aria-describedby` (it does not
+  follow the element references a shadow root needs); a name given by `aria-labelledby` is seen, because the control
+  also writes its text as its native element's `aria-label`.
 
 The selected look of a `.tanrei-icon` reads `data-aria-pressed`, `data-aria-selected`, `data-aria-checked` and
 `data-aria-current` on an ancestor too. The internal `forwardedDescription` and `forwardedInvalid` properties of Button

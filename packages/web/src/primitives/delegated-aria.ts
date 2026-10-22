@@ -39,6 +39,13 @@
 // elements it names join its description, after those of `aria-describedby` — the description a person hears, and no
 // empty `aria-errormessage=""` for a checker to refuse.
 //
+// Playwright's own name computation does not follow reflected element references: `getByRole({ name })`,
+// `getByLabel()` and `ariaSnapshot()` see a reflected `aria-labelledby` as absent. So beside the reference the control
+// is also given its text as a plain `aria-label`, kept in step with the text; the engines take the reference over the
+// string, so what they expose is the same. The same does not work for a description — Playwright reads the empty
+// `aria-describedby=""` that reflection leaves and stops there — so a description is drawn by reference alone. Remove
+// the `aria-label` copy when Playwright follows reflected references.
+//
 // Where an engine has no element reflection, the text of the elements named stands in for them: the label's as the
 // name, the description's (and the error message's) after the component's own description.
 import { noChange } from 'lit';
@@ -334,6 +341,11 @@ class DelegatedAria extends Directive {
       // A Tanrei element that moves it takes the elements whatever the engine, and draws them where it can.
       if (given.length && (reflects(name) || inner)) {
         referenced.set(name, { ids, given });
+        // Beside the reference, its text: Playwright's name computation does not follow reflected references (above).
+        if (name === 'aria-labelledby' && !inner) {
+          const text = given.map(textOf).filter(Boolean).join(' ');
+          if (text) values.set('aria-label', text);
+        }
         continue;
       }
       if (ids) values.set(name, ids);

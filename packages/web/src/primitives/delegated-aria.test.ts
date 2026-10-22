@@ -218,6 +218,13 @@ test('the elements a reference names are followed: one added after the control, 
   await settle(page);
   expect((await said()).describedBy, 'added later').toEqual(['later']);
   expect((await said()).labelledBy).toEqual(['later-name']);
+  // The name's text is also the element's aria-label, for Playwright, which does not follow reflected references.
+  expect((await said()).inner['aria-label']).toBe('Later name');
+  await expect(page.getByRole('button', { name: 'Later name', exact: true })).toHaveCount(1);
+  await page.evaluate(() => (document.querySelector('#later-name')!.textContent = 'Changed name'));
+  await settle(page);
+  expect((await said()).inner['aria-label'], 'its text changed').toBe('Changed name');
+  await expect(page.getByRole('button', { name: 'Changed name', exact: true })).toHaveCount(1);
   await page.evaluate(() => document.querySelector('#later')!.remove());
   await settle(page);
   const removed = await said();
@@ -268,4 +275,12 @@ test('axe reports nothing on controls the product gives aria-* — the hosts car
   await load(page, 'tanrei-button', `<main><h1>Controls</h1>${markup}</main>`);
   const result = await new AxeBuilder({ page }).include('#stage').analyze();
   expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
+});
+
+test('a name given by aria-labelledby is seen by Playwright too: getByRole({ name }), getByLabel() and ariaSnapshot() (its text is also the element’s aria-label)', async ({ page }) => {
+  await load(page, 'tanrei-button', '<tanrei-button id="subject" aria-labelledby="named">Send</tanrei-button><tanrei-text-input id="field" aria-labelledby="named"></tanrei-text-input>');
+  await expect(page.getByRole('button', { name: 'Named text', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('textbox', { name: 'Named text', exact: true })).toHaveCount(1);
+  await expect(page.getByLabel('Named text', { exact: true })).toHaveCount(2);
+  expect(await page.locator('#subject').ariaSnapshot()).toContain('button "Named text"');
 });
