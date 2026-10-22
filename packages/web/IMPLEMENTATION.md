@@ -5498,8 +5498,14 @@ browser has none). No line at either end, never two side by side; docked, the li
 skipping `toolbar-overflow="never"`, until what remains and the overflow button fit — an icon-only text medium Button,
 `more_horiz` (`more_vert` in a column), a button that opens a menu with its expanded state. What is hidden is decided
 once every item has rendered (microtasks, before the frame) and again in the observer's callback when a length changes —
-the container's, a shown item's or the parent's, whose length is the room an inline or a floating toolbar may take — so
-no item is drawn and then hidden, and nothing is animated. After a change made in the callback the observation is laid
+the container's, a shown item's, or the length along the axis of a box that holds the toolbar, up to the root (in the
+flat tree: a slot it is assigned to, then that shadow root's boxes), which is the room an inline or a floating toolbar
+may take — so no item is drawn and then hidden, and nothing is animated. The parent alone is not enough: a parent as
+long as its content (an inline-block, a flex item, a float, an absolutely placed box) shrinks to the items still shown
+and keeps that length when a box further up is widened. Which box first has a length of its own cannot be read from the
+styles (a flex or grid item, `fit-content` and a table cell depend on the layout around them), so each one is watched,
+and a report of its other length alone decides nothing. Each decision shows every item before it measures, so the
+parent grows to what the layout offers. After a change made in the callback the observation is laid
 down and taken up again in the next frame, so that a resize it causes is no loop error. The overflow button opens a
 `<tanrei-menu>` placed bottom-end, built when it opens: an action is a menu item with its label and icon, a toggle a
 checkbox item, a menu button a submenu holding copies of its menu's items, a Button with menu its main action and a
@@ -5521,8 +5527,9 @@ be vertical, an unknown variant, orientation, overflow or separation, and an ove
 Flutter expose a named group). The natives are lagging: no inline variant, groups, separators or overflow menu yet. The
 docked inset is `env(safe-area-inset-*)`, which needs `viewport-fit=cover` in the page's viewport meta to be non-zero. The
 Menu has no side placement, so a vertical toolbar's overflow menu opens below its button. The room of an inline or a
-floating toolbar is watched on its parent element: a toolbar whose room is set by its siblings in a flex row decides
-again only when its parent, its container or its items change size. The web has no gallery app; the fixtures are drawn
+floating toolbar is watched on the boxes that hold it, not on its siblings: a toolbar at its own length in a flex row,
+whose room grows because a sibling gets shorter while no box that holds it changes length, decides again only when
+one of those boxes, its container or its items change size. The web has no gallery app; the fixtures are drawn
 by the test harness (`test/harness.ts`): inline at the start of a 360 × 56 stage (240 wide for the overflow fixtures),
 docked on 360 × 64, floating centred on 360 × 96, vertical on 96 × 240 (96 × 288 with groups).
 

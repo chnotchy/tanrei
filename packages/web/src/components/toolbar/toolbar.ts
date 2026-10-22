@@ -84,6 +84,8 @@ interface Stop {
 /** Rounded to a hundredth of a pixel, so that a measurement that did not change does not re-render an item. */
 const hundredths = (value: number) => Math.round(value * 100) / 100;
 const isItem = (element: Element) => element.localName === BUTTON || element.localName === BUTTON_WITH_MENU;
+/** The box that lays an element out: the slot it is assigned to, else its parent, else its shadow root's host. */
+const layoutParent = (element: Element): Element | null => element.assignedSlot ?? element.parentElement ?? ((element.getRootNode() as ShadowRoot).host ?? null);
 
 /**
  * Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked
@@ -199,7 +201,8 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
   private scrolls = false;
   /** The items observed for their length (shown ones only: a hidden item is drawn as nothing). */
   private readonly watched = new Set<Element>();
-  private watchedParent: Element | null = null;
+  /** The boxes that hold the toolbar, up to the root, each with its length along the axis when last reported (see `watch`). */
+  private readonly watchedAncestors = new Map<Element, number | null>();
   private watchedContainer: Element | null = null;
   /** Between a change made in the observer's callback and the next frame, nothing is observed (see `observed`). */
   private resting = false;
@@ -315,7 +318,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     super.disconnectedCallback();
     this.resize?.disconnect();
     this.watched.clear();
-    this.watchedParent = null;
+    this.watchedAncestors.clear();
     this.watchedContainer = null;
     this.mutations?.disconnect();
   }
@@ -553,15 +556,27 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
    * A length changed: what is shown is decided again, before the frame (TBR-19). What that changes may resize an element
    * the observer watches at a depth it has already reported in this frame — the container — which it would report only
    * in the next frame, with a loop error. So after a change the observation is laid down, and taken up again in the next
-   * frame, where its first report decides once more and finds nothing to change.
+   * frame, where its first report decides once more and finds nothing to change. A box that holds the toolbar matters
+   * only by its length along the axis: a report of its other length alone decides nothing.
    */
-  private readonly observed = () => {
+  private readonly observed = (entries: ResizeObserverEntry[]) => {
+    let moved = false;
+    for (const entry of entries) {
+      if (!this.watchedAncestors.has(entry.target)) {
+        moved = true;
+        continue;
+      }
+      const length = this.axis === 'block' ? entry.contentRect.height : entry.contentRect.width;
+      if (this.watchedAncestors.get(entry.target) !== length) moved = true;
+      this.watchedAncestors.set(entry.target, length);
+    }
+    if (!moved) return;
     const before = this.state();
     this.fit();
     if (this.state() === before || !this.resize) return;
     this.resize.disconnect();
     this.watched.clear();
-    this.watchedParent = null;
+    this.watchedAncestors.clear();
     this.watchedContainer = null;
     this.resting = true;
     requestAnimationFrame(() => {
@@ -572,8 +587,14 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
   /**
    * The lengths the toolbar watches: its container (whose length follows the spaces, which follow the tokens), each item
-   * shown — a hidden one is drawn as nothing and is not watched — and the parent, whose length is the room an inline or
-   * a floating toolbar may take.
+   * shown — a hidden one is drawn as nothing and is not watched — and every box that holds it, up to the root, whose
+   * lengths are the room an inline or a floating toolbar may take (TBR-18). The parent alone is not enough: a parent as
+   * long as its content (an inline-block, a flex item, a float, an absolutely placed box) is as long as the items still
+   * shown, and stays so when a box further up is given more room — the toolbar would never show its items again. Which
+   * box first has a length of its own cannot be read from the styles (a flex or grid item, `fit-content`, a table cell
+   * all depend on the layout around them), so each one is watched: a box whose length follows the toolbar's is reported
+   * only with it, and its other length is ignored (`observed`). The boxes are those of the flat tree — the slot a
+   * toolbar is assigned to, then the boxes of that shadow root — since those are what lay it out.
    */
   private watch(items: Element[]) {
     const resize = this.resize;
@@ -594,11 +615,17 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       resize.observe(element);
       this.watched.add(element);
     }
-    const parent = this.parentElement ?? ((this.getRootNode() as ShadowRoot).host as Element | undefined) ?? null;
-    if (parent !== this.watchedParent) {
-      if (this.watchedParent) resize.unobserve(this.watchedParent);
-      if (parent) resize.observe(parent);
-      this.watchedParent = parent;
+    const holders = new Set<Element>();
+    for (let box = layoutParent(this); box; box = layoutParent(box)) holders.add(box);
+    for (const box of [...this.watchedAncestors.keys()]) {
+      if (holders.has(box)) continue;
+      resize.unobserve(box);
+      this.watchedAncestors.delete(box);
+    }
+    for (const box of holders) {
+      if (this.watchedAncestors.has(box)) continue;
+      resize.observe(box);
+      this.watchedAncestors.set(box, null);
     }
   }
 
