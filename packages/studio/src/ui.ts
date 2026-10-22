@@ -672,7 +672,13 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     window.clearTimeout(addressTimer);
     addressTimer = window.setTimeout(async () => {
       const text = stringifyLayer(committed);
-      const code = text === stringifyLayer(studio.blank()) ? null : await packLayer(text);
+      let code: string | null;
+      try {
+        code = text === stringifyLayer(studio.blank()) ? null : await packLayer(text);
+      } catch {
+        // The page is going away under the compression (WebKit fails its stream then): there is no address to write.
+        return;
+      }
       if (!live || code === written) return;
       written = code;
       window.history.replaceState(window.history.state, '', `${location.pathname}${location.search}${withLayer(location.hash, code)}`);
