@@ -1,4 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -872,7 +873,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
       report(this, 'POP-13', 'close-label is empty, so the close button has no accessible name; give it a close-label');
     }
-    if (changed.has('open') && this.open && !this.headline.trim() && !this.label.trim() && !this.empty) {
+    if (changed.has('open') && this.open && !this.headline.trim() && !this.label.trim() && !this.empty && !namedByProduct(this)) {
       report(this, 'POP-29', 'headline and label are both empty, so the dialog has no accessible name; give it a headline, or a label where it draws none');
     }
   }
@@ -882,7 +883,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     const header = !!headline || this.closable;
     // POP-28: a dialog named by the headline, or by label where it draws none — not modal beside its anchor, modal as a
     // sheet (POP-40).
-    const name = headline || this.label.trim() || nothing;
+    const name = headline || this.label.trim();
     const focus = (event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement);
     const parts = html`
       <div class="clip" data-tanrei-shape @focus=${focus}>
@@ -928,7 +929,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
           data-tanrei-appear
           role="dialog"
           aria-modal="true"
-          aria-label=${name}
+          ${delegatedAria(this, { 'aria-label': name })}
           tabindex="-1"
           data-tanrei-shape
           @focus=${focus}
@@ -945,7 +946,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
       <div class="surface" popover=${this.inline ? nothing : 'manual'} role="none">
         <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
-          <div part="container" class="container" role="dialog" aria-label=${name} tabindex="-1" data-tanrei-shape @focus=${focus}>${parts}</div>
+          <div part="container" class="container" role="dialog" ${delegatedAria(this, { 'aria-label': name })} tabindex="-1" data-tanrei-shape @focus=${focus}>${parts}</div>
         </div>
         <span class="shade" aria-hidden="true"></span>
         ${shadeFilter(this.anchored.layers)}
@@ -954,6 +955,8 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
   }
 }
 
+// POP-44: the product's ARIA on the host is its dialog's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiPopover, { sentence: 'POP-44' });
 if (!customElements.get('tanrei-popover')) customElements.define('tanrei-popover', TanreiPopover);
 
 declare global {

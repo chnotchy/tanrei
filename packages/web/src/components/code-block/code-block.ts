@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, OpenAxesController, report, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import type { TanreiCodeBlockSizeRegistry, TanreiCodeBlockVariantRegistry } from '../../registry.js';
@@ -983,7 +984,7 @@ export class TanreiCodeBlock extends TanreiElement {
       const missing = [this.words.lacks('copyLabel', this.copyLabel) && 'copyLabel', this.words.lacks('copiedLabel', this.copiedLabel) && 'copiedLabel', this.words.lacks('copyFailedLabel', this.copyFailedLabel) && 'copyFailedLabel'].filter(Boolean);
       if (missing.length) report(this, 'COD-25', `copy is set and ${missing.join(', ')} ${missing.length > 1 ? 'are' : 'is'} empty; the copy button needs its name and its two announcements`);
     }
-    if (this.scrollable && !this.headline && !this.label) report(this, 'COD-25', 'the body can scroll and is a focus stop, and both title and label are empty, so it has no accessible name; give the block one');
+    if (this.scrollable && !this.headline && !this.label && !namedByProduct(this)) report(this, 'COD-25', 'the body can scroll and is a focus stop, and both title and label are empty, so it has no accessible name; give the block one');
     if (changed.has('startLine') && this.firstLine !== this.startLine) report(this, 'COD-25', `startLine ${this.startLine} is not a whole number of 1 or more; it is taken as 1`);
     if (changed.has('maxLines') && this.maxLines !== null && this.cap === null) report(this, 'COD-25', `maxLines ${this.maxLines} is below 1; every line is shown`);
   }
@@ -1028,8 +1029,8 @@ export class TanreiCodeBlock extends TanreiElement {
           class="body ${classMap({ capped })}"
           dir="ltr"
           data-tanrei-shape
-          role=${name ? 'group' : nothing}
-          aria-label=${name || nothing}
+          role=${name || namedByProduct(this) ? 'group' : nothing}
+          ${delegatedAria(this, { 'aria-label': name })}
           tabindex=${this.scrollable ? '0' : nothing}
           style=${capped ? `--_max-lines: ${cap}` : nothing}
           @focus=${this.#onBodyFocus}
@@ -1042,6 +1043,8 @@ export class TanreiCodeBlock extends TanreiElement {
   }
 }
 
+// COD-34: the product's ARIA on the host is its body's, a group while it has a name (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiCodeBlock, { sentence: 'COD-34' });
 if (!customElements.get('tanrei-code-block')) customElements.define('tanrei-code-block', TanreiCodeBlock);
 
 declare global {

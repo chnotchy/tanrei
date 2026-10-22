@@ -1,4 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -320,7 +321,7 @@ export class TanreiBreadcrumbs extends TanreiElement {
   private check() {
     // A trail that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading' || !this.levels.length) return;
-    if (!this.label.trim()) report(this, 'BRC-1', 'label is empty: the navigation landmark has no accessible name; give it the words ("Breadcrumbs")');
+    if (!this.label.trim() && !namedByProduct(this)) report(this, 'BRC-1', 'label is empty: the navigation landmark has no accessible name; give it the words ("Breadcrumbs")');
     this.levels.forEach((level, index) => {
       if (level.current && index < this.levels.length - 1) report(this, 'BRC-4', `the level "${level.label}" is marked as the current page and is not the last; it is drawn as if it were not current`);
       if (!level.label) report(this, 'BRC-7', 'a level has no label, so it has no name; give it its text (a glyph alone keeps its text as its name)');
@@ -629,7 +630,7 @@ export class TanreiBreadcrumbs extends TanreiElement {
     const last = levels.length - 1;
     const separator = html`<span part="separator" class="separator" aria-hidden="true"><span class="ink">${SEPARATOR}</span></span>`;
     return html`
-      <nav part="nav" aria-label=${label.trim() ? label : nothing}>
+      <nav part="nav" ${delegatedAria(this, { 'aria-label': label.trim() })}>
         <ol part="list" role="list" class=${this.wraps ? 'wrap' : 'collapse'}>
           ${levels.map(
             (_level, index) =>
@@ -680,6 +681,8 @@ export class TanreiBreadcrumbs extends TanreiElement {
   }
 }
 
+// BRC-31: the product's ARIA on the host is its navigation landmark's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiBreadcrumbs, { sentence: 'BRC-31' });
 if (!customElements.get('tanrei-breadcrumbs')) customElements.define('tanrei-breadcrumbs', TanreiBreadcrumbs);
 
 declare global {

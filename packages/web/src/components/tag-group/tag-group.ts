@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { AvailabilityController, OpenAxesController, Settle, documentPainted, parseValues, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
@@ -673,10 +674,12 @@ export class TanreiTagGroup extends TanreiElement {
     // TGR-8: no member, nothing — no empty list and no name.
     if (this.empty) return nothing;
     // TGR-7: one list, named by the label where there is one, around the members where they stand. The host has no role.
-    return html`<div class="list" role="list" aria-label=${this.label || nothing}><slot></slot></div>`;
+    return html`<div class="list" role="list" ${delegatedAria(this, { 'aria-label': this.label })}><slot></slot></div>`;
   }
 }
 
+// TGR-22: the product's ARIA on the host is its list's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiTagGroup, { sentence: 'TGR-22' });
 if (!customElements.get('tanrei-tag-group')) customElements.define('tanrei-tag-group', TanreiTagGroup);
 
 declare global {

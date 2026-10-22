@@ -35,6 +35,10 @@ interface Subject {
   hostOwn?: string[];
   /** Its own page for axe: it covers the rest of the page (a modal drawer). */
   alone?: boolean;
+  /** Its own name is ids of its own in aria-labelledby (a dialog's headline), not an aria-label. */
+  ownLabelledBy?: boolean;
+  /** The prop its own name comes from, where it is not `label` (a dialog's headline). */
+  nameProp?: string;
 }
 
 /** A list item's position in its list, which a destination says on its host (NVB-*, NVD-23). */
@@ -216,6 +220,87 @@ const SUBJECTS: Record<string, Subject> = {
     path: ['light:tanrei-tabs', '[role="tablist"]'],
     owns: [],
   },
+  // The surfaces: each one's dialog, or its region while it is not modal.
+  dialog: {
+    sentence: 'DLG-29',
+    markup: (rest) => `<tanrei-dialog id="subject" ${rest} open headline="Title"><tanrei-button slot="actions-last">OK</tanrei-button></tanrei-dialog>`,
+    path: ['dialog'],
+    owns: [],
+    ownName: 'Title',
+    ownLabelledBy: true,
+    nameProp: 'headline',
+    alone: true,
+  },
+  'modal-layer': { sentence: 'MDL-13', markup: (rest) => `<tanrei-modal-layer id="subject" ${rest} open label="Layer">Layer content</tanrei-modal-layer>`, path: ['dialog'], owns: [], ownName: 'Layer', alone: true },
+  'image-preview': {
+    sentence: 'IMP-44',
+    markup: (rest) =>
+      `<tanrei-image-preview id="subject" ${rest} open label="Photos" close-label="Close" zoom-in-label="Zoom in" zoom-out-label="Zoom out"><tanrei-image-preview-item src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="A dot" width="1" height="1"></tanrei-image-preview-item></tanrei-image-preview>`,
+    path: ['dialog'],
+    owns: [],
+    ownName: 'Photos',
+    alone: true,
+  },
+  'side-sheet': {
+    sentence: 'SSH-24',
+    markup: (rest) => `<tanrei-side-sheet id="subject" ${rest} variant="modal" open headline="Filters" close-label="Close">Sheet content</tanrei-side-sheet>`,
+    path: ['dialog'],
+    owns: [],
+    ownName: 'Filters',
+    nameProp: 'headline',
+    alone: true,
+  },
+  'bottom-sheet': { sentence: 'BSH-31', markup: (rest) => `<tanrei-bottom-sheet id="subject" ${rest} variant="standard" open label="Sheet">Sheet content</tanrei-bottom-sheet>`, path: ['section'], owns: [], ownName: 'Sheet' },
+  'date-time-picker': {
+    sentence: 'DTM-51',
+    markup: (rest) =>
+      `<tanrei-date-time-picker id="subject" ${rest} presentation="docked" inline open mode="date" value="2026-09-17" today="2026-09-24" locale="en-US" label="Date" date-label="Date" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" today-label="Today" confirm-label="OK" cancel-label="Cancel"></tanrei-date-time-picker>`,
+    path: ['[role="dialog"]'],
+    owns: [],
+    ownName: 'Date',
+  },
+  popover: {
+    sentence: 'POP-44',
+    markup: (rest) => `<button id="popover-anchor" type="button">Open</button><tanrei-popover id="subject" ${rest} anchor="popover-anchor" open label="Info">Popover content</tanrei-popover>`,
+    path: ['[part="container"]'],
+    owns: [],
+    ownName: 'Info',
+  },
+  // The landmarks.
+  breadcrumbs: { sentence: 'BRC-31', markup: (rest) => `<tanrei-breadcrumbs id="subject" ${rest} label="Trail"><a href="#home">Home</a><span>Here</span></tanrei-breadcrumbs>`, path: ['nav'], owns: [], ownName: 'Trail' },
+  pagination: {
+    sentence: 'PGN-25',
+    markup: (rest) => `<tanrei-pagination id="subject" ${rest} label="Pages" page="1" count="5" previous-label="Previous page" next-label="Next page" page-label="Page {page}"></tanrei-pagination>`,
+    path: ['nav'],
+    owns: [],
+    ownName: 'Pages',
+  },
+  'table-of-contents': {
+    sentence: 'TOC-41',
+    markup: (rest) => `<tanrei-table-of-contents id="subject" ${rest} label="On this page"><ul><li><a href="#stage">Stage</a></li></ul></tanrei-table-of-contents>`,
+    path: ['nav'],
+    owns: [],
+    ownName: 'On this page',
+  },
+  'tag-group': { sentence: 'TGR-22', markup: (rest) => `<tanrei-tag-group id="subject" ${rest} label="Tags"><tanrei-tag label="Alpha"></tanrei-tag></tanrei-tag-group>`, path: ['[role="list"]'], owns: [], ownName: 'Tags' },
+  // A handle with a value is a separator; its disabled and expanded states are its own.
+  handle: { sentence: 'HDL-26', markup: (rest) => `<tanrei-handle id="subject" ${rest} label="Resize" value="50"></tanrei-handle>`, path: ['[role="separator"]'], owns: ['aria-disabled', 'aria-expanded'], ownName: 'Resize' },
+  // A group while it has a name, its own or the product's.
+  calendar: {
+    sentence: 'CAL-36',
+    markup: (rest) => `<tanrei-calendar id="subject" ${rest} label="Dates" value="2026-09-17" today="2026-09-24" locale="en-US" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" today-label="Today"></tanrei-calendar>`,
+    path: ['.calendar'],
+    owns: [],
+    ownName: 'Dates',
+  },
+  'code-block': { sentence: 'COD-34', markup: (rest) => `<tanrei-code-block id="subject" ${rest} label="Example" code="let a = 1;"></tanrei-code-block>`, path: ['[part="body"]'], owns: [], ownName: 'Example' },
+  'file-picker': {
+    sentence: 'FPK-32',
+    markup: (rest) => `<tanrei-file-picker id="subject" ${rest} label="Files"><tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button></tanrei-file-picker>`,
+    path: ['.group'],
+    owns: [],
+    ownName: 'Files',
+  },
 };
 
 /** The states the tests set on a host: each one the component does not own. */
@@ -388,7 +473,8 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
   test(`${subject.sentence} ${name}: where the engine has no ARIA element reflection, the text of the elements named stands in for them`, async ({ page }) => {
     await load(page, tag, subject.markup('aria-describedby="described" aria-labelledby="named"'), { withoutReflection: true });
     const said = await read_(page, subject.path, ['aria-label', 'aria-description'], subject.hostOwn);
-    if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
+    if (subject.ownName && subject.ownLabelledBy) expect(said.inner['aria-label'], 'its name is its own: the label’s text is not').not.toBe('Named text');
+    else if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
     else if (subject.owns.includes('aria-labelledby')) expect(said.inner['aria-label'], 'its name is its own: the label’s text is not').not.toBe('Named text');
     else expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
     expect(said.described, 'the description’s text is the description').toBe(describes ? 'Described text' : '');
@@ -417,14 +503,14 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
         const element = exposedOn(page, subject.path);
         await expect(element, `${given}: the label is the name`).toHaveAccessibleName(ownName);
         const said = await read_(page, subject.path, ['aria-label'], subject.hostOwn);
-        expect(said.inner['aria-label'], 'the element says its own name').toBe(ownName);
-        expect(said.labelledBy, 'and names no element of the product’s').toEqual([]);
+        if (!subject.ownLabelledBy) expect(said.inner['aria-label'], 'the element says its own name').toBe(ownName);
+        expect(said.labelledBy, 'and names no element of the product’s').toEqual(subject.ownLabelledBy ? ['headline'] : []);
         if (browserName === 'chromium') {
           const tree = subject.alone ? await axTree(page, '#subject', subject.path) : await axTree(page, '#stage');
           expect(tree.filter((line) => line.includes('Product name') || line.includes('"Named text"')), tree.join('\n')).toEqual([]);
         }
         if (!yields) continue;
-        await page.evaluate(() => ((document.querySelector('#subject') as HTMLElement & { label: string }).label = ''));
+        await page.evaluate((prop) => ((document.querySelector('#subject') as unknown as Record<string, string>)[prop] = ''), subject.nameProp ?? 'label');
         await settle(page);
         await expect(element, `${given}: label emptied, the product’s name is the name`).toHaveAccessibleName(given.startsWith('aria-label=') ? 'Product name' : 'Named text');
       }
@@ -823,6 +909,14 @@ const UNNAMED: Record<string, Unnamed> = {
     path: ['#row'],
     says: 'no accessible name',
   },
+  dialog: { sentence: 'DLG-14', markup: (rest) => `<tanrei-dialog id="subject" open ${rest}>Words</tanrei-dialog>`, path: ['dialog'], says: 'no accessible name' },
+  'modal-layer': { sentence: 'MDL-10', markup: (rest) => `<tanrei-modal-layer id="subject" open ${rest}>Words</tanrei-modal-layer>`, path: ['dialog'], says: 'no accessible name' },
+  'side-sheet': { sentence: 'SSH-12', markup: (rest) => `<tanrei-side-sheet id="subject" variant="modal" open ${rest}>Words</tanrei-side-sheet>`, path: ['dialog'], says: 'no accessible name' },
+  'bottom-sheet': { sentence: 'BSH-22', markup: (rest) => `<tanrei-bottom-sheet id="subject" variant="standard" open ${rest}>Words</tanrei-bottom-sheet>`, path: ['section'], says: 'no accessible name' },
+  popover: { sentence: 'POP-29', markup: (rest) => `<button id="popover-anchor" type="button">Open</button><tanrei-popover id="subject" anchor="popover-anchor" open ${rest}>Words</tanrei-popover>`, path: ['[part="container"]'], says: 'no accessible name' },
+  breadcrumbs: { sentence: 'BRC-1', markup: (rest) => `<tanrei-breadcrumbs id="subject" ${rest}><a href="#home">Home</a><span>Here</span></tanrei-breadcrumbs>`, path: ['nav'], says: 'no accessible name' },
+  pagination: { sentence: 'PGN-1', markup: (rest) => `<tanrei-pagination id="subject" page="1" count="5" previous-label="Previous page" next-label="Next page" page-label="Page {page}" ${rest}></tanrei-pagination>`, path: ['nav'], says: 'no accessible name' },
+  handle: { sentence: 'HDL-8', markup: (rest) => `<tanrei-handle id="subject" value="50" ${rest}></tanrei-handle>`, path: ['[role="separator"]'], says: 'no accessible name' },
   // A modal drawer is a dialog (NVD-23): the dialog takes the drawer's name.
   'navigation-drawer (modal)': {
     sentence: 'NVD-24',

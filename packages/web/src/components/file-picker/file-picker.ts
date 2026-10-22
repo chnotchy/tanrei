@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -560,7 +561,7 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
     const p = this.press;
     // FPK-17: a group only while it has a name; with none, the trigger stands as the button it is.
     return html`
-      <div class="group" role=${name ? 'group' : nothing} aria-label=${name || nothing}>
+      <div class="group" role=${name || namedByProduct(this) ? 'group' : nothing} ${delegatedAria(this, { 'aria-label': name })}>
         <div
           part=${area ? 'container' : nothing}
           class=${classMap({ chooser: true, area })}
@@ -596,6 +597,8 @@ export class TanreiFilePicker extends TanreiElement implements PlacingGroup {
   }
 }
 
+// FPK-32: the product's ARIA on the host is its group's, which it is while it has a name (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiFilePicker, { sentence: 'FPK-32' });
 if (!customElements.get('tanrei-file-picker')) customElements.define('tanrei-file-picker', TanreiFilePicker);
 
 declare global {

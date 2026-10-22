@@ -1,4 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
@@ -521,7 +522,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     const actions = this.renderRoot.querySelector('.actions');
     if (actions) this.resize$?.observe(actions);
     // DLG-14: a dialog without a headline still opens; a debug build says it has no name.
-    if (changed.has('headline') && !this.headline.trim()) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
+    if (changed.has('headline') && !this.headline.trim() && !namedByProduct(this)) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
     // DLG-24: a divider visibility the dialog does not define is drawn as auto (no rule matches it).
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'DLG-24', `divider-visibility "${this.dividerVisibility}" is not a value of the dialog; it is drawn as "auto"`);
@@ -556,8 +557,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
         class="container"
         data-tanrei-appear
         role=${this.alert ? 'alertdialog' : 'dialog'}
-        aria-labelledby=${headline ? 'headline' : nothing}
-        aria-describedby=${supporting ? 'supporting' : nothing}
+        ${delegatedAria(this, { 'aria-labelledby': headline ? 'headline' : '', 'aria-describedby': supporting ? 'supporting' : '' })}
         tabindex="-1"
         data-tanrei-shape
         data-width=${width}
@@ -587,6 +587,8 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   }
 }
 
+// DLG-29: the product's ARIA on the host is its dialog's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiDialog, { sentence: 'DLG-29' });
 if (!customElements.get('tanrei-dialog')) customElements.define('tanrei-dialog', TanreiDialog);
 
 declare global {
