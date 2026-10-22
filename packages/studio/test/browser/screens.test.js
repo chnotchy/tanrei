@@ -1,7 +1,7 @@
 // The preview's five screens (src/ui/screens.ts): a product built from Tanrei's own components — an overview of every
 // kind, a dashboard, a settings form, a list and its detail, a documentation page — switched from the preview's bar;
-// light, dark, or the two side by side; every component on them drawn with the layer; and nothing axe finds on any of
-// them.
+// light, dark, or the two side by side; every component on them drawn with the layer; the parts a setting reaches
+// outlined on request (`highlight`); and nothing axe finds on any of them.
 import assert from 'node:assert/strict';
 import { studioTest, until } from './harness.js';
 
@@ -136,6 +136,28 @@ studioTest('a variant the layer adds to a component the overview shows is drawn 
   assert.equal(problem, null);
   await saved((layer) => layer.vocabulary?.['tanrei.comp.card.variant.brand'], 'the variant');
   await until(async () => (await page.locator('[data-scope] tanrei-card[variant="brand"]').count()) === 1, 'the overview draws <tanrei-card variant="brand">');
+});
+
+studioTest('highlight(ids): the parts of the screen that read a token, or a token that follows it, are outlined; clearHighlight takes the outline off', {}, async ({ page, choose }) => {
+  await show(page, choose, 'dashboard');
+  const lit = () => page.evaluate(() => [...document.querySelectorAll('[data-scope] [data-ts-lit]')].map((el) => `${el.localName}${el.getAttribute('variant') ? `[${el.getAttribute('variant')}]` : ''}`));
+  const count = await page.evaluate(() => window.tanreiStudio.highlight(['tanrei.sys.color.primary']));
+  const parts = await lit();
+  assert.equal(count, parts.length);
+  assert.ok(parts.includes('tanrei-button'), `the filled buttons read the primary color through their own tokens: ${parts}`);
+  assert.ok(parts.includes('span'), `so do the chart’s bars, through the screen’s own rule: ${parts}`);
+  assert.ok(!parts.includes('tanrei-navigation-drawer-item'), 'a part inside a lit component is that component’s, and is not outlined again');
+  // An outline, not a change to what the part draws.
+  const outline = await page.evaluate(() => getComputedStyle(document.querySelector('[data-scope] [data-ts-lit]')).outlineStyle);
+  assert.equal(outline, 'solid');
+  // A dial reaches what its steps reach: the corners.
+  assert.ok((await page.evaluate(() => window.tanreiStudio.highlight(['tanrei.dial.shape.unit']))) > 0, 'the corner dial reaches parts of the dashboard');
+  // The type the headings are set in.
+  const headings = await page.evaluate(() => (window.tanreiStudio.highlight(['tanrei.ref.typeface.brand']), [...document.querySelectorAll('[data-scope] [data-ts-lit]')].map((el) => el.localName)));
+  assert.ok(headings.includes('h4'), `the greeting is set in the brand face: ${headings}`);
+  await page.evaluate(() => window.tanreiStudio.clearHighlight());
+  assert.deepEqual(await lit(), []);
+  assert.equal(await page.evaluate(() => window.tanreiStudio.highlight([])), 0);
 });
 
 for (const locale of ['en-US', 'ar', 'ja']) {

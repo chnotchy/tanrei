@@ -35,6 +35,13 @@ export interface Ctx {
   draft: { readonly text: string | null; readonly pending: boolean; open(layerText: string): string; input(text: string, layerId?: string, notObject?: string): { layer: Layer } | { error: string; line?: number }; discard(): void };
   /** The draft appeared, changed or went away: redraw what shows it. */
   draftChanged(): void;
+  /**
+   * Outline, for a moment, the parts of the preview's screen that read any of these tokens (ids), or a token that
+   * follows one of them; returns how many parts there are. For a control that is hovered or focused: say what it
+   * reaches. `clearHighlight` takes the outline off (the pointer or the focus left).
+   */
+  highlight?(ids: string[]): number;
+  clearHighlight?(): void;
 }
 
 type Child = Node | string | null | undefined | false;

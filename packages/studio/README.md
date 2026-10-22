@@ -21,6 +21,13 @@ The preview draws the layer on five screens built from Tanrei's own components (
 
 Its bar chooses how they are seen, which is not the layer's and is never saved in the file, only remembered in this browser: the **screen**, **light**, **dark** or the two **side by side**, and the **contrast** (standard, medium, high, as the documentation's header offers them). A screen is drawn once and kept while what it draws stays the same, so switching screens and modes moves elements that exist; each switch is measured on the page's timeline (`tanrei-studio: preview shown`).
 
+**What a setting reaches.** A control that is hovered or focused can say which parts of the screen it changes: `ctx.highlight(ids)` (and `window.<namespace>Studio.highlight(ids)`) outlines, for a moment, every part that reads one of these token ids or a token that follows one of them, and returns how many there are; `ctx.clearHighlight()` takes the outline off. Nothing is listed by hand: what follows a token is the engine's (`followers`) and the sheet's (a custom property written with another), and what a part reads is what it is drawn with — its component's shadow stylesheets and the components inside it, its own `style`, and the page's rules for its classes and its element. A row of the rail calls it with the tokens it writes, on `pointerenter` and `focusin`, and clears it on `pointerleave` and `focusout`:
+
+```ts
+row.addEventListener('pointerenter', () => ctx.highlight?.(['tanrei.sys.color.primary']));
+row.addEventListener('pointerleave', () => ctx.clearHighlight?.());
+```
+
 ## Four levels
 
 | Level | What it shows |

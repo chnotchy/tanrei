@@ -415,6 +415,12 @@
   box-shadow: var(--tanrei-sys-elevation-level2);
   overflow: hidden;
   min-inline-size: 0;
+  /* The outline that says which parts a setting reaches is the Studio's, drawn in the default system: these are
+     resolved here, outside the scope, and inherited as they are. */
+  --ts-lit-color: var(--tanrei-sys-color-focus-ring);
+  --ts-lit-width: var(--tanrei-sys-border-thick);
+  --ts-lit-hold: var(--tanrei-sys-motion-duration-medium4);
+  --ts-lit-fade: var(--tanrei-sys-motion-duration-medium2);
 }
 /* The bar: the title and the screens on the first line; how the screen is seen (the scheme, the contrast), the checks'
    count and the emphasis on the next, with the line that says none of it is saved. */
@@ -527,6 +533,28 @@
   margin: 0;
   min-inline-size: 0;
   overflow-wrap: anywhere;
+}
+
+/* The parts a setting reaches (ui/highlight.ts): outlined at once, held, then faded. Without motion, held while the
+   setting is pointed at or focused. */
+.ts-scope [data-ts-lit] {
+  outline: var(--ts-lit-width) solid var(--ts-lit-color);
+  outline-offset: calc(-1 * var(--ts-lit-width));
+  animation: ts-lit calc(var(--ts-lit-hold) + var(--ts-lit-fade)) linear forwards;
+}
+@keyframes ts-lit {
+  0%,
+  57% {
+    outline-color: var(--ts-lit-color);
+  }
+  100% {
+    outline-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts-scope [data-ts-lit] {
+    animation: none;
+  }
 }
 
 /* ── Preview: the screens ───────────────────────────────────────────── */

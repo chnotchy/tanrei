@@ -5,6 +5,7 @@
 // Above the screen, how it is seen: which of the five screens, light, dark or the two side by side, and the
 // contrast. None of that is the layer's: it is not saved in the file, only remembered in this browser.
 import { type Contrast, type Ctx, type Json, cssColor, h, short, stateChip } from './dom';
+import { createHighlighter } from './highlight';
 import { SCREENS, type Screen, drawScreen } from './screens';
 
 export type Mode = 'light' | 'dark' | 'both';
@@ -80,6 +81,7 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     scope.dataset.mode = mode;
     scope.dataset.screen = screen;
     drawEmphasis();
+    highlighter.clear();
     performance.clearMeasures(SHOWN);
     performance.measure(SHOWN, { start: started });
   }
@@ -148,6 +150,9 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
         scope.replaceChildren();
         drawPanes();
       }
+      // What a setting reaches is read from the page's rules and this sheet: read once the page is idle.
+      const idle = window.requestIdleCallback ?? ((then: () => void) => window.setTimeout(then, 200));
+      idle(() => highlighter.warm());
     }
     const count = next.warnings.length;
     badge.say(count ? t.a11y.warnings(count) : t.a11y.pass, count ? 'warning' : 'check_circle');
@@ -168,6 +173,8 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     keep();
     drawPanes();
   }
+
+  const highlighter = createHighlighter({ scope, sheet, view: () => view, cssVar: studio.cssVar });
 
   // ── the bar ───────────────────────────────────────────────────────────────────────────────────
   const s = t.screens;
@@ -216,6 +223,9 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     scopeId,
     short: (tokenId: string) => short(tokenId, NS),
     cssColor,
+    /** Outline, for a moment, the parts of the screen shown that read one of these tokens; how many there are. */
+    highlight: (ids: string[]) => highlighter.highlight(ids),
+    clearHighlight: () => highlighter.clear(),
     setScreen,
     setMode,
     state: () => ({ screen, mode }),
